@@ -1,15 +1,19 @@
 
 # Find all agents including NodeAgents
 recipeQueryAllAgentsAndNodeAgents=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE (C.COMPONENT_TYPE='agent' OR C.COMPONENT_TYPE='node') \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
-    AND H.ASSEMBLY_ID :assembly_match:
+ SELECT AC.COMPONENT_ALIB_ID \
+   	FROM alib_component AC, asb_component_hierarchy ACH \
+  WHERE \
+	(AC.COMPONENT_TYPE='agent' OR AC.COMPONENT_TYPE='node') \
+    	AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID \
+	     OR ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    	AND ACH.ASSEMBLY_ID :assembly_match:
 
 # UserAdminAgent Query
 recipeQueryUserAdminAgent=\
- SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME like 'UserAdminAgent%'
+ SELECT AC.COMPONENT_ALIB_ID \
+	FROM ALIB_COMPONENT \
+ WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME like 'UserAdminAgent%'
 
 ################################################################################################################
 # NAI queries
@@ -23,87 +27,87 @@ recipeQueryUserAdminAgent=\
 # Use this when adding AdaptivityEngine stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQuerySecurityMnRAgents=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID like \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID like \
                                '%SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find all agents that are SecurityMnRManagers for an Enclave
 # Use this when adding AdaptivityFilter stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQueryEnclaveSecurityMnRAgents=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID like \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID like \
                                'Enclave%SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the Enclave1SecurityManager agent
 # Use this when adding AdaptivityFilter stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQueryEnclave1SecurityMnRAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'Enclave1SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the Enclave2SecurityManager agent
 # Use this when adding AdaptivityFilter stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQueryEnclave2SecurityMnRAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'Enclave2SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the Enclave3SecurityManager agent
 # Use this when adding AdaptivityFilter stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQueryEnclave3SecurityMnRAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'Enclave3SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the Enclave4SecurityManager agent
 # Use this when adding AdaptivityFilter stuff for security thread
 # Can also use this for components that go in every such Agent
 recipeQueryEnclave4SecurityMnRAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'Enclave4SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 
 # Get all Agents that are _not_ SecurityMnRAgents. IE, those that are managed
 recipeQueryNOTSecurityMnRAgents=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE (C.COMPONENT_TYPE='agent' OR C.COMPONENT_TYPE='node') AND C.COMPONENT_ALIB_ID not like \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='agent' OR AC.COMPONENT_TYPE='node') AND AC.COMPONENT_ALIB_ID not like \
                                '%SecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Get the Society Security Manager agent
 #This is for LoginFailureSensor stuff
 #this one is for BootStrapEventPlugin0.sql
 recipeQuerySocietySecurityMnRAgent=\
-SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'SocietySecurityMnRManager' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 ################################################################################################################
@@ -115,98 +119,98 @@ SELECT C.COMPONENT_ALIB_ID \
 ################################################################################################################
 # Find all agents that are DomainManager
 recipeQueryDomainManagerAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND \
-    (C.COMPONENT_ALIB_ID like '%PolicyDomainManager%Agent' AND C.COMPONENT_ALIB_ID not like '%PolicyDomainManager%ServletAgent') \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND \
+    (AC.COMPONENT_ALIB_ID like '%PolicyDomainManager%Agent' AND AC.COMPONENT_ALIB_ID not like '%PolicyDomainManager%ServletAgent') \
      AND \
-    (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find all agents that are DomainManager Servlet Agents
 recipeQueryDomainManagerServletAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND \
-    C.COMPONENT_ALIB_ID like '%PolicyDomainManager%ServletAgent' \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND \
+    AC.COMPONENT_ALIB_ID like '%PolicyDomainManager%ServletAgent' \
      AND \
-    (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 ################################################################################################################
 
 # Find the PolicyDomainManager1 agent
 recipeQueryPolicyDomainManager1Agent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager1' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager2 agent
 recipeQueryPolicyDomainManager2Agent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager2' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager3 agent
 recipeQueryPolicyDomainManager3Agent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager3' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager4 agent
 recipeQueryPolicyDomainManager4Agent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager4' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 ################################################################################################################
 
 # Find the PolicyDomainManager1Servlet agent
 recipeQueryPolicyDomainManager1ServletAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager1ServletAgent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager2Servlet agent
 recipeQueryPolicyDomainManager2ServletAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager2ServletAgent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager3Servlet agent
 recipeQueryPolicyDomainManager3ServletAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager3ServletAgent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 # Find the PolicyDomainManager4Servlet agent
 recipeQueryPolicyDomainManager4ServletAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID = \
                                'PolicyDomainManager4ServletAgent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
 ################################################################################################################
@@ -221,29 +225,29 @@ recipeQueryRoverControllerAgent=\
 
 # Select the University of Memphis Manager
 recipeQueryForUMmrmangerAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM ALIB_COMPONENT C, ASB_COMPONENT_HIERARCHY H \
-  WHERE C.COMPONENT_TYPE='agent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM ALIB_COMPONENT AC, ASB_COMPONENT_HIERARCHY H \
+  WHERE AC.COMPONENT_TYPE='agent' \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match: \
-    AND C.COMPONENT_NAME = 'UMmrmanager'
+    AND AC.COMPONENT_NAME = 'UMmrmanager'
 
 # Find TestSensor agent (this agent is not needed except for testing)
 recipeQueryForTestSensorAgent=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM ALIB_COMPONENT C, ASB_COMPONENT_HIERARCHY H \
-  WHERE C.COMPONENT_TYPE='agent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM ALIB_COMPONENT AC, ASB_COMPONENT_HIERARCHY H \
+  WHERE AC.COMPONENT_TYPE='agent' \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match: \
-    AND C.COMPONENT_NAME = 'TestSensorAgent'
+    AND AC.COMPONENT_NAME = 'TestSensorAgent'
 
 # AGG-Agent query and NOT AGG-agent Query
 # The society security manager and the enclave security managers are also agg-agents
 recipeQueryAGGAgent=\
-  SELECT C.COMPONENT_ALIB_ID \
-  FROM alib_component C, asb_component_hierarchy H \
-  WHERE (C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID like '%SecurityMnRManager' \
-          AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+  SELECT AC.COMPONENT_ALIB_ID \
+  FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='agent' AND AC.COMPONENT_ALIB_ID like '%SecurityMnRManager' \
+          AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
           AND H.ASSEMBLY_ID :assembly_match:) \
          OR ( COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='AGG-Agent' ) \
          OR ( COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='SCmrmanager' )
@@ -311,7 +315,7 @@ recipeQueryEnclave2ManagementAgent=\
 
 
 recipeQuerySecurityEnclave1NodeAgents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -321,8 +325,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -331,7 +335,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'node' \
+    AND AAC.COMPONENT_TYPE = 'node' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -339,7 +343,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave1Security-COMM' 
 
 recipeQuerySecurityEnclave2NodeAgents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -349,8 +353,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -359,7 +363,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'node' \
+    AND AAC.COMPONENT_TYPE = 'node' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -367,7 +371,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave2Security-COMM' 
 
 recipeQuerySecurityEnclave3NodeAgents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -377,8 +381,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -387,7 +391,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'node' \
+    AND AAC.COMPONENT_TYPE = 'node' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -395,7 +399,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave3Security-COMM' 
 
 recipeQuerySecurityEnclave4NodeAgents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -405,8 +409,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -415,7 +419,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'node' \
+    AND AAC.COMPONENT_TYPE = 'node' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -426,7 +430,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
 For BouncePlugin
 #################
 recipeQuerySecurityEnclave1Agents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -436,8 +440,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -446,7 +450,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent' \
+    AND AAC.COMPONENT_TYPE = 'agent' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -454,7 +458,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave1Security-COMM'
 
 recipeQuerySecurityEnclave2Agents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -464,8 +468,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -474,7 +478,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent' \
+    AND AAC.COMPONENT_TYPE = 'agent' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -482,7 +486,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave2Security-COMM'
 
 recipeQuerySecurityEnclave3Agents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -492,8 +496,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -502,7 +506,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent' \
+    AND AAC.COMPONENT_TYPE = 'agent' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -510,7 +514,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND CA.COMMUNITY_ID = 'Enclave3Security-COMM'
 
 recipeQuerySecurityEnclave4Agents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -520,8 +524,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -530,7 +534,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent' \
+    AND AAC.COMPONENT_TYPE = 'agent' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -545,16 +549,16 @@ For BouncePlugin
 # Below version would work if COMM ASB was in assembly_match, which it
 # is not. See bug #1956
 #recipeQuerySecurityEnclave1NodeAgents=\
-#SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+#SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
 #   alib_component AC, \
 #   community_attribute CA, \
 #   community_entity_attribute CEA, \
 #   asb_component_hierarchy ACH \
 # WHERE \
 #    ACH.ASSEMBLY_ID :assembly_match: \
-#    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-#     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
-#    AND AC.COMPONENT_TYPE = 'node' \
+#    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+#     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
+#    AND AAC.COMPONENT_TYPE = 'node' \
 #    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
 #    AND CEA.ASSEMBLY_ID :assembly_match: \
 #    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
@@ -586,7 +590,7 @@ For BouncePlugin
 # with "Society". If this is not true, edit the last
 # line in this query.
 recipeQuerySecurityEnclaveManagerAgents=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -596,8 +600,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
  WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -606,7 +610,7 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent' \
+    AND AAC.COMPONENT_TYPE = 'agent' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE like 'SecurityManager%' \
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
@@ -1012,7 +1016,7 @@ recipeQueryOSCAgent=\
 
 # Find all agents that are AL-Managers
 recipeQueryALManagers=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -1022,8 +1026,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
 WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -1032,14 +1036,14 @@ WHERE \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent'\
+    AND AAC.COMPONENT_TYPE = 'agent'\
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
     AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'AdaptiveLogisticsManager'
 
 recipeQueryALMembers=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -1049,8 +1053,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
 WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -1059,14 +1063,14 @@ WHERE \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent'\
+    AND AAC.COMPONENT_TYPE = 'agent'\
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
     AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
     AND CEA.ATTRIBUTE_VALUE = 'Member'
 
 recipeQueryALTransportMembers=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -1076,8 +1080,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
 WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -1086,7 +1090,7 @@ WHERE \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent'\
+    AND AAC.COMPONENT_TYPE = 'agent'\
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
     AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
@@ -1094,7 +1098,7 @@ WHERE \
     AND CA.COMMUNITY_ID LIKE '%TRANSPORT-COMM'
 
 recipeQueryALSupplyMembers=\
-SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+SELECT DISTINCT AAC.COMPONENT_ALIB_ID FROM \
    alib_component AC, \
    community_attribute CA, \
    community_entity_attribute CEA, \
@@ -1104,8 +1108,8 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
    asb_assembly AA \
 WHERE \
     ACH.ASSEMBLY_ID :assembly_match: \
-    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
-    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND (ACH.COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AAC.COMPONENT_ALIB_ID) \
     AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
     AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
     AND ET.TRIAL_ID = ':trial_id:' \
@@ -1114,7 +1118,7 @@ WHERE \
     AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
     AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
-    AND AC.COMPONENT_TYPE = 'agent'\
+    AND AAC.COMPONENT_TYPE = 'agent'\
     AND CA.ATTRIBUTE_ID = 'CommunityType' \
     AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
     AND CEA.ATTRIBUTE_ID = 'Role' \
@@ -1243,9 +1247,9 @@ recipeQuerySensorServlet=\
 
 # Find some agents by name - in this case, subordinates of 2BDE
 recipeQueryFBSensorAgents_ByName=\
- SELECT C.COMPONENT_ALIB_ID \
-   FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' \
-    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE AC.COMPONENT_TYPE='agent' \
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match: \
-    AND C.COMPONENT_NAME in ('47-FSB', '123-MSB', '1-6-INFBN')
+    AND AC.COMPONENT_NAME in ('47-FSB', '123-MSB', '1-6-INFBN')
