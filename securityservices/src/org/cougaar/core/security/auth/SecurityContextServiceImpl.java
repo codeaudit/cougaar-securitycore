@@ -34,6 +34,7 @@ import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -49,7 +50,7 @@ public final class SecurityContextServiceImpl
   // the client of this service
   //private Object _requestor;
   // current mapping between an object and an security context stack
-  private HashMap _contextMap = new HashMap();
+  private WeakHashMap _contextMap = new WeakHashMap();
   
   public SecurityContextServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
