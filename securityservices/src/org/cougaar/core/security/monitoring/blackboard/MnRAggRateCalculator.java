@@ -101,7 +101,7 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
     _parentUID=uid;
   }
   public void setDomainService(DomainService domainService) {
-     _domainService=domainService;
+    _domainService=domainService;
 
   }
   public void setAddress(MessageAddress self) {
@@ -113,7 +113,7 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
   
   public void run() {
     if( _loggingService.isDebugEnabled()) {
-      _loggingService.debug(" MnRAggRateCalculator is running for parent id :"+ _parentUID.toString());
+      _loggingService.debug(" MnRAggRateCalculator is running for parent id ---------- :"+ _parentUID.toString());
       _loggingService.debug("Start time is :"+new Date(System.currentTimeMillis()).toString());
     }
     Collection aggCol=null;
@@ -142,6 +142,9 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
     if(_domainService!=null) {
       factory=(CmrFactory)_domainService.getFactory("cmr");
     } 
+    if( _loggingService.isDebugEnabled()) {
+      _loggingService.debug("Query mapping object before modification in MnRRate publisher is :"+aggQuerymappingObject.toString());
+    }
     synchronized (aggQuerymappingObject){
       ArrayList queryList=null;
       queryList= aggQuerymappingObject.getQueryList();
@@ -167,14 +170,16 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
       }// end of if
       _bbs.openTransaction();
       _bbs.publishChange(aggQuerymappingObject);
-      
+      if( _loggingService.isDebugEnabled()) {
+        _loggingService.debug(" Publishing Modified Query Mapping object in MnR Rate publisher  :"+aggQuerymappingObject.toString());
+      }
       Alert alert=createConsolidatedAlert(factory,aggQuerymappingObject.getOriginatorUID(),
                                           aggQuerymappingObject.getParentQueryUID(),
                                           _parentCurrentCount,_parentTotal,_parentRate);
-      ConsolidatedEvent event=factory.newConsolidatedEvent(aggQuerymappingObject.getParentQueryUID(),_self,alert);
-       if( _loggingService.isDebugEnabled()) {
-         _loggingService.debug(" Created Consolidated event with source:"+ event.getSource() + " agent is  : "+ _self);
-       }
+      ConsolidatedEvent event=factory.newConsolidatedEvent(_self,alert);
+      if( _loggingService.isDebugEnabled()) {
+        _loggingService.debug(" Created Consolidated event with source:"+ event.getSource() + " agent is  : "+ _self);
+      }
       _bbs.publishAdd(event);
       // _bbs.publishAdd(new AggQueryResult(aggQuerymappingObject.getRelayUID(),_parentCurrentCount,_parentTotal,_parentRate));
       _bbs.closeTransaction();
@@ -183,7 +188,7 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
       _loggingService.debug(" Publishing new QueryMapping obj for parent id :"+ _parentUID.toString()+
                             "Query Mapping object :"+aggQuerymappingObject.toString());
          
-      _loggingService.debug(" MnRAggRateCalculator is Done  for parent id :"+ _parentUID.toString());
+      _loggingService.debug(" MnRAggRateCalculator is Done  for parent id ----------:"+ _parentUID.toString());
     }
        
   }
@@ -195,10 +200,10 @@ public class MnRAggRateCalculator extends TimerTask implements AggregationType,j
       imessage=factory.getIdmefMessageFactory();
     }
     if(imessage==null) {
-       if( _loggingService.isDebugEnabled()) {
-       _loggingService.error(" error cannot get Idmef message factory :"+ _self.toString());
-       }
-       return alert;
+      if( _loggingService.isDebugEnabled()) {
+        _loggingService.error(" error cannot get Idmef message factory :"+ _self.toString());
+      }
+      return alert;
     }
     ArrayList classifications = new ArrayList(1);
     ArrayList targets = new ArrayList(1);
