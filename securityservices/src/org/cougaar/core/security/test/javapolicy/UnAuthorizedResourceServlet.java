@@ -54,7 +54,7 @@ import java.util.ArrayList;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {
@@ -77,38 +77,41 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
    * @param response DOCUMENT ME!
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
-    PrintWriter out=response.getWriter();
-    FileWriter writer = null;
     try {
-      String cip = System.getProperty("org.cougaar.install.path");
-      if (cip == null) {
-        if (logging.isErrorEnabled()) {
-          logging.error("cougaar install path is null");
-        }
-        out.println("FALSE");
-      } else {
-        File file = new File(cip + File.separator + "unauthorizedTest");
-        writer = new FileWriter(file);
-        writer.write("TEST");
-        writer.close();
-        //create idmef event
-        if (logging.isDebugEnabled()) {
-          logging.debug("Could access resource!");
-        }
-        out.println("FALSE");
-        createIdmefEvent();
-      }
-    } catch (IOException se) {
-      out.println("TRUE");
-      //good
-    } finally {
+      PrintWriter out=response.getWriter();
+      FileWriter writer = null;
       try {
-        writer.close();
-      } catch (Exception e) {
+        String cip = System.getProperty("org.cougaar.install.path");
+        if (cip == null) {
+          if (logging.isErrorEnabled()) {
+            logging.error("cougaar install path is null");
+          }
+          out.println("FALSE");
+        } else {
+          File file = new File(cip + File.separator + "unauthorizedTest");
+          writer = new FileWriter(file);
+          writer.write("TEST");
+          writer.close();
+          //create idmef event
+          if (logging.isDebugEnabled()) {
+            logging.debug("Could access resource!");
+          }
+          out.println("FALSE");
+          createIdmefEvent();
+        }
+      } catch (IOException se) {
+        out.println("TRUE");
+        //good
+      } finally {
+        try {
+          writer.close();
+        } catch (Exception e) {
+        }
       }
+      out.flush();
+      out.close();
+    } catch (Exception e) {
     }
-    out.flush();
-    out.close();
   }
 
 
