@@ -23,12 +23,12 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.ServletService;
 import org.cougaar.core.service.AgentIdentificationService;
 
-import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.auth.JaasClient;
+import org.cougaar.core.security.services.auth.AuthorizationService;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -44,8 +44,9 @@ class ServletServiceProxy extends SecureServiceProxy
   implements ServletService {
   
   private ServletService _ss;
+  private AuthorizationService _as;
   private Object _requestor;
-  private String _agentName;
+  private MessageAddress _agent;
   
   // for servlet to SecureServlet mapping
   private static Hashtable _servletTable = new Hashtable();
@@ -53,11 +54,13 @@ class ServletServiceProxy extends SecureServiceProxy
   public ServletServiceProxy(ServletService ss, Object requestor, ServiceBroker sb) {
     super(sb);
     _ss = ss;
+    _as = (AuthorizationService)
+      sb.getService(this, AuthorizationService.class, null);
     _requestor = requestor;  
     // get the name of the agent
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);
-    _agentName = ais.getName();
+    _agent = ais.getMessageAddress();
     sb.releaseService(this, AgentIdentificationService.class, ais);
   }
   public int getHttpPort() {
@@ -93,24 +96,19 @@ class ServletServiceProxy extends SecureServiceProxy
    
   private class SecureServlet implements Servlet {
     private Servlet _servlet;
-    private URIPrincipal _up;
+    private ExecutionContext _ec;
     
     public SecureServlet(Servlet servlet, String path) {
       _servlet = servlet;
       // construct the uri for this servlet
-      _up = new URIPrincipal("/$" + _agentName + path);
+      String uri = "/$" + _agent + path;
+      _ec = _as.createExecutionContext(_agent, uri, null);
     }
     
     public void destroy() {
-      // need to set the JAAS context since this is called by tomcat
-      JaasClient jc = new JaasClient();
-      jc.doAs(_up, 
-              new java.security.PrivilegedAction() {
-                public Object run() {
-                  _servlet.destroy(); 
-                  return null;
-                } 
-       });
+      _scs.setExecutionContext(_ec);
+      _servlet.destroy(); 
+      _scs.resetExecutionContext();
     }
        
     public ServletConfig getServletConfig() {
@@ -123,65 +121,32 @@ class ServletServiceProxy extends SecureServiceProxy
     
     public void init(ServletConfig config) 
       throws ServletException {
-      // need to set the JAAS context since this is called by tomcat
-      final ServletConfig fConfig = config;
-      JaasClient jc = new JaasClient();
-      Object o = jc.doAs(_up, 
-                  new java.security.PrivilegedAction() {
-                    public Object run() {
-                    Object retObj = null;
-                    try {
-                      _servlet.init(fConfig);
-                    }
-                    catch(ServletException se) {
-                      retObj = se;
-                    }
-                    return retObj;
-                  }
-                });
-      // throw exception if one was returned from the privileged action
-      if(o != null && o instanceof Exception) {
-        if(o instanceof ServletException) {
-          throw (ServletException)o;
-        }
-        else {
-          throw new RuntimeException("Unhandled exception: " + o,
-				     (Exception) o); 
-        }
+      try {
+        _scs.setExecutionContext(_ec);
+        _servlet.init(config);
+      }
+      catch(ServletException se) {
+        throw se;
+      }
+      finally {
+        _scs.resetExecutionContext();
       }
     }
     
     public void service(ServletRequest req, ServletResponse res) 
       throws ServletException, IOException {
-      final ServletRequest fReq = req;
-      final ServletResponse fRes = res;
-      // add to jaas context
-      JaasClient jc = new JaasClient();
-      Object o = jc.doAs(_up,
-                  new java.security.PrivilegedAction() {
-                    public Object run() {
-                    Object retObj = null;
-                    try {
-                      _servlet.service(fReq, fRes);
-                    }
-                    catch(Exception e) {
-                      retObj = e;
-                    }
-                    return retObj;
-                  }
-                });
-      // throw exception if one was returned from the privileged action
-      if(o != null && o instanceof Exception) {
-        if(o instanceof ServletException) {
-          throw (ServletException)o;
-        }
-        else if(o instanceof IOException) {
-          throw (IOException)o;
-        }
-        else {
-          throw new RuntimeException("Unhandled exception: " + o,
-                                     (Exception) o);
-        }
+      try {
+        _scs.setExecutionContext(_ec);
+        _servlet.service(req, res);
+      }
+      catch(ServletException se) {
+        throw se;
+      }
+      catch(IOException ioe) {
+        throw ioe; 
+      }
+      finally {
+        _scs.resetExecutionContext();
       }
     } // end void service
   } // end class SecureServlet
