@@ -3,6 +3,13 @@
   xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
   <host name='BlackHole.local.'> 
     <facet enclave='Rear'/> 
+    <node name='RearPolicyManagerNode'> 
+      <facet role="NameServer"/> 
+      <facet role="AS-Management"/> 
+    </node> 
+  </host>
+  <host name='Europa.local.'>
+    <facet enclave='Rear'/> 
     <node name='RearEnclaveCaNode'> 
       <facet role="CertificateAuthority"/>
     </node>
@@ -10,10 +17,6 @@
       <facet role="RootCertificateAuthority"/> 
       <agent name='testBBPolicyAgent'/>
       <agent name='FwdUserAdminAgent'/>
-    </node> 
-    <node name='RearPolicyManagerNode'> 
-      <facet role="NameServer"/> 
-      <facet role="AS-Management"/> 
     </node> 
   </host> 
 </society>
