@@ -101,10 +101,11 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.crypto.*;
-import  org.cougaar.core.security.crypto.crl.blackboard.*;
+import org.cougaar.core.security.crypto.crl.blackboard.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.util.*;
+import  org.cougaar.core.security.naming.*;
 
 final public class CRLCache implements CRLCacheService, BlackboardClient {
 
@@ -121,6 +122,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
   private NodeConfiguration nodeConfiguration;
   protected String blackboardClientName;
   protected AlarmService alarmService;
+  private CertificateSearchService _searchService=null;
 
 /** How long do we wait before retrying to send a certificate signing
  * request to a certificate authority? */
@@ -209,10 +211,13 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
                                    ais);
     }
     threadService=(ThreadService)serviceBroker.getService(this,ThreadService.class, null);
+     _searchService = (CertificateSearchService) serviceBroker.getService(this,
+                                                                 CertificateSearchService.class,
+                                                                  null);
     setServices();
     if (cacheService == null || keyRingService == null ||
         blackboardService == null || crlMgmtService == null ||
-        myAddress == null || _communityService == null || threadService==null ) {
+        myAddress == null || _communityService == null || threadService==null || _searchService==null ) {
       ServiceAvailableListener listener = new ListenForServices();
       serviceBroker.addServiceListener(listener);
       //_listening=true;
@@ -233,9 +238,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
   }
 
   public void startThread() {
+    
     log.debug("Start Thread called _crlcacheInitilized  :" + _crlcacheInitilized+
               "threadService :"+threadService);
-    if(threadService!=null && _crlcacheInitilized ) {
+    if(threadService!=null && _crlcacheInitilized && _searchService !=null) {
       log.debug("Starting CRL Poller thread with Sleep time :"+ getSleepTime());
       threadService.getThread(this, new CrlPoller()).
 	schedule(0,getSleepTime());
@@ -346,7 +352,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       Enumeration enumkeys =crlsCache.keys();
       while(enumkeys.hasMoreElements()) {
         dnname=(String)enumkeys.nextElement();
-        updateCRLCache(dnname);
+        if(dnname!=null) {
+          updateCRLCache(dnname);
+        }
       }
       enumkeys=crlsCache.keys();
       while(enumkeys.hasMoreElements()) {
@@ -521,13 +529,36 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
     crlIssuerCert=(X509Certificate)certstatus.getCertificate();
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
-    try {
-      //crl=keyRingService.getCRL(distingushname);
-      crl = null;
+    List list=_searchService.findCert(name);
+    CACertificateEntry caentry=null;
+    Iterator iter=null;
+    Object obj=null;
+    if(!list.isEmpty()){
+      iter=list.iterator();
+      obj=iter.next();
+      if(obj instanceof CACertificateEntry) {
+        caentry=(CACertificateEntry)obj;
+      }
+      else {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to get CRL for " + distingushname + ". As search returned object which is NOT a CACertificateEntry");
+        }
+        return;
+      }
+      
     }
-    catch (Exception e) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to get CRL for " + distingushname + ". Will retry later");
+    else{
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to get CRL for " + distingushname + ". Will retry later");
+      } 
+      return;
+    }
+    if(caentry!=null) {
+      crl=caentry.getCRL();
+    }
+    else {
+       if (log.isWarnEnabled()) {
+	log.warn("Unable to get CRL for " + distingushname + ". As CACertificateEntry is NULL");
       }
       return;
     }
@@ -1162,6 +1193,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
           serviceBroker.getService(CRLCache.this,
                                    CommunityService.class, null);
         settingServices=true;
+      }
+      else if((sc == CertificateSearchService.class) &&(_searchService == null)) {
+        _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
+         startThread();
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());
       if(settingServices) {
