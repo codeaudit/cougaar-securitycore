@@ -18,10 +18,12 @@
     <!-- Example for a subordinate CA policy, the trustedCA specifies 
       which CA this CA's keys should sent to to be signed. -->
         <trustedCA>
-          <CA_alias>1AD_ROOT_CA</CA_alias>
-          <CA_DN>CN=1AD_ROOT_CA, OU=CONUS, O=DLA, L=Santa Clara, ST=CA, C=US, T=ca</CA_DN>
+          <CA_alias>1AD-CA</CA_alias>
+          <CA_DN>CN=1AD-CA, OU=CONUS, O=DLA, L=Santa Clara, ST=CA, C=US, T=ca</CA_DN>
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset">http://yew:5561/$ca1ADAgent/CA/CertificateSigningRequest</CA_URL>
           <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset">ldap://yew:389/dc=1adca,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
         </trustedCA>
       </trustedCAs>
