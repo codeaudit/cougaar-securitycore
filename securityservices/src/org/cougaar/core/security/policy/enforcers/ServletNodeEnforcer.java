@@ -323,6 +323,12 @@ public class ServletNodeEnforcer
       }
       return HardWired.ulAuthSuiteFromKAoSAuthLevel(new HashSet());
     }
+    if ((cipherSuites == null || cipherSuites.isEmpty()) &&
+        _log.isErrorEnabled()) {
+      _log.error("Permission Denied");
+      _log.error("no authorized authentication schemes for the action " + 
+                 action);
+    }
     return HardWired.ulAuthSuiteFromKAoSAuthLevel(cipherSuites);
   }
 
