@@ -11,7 +11,7 @@ cd ${CIP}
 echo "Unzipping ${zipFileName}"
 unzip -q -o ${zipFileName}
 
-foreach f (cou*.zip)
+foreach f (cougaar.zip cougaar-support.zip)
   echo "Unzipping $f"
   unzip -q -o $f
 end
