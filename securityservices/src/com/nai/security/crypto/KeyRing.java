@@ -40,6 +40,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Principal;
 import java.security.cert.*;
+import java.security.KeyPair;
+
+import com.nai.security.certauthority.*;
 
 import sun.security.pkcs.*;
 
@@ -164,8 +167,10 @@ final public class KeyRing implements Runnable {
 	    if (pk == null) {
 	      // Key was not found in keystore either
 	      if (debug) {
-		System.out.println("No private key for " + name + " was found in keystore");
+		System.out.println("No private key for " + name + " was found in keystore, generating...");
 	      }
+              //let's make our own key pair
+              addKeyPair(name);
 	    }
 	  }
 	  if (pk != null) {
@@ -516,9 +521,40 @@ final public class KeyRing implements Runnable {
   }
 
   /** Generate a PKCS10 request from a public key */
-  public byte[] generateSigningCertificateRequest(PublicKey key) {
+  public static byte[] generateSigningCertificateRequest(PublicKey key) {
     PKCS10 request = new PKCS10(key);
     return request.getEncoded();
+  }
+  
+  /**add keys to the key ring**/
+  private static void addKeyPair(String name){
+      //is node?
+      String nodeName = System.getProperty("org.cougaar.node.name");
+      if(name==nodeName){
+          //we're node
+          KeyPair kp = makeKeys();
+          //send the public key to the ca
+          PublicKey pk = kp.getPublic();
+          byte[] request;
+          request = generateSigningCertificateRequest(pk);
+          
+      }else{
+          //check if node cert exist
+          if(certs.get(name)==null){
+              //we don't have a node key pair, so make it
+              addKeyPair(nodeName);
+          }else{
+              KeyPair kp = makeKeys();
+              
+          }
+      }
+      return;
+  }
+  
+  /**make a pair of keys**/
+  private static KeyPair makeKeys(){
+      KeyPairMaker kpm = new KeyPairMaker();
+      return kpm.makeKeyPair();
   }
 }
 
