@@ -118,6 +118,7 @@ public class KeyManagement
   private X500Name caX500Name = null;          // the X.500 name of the CA
 
   private CertDirectoryServiceCA caOperations = null;
+  private CACertDirectoryService crlOperations = null;
 
   private String role;
 
@@ -236,8 +237,11 @@ public class KeyManagement
 	new CertDirectoryServiceRequestorImpl(caPolicy.ldapURL, caPolicy.ldapType,
                                               caPolicy.ldapPrincipal, caPolicy.ldapCredential,
 					      serviceBroker);
-      caOperations = (CertDirectoryServiceCA)
+      crlOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
+
+      caOperations = (CACertDirectoryService)
+	serviceBroker.getService(this, CACertDirectoryService.class, null);
 
         /*
       if (caOperations == null) {
@@ -971,10 +975,7 @@ public class KeyManagement
   private void publishCertificate(X509Certificate clientX509,
     int certType, PrivateKey pk)
     throws javax.naming.NamingException {
-    // TODO: publish to BB
-    /*
     caOperations.publishCertificate(clientX509,certType,pk);
-                                    */
   }
 
   /** Sign a PKCS10 certificate signing request with a CA key
@@ -1287,25 +1288,25 @@ public class KeyManagement
 	log.debug("Found private key going to revoke certificate in caOperations :");
       }
       String filter=CertificateUtility.parseDNforFilter(caDN);
-      SearchResult caresult=caOperations.getLdapentry(filter,false);
+      SearchResult caresult=crlOperations.getLdapentry(filter,false);
       Attributes caAttributes=caresult.getAttributes();
       String cabindingName=caresult.getName();
-      SearchResult userresult=caOperations.getLdapentry(ldapFilter,
+      SearchResult userresult=crlOperations.getLdapentry(ldapFilter,
 							false);
       Attributes userAttributes=userresult.getAttributes();
       CertificateRevocationStatus userstatus=
-	caOperations.getCertificateRevocationStatus(userAttributes);
+	crlOperations.getCertificateRevocationStatus(userAttributes);
       if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
 	status=-2;
 	return status;
       }
-      if(caOperations.isCAEntry(userAttributes)) {
+      if(crlOperations.isCAEntry(userAttributes)) {
 	status=-3;
 	return status;
       }
       String userbindingName=userresult.getName();
-      X509Certificate cacert= caOperations.getCertificate(caAttributes);
-      X509Certificate usercert=caOperations.getCertificate(userAttributes);
+      X509Certificate cacert= crlOperations.getCertificate(caAttributes);
+      X509Certificate usercert=crlOperations.getCertificate(userAttributes);
       PublicKey capublickey=cacert.getPublicKey();
 
       Certificate [] certchain=keyRing.buildCertificateChain(usercert);
@@ -1325,7 +1326,7 @@ public class KeyManagement
       }
       if(validchain) {
 	boolean ret =
-	  caOperations.revokeCertificate(cabindingName,
+	  crlOperations.revokeCertificate(cabindingName,
 					 userbindingName,
 					 caprivatekey,
 					 caPolicy.CRLalgorithmId.getName());
