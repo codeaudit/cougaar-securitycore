@@ -93,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -941,7 +941,6 @@ synchronized (_pkcsLock) {
       if (log.isErrorEnabled()) {
         log.error("No TrustedCaPolicy, cannot send PKCS!");
       }
-
       return reply;
     }
 
@@ -991,7 +990,8 @@ synchronized (_pkcsLock) {
       break;
     } catch (Exception e) {
       if (!(e instanceof SocketException)) {
-      log.warn("Unable to send PKCS request to CA. CA URL:"
+      log.warn("Unable to send PKCS request to CA. Tried " + i + "/" + _waitrepeat
+        + " times. CA URL:"
         + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
         break;
       }
