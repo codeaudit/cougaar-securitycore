@@ -39,7 +39,8 @@ import org.w3c.dom.*;
 public class CertificateSigningRequest extends  HttpServlet
 {
   private KeyManagement signer;
-
+  javax.servlet.ServletContext context=null;
+  
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
@@ -54,6 +55,8 @@ public class CertificateSigningRequest extends  HttpServlet
       System.out.println("Unable to read configFile: " + e);
     }
   }
+
+
 
   /** This convenience method returns the textual content of the named
       child element, or returns an empty String ("") if the child has no
@@ -75,9 +78,10 @@ public class CertificateSigningRequest extends  HttpServlet
 
   public void setjavaproperty(Element root)
   {
-    javax.servlet.ServletContext context=null;
+    //javax.servlet.ServletContext context=null;
     context=getServletContext();
     NodeList children = root.getChildNodes();
+
     // Iterate through javaproperty
     for (int i = 0 ; i < children.getLength() ; i++) {
       Node o = children.item(i);
@@ -93,11 +97,15 @@ public class CertificateSigningRequest extends  HttpServlet
 	  return;
 	}
 	try {
-	  System.setProperty(propertyName,propertyValue);
-	  //System.out.println("setting property name :"+propertyName);
-	  //System.out.println("setting property value ::"+propertyValue);
-	  context.setAttribute(propertyName,(Object)propertyValue);
-	  
+	  if(propertyName.equalsIgnoreCase("org.cougaar.core.security.crypto.debug")) {
+	    System.setProperty(propertyName,propertyValue);
+	  }
+	  else {
+	     System.out.println("setting property name in context  :"+propertyName);
+	       System.out.println("setting property value in context::"+propertyValue);
+	    
+	       context.setAttribute(propertyName,propertyValue);
+	  }
 	}
 	catch(SecurityException sexp) {
 	  sexp.printStackTrace();
@@ -105,7 +113,7 @@ public class CertificateSigningRequest extends  HttpServlet
       }
     }
   }
-
+  
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
@@ -113,7 +121,7 @@ public class CertificateSigningRequest extends  HttpServlet
     String type=null;
     String CA_DN_name=null;
     String role = null;
-    //System.out.println("got post request");
+
     String data;
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
@@ -122,78 +130,70 @@ public class CertificateSigningRequest extends  HttpServlet
     ByteArrayInputStream bytestream=null;
     PrintStream printstream=new PrintStream(res.getOutputStream());
     byte [] bytedata=null;
+    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+    System.out.println(" cert path  is :"+certpath);
+    
+    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    System.out.println(" Conf path  is :"+confpath);
     if(( CA_DN_name==null)||( CA_DN_name=="")) {
       printstream.print("Error ---Unknown  type CA dn name :");
       printstream.flush();
       printstream.close();
       return;
     }
-    try
-      {
-        if(( role==null)||( role==""))
-	  {
-	    signer=new KeyManagement(CA_DN_name,null);
-	  }
-        else
-	  {
-	    signer=new KeyManagement(CA_DN_name,role);
-	  }
+    try  {
+      if(( role==null)||( role==""))  {
+	signer=new KeyManagement(CA_DN_name,null,certpath,confpath);
       }
-    catch (Exception exp)
-      {
-	printstream.print("Error ---" + exp.toString());
-	printstream.flush();
-	printstream.close();
-	return;
+      else  {
+	signer=new KeyManagement(CA_DN_name,role,certpath,confpath);
+	
       }
+    }
+    catch (Exception exp)  {
+      printstream.print("Error ---" + exp.toString());
+      printstream.flush();
+      printstream.close();
+      return;
+    }
 
     type=req.getParameter("pkcs");
-    if((type==null)||(type==""))
-      {
-        printstream.print("Error --- Unknown pkcs type:");
-        printstream.flush();
-        printstream.close();
-        return;
-      }
+    if((type==null)||(type==""))  {
+      printstream.print("Error --- Unknown pkcs type:");
+      printstream.flush();
+      printstream.close();
+      return;
+    }
     pkcs=(String)req.getParameter("pkcsdata");
-    try
-      {
-	if(type.equalsIgnoreCase("pkcs7"))
-	  {
-	    bytedata=pkcs.getBytes();
-	    bytestream=new ByteArrayInputStream(bytedata);
-	    signer.processX509Request(printstream,(InputStream)bytestream);
-
-	  }
-	else if(type.equalsIgnoreCase("pkcs10"))
-	  {
-	    bytedata=pkcs.getBytes();
-	    bytestream=new ByteArrayInputStream(bytedata);
-	    signer.processPkcs10Request(printstream,(InputStream)bytestream);
-
-
-	  }
-	else
-	  {
-	    printstream.print("Error ----Got a wrong parameter for type"+type);
-	  }
+    try  {
+      if(type.equalsIgnoreCase("pkcs7"))  {
+	bytedata=pkcs.getBytes();
+	bytestream=new ByteArrayInputStream(bytedata);
+	signer.processX509Request(printstream,(InputStream)bytestream);
+	
       }
-    catch (Exception  exp)
-      {
-	printstream.print("Error ------"+exp.toString());
-	printstream.flush();
-	printstream.close();
-
+      else if(type.equalsIgnoreCase("pkcs10"))  {
+	bytedata=pkcs.getBytes();
+	bytestream=new ByteArrayInputStream(bytedata);
+	signer.processPkcs10Request(printstream,(InputStream)bytestream);
       }
-    finally
-      {
-	printstream.flush();
-	printstream.close();
+      else  {
+	printstream.print("Error ----Got a wrong parameter for type"+type);
       }
+    }
+    catch (Exception  exp)  {
+      printstream.print("Error ------"+exp.toString());
+      printstream.flush();
+      printstream.close();
 
+    }
+    finally  {
+      printstream.flush();
+      printstream.close();
+    }
   }
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
-  {
+  
+  protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException  {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
@@ -226,7 +226,7 @@ public class CertificateSigningRequest extends  HttpServlet
     out.flush();
     out.close();
   }
-
+  
   public String getServletInfo()
   {
     return("Accepts signing request and returns signed certificate");

@@ -195,7 +195,7 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
     return certificate;
     
   }
-  private boolean isCAEntry(Attributes attributes)throws NamingException
+  public  boolean isCAEntry(Attributes attributes)throws NamingException
   {
     Attribute objectattribute=attributes.get("objectclass");
     boolean isca=false;

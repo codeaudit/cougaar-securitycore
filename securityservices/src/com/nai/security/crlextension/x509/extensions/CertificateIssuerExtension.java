@@ -78,7 +78,7 @@ public class CertificateIssuerExtension extends Extension
     encodeThis();
   }
 
-  public CertificateIssuerExtension()
+  public CertificateIssuerExtension()  throws IOException
   {
     issuerName = null;
     super.extensionId=new ObjectIdentifier(certIssuerOID);

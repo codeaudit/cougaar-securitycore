@@ -1,3 +1,31 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
+ *  
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
+ * 
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * - 
+ */
+
+
+
 package com.nai.security.certauthority;
 
 import java.io.*;
@@ -7,6 +35,7 @@ import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
+import java.security.PrivateKey;
 import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
@@ -14,21 +43,30 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
+import com.nai.security.crypto.MultipleEntryException;
 
 public class RevokeCertificateServlet extends  HttpServlet
 {
-  private CaPolicy caPolicy = null;            // the policy of the CA
+  /* private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceCA caOperations=null;
   private CertDirectoryServiceClient certificateFinder=null;
   private ConfParser confParser = null;
-
+  */
+  private KeyManagement keymanagement=null;
+  javax.servlet.ServletContext context=null;
   protected boolean debug = false;
+
 
   public void init(ServletConfig config) throws ServletException
   {
+    //confParser = new ConfParser();
+     
+    context=config.getServletContext();
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-    confParser = new ConfParser();
+    if(debug)
+      System.out.println(" context is :"+ context.toString());
+
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -36,9 +74,14 @@ public class RevokeCertificateServlet extends  HttpServlet
   {
     PrintWriter out=res.getWriter();
     res.setContentType("Text/HTML");
+   
     String distinguishedName=req.getParameter("distinguishedName");
     String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");
+   
+    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    
     out.println("<html>");
     out.println("<body>");
 
@@ -54,8 +97,13 @@ public class RevokeCertificateServlet extends  HttpServlet
       out.close();
       return;
     }
-
+    int status ;
+     String uri = req.getRequestURI();
+    String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/certlist";
     try {
+    
+    keymanagement=new KeyManagement(cadnname,role,certpath,confpath);
+    /*try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
       caOperations = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
@@ -63,50 +111,74 @@ public class RevokeCertificateServlet extends  HttpServlet
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
+    */
+    String uniqueIdentifier=distinguishedName;
+    status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }
-    catch (Exception e) {
-      out.print("Unable to read policy file: " + e);
+    catch (MultipleEntryException multipleexp) {
+      out.print("Multiple entry found for : " + multipleexp.getMessage());
       out.flush();
       out.close();
       return;
     }
-
-    String filter = "(dn=" + distinguishedName + ")";
-    LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
-    if(ldapentries==null) {
-      out.println("Error in retrieving certificate from LDAP ");
+     catch (Exception generalexp) {
+      out.print("Error has occured due to  following reason  : " +generalexp.getMessage());
       out.flush();
       out.close();
       return;
     }
-    if (debug) {
-      System.out.println("Revoking cert with filter:" + filter);
-      System.out.println(ldapentries.length + " certificates satisfy this filter");
-    }
-    if (ldapentries.length != 1) {
-      out.println("Error: there are multiple certificates with the same UID");
-      out.flush();
-      out.close();
-      return;
-    }
-     
-    boolean status= caOperations.revokeCertificate(ldapentries[0]);
-    if(status) {
+    
+ 
+    if(status==0) {
       out.println("Successfully Revoked certificate :"
-		  +ldapentries[0].getCertificate().getSubjectDN().getName() );
+		  + distinguishedName);
+      out.println("<p>");
+    }
+    else if(status==-3) {
+       out.println("Not Enough privileges to Revoke CA  Certificate  :"
+		  + distinguishedName);
       out.println("<p>");
     }
     else {
       out.println("Error in  Revoking  certificate :"
-		  + ldapentries[0].getCertificate().getSubjectDN().getName() );
+		  + distinguishedName);
     }
-    out.println("<a href=\"/certlist\"> Back to Certificate List ></a>");
+    out.println("<a href=\""+certlistUri+ "\"> Back to Certificate List ></a>");
     out.println("</body>");
     out.println("</html>");
 
   }
+
   protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
   {
+     PrintWriter out=res.getWriter();
+    res.setContentType("Text/HTML");
+    
+    if(context==null)
+      {
+	out.println(" got context as null");
+      }
+    /*Enumeration enumn= context.getServletNames();
+       for(;enumn.hasMoreElements();)
+      {
+	String propname=(String)enumn.nextElement();
+       	out.println(" Got servlet  name :"+propname );
+      }
+    */
+    Enumeration enum =context.getAttributeNames();
+    for(;enum.hasMoreElements();)
+      {
+	String propname=(String)enum.nextElement();
+	out.println(" Got propert name :"+propname);
+	System.out.println(" Got propert name :"+propname);
+	out.flush();
+	if((propname.startsWith("java"))||(propname.startsWith("org.apache"))) {
+	  continue;
+	}
+	String value=(String )context.getAttribute(propname);
+	System.out.println(" property value :"+ value);
+	out.println(" property value :"+ value);
+      }
   }
 
   public String getServletInfo()

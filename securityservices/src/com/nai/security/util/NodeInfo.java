@@ -32,12 +32,6 @@ import java.lang.reflect.Field;
 
 public class NodeInfo
 {
-  private static boolean debug = false;
-
-  static {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-  }
 
   /** Returns the name of the node. Deals with backward compatibility issues */
   public static String getNodeName()
@@ -74,7 +68,7 @@ public class NodeInfo
     else {
       nodeName = System.getProperty("org.cougaar.node.name");
     }
-    if (debug) {
+    if (CryptoDebug.debug) {
       System.out.println("Version: " + major + "." + minor + " - Node name:" + nodeName);
     }
     return nodeName;

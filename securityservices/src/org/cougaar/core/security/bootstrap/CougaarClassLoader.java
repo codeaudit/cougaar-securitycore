@@ -44,7 +44,7 @@ public class CougaarClassLoader extends XURLClassLoader {
     */
     exclusions.add("java.");  // avoids javaiopatch.jar
     // let base do it instead
-    //exclusions.add("javax.");
+    exclusions.add("com.nai.security.crlextension");
     //exclusions.add("com.sun.");
     //exclusions.add("sun.");
     //exclusions.add("net.jini.");
@@ -53,6 +53,7 @@ public class CougaarClassLoader extends XURLClassLoader {
       List extras = explode(s, ':');
       if (extras != null) {
 	exclusions.addAll(extras);
+	
       }
     }
   }
@@ -76,7 +77,8 @@ public class CougaarClassLoader extends XURLClassLoader {
       }
       i++;
     }
-    if (k != i) {               // leftover non-white chars
+    if (k != i) {
+      // leftover non-white chars
       v.add(s.substring(k,i));
     }
     return v;

@@ -49,12 +49,17 @@ public class CertificateList extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
+    javax.servlet.ServletContext context=null;
 
   public void init(ServletConfig config) throws ServletException
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    confParser = new ConfParser();
+      					"false"))).booleanValue();
+    context=config.getServletContext();
+    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    if(debug)
+      System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
+    confParser = new ConfParser(confpath);
     caDNs = confParser.getCaDNs();
     roles = confParser.getRoles();
   }
@@ -77,12 +82,12 @@ public class CertificateList extends  HttpServlet
       out.close();
       return;
     }
-
+    
     try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
+				      caPolicy.ldapType, caPolicy.ldapURL);
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -90,7 +95,7 @@ public class CertificateList extends  HttpServlet
       out.close();
       return;
     }
-
+    
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
@@ -129,7 +134,7 @@ public class CertificateList extends  HttpServlet
     out.flush();
     out.close();
   }
-
+  
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
     throws ServletException, IOException
   {
@@ -161,23 +166,23 @@ public class CertificateList extends  HttpServlet
       else {
       }
       out.println("</select>");
-
+      
       //out.println("Role <input name=\"role\" type=\"text\" value=\"\">");
-
+      
       // Table separators
       out.println(" <br> <br></td></tr>");
       out.println("<tr ><td colspan=\"3\">");
-
+      
       // CA
       out.println("Select CA: <select id=\"cadnname\" name=\"cadnname\">");
       
       for (int i = 0 ; i < caDNs.length ; i++) {
 	out.println("<option value=\"" + caDNs[i].toString() + "\">" 
-		   + caDNs[i].toString() + "</option>");
+		    + caDNs[i].toString() + "</option>");
       }
       out.println("</select>");
       //out.println("DN for CA <input name=\"cadnname\" type=\"text\" value=\"\">");
-
+      
       out.println(" <br> <br></td></tr>");
       out.println("</tr><tr><td></td><td><br><input type=\"submit\">&nbsp;&nbsp;&nbsp;");
       out.println("<input type=\"reset\"></td><td></td></tr>");
@@ -187,7 +192,7 @@ public class CertificateList extends  HttpServlet
     out.flush();
     out.close();
   }
-
+  
   public String getServletInfo()
   {
     return("List all certificate specified by role and CAS dn name");
@@ -211,13 +216,14 @@ public class CertificateList extends  HttpServlet
       sb.append("<input type=\"hidden\" name=\"role\" value=\"" + role + "\">");
       sb.append("<a Href=\"javascript:submitme(document.form"
 		+ i +")\">"
-		+ ldapentries[i].getCertificate().getSubjectDN().getName()
+		+ ldapentries[i].getCertDN()
 		+"</a></form></TD>\n");
       sb.append("<TD>"+ldapentries[i].getStatus()+"</TD>\n" );
       sb.append("<TD>"+ldapentries[i].getCertificate().getIssuerDN().getName()
 		+"</TD></TR>\n");
-      }
+    }
     sb.append("</table>");
     return sb.toString();
   }
+
 }

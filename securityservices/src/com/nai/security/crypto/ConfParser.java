@@ -379,8 +379,7 @@ public class ConfParser {
       Field algIdField = AlgorithmId.class.getDeclaredField(algIdString);
       caPolicy.algorithmId = new AlgorithmId((ObjectIdentifier)algIdField.get(null));
       
-      
-       String crlalgIdString = getElementValue(caClientPolicy, CA_CRL_ALGORITHMID_ELEMENT, role);
+      String crlalgIdString = getElementValue(caClientPolicy, CA_CRL_ALGORITHMID_ELEMENT, role);
        
       Class crlalgIdClass = AlgorithmId.class;
       Field crlalgIdField = AlgorithmId.class.getDeclaredField(crlalgIdString);

@@ -44,20 +44,23 @@ public class CertificateDetailsServlet extends  HttpServlet
 {
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-
+  
   protected boolean debug = false;
+  javax.servlet.ServletContext context=null;
 
   public void init(ServletConfig config) throws ServletException
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
+    context=config.getServletContext();
+     
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
+    
     res.setContentType("Text/HTML");
-
     String distinguishedName=null;
     String role=null;
     String cadnname=null;
@@ -88,7 +91,8 @@ public class CertificateDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      ConfParser confParser = new ConfParser();
+      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      ConfParser confParser = new ConfParser(confpath);
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
@@ -100,15 +104,15 @@ public class CertificateDetailsServlet extends  HttpServlet
       out.close();
       return;
     }
-	
+    
     if((distinguishedName==null)||(distinguishedName=="")) {
       out.print("Error in distinguishedName ");
       out.flush();
       out.close();
       return;
     }
-
-    String filter = "(uniqueIdentifier=" + distinguishedName + ")";
+ 
+    String filter = "(uniqueIdentifier=" +distinguishedName + ")";
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
       out.println("Error: no such certificate in LDAP ");
@@ -122,6 +126,7 @@ public class CertificateDetailsServlet extends  HttpServlet
       out.close();
       return;
     }
+    
     X509Certificate  certimpl;
     try {
       certimpl=ldapentries[0].getCertificate();
@@ -190,19 +195,20 @@ public class CertificateDetailsServlet extends  HttpServlet
     out.flush();
     out.close();
   }
-
+  
   protected void doGet(HttpServletRequest req,HttpServletResponse res)
-    throws ServletException, IOException
-  {
-
+    throws ServletException, IOException  {
+    
   }
-
-  public String getServletInfo()
-  {
+  
+  public String getServletInfo()  {
     return("Displaying details of certificate with give hash map");
   }
-
+  
 }
+
+
+
 
 
 

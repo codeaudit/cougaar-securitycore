@@ -637,10 +637,6 @@ public class KeyManagement
 
       // Create PKCS10 object
       PKCS10 pkcs10 = getSigningRequest(pkcs10DER);
-      if(pkcs10!=null)
-	System.out.println("%%%%%%%% %%%%  created pkcs10 obj in getSigningRequests:"+ pkcs10.toString());
-      else
-	System.out.println("created pkcs10 obj in getSigningRequests is null:");
       pkcs10requests.add(pkcs10);
     }
 
@@ -913,8 +909,9 @@ public class KeyManagement
   {
   }
 
-  public boolean revokeCertificate(String caDN ,String userUniqueIdentifier) throws IOException,Exception,CertificateException
+  public int  revokeCertificate(String caDN ,String userUniqueIdentifier) throws IOException,Exception,CertificateException
   {
+    int status=0;
     X500Name x500name=new X500Name(caDN);
     PrivateKey caprivatekey=getPrivateKey(x500name);
     if(caprivatekey==null) {
@@ -930,6 +927,10 @@ public class KeyManagement
       String cabindingName=caresult.getName();
       SearchResult userresult=caOperations.getLdapentry(userUniqueIdentifier,true);
       Attributes userAttributes=userresult.getAttributes();
+      if(caOperations.isCAEntry(userAttributes)) {
+	status=-3;
+	return status;
+      }
       String userbindingName=userresult.getName();
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
@@ -964,7 +965,7 @@ public class KeyManagement
       exp.printStackTrace();
       throw new Exception (exp.getMessage());
     }
-    return true;
+    return status;
     //gInteger serialNumber = cert.getSerialNumber();
     //te currentDate = new Date();
     //09CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
