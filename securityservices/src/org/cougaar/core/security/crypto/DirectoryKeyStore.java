@@ -90,7 +90,7 @@ public class DirectoryKeyStore
 
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
-  private NamingService namingSrv = null;
+  private DirContext namingContext = null;
 
   /** This keystore stores certificates of trusted certificate authorities. */
   private KeyStore caKeystore = null;
@@ -136,7 +136,7 @@ public class DirectoryKeyStore
 
   /** Cache for getNamingAttributes
    */
-  private HashMap _namingAttributesCache = new HashMap();
+  private Hashtable _namingAttributesCache = new Hashtable();
 
   /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
@@ -244,7 +244,7 @@ public class DirectoryKeyStore
       if (!param.isCertAuth) {
 	initCRLCache();
       }
-      
+
       CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(param.ldapServerUrl, param.ldapServerType,
 					      param.serviceBroker, param.defaultCaDn);
@@ -332,7 +332,7 @@ public class DirectoryKeyStore
     }
   }
 
-  public synchronized KeyStore getKeyStore() {
+  public KeyStore getKeyStore() {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -2900,16 +2900,6 @@ public class DirectoryKeyStore
       return;
     }
     try {
-      if (namingSrv == null)
-        namingSrv = (NamingService)
-          param.serviceBroker.getService(this,
-                                   NamingService.class,
-                                   null);
-      if (namingSrv == null) {
-	log.warn("Cannot get naming service. Unable to register LDAP URL for " + dname);
-        throw new NamingException("Cannot get naming service");
-      }
-
       DirContext ctx = ensureCertContext();
       BasicAttributes attributes = new BasicAttributes();
       if (title.equals(CERT_TITLE_AGENT) ||
@@ -2971,29 +2961,16 @@ public class DirectoryKeyStore
     throws NamingException  {
 
     String key = cname.toLowerCase();
-    synchronized (_namingAttributesCache) {
-      BasicAttributes attrs = 
-	(BasicAttributes) _namingAttributesCache.get(key);
-      if (attrs == null) {
-	if (namingSrv == null) {
-	  namingSrv = (NamingService)
-	    param.serviceBroker.getService(this,
-					   NamingService.class,
-					   null);
-	}
-	if (namingSrv == null) {
-	  if (log.isInfoEnabled()) {
-	    log.info("Unable to find naming service. Returning " + certificateFinder);
-	  }
-	  return null;
-	}
-
-	DirContext ctx = ensureCertContext();
-	attrs = (BasicAttributes) ctx.getAttributes(key);
-	_namingAttributesCache.put(key,attrs);
+    BasicAttributes attrs =
+      (BasicAttributes) _namingAttributesCache.get(key);
+    if (attrs == null) {
+      DirContext ctx = ensureCertContext();
+      attrs = (BasicAttributes) ctx.getAttributes(key);
+      if (attrs != null) {
+        _namingAttributesCache.put(key,attrs);
       }
-      return attrs;
     }
+    return attrs;
   }
 
   /**
@@ -3064,7 +3041,22 @@ public class DirectoryKeyStore
 
   private DirContext ensureCertContext()
     throws NamingException {
-    // First, get the Naming service root context
+  // First, get the Naming service root context
+    if (namingContext != null) {
+      return namingContext;
+    }
+
+    NamingService namingSrv = (NamingService)
+      param.serviceBroker.getService(this,
+                               NamingService.class,
+                               null);
+
+    if (namingSrv == null) {
+      if (log.isWarnEnabled())
+        log.warn("Cannot get naming service.");
+      throw new NamingException("Cannot get naming service");
+    }
+
     DirContext ctx = namingSrv.getRootContext();
     try {
       // Try to to get the /Certificate subcontext
@@ -3085,6 +3077,8 @@ public class DirectoryKeyStore
       }
       throw x;
     }
+    namingContext = ctx;
+
     return ctx;
   }
 
