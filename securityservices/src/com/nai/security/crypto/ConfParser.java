@@ -78,6 +78,12 @@ public class ConfParser {
     return children;
   }
 
+  // Node policy
+  public static final String NODE_POLICY_ELEMENT       = "nodeConfiguration";
+  public static final String NODE_CA_DN_ELEMENT        = "CA_DN";
+  public static final String NODE_CA_URL_ELEMENT       = "CA_URL";
+
+  // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
   public static final String CA_KEYSTORE_ELEMENT       = "keystoreFile";
   public static final String CA_ALIAS_ELEMENT          = "alias";
@@ -103,7 +109,11 @@ public class ConfParser {
   public NodePolicy readNodePolicy()
     throws NoSuchFieldException, IllegalAccessException
   {
-    NodePolicy nodePolicy = null;
+    Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
+    NodePolicy nodePolicy = new NodePolicy();
+
+    nodePolicy.CA_DN = nodePolicyElement.getChildText(NODE_CA_DN_ELEMENT);
+    nodePolicy.CA_URL = nodePolicyElement.getChildText(NODE_CA_URL_ELEMENT);
     return nodePolicy;
   }
 

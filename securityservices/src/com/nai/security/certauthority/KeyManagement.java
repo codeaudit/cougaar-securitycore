@@ -64,10 +64,10 @@ public class KeyManagement
   private String caDN = null;
   private ConfParser confParser = null;
   private CaPolicy caPolicy = null;
+  private DirectoryKeyStore caKeyStore = null;
 
   public KeyManagement(String aCA_DN) {
     caDN = aCA_DN;
-
     confParser = new ConfParser();
 
     try {

@@ -2,6 +2,10 @@
 <cryptoConfiguration>
 
   <!-- Client side -->
+  <nodeConfiguration>
+    <CA_DN>CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CaDistinguishedName>
+    <CA_URL>http://yew:8080/CA/servlet/x509</CaURL>
+  </nodeConfiguration>
 
   <!-- Configuration of Certificate Authority
        The name should be the distinguished name of the X509 certificate -->

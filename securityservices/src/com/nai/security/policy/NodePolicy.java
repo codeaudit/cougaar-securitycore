@@ -31,8 +31,7 @@ import java.net.*;
 
 public class NodePolicy {
   // Client policy
-  public int certVersion = 0;
-  public AlgorithmId algorithmId = null;
-  public int keySize = 0;
-  public int howLong = 0;
+  public String CA_DN = null;
+  public String CA_URL = null;
+
 };
