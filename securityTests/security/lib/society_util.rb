@@ -152,11 +152,12 @@ module Cougaar
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
-              saveResult(false, "wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
+              saveAssertion("wp_registration", "No new agents have registered to the white pages for #{@interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
+            else
+              saveAssertion("wp_registration", "#{missing.size} agents haven't registered with the white pages: #{missing.join(" ")}")
+              saveAssertion("wp_registration", "#{(expected - missing).size} agents have registered with the white pages: #{(expected - missing).join(" ")}")
             end
-            saveAssertion("wp_registration", "#{missing.size} agents haven't registered with the white pages: #{missing.join(" ")}")
-            saveAssertion("wp_registration", "#{(expected - missing).size} agents have registered with the white pages: #{(expected - missing).join(" ")}")
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
             # Get stack trace of agents that have not registered
