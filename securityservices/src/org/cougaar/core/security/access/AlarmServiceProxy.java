@@ -25,6 +25,7 @@ package org.cougaar.core.security.access;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AlarmService;
 import org.cougaar.core.agent.service.alarm.Alarm;
+import org.cougaar.core.agent.service.alarm.PeriodicAlarm;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 
@@ -41,17 +42,30 @@ class AlarmServiceProxy extends SecureServiceProxy
   }
   
   public void addAlarm(Alarm alarm) {
-    _as.addAlarm(new SecureAlarm(alarm, _scs.getExecutionContext()));
+    _as.addAlarm(createSecureAlarm(alarm));
   }
   
   public void addRealTimeAlarm(Alarm alarm) {
-    _as.addRealTimeAlarm(new SecureAlarm(alarm, _scs.getExecutionContext()));
+    _as.addRealTimeAlarm(createSecureAlarm(alarm));
   }
   
   public long currentTimeMillis() {
     return _as.currentTimeMillis(); 
   }
-  
+ 
+  private Alarm createSecureAlarm(Alarm alarm) {
+    Alarm sAlarm = null;
+    if(alarm != null) {
+      if(alarm instanceof PeriodicAlarm) {
+        sAlarm = new SecurePeriodicAlarm((PeriodicAlarm)alarm, _scs.getExecutionContext());
+      }
+      else {
+        sAlarm = new SecureAlarm(alarm, _scs.getExecutionContext());
+      }
+    }
+    return sAlarm;
+  } 
+
   class SecureAlarm implements Alarm {
     Alarm _alarm;
     ExecutionContext _ec;
@@ -83,4 +97,18 @@ class AlarmServiceProxy extends SecureServiceProxy
       return retval;
     }
   }// end class SecureAlarm
+
+  class SecurePeriodicAlarm extends SecureAlarm
+    implements PeriodicAlarm {
+    PeriodicAlarm _pAlarm;
+    SecurePeriodicAlarm(PeriodicAlarm pAlarm, ExecutionContext ec) {
+      super(pAlarm, ec);
+      _pAlarm = pAlarm;
+    }
+    public void reset(long currentTime) {
+      _scs.setExecutionContext(_ec);
+      _pAlarm.reset(currentTime);
+      _scs.resetExecutionContext();
+    }
+  }// end SecurePeriodicAlarm   
 }
