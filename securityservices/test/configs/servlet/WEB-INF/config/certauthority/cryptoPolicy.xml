@@ -17,7 +17,7 @@
     <ldapURL>ldap://yew:389/dc=cougaar,dc=org</ldapURL>
     <ldapURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
@@ -41,6 +41,8 @@
       <certVersion>0</certVersion>
 
       <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+
+      <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
 
       <keysize>1024</keysize>
 
@@ -63,7 +65,7 @@
     <ldapURL>ldap://yew:389/dc=cougaar,dc=org</ldapURL>
     <ldapURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
@@ -87,6 +89,8 @@
       <certVersion>0</certVersion>
 
       <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+
+      <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
 
       <keysize>1024</keysize>
 
