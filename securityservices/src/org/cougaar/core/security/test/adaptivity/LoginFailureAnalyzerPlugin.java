@@ -163,6 +163,7 @@ public class LoginFailureAnalyzerPlugin extends ServiceUserPlugin {
   }
 
   public void setupSubscriptions() {
+    String poll = getParameters().iterator().next().toString();
     LoginFailureRateCondition failureRate =
       new LoginFailureRateCondition(FAILURE_RATE, failureRateRange, new Double(0));
     
@@ -179,10 +180,10 @@ public class LoginFailureAnalyzerPlugin extends ServiceUserPlugin {
     blackboard.publishAdd(failureRate);
     blackboard.publishAdd(loginLockouts);
     // blackboard.publishAdd(preceivedThreatLevel);
-    blackboard.publishAdd(maxLoginFailureOM);
-    blackboard.publishAdd(lockoutDurationOM);
     maxLoginFailureSubscription = (IncrementalSubscription)blackboard.subscribe(maxLoginFailurePredicate);
     lockoutDurationSubscription = (IncrementalSubscription)blackboard.subscribe(lockoutDurationPredicate);
+    blackboard.publishAdd(maxLoginFailureOM);
+    blackboard.publishAdd(lockoutDurationOM);
     if (haveServices()) startTimer(TIME_CONSTANT);
   }
 

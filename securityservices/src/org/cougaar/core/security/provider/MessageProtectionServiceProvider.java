@@ -39,6 +39,8 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+
 public class MessageProtectionServiceProvider 
   implements ServiceProvider {
 
@@ -56,6 +58,10 @@ public class MessageProtectionServiceProvider
 					Class serviceClass) {
     if (mps == null) {
       mps = new MessageProtectionServiceImpl(sb);
+    }
+    if( requestor != null && requestor instanceof EventPublisher ) {
+      EventPublisher publisher = (EventPublisher)requestor;
+      ((MessageProtectionServiceImpl)mps).addPublisher(publisher);
     }
     return mps;
   }

@@ -33,6 +33,7 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
 
@@ -50,8 +51,9 @@ import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.util.IdmefHelper;
-import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.publisher.IdmefEventPublisher;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
 // JavaIDMEF classes
 import edu.jhuapl.idmef.Alert;
@@ -135,12 +137,15 @@ public class MessageFailureSensor extends ComponentPlugin {
     }
     // register this sensor's capabilities
     registerCapabilities(cs, ais.getName());
-    //initialize the IdmefHelper class in the following services
-    IdmefHelper idmefHelper = 
-      new IdmefHelper(m_blackboard, m_cmrFactory, logger, m_sensorInfo);
-    AccessAgentProxy.initIdmefHelper(idmefHelper);
-    CryptoManagerServiceImpl.initIdmefHelper(idmefHelper);
-    MessageProtectionServiceImpl.initIdmefHelper(idmefHelper);
+    //initialize the EventPublisher in the following services
+    EventPublisher publisher = 
+      new IdmefEventPublisher(m_blackboard, m_cmrFactory, logger, m_sensorInfo);
+    AccessAgentProxy.addPublisher(publisher);
+    sb.getService(publisher, EncryptionService.class, null);
+    sb.getService(publisher, MessageProtectionService.class, null);
+    
+    //CryptoManagerServiceImpl.initIdmefHelper(idmefHelper);
+    //MessageProtectionServiceImpl.initIdmefHelper(idmefHelper);
   }  
   
   /**

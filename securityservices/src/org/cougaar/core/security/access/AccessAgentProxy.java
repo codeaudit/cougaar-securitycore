@@ -52,9 +52,10 @@ import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.util.FailureEvent;
-import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.util.IdmefHelper;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+
 import java.util.*;
 
 public class AccessAgentProxy
@@ -66,8 +67,8 @@ public class AccessAgentProxy
   private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-  // helper class to publish message failure events as idmef messages
-  private static IdmefHelper msgFailureHelper = null;
+  // event publisher to publish message failure
+  private static EventPublisher eventPublisher = null;
   
   private static MessageAddress myID = null;
   private static AccessControlPolicyService acps;
@@ -101,10 +102,10 @@ public class AccessAgentProxy
     
   }
   
-  // static method used to initialize IdmefHelper
-  public static synchronized void initIdmefHelper(IdmefHelper idmefHelper) {
-    if(msgFailureHelper == null) {
-      msgFailureHelper = idmefHelper;
+  // static method used to initialize EventPublisher
+  public static synchronized void addPublisher(EventPublisher publisher) {
+    if(eventPublisher == null) {
+      eventPublisher = publisher;
     }
   }
   
@@ -260,13 +261,13 @@ public class AccessAgentProxy
 	      incomingTrust(contents, tset);
 	      String failureIfOccurred = null;
 	      if(!incomingMessageAction(contents, tset[0])) {
-	        failureIfOccurred = MessageFailureEvent.INCONSISTENT_MESSAGE_ACTION;
+	        failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_MESSAGE_ACTION;
 	        if (log.isWarnEnabled())
 	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
 		          + m.toString());
 	      }
 	      else if(!incomingAgentAction(contents)) {
-	        failureIfOccurred = MessageFailureEvent.INCONSISTENT_AGENT_ACTION;
+	        failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_AGENT_ACTION;
 	        if (log.isWarnEnabled())
 	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
 		          + m.toString());
@@ -455,11 +456,11 @@ public class AccessAgentProxy
     TrustSet[] trust = null;
     trust = outgoingTrust(msg);
     if(!outgoingMessageAction(msg, trust[0])) {
-      failureIfOccurred = MessageFailureEvent.INCONSISTENT_MESSAGE_ACTION;
+      failureIfOccurred = MessageFailureEvent.SETASIDE_OUTGOING_MESSAGE_ACTION;
       trust = null;
     }
     else if(!outgoingAgentAction(msg)) {
-      failureIfOccurred = MessageFailureEvent.INCONSISTENT_AGENT_ACTION;
+      failureIfOccurred = MessageFailureEvent.SETASIDE_OUTGOING_AGENT_ACTION;
       trust = null;
     }
     if(failureIfOccurred != null) {
@@ -745,7 +746,7 @@ public class AccessAgentProxy
   }
   
   /**
-   * publish a message failure idmef alert
+   * publish a message failure event
    */
   private void publishMessageFailure(String source, String target,
     String reason, String data) {
@@ -753,12 +754,12 @@ public class AccessAgentProxy
                                                  target,
                                                  reason,
                                                  data);
-    if(msgFailureHelper != null) {
-      msgFailureHelper.publishIDMEFAlert(event); 
+    if(eventPublisher != null) {
+      eventPublisher.publishEvent(event); 
     }
     else {
       if(log.isDebugEnabled()) {
-        log.debug("IdmefHelper uninitialized, unable to publish event:\n" + event);
+        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }  
   }

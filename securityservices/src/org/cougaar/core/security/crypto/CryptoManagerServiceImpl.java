@@ -46,9 +46,9 @@ import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.util.FailureEvent;
-import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.util.IdmefHelper;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.policy.CryptoPolicy;
 
 public class CryptoManagerServiceImpl
@@ -57,10 +57,9 @@ public class CryptoManagerServiceImpl
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  // event publisher to publish message failure
+  private EventPublisher eventPublisher = null;
   private String failureIfOccurred = null;
-
-  // helper class to publish message failure events as idmef messages
-  private static IdmefHelper msgFailureHelper = null;
 
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
@@ -70,10 +69,10 @@ public class CryptoManagerServiceImpl
 			       LoggingService.class, null);
   }
 
-  // static method used to initialize IdmefHelper
-  public static synchronized void initIdmefHelper(IdmefHelper idmefHelper) {
-    if(msgFailureHelper == null) {
-      msgFailureHelper = idmefHelper;
+  // static method used to initialize event publisher
+  public synchronized void addPublisher(EventPublisher publisher) {
+    if(eventPublisher == null) {
+      eventPublisher = publisher;
     }
   }
 
@@ -733,12 +732,12 @@ public class CryptoManagerServiceImpl
                                                  target,
                                                  reason,
                                                  data);
-    if(msgFailureHelper != null) {
-      msgFailureHelper.publishIDMEFAlert(event);
+    if(eventPublisher != null) {
+      eventPublisher.publishEvent(event);
     }
     else {
       if(log.isDebugEnabled()) {
-        log.debug("IdmefHelper uninitialized, unable to publish event:\n" + event);
+        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }
   }

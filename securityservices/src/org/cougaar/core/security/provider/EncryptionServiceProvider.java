@@ -34,6 +34,7 @@ import org.cougaar.util.*;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.CryptoManagerServiceImpl;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
@@ -67,6 +68,10 @@ public class EncryptionServiceProvider
 
     if (encryptionService == null) {
       encryptionService = new CryptoManagerServiceImpl(ksr, sb);
+    }
+    if(requestor != null && requestor instanceof EventPublisher) {
+      EventPublisher publisher = (EventPublisher)requestor;
+      ((CryptoManagerServiceImpl)encryptionService).addPublisher(publisher);
     }
     return encryptionService;
   }
