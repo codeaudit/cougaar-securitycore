@@ -84,7 +84,7 @@ class UserInterface {
   public static final String LDAP_ROLE_USER_RDN_TITLE    = "Users";
 
   public static final String LDAP_USER_UID               = "uid";
-  public static final String LDAP_USER_UID_TITLE         = "UID";
+  public static final String LDAP_USER_UID_TITLE         = "User ID";
   public static final String LDAP_USER_PASSWORD          = "userPassword";
   public static final String LDAP_USER_PASSWORD_TITLE1   = "Password";
   public static final String LDAP_USER_PASSWORD_TITLE2   = "Repeat Password";
@@ -112,8 +112,8 @@ class UserInterface {
     { LDAP_USER_UID,    LDAP_USER_UID_TITLE    },
     { LDAP_USER_ENABLE, LDAP_USER_ENABLE_TITLE },
     { LDAP_USER_AUTH,   LDAP_USER_AUTH_TITLE   },
-    { "sn", "Last Name" },
     { "givenName", "First Name" },
+    { "sn", "Last Name" },
     { "cn", "Name" },
     { "mail", "Email Address" },
 

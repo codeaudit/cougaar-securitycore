@@ -58,6 +58,10 @@ function disableUser() {
 function cancelAction() {
   history.go(-1);
 }
+function updateName() {
+  var form = document.forms[0];
+  form['cn'].value = form['givenName'].value + ' ' + form['sn'].value;
+}
 // -->
     </script>
   </head>
@@ -76,6 +80,7 @@ function cancelAction() {
       <input type="button" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_CANCEL%>"
              onClick="cancelAction()">
+      <input type="hidden" name="cn" value="">
       <br><span color="red" id="error text"></span><br>
       <table>
         <tr>
@@ -105,7 +110,7 @@ function cancelAction() {
       if (attr != null) {
         val = attr.get();
       }
-      if (field != UserInterface.LDAP_USER_UID) {
+      if (field != UserInterface.LDAP_USER_UID && !("cn".equals(field))) {
 %>
         <tr>
           <td><%=title%></td>
@@ -133,6 +138,10 @@ function cancelAction() {
           <input type="text" name="<%=field%>" value="<%=val%>">&nbsp;&nbsp;
           <input type="button" value="Enable" onClick="enableUser();">&nbsp;
           <input type="button" value="Disable" onClick="disableUser();">
+<%
+        } else if ("sn".equals(field) || "givenName".equals(field)) {
+%>
+          <input type="text" name="<%=field%>" value="<%=val%>" onChange="updateName()">
 <%
         } else {
 %>

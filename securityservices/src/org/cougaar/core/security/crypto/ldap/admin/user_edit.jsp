@@ -64,6 +64,10 @@ function disableUser() {
   var field = form["<%=UserInterface.LDAP_USER_ENABLE%>"];
   field.value = "";
 }
+function updateName() {
+  var form = document.forms[0];
+  form['cn'].value = form['givenName'].value + ' ' + form['sn'].value;
+}
 // -->
     </script>
   </head>
@@ -71,7 +75,7 @@ function disableUser() {
 <%
   Attributes user = (Attributes) 
     request.getAttribute(UserInterface.USER_RESULTS);
-  
+
   if (user != null) {  
 %>
     <form action="<%=request.getRequestURI()%>" method="POST" 
@@ -80,6 +84,7 @@ function disableUser() {
              value="<%=UserInterface.PAGE_EDIT_USER%>">
       <input type="hidden" name="<%=UserInterface.LDAP_USER_UID%>" 
              value="<%=user.get(UserInterface.LDAP_USER_UID).get()%>">
+      <input type="hidden" name="cn" value="">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_SAVE%>">
       <input type="button" name="<%=UserInterface.ACTION_BUTTON%>" 
@@ -112,7 +117,7 @@ function disableUser() {
       if (attr != null) {
         val = attr.get();
       }
-      if (field != UserInterface.LDAP_USER_UID) {
+      if (field != UserInterface.LDAP_USER_UID && !("cn".equals(field))) {
 %>
         <tr>
           <td><%=title%></td>
@@ -141,6 +146,10 @@ function disableUser() {
           <input type="button" value="Enable" onClick="enableUser();">&nbsp;
           <input type="button" value="Disable" onClick="disableUser();">
 <%
+        } else if ("sn".equals(field) || "givenName".equals(field)) {
+%>
+          <input type="text" name="<%=field%>" value="<%=val%>" onChange="updateName()">
+<%
         } else {
 %>
           <input type="text" name="<%=field%>" value="<%=val%>">
@@ -156,5 +165,10 @@ function disableUser() {
 %>
       </table>
     </form>
+    <script language="JavaScript">
+<!--
+  updateName();
+//-->
+    </script>
   </body>
 </html>
