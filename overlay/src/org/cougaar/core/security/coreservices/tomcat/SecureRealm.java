@@ -37,14 +37,13 @@ import org.apache.catalina.Realm;
  * org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm if it
  * exists and the System property
  * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true"
+ * is not "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Engine&gt; section:
  * <pre>
  *   &lt;Realm className="org.cougaar.core.security.coreservices.tomcat.SecureRealm" /&gt;
  * </pre>
  *
- * @see org.ougaar.core.security.crypto.ldap.KeyRingJNDIRealm
  * @author George Mount <gmount@nai.com>
  */
 public class SecureRealm implements Realm {

@@ -34,7 +34,7 @@ import org.apache.catalina.core.StandardContext;
  * of its creation if the security services exist and the
  * System property
  * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true"
+ * is not "true".
  */
 public class SecureContext extends StandardContext {
 

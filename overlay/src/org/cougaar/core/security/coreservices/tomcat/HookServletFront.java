@@ -35,7 +35,7 @@ import javax.servlet.ServletResponse;
  * org.cougaar.core.security.acl.auth.SecureHookServlet if it
  * exists and the System property
  * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true"
+ * is not "true".
  * <p>
  * The <code>web.xml</code> should have within the &lt;web-app&gt; element:
  * <pre>

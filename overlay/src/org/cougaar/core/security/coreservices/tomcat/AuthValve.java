@@ -39,7 +39,7 @@ import org.apache.catalina.Response;
  * org.cougaar.core.security.acl.auth.DualAuthenticator if it
  * exists and the System property
  * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true"
+ * is not "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Context&gt; section:
  * <pre>
@@ -51,7 +51,6 @@ import org.apache.catalina.Response;
  * standard methods available for authentication in servlet 2.3 spec.
  * Remember that the primary authentication is always CERT, so don't use that.
  *
- * @see org.ougaar.core.security.crypto.acl.auth.DualAuthenticator
  * @author George Mount <gmount@nai.com>
  */
 public class AuthValve implements Valve {
