@@ -1,0 +1,14 @@
+# Organization for Example Corporation
+dn: dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: The UltraLog Project
+
+# Organizational Role for Directory Manager
+dn: cn=manager, dc=cougaar, dc=org
+objectClass: organizationalRole
+cn: Manager
+description: Directory Manager
+
