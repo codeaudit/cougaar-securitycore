@@ -159,7 +159,7 @@ public class MessageProtectionServiceImpl
 		+ " (" + method + ")");
     }
     if (policy == null) {
-       throw new RuntimeException("Could not find message policy between "
+       throw new GeneralSecurityException("Could not find message policy between "
 	+ source.getAddress() + " and " + destination.getAddress());
     }     
 
@@ -205,7 +205,7 @@ public class MessageProtectionServiceImpl
 		+ " (" + method + ")");
     }
     if (policy == null) {
-       throw new RuntimeException("Could not find message policy between "
+       throw new GeneralSecurityException("Could not find message policy between "
 	+ source.getAddress() + " and " + destination.getAddress());
     }     
 

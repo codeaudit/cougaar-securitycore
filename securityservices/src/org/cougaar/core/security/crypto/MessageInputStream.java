@@ -164,7 +164,7 @@ public class MessageInputStream
       cps.getReceivePolicy(source.toAddress() + ":"
 			   + target.toAddress());
     if (policy == null) {
-       throw new RuntimeException("Could not find message policy between "
+       throw new GeneralSecurityException("Could not find message policy between "
 	+ source.toAddress() + " and " + target.toAddress());
     }
     byte[] rawData = null;

@@ -123,7 +123,9 @@ public class CryptoManagerServiceImpl
 	  continue;
 	}
       } catch (Exception e) {
-	e.printStackTrace();
+	if (log.isInfoEnabled()) {
+	  log.info("Unable to verify signature", e);
+	}
 	continue;
       }
     }
@@ -236,21 +238,21 @@ public class CryptoManagerServiceImpl
 	}
 	catch(NullPointerException null1exp){
 	  if (log.isDebugEnabled()) {
-	    System.err.println(
-			       "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
+	    log.debug("Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
 	  }
-	  //null1exp.printStackTrace();
 	  continue;
 	}
 	catch(Exception exp1){
-	  exp1.printStackTrace();
+	  log.info("Unable to decrypt object", exp1);
 	  continue;
 	}
       }
       return null;
     }
     catch(Exception e){
-      e.printStackTrace();
+      if (log.isErrorEnabled()) {
+	log.error("Unable to decrypt object", e);
+      }
       return null;
     }
   }
