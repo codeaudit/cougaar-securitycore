@@ -660,6 +660,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
       logInfoMsg "Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}"
     end
     agent = run.society.agents[agent] if agent.kind_of?(String)
+    if( agent.userDomain ==nil) 
+      logInfoMsg " Canot create test set for agent #{agent.name} user#{user} #{otherUser}"
+      return;
+    end   
     domainName = agent.userDomain.name
     policyServlet = '/policyAdmin'
     tests = [
