@@ -59,24 +59,25 @@ public class WebserverSSLServiceProvider
     if (sslservice != null)
       return sslservice;
 
-    // Retrieve KeyRing service
-    ksr = (KeyRingService)
-      sb.getService(requestor,
-		    KeyRingService.class,
-		    new ServiceRevokedListener() {
+    if (ksr == null) {
+      // Retrieve KeyRing service
+      ksr = (KeyRingService)
+	sb.getService(requestor,
+		      KeyRingService.class,
+		      new ServiceRevokedListener() {
 			public void serviceRevoked(ServiceRevokedEvent re) {
 			  if (KeyRingService.class.equals(re.getService()))
 			    ksr  = null;
 			}
 		      });
-
+    }
     try {
       sslservice = new WebserverSSLServiceImpl(sb);
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      if (log.isDebugEnabled())
-        log.debug("Failed to initialize WebserverSSLService! " + e.toString());
+      if (log.isWarnEnabled())
+        log.warn("Failed to initialize WebserverSSLService! ", e);
     }
     return sslservice;
   }
