@@ -275,7 +275,10 @@ public class DataProtectionServiceImpl
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(agent, DataFailureEvent.CREATE_KEY_FAILURE, gsx.toString());
-        throw new IOException(gsx.getMessage());
+	IOException e = new IOException(gsx.getMessage());
+	e.initCause(gsx);
+        throw e;
+	
       }
       catch(IOException iox) {
         publishDataFailure(agent, DataFailureEvent.IO_EXCEPTION, iox.toString());
