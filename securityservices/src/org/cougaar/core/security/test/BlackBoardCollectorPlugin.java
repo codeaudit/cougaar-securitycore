@@ -54,10 +54,10 @@ public class BlackBoardCollectorPlugin extends ComponentPlugin {
 
       public boolean execute(Object o) {
         String classname = o.getClass().getName();
-        if (!seen.contains(classname)) {
-          _log.debug("new blackboard object = " + classname);
-          seen.add(classname);
-        }
+        //        if (!seen.contains(classname)) {
+        //          _log.debug("new blackboard object = " + classname);
+        //          seen.add(classname);
+        //        }
         return (o instanceof ServiceContractRelay);
       }
     };
