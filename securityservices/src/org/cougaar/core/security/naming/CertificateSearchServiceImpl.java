@@ -50,14 +50,17 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
   private CertDirectoryServiceFactory fac;
 
   public CertificateSearchServiceImpl(ServiceBroker serviceBroker,
-      CertDirectoryServiceFactory factory) {
+                                      CertDirectoryServiceFactory factory) {
     sb = serviceBroker;
     fac = factory;
 
     log = (LoggingService)
-      sb.getService(this,
-			       LoggingService.class,
-			       null);
+      sb.getService(this, LoggingService.class,
+                    null);
+    
+    whitePagesService = (WhitePagesService)
+      sb.getService(this, WhitePagesService.class, null);
+
   }
 
   public List findDNFromNS(String cname) {
@@ -71,7 +74,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
     }
     try {
       AddressEntry ael = whitePagesService.get(cname,
-        Application.getApplication("topology"), "cert");
+                                               Application.getApplication("topology"), "cert");
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
@@ -129,8 +132,8 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
     if (keyRingService == null) {
       keyRingService=(KeyRingService)
         sb.getService(this,
-                                       KeyRingService.class,
-                                       null);
+                      KeyRingService.class,
+                      null);
     }
 
 
@@ -147,7 +150,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
       String cname = dname.getCommonName();
       CertificateStatus cs = null;
       AddressEntry ael = whitePagesService.get(cname,
-        Application.getApplication("topology"), "cert");
+                                               Application.getApplication("topology"), "cert");
       if (ael == null) {
         if (log.isDebugEnabled()) {
           log.debug("Unable to find cert entry in naming: " + cname);
@@ -194,26 +197,26 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
           // this does not build the chain, only grab the certs from ldap
           List certList = lookupService.findCert(dname, reqUri);
           /*
-          for (Iterator it = certList.iterator(); it.hasNext(); ) {
+            for (Iterator it = certList.iterator(); it.hasNext(); ) {
             X509Certificate [] certChain = (X509Certificate [])it.next();
             if (certChain.length == 0) {
-              continue;
+            continue;
             }
             // is chain included?
             if (certChain.length == 1) {
-              // use KeyRingService to build chain
-              try {
-                cs = keyRingService.buildCertificateChain(c, reqUri);
-              } catch (CertificateException cex) {
-                continue;
-              }
+            // use KeyRingService to build chain
+            try {
+            cs = keyRingService.buildCertificateChain(c, reqUri);
+            } catch (CertificateException cex) {
+            continue;
+            }
             }
             else {
-              cs = keyRingService.checkCertificateTrust(certChain);
+            cs = keyRingService.checkCertificateTrust(certChain);
             }
 
             l.add(cs);
-          }
+            }
           */
           l.addAll(certList);
         }
