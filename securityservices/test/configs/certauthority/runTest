@@ -69,6 +69,11 @@ set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/li
 
 if ( ${execmode} == "2") then
     set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/core.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xml4j.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xmlparserv2.jar"
+    set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/ibmpkcs.jar"
 endif
 
 if (! $?COUGAAR3RDPARTY) then
@@ -110,12 +115,13 @@ set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
 switch (${execmode})
 case "1":
+# With bootstrapper
     java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
 	com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args
     breaksw;
 case "2":
-
+# No bootstrapper
     java $javaargs \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
 	${execclass} $args
