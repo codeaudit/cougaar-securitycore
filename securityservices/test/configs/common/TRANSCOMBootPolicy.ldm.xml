@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Policies SYSTEM "Policy.ldm.dtd" []>
+
+<!-- Policies for BOOTPOLICY -->
+
+<Policies>
+   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.CryptoPolicy">
+      <RuleParam name="IncomingSecureMethod">
+         <KeySet value="signAndEncrypt"/>
+      </RuleParam>
+      <RuleParam name="OutgoingSecureMethod">
+         <KeySet value="signAndEncrypt"/>
+      </RuleParam>
+      <RuleParam name="IncomingSymmetricAlgorithm">
+         <KeySet value="DES"/>
+      </RuleParam>
+      <RuleParam name="OutgoingSymmetricAlgorithm">
+         <KeySet value="DES"><!-- PKCS#1 is not supported by the Cryptix library --></KeySet>
+      </RuleParam>
+      <RuleParam name="IncomingAsymmetricAlgorithm">
+         <!-- <KeySet value="RSA/ECB/PKCS5Padding"> -->
+         <!-- <KeySet value="RSA/ECB/PKCS#1"> (cryptix)-->
+         <!-- <KeySet value="RSA/ECB/PKCS1Padding"> -->
+         <!-- <KeySet value="ElGamal/ECB/PKCS#1"> -->
+         <KeySet value="RSA/ECB/PKCS#1"/>
+      </RuleParam>
+      <!-- used to encrypt the session key -->
+      <RuleParam name="OutgoingAsymmetricAlgorithm">
+         <!-- PKCS#1 is not supported by the Cryptix library -->
+         <KeySet value="RSA/ECB/PKCS#1"/>
+      </RuleParam>
+      <RuleParam name="IncomingSigningAlgorithm">
+         <!-- Example of possible values:          MD2withRSA, MD5withRSA, or SHA1withRSA -->
+         <KeySet value="MD5withRSA"/>
+      </RuleParam>
+      <RuleParam name="OutgoingSigningAlgorithm">
+         <KeySet value="MD5withRSA"/>
+      </RuleParam>
+   </Policy>
+
+ <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AccessControlPolicy">
+  <RuleParam name="IncomingMessageAction">
+    <KeySet value="AcceptMessage">
+      <KeyValue key="Criticality0" value="SetAside" />
+      <KeyValue key="Criticality1" value="SetAside" />
+      <KeyValue key="Criticality2" value="AcceptMessage" />
+      <KeyValue key="Criticality3" value="AcceptMessage" />
+      <KeyValue key="Criticality4" value="AcceptMessage" />
+      <KeyValue key="Criticality5" value="AcceptMessage" />
+    </KeySet>
+  </RuleParam>
+
+  <RuleParam name="IncomingVerb">
+    <KeySet value="Supply"/>
+  </RuleParam>
+
+  <RuleParam name="OutgoingVerb">
+    <KeySet value="Transport:Supply"/>
+  </RuleParam>
+
+  <RuleParam name="OutgoingAgentAction">
+    <KeySet value="SetAside"/>
+  </RuleParam>
+
+  <RuleParam name="IncomingAgentAction">
+    <KeySet value="SetAside"/>
+  </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="OutgoingMessageIntegrity">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>
+
