@@ -91,7 +91,7 @@ class CertRevocation
     dnname = agent.distinguishedName
     #puts "dnname #{dnname}"
     if dnname == nil
-      logWarningMsg "WARNING:  no dnname, returning"
+      saveAssertion "Stress5k104", "Trying to revoke #{agent.name} - Unable to find distinguished name, Cannot revoke"
       #exit
       return false
     end

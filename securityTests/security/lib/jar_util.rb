@@ -143,7 +143,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   end
   File.cp(replacementFile, File.join(jarDir, targetFile) )
 #  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
-  results = `jar #{option} #{jarFile} -C #{jarDir} #{targetFile}`
+  results = `jar #{option} #{jarFile} -C #{jarDir} #{targetFile} 2&>1`
 #  puts "result from jar: #{results}"
 #  puts "========================"
   File.rm_all(jarDir)
