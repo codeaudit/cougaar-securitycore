@@ -58,7 +58,7 @@ jar: classes
 		org 
 	@echo +++++++ Done Building securityservices.jar
 
-build-classes:
+build-classes: installconf
 	@echo +++++++ Compiling the source code
 	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
 	echo ${COUGAARCLASSES}
