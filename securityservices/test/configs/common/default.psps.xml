@@ -132,6 +132,13 @@ Additional PSPs loaded by PSP Launcher
     <Classname>org.cougaar.domain.mlm.ui.psp.plan.PSP_ClusterRelationships</Classname>
     <PSPName>alpine/demo/CLUSTERS_R.PSP</PSPName>
   </element>
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+     <Classname>org.cougaar.lib.planserver.psp.PSP_LoggingControl</Classname>
+    <PSPName>alpine/demo/LOGGING.PSP</PSPName>
+    <Comment>View the contents of the Blackboard</Comment>
+  </element>
+
+
 <!--
   <element type="org.cougaar.lib.planserver.NamedPSP">
     <Classname>org.cougaar.domain.mlm.ui.alert.PSP_HTMLAlerts</Classname>
@@ -311,5 +318,38 @@ Additional PSPs loaded by PSP Launcher
     <PSPName>alpine/demo/GENERIC.PSP</PSPName>
   </element>
 <!-- END UIFramework AggAgent PSPs -->
+
+  <!--  CSMART PSPs: Add these to your default.psps.xml to run the CSMART Society Monitor tool on your own society  -->
+  <!-- Get URLs to contact each of the Agents -->
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_ClusterProvider</Classname>
+    <PSPName>csmart/monitor/CLUSTER_URLS.PSP</PSPName>
+  </element>
+  <!-- The main Plan view PSP -->
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_Plan</Classname>
+    <PSPName>csmart/monitor/PSP_Plan.PSP</PSPName>
+  </element>
+  <!-- Get basic info on the Agents / Organizations in the society -->
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_ClusterInfo</Classname>
+    <PSPName>csmart/monitor/PSP_ClusterInfo.PSP</PSPName>
+  </element>
+  <!-- Trace an object up or down through the plan -->
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_Search</Classname>
+    <PSPName>csmart/monitor/THREADS.PSP</PSPName>
+  </element>
+  <!-- Retrieve information on Communities in the society -->
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_CommunityProvider</Classname>
+    <PSPName>csmart/monitor/PSP_CommunityProvider.PSP</PSPName>
+  </element>
+  <!-- Retrieve Task Metric Information -->	
+  <element type="org.cougaar.lib.planserver.NamedPSP">
+    <Classname>org.cougaar.tools.csmart.ui.psp.PSP_Metrics</Classname>
+    <PSPName>csmart/monitor/PSP_Metrics.PSP</PSPName>
+  </element>
+
 
 </object>
