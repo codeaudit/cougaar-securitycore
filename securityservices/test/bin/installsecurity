@@ -115,6 +115,7 @@ zip -qr AS_csi_secserv.zip \
 	sys/mail.jar \
 	sys/ontologyRepInit.jar \
 	sys/polCert.jar \
+        sys/relaxngDatatype.jar \
         sys/xmlParserAPIs.jar \
         sys/Tidy.jar \
         workspace
