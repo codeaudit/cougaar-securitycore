@@ -39,7 +39,7 @@
           <!-- Domain -->
           <domain>dc=srosset,dc=cougaar,dc=org</domain>
         </distinguishedName>
-        <nodeIsSigner>true</nodeIsSigner>
+        <nodeIsSigner>false</nodeIsSigner>
         <!-- The key algorithm -->
         <keyAlgName>RSA</keyAlgName>
         <!-- The key size -->
@@ -51,30 +51,6 @@
         <validity>1 M</validity>
       </certificateAttributes>
     </cryptoClientPolicy>
-  </policy>
-  <policy name="" type="certificateAuthorityPolicy">
-    <!-- Configuration of Certificate Authority -->
-    <certificateAuthority>
-      <!-- The distinguished name as found in the X509 certificate -->
-      <distinguishedName></distinguishedName>
-      <!-- The name of a file where the next serial number is stored -->
-      <serialNumberFile>SerialNumber_Node</serialNumberFile>
-
-      <ldapURL></ldapURL>
-      <ldapType></ldapType>
-      <!-- Policy when issuing certificates -->
-      <clientCertPolicy>
-        <!-- The X509 version number to be created -->
-        <certVersion>2</certVersion>
-        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
-        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
-        <keysize>1024</keysize>
-        <!-- How long to certify for. This is the validity of a certificate
-             signed by a node.  -->
-        <certValidity>1 y</certValidity>
-        <requirePending>false</requirePending>
-      </clientCertPolicy>
-    </certificateAuthority>
   </policy>
 
 </policies>
