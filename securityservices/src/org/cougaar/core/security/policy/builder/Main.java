@@ -76,6 +76,7 @@ class Main
 
   private int     _cmd;
   private boolean _quiet;
+  private boolean _buildinfo;
   private String  _policyFile;
   private boolean _useDomainManager;
   private boolean _cmdLineAuth;
@@ -99,12 +100,19 @@ class Main
 
       if (args[counter].equals("build")) {
         counter++;
-        _cmd = BUILD_CMD;
-        if (args[counter].equals("--quiet")) {
-          counter++;
-          _quiet=true;
-        } else { 
-          _quiet = false; 
+        _cmd        = BUILD_CMD;
+        _quiet      = false;
+        _buildinfo  = false;
+        while (args.length - counter > 1) {
+          if (args[counter].equals("--quiet")) {
+            counter++;
+            _quiet=true;
+          } else if (args[counter].equals("--info")) {
+            counter++;
+            _buildinfo=true;
+          } else {
+            usage();
+          }
         }
         _policyFile = args[counter++];
       } else if (args[counter].equals("jtp")) {
@@ -159,9 +167,10 @@ class Main
   {
     int counter = 1;
     System.out.println("Arguments can take any of the following forms:");
-    System.out.println("" + (counter++) + ". build {--quiet} policiesFile");
+    System.out.println("" + (counter++) + ". build {--quiet} {--info} policiesFile");
     System.out.println("\tTo build policies from a grammar");
-    System.out.println("\tThe --quiet options supresses messages");
+    System.out.println("\tThe --quiet option supresses messages");
+    System.out.println("\tThe --info option builds boot policies only");
     System.out.println("" + (counter++) + ". commit/setpolicies/addpolicies"
                        + " {--dm} {--auth username password} ");
     System.out.println("\t\thost port agent policiesFile");
@@ -241,22 +250,23 @@ class Main
     System.out.println("Ontologies loaded");
 
     System.out.println("Writing Policies");
-    for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies).iterator();
+    for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
+                                                                .iterator();
         builtPolicyIt.hasNext();) {
       DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
-      PolicyUtils.writePolicyMsg(pb);
+      if (_buildinfo) {
+        PolicyUtils.writePolicyInfo(pb);
+      } else {
+        PolicyUtils.writePolicyMsg(pb);
+      }
     }
-      // build again for a new policy id.
-    for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies).iterator();
-        builtPolicyIt.hasNext();) {
-      DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
-      PolicyUtils.writePolicyInfo(pb);
-    }
-    Vector builtConditionalPolicies = buildConditionalPolicies(ppolicies);
-    for(Iterator condpmIt = builtConditionalPolicies.iterator();
-        condpmIt.hasNext();) {
-      ConditionalPolicyMsg condpm = (ConditionalPolicyMsg) condpmIt.next();
-      PolicyUtils.writeObject(getConditionName(condpm) + ".cpmsg", condpm);
+    if (!_buildinfo) {
+      Vector builtConditionalPolicies = buildConditionalPolicies(ppolicies);
+      for(Iterator condpmIt = builtConditionalPolicies.iterator();
+          condpmIt.hasNext();) {
+        ConditionalPolicyMsg condpm = (ConditionalPolicyMsg) condpmIt.next();
+        PolicyUtils.writeObject(getConditionName(condpm) + ".cpmsg", condpm);
+      }
     }
   }
 
