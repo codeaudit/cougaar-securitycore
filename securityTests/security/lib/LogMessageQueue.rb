@@ -45,7 +45,7 @@ module Cougaar
               rescue Timeout::Error => e
                 logInfoMsg "Timeout connecting to #{url}"
               end
-                
+
               #logInfoMsg "Result before procesing : #{result}"
               processedresult = stripHtmltags (result.to_s)
               #logInfoMsg "Result received --> #{processedresult}"

@@ -552,6 +552,7 @@ class PresentationCnC
       unless stageName != NoStage
         stageName = x.findStageName
       end
+      x.discardDivider = getDiscardDividerDay(stageName)
       x.nearTermDivider = getNearTermDividerDay(stageName)
       outBoundsFile = "oba_#{file}_#{stageName}.xml"
       unless x.has_key?(outBoundsFile)
@@ -615,13 +616,22 @@ class PresentationCnC
     @nearCorrectnessDescript.unshift "correctness mop = #{totalmops.nearCorrectnessMop}"
   end
 
+  def getDiscardDividerDay(stageName)
+    if stageName == "Stage1"
+      return -5
+    elsif stageName == "Stage2"
+      return -1
+    else
+      return 0
+    end
+  end
   def getNearTermDividerDay(stageName)
     if stageName == "Stage1"
-      return 25  # 11
+      return 20  # 25  # 11
     elsif stageName == "Stage2"
-      return 21  # 7
+      return 20  # 21  # 7
     else
-      return 20  # 6
+      return 20  # 20  # 6
     end
   end
 
@@ -811,22 +821,22 @@ class CompletenessCorrectnessDiffs < DepthDifferences
     if item.transport?
       if item.nearTerm?(parent)
         nearComplete
-      else
+      elsif item.farTerm?(parent)
         farComplete
       end
     else  # supply
-      complete
+      complete unless item.discardTerm?
     end
   end
   def itemNotComplete(item, parent)
     if item.transport?
       if item.nearTerm?(parent)
         nearNotComplete
-      else
+      elsif item.farTerm?(parent)
         farNotComplete
       end
     else  # supply
-      notComplete
+      notComplete unless item.discardTerm?
     end
   end
 
@@ -838,7 +848,7 @@ class CompletenessCorrectnessDiffs < DepthDifferences
         farCorrect
       end
     else  # supply
-      correct
+      correct unless item.discardTerm?
     end
   end
   def itemNotCorrect(item, parent)
