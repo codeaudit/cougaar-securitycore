@@ -233,19 +233,19 @@
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
             signedjar="${securityservices.signed}/securebootstrapper.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
             signedjar="${securityservices.signed}/securityservices.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
             signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
             signedjar="${securityservices.signed}/idmef.jar"
-            keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
     </target>
