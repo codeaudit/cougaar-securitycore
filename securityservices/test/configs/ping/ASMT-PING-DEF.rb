@@ -41,7 +41,7 @@ include_scripts:
 # Security rules
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
   - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
   # log_node_process_info should be BEFORE setup_society_ping
