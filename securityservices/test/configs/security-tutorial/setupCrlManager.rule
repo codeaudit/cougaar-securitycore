@@ -1,0 +1,9 @@
+
+society.each_node do |node|
+  node.add_agent('CrlManager') do |agent|
+    if !agent.has_facet?($facetCrlManagerAgent)
+      agent.add_facet({:role=>$facetCrlManagerAgent})
+    end
+  end
+  break
+end

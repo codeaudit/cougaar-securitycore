@@ -1,0 +1,9 @@
+
+society.each_node do |node|
+  node.add_agent('PolicyManager') do |agent|
+    if !agent.has_facet?($facetPolicyManagerAgent)
+      agent.add_facet({:role=>$facetPolicyManagerAgent)
+    end
+  end
+  break
+end

@@ -1,0 +1,9 @@
+
+society.each_node do |node|
+  node.add_agent('UserManager') do |agent|
+    if !agent.has_facet?($facetUserManagerAgent)
+      agent.add_facet({:role=>$facetUserManagerAgent)
+    end
+  end
+  break
+end
