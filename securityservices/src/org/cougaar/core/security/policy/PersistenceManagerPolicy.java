@@ -31,6 +31,9 @@ import java.io.Serializable;
 public class PersistenceManagerPolicy
   extends SecurityPolicy implements Serializable
 {
+   //static final long serialVersionUID = -3939280448042844622L;
+  private static final long serialVersionUID = -4786187937404204594L;
+
   // what type of communication to PM, currently only supports URL
   public String pmType;
   // URL to request key recovery
@@ -42,5 +45,23 @@ public class PersistenceManagerPolicy
     return "(type=" + pmType +
            " url=" + pmUrl +
            " dn=" + pmDN + ")";
+  }
+
+  public int hashCode() {
+    return pmType.hashCode() + pmUrl.hashCode() + pmDN.hashCode();
+  }
+
+  public boolean equals(Object obj) {
+   if (obj == null || !(obj instanceof PersistenceManagerPolicy)) {
+      return false;
+    }
+    PersistenceManagerPolicy pmp = (PersistenceManagerPolicy)obj;
+    if (pmUrl != null && pmUrl.equals(pmp.pmUrl) &&
+        pmDN != null && pmDN.equals(pmp.pmDN)) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }

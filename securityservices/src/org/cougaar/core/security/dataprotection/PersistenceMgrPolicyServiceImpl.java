@@ -45,6 +45,11 @@ import org.cougaar.core.service.wp.AddressEntry;
 import org.cougaar.core.service.wp.Callback;
 import org.cougaar.core.service.wp.Response;
 import org.cougaar.core.service.wp.WhitePagesService;
+import org.cougaar.core.service.EventService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.mts.MessageAddress;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -54,6 +59,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -74,15 +80,23 @@ public class PersistenceMgrPolicyServiceImpl
   private KeyRingService _keyRing;
   // community service used to lookup persistence manager(s)
   private CommunityService _cs;
+  // The ThreadService
+  private ThreadService _threadService=null;
   // to get the agent address entries
   private WhitePagesService _wps;
   // community and white pages service listener
   private ServiceListener _serviceListener;
+  // event service
+  private EventService _eventService;
+  // Address of local node
+  private MessageAddress _localNode = null;
   // my community
   private String _myCommunity;
   // list of persistence manager policies
   private List _policies;
-  private List _agents;
+
+  private Set _agentsBeingSearched = new HashSet();
+
   // debug flag
   private boolean _debug;
 
@@ -102,15 +116,26 @@ public class PersistenceMgrPolicyServiceImpl
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
+    _eventService = (EventService)sb.getService(this, EventService.class, null);
+    NodeIdentificationService nis = (NodeIdentificationService)
+      sb.getService(this, NodeIdentificationService.class, null);
+    if (nis == null) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Unable to getNodeIdentificationService ");
+      }
+      throw new RuntimeException("PersistenceMgrPolicyServiceImpl. No NodeIdentificationService");
+    }
+    _localNode = nis.getMessageAddress();
+    sb.releaseService(this, NodeIdentificationService.class, nis);
+    _threadService = (ThreadService)sb.getService(this, ThreadService.class, null);
 
     _myCommunity = community;
     _policies = new ArrayList();
-    _agents = new ArrayList();
     _debug = _log.isDebugEnabled();
 
-    if(_cs == null || _wps == null) {
+    if(_cs == null || _wps == null || _threadService == null) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Starting service listener.");
+        _log.debug("Starting service listener...");
       }
       registerServiceListener();
     }
@@ -203,21 +228,45 @@ public class PersistenceMgrPolicyServiceImpl
   // register community and white pages service listener
   private void registerServiceListener() {
     ServiceAvailableListener sal = new ServiceAvailableListener() {
+
       public void serviceAvailable(ServiceAvailableEvent ae) {
         Class sc = ae.getService();
         //if(ae.getService() == CommunityService.class) {
         if(org.cougaar.core.service.community.CommunityService.class.isAssignableFrom(sc)) {
-          _log.debug("community service is now available");
-          _cs = (CommunityService)
-            ae.getServiceBroker().getService(this, CommunityService.class, null);
-
-          addCommunityListener();
+          if (_log.isDebugEnabled()) {
+            _log.debug("community service is now available");
+          }
+          if (_cs == null) {
+            _cs = (CommunityService)
+              ae.getServiceBroker().getService(this, CommunityService.class, null);
+          }
         }
-        if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
+        else if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
         //else if(ae.getService() == WhitePagesService.class) {
-          _log.debug("white pages service is now available");
-          _wps = (WhitePagesService)
-            ae.getServiceBroker().getService(this, WhitePagesService.class, null);
+          if (_log.isDebugEnabled()) {
+            _log.debug("white pages service is now available");
+          }
+          if (_wps == null) {
+            _wps = (WhitePagesService)
+              ae.getServiceBroker().getService(this, WhitePagesService.class, null);
+          }
+        }
+        else if (org.cougaar.core.service.ThreadService.class.isAssignableFrom(sc)) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Thread Service is now available");
+          }
+          if (_threadService == null) {
+            _threadService = (ThreadService)
+               ae.getServiceBroker().getService(this, ThreadService.class, null);
+          }
+        }
+        if (_cs != null && _wps != null && _threadService != null) {
+          // All required services are available.
+          if (_log.isDebugEnabled()) {
+            _log.debug("All required services are now available");
+          }
+          removeServiceListener();
+          addCommunityListener();
         }
       }
     };
@@ -228,6 +277,9 @@ public class PersistenceMgrPolicyServiceImpl
   // remove service listener for community and white pages service
   private void removeServiceListener() {
     if(_serviceListener != null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Removing service listener...");
+      }
       _serviceBroker.removeServiceListener(_serviceListener);
     }
   }
@@ -240,13 +292,30 @@ public class PersistenceMgrPolicyServiceImpl
     return policy;
   }
 
-  private void addPolicy(PersistenceManagerPolicy policy) {
+  private void addPolicy(PersistenceManagerPolicy policy, String pmName) {
     if(_debug) {
       _log.debug("adding PersistenceManagerPolicy: " + policy);
     }
     synchronized(_policies) {
+      if (_policies.contains(policy)) {
+        if(_log.isDebugEnabled()) {
+          _log.debug("Policy already added: " + policy);
+        }
+        return;
+      }
       _policies.add(policy);
-
+      if (_eventService.isEventEnabled()) {
+        String s = "PersistenceManager ";
+        s += "ADD ";
+        s += "PM=";
+        s += pmName;
+        s += " Node=";
+        s += _localNode.toAddress();
+        if (_log.isInfoEnabled()) {
+          _log.info(s);
+        }
+        _eventService.event(s);
+      }
       for (Enumeration it = pmListeners.elements(); it.hasMoreElements(); ) {
         PersistenceMgrAvailListener listener =
           (PersistenceMgrAvailListener)it.nextElement();
@@ -328,23 +397,50 @@ public class PersistenceMgrPolicyServiceImpl
       _log.debug("processPersistenceMgrEntry: " + manager + " agent " + agent);
     }
 
-    if(!_agents.contains(agent)) {
-      try {
-	// look up the agent's info in the white pages
-	_wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE, new WpCallback(agent));
+    synchronized(_agentsBeingSearched) {
+      if (!_agentsBeingSearched.contains(agent)) {
+        _agentsBeingSearched.add(agent);
+        lookupPMuri(agent, 0);
       }
-      catch(Exception e) {
-	// if an error occurs ignore this persistence manager
-	_log.error("unable to get " + agent +
-		   " info from the white pages.", e);
-	return;
+      else {
+        if (_log.isDebugEnabled()) {
+          _log.debug("WP search for " + agent + " already in progress");
+        }
       }
     }
   }
 
+  private void lookupPMuri(final String pmName, final int sleepTime) {
+        Schedulable wpThread = _threadService.getThread(this, new Runnable( ) {
+          public void run() {
+            try {
+              // look up the agent's info in the white pages
+              _wps.get(pmName, WhitePagesUtil.WP_HTTP_TYPE, new WpCallback(pmName));
+            }
+            catch(Exception e) {
+              // if an error occurs ignore this persistence manager
+              _log.error("unable to get " + pmName +
+                         " info from the white pages.", e);
+            }
+          } // public void run()
+        }, "PersistenceManagerUriWpLookup: " + pmName);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Going to look up URI of PM=" + pmName + " in " + sleepTime + "ms...");
+        }
+        wpThread.schedule(sleepTime);
+  }
+
   private class WpCallback
     implements Callback {
+    /**
+     * The name of the persistence manager agent.
+    */
     private String _agent;
+    /**
+     * The time between each WP lookup retry.
+     */
+    private final int WP_LOOKUP_RETRY_PERIOD = 10 * 1000;
+
     public WpCallback(String agent) {
       _agent = agent;
     }
@@ -368,6 +464,7 @@ public class PersistenceMgrPolicyServiceImpl
 	  if(_debug) {
 	    _log.debug("address entry is null for : " + _agent);
 	  }
+          lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
 	  return;
 	}
 
@@ -376,28 +473,29 @@ public class PersistenceMgrPolicyServiceImpl
 	String servletUrl = uri + PM_SERVLET_URI;
 	// get all DNs associated with this agent
 	Collection dns = null;
+	if (_log.isDebugEnabled()) {
+	  _log.debug("Searching DN for " + _agent + "...");
+	}
 	try {
 	  dns = _keyRing.findDNFromNS(_agent);
 	}
 	catch (Exception iox) {
 	  if (_log.isDebugEnabled()) {
-	    _log.debug("Failed to get PM name " + _agent);
+	    _log.debug("Failed to get PM name " + _agent + ". Reason: " + iox);
 	  }
+          lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
 	  return;
 	}
+	if (_log.isDebugEnabled()) {
+	  _log.debug("Found " + dns.size() + " DN entries for " + _agent);
+	}
 	// only add the agent if haven't already
-	if(dns.size() > 0) {
-	  synchronized (_agents) {
-	    if(!_agents.contains(_agent)) {
-	      _agents.add(_agent);
-	    }
-            else {
-              if (_log.isDebugEnabled()) {
-                _log.debug("PM already exist: " + _agent);
-              }
-              return;
-            }
-	  }
+	if(dns.size() == 0) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("No DN found for " + _agent);
+          }
+          lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
+          return;
 	}
 	Iterator i = dns.iterator();
 	while(i.hasNext()) {
@@ -406,17 +504,23 @@ public class PersistenceMgrPolicyServiceImpl
             KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE, true);
           if (certList == null || certList.size() == 0) {
             if (_log.isInfoEnabled()) {
-              _log.warn("Found PM entry in WP but no certificate!");
+              _log.warn("Found PM entry for " + _agent + "in WP but no certificate!");
             }
-            _agents.remove(_agent);
+            lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
             return;
           }
-
-	  addPolicy(createPolicy(servletUrl, name.getName()));
+	  addPolicy(createPolicy(servletUrl, name.getName()), _agent);
+        }
+	synchronized (_agentsBeingSearched) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Releasing search lock for " + _agent);
+          }
+          _agentsBeingSearched.remove(_agent);
 	}
       }
       else {
         _log.warn("Response failed for " + _agent);
+        lookupPMuri(_agent, WP_LOOKUP_RETRY_PERIOD);
       }
     }
   }

@@ -42,6 +42,9 @@ public class PersistenceMgrPolicyServiceProvider
     super(sb, community);
     _serviceBroker = sb;
     _myCommunity = community;
+    if(_instance == null) {
+      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker, _myCommunity);
+    }
   }
 
   /**
@@ -54,9 +57,6 @@ public class PersistenceMgrPolicyServiceProvider
   protected synchronized Service getInternalService(ServiceBroker sb, 
 				    Object requestor, 
 				    Class serviceClass) {
-    if(_instance == null) {
-      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker, _myCommunity);
-    }
     return _instance;
   }
 
