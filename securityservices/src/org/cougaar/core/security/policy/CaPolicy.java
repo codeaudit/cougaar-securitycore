@@ -29,7 +29,7 @@ package org.cougaar.core.security.policy;
 import sun.security.x509.*;
 import java.net.*;
 
-public class CaPolicy 
+public class CaPolicy
   extends SecurityPolicy
 {
 
@@ -115,6 +115,13 @@ public class CaPolicy
   /** The algorithm ID used to sign CRLs
    */
   public AlgorithmId CRLalgorithmId;
+
+  /**
+   * Whether to allow node as signer, if yes node will sign agent
+   * and other certificates requested. If not CA need to sign any
+   * certificates requested.
+   */
+  public boolean nodeIsSigner;
 
 
   public String toString() {
