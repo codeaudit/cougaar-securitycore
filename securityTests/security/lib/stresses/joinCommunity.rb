@@ -28,7 +28,9 @@ class JoinCommunity < SecurityStressFramework
 
   def setupStress
     # find an attack agent
-    searchForTarget
+    @attackAgent = findAttackAgent(@run) # method in misc.rb
+    saveAssertion('StressMaliciousJoinCommunity',
+              "Found attack agent: #{@attackAgent.name}" )
     # determine community manager from communities
     searchForCommunityManager
     @listenerId = @run.comms.on_cougaar_event do |event|
@@ -93,7 +95,8 @@ class JoinCommunity < SecurityStressFramework
           community.each_attribute do |key, value|
             if key == 'CommunityManager'
               @testManager = value
-              logInfoMsg "Found community manager for #{@attackAgent.name}: #{@testManager}"
+              saveAssertion('StressMaliciousJoinCommunity', 
+                "Found community manager for #{@attackAgent.name}: #{@testManager}")
               return 
             end
           end
@@ -102,37 +105,6 @@ class JoinCommunity < SecurityStressFramework
     end
     
   end
-  
-   #
-  # Search for the first agent in a non-security node.
-  # This method sets @pdm (policy domain manager), @enclave and @attackAgent
-  #
-  def searchForTarget
-    @run.society.each_node do |node|
-      securityComp = false
-      node.each_facet(:role) do |facet|
-        if facet[:role] == $facetManagement ||
-           facet[:role] == $facetSubManagement ||
-           facet[:role] == $facetRootManagement ||
-           facet[:role] == 'RootCertificateAuthority' ||
-           facet[:role] == 'CertificateAuthority' ||
-           facet[:role] == 'RedundantCertificateAuthority'
-          securityComp = true
-          break 
-        end 
-      end
-      if securityComp == false
-        logInfoMsg "Found first non-security node: #{node.name}"
-        node.each_agent do |agent|
-          # get the first agent from this node
-          @attackAgent = agent
-          logInfoMsg "Found attack agent: #{@attackAgent.name}"
-          break 
-        end 
-        return
-      end # if securityComp == false
-    end # @run.society.each_node
-  end # searchForTarget
  
   #
   # called to process a CougaarEvent 
