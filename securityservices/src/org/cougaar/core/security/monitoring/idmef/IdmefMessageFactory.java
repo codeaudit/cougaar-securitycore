@@ -444,15 +444,12 @@ final public class IdmefMessageFactory {
 			    List targetList,
 			    List classificationList,
 			    List dataList ){
-    if( sensor instanceof SensorInfo ){
       return createAlert( createAnalyzer( sensor ),
 			                    detectTime,
 			                    sourceList,
 			                    targetList,
 			                    classificationList,
 			                    dataList );
-    }
-    return new Alert();
   }
     
   public Alert createAlert( Node alertNode ){
