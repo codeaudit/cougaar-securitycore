@@ -570,7 +570,7 @@ public class KeyManagement
     return request;
   }
 
-  private synchronized int getNextSerialNumber(String filename)
+  private synchronized BigInteger getNextSerialNumber(String filename)
     throws FileNotFoundException, IOException
   {
     String serialNbFileName = confDirectoryName + File.separatorChar + filename;
@@ -579,7 +579,7 @@ public class KeyManagement
     }
     File fserial = new File(serialNbFileName);
     FileWriter fOutSerial = null;
-    int nextSerialNumber = 0;
+    BigInteger nextSerialNumber = null;
     String serialNbString = null;
 
     if (!fserial.exists()) {
@@ -591,8 +591,8 @@ public class KeyManagement
       try {
 	fserial.createNewFile();
 	fOutSerial = new FileWriter(fserial);
-	nextSerialNumber = 1;
-	serialNbString = String.valueOf(nextSerialNumber);
+	nextSerialNumber = BigInteger.ONE;
+	serialNbString = nextSerialNumber.toString();
 	fOutSerial.write(serialNbString, 0, serialNbString.length());
 	fOutSerial.close();
       }
@@ -609,13 +609,13 @@ public class KeyManagement
     if (debug) {
       System.out.println("Serial = " + serialNbString);
     }
-    nextSerialNumber = Integer.parseInt(serialNbString);
+    nextSerialNumber = new BigInteger(serialNbString);
 
     // Write next serial number back to file.
     fOutSerial = new FileWriter(fserial);
 
     // For now, do a simple increment algorithm.
-    serialNbString = String.valueOf(nextSerialNumber + 1);
+    serialNbString = nextSerialNumber.add(BigInteger.ONE).toString();
     fOutSerial.write(serialNbString, 0, serialNbString.length());
     fOutSerial.close();
 
@@ -647,9 +647,6 @@ public class KeyManagement
     // caSignature.initSign(caPrivateKey);
 
     X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
-    if (debug) {
-      System.out.println("Signer: " + caX500signer);
-    }
 
     /** 
      * Client certificate attributes
@@ -667,12 +664,9 @@ public class KeyManagement
     
 
     // Sign certificate
-    if (debug) {
-      System.out.println("Before signing: " + clientCertificate.toString());
-    }
     clientCertificate.sign(caPrivateKey, caPolicy.algorithmId.getName());
     if (debug) {
-      System.out.println("After signing: " + clientCertificate.toString());
+      System.out.println("Signing certificate: " + clientCertificate.toString());
     }
 
     return clientCertificate;
@@ -857,6 +851,14 @@ public class KeyManagement
   private X509CertImpl setX509CertificateFields(PKCS10 clientRequest)
     throws IOException, CertificateException
   {
+
+    /* Retrieve attributes from the PKCS10 request */
+    PKCS10Attributes attr = clientRequest.getAttributes();
+    if (debug) {
+      System.out.println("setX509CertificateFields. PKCS10 attributes:");
+      System.out.println(attr.toString());
+    }
+
     /** 
      * Client certificate attributes
      * Valid attributes:
@@ -872,7 +874,7 @@ public class KeyManagement
     clientCertInfo.set("version", certversion);
 
     // Set serial number
-    int nextSerialNumber = getNextSerialNumber(caPolicy.serialNumberFile);
+    BigInteger nextSerialNumber = getNextSerialNumber(caPolicy.serialNumberFile);
     CertificateSerialNumber certSerialNumber = new CertificateSerialNumber(nextSerialNumber);
     clientCertInfo.set("serialNumber", certSerialNumber);
 
@@ -889,9 +891,8 @@ public class KeyManagement
     // Certificate can be used right away
     Date date_notbefore = new Date();
     // Certificate is valid for a number of days
-    Calendar cal_end = Calendar.getInstance();
-    cal_end.add(Calendar.DATE, caPolicy.howLong);
-    Date date_notafter = cal_end.getTime();
+    Date date_notafter = new Date();
+    date_notafter.setTime(date_notbefore.getTime() + caPolicy.howLong * 1000L);
     CertificateValidity certValidity = new CertificateValidity(date_notbefore, date_notafter);
     clientCertInfo.set("validity", certValidity);
 
