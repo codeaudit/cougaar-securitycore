@@ -157,7 +157,7 @@ def deltaPolicy(enclave, text)
       bootPolicyFile = File.join(CIP, "configs", "security",
                                  "DamlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
-      logInfoMsg result
+#      logInfoMsg result
       sleep 30.seconds
     end
     # now create the delta file
@@ -165,7 +165,7 @@ def deltaPolicy(enclave, text)
       file.write(text)
     }
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
-    logInfoMsg result
+#    logInfoMsg result
   }
 end
 
