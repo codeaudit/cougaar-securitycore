@@ -32,6 +32,7 @@ public class CryptoFailureEvent extends FailureEvent {
   public final static String VERIFICATION_FAILURE = "Verification Failure";
   public final static String ENCRYPT_FAILURE = "Encryption Failure";
   public final static String DECRYPT_FAILURE = "Decryption Failure";
+  public final static String INVALID_CERTIFICATE = "Invalid Certificate";
   public final static String SIGN_AND_ENCRYPT_FAILURE = "Sign and Encrypt Failure";
   public final static String DECRYPT_AND_VERIFY_FAILURE = "Decrypt and Verify Failure";
   public final static String IO_EXCEPTION = "IO Exception";
