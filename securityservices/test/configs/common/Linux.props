@@ -274,3 +274,6 @@ org.cougaar.core.security.policy.auth.role.useAccessCaching=true
 
 
 #org.cougaar.core.security.securebootstrap.logger=org.cougaar.core.security.securebootstrap.ConsoleLogger
+
+# Audit
+org.cougaar.core.security.audit=true
