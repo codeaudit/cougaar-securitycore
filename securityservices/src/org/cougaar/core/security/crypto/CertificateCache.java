@@ -53,7 +53,7 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
+
 import org.cougaar.core.security.util.*;
 
 /** A hash table to store certificates from keystore, caKeystore and
@@ -272,35 +272,35 @@ final public class CertificateCache implements CertificateCacheService
 	param.caKeystorePath = cafile2.getPath();
       }
       else {
-      /**
-       * Create trusted keystore anyway, if no trusted cert is installed
-       * later then this node simply cannot do anything
-       * */
-       /*
-        if (param.isCertAuth ||
+        /**
+         * Create trusted keystore anyway, if no trusted cert is installed
+         * later then this node simply cannot do anything
+         * */
+        /*
+          if (param.isCertAuth ||
           System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
-          */
-          if (log.isInfoEnabled()) {
-            log.info(param.caKeystorePath +
-                     " Trusted CA keystore does not exist. Creating...");
-	  }
-	  try {
-	    KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-	    FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
-	    k.load(null, param.caKeystorePassword);
-	    k.store(fos, param.caKeystorePassword);
-	    fos.close();
-	  }
-	  catch (Exception e) {
-	    log.warn("Unable to create CA keystore:" + e);
-	    throw new RuntimeException("Unable to create CA keystore:" + e);
-	  }
+        */
+        if (log.isInfoEnabled()) {
+          log.info(param.caKeystorePath +
+                   " Trusted CA keystore does not exist. Creating...");
+        }
+        try {
+          KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
+          FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
+          k.load(null, param.caKeystorePassword);
+          k.store(fos, param.caKeystorePassword);
+          fos.close();
+        }
+        catch (Exception e) {
+          log.warn("Unable to create CA keystore:" + e);
+          throw new RuntimeException("Unable to create CA keystore:" + e);
+        }
 	/*
-	}
-	else {
+          }
+          else {
 	  log.error("CA keystore (" + param.caKeystorePath +
-		    ") unavailable. At least one CA certificate should be included");
-	}
+          ") unavailable. At least one CA certificate should be included");
+          }
 	*/
       }
     }
@@ -560,14 +560,14 @@ final public class CertificateCache implements CertificateCacheService
     if(!found){
       log.warn(" not found cert:");
       return;
-     }
+    }
 
     // should check all certificate status, checkCertificate in cert cache
     // does not check cert chain, so the cert issued by a revoked signer
     // would still be considered valid
     KeyRingService ks =  (KeyRingService)serviceBroker.getService(this,
-								 KeyRingService.class,
-								 null);
+                                                                  KeyRingService.class,
+                                                                  null);
     if(ks==null) {
       log.warn(" Cannot revoke status as KeyRingService is null :") ;
       return ;
@@ -900,32 +900,32 @@ final public class CertificateCache implements CertificateCacheService
    *  because the whole chain is not checked
    */
   /*
-  public List getValidPrivateKeys(X500Name x500Name) {
+    public List getValidPrivateKeys(X500Name x500Name) {
     List allCertificates = getPrivateKeys(x500Name);
     if (allCertificates == null || allCertificates.size() == 0) {
-      if (log.isDebugEnabled()) {
-	log.debug("No private key for " + x500Name);
-      }
-      return null;
+    if (log.isDebugEnabled()) {
+    log.debug("No private key for " + x500Name);
+    }
+    return null;
     }
     List validPrivateKeys = Collections.synchronizedList(new ArrayList());
 
     synchronized(allCertificates) {
-      ListIterator it = allCertificates.listIterator();
-      while (it.hasNext()) {
-	PrivateKeyCert cs = (PrivateKeyCert) it.next();
-	boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
-	if (log.isDebugEnabled()) {
-	  log.debug("Checking certificate trust: " + cs.getCertificateStatus()
-		    + ". Trust: " + isTrustedAndValid);
-	}
-	if (isTrustedAndValid) {
-	  validPrivateKeys.add(cs);
-	}
-      }
+    ListIterator it = allCertificates.listIterator();
+    while (it.hasNext()) {
+    PrivateKeyCert cs = (PrivateKeyCert) it.next();
+    boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
+    if (log.isDebugEnabled()) {
+    log.debug("Checking certificate trust: " + cs.getCertificateStatus()
+    + ". Trust: " + isTrustedAndValid);
+    }
+    if (isTrustedAndValid) {
+    validPrivateKeys.add(cs);
+    }
+    }
     }
     return validPrivateKeys;
-  }
+    }
   */
 
   private List getPrivateKeys(String distinguishedName)
@@ -1041,29 +1041,29 @@ final public class CertificateCache implements CertificateCacheService
     }
 
   /*
-  private boolean checkCertificate(CertificateStatus cs) {
+    private boolean checkCertificate(CertificateStatus cs) {
     return checkCertificate(cs, false, false);
-  }
+    }
   */
 
   /** Check the certificate validity of a certificate.
    */
   /*
-  private boolean checkCertificate(CertificateStatus cs,
-				   boolean buildChain, boolean changeStatus) {
+    private boolean checkCertificate(CertificateStatus cs,
+    boolean buildChain, boolean changeStatus) {
     boolean isTrustedAndValid = false;
 
     // What is this for? If not important for every find then
     // put it in operations performed during background thread
     if (buildChain) {
-      X500Name x500Name = null;
-      try {
-        x500Name = new X500Name(cs.getCertificate().getSubjectDN().getName());
-      } catch(Exception e) {
-        if (log.isWarnEnabled()) {
-          log.warn("Unable to get X500 Name - " + e);
-        }
-      }
+    X500Name x500Name = null;
+    try {
+    x500Name = new X500Name(cs.getCertificate().getSubjectDN().getName());
+    } catch(Exception e) {
+    if (log.isWarnEnabled()) {
+    log.warn("Unable to get X500 Name - " + e);
+    }
+    }
     }
 
     // The first element in the list should be the most up-to-date
@@ -1072,81 +1072,81 @@ final public class CertificateCache implements CertificateCacheService
     // but it is not yet valid and we still have another certificate
     // which is still valid.
     if (cs == null) {
-      throw new IllegalArgumentException("CertificateStatus is null");
+    throw new IllegalArgumentException("CertificateStatus is null");
     }
     try {
-      cs.checkCertificateValidity();
+    cs.checkCertificateValidity();
 
-      if (buildChain)
-        directorykeystore.checkCertificateTrust(cs.getCertificate());
-      // Certificate is valid. Return it.
-      isTrustedAndValid = true;
+    if (buildChain)
+    directorykeystore.checkCertificateTrust(cs.getCertificate());
+    // Certificate is valid. Return it.
+    isTrustedAndValid = true;
     }
     catch (CertificateNotTrustedException e) {
-      // Find out cause
-      if (e.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
-	//* Certificate has not been signed by a CA. Either the CA has refused
-	// * to issue the certificate or communication with the CA was not
-	// * possible. 
+    // Find out cause
+    if (e.cause == CertificateTrust.CERT_TRUST_SELF_SIGNED) {
+    //* Certificate has not been signed by a CA. Either the CA has refused
+    // * to issue the certificate or communication with the CA was not
+    // * possible. 
 
-	//* There are two cases:
-	// * 1) If this is a remote entity certificate, then we need to send
-	// * a message to that remote entity, notifying that the certificate
-	// * cannot be trusted. The remote entity will then have to request
-	// * an appropriate certificate and have the CA publish it to the
-	// * certificate directory.
-	// * This capability has yet to be implemented (TODO).
-	// *
-	// * 2) If this a local entity certificate, then we can send a certificate
-	// * signing request to the CA. If the certificate has a matching private key,
-	// * then it is considered a local entity.
-  if (log.isDebugEnabled()) {
-	  log.debug("checkCertificate. Certificate is self-signed");
-	}
-      }
-      else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
-	// Try to find out certificate trust
-	if (log.isDebugEnabled()) {
-	  log.debug("checkCertificate. Certificate trust is unknown");
-	}
-	isTrustedAndValid = false;
-      }
-      else {
-	// Otherwise, certificate is not trusted.
-	if (log.isWarnEnabled()) {
-	  log.warn("checkCertificate. Not trusted. Cause="
-		   + e.cause);
-	}
-	isTrustedAndValid = false;
-      }
-      // TODO: mechanism by which one can send a message to a remote entity
-      // requesting for that entity to generate a certificate that we can use.
+    //* There are two cases:
+    // * 1) If this is a remote entity certificate, then we need to send
+    // * a message to that remote entity, notifying that the certificate
+    // * cannot be trusted. The remote entity will then have to request
+    // * an appropriate certificate and have the CA publish it to the
+    // * certificate directory.
+    // * This capability has yet to be implemented (TODO).
+    // *
+    // * 2) If this a local entity certificate, then we can send a certificate
+    // * signing request to the CA. If the certificate has a matching private key,
+    // * then it is considered a local entity.
+    if (log.isDebugEnabled()) {
+    log.debug("checkCertificate. Certificate is self-signed");
+    }
+    }
+    else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
+    // Try to find out certificate trust
+    if (log.isDebugEnabled()) {
+    log.debug("checkCertificate. Certificate trust is unknown");
+    }
+    isTrustedAndValid = false;
+    }
+    else {
+    // Otherwise, certificate is not trusted.
+    if (log.isWarnEnabled()) {
+    log.warn("checkCertificate. Not trusted. Cause="
+    + e.cause);
+    }
+    isTrustedAndValid = false;
+    }
+    // TODO: mechanism by which one can send a message to a remote entity
+    // requesting for that entity to generate a certificate that we can use.
     }
     catch (CertificateException e) {
-      // There is no suitable private key (expired, revoked, ...)
-      // Request a new one to the Certificate Authority
-      if (log.isInfoEnabled()) {
-	log.info("Invalid certificate: " + e);
-      }
+    // There is no suitable private key (expired, revoked, ...)
+    // Request a new one to the Certificate Authority
+    if (log.isInfoEnabled()) {
+    log.info("Invalid certificate: " + e);
+    }
 
-      // in some cases (cert chain problem) the status should be changed
-      // otherwise next time if chain verification is not specified the
-      // cert will still be considered valid
-      // this code only handles revoked cert, should change status anytime
-      // on any certificate
-      if (changeStatus) {
-        if (e instanceof CertificateChainException) {
-          if (log.isWarnEnabled()) {
-            log.warn("One of signers in chain has been revoked.");
-          }
-          cs.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
-          cs.setValidity(false);
-        }
-      }
+    // in some cases (cert chain problem) the status should be changed
+    // otherwise next time if chain verification is not specified the
+    // cert will still be considered valid
+    // this code only handles revoked cert, should change status anytime
+    // on any certificate
+    if (changeStatus) {
+    if (e instanceof CertificateChainException) {
+    if (log.isWarnEnabled()) {
+    log.warn("One of signers in chain has been revoked.");
+    }
+    cs.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
+    cs.setValidity(false);
+    }
+    }
 
     }
     return isTrustedAndValid;
-  }
+    }
   */
 
   public void deleteEntry(X500Name name) {
@@ -1224,37 +1224,37 @@ final public class CertificateCache implements CertificateCacheService
      */
 
     /*
-    if (log.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
       log.debug("++++++ Checking certificate trust");
-    }
-    Enumeration e = getKeysInCache();
-    X500Name name = null;
+      }
+      Enumeration e = getKeysInCache();
+      X500Name name = null;
 
-    // Looping through all the keys in the certificate cache.
-    while (e.hasMoreElements()) {
+      // Looping through all the keys in the certificate cache.
+      while (e.hasMoreElements()) {
       String certdn = (String)e.nextElement();
       name = CertificateUtility.getX500Name(certdn);
 
       List list = getCertificates(name);
       ListIterator it = list.listIterator();
       if (log.isDebugEnabled()) {
-	log.debug("-- Checking certificates validity for: " + name);
+      log.debug("-- Checking certificates validity for: " + name);
       }
 
       boolean isTrusted = false; // Raise a warning if there is no trusted cert for that entity.
       while (it.hasNext()) {
-	CertificateStatus cs = (CertificateStatus) it.next();
-	X509Certificate certificate = cs.getCertificate();
-	if (setCertificateTrust(certificate, cs, name, selfsignedCAs)) {
-	  isTrusted = true;
-	}
+      CertificateStatus cs = (CertificateStatus) it.next();
+      X509Certificate certificate = cs.getCertificate();
+      if (setCertificateTrust(certificate, cs, name, selfsignedCAs)) {
+      isTrusted = true;
+      }
       } // END while(it.hasNext())
       if (isTrusted == false) {
-	if (log.isInfoEnabled()) {
-	  log.info("No trusted certificate was found for " + name.toString());
-	}
+      if (log.isInfoEnabled()) {
+      log.info("No trusted certificate was found for " + name.toString());
       }
-    } // END while(e.hasMoreElements()
+      }
+      } // END while(e.hasMoreElements()
 
     */
 
@@ -1330,14 +1330,14 @@ final public class CertificateCache implements CertificateCacheService
     }
 
   public boolean setCertificateTrust(X509Certificate certificate, CertificateStatus cs,
-				      X500Name name, Hashtable selfsignedCAs) {
+                                     X500Name name, Hashtable selfsignedCAs) {
     boolean isTrusted = false; // Raise a warning if there is no trusted cert for that entity.
-   KeyRingService ks =  (KeyRingService)serviceBroker.getService(this,
-								 KeyRingService.class,
-								 null);
-   if(ks==null) {
-     return isTrusted;
-   }
+    KeyRingService ks =  (KeyRingService)serviceBroker.getService(this,
+                                                                  KeyRingService.class,
+                                                                  null);
+    if(ks==null) {
+      return isTrusted;
+    }
     try {
       X509Certificate[] certs = ks.checkCertificateTrust(certificate);
       // Could establish a certificate chain. Certificate is trusted.
@@ -1361,7 +1361,7 @@ final public class CertificateCache implements CertificateCacheService
 
 	// is CA certificate created but pending?
         if (!cachecryptoClientPolicy.isRootCA() &&
-          cachecryptoClientPolicy.isCertificateAuthority()) {
+            cachecryptoClientPolicy.isCertificateAuthority()) {
 	  // We are a subordinate CA
 	  if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	    // should this be moved to after initialization?
@@ -1392,7 +1392,7 @@ final public class CertificateCache implements CertificateCacheService
     return isTrusted;
   }
   public CertificateStatus addKeyToCache(X509Certificate certificate, PrivateKey key,
-					  String alias, CertificateType certType) {
+                                         String alias, CertificateType certType) {
     if (certificate == null) {
       log.warn("Unable to add null certificate to cache");
       throw new IllegalArgumentException("Unable to add null certificate to cache");
@@ -1444,7 +1444,7 @@ final public class CertificateCache implements CertificateCacheService
     return certstatus;
   }
 
-   public static String getTitle(String commonName) {
+  public static String getTitle(String commonName) {
     String title = CERT_TITLE_AGENT;
     if (commonName.equals(NodeInfo.getNodeName()))
       title = CERT_TITLE_NODE;
@@ -1454,21 +1454,21 @@ final public class CertificateCache implements CertificateCacheService
   }
 
 
-   public Enumeration getAliasList()
-  {
-    Enumeration alias;
-    try {
-      alias =keystore.aliases();
-    }
-    catch (Exception exp) {
-      log.warn("Unable to get alias list: " + exp);
-      return null;
-    }
-    return alias;
+  public Enumeration getAliasList()
+    {
+      Enumeration alias;
+      try {
+        alias =keystore.aliases();
+      }
+      catch (Exception exp) {
+        log.warn("Unable to get alias list: " + exp);
+        return null;
+      }
+      return alias;
 
-  }
+    }
 
-   public KeyStore getKeyStore() {
+  public KeyStore getKeyStore() {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -1486,13 +1486,13 @@ final public class CertificateCache implements CertificateCacheService
   }
 /*
   public boolean  presentInNameMapping(String commonName){
-    if(nameMapping!=null) {
-     return  nameMapping.contains(commonName);
-    }
-    return false;
+  if(nameMapping!=null) {
+  return  nameMapping.contains(commonName);
+  }
+  return false;
   }
 */
-   public boolean  presentInNameMapping(X500Name dname){
+  public boolean  presentInNameMapping(X500Name dname){
     if(nameMapping!=null) {
       return nameMapping.contains(dname);
     }
@@ -1505,7 +1505,7 @@ final public class CertificateCache implements CertificateCacheService
     }
   }
   
-   /**
+  /**
    * When used in user application, the privatekey is password protected,
    * this function is used as generic fuction to add certificate to cache.
    */
@@ -1527,7 +1527,7 @@ final public class CertificateCache implements CertificateCacheService
     nameMapping.addName(certstatus);
   }
 
-   public void addSSLCertificateToCache(X509Certificate sslCert) {
+  public void addSSLCertificateToCache(X509Certificate sslCert) {
     String dname = sslCert.getSubjectDN().getName();
     X500Name x500name = CertificateUtility.getX500Name(dname);
     List certList = getCertificates(x500name);
@@ -1590,127 +1590,127 @@ final public class CertificateCache implements CertificateCacheService
     return alias;
   }
   
-   private void addCN2alias(String alias, X509Certificate x509)
-  {
-    String cn = getCommonName(x509);
-    if (log.isDebugEnabled()) {
-      log.debug("addCN2alias: " + cn + "<->" + alias);
+  private void addCN2alias(String alias, X509Certificate x509)
+    {
+      String cn = getCommonName(x509);
+      if (log.isDebugEnabled()) {
+        log.debug("addCN2alias: " + cn + "<->" + alias);
+      }
+      commonName2alias.put(cn, alias);
     }
-    commonName2alias.put(cn, alias);
-  }
 
   private void removeCN2alias(String cn)
-  {
-    String alias = (String) commonName2alias.get(cn);
-    if (log.isDebugEnabled()) {
-      log.debug("removeCN2alias: " + cn + "<->" + alias);
+    {
+      String alias = (String) commonName2alias.get(cn);
+      if (log.isDebugEnabled()) {
+        log.debug("removeCN2alias: " + cn + "<->" + alias);
+      }
+      commonName2alias.remove(cn);
     }
-    commonName2alias.remove(cn);
-  }
 
   
-    /** Set a key entry in the keystore */
+  /** Set a key entry in the keystore */
   public  void setKeyEntry(String alias, PrivateKey privatekey,
 			   X509Certificate[] certificate)
-  {
-    if (log.isDebugEnabled()) {
-      log.debug("Setting keystore private key entry:" + alias);
-    }
-    addCN2alias(alias, certificate[0]);
-    try {
-      synchronized(keystore) {
-      keystore.setKeyEntry(alias, privatekey, param.keystorePassword,
-			   			   certificate);
+    {
+      if (log.isDebugEnabled()) {
+        log.debug("Setting keystore private key entry:" + alias);
       }
-    } catch(Exception e) {
-      if (log.isErrorEnabled()) {
-	log.error("Unable to set key entry in the keystore - "
-		  + e.getMessage());
+      addCN2alias(alias, certificate[0]);
+      try {
+        synchronized(keystore) {
+          keystore.setKeyEntry(alias, privatekey, param.keystorePassword,
+                               certificate);
+        }
+      } catch(Exception e) {
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set key entry in the keystore - "
+                    + e.getMessage());
+        }
       }
+      // Store key store in permanent storage.
+      storeKeyStore();
     }
-    // Store key store in permanent storage.
-    storeKeyStore();
-  }
 
   private void setCertificateEntry(String alias, X509Certificate aCertificate)
-  {
-    if (log.isDebugEnabled()) {
-      log.debug("Setting keystore certificate entry:" + alias);
-    }
-    addCN2alias(alias, aCertificate);
-    try {
-      synchronized(keystore) {
-	keystore.setCertificateEntry(alias, aCertificate);
+    {
+      if (log.isDebugEnabled()) {
+        log.debug("Setting keystore certificate entry:" + alias);
       }
-    } catch(Exception e) {
-      if (log.isErrorEnabled()) {
-	log.error("Unable to set certificate in the keystore - "
-			 + e.getMessage());
+      addCN2alias(alias, aCertificate);
+      try {
+        synchronized(keystore) {
+          keystore.setCertificateEntry(alias, aCertificate);
+        }
+      } catch(Exception e) {
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set certificate in the keystore - "
+                    + e.getMessage());
+        }
       }
+      // Store key store in permanent storage.
+      storeKeyStore();
     }
-    // Store key store in permanent storage.
-    storeKeyStore();
-  }
 
  
 
   public void deleteEntry(String alias, String commonName)
-  {
-    removeCN2alias(commonName);
-    try {
-      keystore.deleteEntry(alias);
-    } catch(Exception e) {
-      if (log.isErrorEnabled()) {
-	log.error("Unable to set certificate in the keystore - "
-		  + e.getMessage());
+    {
+      removeCN2alias(commonName);
+      try {
+        keystore.deleteEntry(alias);
+      } catch(Exception e) {
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set certificate in the keystore - "
+                    + e.getMessage());
+        }
       }
-    }
 
-    // Store key store in permanent storage.
-    storeKeyStore();
-  }
+      // Store key store in permanent storage.
+      storeKeyStore();
+    }
 
   /** Store the keystore in permanent storage. Should be called anytime
       a key is modified, created or deleted. */
   private void storeKeyStore()
-  {
-    if (log.isDebugEnabled()) {
-      log.debug("Storing keystore in permanent storage");
-    }
-    try {
-      FileOutputStream out = new FileOutputStream(param.keystorePath);
-      synchronized(keystore){
-	keystore.store(out, param.keystorePassword);
-	out.flush();
+    {
+      if (log.isDebugEnabled()) {
+        log.debug("Storing keystore in permanent storage");
       }
-      out.close();
-    } catch(Exception e) {
-      if (log.isErrorEnabled()) {
-	log.error("Can't flush the certificate to the keystore--"
-		  + e.getMessage());
+      try {
+        FileOutputStream out = new FileOutputStream(param.keystorePath);
+        synchronized(keystore){
+          keystore.store(out, param.keystorePassword);
+          out.flush();
+        }
+        out.close();
+      } catch(Exception e) {
+        if (log.isErrorEnabled()) {
+          log.error("Can't flush the certificate to the keystore--"
+                    + e.getMessage());
+        }
       }
     }
-  }
 
   public  X509Certificate getCertificate(String alias)throws KeyStoreException {
-   X509Certificate certificate =
+    X509Certificate certificate =
       (X509Certificate)keystore.getCertificate(alias); 
-   return certificate;
+    return certificate;
   }
   
   public PrivateKey getKey(String alias) throws KeyStoreException,
-                        NoSuchAlgorithmException,
-                        UnrecoverableKeyException {
+    NoSuchAlgorithmException,
+    UnrecoverableKeyException {
 
     PrivateKey privatekey = null;
     synchronized(keystore) {
       privatekey= (PrivateKey) keystore.getKey(alias, param.keystorePassword);
     }
-     return privatekey;
+    return privatekey;
   }
 
-   public void saveCertificateInTrustedKeyStore(X509Certificate aCertificate,
-						String alias) {
+  public void saveCertificateInTrustedKeyStore(X509Certificate aCertificate,
+                                               String alias) {
     if (log.isDebugEnabled()) {
       log.debug("Setting CA keystore certificate entry:" + alias);
     }
@@ -1733,7 +1733,7 @@ final public class CertificateCache implements CertificateCacheService
 		+ e.getMessage());
     }
   }
-   public X509Certificate[] getTrustedIssuers() {
+  public X509Certificate[] getTrustedIssuers() {
     ArrayList list = new ArrayList();
     try {
       for (Enumeration e = caKeystore.aliases(); e.hasMoreElements(); ) {
@@ -1768,16 +1768,16 @@ final public class CertificateCache implements CertificateCacheService
   }
 
   public PrivateKey getKey(String alias, char[] pwd) throws KeyStoreException,
-                        NoSuchAlgorithmException,
-                        UnrecoverableKeyException{
+    NoSuchAlgorithmException,
+    UnrecoverableKeyException{
     return(PrivateKey) keystore.getKey(alias,pwd);
   }
   
-   public String getKeyStorePath() {
+  public String getKeyStorePath() {
     return param.keystorePath;
   }
   
-   public String getCaKeyStorePath() {
+  public String getCaKeyStorePath() {
     return param.caKeystorePath;
   }
   
