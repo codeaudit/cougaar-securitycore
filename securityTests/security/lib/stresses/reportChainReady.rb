@@ -31,14 +31,19 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def loadSocietyData
-    logInfoMsg("calling loadSocietyData for report for Duty")
-    @run.society.each_agent(true) do |agent|
-      facetval = agent.get_facet(:superior_org_id)
-      if facetval != nil
-        subordinate = agent.name
-        superior    = facetval
-        addExpectedRelation(subordinate, superior)
+    File.open(File.join(CIP, "workspace", "test", "subordinates.rb"), "w") do |rubyFile|
+      logInfoMsg("calling loadSocietyData for report for Duty")
+      rubyFile.puts("def installExpectedRelations(rcr)")
+      @run.society.each_agent(true) do |agent|
+        facetval = agent.get_facet(:superior_org_id)
+        if facetval != nil
+          subordinate = agent.name
+          superior    = facetval
+          addExpectedRelation(subordinate, superior)
+          rubyFile.puts "  rcr.addExpectedRelation(\"#{subordinate}\", \"#{superior}\")"
+        end
       end
+      rubyFile.puts("end")
     end
   end
 
