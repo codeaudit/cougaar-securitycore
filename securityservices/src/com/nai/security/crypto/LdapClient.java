@@ -40,6 +40,11 @@ public class LdapClient
   static private boolean debug = false;
   private boolean initializationOK = false;
 
+  protected static final int NETTOOLS = 1;
+  protected static final int OPENLDAP = 2;
+  protected static int ldapMode = OPENLDAP;
+
+    
     	/** Creates new LdapClient */
 
   public LdapClient(String provider_url) 
@@ -55,6 +60,10 @@ public class LdapClient
     Hashtable env=new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
     env.put(Context.PROVIDER_URL,Provider_Url);
+    if(ldapMode == OPENLDAP) {
+      env.put(Context.SECURITY_PRINCIPAL,"cn=manager,dc=cougaar,dc=org");
+      env.put(Context.SECURITY_CREDENTIALS,"secret");
+    }
     try {
       context=new InitialDirContext(env);
       System.out.println("Using LDAP certificate directory: " + Provider_Url);
