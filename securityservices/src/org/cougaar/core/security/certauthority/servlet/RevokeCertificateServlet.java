@@ -89,9 +89,15 @@ extends HttpServlet
       String revokeType = req.getParameter("revoke_type");
     
       if(revokeType != null && revokeType.equals("agent")) {
+        if(log.isDebugEnabled()){
+          log.debug(" got request to revoke certificate with agent name ");
+        }
         revokeAgentCertificate(req, res); 
       }
       else {
+        if(log.isDebugEnabled()){
+          log.debug(" got request to revoke Certificate with unique identifier ");
+        }
         revokeCertificate(req, res);
       }
     }
@@ -195,13 +201,15 @@ extends HttpServlet
         out.close();
         return; 
       }
-    
+      out.println("Trying to get CertificateManagementService for caDN " + caDN + "agent name :"+agentName+"<br> " );
       int status = 0;
       try  {
-        keymanagement =
-          (CertificateManagementService)support.getServiceBroker().getService(
-            new CertificateManagementServiceClientImpl(caDN),
-            CertificateManagementService.class, null);
+        keymanagement =(CertificateManagementService)support.getServiceBroker().getService(
+          new CertificateManagementServiceClientImpl(caDN),
+          CertificateManagementService.class, null);
+        if(keymanagement==null) {
+          out.println("CertificateManagementService  is null ");
+        }
         status = keymanagement.revokeAgentCertificate(caDN, agentName);
       }
       catch (MultipleEntryException mee) {
@@ -211,6 +219,7 @@ extends HttpServlet
       catch (Exception e) {
         out.println("Error has occured due to  following reason  : "
                     + e.getMessage());
+        e.printStackTrace();
         error = true;
       }
 	  
