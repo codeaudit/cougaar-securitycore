@@ -130,6 +130,11 @@ public class KAoSOntologyConnection extends OntologyConnection
     _kds.loadOntology(myOntModel, recursiveLoad);
   }
 
+  public Set getSuperPropertiesOf (String propertyName)
+    throws UnknownConceptException  
+  {
+    return _kds.getSuperPropertiesOf(propertyName);
+  }
 
   
   /*
@@ -159,5 +164,6 @@ public class KAoSOntologyConnection extends OntologyConnection
   {
     throw new UnsupportedOperationException();
   }
+
 
 }

@@ -142,6 +142,12 @@ public class LocalOntologyConnection extends OntologyConnection
     _brains.loadOntology(myOntModel, recursiveLoad);
   }
 
+  public Set getSuperPropertiesOf (String propertyName) 
+      throws UnknownConceptException
+  {
+    return _brains.getSuperPropertiesOf(propertyName);
+  }
+
   /*
    * the following interfaces cannot be implemented without a domain manager.
    */

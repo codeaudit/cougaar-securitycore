@@ -219,6 +219,12 @@ public class TunnelledOntologyConnection extends OntologyConnection
     }
   }
 
+  public Set getSuperPropertiesOf (String propertyName) 
+    throws UnknownConceptException, DirectoryFailure
+  {
+    return _brains.getSuperPropertiesOf(propertyName);
+  }
+
 
   /*
    * Abstract methods requiring a domain manager.
