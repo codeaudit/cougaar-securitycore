@@ -401,7 +401,7 @@ public class CryptoManagerServiceImpl
     }
 
     // Check the policy.
-    if (policy.secureMethod != protectedObject.getSecureMethod().secureMethod) {
+/*    if (policy.secureMethod != protectedObject.getSecureMethod().secureMethod) {
       // The object does not comply with the policy
       GeneralSecurityException gse =
         new GeneralSecurityException("Object does not comply with the policy");
@@ -411,7 +411,7 @@ public class CryptoManagerServiceImpl
                             gse.toString());
       throw gse;
     }
-
+*/
     // Unprotect the message.
     int method = policy.secureMethod;
     if (log.isDebugEnabled()) {
@@ -452,11 +452,11 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to unprotect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
-      publishMessageFailure(source.toString(),
+/*      publishMessageFailure(source.toString(),
                             target.toString(),
                             failureIfOccurred,
                             e.toString());
-      throw e;
+*/      throw e;
     }
     return theObject;
   }
