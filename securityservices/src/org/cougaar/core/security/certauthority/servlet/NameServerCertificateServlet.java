@@ -64,7 +64,7 @@ public class NameServerCertificateServlet extends HttpServlet {
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
     throws ServletException,IOException
   {
-    String errString = "request successful";
+    String errString = null;
     try {
       if (log.isDebugEnabled()) {
         log.debug("doPost");
@@ -142,8 +142,12 @@ public class NameServerCertificateServlet extends HttpServlet {
 	log.warn(errString, e);
       }
     }
-    if (log.isWarnEnabled()) {
-      log.warn(errString);
+    if (errString != null) {
+      if (log.isWarnEnabled()) {
+        log.warn(errString);
+      }
+    } else {
+      errString = "request successful";
     }
     PrintWriter out = res.getWriter();
     out.println(errString);
