@@ -24,7 +24,7 @@
  * -
  */
 
-package com.nai.security.certauthority;
+package com.nai.security.certauthority.servlet;
 
 import java.io.*;
 import java.util.*;
@@ -33,14 +33,15 @@ import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
+// Cougaar security services
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import com.nai.security.certauthority.*;
 
 public class PendingCertDetailsServlet extends  HttpServlet
 {
@@ -49,13 +50,15 @@ public class PendingCertDetailsServlet extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
 
   protected boolean debug = false;
-  javax.servlet.ServletContext context=null;
+
+  private SecurityServletSupport support;
+  public PendingCertDetailsServlet(SecurityServletSupport support) {
+    this.support = support;
+  }
 
   public void init(ServletConfig config) throws ServletException
   {
-    context=config.getServletContext();
-    // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties(context);
+    secprop = support.getSecurityProperties(this);
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();

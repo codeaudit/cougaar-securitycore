@@ -27,13 +27,19 @@ import java.security.*;
 import java.util.HashMap;
 import java.security.cert.CertificateException;
 import javax.crypto.*;
+import java.security.cert.X509Certificate;
+
+// Cougaar core infrastructure
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.component.ServiceRevokedEvent;
 
 // Cougaar Security Services
 import org.cougaar.core.security.bootstrap.BaseBootstrapper;
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
 import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
@@ -41,13 +47,13 @@ public class CryptoManagerServiceImpl
   private boolean debug = false;
   private KeyRingService keyRing = null;
 
-  public CryptoManagerServiceImpl() {
-    // Get KeyRingService
-    // TODO. Replace by call to Service Broker
-    keyRing = CryptoServiceProvider.getKeyRing();
+  public CryptoManagerServiceImpl(KeyRingService aKeyRing) {
+    keyRing = aKeyRing;
   }
 
-  public SignedObject sign(final String name, String spec, Serializable obj){
+  public SignedObject sign(final String name,
+			   String spec,
+			   Serializable obj){
     try {
       PrivateKey pk = (PrivateKey)
 	AccessController.doPrivileged(new PrivilegedAction() {
@@ -82,7 +88,9 @@ public class CryptoManagerServiceImpl
    throws CertificateException {
        java.security.cert.Certificate c = keyRing.findCert(name);
        if (c == null) {
-	 throw new CertificateException("Verify. Unable to get certificate for " + name);
+	 throw
+	   new CertificateException("Verify. Unable to get certificate for "
+				    + name);
        }
        try {
 	 PublicKey pk = c.getPublicKey();
@@ -127,7 +135,9 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  public Object asymmDecrypt(final String name, String spec, SealedObject obj){
+  public Object asymmDecrypt(final String name,
+			     String spec,
+			     SealedObject obj){
     try{
       /*get secretKey*/
       PrivateKey key = (PrivateKey)
@@ -212,15 +222,12 @@ public class CryptoManagerServiceImpl
       }
     }
 
-  public SealedObject signAndEncrypt(Serializable object,
-				     String sourceAgent,
-				     String targetAgent,
-				     SecureMethodParam policy) {
-    SealedObject so = null;
-    SealedObject sessionKey = null;
-    SealedObject sealedMsg = null;
-    SignedObject signedMsg = null;
-  
+  public PublicKeyEnvelope signAndEncrypt(Serializable object,
+					  String source,
+					  String target,
+					  SecureMethodParam policy) {
+    PublicKeyEnvelope envelope = null;
+
     /* Generate the secret key */
     int i = policy.symmSpec.indexOf("/");
     String a;
@@ -234,26 +241,60 @@ public class CryptoManagerServiceImpl
       kg.init(random);
       SecretKey sk=kg.generateKey();
 
+      SealedObject sessionKey = null;
+      SealedObject sealedObject = null;
+      SignedObject signedObject = null;
+      
       // Encrypt session key
-      sessionKey = asymmEncrypt(targetAgent, policy.asymmSpec, sk);
+      sessionKey = asymmEncrypt(target, policy.asymmSpec, sk);
 
-      // Encrypt object itself
-      sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
+      // Sign object
+      signedObject = sign(source, policy.signSpec, object);
 
-      // Sign message
-      signedMsg = sign(sourceAgent, policy.signSpec, sealedMsg);
+      // Encrypt object
+      sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
+      
+      // Find source certificate
+      X509Certificate sender = (X509Certificate)keyRing.findCert(source);
+      X509Certificate receiver = (X509Certificate)keyRing.findCert(target);
+
+      new PublicKeyEnvelope(sender, receiver, sessionKey, sealedObject);
     }
     catch (java.security.NoSuchAlgorithmException e) {
     }
     catch (java.security.cert.CertificateException e) {
     }
-    return so;
+    return envelope;
   }
 
-  public Object decryptAndVerify(SealedObject object) {
+  public Object decryptAndVerify(String source,
+				 String target,
+				 PublicKeyEnvelope envelope,
+				 SecureMethodParam policy) {
+    // Retrieving the secret key, which was encrypted using the public key
+    // of the target.
+    SecretKey sk=(SecretKey)
+      asymmDecrypt(target, policy.asymmSpec,
+		   envelope.getEncryptedSymmetricKey());
+    if (sk == null) {
+      if (debug) {
+	System.out.println("Error: unable to retrieve secret key");
+      }
+      return null;
+    }
+
+    // Decrypt the object
+    SignedObject signedObject =
+      (SignedObject)symmDecrypt(sk, envelope.getEncryptedObject());
+
+    // Verify the signature
     Object o = null;
+    try {
+      o = verify(source, policy.signSpec, signedObject);
+    }
+    catch (CertificateException e) {
+    }
     return o;
   }
-
 }
 

@@ -40,7 +40,7 @@ import sun.security.util.BigInt;
 // Cougaar Security Services
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** This class provides support for the Cryptographic Message Syntax (CMS),
     which is defined in RFC 2630. The CMS syntax is used to digitally sign,
@@ -54,11 +54,14 @@ import org.cougaar.core.security.crypto.CryptoServiceProvider;
 public class CryptographicMessage
 {
   private KeyRingService keyRing = null;
+  private SecurityServiceProvider secProvider = null;
 
   public CryptographicMessage()
   {
-    // TODO: initialize using service broker
-    keyRing = CryptoServiceProvider.getKeyRing();
+   secProvider = new SecurityServiceProvider();
+   keyRing = (KeyRingService)secProvider.getService(null,
+						    this,
+						    KeyRingService.class);
   }
 
   public PKCS7 encryptData()
@@ -232,12 +235,6 @@ public class CryptographicMessage
     return pkcs7;
   }
 
-  /** Test code only. */
-  public static void main(String[] args) {
-    CryptographicMessage m = new CryptographicMessage();
-    m.testCryptographicMessage(args);
-  }
-
   private void testCryptographicMessage(String[] args)
   {
     X509Certificate signerCertificate =
@@ -254,5 +251,11 @@ public class CryptographicMessage
     catch (Exception e) {
       System.out.println("Exception: " + e);
     }
+  }
+
+  /** Test code only. */
+  public static void main(String[] args) {
+    CryptographicMessage m = new CryptographicMessage();
+    m.testCryptographicMessage(args);
   }
 }

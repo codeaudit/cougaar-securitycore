@@ -44,13 +44,16 @@ import java.security.KeyPair;
 import sun.security.pkcs.*;
 import sun.security.x509.OIDMap;
 import sun.security.util.ObjectIdentifier;
+
+// Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
+
+// Cougaar security services
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.util.CryptoDebug;
-
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -72,7 +75,7 @@ final public class KeyRing
 
   private synchronized void init() {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
     try {
       String installpath = secprop.getProperty(secprop.COUGAAR_INSTALL_PATH);
 

@@ -33,8 +33,8 @@ import org.cougaar.core.domain.RootFactory;
 import java.util.Vector;
 import java.util.Enumeration;
 
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+// Cougaar security services
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class MonitoringUtils
 

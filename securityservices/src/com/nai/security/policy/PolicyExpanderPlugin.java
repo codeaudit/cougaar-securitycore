@@ -50,9 +50,8 @@ import safe.util.*;
 // Cougaar security services
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 import com.nai.security.util.DOMWriter;
 
 /**
@@ -86,7 +85,7 @@ public class PolicyExpanderPlugin
   public void setupSubscriptions()
     {
       // TODO. Modify following line to use service broker instead
-      secprop = CryptoServiceProvider.getSecurityProperties();
+      secprop = SecurityServiceProvider.getSecurityProperties(null);
 
       _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
       _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);

@@ -51,6 +51,7 @@ import sun.security.provider.*;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+// Cougaar core services
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBrokerSupport;
 
@@ -64,19 +65,22 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.crypto.CryptoServiceFactory;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class NodeCryptoSimulation
 {
   private KeyRingService keyRing = null;
+  private SecurityServiceProvider secProvider = null;
 
   public NodeCryptoSimulation()
   {
-    // Get KeyRingService
-    // TODO. Replace by call to Service Broker
-    keyRing = CryptoServiceProvider.getKeyRing();
+    secProvider = new SecurityServiceProvider();
+
+    keyRing = (KeyRingService)secProvider.getService(null,
+						     this,
+						     KeyRingService.class);
   }
 
   public static void main(String[] args) {
@@ -111,13 +115,13 @@ public class NodeCryptoSimulation
     }
   }
 
-  CryptoServiceFactory csf;
+//  CryptoSecurityComponent csf;
 
   private void setupCryptoService()
   {
-    csf = new CryptoServiceFactory();
-    csf.setServiceBroker(new ServiceBrokerSupport());
-    csf.initCryptoServices();
+//    csf = new CryptoSecurityComponent();
+//    csf.setServiceBroker(new ServiceBrokerSupport());
+//    csf.initCryptoServices();
   }
 
   private void sendPkcs10Request(String role, String filename)
@@ -127,7 +131,7 @@ public class NodeCryptoSimulation
 
     // Process a PKCS10 request:
     KeyManagement km = null;
-    km = new KeyManagement(caDN, role, null, null, false);
+    km = new KeyManagement(caDN, role, null, null, false, null);
 
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
@@ -141,7 +145,7 @@ public class NodeCryptoSimulation
 
     // Process a signed certificate request
     KeyManagement km = null;
-    km = new KeyManagement(caDN, role, null, null, false);
+    km = new KeyManagement(caDN, role, null, null, false, null);
 
     FileInputStream is = new FileInputStream(filename);
     km.printPkcs7Request(is);

@@ -47,18 +47,27 @@ import com.nai.security.util.CryptoDebug;
 // Cougaar Security Services
 import com.nai.security.crypto.KeyRing;
 import com.nai.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.crypto.KeySet;
+import org.cougaar.core.security.crypto.KeyWrapping;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.identity.TransferableIdentity;
+import org.cougaar.core.security.services.identity.AgentIdentityService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class AgentMobility
 {
+  private SecurityServiceProvider secProvider = null;
   private KeyRingService keyRing = null;
+  private AgentIdentityService agentIdentity = null;
 
   public AgentMobility()
   {
-    // Get KeyRingService
-    // TODO. Replace by call to Service Broker
-    keyRing = CryptoServiceProvider.getKeyRing();
+    secProvider = new SecurityServiceProvider();
+
+    keyRing = (KeyRingService)secProvider.getService(null,
+						     this,
+						     KeyRingService.class);
+
   }
 
   /** Test code only. */
@@ -74,6 +83,28 @@ public class AgentMobility
   }
 
   public void testAgentMobility(String[] args) {
+    String signerAlias = args[0];
+    String pkcs12Alias = args[1];
+    String receiverAlias = args[2];
+
+
+    if (CryptoDebug.debug) {
+      System.out.println("======== Wrapping key");
+    }
+    TransferableIdentity identity =
+      agentIdentity.initiateTransfer(pkcs12Alias,
+				     signerAlias,
+				     receiverAlias);
+    if (CryptoDebug.debug) {
+      System.out.println("======== Unwrapping key");
+    }
+    KeySet keySet = null;
+    agentIdentity.completeTransfer(identity,
+				   signerAlias,
+				   receiverAlias);
+  }
+
+  public void testAgentMobilityWithPkcs12(String[] args) {
 
     String signerAlias = args[0];
     String pkcs12Alias = args[1];

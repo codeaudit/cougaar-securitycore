@@ -42,9 +42,10 @@ import java.security.spec.InvalidKeySpecException;
 import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
+
+// Cougaar security services
 import com.nai.security.util.CryptoDebug;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class PrivateKeyPKCS12
 {
@@ -55,6 +56,7 @@ public class PrivateKeyPKCS12
     directory = aDirectory;
   }
 
+  
   /** @param privKey        The private key to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer

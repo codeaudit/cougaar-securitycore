@@ -34,10 +34,7 @@ import java.io.*;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
-import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.util.*;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 // KAoS policy management
 import kaos.core.guard.Guard;
@@ -48,7 +45,10 @@ import kaos.core.util.*;
 
 // Cougaar security services
 import com.nai.security.util.DOMWriter;
+import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public abstract class GuardRegistration
   implements Enforcer
@@ -73,7 +73,7 @@ public abstract class GuardRegistration
 
   public GuardRegistration(String aPolicyType, String enforcerName) {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     // Setup whether we're in debug mode or not
     debug = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,

@@ -54,20 +54,23 @@ import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
 import com.nai.security.util.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class KeyTest implements Runnable
 {
   private String commonName = null;
   private KeyRingService keyRing = null;
+  private SecurityServiceProvider secProvider = null;
 
   public KeyTest(String aCN)
   {
     commonName = aCN;
 
-    // Get KeyRingService
-    // TODO
-    keyRing = CryptoServiceProvider.getKeyRing();
+    secProvider = new SecurityServiceProvider();
+
+    keyRing = (KeyRingService)secProvider.getService(null,
+						     this,
+						     KeyRingService.class);
   }
 
   public void run() {

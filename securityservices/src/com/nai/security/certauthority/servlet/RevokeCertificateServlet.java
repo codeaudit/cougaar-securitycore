@@ -24,9 +24,7 @@
  * - 
  */
 
-
-
-package com.nai.security.certauthority;
+package com.nai.security.certauthority.servlet;
 
 import java.io.*;
 import java.util.*;
@@ -36,6 +34,10 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 import java.security.PrivateKey;
+
+// Cougaar core infrastructure
+
+// Cougaar security services
 import com.nai.security.crypto.ConfParser;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
@@ -44,22 +46,27 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.MultipleEntryException;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import  org.cougaar.core.security.services.crypto.CertificateManagementService;
+import com.nai.security.certauthority.*;
 
 public class RevokeCertificateServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
-  private KeyManagement keymanagement=null;
+  private CertificateManagementService keymanagement=null;
   javax.servlet.ServletContext context=null;
   protected boolean debug = false;
 
+  private SecurityServletSupport support;
+  public RevokeCertificateServlet(SecurityServletSupport support) {
+    this.support = support;
+  }
 
   public void init(ServletConfig config) throws ServletException
   {
     context=config.getServletContext();
-    // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties(context);
+
+    secprop = support.getSecurityProperties(this);
      
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
@@ -105,7 +112,8 @@ public class RevokeCertificateServlet extends  HttpServlet
     String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/certlist";
     try {
     
-    keymanagement=new KeyManagement(cadnname,role,certpath,confpath, true);
+    keymanagement=new KeyManagement(cadnname, role, certpath, confpath,
+				    true, null);
     String uniqueIdentifier=distinguishedName;
     status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }

@@ -41,8 +41,8 @@ import sun.security.util.ObjectIdentifier;
 
 import com.nai.security.policy.*;
 import com.nai.security.util.*;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /** Helper class to read the cryptographic service configuration.
  * 
@@ -57,7 +57,7 @@ public class ConfParser {
 
   public ConfParser(String path, boolean isStandalone) {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     String defaultConfigFile = "cryptoPolicy.xml";
     if(path==null) {

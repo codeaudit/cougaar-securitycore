@@ -26,12 +26,15 @@ package com.nai.security.crypto;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
+
+// KAoS policy management
+import safe.enforcer.NodeEnforcer;
+
+// Cougaar security services
 import com.nai.security.policy.*;
 import org.cougaar.planning.ldm.policy.*;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-
-import safe.enforcer.NodeEnforcer;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
@@ -48,7 +51,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
     /** Creates new CryptoPolicyServiceImpl */
     public CryptoPolicyServiceImpl() {
       // TODO. Modify following line to use service broker instead
-      secprop = CryptoServiceProvider.getSecurityProperties();
+      secprop = SecurityServiceProvider.getSecurityProperties(null);
 
       dbg = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
 						"false"))).booleanValue();

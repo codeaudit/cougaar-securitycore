@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.EntityResolver;
 import org.w3c.dom.Document;
 
+// Cougaar core infrastructure
 import org.cougaar.glm.ldm.asset.Organization;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.mlm.plugin.ldm.LDMEssentialPlugin ;
@@ -49,10 +50,10 @@ import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.util.UnaryPredicate;
 
+// Cougaar security services
 import com.nai.security.monitoring.util.*;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /**
  * SensorPlugin is a Sensor that publishes it capabilities to it superior,
@@ -77,12 +78,12 @@ public class SensorPlugin extends LDMEssentialPlugin
     
   public SensorPlugin() {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
   }
 
   /**
-   * A predicate that matches all Organization related to the cluster either through 
-   * supporting /subordinate relationship.
+   * A predicate that matches all Organization related to the cluster
+   * either through supporting /subordinate relationship.
    */
   class OrganizationPredicate implements UnaryPredicate
   {

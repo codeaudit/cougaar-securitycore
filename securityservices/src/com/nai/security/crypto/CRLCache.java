@@ -44,12 +44,13 @@ import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.lang.reflect.*;
 
+
+// Cougaar security services
 import com.nai.security.crlextension.x509.extensions.CertificateIssuerExtension;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.util.CryptoDebug;
-
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 
 public class CRLCache implements Runnable
@@ -71,7 +72,7 @@ public class CRLCache implements Runnable
   public CRLCache(DirectoryKeyStore dkeystore) 
   {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     this.keystore=dkeystore;
     if(CryptoDebug.crldebug) {

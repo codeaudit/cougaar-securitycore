@@ -37,16 +37,20 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
+// Cougaar core infrastructure
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.util.UID;
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.component.ServiceRevokedEvent;
 
 // Cougaar Security Services
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
-public class CRLGUIPlugin extends SimplePlugin
+public class CRLGUIPlugin
+  extends ComponentPlugin
 {
   static JFrame frame;
 
@@ -66,8 +70,16 @@ public class CRLGUIPlugin extends SimplePlugin
   public CRLGUIPlugin()
   {
     // Get KeyRingService
-    // TODO. Replace by call to Service Broker
-    keyRing = CryptoServiceProvider.getKeyRing();
+    keyRing = (KeyRingService)
+      getServiceBroker().getService(
+	this,
+	KeyRingService.class, 
+	new ServiceRevokedListener() {
+	    public void serviceRevoked(ServiceRevokedEvent re) {
+	      if (KeyRingService.class.equals(re.getService()))
+		keyRing  = null;
+	    }
+	  });
   }
 
   /** This method is called from within the constructor to

@@ -73,6 +73,8 @@ jar: build-classes
 		com/nai/security/util \
 		org/cougaar/core/security/policy \
 		org/cougaar/core/security/services \
+		org/cougaar/core/security/monitoring \
+		org/cougaar/core/security/provider \
 		org/cougaar/core/security/crypto 
 	@echo +++++++ Done Building securityservices.jar
 	@echo +++++++ Bulding jar for extensions

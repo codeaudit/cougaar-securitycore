@@ -50,7 +50,10 @@ import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
+// Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
+
+// Cougaar security services
 import com.nai.security.certauthority.CAClient;
 import com.nai.security.certauthority.KeyManagement;
 import com.nai.security.policy.NodePolicy;
@@ -60,8 +63,8 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class DirectoryKeyStore
 {
@@ -87,8 +90,8 @@ public class DirectoryKeyStore
   /** A hash map to store the private keys, indexed with common name */
   //private HashMap privateKeysAlias = new HashMap(89);
 
-  /** A hash map to store certificates from keystore, caKeystore and the LDAP directory
-      service, indexed by distinguished name */
+  /** A hash map to store certificates from keystore, caKeystore and the
+      LDAP directory service, indexed by distinguished name */
 
   protected  CertificateCache certCache = null;
 
@@ -132,7 +135,7 @@ public class DirectoryKeyStore
   /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     try {
       param = aParam;

@@ -25,6 +25,10 @@
  */
 
 package com.nai.security.util;
+
+// Cougaar security services
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+
 public class SecurityPropertiesServiceImpl
   implements SecurityPropertiesService
 {

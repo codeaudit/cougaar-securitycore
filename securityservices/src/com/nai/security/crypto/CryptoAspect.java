@@ -28,27 +28,26 @@ import java.util.*;
 import java.security.cert.CertificateException;
 import java.lang.RuntimeException;
 
+// Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.core.mts.*;
-
+import org.cougaar.planning.ldm.plan.Directive;
+import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.agent.ClusterMessage;
 import org.cougaar.core.node.NodeIdentificationService;
 
+// Cougaar security services
 import com.nai.security.access.AccessControlPolicyService;
 import com.nai.security.access.IntegrityAttribute;
 import com.nai.security.access.MissionCriticality;
 import com.nai.security.access.TrustSet;
 import com.nai.security.access.TrustAttribute;
-
 import org.cougaar.core.security.policy.AccessControlPolicy;
-import org.cougaar.planning.ldm.plan.Directive;
-import org.cougaar.planning.ldm.plan.Verb;
-import org.cougaar.planning.ldm.plan.Task;
-
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
 import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 /**
  *
@@ -78,20 +77,13 @@ public class CryptoAspect extends StandardAspect
   
   public CryptoAspect() {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
     if ( db!=null && (db.equalsIgnoreCase("true") ||
 		      db.indexOf("security")>=0) ) debug=true;
     infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
 						     "0"))).intValue();
-
-    //add crypto related services:
-    sb = new ServiceBrokerSupport();
-    //    setChildServiceBroker(sb);
-    CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
-    sb.addService(EncryptionService.class, cmsp);
-    sb.addService(CryptoPolicyService.class, cmsp);                
   }
 
   private void init(){
@@ -263,19 +255,22 @@ public class CryptoAspect extends StandardAspect
       if(!policyMatch(param.secureMethod)){
 	//try boot policy
 	if(debug) System.out.println("unmatching unsecuring method "
-				     +smlist[param.secureMethod]+":"+Origin+"--"+Target);
+				     +smlist[param.secureMethod]+":"
+				     +Origin+"--"+Target);
 	param = cps.getReceivePolicy("BOOT"+":"+"DEFAULT");
 	if(!policyMatch(param.secureMethod)){
 	  if(debug) {
 	    System.out.println("couldn't match unsecuring method "
-			       +smlist[param.secureMethod]+" for :"+Origin+"--"+Target);
+			       +smlist[param.secureMethod]+" for :"
+			       +Origin+"--"+Target);
 	  }
 	  //boot didn't match, quit.
 	  return null;
 	}
       }
 
-      if(param==null) throw new RuntimeException("no policy available for un-securing the message:"+this);
+      if(param==null)
+	throw new RuntimeException("no policy available for un-securing the message:"+this);
       String keyName;
 
       if(debug) System.out.println("unsecuring message with method "
