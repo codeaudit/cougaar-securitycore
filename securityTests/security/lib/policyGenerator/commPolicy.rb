@@ -9,6 +9,10 @@ require 'ultralog/scripting'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
 
+# OS X
+#require "mysql.o"
+
+# Linux
 require "security/lib/mysql.o"
 require "security/lib/mysql.so"
 
@@ -430,10 +434,10 @@ class CommPolicies
       end
       debug "members = #{members.join(", ")}"
       permit(membersName, specialSetName, 
-             "#{community.name}Policy-I",
+             "Special#{community.name}Policy-III",
              getCommunityEnclaves(community))
       permit(specialSetName, membersName,
-             "#{community.name}Policy-II",
+             "Special#{community.name}Policy-IV",
              getCommunityEnclaves(community))
     end    
   end
@@ -652,7 +656,7 @@ class CommPolicies
         enclaves = getCommunityEnclaves(community)
         debug "found enclaves #{enclaves.join(", ")} for #{community.name}"
         permit(restartSetName, restartSetName, 
-                 "AllowRestartNodesTalk", enclaves)
+                 "AllowRestartNodesTalk-#{community.name}", enclaves)
       end
     end
   end
@@ -1100,6 +1104,21 @@ class CommunicationPolicy < CommPolicy
     puts "Destined for enclaves [#{policyEnclaves.join(", ")}]"
     puts "#{@senderSet} = #{policySenders}"
     puts "#{@receiverSet} = #{policyReceivers}"
+  end
+
+  def wellDefined?()
+    policies.each do |policy|
+      name = policyName(policy)
+      count = 0
+      policies.each do |policyInner|
+        if name == policyName(policyInner) then
+          count += 1
+        end
+      end
+      if count > 1 then
+        puts "ERROR: #{name} used to represent #{count} distinct policies"
+      end
+    end
   end
 
   def isMsgAllowed(sender, receiver)
