@@ -32,29 +32,12 @@ Agent RearWorkerNode
 Agent testBounceOne
 Agent testBounceTwo
 
-Policy test = [
-  GenericTemplate
-  Priority = 2,
-  $Actor.owl#ArtificialActor is  not authorized to perform
-  $Action.owl#Action as long as the value of 
-  $Action.owl#performedBy is a subset of the set 
-  $Actor.owl#Actor
- ]
-
-Policy test2 = [
-  GenericTemplate
-  Priority = 2,
-  $Ultralog/UltralogActor.owl#UltralogPlugins is  not authorized to perform
-  $Ultralog/UltralogAction.owl#BlackBoardAccess as long as the value of 
-  $Ultralog/UltralogAction.owl#blackBoardAccessMode is a subset of the set 
-  $Ultralog/UltralogEntity.owl#BlackBoardAccessMode
- ]
 
 
-Policy NoWPRemove = [
+Policy WPRemove = [
   GenericTemplate
-  Priority = 2,
-  $Actor.owl#Agent is  not authorized to perform
+  Priority = 3,
+  $Actor.owl#Agent is not authorized to perform
   $Ultralog/UltralogAction.owl#WPUpdateSelf as long as the value of 
   $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
   { $Ultralog/UltralogEntity.owl#WPRemove }
