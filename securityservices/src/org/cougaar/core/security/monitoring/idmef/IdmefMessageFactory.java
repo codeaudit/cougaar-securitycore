@@ -35,10 +35,9 @@ import edu.jhuapl.idmef.*;
 
 // cougaar packages
 import org.cougaar.core.agent.ClusterContext;
-import org.cougaar.core.agent.ClusterServesPlugin;
-import org.cougaar.core.agent.ClusterIdentifier;
-import org.cougaar.core.domain.LDMServesPlugin;
-import org.cougaar.core.node.ArgTableIfc;
+import org.cougaar.planning.ldm.ClusterServesPlugin;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
@@ -211,7 +210,7 @@ final public class IdmefMessageFactory {
 
             List addressList = new ArrayList();
             addressList.add( createAddress( ip, null, Address.IPV4_ADDR ) );
-            m_agentId = ( ( ClusterServesPlugin)ldm ).getClusterIdentifier();
+            m_agentId = ( ( ClusterServesPlugin)ldm ).getMessageAddress();
             m_uidServer = ( ( ClusterContext )ldm ).getUIDServer();
             /*
              * can get the process name
@@ -1545,7 +1544,7 @@ final public class IdmefMessageFactory {
   // agent information 
   // there is only one IdmefMessageFactory per Cougaar Agent
   private AdditionalData m_agentData;
-  private ClusterIdentifier m_agentId;
+  private MessageAddress m_agentId;
   private UIDServer m_uidServer;
   private IDMEF_Process m_process;
   private IDMEF_Node m_node;
