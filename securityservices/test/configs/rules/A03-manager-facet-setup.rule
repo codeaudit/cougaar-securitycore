@@ -47,6 +47,9 @@ society.each_node do |node|
           node.add_agent(securityMgrAgentName) do |agent|
             securityMgrAgentFacets.each do |facetInner|
               agent.add_facet({:role=>facetInner})
+              agent.add_facet({:NoWorkflow=>'NoWorkflow'})
+              agent.add_facet({:no_configuration=>'no_configuration'})
+              agent.add_facet({:NoMessageService=>'NoMessageService'})
             end
           end
         end 
