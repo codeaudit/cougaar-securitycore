@@ -121,18 +121,47 @@
                Currently, either CougaarOpenLdap or NetTools -->
           <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
         </trustedCA>
-	<trustedCA>
+        <trustedCA>
           <!-- This is used to check root CA CRL. For instance, this could be used to check
                if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave1CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
           <CA_DN role="csmart2">CN=csmart2CA, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u125:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
-
           <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
           <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
-
           <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
 
-	</trustedCA>
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave2CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u222:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave3CA, OU=UltraLog, O=cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u199:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave4CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
       </trustedCAs>
 
       <certificateAttributes>
