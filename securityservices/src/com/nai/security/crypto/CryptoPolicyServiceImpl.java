@@ -108,7 +108,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
 	if(policy == null)return;
         //whom is the policy for?
-        String sub = policySubjectName;
+        String sub = policyTargetID;
         if(policy.getName().equalsIgnoreCase("BootPolicy")) sub = "DEFAULT";
         if(sub=="" || sub == null) return ;
         
