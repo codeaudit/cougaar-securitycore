@@ -32,6 +32,7 @@ import java.util.Iterator;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.EventService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -117,8 +118,8 @@ class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
 
 class NotificationPredicate implements UnaryPredicate {
   public boolean execute(Object o) {
-    boolean ret = false;
-    if (o instanceof NotificationObject ) {
+    boolean ret = false; 
+   if (o instanceof NotificationObject ) {
       return true;
     }
     return ret;
@@ -143,6 +144,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private IncrementalSubscription notification;
   private int firstobject=0;
   private LoggingService loggingService;
+  private EventService   eventService;
   private MessageAddress myAddress=null;
   private Object param;
   
@@ -184,6 +186,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   protected void setupSubscriptions() {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
+    eventService = (EventService)getBindingSite().getServiceBroker().getService
+      (this, EventService.class, null);
     myAddress = getAgentIdentifier();
     _csu = new CommunityServiceUtil(getServiceBroker());
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
@@ -302,6 +306,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       analyzer=registration.getAnalyzer();
       analyzer_id=analyzer.getAnalyzerid();
       
+      event(registration); // give an event about this
+
       if(loggingService.isDebugEnabled()) {
 	      loggingService.debug(" Got analyzer id -->"+ analyzer_id );
       }
@@ -359,7 +365,48 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       getBlackboardService().publishChange(capabilitiesobject);
     }
   }
-  
+
+  private void event(RegistrationAlert registration) {
+    if (!eventService.isEventEnabled()) {
+      return;
+    }
+    
+    String analyzerId = registration.getAnalyzer().getAnalyzerid();
+    String op;
+    switch (registration.getOperation_type()) {
+    case IdmefMessageFactory.addtoregistration:
+      op = "Add";
+      break;
+    case IdmefMessageFactory.removefromregistration:
+      op = "Remove";
+      break;
+    case IdmefMessageFactory.newregistration:
+      op = "New";
+      break;
+    default:
+      op = "Unknown: " + registration.getOperation_type();
+    }
+    Classification[] caps = registration.getClassifications();
+    StringBuffer buf = new StringBuffer();
+    buf.append("[STATUS] SecurityManager(");
+    buf.append(myAddress.toAddress());
+    buf.append(") Analyzer(");
+    buf.append(analyzerId);
+    buf.append(") Operation(");
+    buf.append(op);
+    buf.append(") Classifications(");
+    if (caps != null) {
+      for (int i = 0; i < caps.length; i++) {
+        if (i != 0) {
+          buf.append(", ");
+        } 
+        buf.append(caps[i].getName());
+      }
+    }
+    buf.append(")");
+    eventService.event(buf.toString());
+  }
+
   public void printConsolidation(Classification[] classifications, String msg) {
     loggingService.debug(msg);
     Classification classification=null;

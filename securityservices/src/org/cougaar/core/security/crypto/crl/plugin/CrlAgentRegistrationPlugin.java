@@ -64,6 +64,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   private IncrementalSubscription crlregistrationtable;
   private LoggingService loggingService=null;
   private CrlRegistrationTable crlRegistrationTable=null;
+  private EventService   eventService;
   //private boolean completeregistration =true;
 
   /** The number of seconds between crl updates */
@@ -100,6 +101,10 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
    */
   public void setDomainService(DomainService aDomainService) {
     domainService = aDomainService;
+  }
+
+  public void setEventService(EventService service) {
+    eventService = service;
   }
 
   /**
@@ -214,6 +219,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           try {
             loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
             regobject.addAgent(crlrelay.getSource());
+            event(crlrelay.getSource(), regagentObject.dnName);
           }
           catch (CRLAgentRegistrationException crlagentexp) {
             loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource() );
@@ -242,6 +248,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           regobject=new CrlRegistrationObject(regagentObject.dnName);
           try {
             regobject.addAgent(crlrelay.getSource());
+            event(crlrelay.getSource(), regagentObject.dnName);
           }
           catch(CRLAgentRegistrationException crlagentexp){
             loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource());
@@ -615,4 +622,18 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       }
     }
   }
+  private void event(MessageAddress agent, String dn) {
+    if (!eventService.isEventEnabled()) {
+      return;
+    }
+    
+    eventService.event("[STATUS] CRLRegistration(" +
+                       agentId.toAddress() +
+                       ") Agent(" +
+                       agent.toAddress() +
+                       ") DN(" +
+                       dn +
+                       ")");
+  }
+
 }
