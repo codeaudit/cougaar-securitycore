@@ -129,6 +129,7 @@ final public class CRLCache
   private MessageAddress myAddress;
   private boolean _listening = false;
   private boolean _crlRegistered = false;
+  private Object _blackboardLock = new Object();
   
   public CRLCache(ServiceBroker sb){
     serviceBroker = sb;
@@ -240,6 +241,7 @@ final public class CRLCache
         if (mySecurityCommunities != null && 
             !mySecurityCommunities.isEmpty()) {
 	  Iterator it = mySecurityCommunities.iterator();
+          synchronized (_blackboardLock) {
           blackboardService.openTransaction();
 	  while (it.hasNext()) {
 	    Community community = (Community) it.next();
@@ -256,6 +258,7 @@ final public class CRLCache
             blackboardService.publishAdd(crlregrelay);
           }
           blackboardService.closeTransaction();
+          }
         } else {
           if (log.isDebugEnabled()) {
             log.debug("No info about my security community " + 
@@ -783,6 +786,7 @@ final public class CRLCache
       if (mySecurityCommunities != null && !mySecurityCommunities.isEmpty()) {
 	Iterator it = mySecurityCommunities.iterator();
 
+        synchronized (_blackboardLock) {
         blackboardService.openTransaction();
 	while (it.hasNext()) {
           Community community = (Community) it.next();
@@ -797,6 +801,7 @@ final public class CRLCache
           blackboardService.publishAdd(crlregrelay);
         }
         blackboardService.closeTransaction();
+        }
       }
     }
   }
