@@ -46,6 +46,6 @@ public class UserServiceComponent extends ComponentSupport
   public void load() {
     super.load();
     ServiceBroker sb = getServiceBroker();
-    sb.addService(UserService.class, new UserServiceProvider(sb));
+    sb.addService(UserService.class, new UserServiceProvider(sb, null));
   }
 }

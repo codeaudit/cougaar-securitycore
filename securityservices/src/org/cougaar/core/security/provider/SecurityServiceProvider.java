@@ -404,9 +404,8 @@ public class SecurityServiceProvider
        /* ********************************
         * LDAP user administration
         */
-       newSP = new UserServiceProvider(serviceBroker);
-       rootServiceBroker.addService(UserService.class, newSP);
-       //serviceBroker.addService(UserService.class, newSP);
+       newSP = new UserServiceProvider(serviceBroker, mySecurityCommunity);
+       services.addService(UserService.class, new ServiceEntry(newSP, rootServiceBroker));
        if(!UserServiceProvider.AGENT_SERVICE) {
          UserServiceProvider.setRootServiceBroker(rootServiceBroker);
        }
