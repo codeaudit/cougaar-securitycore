@@ -175,8 +175,13 @@ class CertRevocation
   end
 
   def setCAExpirationAttrib(agent, timeString)
-    agent = run.society.agents[agent] if agent.kind_of?(String)
-    caDomains = run.society.agents[agent.name].caDomains
+    agent1 = run.society.agents[agent] if agent.kind_of?(String)
+    if (agent1 == nil)
+      saveAssertion ("Stress5k104",
+           "setCAExpirationAttrib: Unable to find agent: #{agent}")
+      raise "setCAExpirationAttrib: Unable to find agent: #{agent}"
+    end
+    caDomains = agent1.caDomains
     caManager = caDomains[0].signer
     cadn = caDomains[0].cadn
     #puts "cadn #{cadn}"
