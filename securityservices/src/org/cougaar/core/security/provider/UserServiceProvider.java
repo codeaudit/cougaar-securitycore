@@ -47,7 +47,7 @@ public class UserServiceProvider implements ServiceProvider
   private MessageAddress    _agent=null;;
   private boolean           _listenerAdded =false;
   private static Logger     _log=LoggerFactory.getInstance().createLogger(UserServiceProvider.class);
-  private ServiceBroker     _nodesb=null;
+  private ServiceBroker     _nodeAgentsb=null;
   private ServiceBroker     _rootsb=null;
 
   public UserServiceProvider(MessageAddress agent) {
@@ -55,11 +55,12 @@ public class UserServiceProvider implements ServiceProvider
   }
 
   public UserServiceProvider(ServiceBroker sb ) {
+    _nodeAgentsb=sb;
     if(AGENT_SERVICE){
       _service=new AgentUserService(sb);
     }
     else{
-      _service = new LdapUserServiceImpl(sb, _agent);
+      _service = new LdapUserServiceImpl(sb);
     }
   
     
@@ -120,13 +121,13 @@ public class UserServiceProvider implements ServiceProvider
 
     if (_service == null) {
       if (AGENT_SERVICE) {
-        _service = new AgentUserService(sb);
+        _service = new AgentUserService(_nodeAgentsb);
       }
       else {
         if(_log.isDebugEnabled()){
           _log.debug(" LdapUserServiceImpl  instance created with  "+ sb.toString());
         }
-        _service = new LdapUserServiceImpl(sb, _agent);
+        _service = new LdapUserServiceImpl(_nodeAgentsb);
       }
     }
     else {
