@@ -106,7 +106,7 @@ zip -qr AS_csi_secserv.zip \
 	webtomcat/data/conf/server.xml \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
 	sys/antlr.jar \
-	sys/bcprov-jdk14*.jar \
+	sys/bcprov-jdk*.jar \
         sys/commons-logging.jar \
 	sys/dl.jar \
 	sys/ibmpkcs.jar \
@@ -141,7 +141,7 @@ if [ "$install" == "1" ]; then
 #
 #        FIXME - TEMPORARY!
 #
-        rm -f ${realCIP}/sys/xerces.jar
+#        rm -f ${realCIP}/sys/xerces.jar
 
 	echo "Extracting AS_csi_secserv.zip to ${realCIP}"
 	cd ${realCIP}

@@ -398,7 +398,7 @@
                 <exclude name="jasper-compiler.jar"/>
             </fileset>
         </copy>
-        <delete file="${cougaar.install.path}/sys/xerces.jar" />
+        <!-- <delete file="${cougaar.install.path}/sys/xerces.jar" /> -->
         <copy todir="${cougaar.install.path}/lib" overwrite="true">
             <fileset dir="${securityservices.lib}" includes="*.jar"/>
         </copy>
