@@ -1154,7 +1154,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       } else {
 	loggingService.debug(" relay was present Updating event  Event "+ event.toString());
 	relay.updateContent(event, null);
-	oggingService.info(" Modifying  relay to :"+ destcluster.toString());
+	loggingService.info(" Modifying  relay to :"+ destcluster.toString());
 	getBlackboardService().publishChange(relay);
       }
     }
