@@ -66,10 +66,10 @@ class AggQueryMappingPredicate implements UnaryPredicate {
 }
 
 class EventsPredicate implements  UnaryPredicate{
-  private UID  parent_uid;
+  private UID  originator_uid;
   private MessageAddress agentAddress;
   public  EventsPredicate(UID uid,MessageAddress address){
-    parent_uid=uid;
+    originator_uid=uid;
     agentAddress=address;
   }
   public boolean execute(Object o) {
@@ -79,11 +79,11 @@ class EventsPredicate implements  UnaryPredicate{
     Event event=null;
     if (o instanceof RemoteConsolidatedEvent ) {
       consolidatedEvent=(RemoteConsolidatedEvent)o;
-      return DrillDownUtils.matchParentUID(consolidatedEvent.getEvent(),parent_uid);
+      return DrillDownUtils.matchOriginatorUID(consolidatedEvent.getEvent(),originator_uid);
     }
     if(o instanceof Event ) {
       event=(Event)o;
-      return DrillDownUtils.matchParentUID(event.getEvent(),parent_uid);
+      return DrillDownUtils.matchOriginatorUID(event.getEvent(),originator_uid);
     }
     return ret;
   }
@@ -159,6 +159,19 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
     return _isRoot;
   } 
   
+  public ConsolidatedEvent createConsolidatedEvent(RemoteConsolidatedEvent event) {
+    ConsolidatedEvent newConsolidateEvent=null;
+    CmrFactory factory=null;
+    if(domainService!=null) {
+      factory=(CmrFactory)domainService.getFactory("cmr");
+    } 
+    if(factory==null || event==null) {
+      return newConsolidateEvent;
+    }
+    newConsolidateEvent= factory.newConsolidatedEvent(event);
+    return newConsolidateEvent;
+  }
+  
   protected AggQueryMapping findAggQueryMappingFromBB(UID givenUID, Collection aggQueryMappingCol ) {
     AggQueryMapping aggQuerymapping=null;
     ArrayList queryList=null;;
@@ -219,8 +232,8 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
   } 
    
   private class RootListener 
-    extends TimerTask
-    implements CommunityServiceUtilListener {
+  extends TimerTask
+  implements CommunityServiceUtilListener {
     public void getResponse(Set entities) {
       _isRoot = !(entities == null || entities.isEmpty());
       _rootReady = true;
