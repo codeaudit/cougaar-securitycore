@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,8 +63,7 @@ public class ConfigReaderServlet extends ComponentServlet {
     ConfigFinder cf = ConfigFinder.getInstance();
     String filename = req.getParameter("file");
     if (filename == null) {
-      resp.sendError(HttpServletResponse.SC_ACCEPTED,
-                     "No \"file\" parameter");
+      printForm(resp);
       return;
     }
     File f = cf.locateFile(filename);
@@ -82,6 +82,19 @@ public class ConfigReaderServlet extends ComponentServlet {
     while ((bytes = reader.read(buf)) >= 0) {
       out.write(buf,0,bytes);
     }
+    out.close();
+  }
+
+  public void printForm(HttpServletResponse resp) throws IOException {
+    PrintWriter out = resp.getWriter();
+    resp.setContentType("text/html");
+    out.println("<html>\n" +
+                "<head><title>Read Configuration File</title></head>\n" +
+                "<body><h1>Read Configuration File</h1>\n" +
+                "<form action=\"\">\n" +
+                "File name: <input type=\"text\" name=\"file\" " +
+                "value=\"\">\n" +
+                "<input type=\"submit\"></form></body></html>\n");
     out.close();
   }
 }
