@@ -130,7 +130,6 @@ Policy DamlBootPolicyServletRestAuth = [
          $Ultralog/Names/EntityInstances.daml#NoAuthSSL }
 ]
 
-
 Policy DamlBootPolicyPolicyServlet  = [ 
   A user in role PolicyAdministrator can access a servlet named PolicyServlet
 ]
