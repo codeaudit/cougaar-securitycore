@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 
@@ -57,8 +58,9 @@ public interface CertificateManagementService
    */
   public X509Certificate[] processPkcs10Request(InputStream request);
 
-  public void publishCertificate(X509Certificate clientX509)
-    throws javax.naming.NamingException;
+  public void publishCertificate(X509Certificate clientX509,int type, PrivateKey privateKey);
+    
+  
 
   public String processPkcs10Request(InputStream request, boolean replyInHtml);
 
