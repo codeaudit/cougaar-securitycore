@@ -31,6 +31,8 @@ import java.util.Vector;
 import jtp.ReasoningException;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.SerializableDAMLModelImpl;
+import kaos.policy.information.PolicyInformationManager;
+import kaos.policy.information.OntologyInterfaces;
 
 import com.hp.hpl.jena.daml.DAMLModel;
 
@@ -58,6 +60,7 @@ import com.hp.hpl.jena.daml.DAMLModel;
  */
 
 public abstract class OntologyConnection
+  implements OntologyInterfaces
 {
   /*
    * For various reasons, this class needs intelligence.  I also
@@ -66,7 +69,7 @@ public abstract class OntologyConnection
 
   public OntologyConnection()
   {
-    LocalPolicyInformationManager.giveIntelligence(this);
+    PolicyInformationManager.setOntologyConnection(this);
     PolicyUtils.setOntologyConnection(this);
   }
 
