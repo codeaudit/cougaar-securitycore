@@ -148,7 +148,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("set communityService called ");
       }
-      setCommunityService(cs);
+      setCommunityService(cs, false);
 
       addCommunityListener(cs);
     }
@@ -190,9 +190,7 @@ public class AgentUserService implements UserService, BlackboardClient {
                   if (_log.isDebugEnabled()) {
                     _log.debug("Join community: " + community.getName());
                   }
-
-                  _csu = null;
-                  setCommunityService(cs);
+                  setCommunityService(cs, true);
                 }
                 // change that might remove agent
                 if (event.getType() == CommunityChangeEvent.REMOVE_ENTITY
@@ -229,7 +227,11 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
   }
 
-  private synchronized void setCommunityService(CommunityService cs) {
+  private synchronized void setCommunityService(CommunityService cs,
+                                                boolean resetcsu) {
+    if (resetcsu) {
+      _csu = null;
+    }
     if(_log.isDebugEnabled()){
       _log.debug("setCommunityService");
     }
@@ -756,7 +758,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  if (_log.isDebugEnabled()) {
 	    _log.debug("Got Community service starting community search  for AgentUser service");
 	  }
-          setCommunityService(cs);
+          setCommunityService(cs, false);
           addCommunityListener(cs);
         }
       }
