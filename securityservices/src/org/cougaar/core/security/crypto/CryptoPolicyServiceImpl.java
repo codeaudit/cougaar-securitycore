@@ -176,32 +176,17 @@ public class CryptoPolicyServiceImpl
       return smp;
     }
 
-  public boolean isReceivePolicyValid(String source, String target,
-                                      SecureMethodParam policy,
-                                      boolean ignoreEncryption,
-                                      boolean ignoreSignature) {
+  public int isReceivePolicyValid(String source, String target,
+                                  SecureMethodParam policy,
+                                  boolean ignoreEncryption,
+                                  boolean ignoreSignature)
+  {
     if(log.isDebugEnabled()) {
       log.debug("isReceivePolicyValid for " + source + " to " + target +
                 ", policy = " + policy + ", ignore encryption = " +
 		ignoreEncryption + ", ignoreSignature = " + ignoreSignature);
     }
     SecureMethodParam realPolicy = getReceivePolicy(source, target);
-    if (!ignoreSignature) {
-      boolean realSign = 
-        realPolicy.secureMethod == policy.SIGNENCRYPT ||
-        realPolicy.secureMethod == policy.SIGN;
-
-      boolean sign = 
-        policy.secureMethod == policy.SIGNENCRYPT ||
-        policy.secureMethod == policy.SIGN;
-
-      if (realSign) {
-        if (!sign || policy.signSpec == null || 
-            !policy.signSpec.equals(realPolicy.signSpec)) {
-          return false;
-        }
-      }
-    }
 
     if (!ignoreEncryption) {
       boolean realEncrypt = 
@@ -217,11 +202,29 @@ public class CryptoPolicyServiceImpl
             !policy.symmSpec.equals(realPolicy.symmSpec) ||
             policy.asymmSpec == null ||
             !policy.asymmSpec.equals(realPolicy.asymmSpec)) {
-          return false;
+          return CRYPTO_SHOULD_ENCRYPT;
         }
       }
     }
-    return true;
+
+    if (!ignoreSignature) {
+      boolean realSign = 
+        realPolicy.secureMethod == policy.SIGNENCRYPT ||
+        realPolicy.secureMethod == policy.SIGN;
+
+      boolean sign = 
+        policy.secureMethod == policy.SIGNENCRYPT ||
+        policy.secureMethod == policy.SIGN;
+
+      if (realSign) {
+        if (!sign || policy.signSpec == null || 
+            !policy.signSpec.equals(realPolicy.signSpec)) {
+          return CRYPTO_SHOULD_SIGN;
+        }
+      }
+    }
+
+    return CRYPTO_POLICY_VALID;
   }
 
     public CryptoPolicy getIncomingPolicy(String target) {

@@ -86,7 +86,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     return _legacy.getDataProtectionPolicy(source);
   }
 
-  public boolean isReceivePolicyValid(String source, String target,
+  public int isReceivePolicyValid(String source, String target,
                                       SecureMethodParam policy,
                                       boolean ignoreEncryption,
                                       boolean ignoreSignature) {
@@ -103,7 +103,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       _log.debug("Comparing against cipher suite: " + cs);
     }
     if (!cs.isCipherAvailable()) {
-      return false;
+      return CRYPTO_UNAVAILABLE;
     }
 
     if (!ignoreEncryption) {
@@ -114,11 +114,11 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
             policy.asymmSpec == null ||
             !cs.getSymmetric().contains(policy.symmSpec) ||
             !cs.getAsymmetric().contains(policy.asymmSpec)) {
-          return false;
+          return CryptoPolicyServiceImpl.CRYPTO_SHOULD_ENCRYPT;
         }
       } else {
         if (!cs.getSymmetric().contains("plain")) {
-          return false;
+          return CryptoPolicyServiceImpl.CRYPTO_SHOULD_ENCRYPT;
         }
       }
     }
@@ -129,15 +129,15 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       if (sign) {
         if (policy.signSpec == null ||
             !cs.getSignature().contains(policy.signSpec)) {
-          return false;
+          return CryptoPolicyServiceImpl.CRYPTO_SHOULD_SIGN;
         }
       } else {
         if (!cs.getSignature().contains("none")) {
-          return false;
+          return CryptoPolicyServiceImpl.CRYPTO_SHOULD_SIGN;
         }
       }
     }
-    return true;
+    return CryptoPolicyServiceImpl.CRYPTO_POLICY_VALID;
   }
 
   /**
