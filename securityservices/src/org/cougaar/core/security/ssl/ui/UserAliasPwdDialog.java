@@ -34,7 +34,7 @@ public class UserAliasPwdDialog extends JDialog {
   JTextField aliasField = new JTextField();
 
   public UserAliasPwdDialog() {
-    super((Frame)null, "Retrieve Certificate", true);
+    super((Frame)null, "User authentication", true);
 
     try {
       jbInit();
@@ -43,6 +43,11 @@ public class UserAliasPwdDialog extends JDialog {
       e.printStackTrace();
     }
   }
+
+  public void setPrompt(String text) {
+    jTextArea1.setText(text);
+  }
+
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     cancelButton.setText("Cancel");
