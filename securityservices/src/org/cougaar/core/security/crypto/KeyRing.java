@@ -336,11 +336,15 @@ final public class KeyRing  implements KeyRingService  {
 	  X509Certificate certificate = cs.getCertificate();
 	  if (setCertificateTrust(certificate, cs, name, selfsignedCAs)) {
 	    isTrusted = true;
+            if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
+              // update to naming
+              updateNS(name);
+            }
 	  }
 	} // END while(it.hasNext())
 	if (isTrusted == false) {
-	  if (log.isInfoEnabled()) {
-	    log.info("No trusted certificate was found for " + name.toString());
+	  if (log.isDebugEnabled()) {
+	    log.debug("No trusted certificate was found for " + name.toString());
 	  }
 	}
       } // END while(e.hasMoreElements()
@@ -356,7 +360,10 @@ final public class KeyRing  implements KeyRingService  {
 	    log.warn("Cannot init X500Name " + certdn + " in initCertCache: " + e);
 	  }
 	}
+        // get CA certificate if it is not yet obtained
         certRequestor.getNodeCert(name,null);
+        // update to naming
+        updateNS(name);
       } catch (Exception ex) {
         log.warn("Exception in initCertCache.getNodeCert: " + ex.toString());
       }
@@ -1164,7 +1171,9 @@ final public class KeyRing  implements KeyRingService  {
       return null;
     }
 
-    if (cryptoClientPolicy.isCertificateAuthority()) {
+    // This function does not work for normal node for multiple CA
+    // if uses default certificate attribute
+    //if (cryptoClientPolicy.isCertificateAuthority()) {
       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
       if (nameList != null && nameList.size() > 0) {
         X500Name dname = (X500Name)nameList.get(0);
@@ -1172,9 +1181,10 @@ final public class KeyRing  implements KeyRingService  {
       }
       // else no cert has been created
       return null;
+      /*
     }
     return findCert(CertificateUtility.getX500Name(getX500DN(cougaarName)), lookupType, validOnly);
-
+    */
   }
 
   public Hashtable findCertPairFromNS(String source, String target)
@@ -1461,6 +1471,12 @@ final public class KeyRing  implements KeyRingService  {
       }
     }
 
+    if (trustedCaPolicy.length == 0) {
+      if (log.isDebugEnabled()) {
+        log.debug("There is no trusted policy yet.");
+      }
+    }
+
     for (int i = 0; i < trustedCaPolicy.length; i++) {
       X500Name dname = CertificateUtility.getX500Name(CertificateUtility.getX500DN
 						      (commonName,title,
@@ -1521,6 +1537,7 @@ final public class KeyRing  implements KeyRingService  {
               publishCAToLdap(caDNs[0].getName());
             }
           }
+          updateNS(dname);
           handleRequestedIdentities(trustedCaPolicy);
         }
 	return;
@@ -1546,6 +1563,7 @@ final public class KeyRing  implements KeyRingService  {
       String commonname=cacheservice.getCommonName(dname);
       // only do it for node cert, otherwise will have infinite loop here
       if (commonname.equals(NodeInfo.getNodeName())) {
+        updateNS(dname);
         handleRequestedIdentities(trustedCaPolicy);
       }
 
@@ -1583,6 +1601,7 @@ final public class KeyRing  implements KeyRingService  {
         }
 
         checkOrMakeCert(dname, false, trustedCaPolicy);
+        updateNS(dname);
       }
     }
   }
@@ -1841,8 +1860,8 @@ final public class KeyRing  implements KeyRingService  {
      }
   */
 
-  
-  
+
+
   public void updateNS(String commonName) {
 
     CertificateCacheService cacheservice=(CertificateCacheService)
@@ -1872,20 +1891,23 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to register LDAP URL to naming service for " + commonName + ". Reason:" + ex);
     }
   }
-  
+
 
   /**
    * Adding LDAP URL entry in the naming service.
-   */ 
+   */
   public void updateNS(X500Name x500Name) {
+    if (log.isDebugEnabled()) {
+      log.debug("updateNS(X500Name) called: " + x500Name);
+    }
 
 // check whether cert exist and whether it is agent
-    
+
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
 			       null);
-    
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
@@ -1903,7 +1925,7 @@ final public class KeyRing  implements KeyRingService  {
                                                         cs.getCertificateType());
       certEntry.setCertificateChain(cs.getCertificateChain());
       namingService.updateCert(certEntry);
-      
+
     } catch (Exception nx) {
       if (log.isWarnEnabled()) {
 	log.warn("Cannot update "+x500Name+ " cert in naming." + nx.toString(), nx);
@@ -1923,17 +1945,17 @@ final public class KeyRing  implements KeyRingService  {
     catch (Exception exp) {
       if (log.isWarnEnabled()) {
 	log.warn("Cannot update cert in naming." + certEntry.getCertificate().getSubjectDN().getName());
-      } 
+      }
     }
     if(status) {
       if (log.isDebugEnabled()) {
 	log.debug("Sucessfully update cert in naming." + certEntry.getCertificate().getSubjectDN().getName());
-      } 
+      }
     }
     else {
       if (log.isWarnEnabled()) {
 	log.warn("Update cert in naming FAILED ." + certEntry.getCertificate().getSubjectDN().getName());
-      } 
+      }
     }
   }
 
@@ -2224,10 +2246,20 @@ final public class KeyRing  implements KeyRingService  {
 	  }
 	}
 	catch (CertificateChainException e) {
-	  if (log.isWarnEnabled()) {
-	    log.warn("Found non trusted cert in cert directory! "
-		     + x500Name + " - " + e);
-	  }
+          // there is a flow of warnings from this if certificate is not updated
+          // to cache yet
+          if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+            if (log.isDebugEnabled()) {
+              log.debug("Found non trusted cert in cert directory! "
+                       + x500Name + " - " + e);
+            }
+          }
+          else {
+            if (log.isWarnEnabled()) {
+              log.warn("Found non trusted cert in cert directory! "
+                       + x500Name + " - " + e);
+            }
+          }
 	}
 	catch (CertificateExpiredException e) {
 	  // The certificate is trusted but it has expired.
