@@ -42,14 +42,13 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.util.UID;
 
-import com.nai.security.crypto.PublicKeyRing;
+// Cougaar Security Services
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class CRLGUIPlugin extends SimplePlugin
 {
-
-    
   static JFrame frame;
-
 
   // Variables declaration - 
   private javax.swing.JPanel jListPanel;
@@ -61,6 +60,15 @@ public class CRLGUIPlugin extends SimplePlugin
   private javax.swing.JComboBox jTimerComboBox;
   private javax.swing.JLabel jTimerLabel;
   private String units=new String("Seconds");
+
+  private KeyRingService keyRing = null;
+
+  public CRLGUIPlugin()
+  {
+    // Get KeyRingService
+    // TODO. Replace by call to Service Broker
+    keyRing = CryptoServiceProvider.getKeyRing();
+  }
 
   /** This method is called from within the constructor to
    * initialize the form.
@@ -197,7 +205,7 @@ public class CRLGUIPlugin extends SimplePlugin
 			
 	sleep_time=sleeptime*1000L*60L*60L;
       }
-    PublicKeyRing.setSleeptime(sleep_time);
+    keyRing.setSleeptime(sleep_time);
   }
 
   private void jTimerComboBoxactionPerformed(java.awt.event.ActionEvent evt)
@@ -208,7 +216,7 @@ public class CRLGUIPlugin extends SimplePlugin
 
   private void jCrlButtonMouseClicked(java.awt.event.MouseEvent evt) 
   {
-    Vector crllist=PublicKeyRing.getCRL();
+    Vector crllist=keyRing.getCRL();
     jCrlList.setListData(crllist);
   
   }

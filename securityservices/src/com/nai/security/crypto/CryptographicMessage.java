@@ -37,7 +37,10 @@ import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.BigInt;
 
+// Cougaar Security Services
 import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 /** This class provides support for the Cryptographic Message Syntax (CMS),
     which is defined in RFC 2630. The CMS syntax is used to digitally sign,
@@ -50,17 +53,12 @@ import com.nai.security.util.CryptoDebug;
 */
 public class CryptographicMessage
 {
-  /* private boolean debug = false;
-  private static final String debugProperty =
-    "org.cougaar.core.security.crypto.debug";
-  */
+  private KeyRingService keyRing = null;
+
   public CryptographicMessage()
   {
-    /*
-    debug =
-      (Boolean.valueOf(System.getProperty(debugProperty,
-					  "false"))).booleanValue();
-    */
+    // TODO: initialize using service broker
+    keyRing = CryptoServiceProvider.getKeyRing();
   }
 
   public PKCS7 encryptData()
@@ -155,7 +153,7 @@ public class CryptographicMessage
     contentinfo = new ContentInfo(message);
 
     // The signer's certificate and its certificate chain.
-    certificates = KeyRing.findCertChain(signerCertificate);
+    certificates = keyRing.findCertChain(signerCertificate);
 
     // Figure out the digest and encryption algorithm.
     String sz_privateKeyAlgorithm = privatekey.getAlgorithm();
@@ -237,17 +235,21 @@ public class CryptographicMessage
   /** Test code only. */
   public static void main(String[] args) {
     CryptographicMessage m = new CryptographicMessage();
+    m.testCryptographicMessage(args);
+  }
 
+  private void testCryptographicMessage(String[] args)
+  {
     X509Certificate signerCertificate =
-      (X509Certificate)KeyRing.findCert(args[0]);
-    PrivateKey privatekey = KeyRing.findPrivateKey(args[0]);
+      (X509Certificate)keyRing.findCert(args[0]);
+    PrivateKey privatekey = keyRing.findPrivateKey(args[0]);
     String text = "This is a test message";
     byte[] message = text.getBytes();
 
     try {
-      PKCS7 pkcs7 = m.signData(signerCertificate,
-			       privatekey,
-			       message);
+      PKCS7 pkcs7 = signData(signerCertificate,
+			     privatekey,
+			     message);
     }
     catch (Exception e) {
       System.out.println("Exception: " + e);

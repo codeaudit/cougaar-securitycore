@@ -51,8 +51,10 @@ import sun.security.provider.*;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+// Cougaar
 import org.cougaar.util.ConfigFinder;
 
+// Cougaar Security Services
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
 import com.nai.security.util.*;
@@ -61,6 +63,8 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 /** Certification Authority service
  * The following java properties are necessary:
@@ -71,6 +75,7 @@ import org.cougaar.core.security.services.crypto.CertificateManagementService;
  * + See also com.nai.security.crypto.ConfParser for other required properties. */
 public class KeyManagement implements CertificateManagementService
 {
+  private KeyRingService keyRing = null;
 
   private String topLevelDirectory = null;
   private String x509directory = null;
@@ -202,6 +207,10 @@ public class KeyManagement implements CertificateManagementService
   }
 
   public void init(String role)  throws Exception {
+
+    // TODO
+    // Use service broker instead
+    keyRing = CryptoServiceProvider.getKeyRing();
 
     if(standalone) {
 
@@ -349,7 +358,7 @@ public class KeyManagement implements CertificateManagementService
     }
     else {
       // Use Keyring
-      x509cert = (X509Certificate) KeyRing.findCert(commonName);
+      x509cert = (X509Certificate) keyRing.findCert(commonName);
     }
     return x509cert;
   }
@@ -381,7 +390,7 @@ public class KeyManagement implements CertificateManagementService
     }
     else {
       // Use KeyRing
-       privateKey = KeyRing.findPrivateKey(commonName);
+       privateKey = keyRing.findPrivateKey(commonName);
     }
     return privateKey;
   }

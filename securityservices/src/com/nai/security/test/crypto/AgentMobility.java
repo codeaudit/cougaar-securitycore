@@ -24,90 +24,105 @@
  * - 
  */
 
-package org.cougaar.core.security.crypto;
+package com.nai.security.test.crypto;
 
-import java.lang.*;
-import java.security.cert.X509Certificate;
+import java.io.*;
+import java.util.*;
 import java.security.PrivateKey;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CRL;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+
+import com.ibm.security.pkcs12.PKCS12PFX;
+import com.ibm.security.pkcs8.PrivateKeyInfo;
+import com.ibm.security.pkcsutil.PKCSException;
+import com.nai.security.util.CryptoDebug;
 
 // Cougaar Security Services
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.services.crypto.AgentMobilityService;
+import com.nai.security.crypto.KeyRing;
+import com.nai.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
-import com.nai.security.crypto.*;
-import com.nai.security.util.CryptoDebug;
-
-public class AgentMobilityServiceImpl implements AgentMobilityService {
-
+public class AgentMobility
+{
   private KeyRingService keyRing = null;
 
-  public AgentMobilityServiceImpl() {
+  public AgentMobility()
+  {
     // Get KeyRingService
     // TODO. Replace by call to Service Broker
     keyRing = CryptoServiceProvider.getKeyRing();
   }
 
-  public Object moveAgentTo(String agentName, String targetNodeAgent)
-  {
-    /* Package the agent private and public keys.
-     */
-    byte[] pkcs12 = createPkcs12(agentName, targetNodeAgent);
-
-    /* Remove the agent keys from the local cache.
+  /** Test code only. */
+  public static void main(String[] args) {
+    /* args[0] : alias of signer
+     * args[1] : alias of key to put in PKCS#12
+     * args[2] : alias of receiver
      */
 
-    /* Remove the agent keys from the local keystore.
-     * There should be a transaction here, otherwise we may end
-     * up deleting keys before they have reached their destination.
-     */
+    AgentMobility m = new AgentMobility();
 
-    return pkcs12;
+    m.testAgentMobility(args);
   }
 
-  public void moveAgentFrom(String agentName, Object cryptoAgentData)
-  {
-    /* Extract the keys from the PKCS12 envelope.
-     */
-    PrivateKeyCert[] kcert = extractPkcs12(agentName, cryptoAgentData);
+  public void testAgentMobility(String[] args) {
 
-    /* Install keys in the local keystore.
-     */
-  }
+    String signerAlias = args[0];
+    String pkcs12Alias = args[1];
+    String receiverAlias = args[2];
 
-  /**
-   */
-  private byte[] createPkcs12(String agentName, String targetNodeAgent)
-  {
-    String nodeAgentName = null;
-
-    /* Get the private key of the signer: the node agent.
-     */
     if (CryptoDebug.debug) {
       System.out.println("========= Looking up key for sender node");
     }
-    PrivateKey signerPrivKey = keyRing.findPrivateKey(nodeAgentName);
-
+    PrivateKey signerPrivKey = keyRing.findPrivateKey(signerAlias);
     if (CryptoDebug.debug) {
       System.out.println("========= Looking up certificate for sender node");
     }
     X509Certificate signerCertificate =
-      (X509Certificate)keyRing.findCert(nodeAgentName);
+      (X509Certificate)keyRing.findCert(signerAlias);
 
     if (CryptoDebug.debug) {
       System.out.println("======== Looking up agent's key to be wrapped");
     }
-    PrivateKey privKey = keyRing.findPrivateKey(agentName);
+    PrivateKey privKey = keyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
-      (X509Certificate)keyRing.findCert(agentName);
+      (X509Certificate)keyRing.findCert(pkcs12Alias);
 
     if (CryptoDebug.debug) {
-      System.out.println("======== Looking up key for target node");
+      System.out.println("======== Looking up key for receiver node");
     }
-    PrivateKey rcvrPrivKey = keyRing.findPrivateKey(targetNodeAgent);
+    PrivateKey rcvrPrivKey = keyRing.findPrivateKey(receiverAlias);
     X509Certificate rcvrCert =
-      (X509Certificate)keyRing.findCert(targetNodeAgent);
+      (X509Certificate)keyRing.findCert(receiverAlias);
+
+    java.security.PublicKey pubKey = rcvrCert.getPublicKey();
+    String alg = rcvrCert.getPublicKey().getAlgorithm();
+
+    if (CryptoDebug.debug) {
+      System.out.println("Encryption parameters: " + alg);
+    }
+    if (CryptoDebug.debug) {
+      System.out.println("======== Wrapping agent's key:");
+    }
+    try {
+      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(alg);
+      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, pubKey);
+      cipher.doFinal(privKey.getEncoded());
+    }
+    catch(Exception e) {
+      if (CryptoDebug.debug) {
+	System.out.println("Key encryption error (" + e.toString() + ")");
+	e.printStackTrace();
+      }
+    }
 
     if (CryptoDebug.debug) {
       System.out.println("======== Creating PKCS#12 envelope");
@@ -117,26 +132,12 @@ public class AgentMobilityServiceImpl implements AgentMobilityService {
 					      signerPrivKey,
 					      signerCertificate,
 					      rcvrCert);
-    return pkcs12;
-  }
-
-  private PrivateKeyCert[] extractPkcs12(String agentName,
-					 Object cryptoAgentData)
-  {
-    String nodeAgentName = null;
-    byte[] pkcs12 = (byte[]) cryptoAgentData;
-
-    PrivateKey rcvrPrivKey = keyRing.findPrivateKey(nodeAgentName);
-    X509Certificate rcvrCert =
-      (X509Certificate)keyRing.findCert(nodeAgentName);
 
     if (CryptoDebug.debug) {
       System.out.println("======== Extracting PKCS#12 envelope");
     }
-
     PrivateKeyCert[] pkey = keyRing.getPfx(pkcs12,
 					   rcvrPrivKey,
 					   rcvrCert);
-    return pkey;
   }
 }

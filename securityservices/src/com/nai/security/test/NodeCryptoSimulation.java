@@ -54,6 +54,7 @@ import sun.misc.BASE64Encoder;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBrokerSupport;
 
+// Cougaar Security Services
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
 import com.nai.security.certauthority.KeyManagement;
@@ -64,9 +65,19 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.crypto.CryptoServiceFactory;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class NodeCryptoSimulation
 {
+  private KeyRingService keyRing = null;
+
+  public NodeCryptoSimulation()
+  {
+    // Get KeyRingService
+    // TODO. Replace by call to Service Broker
+    keyRing = CryptoServiceProvider.getKeyRing();
+  }
 
   public static void main(String[] args) {
     NodeCryptoSimulation ncs = new NodeCryptoSimulation();
@@ -160,13 +171,13 @@ public class NodeCryptoSimulation
     if (CryptoDebug.debug) {
       System.out.println("Search private key for " + cn);
     }
-    PrivateKey pk = KeyRing.findPrivateKey(cn);
+    PrivateKey pk = keyRing.findPrivateKey(cn);
     if (CryptoDebug.debug) {
       System.out.println("Private key is : " + pk);
       System.out.println(" ========================================");
       System.out.println("Search cert for " + cn);
     }
-    Certificate c = KeyRing.findCert(cn);
+    Certificate c = keyRing.findCert(cn);
     if (CryptoDebug.debug) {
       System.out.println("Certificate is : " + c);
     }

@@ -31,16 +31,25 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Iterator;
 
-import com.nai.security.policy.*;
-import com.nai.security.crypto.KeyRing;
-
+// Cougaar
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.planning.ldm.plan.Verb;
 
+// KAoS
 import SAFE.Enforcer.AgentEnforcer;
 
+// Cougaar Security Services
+import com.nai.security.policy.*;
+import com.nai.security.crypto.KeyRing;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
+
 public class AccessControlPolicyServiceImpl
-  implements AccessControlPolicyService {
+  implements AccessControlPolicyService
+{
+  private KeyRingService keyRing = null;
+
   //named proxies
   HashSet proxies = new HashSet();
 
@@ -70,6 +79,10 @@ public class AccessControlPolicyServiceImpl
 
     /** Creates new AccessControlPolicyServiceImpl */
   public AccessControlPolicyServiceImpl() {
+    // Get KeyRingService
+    // TODO
+    keyRing = CryptoServiceProvider.getKeyRing();
+
     //setup for default policy
     AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT");
     if(app!=null){
@@ -97,7 +110,7 @@ public class AccessControlPolicyServiceImpl
     // If we need to add proxy, there is a good chance we need
     // a new certificate too so check for it.
     if(dbg) System.out.println("checking certs for agent " + agent);
-    KeyRing.checkOrMakeCert(agent);
+    keyRing.checkOrMakeCert(agent);
 
     return;
   }

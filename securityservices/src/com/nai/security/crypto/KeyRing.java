@@ -48,24 +48,26 @@ import org.cougaar.util.ConfigFinder;
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.util.CryptoDebug;
 
-//import com.nai.security.certauthority.KeyManagement;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 
 /** A common holder for Security keystore information and functionality
  **/
 
-final public class KeyRing {
+final public class KeyRing
+  implements KeyRingService
+{
   // keystore stores private keys and well-know public keys
-  private static DirectoryKeyStore keystore;
-  private static DirectoryKeyStoreParameters param;
-  private static boolean debug = false;
-  private static ConfParser confParser = null;
-  private static PrivateKeyPKCS12 pkcs12;
+  private DirectoryKeyStore keystore;
+  private DirectoryKeyStoreParameters param;
+  private boolean debug = false;
+  private ConfParser confParser = null;
+  private PrivateKeyPKCS12 pkcs12;
 
-  static {
+  public KeyRing() {
     init();
   }
 
-  private static synchronized void init() {
+  private synchronized void init() {
     try {
       String installpath = System.getProperty("org.cougaar.install.path");
 
@@ -165,34 +167,34 @@ final public class KeyRing {
       
   }
 
-  public static synchronized KeyStore getKeyStore() { 
+  public synchronized KeyStore getKeyStore() { 
     if (keystore == null) {
       return null;
     }
     return keystore.getKeyStore();
   }
 
-  public static synchronized PrivateKey findPrivateKey(String commonName) {
+  public synchronized PrivateKey findPrivateKey(String commonName) {
     if (keystore == null) {
       return null;
     }
     return keystore.findPrivateKey(commonName);
   }
 
-  public static synchronized Certificate findCert(Principal p) {
+  public synchronized Certificate findCert(Principal p) {
     if (keystore == null) {
       return null;
     }
     return keystore.findCert(p);
   }
 
-  public static synchronized Certificate findCert(String commonName) {
+  public synchronized Certificate findCert(String commonName) {
     if(CryptoDebug.debug)
       System.out.println("Looking for common name " + commonName + " in keystore ");
     return keystore.findCert(commonName);
   }
 
-  public static synchronized Certificate findCert(String commonName, int lookupType) {
+  public synchronized Certificate findCert(String commonName, int lookupType) {
     Certificate c = null;
     try {
       c = keystore.findCert(commonName, lookupType);
@@ -202,7 +204,7 @@ final public class KeyRing {
     return c;
   }
 
-  public static synchronized X509Certificate[] findCertChain(X509Certificate c)
+  public synchronized X509Certificate[] findCertChain(X509Certificate c)
   {
     X509Certificate[] chain = null;
     if (c == null) {
@@ -216,7 +218,7 @@ final public class KeyRing {
     return chain;
   }
 
-  public static synchronized void setSleeptime(long sleeptime)
+  public synchronized void setSleeptime(long sleeptime)
   {
     if (keystore == null) {
       return;
@@ -224,7 +226,7 @@ final public class KeyRing {
     keystore.setSleeptime(sleeptime);
   }
 
-  public static synchronized long getSleeptime()
+  public synchronized long getSleeptime()
   {
     if (keystore == null) {
       return -1;
@@ -232,7 +234,7 @@ final public class KeyRing {
     return keystore.getSleeptime();
   }
 
-  public static synchronized Vector getCRL()
+  public synchronized Vector getCRL()
   {
     if (keystore == null) {
       return null;
@@ -241,7 +243,7 @@ final public class KeyRing {
     //return keystore.getCRL();
   }
 
-  public static synchronized void checkOrMakeCert(String name)
+  public synchronized void checkOrMakeCert(String name)
   {
     if (keystore == null) {
       return;
@@ -256,7 +258,7 @@ final public class KeyRing {
    *  @param signerCert     The certificate of the signer
    *  @param rcvrCert       The certificate of the intended receiver
    */
-  public static byte[] protectPrivateKey(PrivateKey privKey,
+  public byte[] protectPrivateKey(PrivateKey privKey,
 					 Certificate cert,
 					 PrivateKey signerPrivKey,
 					 Certificate signerCert,
@@ -274,7 +276,7 @@ final public class KeyRing {
    * @param rcvrPrivKey    The private key of the receiver
    * @param rcvrCert       The certificate of the receiver
    */
-  public static PrivateKeyCert[] getPfx(byte[] pfxBytes,
+  public PrivateKeyCert[] getPfx(byte[] pfxBytes,
 					PrivateKey rcvrPrivKey,
 					Certificate rcvrCert)
   {

@@ -38,7 +38,7 @@ import org.cougaar.core.security.services.identity.*;
 public class CryptoServiceFactory {
 
   private ServiceBroker serviceBroker;
-  private CryptoManagerServiceProvider cryptoServiceProvider;
+  private CryptoServiceProvider cryptoServiceProvider;
 
   public void initCryptoServices()
   {
@@ -48,7 +48,7 @@ public class CryptoServiceFactory {
       throw new RuntimeException("Service Broker not set");
     }
 
-    cryptoServiceProvider = new CryptoManagerServiceProvider();
+    cryptoServiceProvider = new CryptoServiceProvider();
 
     registerServices();
   }
@@ -78,13 +78,10 @@ public class CryptoServiceFactory {
     serviceBroker.addService(IdentityService.class,
 			     cryptoServiceProvider);
 
-    serviceBroker.addService(PublicKeyRingService.class,
-			     cryptoServiceProvider);
-
     serviceBroker.addService(MessageService.class,
 			     cryptoServiceProvider);
 
-    serviceBroker.addService(PrivateKeyRingService.class,
+    serviceBroker.addService(KeyRingService.class,
 			     cryptoServiceProvider);
 
   }

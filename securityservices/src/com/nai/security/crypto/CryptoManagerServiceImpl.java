@@ -26,29 +26,32 @@ import java.io.Serializable;
 import java.security.*;
 import java.util.HashMap;
 import java.security.cert.CertificateException;
+import javax.crypto.*;
 
+// Cougaar Security Services
 import org.cougaar.core.security.bootstrap.BaseBootstrapper;
 import com.nai.security.util.CryptoDebug;
-
-import javax.crypto.*;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class CryptoManagerServiceImpl implements CryptoManagerService {
   private boolean debug = false;
+  private KeyRingService keyRing = null;
 
   public CryptoManagerServiceImpl() {
-    /* debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    */
+    // Get KeyRingService
+    // TODO. Replace by call to Service Broker
+    keyRing = CryptoServiceProvider.getKeyRing();
   }
 
   public SignedObject sign(final String name, String spec, Serializable obj){
     try {
-      PrivateKey pk = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run(){
-	    return KeyRing.findPrivateKey(name);
-	  }
-
-	});
+      PrivateKey pk = (PrivateKey)
+	AccessController.doPrivileged(new PrivilegedAction() {
+	    public Object run(){
+	      return keyRing.findPrivateKey(name);
+	    }
+	  });
       Signature se;
       // if(spec==null||spec=="")spec=pk.getAlgorithm();
 
@@ -74,7 +77,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 
    public Object verify(String name, String spec, SignedObject obj)
    throws CertificateException {
-       java.security.cert.Certificate c = KeyRing.findCert(name);
+       java.security.cert.Certificate c = keyRing.findCert(name);
        if (c == null) {
 	 throw new CertificateException("Verify. Unable to get certificate for " + name);
        }
@@ -99,7 +102,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     throws CertificateException {
     /*encrypt the secretekey with receiver's public key*/
 
-    java.security.cert.Certificate cert = KeyRing.findCert(name);
+    java.security.cert.Certificate cert = keyRing.findCert(name);
     if (cert == null) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
@@ -127,7 +130,7 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
       PrivateKey key = (PrivateKey)
 	AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run(){
-	      return KeyRing.findPrivateKey(name);
+	      return keyRing.findPrivateKey(name);
 	    }
 	  });
 

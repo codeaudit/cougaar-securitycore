@@ -30,7 +30,15 @@ import java.lang.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.Principal;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.util.Vector;
+
+// Cougaar
 import org.cougaar.core.component.Service;
+
+// Cougaar Security Services
+import com.nai.security.crypto.PrivateKeyCert;
 
 /** Low-level service to retrieve certificates
  */
@@ -70,5 +78,30 @@ public interface KeyRingService extends Service {
   /** 
    */
   public PrivateKey findPrivateKey(String commonName);
+
+
+  /** ******************************
+   *  TODO: Remove these methods
+   */
+  public void checkOrMakeCert(String name);
+  public Vector getCRL();
+  public long getSleeptime();
+  public void setSleeptime(long sleeptime);
+
+  public byte[] protectPrivateKey(PrivateKey privKey,
+				  Certificate cert,
+				  PrivateKey signerPrivKey,
+				  Certificate signerCert,
+				  Certificate rcvrCert);
+
+  /** Extract information from a PKCS#12 PFX
+   * @param pfxBytes       The DER encoded PFX
+   * @param rcvrPrivKey    The private key of the receiver
+   * @param rcvrCert       The certificate of the receiver
+   */
+  public PrivateKeyCert[] getPfx(byte[] pfxBytes,
+				 PrivateKey rcvrPrivKey,
+				 Certificate rcvrCert);
+
 
 }
