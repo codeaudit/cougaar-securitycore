@@ -9,20 +9,23 @@
       <trustedCAs>
         <CA_keystore>keystoreNCA_CA</CA_keystore>
         <CA_keystore role="srosset">keystore-CA-srosset</CA_keystore>
+        <CA_keystore role="srosset">keystore-George-CA</CA_keystore>
 
         <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
         <trustedCA>
           <!-- The alias in the keystore -->
           <CA_alias>NCA_CA</CA_alias>
           <CA_alias role="srosset">conus-1</CA_alias>
+          <CA_alias role="gmount">georgeca-1</CA_alias>
 
           <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
           <CA_DN role="srosset">CN=CONUS, OU=NAI Labs, O=NAI, L=Santa Clara, ST=CA, C=US</CA_DN>
+          <CA_DN role="gmount">CN=GeorgeCA, OU=NAI Labs, O=NAI, L=Santa Clara, ST=California, C=US</CA_DN>
 
           <CA_URL>http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="srosset">http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="ychen">http://pear:5558/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="gmount">http://pear:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="gmount">http://tea:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="mluu">http://pear:5559/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rtripath">http://pear:5560/$caAgent/CA/CertificateSigningRequest</CA_URL>
