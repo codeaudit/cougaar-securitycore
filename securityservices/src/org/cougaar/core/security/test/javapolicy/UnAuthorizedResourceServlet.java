@@ -54,7 +54,7 @@ import java.util.ArrayList;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {
@@ -86,7 +86,7 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
           if (logging.isErrorEnabled()) {
             logging.error("cougaar install path is null");
           }
-          out.println("FALSE");
+          out.println("FALSE - cougaar install path is null");
         } else {
           File file = new File(cip + File.separator + "unauthorizedTest");
           writer = new FileWriter(file);
@@ -96,12 +96,14 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
           if (logging.isDebugEnabled()) {
             logging.debug("Could access resource!");
           }
-          out.println("FALSE");
+          out.println("FALSE - Could access resource!");
           createIdmefEvent();
         }
-      } catch (IOException se) {
-        out.println("TRUE");
+      } catch (SecurityException se) {
+        out.println("TRUE " + se.getMessage());
         //good
+      } catch (Exception e) {
+        out.println("FALSE - exception: " + e.getMessage());
       } finally {
         try {
           writer.close();
