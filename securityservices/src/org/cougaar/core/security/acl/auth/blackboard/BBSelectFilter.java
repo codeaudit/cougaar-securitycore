@@ -395,18 +395,20 @@ public class BBSelectFilter extends BlackboardFilter {
         Iterator iter = rule.methods.iterator();
         while (iter.hasNext()) {
           String method = (String) iter.next();
-          HashMap roleMap = getMap(methodMap, method);
-          Iterator jter = rule.roles.iterator();
+          HashMap patternMap = getMap(methodMap, method);
+
+          Iterator jter = rule.patterns.iterator();
+
           while (jter.hasNext()) {
-            String role = (String) jter.next();
-            HashSet patternMap = (HashSet) roleMap.get(role);
-            if (patternMap == null) {
-              patternMap = new HashSet();
-              roleMap.put(role,patternMap);
+            String pattern = (String) jter.next();
+            HashSet roles = (HashSet) patternMap.get(pattern);
+            if (roles == null) {
+              roles = new HashSet();
+              patternMap.put(pattern,roles);
             }
-            Iterator kter = rule.patterns.iterator();
+            Iterator kter = rule.roles.iterator();
             while (kter.hasNext()) {
-              patternMap.add(kter.next());
+              roles.add(kter.next());
             }
           }
         }
@@ -451,31 +453,37 @@ public class BBSelectFilter extends BlackboardFilter {
       }
       uri = uri.substring(agentName.length() + 2);
 
-      return (canAccess(agentName, method, uri, roles) ||
-              canAccess("*", method, uri, roles));
+      int access = canAccess(agentName, method, uri, roles);
+      if (access == 1) return true;
+      int access2 = canAccess("*", method, uri, roles);
+      if (access2 == 1) return true;
+      if (access == 0 || access2 == 0) return false;
+      return true; // no rule for this uri
     }
 
-    public boolean canAccess(String agent, String method, String uri,
-                             String roles[]) {
+    public int canAccess(String agent, String method, String uri,
+                         String roles[]) {
       HashMap methodMap = (HashMap)_ruleMap.get(agent);
-      if (methodMap != null) {
-        HashMap roleMap = (HashMap) methodMap.get(method);
-        if (roleMap != null) {
-          // now go through each role:
+      if (methodMap == null) return -1;
+
+      // now go through each pattern:
+      HashMap patterns = (HashMap) methodMap.get(method);
+      if (patterns == null) return -1;
+
+      Iterator iter = patterns.keySet().iterator();
+      while (iter.hasNext()) {
+        String pattern = (String)iter.next();
+        if (matches(uri, pattern)) {
+          HashSet roleMap = (HashSet) patterns.get(pattern);
           for (int i = 0; i < roles.length; i++) {
-            Collection patterns = (Collection) roleMap.get(roles[i]);
-            if (patterns != null) {
-              Iterator iter = patterns.iterator();
-              while (iter.hasNext()) {
-                if (matches(uri, (String) iter.next())) {
-                  return true;
-                }
-              }
+            if (roleMap.contains(roles[i])) {
+              return 1;
             }
           }
+          return 0;
         }
       }
-      return false;
+      return -1;
     }
 
     private static boolean matches(String uri, String wild) {
