@@ -53,24 +53,24 @@ import kaos.policy.information.OntologyPolicyContainer;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.builder.PolicyParser;
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
-
+import org.cougaar.util.log.LoggerFactory;
+import org.cougaar.util.log.Logger;
 
 class Main 
 {
   private static WebProxyInstaller   _proxyInstaller;
   private static OntologyConnection  _ontology;
-
+  private static Logger              _log;
+  
   static {
     _proxyInstaller = new WebProxyInstaller();
     _proxyInstaller.install();
     BasicConfigurator.configure();
-    Logger.getRootLogger().setLevel(Level.WARN);
+    _log = LoggerFactory.getInstance().createLogger(Main.class);
   }
 
 
@@ -178,7 +178,9 @@ class Main
         usage();
       }
     } catch (IndexOutOfBoundsException e) {
-      System.out.println("Too many arguments");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Too many arguments");
+      }
       usage();
     }
   }
@@ -208,7 +210,9 @@ class Main
     String port     = args[counter++];
     String agent    = args[counter++];
     _url = "http://" + hostname + ":" + port + "/$" + agent + "/policyAdmin";
-    System.out.println("_url = " + _url);
+    if (_log.isDebugEnabled()) {
+      _log.debug("_url = " + _url);
+    }
     return counter;
   }
 
@@ -256,7 +260,9 @@ class Main
                        + "on the domain manager intact\n");
     sb.append("Conditional policies on the domain manager are " +
                        "always replaced.\n");
-    System.out.println(sb.toString());
+    if (_log.isWarnEnabled()) {
+      _log.warn(sb.toString());
+    }
     System.exit(-1);
   }
 
@@ -268,7 +274,9 @@ class Main
       Main env = new Main(args);
       env.run();
     } catch (Exception e) {
-      e.printStackTrace();
+      if (_log.isWarnEnabled()) {
+        _log.warn("Unable to parse security policy", e);
+      }
       System.exit(-1);
     }
   }
@@ -334,26 +342,32 @@ class Main
   protected void buildPolicies()
     throws IOException, PolicyCompilerException
   {
-    System.out.println("Parsing Policies");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Parsing Policies");
+    }
     ParsedPolicyFile parsed = compile(_policyFile);
     List          ppolicies = parsed.policies();
 
     System.out.println("Loading ontologies & declarations");
     _ontology = new LocalOntologyConnection(parsed.declarations(), 
                                             parsed.agentGroupMap());
-    System.out.println("Ontologies loaded");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Ontologies loaded");
+    }
 
     if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
-      System.out.println
-        ("Reasoning depth insufficient. Try setting a larger value with the");
-      System.out.println
-        ("--maxdepth option");
-      System.out.println
-        ("Policies not built as they would be incorrect");
+      String s = "Reasoning depth insufficient. Try setting a larger value with the\n"
+        + "--maxdepth option\n"
+        + "Policies not built as they would be incorrect";
+      if (_log.isDebugEnabled()) {
+        _log.debug(s);
+      }
       System.exit(-1);
     }
 
-    System.out.println("Writing Policies");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Writing Policies");
+    }
     for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
                                                                 .iterator();
         builtPolicyIt.hasNext();) {
@@ -377,7 +391,9 @@ class Main
   private boolean checkDepth(Map agentGroupMap)
   {
     try {
-      System.out.println("Checking reasoning depth");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Checking reasoning depth");
+      }
       for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
            agentGroupIt.hasNext();) {
         String agentGroup = (String) agentGroupIt.next();
@@ -385,19 +401,23 @@ class Main
         Set    agents = _ontology.getInstancesOf(ULOntologyNames.agentGroupPrefix +
                                                  agentGroup);
         if (agents.size() < size) {
-          System.out.println("Insufficient reasoning depth");
-          System.out.println("for agent group " + agentGroup + 
-                             " the agent set should have size "
-                             + size + "  but actually has size " + 
-                             +agents.size());
+          if (_log.isDebugEnabled()) {
+            _log.debug("Insufficient reasoning depth");
+            _log.debug("for agent group " + agentGroup + 
+                " the agent set should have size "
+                + size + "  but actually has size " + 
+                +agents.size());
+          }
           return false;
         } else if (agents.size() > size) {
-          System.out.println("Say what???");
-          System.out.println("for agent group " + agentGroup + 
-                             " the agent set should be \n\n"
-                             + agentGroupMap.get(agentGroup) + 
-                             "\n\n(size=" + size + ")  but actually is\n\n" 
-                             + agents + "\n\n(size="+agents.size() + ")");
+          if (_log.isDebugEnabled()) {
+            _log.debug("Say what???");
+            _log.debug("for agent group " + agentGroup + 
+                " the agent set should be \n\n"
+                + agentGroupMap.get(agentGroup) + 
+                "\n\n(size=" + size + ")  but actually is\n\n" 
+                + agents + "\n\n(size="+agents.size() + ")");
+          }
           return false;
         }
       }
