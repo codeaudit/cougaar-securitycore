@@ -43,7 +43,10 @@ import org.cougaar.core.service.UIDService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.service.AgentIdentificationService;
+
 import org.cougaar.util.UnaryPredicate;
+
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,7 +69,6 @@ public class AgentUserService implements UserService, BlackboardClient {
   private HashMap        _targets = new HashMap();
   private String         _defaultDomain;
   private CommunityServiceUtil _csu;
-
   public  static final String COMMUNITY_TYPE = "User";
   public  static final String MANAGER_ROLE   = "UserManager";
   public final static long MAX_WAIT = 10000;
@@ -87,7 +89,52 @@ public class AgentUserService implements UserService, BlackboardClient {
         }
       }
     };
-
+  public AgentUserService(ServiceBroker sb) {
+    _serviceBroker = sb;
+    _log = (LoggingService)
+      _serviceBroker.getService(this, LoggingService.class, null);
+    _bbs = (BlackboardService) 
+      _serviceBroker.getService(this, BlackboardService.class, null);
+    _uidService = (UIDService)
+      _serviceBroker.getService(this, UIDService.class, null);
+    AgentIdentificationService _agentIdentificationservice=(AgentIdentificationService)
+      _serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if(_agentIdentificationservice!=null) {
+      _source = _agentIdentificationservice.getMessageAddress();
+      if(_log.isDebugEnabled()){
+        _log.debug("Setting agent source as "+_source);
+      }
+    }
+    else {
+      if(_log.isDebugEnabled()){
+        _log.debug("AgentIdentificationservice service is not avilable ");
+        _log.debug("AddingListener for AgentIdentificationservice ");
+      }
+      _serviceBroker.addServiceListener(new AgentIdentificationServiceListener());
+    }
+    CommunityService cs = (CommunityService)
+      _serviceBroker.getService(this, CommunityService.class, null);
+    if (cs == null) {
+      if(_log.isDebugEnabled()){
+        _log.debug("CommunityService service is not avilable ");
+      }
+      _serviceBroker.addServiceListener(new CommunityServiceListener());
+    } else {
+      if(_log.isDebugEnabled()){
+        _log.debug("set communityService called ");
+      }
+      setCommunityService(cs);
+    }
+    if (_bbs != null) {
+      startSubscription();
+    } else {
+      if(_log.isDebugEnabled()){
+        _log.debug("BB service is not avilable ");
+      }
+      _serviceBroker.addServiceListener(new BlackboardServiceListener());
+    }
+  }
+  
   public AgentUserService(ServiceBroker sb, MessageAddress agent) {
     _serviceBroker = sb;
     _log = (LoggingService)
@@ -100,14 +147,23 @@ public class AgentUserService implements UserService, BlackboardClient {
     CommunityService cs = (CommunityService)
       _serviceBroker.getService(this, CommunityService.class, null);
     if (cs == null) {
+      if(_log.isDebugEnabled()){
+        _log.debug("CommunityService service is not avilable ");
+      }
       _serviceBroker.addServiceListener(new CommunityServiceListener());
     } else {
+      if(_log.isDebugEnabled()){
+        _log.debug("set communityService called ");
+      }
       setCommunityService(cs);
     }
 
     if (_bbs != null) {
       startSubscription();
     } else {
+      if(_log.isDebugEnabled()){
+        _log.debug("BB service is not avilable ");
+      }
       _serviceBroker.addServiceListener(new BlackboardServiceListener());
     }
   }
@@ -117,6 +173,9 @@ public class AgentUserService implements UserService, BlackboardClient {
     _subscription = (IncrementalSubscription) _bbs.subscribe(MY_RELAYS);
     _bbs.registerInterest(WATCHER);
     _bbs.closeTransaction();
+    if(_log.isDebugEnabled()){
+      _log.debug("Set up startSubscription done so Agent User service should be up");
+    }
   }
 
   private synchronized void setCommunityService(CommunityService cs) {
@@ -125,9 +184,16 @@ public class AgentUserService implements UserService, BlackboardClient {
       CommunityServiceUtilListener listener = 
         new CommunityServiceUtilListener() {
           public void getResponse(Set agents) {
+            if(_log.isDebugEnabled()){
+              _log.debug("received Response from communityService util in AgentUserService calling setupRoles:"+ agents.toString());
+            }
             setupRole(agents);
           }
         };
+      if(_log.isDebugEnabled()){
+        _log.debug("Calling communityservice util to find agents from community "+ COMMUNITY_TYPE +
+                   "role "+ MANAGER_ROLE);
+      }
       _csu.getCommunityAgent(COMMUNITY_TYPE, MANAGER_ROLE, listener);
     }
   }
@@ -141,6 +207,9 @@ public class AgentUserService implements UserService, BlackboardClient {
           Iterator iter = communities.iterator();
           while (iter.hasNext()) {
             Community community = (Community) iter.next();
+            if(_log.isDebugEnabled()){
+              _log.debug(" doing community search (Role="+ MANAGER_ROLE +") agents only "); 
+            }
             Set agents = community.search("(Role=" + MANAGER_ROLE + ")",
                                           Community.AGENTS_ONLY);
             if (agents.contains(agent)) {
@@ -196,7 +265,7 @@ public class AgentUserService implements UserService, BlackboardClient {
     final boolean debug = _log.isDebugEnabled();
 
     if (debug) {
-	_log.debug("looking for community " + communityName);
+      _log.debug("looking for community " + communityName);
     }
     if (communityName == null) {
       String message = "The user has no domain and there " +
@@ -220,7 +289,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 
       Set agents = _csu.getAgents(communityName, MANAGER_ROLE, MAX_WAIT);
       if (debug) {
-	  _log.debug("agent list is " + agents);
+        _log.debug("agent list is " + agents);
       }
       if (agents == null || agents.size() != 1) {
         String message = "Could not find manager for community" +
@@ -231,7 +300,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       Entity entity = (Entity) agents.iterator().next();
       target = MessageAddress.getMessageAddress(entity.getName());
       if (debug) {
-	  _log.debug("Found manager for " + communityName + ": " + target);
+        _log.debug("Found manager for " + communityName + ": " + target);
       }
       _targets.put(communityName, target);
       return target;
@@ -260,6 +329,9 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
     try {
       _bbs.openTransaction();
+      if(_log.isDebugEnabled()){
+        _log.debug("Publishing relay in wait response :"+relay.toString());
+      }
       _bbs.publishAdd(relay);
       _bbs.closeTransaction();
     } catch (Exception e) {
@@ -290,6 +362,7 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
     throw (UserServiceException) response.getResponse();
   }
+
 
   public void disableUser(String uid) throws UserServiceException {
     MessageAddress target = getTarget(uid);
@@ -581,9 +654,10 @@ public class AgentUserService implements UserService, BlackboardClient {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (ae.getService().equals(CommunityService.class)) {
         CommunityService cs = (CommunityService) ae.getServiceBroker().
-           getService(this, CommunityService.class, null);
+          getService(this, CommunityService.class, null);
         if (cs != null) {
           ae.getServiceBroker().removeServiceListener(this);
+          _log.debug("Got Community service starting community search  for AgentUser service");
           setCommunityService(cs);
         }
       }
@@ -593,11 +667,28 @@ public class AgentUserService implements UserService, BlackboardClient {
   private class BlackboardServiceListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (ae.getService().equals(BlackboardService.class)) {
-        _bbs = (BlackboardService) ae.getServiceBroker().
-           getService(this, BlackboardService.class, null);
-        if (_bbs != null) {
+        Object obj =ae.getServiceBroker().
+          if (_bbs != null) {
+            if(_log.isDebugEnabled()){
+              _log.debug("Got Black B service starting subscription for AgentUser service");
+            }
+            ae.getServiceBroker().removeServiceListener(this);
+            startSubscription();
+          }
+      }
+    }
+  }
+  
+  private class AgentIdentificationServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      _log.debug("Looking for  AgentIdentificationService  got called for "+ae.getService().toString());
+      if (ae.getService().equals(AgentIdentificationService.class)) {
+        AgentIdentificationService ais = (AgentIdentificationService) ae.getServiceBroker().
+          getService(this, AgentIdentificationService.class, null);
+        if (ais != null) {
           ae.getServiceBroker().removeServiceListener(this);
-          startSubscription();
+          _log.debug("Got agent AgentIdentificationService service User service provider service");
+          _source=ais.getMessageAddress();
         }
       }
     }
