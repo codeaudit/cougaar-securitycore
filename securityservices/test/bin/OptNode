@@ -112,7 +112,8 @@ sub readPropertiesFile {
   push @line, makeProperty("java.Xrunpri:filter","/tmp/OptimizeIt.filter");
   push @line, makeProperty("AUDIT","jni");
   push @line, makeProperty("java.Xbootclasspath/a","/home/u/gmount/dump/OptimizeitSuiteDemo/lib/oibcp.jar");
-  push @line, makeProperty("java.class.path","/home/u/gmount/dump/OptimizeitSuiteDemo/lib/optit.jar");
+
+  $classPath = "";
   while (<FH>) {
     chomp;
     s/^ +//;
@@ -129,6 +130,8 @@ sub readPropertiesFile {
         $javaBin = $value;
       } elsif ($name eq 'java.class.name') {
         $className = $value;
+      } elsif ($name eq 'java.class.path') {
+        $classPath = $value;
       } else {
         push @line, makeProperty($name, $value);
       }
@@ -136,10 +139,12 @@ sub readPropertiesFile {
     }
   }
 
+  push @line, makeProperty("java.class.path","/home/u/gmount/dump/OptimizeitSuiteDemo/lib/optit.jar:$classPath");
+
   if (defined $className) {
-    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36444", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/", $className;
+    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36442", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/", $className;
   } else {
-    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36444", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/";
+    return $javaBin, @line, "intuitive.audit.Audit", "-port", "36442", "-dllpath", "/home/u/gmount/dump/OptimizeitSuiteDemo/lib/green/";
   }
 }
 
