@@ -21,43 +21,52 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
-import java.security.cert.*;
-import javax.crypto.*;
-import sun.security.x509.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.AccessController;
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.PrivilegedAction;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignedObject;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
-import java.text.ParseException;
-import javax.crypto.spec.SecretKeySpec;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SealedObject;
+import javax.crypto.SecretKey;
 
-// Cougaar core infrastructure
-import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.component.ServiceRevokedEvent;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.mts.ProtectedOutputStream;
-import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
-import org.cougaar.core.security.crypto.CertificateChainException;
-
-// Cougaar Security Services
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.crypto.PublicKeyEnvelope;
-import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.security.util.ErasingMap;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.service.LoggingService;
+
+import sun.security.x509.X500Name;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
@@ -1569,18 +1578,18 @@ public class CryptoManagerServiceImpl
   }
 
   private static void removeEncrypt(SecureMethodParam policy) {
-    if (policy.secureMethod == policy.ENCRYPT) {
-      policy.secureMethod = policy.PLAIN;
-    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
-      policy.secureMethod = policy.SIGN;
+    if (policy.secureMethod == SecureMethodParam.ENCRYPT) {
+      policy.secureMethod = SecureMethodParam.PLAIN;
+    } else if (policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      policy.secureMethod = SecureMethodParam.SIGN;
     }
   }
 
   private static void removeSign(SecureMethodParam policy) {
-    if (policy.secureMethod == policy.SIGN) {
-      policy.secureMethod = policy.PLAIN;
-    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
-      policy.secureMethod = policy.ENCRYPT;
+    if (policy.secureMethod == SecureMethodParam.SIGN) {
+      policy.secureMethod = SecureMethodParam.PLAIN;
+    } else if (policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+      policy.secureMethod = SecureMethodParam.ENCRYPT;
     }
   }
 
