@@ -208,12 +208,14 @@ class Main {
   public void buildPolicies()
     throws IOException, PolicyCompilerException
   {
+    System.out.println("Parsing Policies");
+    List policies = compile(_policyFile);
+
     System.out.println("Loading ontologies");
     _ontology = new LocalOntologyConnection();
     System.out.println("Ontologies loaded");
-    System.out.println("Writing Policies");
 
-    List policies = compile(_policyFile);
+    System.out.println("Writing Policies");
     for(Iterator policyIt = policies.iterator();
         policyIt.hasNext();) {
       ParsedPolicy pp = (ParsedPolicy) policyIt.next();

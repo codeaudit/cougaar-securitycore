@@ -40,15 +40,24 @@ returns [ParsedPolicy pp]
 throws PolicyCompilerException
 {pp = null;}
     : "Policy" pn:TOKEN EQ LBRACK pp = innerPolicy[pn.getText()] RBRACK
+        conditionalAddendum[pp]
+    ;
+
+conditionalAddendum[ParsedPolicy pp]
+throws PolicyCompilerException
+    : "when" "operating" "mode" EQ mode:TOKEN
+        { pp.setConditionalMode(mode.getText()); }
+    |
     ;
 
 innerPolicy [String pn]
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
 {  pp = null; }
-    : pp = genericPolicy[pn]
-    | pp = servletUserAccess[pn]
-    | pp = servletAuthentication[pn]
+    : "GenericTemplate"               pp = genericPolicy[pn]
+    | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
+    | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
+    | "BlackboardTemplate"            pp = blackboardPolicy[pn]
     ;
 
 
@@ -146,7 +155,8 @@ throws PolicyCompilerException
 
 
 /*
- * The Servlet Access template: (e.g. A user in role policyAdministrator is allowed to access a servlet named PolicyServlet)
+ * The Servlet Access template: (e.g. A user in role policyAdministrator is 
+ * allowed to access a servlet named PolicyServlet) 
  */
 servletUserAccess [String pn] 
 returns [ParsedPolicy pp]
@@ -169,6 +179,27 @@ servletUserAccessModality returns [boolean m] { m = true; }
    ;
 
 /*
+ * The Blackboard policy template: (e.g. A plugin in the role OpPlan can
+ * add, remove, change, query objects of type OpPlan on the blackboard.
+ */
+
+blackboardPolicy[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{   pp=null;
+    Set accessModes = null; 
+    Set objectTypes = null; }
+    : "A" "PlugIn" "in" "the" "role" pluginRole:TOKEN "can" 
+        accessModes=tokenList "objects" "of" "type" 
+        objectTypes = tokenList
+        { pp = new BlackboardParsedPolicy(pn,
+                                          pluginRole.getText(), 
+                                          accessModes, 
+                                          objectTypes); }
+    ;
+
+
+/*
  * The servlet authentication servlet (e.g. All users must use CertificateSSL when accessing the servlet named PolicyServlet)
  */
 
@@ -184,6 +215,28 @@ throws PolicyCompilerException
                 auth.getText(), 
                 servlet.getText());
         }
+    ;
+
+
+
+/*
+ * tokenList is used to represent a list of tokens.  It returns a set
+ * consisting of the tokens.
+ */
+tokenList
+returns [Set items]
+{   items = null; }
+    : item:TOKEN items=moreTokenList
+        { items.add(item.getText()); }
+    ;
+
+moreTokenList
+returns [Set items]
+{   items = null; }
+    : COMMA item:TOKEN items = moreTokenList
+        { items.add(item.getText()); }
+    |
+        { items = new HashSet(); }
     ;
 
 

@@ -42,6 +42,7 @@ public abstract class ParsedPolicy
   protected String  _action;
   protected String  _actor;
   protected String  _description;
+  protected String  _conditionalMode;
   
   protected DAMLPolicyBuilderImpl    _pb;
   protected KAoSClassBuilderImpl _controls;
@@ -52,17 +53,22 @@ public abstract class ParsedPolicy
                String  actor,
                String  action)
   {
-    _policyName     = policyName;
-    _priority = priority;
-    _modality = modality;
-    _actor    = actor;
-    _action   = action;
+    _policyName      = policyName;
+    _priority        = priority;
+    _modality        = modality;
+    _actor           = actor;
+    _action          = action;
+    _conditionalMode = null;
   }
 
   public String getPolicyName()
   {
     return _policyName;
   }
+
+  /*
+   * Get and set methods
+   */
 
   public String getActor()
   {
@@ -79,6 +85,25 @@ public abstract class ParsedPolicy
     return _description;
   }
 
+  public String getConditionalMode()
+  {
+    return _conditionalMode;
+  }
+
+  public void setConditionalMode(String mode)
+    throws PolicyCompilerException
+  {
+    if (!(mode.equals("LOW")) && !(mode.equals("HIGH"))) {
+      throw new PolicyCompilerException("Unknown conditional mode " + mode);
+    }
+    _conditionalMode = mode;
+  }
+
+  /**
+   * This is a utility routine that gives me a shorthand which replaces the 
+   * "$" with the string "http://ontology.coginst.uwf.edu/".  I am thinking 
+   * of removing this function.
+   */
   public static String tokenToURI(Token u)
     throws PolicyCompilerException
   {
