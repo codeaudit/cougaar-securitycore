@@ -25,6 +25,8 @@ header {
   import java.io.*;
   import java.util.*;
 
+  import kaos.ontology.util.KAoSClassBuilderImpl;
+
   import org.cougaar.core.security.policy.builder.Main;
   import org.cougaar.core.security.policy.builder.PolicyBuilder;
   import org.cougaar.core.security.policy.builder.PolicyCompiler;
@@ -42,25 +44,112 @@ throws PolicyCompilerException
     ;
 
 policy 
-returns [PolicyBuilder p]
+returns [PolicyBuilder pb]
 throws PolicyCompilerException
-{p = null;}
-    : "Policy" pn:TOKEN EQ LBRACK p = innerPolicy[pn.getText()] RBRACK
+{pb = null;}
+    : "Policy" pn:TOKEN EQ LBRACK pb = innerPolicy[pn.getText()] RBRACK
     ;
 
 innerPolicy [String pn]
-returns [PolicyBuilder p]
+returns [PolicyBuilder pb]
 throws PolicyCompilerException
-{  p = null; }
-    : p = servletUserAccess[pn]
-    | p = servletAuthentication[pn]
+{  pb = null; }
+    : pb = servletUserAccess[pn]
+    | pb = servletAuthentication[pn]
+    | pb = genericPolicy[pn]
+    ;
+
+genericPolicy[String pn]
+returns [PolicyBuilder pb]
+throws PolicyCompilerException
+{   pb = null;
+    boolean modality = true; }        
+    : "Priority" EQ priority:INT COMMA
+      subject:TOKEN "is" modality = genericAuth
+        "to" "perform" action:TOKEN "as" "long" "as"
+  { pb = PolicyCompiler.genericPolicyInit(pn,
+                                          PolicyCompiler.tokenToInt(priority),
+                                          PolicyCompiler.tokenToURI(subject),
+                                          modality,
+                                          PolicyCompiler.tokenToURI(action));
+    KAoSClassBuilderImpl controls = 
+         new KAoSClassBuilderImpl(PolicyCompiler.tokenToURI(action));
+        }
+        LCURLY 
+        genericTargets[PolicyCompiler.tokenToURI(action), pb, controls]
+        RCURLY
+        { pb.setControlsActionClass(controls); }
+    ;
+
+genericAuth
+returns [boolean modality]
+{  modality = true; }
+    : "authorized" { modality = true; }
+    | "not" "authorized" { modality = false; }
+    ;
+
+genericTargets[String action, PolicyBuilder pb, KAoSClassBuilderImpl controls]
+throws PolicyCompilerException
+    : ( genericTarget[action, pb, controls] )*
+    ;
+
+genericTarget[String action, PolicyBuilder pb, KAoSClassBuilderImpl controls]
+throws PolicyCompilerException
+{  String resType = null; }
+    : "the" "value" "of" role:URI resType = genericRestrictionType
+        "of" genericRange[action, 
+                          pb,
+                          controls, 
+                          PolicyCompiler.tokenToURI(role), 
+                          resType]
+    ;
+
+genericRestrictionType
+returns [String resType]
+{  resType = null; }
+    : "is" "a" "subset" 
+        { resType = kaos.ontology.jena.PolicyConcepts._toClassRestriction; }
+    | "contains" "at" "least" "one"
+        { resType = kaos.ontology.jena.PolicyConcepts._hasClassRestriction; }
+    ;
+
+genericRange[String               action, 
+             PolicyBuilder        pb,
+             KAoSClassBuilderImpl controls,
+             String               role,
+             String               resType]
+throws PolicyCompilerException
+    : range:URI 
+  { PolicyCompiler.genericPolicyStep(action, 
+                                     pb,
+                                     controls,
+                                     role,
+                                     resType,
+                                     PolicyCompiler.tokenToURI(range)); }
+    | { List instances = new Vector(); }
+        LCURLY
+        ( instance:URI 
+            { try { 
+                instances.add(PolicyCompiler.tokenToURI(instance)); 
+              } catch (Exception e) {
+                  throw new RuntimeException("shouldn't happen - " + 
+                                             "see policyGrammar.g");
+                } 
+            } )*
+        RCURLY
+        { PolicyCompiler.genericPolicyStep(action, 
+                                           pb,
+                                           controls,
+                                           role,
+                                           resType,
+                                           instances); }
     ;
 
 servletUserAccess [String pn] 
-returns [PolicyBuilder p]
+returns [PolicyBuilder pb]
 throws PolicyCompilerException
 {   boolean m; 
-    p = null; }
+    pb = null; }
     :   "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
         "access" "a" "servlet" "named" n:TOKEN
         {return 
@@ -78,9 +167,9 @@ servletUserAccessModality returns [boolean m] { m = true; }
    ;
 
 servletAuthentication[String pn]
-returns [PolicyBuilder p]
+returns [PolicyBuilder pb]
 throws PolicyCompilerException
-{ p = null; }
+{ pb = null; }
     : "All" "users" "must" "use" auth:TOKEN "authentication" "when"
         "accessing" "the" "servlet" "named" servlet:TOKEN
         { return
@@ -97,6 +186,12 @@ class L extends Lexer;
 TOKEN:   ( 'a'..'z'|'A'..'Z' )+
     ;
 
+INT : ( '0'..'9' )+ 
+    ;
+
+URI: '$' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.')+
+    ;
+
 EQ: '='
     ;
 
@@ -106,6 +201,19 @@ LBRACK: '['
 RBRACK: ']'
     ;
 
+LCURLY: '{'
+    ;
+
+RCURLY: '}'
+    ;
+
+COMMA: ','
+    ;
+
+// Haven't gotten comments working yet...
+//COMMENT: "/*" (~('/'))* '/'
+//		{$setType(Token.SKIP);}	//ignore this token
+//    ;
 
 
 // whitespace

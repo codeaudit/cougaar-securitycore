@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.policy.builder;
 
+import antlr.Token;
+
 import java.io.*;
 import java.util.*;
 
@@ -51,6 +53,144 @@ public class PolicyCompiler
     }
     return result;
   }
+
+  public static String tokenToURI(Token u)
+    throws PolicyCompilerException
+  {
+    String str = u.getText();
+    try {
+      return str.substring(1, str.length());
+    } catch (IndexOutOfBoundsException e) {
+      PolicyCompilerException pe 
+        = new PolicyCompilerException("Malformed URI: " + str + " on line " +
+                                      u.getLine());
+      throw pe;
+    }
+  }
+
+  public static int tokenToInt(Token u)
+    throws PolicyCompilerException
+  {
+    String str = u.getText();
+    try {
+      return Integer.parseInt(str);
+    } catch (NumberFormatException e) {
+      PolicyCompilerException pe 
+        = new PolicyCompilerException("Shouldn't happen: Parsing token " + 
+                                      str + " on line: " + str);
+      throw pe;
+    }
+  }
+
+
+
+  /*
+   * Other checks should be included later (does the action go with the 
+   * subject?) 
+   */
+
+  /**
+   * This function is called when the parser of the policy has
+   * determined the basics about the policy:
+   *   @param policyName - the name of the policy
+   *   @param priority - the priority of the policy
+   *   @param subject - the actor performing the action that the
+   *                     policy controls
+   *   @param modality - whether the policy allows or denies an event
+   *   @param action - the action type that the policy controls
+   * The parser has not yet determined the other constraints that
+   * govern when the policy is applicable.  E.g. the policy may only
+   * control communication actions when the destination address is a
+   * particular subject.  The constraints about the "destination
+   * address" are introduced when the parser calls genericPolicyStep
+   *
+   * Roughly speaking, genericPolicyInit() constructs the
+   * PolicyBuilder and the genericPolicyStep() calls construct the
+   * KAoSClassBuilderImp.  The two are connected by the parser (sad
+   * but true).
+   */
+  public static PolicyBuilder genericPolicyInit(String  policyName,
+                                                int     priority,
+                                                String  subject,
+                                                boolean modality,
+                                                String  action)
+    throws PolicyCompilerException
+  {
+    try {
+      PolicyBuilder pb = new PolicyBuilder();
+      pb.assertSubClass(subject, kaos.ontology.jena.ActorConcepts._Actor_);
+      pb.assertSubClass(action,  kaos.ontology.jena.ActionConcepts._Action_);
+      pb.setPolicyModality(modality);
+      pb.setPolicyName(policyName);
+      pb.setPolicyDesc(policyName);
+      pb.setPriority(priority);
+      pb.setHasSiteOfEnforcement(kaos.ontology.jena.PolicyConcepts.
+                                 policyDamlURL
+                                 + "AnySite");
+      return pb;
+    } catch (Exception e) {
+      PolicyCompilerException pe 
+        = new PolicyCompilerException("trouble building generic policy named "
+                                      + policyName);
+      pe.initCause(e);
+      throw pe;
+    }
+  }
+
+  /**
+   * This function is called to introduce some additional constraints
+   * on the applicability of the policy.  It is called after
+   * genericPolicyInit().  For example, genericPolicyInit() may
+   * introduce a policy that says that 
+   *    "members of community X are allowed to send messages if ...".
+   * Now in genericPolicyStep we introduce some of the constraints
+   * given by the "...".  Such a constraint might say "if the message
+   * is sent to community Y."
+   *
+   * Roughly speaking, genericPolicyInit() constructs the
+   * PolicyBuilder and the genericPolicyStep() calls construct the
+   * KAoSClassBuilderImp.  The two are connected by the parser (sad
+   * but true).
+   */
+  public static void genericPolicyStep(String               action,
+                                       PolicyBuilder        pb,
+                                       KAoSClassBuilderImpl controls,
+                                       String               role,
+                                       String               resType,
+                                       String               range)
+    throws PolicyCompilerException
+  {
+    ;
+  }
+
+
+  /**
+   * This function is called to introduce some additional constraints
+   * on the applicability of the policy.  It is called after
+   * genericPolicyInit().  For example, genericPolicyInit() may
+   * introduce a policy that says that 
+   *    "members of community X are allowed to send messages if ...".
+   * Now in genericPolicyStep we introduce some of the constraints
+   * given by the "...".  Such a constraint might say "if the message
+   * is sent to community Y."
+   *
+   * Roughly speaking, genericPolicyInit() constructs the
+   * PolicyBuilder and the genericPolicyStep() calls construct the
+   * KAoSClassBuilderImp.  The two are connected by the parser (sad
+   * but true).
+   */
+  public static void genericPolicyStep(String               action,
+                                       PolicyBuilder        pb,
+                                       KAoSClassBuilderImpl controls,
+                                       String               role,
+                                       String               resType,
+                                       List                 instances)
+    throws PolicyCompilerException
+  {
+    ;
+  }
+                                                
+                                                
 
   public static PolicyBuilder servletUserAccessPolicy(String policyName,
                                                       boolean modality,

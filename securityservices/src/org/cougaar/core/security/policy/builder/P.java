@@ -5,6 +5,8 @@
   import java.io.*;
   import java.util.*;
 
+  import kaos.ontology.util.KAoSClassBuilderImpl;
+
   import org.cougaar.core.security.policy.builder.Main;
   import org.cougaar.core.security.policy.builder.PolicyBuilder;
   import org.cougaar.core.security.policy.builder.PolicyCompiler;
@@ -86,10 +88,10 @@ public P(ParserSharedInputState state) {
 	}
 	
 	public final PolicyBuilder  policy() throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder p;
+		PolicyBuilder pb;
 		
 		Token  pn = null;
-		p = null;
+		pb = null;
 		
 		try {      // for error handling
 			match(LITERAL_Policy);
@@ -97,7 +99,7 @@ public P(ParserSharedInputState state) {
 			match(TOKEN);
 			match(EQ);
 			match(LBRACK);
-			p=innerPolicy(pn.getText());
+			pb=innerPolicy(pn.getText());
 			match(RBRACK);
 		}
 		catch (RecognitionException ex) {
@@ -105,26 +107,31 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_1);
 		}
-		return p;
+		return pb;
 	}
 	
 	public final PolicyBuilder  innerPolicy(
 		String pn
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder p;
+		PolicyBuilder pb;
 		
-		p = null;
+		pb = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case LITERAL_A:
 			{
-				p=servletUserAccess(pn);
+				pb=servletUserAccess(pn);
 				break;
 			}
 			case LITERAL_All:
 			{
-				p=servletAuthentication(pn);
+				pb=servletAuthentication(pn);
+				break;
+			}
+			case LITERAL_Priority:
+			{
+				pb=genericPolicy(pn);
 				break;
 			}
 			default:
@@ -138,18 +145,18 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_2);
 		}
-		return p;
+		return pb;
 	}
 	
 	public final PolicyBuilder  servletUserAccess(
 		String pn
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder p;
+		PolicyBuilder pb;
 		
 		Token  r = null;
 		Token  n = null;
 		boolean m; 
-		p = null;
+		pb = null;
 		
 		try {      // for error handling
 			match(LITERAL_A);
@@ -178,17 +185,17 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_2);
 		}
-		return p;
+		return pb;
 	}
 	
 	public final PolicyBuilder  servletAuthentication(
 		String pn
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
-		PolicyBuilder p;
+		PolicyBuilder pb;
 		
 		Token  auth = null;
 		Token  servlet = null;
-		p = null;
+		pb = null;
 		
 		try {      // for error handling
 			match(LITERAL_All);
@@ -216,7 +223,253 @@ public P(ParserSharedInputState state) {
 			consume();
 			consumeUntil(_tokenSet_2);
 		}
-		return p;
+		return pb;
+	}
+	
+	public final PolicyBuilder  genericPolicy(
+		String pn
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		PolicyBuilder pb;
+		
+		Token  priority = null;
+		Token  subject = null;
+		Token  action = null;
+		pb = null;
+		boolean modality = true;
+		
+		try {      // for error handling
+			match(LITERAL_Priority);
+			match(EQ);
+			priority = LT(1);
+			match(INT);
+			match(COMMA);
+			subject = LT(1);
+			match(TOKEN);
+			match(LITERAL_is);
+			modality=genericAuth();
+			match(LITERAL_to);
+			match(LITERAL_perform);
+			action = LT(1);
+			match(TOKEN);
+			match(LITERAL_as);
+			match(LITERAL_long);
+			match(LITERAL_as);
+			pb = PolicyCompiler.genericPolicyInit(pn,
+			PolicyCompiler.tokenToInt(priority),
+			PolicyCompiler.tokenToURI(subject),
+			modality,
+			PolicyCompiler.tokenToURI(action));
+			KAoSClassBuilderImpl controls = 
+			new KAoSClassBuilderImpl(PolicyCompiler.tokenToURI(action));
+			
+			match(LCURLY);
+			genericTargets(PolicyCompiler.tokenToURI(action), pb, controls);
+			match(RCURLY);
+			pb.setControlsActionClass(controls);
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_2);
+		}
+		return pb;
+	}
+	
+	public final boolean  genericAuth() throws RecognitionException, TokenStreamException {
+		boolean modality;
+		
+		modality = true;
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case LITERAL_authorized:
+			{
+				match(LITERAL_authorized);
+				modality = true;
+				break;
+			}
+			case LITERAL_not:
+			{
+				match(LITERAL_not);
+				match(LITERAL_authorized);
+				modality = false;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_3);
+		}
+		return modality;
+	}
+	
+	public final void genericTargets(
+		String action, PolicyBuilder pb, KAoSClassBuilderImpl controls
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		
+		
+		try {      // for error handling
+			{
+			_loop10:
+			do {
+				if ((LA(1)==LITERAL_the)) {
+					genericTarget(action, pb, controls);
+				}
+				else {
+					break _loop10;
+				}
+				
+			} while (true);
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_4);
+		}
+	}
+	
+	public final void genericTarget(
+		String action, PolicyBuilder pb, KAoSClassBuilderImpl controls
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		
+		Token  role = null;
+		String resType = null;
+		
+		try {      // for error handling
+			match(LITERAL_the);
+			match(LITERAL_value);
+			match(LITERAL_of);
+			role = LT(1);
+			match(URI);
+			resType=genericRestrictionType();
+			match(LITERAL_of);
+			genericRange(action, 
+                          pb,
+                          controls, 
+                          PolicyCompiler.tokenToURI(role), 
+                          resType);
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_5);
+		}
+	}
+	
+	public final String  genericRestrictionType() throws RecognitionException, TokenStreamException {
+		String resType;
+		
+		resType = null;
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case LITERAL_is:
+			{
+				match(LITERAL_is);
+				match(LITERAL_a);
+				match(LITERAL_subset);
+				resType = kaos.ontology.jena.PolicyConcepts._toClassRestriction;
+				break;
+			}
+			case LITERAL_contains:
+			{
+				match(LITERAL_contains);
+				match(LITERAL_at);
+				match(LITERAL_least);
+				match(LITERAL_one);
+				resType = kaos.ontology.jena.PolicyConcepts._hasClassRestriction;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_6);
+		}
+		return resType;
+	}
+	
+	public final void genericRange(
+		String               action, 
+             PolicyBuilder        pb,
+             KAoSClassBuilderImpl controls,
+             String               role,
+             String               resType
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		
+		Token  range = null;
+		Token  instance = null;
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case URI:
+			{
+				range = LT(1);
+				match(URI);
+				PolicyCompiler.genericPolicyStep(action, 
+				pb,
+				controls,
+				role,
+				resType,
+				PolicyCompiler.tokenToURI(range));
+				break;
+			}
+			case LCURLY:
+			{
+				List instances = new Vector();
+				match(LCURLY);
+				{
+				_loop15:
+				do {
+					if ((LA(1)==URI)) {
+						instance = LT(1);
+						match(URI);
+						try { 
+						instances.add(PolicyCompiler.tokenToURI(instance)); 
+						} catch (Exception e) {
+						throw new RuntimeException("shouldn't happen - " + 
+						"see policyGrammar.g");
+						} 
+						
+					}
+					else {
+						break _loop15;
+					}
+					
+				} while (true);
+				}
+				match(RCURLY);
+				PolicyCompiler.genericPolicyStep(action, 
+				pb,
+				controls,
+				role,
+				resType,
+				instances);
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_5);
+		}
 	}
 	
 	public final boolean  servletUserAccessModality() throws RecognitionException, TokenStreamException {
@@ -247,7 +500,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_3);
+			consumeUntil(_tokenSet_7);
 		}
 		return m;
 	}
@@ -263,12 +516,33 @@ public P(ParserSharedInputState state) {
 		"EQ",
 		"LBRACK",
 		"RBRACK",
+		"\"Priority\"",
+		"INT",
+		"COMMA",
+		"\"is\"",
+		"\"to\"",
+		"\"perform\"",
+		"\"as\"",
+		"\"long\"",
+		"LCURLY",
+		"RCURLY",
+		"\"authorized\"",
+		"\"not\"",
+		"\"the\"",
+		"\"value\"",
+		"\"of\"",
+		"URI",
+		"\"a\"",
+		"\"subset\"",
+		"\"contains\"",
+		"\"at\"",
+		"\"least\"",
+		"\"one\"",
 		"\"A\"",
 		"\"user\"",
 		"\"in\"",
 		"\"role\"",
 		"\"access\"",
-		"\"a\"",
 		"\"servlet\"",
 		"\"named\"",
 		"\"can\"",
@@ -280,7 +554,6 @@ public P(ParserSharedInputState state) {
 		"\"authentication\"",
 		"\"when\"",
 		"\"accessing\"",
-		"\"the\"",
 		"WS"
 	};
 	
@@ -292,5 +565,13 @@ public P(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_2 = new BitSet(_tokenSet_2_data_);
 	private static final long _tokenSet_3_data_[] = { 8192L, 0L };
 	public static final BitSet _tokenSet_3 = new BitSet(_tokenSet_3_data_);
+	private static final long _tokenSet_4_data_[] = { 262144L, 0L };
+	public static final BitSet _tokenSet_4 = new BitSet(_tokenSet_4_data_);
+	private static final long _tokenSet_5_data_[] = { 2359296L, 0L };
+	public static final BitSet _tokenSet_5 = new BitSet(_tokenSet_5_data_);
+	private static final long _tokenSet_6_data_[] = { 8388608L, 0L };
+	public static final BitSet _tokenSet_6 = new BitSet(_tokenSet_6_data_);
+	private static final long _tokenSet_7_data_[] = { 34359738368L, 0L };
+	public static final BitSet _tokenSet_7 = new BitSet(_tokenSet_7_data_);
 	
 	}
