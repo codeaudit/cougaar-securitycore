@@ -32,8 +32,7 @@
     <ultralogEntity:AuthenticationLevel rdf:ID="CertificateSSL"/>
 
     <ultralogEntity:AuditLevel rdf:ID="NoAudit"/> 
-    <ultralogEntity:AuditLevel rdf:ID="AuditAll"/> 
-    <ultralogEntity:AuditLevel rdf:ID="AuditOnError"/> 
+    <ultralogEntity:AuditLevel rdf:ID="Audit"/> 
 
     <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
