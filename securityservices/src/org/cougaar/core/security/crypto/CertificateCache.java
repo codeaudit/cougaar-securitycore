@@ -575,7 +575,8 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       return ;
     }
     ListIterator it = list.listIterator();
-    boolean found = false;
+    //boolean found = false;
+    String cname = null;
     while (it.hasNext()) {
       CertificateStatus aCertEntry = null;
       aCertEntry = (CertificateStatus) it.next();
@@ -583,7 +584,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       String issuername=c1.getIssuerDN().getName();
       BigInteger certserialno=c1.getSerialNumber();
       if((issuername.equals(issuerDN))&&(certserialno.equals(serialno))){
-	found=true;
+	//found=true;
 	// Give the opportunity to invalidate existing or future sessions that
 	// currently use this certificate.
 	invalidateSessions(c1);
@@ -592,7 +593,6 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
 	log.debug("revoked status in cache:");
 	X500Name subjectname=null;
-        String cname = null;
 	try {
 	  subjectname= new X500Name(subjectDN);
           cname = subjectname.getCommonName();
@@ -604,16 +604,12 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	}
 	certsCache.put(subjectname.getName(),list);
 	log.debug("revoked status in cache:" + subjectDN);
-        // inform validity listeners
-        CertValidityService validityService = (CertValidityService)
-          serviceBroker.getService(this, CertValidityService.class, null);
-        validityService.invalidate(cname);
-        serviceBroker.releaseService(this, CertValidityService.class, validityService);
 	break;
       }
 
     }
-    if(!found){
+    //if(!found){
+    if (cname == null) {
       log.warn(" not found cert:");
       return;
     }
@@ -639,6 +635,13 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         }
       }
     }
+
+    // need to have certificate status set before informing other modules to reload
+        // inform validity listeners
+    CertValidityService validityService = (CertValidityService)
+          serviceBroker.getService(this, CertValidityService.class, null);
+    validityService.invalidate(cname);
+    serviceBroker.releaseService(this, CertValidityService.class, validityService);
     serviceBroker.releaseService(this,
                                  KeyRingService.class,
                                  ks);
