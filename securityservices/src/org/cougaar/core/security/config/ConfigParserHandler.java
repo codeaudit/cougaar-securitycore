@@ -171,8 +171,7 @@ public class ConfigParserHandler
 	securityPolicies.add(newSecPolicy);
       }
       else if (policyType.equals("org.cougaar.core.security.policy.DataProtectionPolicy")) {
-	dpPolicyHandler.collectPolicy(parser, this,
-				      role, POLICY_ELEMENT);
+	dpPolicyHandler.collectPolicy(parser, this, POLICY_ELEMENT);
 	DataProtectionPolicy newSecPolicy = new DataProtectionPolicy();
         newSecPolicy.setCryptoPolicy((CryptoPolicy)dpPolicyHandler.getSecurityPolicy());
 	newSecPolicy.setName(attr.getValue("name"));
