@@ -81,32 +81,19 @@ final public class KeyRing {
 					 "alpalp");
       String ksPath = System.getProperty("org.cougaar.security.keystore",
 					 defaultKeystorePath);
-      FileInputStream kss;
-      try{
-        kss = new FileInputStream(ksPath);
-      }
-      catch (Exception e) {
+      File file = new File(ksPass);
+      if (!file.exists()){
 	if (debug) {
-	  System.out.println("Could not open keystore: " + e + "/n creating a new one...");
+	  System.out.println("Could not find keystore in:"+ksPass+"creating...");
 	}
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
         FileOutputStream fos = new FileOutputStream(ksPath);
 	k.load(null, ksPass.toCharArray());
         k.store(fos, ksPass.toCharArray());
 	fos.close();
-        //try again
-        try{
-            kss = new FileInputStream(ksPath);
-          }
-          catch (Exception ex) {
-            if (debug) {
-              System.out.println("Could not create new keystore: " + e);
-            }
-            //we don't want to go on
-            throw ex;
-          }
         
       }
+      FileInputStream   kss = new FileInputStream(ksPath);
       
       // CA keystore parameters
       confParser = new ConfParser();
