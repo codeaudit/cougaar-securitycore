@@ -140,27 +140,29 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final int    LF_USER_MISMATCH           = 7;
   public static final int    LF_REQUIRES_CERT           = 8;
 
+  public static final String LOGIN_FAILURE_ID = "LOGINFAILURE";
+  public static final String FAILURE_REASON = "Reason for login failure";
   public static final Classification LOGINFAILURE = 
-    new Classification("LOGINFAILURE", "", Classification.VENDOR_SPECIFIC);
+    new Classification(LOGIN_FAILURE_ID, "", Classification.VENDOR_SPECIFIC);
 
   protected static final AdditionalData REASONS[][] = {
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "user does not exist")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "database error")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "user certificate is invalid")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "invalid subject in user certificate")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "the user account has been disabled")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "the password for the user is null in the database")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "the user has entered the wrong password")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "dual authentication user names are different")},
-    {new AdditionalData(AdditionalData.STRING, "Reason for login failure",
+    {new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
                         "requires user certificate")}
   };
 
