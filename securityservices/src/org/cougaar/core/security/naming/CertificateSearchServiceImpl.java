@@ -27,6 +27,8 @@
 package org.cougaar.core.security.naming;
 
 import java.net.URI;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -172,9 +174,15 @@ public class CertificateSearchServiceImpl
     }
     if (keyRingService == null) {
       keyRingService=(KeyRingService)
-        sb.getService(this,
-                      KeyRingService.class,
-                      null);
+        AccessController.doPrivileged(new PrivilegedAction() 
+          {
+            public Object run()
+            {
+              return sb.getService(this,
+                                   KeyRingService.class,
+                                   null);
+            }
+          });
     }
 
 
