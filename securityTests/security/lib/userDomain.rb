@@ -345,12 +345,12 @@ class UserDomains
 
   def ensureUserDomains
     # this only needs to be performed once.
-    puts " ensureUserDomains called from UserDomain"
+    #puts " ensureUserDomains called from UserDomain"
     return nil if @userAdminHasBeenSet
-    puts " ensureUserDomains userAdminHasBeenSet "
+    #puts " ensureUserDomains userAdminHasBeenSet "
     @userAdminHasBeenSet = true
     getUserCommunities.each do |community|
-      puts " ensureUserDomains looping through each community "
+      #puts " ensureUserDomains looping through each community "
       userDomain = self[community.name]
       #puts " ensureUserDomains----------> #{userDomain}"
       members = []
