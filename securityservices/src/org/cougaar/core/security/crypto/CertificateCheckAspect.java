@@ -63,6 +63,7 @@ public class CertificateCheckAspect
       getServiceBroker().getService(this, LoggingService.class, null);
   }
 
+  /*
   public Object getDelegate(Object delegatee, Class type) {
     if (_log.isDebugEnabled()) {
       _log.debug("Delegatee " + delegatee
@@ -75,12 +76,28 @@ public class CertificateCheckAspect
       return null;
     }
   }
+ */
+  public Object getReverseDelegate(Object object, Class type) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("ReverseDelegate " + object
+                 + " type " + type.getName());
+    }
+    if (type == DestinationLink.class) {
+      DestinationLink link = (DestinationLink) object;
+      return new ProtectedDestinationLink(link);
+    } else {
+      return null;
+    }
+  }
 
   private class ProtectedDestinationLink
     extends DestinationLinkDelegateImplBase 
   {
+    private DestinationLink _delegatee;
+
     ProtectedDestinationLink(DestinationLink delegatee) {
       super(delegatee);
+      _delegatee = delegatee;
     }
 
     /**
@@ -94,6 +111,7 @@ public class CertificateCheckAspect
       String targetAddress = message.getTarget().toAddress();
 
       List certs = null;
+      int nbcerts = 0;
       try {
 	certs = _keyRing.findCert(targetAddress, 
 				  _keyRing.LOOKUP_FORCE_LDAP_REFRESH | 
@@ -101,24 +119,21 @@ public class CertificateCheckAspect
 				  _keyRing.LOOKUP_KEYSTORE );
       }
       catch (Exception e) {
-	if (_log.isDebugEnabled()) {
-	  _log.debug("No cert for " + targetAddress + " : " + e);
-	}
+        // Nothing to do
       }
 
       if (certs == null || certs.size() == 0) {
 	ret = Integer.MAX_VALUE; // infinity
-	if (_log.isInfoEnabled()) {
-	  _log.info("Dest certificate for " + targetAddress
-		    + " not found");
-	}
       }
       else {
 	ret = super.cost(message);
+        nbcerts = certs.size();
       }
       if (_log.isDebugEnabled()) {
 	_log.debug("Cost for " + targetAddress
-		  + " is " + ret);
+		  + " is " + ret + " - " + nbcerts
+                  + " certificates found - "
+                  + super.getProtocolClass().getName());
       }
       return ret;
     }
