@@ -13,9 +13,11 @@
 # http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#<role-name>
 #
 
+
 safe.policyManager.PolicyAdminServletComponent http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#PolicyServletRole
 
 #org.cougaar http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryNoReadRole
+org.cougaar.logistics.plugin.strattrans.StrategicTransportProjectorPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
 org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
 org.cougaar.logistics.plugin.demand.DemandForecastPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 org.cougaar.logistics.plugin.inventory.LogisticsOPlanPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
