@@ -25,9 +25,12 @@ package org.cougaar.core.security.coordinator;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.coordinator.AgentCompromiseInfo;
 
 public class AgentCompromiseDiagnosis extends Diagnosis
 {
+    private AgentCompromiseInfo info = null;
+
     public AgentCompromiseDiagnosis(String assetName, Object initialValue, ServiceBroker serviceBroker) 
 	throws IllegalValueException, TechSpecNotFoundException {
 	super(assetName, initialValue, serviceBroker);
@@ -40,6 +43,14 @@ public class AgentCompromiseDiagnosis extends Diagnosis
 
     public void setValue(Object value) throws IllegalValueException {
 	super.setValue(value);
+    }
+
+    public void setCompromiseInfo(AgentCompromiseInfo info) {
+      this.info = info;
+    }
+
+    public AgentCompromiseInfo getCompromiseInfo() {
+      return info;
     }
 
     /**

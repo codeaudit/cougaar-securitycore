@@ -50,9 +50,9 @@
     <property name="securityservices.results" value="${securityservices.regress}${file.separator}results"/>
 
 	<property name="project.description"
-		value="UltraLog security coordinator"/>
+		value="UltraLog security secure-coordinator"/>
 	<property name="project.name"
-		value="coordinator"/>
+		value="secure-coordinator"/>
 
     <path id="core.class.path">    
         <!-- Cougaar packages -->

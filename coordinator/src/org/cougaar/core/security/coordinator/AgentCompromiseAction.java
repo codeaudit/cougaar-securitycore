@@ -28,11 +28,14 @@ import java.util.Set;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.coordinator.AgentCompromiseInfo;
 
 public class AgentCompromiseAction extends Action
 {
     public static final String RESTART = "Restart";
     public static final String DONOTHING = "DoNothing";
+
+    private AgentCompromiseInfo info = null;
 
     public AgentCompromiseAction(String assetName, ServiceBroker serviceBroker)
 	throws TechSpecNotFoundException {
@@ -65,4 +68,11 @@ public class AgentCompromiseAction extends Action
 	super.stop(completionCode);
     }
 
-}
+    public void setCompromiseInfo(AgentCompromiseInfo info) {
+      this.info = info;
+    }
+
+    public AgentCompromiseInfo getCompromiseInfo() {
+      return info;
+    }
+} 

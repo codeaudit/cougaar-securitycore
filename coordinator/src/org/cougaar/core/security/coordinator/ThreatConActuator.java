@@ -34,6 +34,7 @@ import org.cougaar.util.UnaryPredicate;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Collection;
 
 public class ThreatConActuator extends ComponentPlugin
 {
@@ -41,10 +42,29 @@ public class ThreatConActuator extends ComponentPlugin
   private ThreatConAction action;
   private ServiceBroker sb;
   private IncrementalSubscription actionSub;
+  private IncrementalSubscription diagnosisSub;
+  private IncrementalSubscription infoSub;
 
   private UnaryPredicate actionPred = new UnaryPredicate() {
             public boolean execute(Object o) {
-                return (o instanceof ThreatConAction);}};
+                return (o instanceof ThreatConAction);
+            }
+  };
+
+  private UnaryPredicate diagnosisPred = new UnaryPredicate() {
+            public boolean execute(Object o) {
+                return (o instanceof ThreatConDiagnosis);
+            }
+  };
+
+  private UnaryPredicate infoPred = new UnaryPredicate() {
+            public boolean execute(Object o) {
+                if (o instanceof ThreatConActionInfo) {
+                  return ((ThreatConActionInfo)o).getDiagnosis().equals(ThreatConActionInfo.ACTIVE);
+                }
+                return false;
+            }
+  };
 
   public void load() {
     super.load();
@@ -61,31 +81,38 @@ public class ThreatConActuator extends ComponentPlugin
   public void setupSubscriptions()
   {
     actionSub = (IncrementalSubscription)blackboard.subscribe(actionPred);
+    diagnosisSub = (IncrementalSubscription)blackboard.subscribe(diagnosisPred);
+    infoSub = (IncrementalSubscription)blackboard.subscribe(infoPred);
   }
 
-  boolean start = true;
   int tsLookupCnt = 0;
   public synchronized void execute() {
-    if (start) { 
-      try {
-        Set values = new HashSet();
-        values.add(ThreatConAction.RMI);
-        values.add(ThreatConAction.RMISSL);
-        values.add(ThreatConAction.NORMI);
-        ThreatConAction action = new ThreatConAction(agentId.toString(), values, sb);
-        blackboard.publishAdd(action);
-        if (log.isDebugEnabled()) log.debug(action+" added.");
-        start = false;
-      } catch (TechSpecNotFoundException e) {
-        if (tsLookupCnt > 10) {
-          log.warn("TechSpec not found for SampleAction.  Will retry.", e);
-          tsLookupCnt = 0;
-        }
-        blackboard.signalClientActivity();
-      } catch (IllegalValueException ive) {
-        log.error("Exception for initialization: " + ive);
-      }
+    Collection c = diagnosisSub.getAddedCollection();
+    if (c.size() != 0) {
+      ThreatConDiagnosis diagnosis = (ThreatConDiagnosis)c.iterator().next();
+      if (action != null) {
+        log.warn("Action already published! New diagnosis " + diagnosis);
+      }        
+      else {
+        String communityName = diagnosis.getAssetName();
       
+        try {
+          Set values = new HashSet();
+          values.add(ThreatConActionInfo.LOW);
+          values.add(ThreatConActionInfo.HIGH);
+          action = new ThreatConAction(communityName, values, sb);
+          blackboard.publishAdd(action);
+          if (log.isDebugEnabled()) log.debug(action+" added.");
+        } catch (TechSpecNotFoundException e) {
+          if (tsLookupCnt > 10) {
+            log.warn("TechSpec not found for SampleAction.  Will retry.", e);
+            tsLookupCnt = 0;
+          }
+          blackboard.signalClientActivity();
+        } catch (IllegalValueException ive) {
+          log.error("Exception for initialization: " + ive);
+        }
+      }
     }
 
     Iterator iter = actionSub.getChangedCollection().iterator();
@@ -96,8 +123,7 @@ public class ThreatConActuator extends ComponentPlugin
           log.debug("received action: " + action);
         }
 
-        Set newPV = action.getPermittedValues(); 
-        if (newPV != null) {
+        Set newPV = action.getNewPermittedValues(); 
           if (newPV.size() != 1) {
             log.warn("More than one possible action value. Action will not be performed");
             break;
@@ -105,29 +131,41 @@ public class ThreatConActuator extends ComponentPlugin
 
           Iterator values = newPV.iterator();
           String value = (String)values.next();
-          if (value.equals(ThreatConAction.RMI)) {
-            try {
+          try {
               action.start(value);
               blackboard.publishChange(action);
                         if (log.isDebugEnabled()) 
                             log.debug(action + " started.");
-              // TODO do the switching here
-              action.stop();
-              blackboard.publishChange(action);
-                        if (log.isDebugEnabled()) 
-                            log.debug(action + " stopped.");
-            } catch (IllegalValueException e) {
-              log.error("Illegal actionValue = "+value,e);
-              break;
-            } catch (NoStartedActionException nsae) {} // not going to happen
-            
+              ThreatConActionInfo info = new ThreatConActionInfo(action.getAssetName(), value);
+          } catch (IllegalValueException e) {
+              log.error("Illegal action "+action,e);
+              continue;
           }
-          else if (value.equals(ThreatConAction.RMISSL)) {
-          }
-          else if (value.equals(ThreatConAction.NORMI)) {
-          }
-        }
+      } // if
+    } // while
+  
+
+    iter = infoSub.getChangedCollection().iterator();
+    while (iter.hasNext()) {
+      ThreatConActionInfo info = (ThreatConActionInfo)iter.next();
+
+      if (action == null) {
+        log.error("No action created yet!" + info);
+        continue;
       }
+
+      try {
+        action.stop(Action.ACTIVE);
+        blackboard.publishChange(action);
+        if (log.isDebugEnabled()) 
+          log.debug(action + " stopped.");
+      } catch (IllegalValueException e) {
+        log.error("Illegal action "+action,e);
+        continue;
+      } catch (NoStartedActionException nsae) {
+        log.error("Not started action "+action,nsae);
+        continue;
+      } 
     }
   }
 }

@@ -26,7 +26,10 @@
 package org.cougaar.core.security.coordinator;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Hashtable;
+import java.util.Set;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -34,25 +37,39 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.adaptivity.InterAgentOperatingMode;
+import org.cougaar.core.security.coordinator.AgentCompromiseInfo;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.Entity;
 
 public class AgentCompromiseSensor extends ComponentPlugin
 {
     private LoggingService log;
-    private AgentCompromiseDiagnosis diagnosis;
     private ServiceBroker sb;
     private boolean start = true; 
+    private Hashtable _agentCache = new Hashtable();
+  private CommunityServiceUtil _csu;
+
+    public final static String COMMUNITY_TYPE = "MnR-Security";
+    public final static String AGENT_ROLE = "MEMBER";
 
     private IncrementalSubscription _subscription;
-    private final UnaryPredicate INTER_AGENT_OPERATING_MODE =
+    private final UnaryPredicate coordinatorPredicate =
       new UnaryPredicate() {
         public boolean execute(Object o) {
-          if (o instanceof InterAgentOperatingMode) {
-            return true;
+          if (o instanceof AgentCompromiseInfo) {
+            return ((AgentCompromiseInfo)o).getType().equals(AgentCompromiseInfo.SENSOR);
           }    
           return false;
         }
       };
+
+    private final UnaryPredicate diagnosisPredicate = new UnaryPredicate() {
+      public boolean execute(Object o) {
+        return (o instanceof AgentCompromiseDiagnosis);
+      }
+    };
 
     public void load() {
         super.load();
@@ -68,7 +85,9 @@ public class AgentCompromiseSensor extends ComponentPlugin
 
   protected void setupSubscriptions() {
     _subscription = (IncrementalSubscription)
-      blackboard.subscribe(INTER_AGENT_OPERATING_MODE);
+      blackboard.subscribe(coordinatorPredicate);
+
+    _csu = new CommunityServiceUtil(sb);
   }
 
     int tsLookupCnt = 0;
@@ -84,10 +103,7 @@ public class AgentCompromiseSensor extends ComponentPlugin
       // get the threatcon level change object, publish change
       if (_subscription.hasChanged()) {
       // notify all the agents in a particular enclave/security community 
-        // leave to the old value, set or add will change it
-          //removePolicies(_subscription.getRemovedCollection());
           changeLevel(_subscription.getAddedCollection());
-          changeLevel(_subscription.getChangedCollection());
       }
 
 
@@ -96,26 +112,87 @@ public class AgentCompromiseSensor extends ComponentPlugin
     private void changeLevel(Collection c) {
       Iterator i = c.iterator();
       while(i.hasNext()) {
-        InterAgentOperatingMode iaom = (InterAgentOperatingMode)i.next();
+        AgentCompromiseInfo info = (AgentCompromiseInfo)i.next();
+
+        AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)_agentCache.get(info.getSourceAgent());
+        if (diagnosis == null) {
+          log.warn("Agent " + info.getSourceAgent() + " diagnosis not found in cache!");
+          continue;
+        }
+ 
         // value - Comparable
         // set value
         try {
-          diagnosis.setValue(iaom.getValue());
+          diagnosis.setValue(info.getDiagnosis());
+          diagnosis.setCompromiseInfo(info);
           blackboard.publishChange(diagnosis);
           if (log.isDebugEnabled()) {
             log.debug(diagnosis + " changed.");
             log.debug(diagnosis.dump());
           }
         } catch (IllegalValueException e) { 
-          log.error("Illegal value = "+iaom.getValue(), e);
+          log.error("Illegal value = "+info.getDiagnosis(), e);
         }
+
+        blackboard.publishRemove(info);
       }
         
     }
 
     private void initAgentCompromiseDiagnosis() {
+      final CommunityServiceUtilListener csu = new CommunityServiceUtilListener() {
+        public void getResponse(Set agents) {
+          if(log.isDebugEnabled()){
+            log.debug(" call back for community is called :" + agents );
+          }
+          Iterator it = agents.iterator();
+          ArrayList agentList = new ArrayList();
+          while (it.hasNext()) {
+            Entity agent = (Entity)it.next();  
+            String agentName = agent.getName();
+            // new entity?
+            if (_agentCache.get(agentName) == null) {
+              agentList.add(agentName);             
+            }
+          }
+
+          // remove agent that is no longer in the community
+          // remove the diagnosis if it exists before (MnR manager restarted or agent moved across enclave)
+          Collection c = blackboard.query(diagnosisPredicate);
+          it = c.iterator();
+          while (it.hasNext()) {
+            AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)it.next();
+            String agent = diagnosis.getAssetName();
+            if (agents.contains(agent)) {
+              if (log.isDebugEnabled()) {
+                log.debug("Removing previous diagnosis " + diagnosis);
+              }
+              _agentCache.remove(agent);
+
+              blackboard.publishRemove(diagnosis);
+            }
+          } 
+
+          it = agentList.iterator();
+          while (it.hasNext()) {
+            String agentName = (String)it.next();
+            createDiagnosis(agentName);
+          }
+        }
+      };
+      _csu.getCommunityAgent(COMMUNITY_TYPE, AGENT_ROLE, csu);
+    }
+
+
+    private void createDiagnosis(String agent) {
+      if (log.isDebugEnabled()) {
+        log.debug("initializing diagnosis for " + agent);
+      }
+
+
       try {
-        diagnosis = new AgentCompromiseDiagnosis(agentId.toString(), sb);
+        AgentCompromiseDiagnosis diagnosis = new AgentCompromiseDiagnosis(agent, sb);
+        _agentCache.put(agent, diagnosis);
         blackboard.publishAdd(diagnosis);
         start = false;
         if (log.isDebugEnabled()) {

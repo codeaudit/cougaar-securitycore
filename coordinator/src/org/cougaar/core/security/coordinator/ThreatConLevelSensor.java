@@ -27,6 +27,7 @@ package org.cougaar.core.security.coordinator;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -35,6 +36,10 @@ import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.adaptivity.InterAgentOperatingMode;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.Entity;
 
 public class ThreatConLevelSensor extends ComponentPlugin
 {
@@ -42,6 +47,8 @@ public class ThreatConLevelSensor extends ComponentPlugin
     private ThreatConDiagnosis diagnosis;
     private ServiceBroker sb;
     private boolean start = true; 
+
+  private CommunityServiceUtil _csu;
 
     private IncrementalSubscription _subscription;
     private final UnaryPredicate INTER_AGENT_OPERATING_MODE =
@@ -69,6 +76,8 @@ public class ThreatConLevelSensor extends ComponentPlugin
   protected void setupSubscriptions() {
     _subscription = (IncrementalSubscription)
       blackboard.subscribe(INTER_AGENT_OPERATING_MODE);
+
+    _csu = new CommunityServiceUtil(sb);
   }
 
     int tsLookupCnt = 0;
@@ -86,7 +95,7 @@ public class ThreatConLevelSensor extends ComponentPlugin
       // notify all the agents in a particular enclave/security community 
         // leave to the old value, set or add will change it
           //removePolicies(_subscription.getRemovedCollection());
-          changeLevel(_subscription.getAddedCollection());
+          //changeLevel(_subscription.getAddedCollection());
           changeLevel(_subscription.getChangedCollection());
       }
 
@@ -114,8 +123,31 @@ public class ThreatConLevelSensor extends ComponentPlugin
     }
 
     private void initThreatConDiagnosis() {
+      final CommunityServiceUtilListener csu = new CommunityServiceUtilListener() {
+        public void getResponse(Set resp) {
+          if(log.isDebugEnabled()){
+            log.debug(" call back for community is called :" + resp );
+          }
+          if((resp!=null)&& (!resp.isEmpty())){
+            Iterator it = resp.iterator();
+            if (resp.size() > 1) {
+              log.warn("there is only one community allowed!");
+            }
+            Community community = (Community)it.next();
+            createDiagnosis(community.getName());
+          }
+        }
+      };
+      _csu.getManagedSecurityCommunity(csu);
+    }
+
+    private void createDiagnosis(String communityName) {
+      if (log.isDebugEnabled()) {
+        log.debug("initializing diagnosis for " + communityName);
+      }
+
       try {
-        diagnosis = new ThreatConDiagnosis(agentId.toString(), sb);
+        diagnosis = new ThreatConDiagnosis(communityName, sb);
         blackboard.publishAdd(diagnosis);
         start = false;
         if (log.isDebugEnabled()) {
@@ -124,7 +156,7 @@ public class ThreatConLevelSensor extends ComponentPlugin
       }
       catch (TechSpecNotFoundException e) {
                 if (tsLookupCnt > 10) {
-                    log.warn("TechSpec not found for SampleThreatConDiagnosis.  Will retry.", e);
+                    log.warn("TechSpec not found for ThreatConDiagnosis.  Will retry.", e);
                     tsLookupCnt = 0;
                 }
                 blackboard.signalClientActivity();
