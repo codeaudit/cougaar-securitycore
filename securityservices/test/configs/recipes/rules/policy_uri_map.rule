@@ -43,57 +43,57 @@ if !(@damlUriMapCompleted)
 # specific.
 #
 #commented out because of FreezeSociety
-#/\$AGG-Agent/aggregator AggegatorServlets
-#/\$AGG-Agent/aggregatorkeepalive AggegatorServlets
+#/\\$AGG-Agent/aggregator AggegatorServlets
+#/\\$AGG-Agent/aggregatorkeepalive AggegatorServlets
 # 
 # temporarily turn these off for ACME
-/\$NCA/glsinit NCAServlets
-/\$NCA/glsreply NCAServlets
-/\$NCA/editOplan NCAServlets
+/\\$NCA/glsinit NCAServlets
+/\\$NCA/glsreply NCAServlets
+/\\$NCA/editOplan NCAServlets
 # 
-/\$SCmrmanager/.* SCmrmanagerServlets
+/\\$SCmrmanager/.* SCmrmanagerServlets
 #
 # Servlets with no particular agent.
 #
 #  datagatherer is not included so the automated tests work...
-#/\$.*/datagatherer AggegatorServlets
-#/\$.*/log_inventory AggegatorServlets
+#/\\$.*/datagatherer AggegatorServlets
+#/\\$.*/log_inventory AggegatorServlets
 #
-/\$.*/CA/CertificateSigningRequest CertReqServlet
-/\$.*/CA/BrowserSigningRequest CertReqServlet
+/\\$.*/CA/CertificateSigningRequest CertReqServlet
+/\\$.*/CA/BrowserSigningRequest CertReqServlet
 #
-/\$.*/CA/Index CAReadServlet
-/\$.*/CA/Browser CAReadServlet
-/\$.*/CA/Main CAReadServlet
-/\$.*/CA/CertificateList CAReadServlet
-/\$.*/CA/CertificateDetailsServlet CAReadServlet
-/\$.*/CA/DownloadCertificateServlet CAReadServlet
-/\$.*/CA/PendingCertificateServlet CAReadServlet
-/\$.*/CA/PendingCertDetailsServlet CAReadServlet
-/\$.*/CA/ListCaKeysServlet CAReadServlet
-/\$.*/CA/ListSubordCaServlet CAReadServlet
+/\\$.*/CA/Index CAReadServlet
+/\\$.*/CA/Browser CAReadServlet
+/\\$.*/CA/Main CAReadServlet
+/\\$.*/CA/CertificateList CAReadServlet
+/\\$.*/CA/CertificateDetailsServlet CAReadServlet
+/\\$.*/CA/DownloadCertificateServlet CAReadServlet
+/\\$.*/CA/PendingCertificateServlet CAReadServlet
+/\\$.*/CA/PendingCertDetailsServlet CAReadServlet
+/\\$.*/CA/ListCaKeysServlet CAReadServlet
+/\\$.*/CA/ListSubordCaServlet CAReadServlet
 # 
-/\$.*/CA/RevokeCertificateServlet CAWriteServlet
-/\$.*/CA/CreateCaKeyServlet CAWriteServlet
-/\$.*/CA/SubmitCaKeyServlet CAWriteServlet
-/\$.*/CA/ProcessPendingCertServlet CAWriteServlet
-/\$.*/CA/CaKeyManagement CAWriteServlet
+/\\$.*/CA/RevokeCertificateServlet CAWriteServlet
+/\\$.*/CA/CreateCaKeyServlet CAWriteServlet
+/\\$.*/CA/SubmitCaKeyServlet CAWriteServlet
+/\\$.*/CA/ProcessPendingCertServlet CAWriteServlet
+/\\$.*/CA/CaKeyManagement CAWriteServlet
 #
-#/\$.*/hierarchy HierarchyServlet
+#/\\$.*/hierarchy HierarchyServlet
 # commented out because of FreezeSociety
-#/\$.*/log_inventory LogInventoryServlet
+#/\\$.*/log_inventory LogInventoryServlet
 #
-#{enclave_list.collect {|e| "/\$#{e.capitalize}PolicyDomainManagerServlet/policyAdmin #{e.capitalize}PolicyServlet"}.join("\n")}
-/\$.*/policyAdmin PolicyServlet
+#{enclave_list.collect {|e| "/\\$#{e.capitalize}PolicyDomainManagerServlet/policyAdmin #{e.capitalize}PolicyServlet"}.join("\n")}
+/\\$.*/policyAdmin PolicyServlet
 
 #
-/\$.*/move SocietyAdminServlet
-/\$.*/load SocietyAdminServlet
-/\$.*/topology SocietyAdminServlet
+/\\$.*/move SocietyAdminServlet
+/\\$.*/load SocietyAdminServlet
+/\\$.*/topology SocietyAdminServlet
 #
-/\$.*/useradmin UserManagerServlets
+/\\$.*/useradmin UserManagerServlets
 #
-/\$.*/.* OtherServlets
+/\\$.*/.* OtherServlets
 /.* OtherServlets
 
 END
