@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="all" name="Cougaar security services automated tests">
+    <property name="base.directory.name" value="."/>
+
+    <!-- The branch name of the Cougaar Standard Edition -->
+    <property name="cougaar.branch.name" value="${anthill.cougaar.branch.name}"/>
+
+    <property name="project.branch.name" value="${anthill.project.branch.name}"/>
+
+    <!-- The parent directory of org.cougaar.install.path -->
+    <property name="org.cougaar.install.path.parent" value="${user.home}/nightly-cougaar"/>
+
+    <!-- The name of the directory where Cougaar will be built 
+         (or a cache of downloaded files) -->
+    <property name="org.cougaar.build.path" value="${org.cougaar.install.path.parent}/${branch.name}/build"/>
+
+    <!-- The name of the directory where overlays are downloaded -->
+    <property name="overlays.directory.name" value="${base.directory.name}/staging"/>
+
+    <!-- Load additional properties which are used to upload
+         project artifacts to a web server and perform tests.
+         Properties stored in that file should be:
+         - webdav.url: The URL where to upload the overlay ZIP file.
+            For example, webdav.url=http://panther3.va.cougaarsoftware.com:8080/webdav/cougaar
+         - testbed.hostname1: The name of a hostname on the testbed.
+         - testbed.hostname2: The name of a hostname on the testbed.
+         - testbed.hostname3: The name of a hostname on the testbed.
+    -->
+    <property file="${user.home}/anthill.properties"/>
+    
+    <property file="${base.directory.name}/automated-test-build.properties"/>
+
+    <target name="init">
+      <mkdir dir="${overlays.directory.name}"/>
+      <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+           <pathelement location="${base.directory.name}/build/lib/ant-contrib-1.0b1.jar"/>
+        </classpath>
+      </taskdef>
+    </target>
+
+    <target name="all" depends="init">
+      <!--
+         Perform automated tests of the security services.
+         The following steps are performed:
+         1) Download Cougaar locally.
+         2) Checkout and build the security service overlays.
+         3) Create a ZIP files containing:
+              - Cougaar
+              - The security services overlay
+         4) Create a COUGAAR_INSTALL_PATH directory on a testbed machine
+         5) SCP the ZIP files to the testbed machine
+         6) Unzip ZIP files in the newly created COUGAAR_INSTALL_PATH
+         7) SCP a modified loggingConfig.conf file to the testbed machine.
+         8) Run the PING society on the testbed machine for 20 minutes.
+         9) SCP the log4j files from the testbed machine.
+         10) Analyze the log4j files. Look for:
+               - Missing statements that should have been logged but were not.
+               - Extra statements that indicate failures (e.g. exceptions)
+      -->
+      <!-- Step 1: download cougaar -->
+      <!-- Step 2: obtain the security service overlays -->
+      <antcall target="get-overlays"/>
+      <!-- Step 3: create ZIP file -->
+      <antcall target="zip-overlays"/>
+      <!-- Step 4: create ZIP file -->
+      <antcall target="scp-files-to-testbed"/>
+    </target>
+
+    <target name="get-overlays" depends="init">
+      <if>
+        <isset property="webdav.url"/>
+        <then>
+          <for list="${module.build.list}" delimiter="," param="build.module.name">
+             <sequential>
+                <!-- Name of ZIP file is:
+                     ${project.name}-${project.branch.name}-${cougaar.branch.name}.zip
+                     Where:
+                       - project.name is the name of the project (e.g. securityservices)
+                       - project.branch.name is the branch name of the project (e.g. securityservices B11_2)
+                       - cougaar.branch.name is the name of the cougaar branch against which the module was built.
+                 -->
+                <echo message="Retrieving @{build.module.name} ZIP file..."/>
+                <get src="${webdav.url}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}"
+                     dest="${overlays.directory.name}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}"/>
+             </sequential>
+          </for>
+        </then>
+      </if>
+    </target>
+
+    <target name="zip-overlays">
+       <zip destfile="cougaar-test.zip">
+         <!-- Add Cougaar SE ZIP files -->
+         <fileset dir="${org.cougaar.build.path}">
+           <patternset>
+             <include name="*.zip">
+           </patternset>
+         </fileset>
+         <!-- Add security services modules -->
+         <fileset dir="${overlays.directory.name}">
+           <patternset>
+             <include name="*.zip">
+           </patternset>
+         </fileset>
+       </zip>
+    </target>
+
+
+    <target name="scp-files-to-testbed">
+      <!-- Step 4 and 5 -->
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="mkdir ${testbed.cip.dir}"/>
+      <scp file="cougaar-test.zip"
+           todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}"
+           keyfile="${user.home}/.ssh/id_dsa"/>
+    </target>
+</project>
+
