@@ -146,7 +146,7 @@ public class NamingCertDirectoryServiceClient {
         try {
           updateCertEntry(cachedEntry);
         } catch (Exception ex) {
-          log.warn("Failed to update naming: ", ex);
+          //log.warn("Failed to update naming: ", ex);
           return;
         }
       }
