@@ -46,8 +46,9 @@ class SecurityMop26 < AbstractSecurityMop
           totalWaitTime += sleepTime
         end
         if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
+          @summary = "MOP 2.6 did not complete."
           saveResult(false, "SecurityMop2.6", "Timeout tests incomplete") 
-            saveAssertion("SecurityMop2.6", "Save results for SecurityMop2.6 Done Result failed ")
+          saveAssertion("SecurityMop2.6", "Save results for SecurityMop2.6 Done Result failed ")
           return
         elsif (SecurityMop2_4.instance.getPerformDone == true)
           @score = SecurityMop2_4.instance.score6
@@ -55,26 +56,26 @@ class SecurityMop26 < AbstractSecurityMop
           total = SecurityMop2_4.instance.numLoggablePolicies
           if total == 0
             if @numAccessAttempts == 0
-              @summary1 = "There weren't any access attempts."
+              @summary = "There weren't any access attempts."
             else
-              @summary1 = "There weren't any access attempts which needed to be logged."
+              @summary = "There weren't any access attempts which needed to be logged."
               
             end
           else
             # note: these two values are swapped, but are fixed on the analysis side
-            @summary1 = "There were #{total} servlet access attempts, #{logged} were correct."
+            @summary = "There were #{logged} servlet access attempts, #{total} were correct."
           end
           @raw = SecurityMop2_4.instance.raw6
           @info = SecurityMop2_4.instance.html6
-          @summary = "SecurityMop2.6(IDMEF Events on unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
-          @summary <<"#{@summary1}\n"
-          #@summary << "#{@info}"
+          csisummary = "SecurityMop2.6(IDMEF Events on unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
+          csisummary <<"#{@summary}\n"
+          #csisummary << "#{@info}"
           success = false
           if (@score == 100.0)
             success = true
           end
-          saveResult(success, 'SecurityMop2.6',@summary)
-          saveAssertion("SecurityMop2.6",@info)
+          saveResult(success, 'SecurityMop2.6', csisummary)
+          saveAssertion("SecurityMop2.6", @info)
           saveAssertion("SecurityMop2.6", "Save results for SecurityMop2.6 Done" )
         end
       rescue Exception => e

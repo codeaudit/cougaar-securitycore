@@ -139,36 +139,11 @@ USER_COLLECTION = [
 #-------------------------------------------------
 
 class UserDomain
-  attr_accessor :name           # community name
-  attr_accessor :agent          # agent with /useradmin servlet
-  attr_accessor :uri            # uri to servlet
-  attr_accessor :domainAgents   # agents which belong to this domain
-  attr_accessor :url            # url to the /useradmin servlet
-
-  @@createdUsers = []
-  @@mutex = Mutex.new
-
-  def initialize(domainName)
-    ensureDomains
-    @name = domainName
-    @agent = nil
-    @domainAgents = []
-  end
-  
-  def ensureDomains
-    UserDomains.instance.ensureDomains
-  end
-
-  def to_s
-    agentName = ''
-    agentName = @agent.name if @agent
-    "  UserDomain name=#{@name}\n  agent=#{@agentName}\n  domainAgents=#{@domainAgents.collect {|agent| agent.name}.as_string}\n"
-  end
 
   def url
     #      @url = agent.uri+'/useradmin' unless @url
-    @url = agent.url+'/useradmin' unless @url
-    @url
+    @urll = agent.url+'/useradmin' unless @urll
+    @urll
   end
 
   #--------- Query Methods ----------
@@ -445,101 +420,6 @@ class UserDomain
 
 end # UserDomain
 
-
-#---------------------------------------------------------
-
-class UserDomains
-  include Singleton
-  include Enumerable
-
-  attr_accessor :domains
-
-  def ensureDomains
-    @domains = {} unless @domains
-  end
-
-
-  def [](domainName)
-    ensureDomains
-    unless @domains[domainName]
-      @domains[domainName] = UserDomain.new(domainName)
-    end
-    return @domains[domainName]
-  end
-
-  def domains
-    ensureDomains
-    return @domains
-  end
-
-  def each(&block)
-    ensureDomains
-    domains.each do |domainName, userDomain|
-      yield domainName, userDomain
-    end
-  end
-
-  #   def printUserDomainInfo
-  def printIt
-    puts
-    each do |domainName, userDomain|
-      puts userDomain
-      puts
-    end
-  end
-
-  def ensureUserDomains
-    # this only needs to be performed once.
-    return nil if @userAdminHasBeenSet
-    @userAdminHasBeenSet = true
-    getUserCommunities.each do |community|
-      puts " ensureUserDomains UserDomainAux  looping through each community "
-      userDomain = self[community.name]
-      members = []
-      userAdmins = []
-      # this walks through the agents/nodes of this community
-      community.each do |entity|
-        agent = run.society.entity(entity.name)
-        members << agent
-        # check if this is the userAdmin agent for this community
-        entity.each_role do |role|
-          if role == 'UserManager'
-            userAdmins << agent
-          end
-        end
-      end
-      if userAdmins.size == 1
-        makeDomainAssociations userDomain, userAdmins, members
-      elsif userAdmins.size > 0
-        logWarningMsg "more than one UserManager in community #{community.name}; will use the first one."
-        makeDomainAssociations userDomain, userAdmins, members
-      else
-        logErrorMsg "no UserManager in community #{community.name}"
-        exit
-      end
-      #puts "userdomain #{userDomain}, #{userDomain.class}"
-    end
-  end
-
-  def makeDomainAssociations(userDomain, userAdmins, members)
-    userDomain.agent = userAdmins[0]
-    userDomain.domainAgents = members
-    members.each {|e| e.userDomain = userDomain}  #userAdmins[0]}
-  end
-
-  def getUserCommunities
-    communities = []
-    getRun.society.communities.each do |community|
-      community.each_attribute do |key, value|
-        if key=='CommunityType' and value=='User'
-          communities << community
-        end
-      end
-    end
-    return communities
-  end
-
-end # class UserDomain
 
 #end # module Model
 #end # module Cougaar

@@ -42,9 +42,14 @@ end
 
 
 class PostSecurityMopAnalysis
-  attr_accessor :dir, :runid, :datestring, :date, :html, :scores, :origScores, :raw, :mops
+  attr_accessor :dir, :runid, :datestring, :date, :html, :scores, :origScores, :raw, :mops, :supportingData, :summary
 
   def initialize(dir)
+    @mops = [SecurityMopNil.instance,
+             SecurityMop21.instance, SecurityMop22.instance,
+             SecurityMop23.instance, SecurityMop2_4.instance,
+             SecurityMop2_5.instance, SecurityMop2_6.instance]
+
     @dir = dir
     match = dir.scan(/\/([0-9]*)\//)
     @runid = 'unknown'
@@ -113,9 +118,6 @@ class PostSecurityMopAnalysis
 =end
 
   def getMopData
-    @mops = [nil, SecurityMop21.new, SecurityMop22.new,
-                 SecurityMop23.new, SecurityMop24.new,
-                 SecurityMop25.new, SecurityMop26.new]
     @mops = @mops.collect {|m| m.dup if m}
     getXMLDataForMop1
     getXMLDataForMop2
@@ -125,14 +127,12 @@ class PostSecurityMopAnalysis
   end
 
   def getXMLDataForMop1
-
     @mops[1].info = ''
   end
 
   def getXMLDataForMop2
     answer = []
     raw[2].collect do |a|
-
       answer << "agent: #{a[0]}, file: #{a[1]}, #{a[2]}"
     end
     @mops[2].info = answer.join("<br/>\n")
@@ -147,17 +147,25 @@ class PostSecurityMopAnalysis
     begin
       load(dirname) 
     rescue Exception => e
-      logInfoMsg "Couldn't load mop data from #{dirname}"
+      logError e, "Couldn't load mop data from #{dirname}"
     end
     loadTcpCapture(dirname)
     analyzeTcpCapture(dirname)
   end
 
   def load(dirname)
-    @origScores = Array.new(7)  # in case an error is raised
-    @raw = Array.new(7)
-    @scores = Array.new(7)
-    @summary = Array.new(7)
+    # this section provides defaults in case the file is missing,
+    #   which provides support for calculating mop 2.3 at experiment time.
+    @pstoreVersion = 0.0
+    @date = Date.today - 10000
+    @datestring = "#{@date}"
+    @html = ''
+    @scores = @mops.collect {|mop| mop.score}
+    @raw = @mops.collect {|mop| mop.raw}
+    @summary = @mops.collect {|mop| mop.summary}
+    @supportingData = @mops.collect {|mop| mop.supportingData}
+    @scores = @mops.collect {|mop| mop.score}
+    @origScores = @scores.dup
     
     filename = "#{dirname}/mops"
     return nil unless File.exists?(filename)
@@ -165,30 +173,31 @@ class PostSecurityMopAnalysis
     db = PStore.new(filename)
     db.transaction do |db|
       # puts db.roots.inspect
+      @pstoreVersion = db['pstoreVersion']
       @datestring = db['datestring']
       @date = db['date']
       @html = db['html']      # this is a string
       @scores = db['scores']
       @raw = db['raw']
       @summary = db['summary']
+      @supportingData = db['supportingData']
     end # db.transaction
     1.upto(4) {|n| @scores[n] = Float(100.0 - @scores[n])}
     @origScores = @scores.dup
-    @summary[5] = switchem(@summary[5], 'There were ', ' servlet access attempts, ', ' were correct.')
-    @summary[6] = switchem(@summary[6], 'There were ', ' servlet access attempts, ', ' were correct.')
   end
 
   def switchem(text, before, middle, after)
-    pattern = /#{before}([^ ]*)#{middle}([^ ]*)/
+    # pattern = /#{before}([^ ]*)#{middle}([^ ]*)#{after}([.*])/
+    pattern = /#{before}(.*)#{middle}(.*)#{after}(.*)/
     match = text.scan(pattern)
-    if match
-      return before + match[0][1] + middle + match[0][0] + after
+    if match and match != []
+      return before + match[0][1] + middle + match[0][0] + after + match[0][2]
     else
       return text
     end
   end
-  # puts switchem('There were 5 servlet access attempts, 10 were correct', 'There were ', ' servlet access attempts, ', ' were correct.')
-  # puts switchem('There were  servlet access attempts,  were correct', 'There were ', ' servlet access attempts, ', ' were correct.')
+  # puts switchem('Theeeeere were 5 servlet access attempts, 10 were correct. Other stuff.', 'There were ', ' servlet access attempts, ', ' were correct.')
+  # puts switchem('There were  servlet access attempts,  were correct.', 'There were ', ' servlet access attempts, ', ' were correct.')
 
   def analyzeTcpCapture(dirname)
     @numEncrypted = @numFiles = @numIgnored = 0
@@ -207,6 +216,8 @@ class PostSecurityMopAnalysis
       msg = "host: #{filename} encrypted: #{@numEncrypted}, total: #{@numFiles}, ignored: #{@numIgnored}"
       @raw[3] << msg
     end
+    @supportingData[3] = {'numEncrypted' => @numEncrypted, 'numFiles' => @numFiles, 'numIgnored' => @numIgnored}
+    score = 0
     if @numFiles > 0
       score = (@numEncrypted.to_f / @numFiles.to_f) * 100.0
       @summary[3] = "#{@numEncrypted} files were encrypted out of #{@numFiles} files."

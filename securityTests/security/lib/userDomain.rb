@@ -49,6 +49,7 @@ module Cougaar
     class Agent
       attr_accessor :userDomain
       def userDomain
+        UserDomains.instance.ensureUserDomains
         if @userDomain
           return @userDomain
         else
@@ -69,6 +70,22 @@ end # Cougaar
 #-------------------------------------------------
 
 class UserDomain
+  attr_accessor :name           # community name
+  attr_accessor :agent          # agent with /useradmin servlet
+  attr_accessor :uri            # uri to servlet
+  attr_accessor :domainAgents   # agents which belong to this domain
+#  attr_accessor :url            # url to the /useradmin servlet
+
+  @@createdUsers = []
+  @@mutex = Mutex.new
+
+  def initialize(domainName)
+    ensureDomains
+    @name = domainName
+    @agent = nil
+    @domainAgents = []
+  end
+  
   def ensureDomains
     UserDomains.instance.ensureDomains
   end
@@ -76,7 +93,7 @@ class UserDomain
   def to_s
     agentName = ''
     agentName = @agent.name if @agent
-    "  UserDomain name=#{@name}\n  agent=#{@agentName}\n  domainAgents=#{@domainAgents.collect {|agent| agent.name}.as_string}\n"
+    "  UserDomain name=#{@name}\n  agent=#{agentName}\n  domainAgents=#{@domainAgents.collect {|agent| agent.name}.as_string}\n"
   end
 
   #----------  Access Attempt Methods -----------
@@ -308,6 +325,7 @@ class UserDomains
   include Singleton
   include Enumerable
 
+  attr_accessor :userAdminHasBeenSet, :runcount
   attr_accessor :domains
 
   def ensureDomains
@@ -345,10 +363,9 @@ class UserDomains
 
   def ensureUserDomains
     # this only needs to be performed once.
-    #puts " ensureUserDomains called from UserDomain"
-    return nil if @userAdminHasBeenSet
-    #puts " ensureUserDomains userAdminHasBeenSet "
+    return nil if @userAdminHasBeenSet and @runcount == getRun.count
     @userAdminHasBeenSet = true
+    @runcount = getRun.count
     getUserCommunities.each do |community|
       #puts " ensureUserDomains looping through each community "
       userDomain = self[community.name]

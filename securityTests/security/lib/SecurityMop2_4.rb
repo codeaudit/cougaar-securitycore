@@ -61,6 +61,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def score4
+    @supportingData = {'numAccessesCorrect'=>@numAccessesCorrect, 'numAccessAttempts'=>@numAccessAttempts}
     if @numAccessAttempts > 0
       return (@numAccessesCorrect*100.0) / @numAccessAttempts
     else
@@ -69,7 +70,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
   
   def scoreText
-    if @summary =~ /^There weren/
+    if @supportingData['numAccessAttempts'] == 0
+#    if @summary =~ /^There weren/
       return NoScore
     else
       return @score
@@ -85,6 +87,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
   
   def score5
+    SecurityMop2_5.instance.supportingData = {'numActionsLogged'=>@numActionsLogged, 'numLoggableActions'=>@numLoggableActions}
     if @numLoggableActions > 0
       return (@numActionsLogged*100.0)/@numLoggableActions
     else
@@ -102,6 +105,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
   
   def score6
+    SecurityMop2_6.instance.supportingData = {'numPoliciesLogged'=>@numPoliciesLogged, 'numLoggablePolicies'=>@numLoggablePolicies}
     if @numLoggablePolicies > 0
       return (@numPoliciesLogged*100.0)/@numLoggablePolicies
     else
@@ -143,6 +147,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           totalWaitTime += sleepTime
         end
         if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
+          @summary = "MOP 2.4 did not complete."
           saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done Result failed ")
           return
@@ -155,20 +160,20 @@ class  SecurityMop2_4 < AbstractSecurityMop
           @info = SecurityMop2_4.instance.html4
           #puts " info is #{@info}"
           if @numAccessAttempts == 0
-            @summary1 = "There weren't any access attempts."
+            @summary = "There weren't any access attempts."
           else
-            @summary1 = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
+            @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
           end
           #puts "summary of result : #{@summary}"
           success = false 
-          @summary = "SecurityMop2.4 (unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
-          @summary <<  "#{@summary1}\n"
-          #@summary << "#{@info}"
+          csisummary = "SecurityMop2.4 (unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
+          csisummary <<  "#{@summary}\n"
+          #csisummary << "#{csiinfo}"
           if (@score == 100.0)
             success = true
           end
-          saveResult(success, 'SecurityMop2.4',@summary)
-          saveAssertion("SecurityMop2.4",@info)
+          saveResult(success, 'SecurityMop2.4', csisummary)
+          saveAssertion("SecurityMop2.4", @info)
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
         end
       rescue Exception => e
@@ -303,7 +308,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def checkCrlUpdateEvent(event,node,pattern)
     if ((event.component == 'CRLCache') && (event.node == node.name) &&  (event.data.include? pattern) &&  (@crlUpdated == false) )
-      puts "GOT CRL update for Node----> #{node.name}"
+      puts "GOT CRL update for Node----> #{node.name}" if $VerboseDebugging
       @crlUpdated = true
     end
   end
@@ -661,8 +666,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
     end
     agent = run.society.agents[agent] if agent.kind_of?(String)
     if( agent.userDomain ==nil) 
-      logInfoMsg " Canot create test set for agent #{agent.name} user#{user} #{otherUser}"
-      return;
+      logInfoMsg " Cannot create test set for agent #{agent.name} user#{user} #{otherUser}"
+      return
     end   
     domainName = agent.userDomain.name
     policyServlet = '/policyAdmin'

@@ -1,6 +1,6 @@
 
 class DataProtection
-  attr_accessor :summary
+  attr_accessor :summary, :supportingData
 
   def DataProtection.modifyPersistence(agent)
     puts "modifying #{agent}"
@@ -53,6 +53,7 @@ class DataProtection
       mopvalue = 100.0
     end
     @numFailures = failure
+    @supportingData = {'failure'=>failure, 'size'=>size}
     result = (failure==0)
     @summary = "MOP2.2 (Protection of persisted data)", "MOP2.2 value=#{mopvalue}% - There are #{100.0-mopvalue}% non-encrypted data files in #{size} persisted files"
     saveResult(result, @summary) if showResults

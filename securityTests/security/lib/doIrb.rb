@@ -1,4 +1,5 @@
-Thread.abort_on_exception = true
+
+# Thread.abort_on_exception = true
 
 class Object
  def doIrb(prompt='ruby', initialPrompt="Type 'quit' to end")

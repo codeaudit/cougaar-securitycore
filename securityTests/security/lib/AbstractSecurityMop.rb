@@ -2,7 +2,7 @@ require 'singleton'
 require 'security/lib/security'
 
 class AbstractSecurityMop < SecurityStressFramework
-  attr_accessor :date, :runid, :name, :descript, :score, :info, :isCalculationDone, :raw, :summary
+  attr_accessor :date, :runid, :name, :descript, :score, :info, :isCalculationDone, :raw, :summary, :supportingData
   @@halt = false
   def self.getHalt
     return @@halt
@@ -30,6 +30,7 @@ class AbstractSecurityMop < SecurityStressFramework
     @info = ''
     @score = 0
     @raw = []
+    @supportingData = {}
   end
   def self.instance
     return Cougaar::Actions::Stressors.getStressInstance(self.name, getRun)

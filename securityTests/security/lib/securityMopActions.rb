@@ -87,7 +87,7 @@ module Cougaar
         return AbstractSecurityMop.halt
       end
       def halted?
-        return self.halted?
+        return self.class.halted?
       end
       
       def perform
@@ -178,7 +178,7 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         logInfoMsg "Shutting down security MOPs" if $VerboseDebugging
         mops.each do |mop|
           begin
-	    logInfoMsg "shutting down #{mop.class.name}"
+	    logInfoMsg "shutting down #{mop.class.name}" if $VerboseDebugging
             mop.shutdown
           rescue Exception => e
             logError e
@@ -198,7 +198,7 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         result = ''
         mops.each do |mop|
           begin
-	    logInfoMsg "calculating #{mop.class.name}"
+	    logInfoMsg "calculating #{mop.class.name}" if $VerboseDebugging
             mop.calculate
           rescue Exception => e
             logError e
@@ -221,7 +221,7 @@ rescue Exception => e
 end
         mops.each do |mop|
           begin
-	    logInfoMsg "postCalculating #{mop.class.name}"
+	    logInfoMsg "postCalculating #{mop.class.name}" if $VerboseDebugging
             mop.postCalculate
           rescue Exception => e
             logError e
@@ -234,6 +234,7 @@ end
 
         db = PStore.new(DbFilename)
         db.transaction do |db|
+          db['pstoreVersion'] = 1.0
           db['datestring'] = "#{Time.now}"
           db['date'] = Time.now
           db['html'] = ''
@@ -241,6 +242,7 @@ end
           db['summary'] = mops.collect {|mop| mop.summary}
           db['scores'] = mops.collect {|mop| mop.score}
           db['raw'] = mops.collect {|mop| mop.raw}
+  db['supportingData'] = mops.collect {|mop| mop.supportingData}
           db.commit
         end
 

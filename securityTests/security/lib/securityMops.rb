@@ -93,14 +93,14 @@ class SecurityMop21 < AbstractSecurityMop
       @score = compileResults
       puts "compiledResults #{@score}" if $VerboseDebugging
       summary = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}"
-      @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
+####      @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
       @isCalculationDone = true
       success = false
       if (@score == 100.0)
 	success = true
       end
       saveResult(success, 'SecurityMop2.1', summary)
-      saveAssertion('SecurityMop2.1', @info)
+      saveAssertion('SecurityMop2.1', @info.join("\n"))
 
     rescue Exception => e
 puts "error, probably in compileResults" if $VerboseDebugging
@@ -148,6 +148,7 @@ puts "error, probably in compileResults" if $VerboseDebugging
     end # looping through files
 
 
+    @supportingData = {'malicioussuccesses'=>@malicioussuccesses, 'malicioustotal'=>@malicioustotal, 'legitsuccesses'=>@legitsuccesses, 'legittotal'=>@legitttotal}
     totalruns = @legittotal + @malicioustotal
     totalsuccesses = @legitsuccesses + @malicioussuccesses
     if totalruns != 0
@@ -162,7 +163,8 @@ puts "error, probably in compileResults" if $VerboseDebugging
   end #compile results
 
   def scoreText
-    if @summary =~ /^There weren/
+    if @supportingData['malicioustotal'] + @supportingData['legittotal'] == 0
+#    if @summary =~ /^There weren/
       return noScore
     else
       return @score
@@ -200,9 +202,10 @@ class SecurityMop22 < AbstractSecurityMop
   def calculate
     d = DataProtection.new
     @score = d.checkDataEncrypted("cougaar", 8000, false)
-    @summary = d.summary
+    @summary = (d.summary)[1]
     @raw = d.filelist
     @info = d.mopHtml
+    @supportingData = d.supportingData
     @isCalculationDone = true
 
     success = false
@@ -215,6 +218,12 @@ class SecurityMop22 < AbstractSecurityMop
 
   def scoreText
     begin
+      if @supportingData['size'] == 0
+        return noScore
+      else
+        return @score
+      end
+=begin
       match = @summary.scan(/in ([^ ]*) persisted/)
       if match
         size = match[0][0].to_i
@@ -224,6 +233,7 @@ class SecurityMop22 < AbstractSecurityMop
           return @score
         end
       end
+=end
     rescue Exception => e
       return @score
     end
@@ -260,7 +270,8 @@ class SecurityMop23 < AbstractSecurityMop
   end
 
   def scoreText
-    if @summary =~ /^There weren/
+    if @supportingData['numFiles'] == 0
+#    if @summary =~ /^There weren/
       return noScore
     else
       return @score
@@ -322,7 +333,7 @@ class SecurityMop23 < AbstractSecurityMop
   end
 
   def calculate
-    @score = 100.0
+    @score = 999.9
     @raw = []
     @info = ''
   end
@@ -331,9 +342,14 @@ class SecurityMop23 < AbstractSecurityMop
     begin
       analysis = PostSecurityMopAnalysis.new(@datadir)
       analysis.mops = run['mops']
-      info = analysis.getXMLDataForMop(3)
+      @summary = analysis.summary[3]
+      @info = analysis.getXMLDataForMop(3)
+      @supportingData = analysis.supportingData[3]
+      @raw = analysis.raw[3]
+      @score = analysis.scores[3]
+#self.doIrb
       saveAssertion "SecurityMop2.3", "postCalculate: #{analysis.scores[3]}\n#{info.inspect}"
-      saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', info)
+      saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', @info)
     rescue Exception => e
       logInfoMsg "Error: #{e.class}: #{e.message}"
       puts e.backtrace.join("\n")
@@ -380,7 +396,7 @@ def getRexecBody(xml)
   begin
     return answer[0][0]
   rescue Exception => e
-    saveAssertion "doRexecCmd", "Unable to find the body tag in result (#{xml.inspect})"
+    saveAssertion "doRexecCmd", "Unable to find the body tag in result (#{xml.inspect})" if $VerboseDebugging
     return ''
   end
 end
