@@ -250,7 +250,10 @@ public class TrustManager implements X509TrustManager {
       if (e instanceof CertificateException) {
         throw (CertificateException)e;
       }
-      throw new CertificateException("Failed to build chain.");
+      CertificateException ex =
+	new CertificateException("Failed to build chain.");
+      ex.initCause(e);
+      throw ex;
     }
   }
 
