@@ -52,6 +52,7 @@ import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
 
 
 // Cougaar overlay
@@ -161,8 +162,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
                   AdditionalData ad[] = alert.getAdditionalData();
                   if (ad != null) {
                     for (int j = 0; j < ad.length; j++) {
-                      if (KeyRingJNDIRealm.FAILURE_REASON.equals(ad[j].getMeaning())) {
-                        return (KeyRingJNDIRealm.FAILURE_REASONS[KeyRingJNDIRealm.LF_PASSWORD_MISMATCH].equals(ad[j].getAdditionalData()));
+                      if (LoginFailureEvent.FAILURE_REASON.equals(ad[j].getMeaning())) {
+                        return (LoginFailureEvent.FAILURE_REASONS[KeyRingJNDIRealm.LF_PASSWORD_MISMATCH].equals(ad[j].getAdditionalData()));
                       }
                     }
                   }
@@ -427,7 +428,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     _log.info("No rehydration - publishing sensor capabilities");
 
     List capabilities = new ArrayList();
-    capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
+    capabilities.add(LoginFailureEvent.LOGINFAILURE);
       
     RegistrationAlert reg = 
       _idmefFactory.createRegistrationAlert( _sensor, null, null,
