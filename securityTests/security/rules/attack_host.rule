@@ -11,6 +11,32 @@ society.each_host do |host|
 end
 
 if attackHost == nil
+  # fine! we'll add it to the first non management host
+  society.each_host do |host|
+    mgmtComp = false
+    host.each_node do |node|
+      node.each_facet(:role) do |facet|
+        if facet[:role] == $facetManagement ||
+           facet[:role] == $facetSubManagement ||
+           facet[:role] == $facetRootManagement ||
+           facet[:role] == 'RootCertificateAuthority' ||
+           facet[:role] == 'CertificateAuthority' ||
+           facet[:role] == 'RedundantCertificateAuthority' ||
+           facet[:role] == 'AR-Management'
+          mgmtComp = true
+          break
+        end
+      end # node.each_facet
+    end # host.each_node
+    if mgmtComp == false
+      host.add_facet({"attacker" => "true"})
+      attackHost = host
+      break
+    end
+  end # society.each_host
+end
+
+if attackHost == nil
   # fine! we'll add it to the first host
   society.each_host do |host|
     host.add_facet({"attacker" => "true"})
