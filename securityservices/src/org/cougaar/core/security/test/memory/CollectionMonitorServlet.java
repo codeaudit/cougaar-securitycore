@@ -24,6 +24,7 @@ import org.cougaar.core.servlet.BaseServletComponent;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.CharArrayWriter;
+import java.lang.ref.Reference;
 import java.util.*;
 import java.util.singleton.CollectionMonitorStats;
 import java.util.singleton.CollectionMonitorStatsImpl;
@@ -195,6 +196,7 @@ extends BaseServletComponent
       out.println("Number of " + _util.getElementName(type)
 		  + ":" + n + "<br/>");
       List l = _util.getTopElements(type, Math.min(n, rows));
+      //out.flush();
 
       out.println("<tr><th>Stack Trace</th>");
       out.println("<th>Size</th></tr>");
@@ -202,22 +204,27 @@ extends BaseServletComponent
       Iterator it = l.iterator();
       while (it.hasNext()) {
 	Map.Entry s = (Map.Entry) it.next();
-	Object o = s.getKey();
+	Object o = ((Reference)s.getKey()).get();
 	out.println("<tr><td>");
-	StackTraceElement ste[] = ((Throwable)s.getValue()).getStackTrace();
+	StackTraceElement ste[] =
+	  ((CollectionMonitorStatsImpl.EntityData)s.getValue())._throwable.getStackTrace();
 	/* Skip the first two frames which are not very interesting:
 	 *   CollectionMonitorStatsImpl.addHashtable()
 	 *   MemoryTracker.add()
 	 */
 	int LINES_TO_SKIP = 3;
 
-	out.println("<font size=\"2\">");
-	out.println("<b>" + Integer.toHexString(o.hashCode()) + "</b><br/>");
-	for (int i = LINES_TO_SKIP ; i < Math.min(ste.length, lines + LINES_TO_SKIP) ; i++) {
+	for (int i = LINES_TO_SKIP ;
+	     i < Math.min(ste.length, lines + LINES_TO_SKIP) ; i++) {
+	  out.println("<font size=\"2\">");
 	  out.print(ste[i].getClassName() + "." +
 		    ste[i].getMethodName() + "(" +
 		    ste[i].getFileName() + ":" +
-		    ste[i].getLineNumber() + ")<br/>");
+		    ste[i].getLineNumber() + ")");
+	  if (i == LINES_TO_SKIP) {
+	    out.print("<b>" + Integer.toHexString(o.hashCode()) + "</b>");
+	  }
+	  out.print("<br/>");
 	}
 	/*
 	_caw.reset();

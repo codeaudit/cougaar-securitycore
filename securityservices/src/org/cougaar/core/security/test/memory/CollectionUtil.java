@@ -50,7 +50,7 @@ public class CollectionUtil {
   
   CollectionUtil() {
     _stats = CollectionMonitorStatsImpl.getInstance();
-    System.out.println("From CollectionUtil:" + _stats);
+    //System.out.println("From CollectionUtil:" + _stats);
   }
 
   public static synchronized CollectionUtil getInstance() {
