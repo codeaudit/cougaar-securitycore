@@ -140,6 +140,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   /** Holds value of property loggingService. */
   private LoggingService loggingService;
   private boolean readcollection=false;
+  private int _pollInterval=10;
   Object mylock=new Object();
   
   private CommunityServiceUtil _csu;
@@ -177,10 +178,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
           + myAddress.toAddress()); 
     }
-    
-    Thread th = new Thread(new ManagerRegistrationTask());
-    th.start();
-      
+    if(!_csu.amIRoot( myAddress.toAddress())) {
+      ThreadService ts = (ThreadService)getBindingSite(). getServiceBroker().
+        getService(this, ThreadService.class, null);
+      ts.schedule(new ManagerRegistrationTask(), 0, _pollInterval );
+    }
+        
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate(loggingService));
     agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate(loggingService));
@@ -1126,7 +1129,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
   
   private String getMySecurityCommunity() {
-    return _csu.getSecurityCommunity(myAddress.toString());
+    String mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
+    if(mySecurityCommunity==null) {
+      loggingService.warn(" Canot get my role as Manager in any Security Community  :"+myAddress.toString() );
+    }
+    return mySecurityCommunity;
+   
   }
   
   
@@ -1164,33 +1172,19 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     int counter = 1;
     public void run() {
       boolean  tryAgain = true;
-      try {
-        Thread.sleep(18 * retryTime);
-      }
-      catch(InterruptedException ix) {
-        loggingService.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
-        tryAgain = false;
-      }
-      
+       
       //boolean neverfalse=true;
-      while(tryAgain) {
+      if(tryAgain) {
         loggingService.debug("Trying to register counter: " + counter++);
         tryAgain = setManagerAddress();
-        try {
-          if(tryAgain) {
-            if(counter<6) {
-              retryTime=counter*RETRY_TIME;
-            }
-            Thread.sleep(retryTime);
-          }
+        if(counter<6) {
+          _pollInterval=counter*RETRY_TIME;
         }
-        catch(InterruptedException ix) {
-          loggingService.error("Was interrupted while sleeping: " + ix);
-          tryAgain = false;
+        if(!tryAgain){
+          this.cancel();
+          _csu.releaseServices();
         }
-      } // while(tryAgain)
-      // no longer need the community service utility
-      _csu.releaseServices();
+      }
     } // public void run()
   } // class ManagerRegistrationTask
-} // class CapabilitiesConsolidationPlugin
+ }// class CapabilitiesConsolidationPlugin
