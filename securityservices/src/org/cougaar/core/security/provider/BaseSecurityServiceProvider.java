@@ -85,7 +85,7 @@ public abstract class BaseSecurityServiceProvider
     }
     catch (Exception e) {
       if (log.isWarnEnabled()) {
-	log.warn("Unable to get service request for " + serviceClass.getName() + ": " + e);
+	log.warn("Unable to get service request for " + serviceClass.getName() + ": " , e);
       }
     }
     if (service == null) {
