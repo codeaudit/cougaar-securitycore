@@ -766,7 +766,7 @@ public class KeyManagement
   }
 
 
-  private byte[] base64_to_binary(InputStream inputstream)
+  public static byte[] base64_to_binary(InputStream inputstream)
     throws IOException
   {
     long l = 0L;
@@ -792,7 +792,7 @@ public class KeyManagement
   }
 
 
-  private String readLine(BufferedReader bufferedreader)
+  private static String readLine(BufferedReader bufferedreader)
     throws IOException
   {
     int defaultExpectedLineLength = 80;
@@ -816,7 +816,7 @@ public class KeyManagement
   }
 
 
-  private Collection parseX509orPKCS7Cert(InputStream inputstream)
+  public static Collection parseX509orPKCS7Cert(InputStream inputstream)
     throws CertificateException
   {
     try {
@@ -992,7 +992,8 @@ public class KeyManagement
   }
   public String toHexinHTML(byte[] data)
   {
-    StringBuffer buff=new StringBuffer();
+    StringBuffer buff=new StringBuffer("<br>");
+    buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
     int blockcount=0;
     int linecount=0;
     for(int i = 0; i < data.length; i++) {
@@ -1000,18 +1001,18 @@ public class KeyManagement
       if(digit.length() < 2)buff.append("0");
       buff.append(digit);
       blockcount++;
-      linecount++;
       if(blockcount>1)
       {
-	buff.append("&nbsp;");
+	buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
 	blockcount=0;
 	linecount++;
       }
-      if(linecount>8)
+      if(linecount>7)
       {
 	linecount=0;
 	blockcount=0;
 	buff.append("<br>");
+	buff.append("&nbsp;&nbsp;&nbsp;&nbsp;");
       }
     }
     return buff.toString();

@@ -38,8 +38,12 @@ import java.security.spec.*;
 
 import javax.naming.*;
 import javax.naming.directory.*;
+import sun.security.x509.*;
+
+import com.nai.security.certauthority.KeyManagement;
 
 import com.nai.security.certauthority.LdapEntry;
+import com.nai.security.certauthority.LDAPCert;
 
 public class CertificateFinder  
 {
@@ -72,7 +76,27 @@ public class CertificateFinder
     while((search_results!=null)&&(search_results.hasMoreElements())) {
       try {
 	SearchResult result = (SearchResult)search_results.next();
-	LdapEntry entry = client.getLdapEntry(result.getName());
+	String pem_cert = client.getLdapEntry(result.getName());
+
+	Attributes completeattributes=result.getAttributes();
+	Attribute att_status=completeattributes.get(LDAPCert.STATUS_ATTRIBUTE);
+	Attribute att_hash=completeattributes.get(LDAPCert.HASH_ATTRIBUTE);
+	String aStatus =(String)att_status.get();
+	String hash =(String)att_hash.get();
+
+	ByteArrayInputStream inputstream =
+	  new ByteArrayInputStream(pem_cert.getBytes());
+	// Extract X509 certificates from the input stream
+	byte abyte1[] = KeyManagement.base64_to_binary(inputstream);
+	Collection certs = KeyManagement.parseX509orPKCS7Cert(new ByteArrayInputStream(abyte1));
+
+	Iterator i = certs.iterator();
+	X509CertImpl clientX509 = null;
+	while (i.hasNext()) {
+	  clientX509 = (X509CertImpl) i.next();
+	}
+	LdapEntry entry = new LdapEntry(clientX509, hash, aStatus);
+
 	if (entry != null) {
 	  String status = entry.getStatus();
 	  if (status != null) {

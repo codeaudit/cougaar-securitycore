@@ -170,6 +170,8 @@ final public class KeyRing {
   }
 
   public static synchronized Certificate findCert(String commonName) {
+    if(debug)
+      System.out.println("Looking for common name "+commonName +"in keystore ");
     return keystore.findCert(commonName);
   }
 

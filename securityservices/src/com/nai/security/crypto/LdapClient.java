@@ -38,7 +38,7 @@ import com.nai.security.certauthority.LdapEntry;
 public class LdapClient 
 {
   public String Provider_Url;
-  private DirContext context;
+  private DirContext  context;
   static private boolean debug = false;
   private boolean initializationOK = false;
 
@@ -74,9 +74,11 @@ public class LdapClient
       initializationOK = true;
     }
     catch(NamingException nexp) {
-      System.err.println("Warning:can't connect to LDAP server: " + Provider_Url);
-      System.err.println("Reason: " + nexp + ". Use local keystore only.");
-      //nexp.printStackTrace();
+      if (debug) {
+	System.err.println("Warning:can't connect to LDAP server: " + Provider_Url);
+	System.err.println("Reason: " + nexp + ". Use local keystore only.");
+	nexp.printStackTrace();
+      }
     }
   }
 
@@ -94,12 +96,14 @@ public class LdapClient
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     try {
       if (context != null) {
- 				results=context.search(Contexturl,filter,constrains);
- 			}
+	results=context.search(Contexturl,filter,constrains);
+      }
     }
     catch(NamingException searchexp) {
-      System.out.println("search failed");
-      searchexp.printStackTrace();
+      if (debug) {
+	System.out.println("search failed");
+	searchexp.printStackTrace();
+      }
       return results;
     }
 		
@@ -109,6 +113,9 @@ public class LdapClient
   public NamingEnumeration search(String alias)
   {
     if (!isInitialized()) {
+      if (debug) {
+	System.out.println("LDAP client not initialized");
+      }
       return null;
     }
     NamingEnumeration results=null;
@@ -116,16 +123,21 @@ public class LdapClient
     filter.append("(cn=");
     filter.append(alias);
     filter.append(")");
+    if (debug) {
+      System.out.println("Search string is ::"+filter.toString());
+    }
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     try {
       if (context != null) {
- 				results=context.search(Provider_Url,filter.toString(),constrains);
- 			}
+	results=context.search(Provider_Url,filter.toString(),constrains);
+      }
     }
     catch(NamingException searchexp) {
-      System.out.println("search failed");
-      searchexp.printStackTrace();
+      if (debug) {
+	System.out.println("search failed");
+	searchexp.printStackTrace();
+      }
     }
     return results;
   }
@@ -151,10 +163,14 @@ public class LdapClient
     return results;
   }
 
-  public LdapEntry getLdapEntry(String name) {
-    LdapEntry entry = null;
+  public String getLdapEntry(String name) {
+    String pem_cert=null;
+    System.out.println("look up for name ::"+name);
+    synchronized(context)
+      {
     try {
-      entry = (LdapEntry)context.lookup(name);
+      System.out.println("Context is ::"+context.toString());
+      pem_cert = (String) context.lookup(name);
     }
     catch(Exception ex) {
       if(debug) {
@@ -162,7 +178,8 @@ public class LdapClient
 	ex.printStackTrace();
       }
     }
-    return entry;
+      }
+    return pem_cert;
   }
 
 }

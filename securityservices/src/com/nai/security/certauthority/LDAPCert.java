@@ -69,6 +69,9 @@ import com.nai.security.crypto.Base64;
 
 public class LDAPCert //extends LdapContext
 {
+  public static final String HASH_ATTRIBUTE = "uniqueIdentifier";
+  public static final String STATUS_ATTRIBUTE = "info";
+
     protected static String CONTEXT_FACTORY = 
 	"com.sun.jndi.ldap.LdapCtxFactory";
     protected static final String PEM_ATTRIBUTE = "pem_x509";
@@ -433,8 +436,16 @@ public class LDAPCert //extends LdapContext
 
     public void put() {
 	try {
+	  set.put(STATUS_ATTRIBUTE, certEntry.getStatus());
+	  set.put(HASH_ATTRIBUTE, certEntry.getHash());
+
 	    //ctx.createSubcontext(dn, set);
-	    ctx.bind(cn, certEntry, set);
+	  String pem_cert = null;
+	  pem_cert =
+	    KeyManagement.base64encode(certEntry.getCertificate().getEncoded(),
+				       KeyManagement.PKCS7HEADER,
+				       KeyManagement.PKCS7TRAILER);
+	  ctx.bind(cn, pem_cert, set);
 	}
 	
 	catch(Exception ex) {
