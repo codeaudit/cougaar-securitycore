@@ -109,8 +109,12 @@ public abstract class ParsedPolicy
   {
     String str = u.getText();
     try {
-      str =  str.substring(1, str.length());
-      return "http://ontology.coginst.uwf.edu/" + str;
+      if (str.startsWith("$")) {
+        str =  str.substring(1, str.length());
+        return "http://ontology.coginst.uwf.edu/" + str;
+      } else {
+        return str;
+      }
     } catch (IndexOutOfBoundsException e) {
       PolicyCompilerException pe 
         = new PolicyCompilerException("Malformed URI: " + str + " on line " +
