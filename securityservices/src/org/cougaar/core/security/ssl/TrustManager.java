@@ -194,6 +194,11 @@ public class TrustManager implements X509TrustManager {
       }
     }
     catch (Exception e) {
+      // for unzip & run there will be too many warnings
+      if (getAcceptedIssuers().length == 0) {
+        return;
+      }
+
       if (log.isWarnEnabled()) {
 	log.warn("Failed to verify certificate: "
 		 + chain[0].getSubjectDN().getName()
