@@ -20,6 +20,7 @@
 #
 
 require 'security/lib/experimentFramework'
+require 'rexml/text'
 
 $CIP = ENV['COUGAAR_INSTALL_PATH']
 #$User = ''
@@ -417,6 +418,10 @@ def saveAssertion(testnum, description)
   #puts "Entered critical section - #{Time.now}"
   begin
     file = getTestResultXmlFile()
+
+    testnum = REXML::Text.new(testnum, true, nil, false).to_s
+    description = REXML::Text.new(description, true, nil, false).to_s
+
     file.print("<unitTestResult>\n")
     file.print("  <date>#{Time.now.to_s}</date>\n")
     file.print("  <testId>#{testnum}</testId>\n")
@@ -438,6 +443,9 @@ def saveResultsToFile(pass, success, testnum, testname, tagId)
     file = getTestResultFile()
     file.print(success + "\t" + testnum + "\t" + testname + "\n");
     file.close();
+
+    testname = REXML::Text.new(testname, true, nil, false).to_s
+    testnum = REXML::Text.new(testnum, true, nil, false).to_s
     
     file = getTestResultXmlFile()
     file.print("<event>\n")

@@ -12,6 +12,20 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   </html>
 </xsl:template>
 
+<xsl:template match="securityEvents/plannedSecurityExperiments">
+    <h3>Security Planned Test Cases</h3>
+    <table border="1">
+    <tr bgcolor="#9acd32">
+      <th align="left">Test Case Name</th>
+    </tr>
+    <xsl:for-each select="plannedTest">
+      <tr>
+        <td><xsl:value-of select="."/></td>
+      </tr>
+    </xsl:for-each>
+    </table>
+</xsl:template>
+
 <xsl:template match="securityEvents">
     <h3>Security Test Case Results</h3>
     <table border="1">

@@ -4,12 +4,35 @@
 # Parse the test results file: $CIP/workspace/test/security_test_results.xml
 # 
 #
+# The script can be invoked outside a running society to generate a report:
+#  -g              : generates report and save it as
+#  -i <filename>   : use filename as input file instead of default
+#  -o <filename>   : save output file as filename instead of default
+
+generateReport = false
+inputFile = nil
+outputFile = nil
 
 if !defined? CIP
   CIP = ENV['CIP']
 end
 require 'cougaar/scripting'
 require 'ultralog/scripting'
+require 'ftools'
+
+while ( ARGV.size > 0) do
+  p = ARGV.shift
+  if p =~ /^-g/
+    generateReport = true
+  elsif p =~ /^-i/
+    inputFile = ARGV.shift
+  elsif p =~ /^-o/
+    outputFile = ARGV.shift
+  end
+end
+
+$defaultSecResultsInputFile = "#{CIP}/workspace/test/security_test_results.xml"
+$defaultSecResultsOutputFile = "#{CIP}/workspace/test/security_test_final_results.xml"
 
 $expectedTests = [
   'SecurityMop2.1', 'SecurityMop2.2', 'SecurityMop2.3',
@@ -32,11 +55,12 @@ $expectedTests = [
   'StressMaliciousJoinCommunity',
 ]
 
+
 module Cougaar
   module Actions
 
    class ParseSecurityResults < Cougaar::Action
-     def initialize(run, filename="#{CIP}/workspace/test/security_test_results.xml")
+     def initialize(run, filename=$defaultSecResultsInputFile)
        super(run)
        @filename = filename
        @rp = ResultParser.new(@filename)
@@ -48,7 +72,7 @@ module Cougaar
    end
 
    class LogPlannedSecurityExperiments < Cougaar::Action
-     def initialize(run, filename="#{CIP}/workspace/test/security_test_results.xml")
+     def initialize(run, filename=$defaultSecResultsInputFile)
        super(run)
        @filename = filename
        @rp = ResultParser.new(@filename)
@@ -63,9 +87,10 @@ module Cougaar
 end
 
 class ResultParser
-  def initialize(filename="#{CIP}/workspace/test/security_test_results.xml") 
-    @filename = filename
-    @xmlFile = "#{CIP}/workspace/test/security_test_final_results.xml"
+  def initialize(inputFile=$defaultSecResultsInputFile,
+                 outputFile=$defaultSecResultsOutputFile) 
+    @filename = inputFile
+    @xmlFile = outputFile
     @testsFound = []
     @missingTests = []
     @experimentMissingTests = []
@@ -73,10 +98,16 @@ class ResultParser
 
   def fixXmlFile
     aFile = File.new(@filename, "r")
+    begin
+      outputDir = File.dirname(@xmlFile)
+      File.copy("#{CIP}/csmart/lib/security/actions/results.xsl", outputDir)
+    rescue => ex
+      puts "Unable to copy XSL stylesheet to #{outputDir}: #{ex}"
+    end
 
     outputFile = File.new(@xmlFile, "w")
     outputFile << "<?xml version='1.0'?>\n"
-    outputFile << "<?xml-stylesheet type=\"text/xsl\" href=\"../../csmart/lib/security/actions/results.xsl\"?>\n"
+    outputFile << "<?xml-stylesheet type=\"text/xsl\" href=\"results.xsl\"?>\n"
     outputFile << "<securityResults>\n"
 
     outputFile << "  <securityEvents>\n"
@@ -160,10 +191,22 @@ class ResultParser
 
 end
 
-def testParseResults()
-  rp = ResultParser.new()
-  rp.logPlannedSecurityExperiments()
+def testParseResults(inputFile, outputFile)
+  rp = ResultParser.new(inputFile, outputFile)
+  #rp.logPlannedSecurityExperiments()
   rp.parseResults()
 end
 
-#testParseResults()
+if generateReport
+  if (inputFile == nil) 
+    inputFile = $defaultSecResultsInputFile
+  end
+  if (outputFile == nil)
+    outputFile = $defaultSecResultsOutputFile
+  end
+  puts "Generate Report: #{generateReport}"
+  puts "Input file:      #{inputFile}"
+  puts "Output file:     #{outputFile}"
+
+  testParseResults(inputFile, outputFile)
+end
