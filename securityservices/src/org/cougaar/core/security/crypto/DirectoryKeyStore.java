@@ -188,22 +188,32 @@ public class DirectoryKeyStore
       log.warn("DirectoryKeystore warning: Role not defined");
     }
 
+    // with lookup service no longer need to use ldap URL from param
+    // will search naming to get CA url
     CertDirectoryServiceRequestor cdsr =
+    /*
       new CertDirectoryServiceRequestorImpl(param.ldapServerUrl, param.ldapServerType,
-					    param.serviceBroker, param.defaultCaDn);
+                                            param.serviceBroker, param.defaultCaDn);
+                                            */
+      new CertDirectoryServiceRequestorImpl("", 0,
+                                            param.serviceBroker, "");
     certificateFinder = (CertDirectoryServiceClient)
       param.serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
     if(certificateFinder == null) {
-      if (!param.isCertAuth) {
+    // cert dir lookup service will be generic service
+    // if cannot lookup cert then should not there is problem
+      //if (!param.isCertAuth) {
 	if (log.isErrorEnabled()) {
 	  log.error("Could  not get certificate finder from factory");
 	}
 	throw new RuntimeException("Could  not get certificate finder from factory");
+	/*
       } else {
 	if (log.isInfoEnabled()) {
 	  log.info("CA: LDAP directory service not set yet.");
 	}
       }
+	*/
     }
     setCertificateTrustInCache();
   }
@@ -314,7 +324,8 @@ public class DirectoryKeyStore
       log.warn(" Unable to get Certificate Cache service in findPrivateKey");
       return null;
     }
-    if (param.isCertAuth) {
+    //if (param.isCertAuth) {
+    if (cryptoClientPolicy.isCertificateAuthority()) {
       List nameList = cacheservice.getX500NameFromNameMapping(cougaarName);
       if (nameList != null && nameList.size()> 0) {
 	X500Name dname = (X500Name)nameList.get(0);
@@ -408,7 +419,8 @@ public class DirectoryKeyStore
 	return null;
       }
 
-      if (param.isCertAuth) {
+      //if (param.isCertAuth) {
+      if (cryptoClientPolicy.isCertificateAuthority()) {
 	List nameList = cacheservice.getX500NameFromNameMapping(commonName);
 	if (nameList != null && nameList.size() > 0) {
 	  X500Name dname = (X500Name)nameList.get(0);
@@ -1175,7 +1187,9 @@ public class DirectoryKeyStore
 	      signedByAtLeastOneCA = true;
 	    }
 
-	    if (param.isCertAuth && cryptoClientPolicy.isRootCA()) {
+            //if (param.isCertAuth
+            if (cryptoClientPolicy.isCertificateAuthority()
+              && cryptoClientPolicy.isRootCA()) {
 	      // If DirectoryKeyStore is used in the context of a Certificate
 	      // Authority, then a self-signed certificate is OK.
 	      // Self-signed certificate should only be valid if it is type CA
@@ -1423,7 +1437,8 @@ public class DirectoryKeyStore
 
 
     
-    if (!param.isCertAuth) {
+    //if (!param.isCertAuth) {
+    if (!cryptoClientPolicy.isCertificateAuthority()) {
       log.error("Cannot make CA cert, this node is not a CA");
       return null;
     }
@@ -1681,7 +1696,8 @@ public class DirectoryKeyStore
     if (isCACert) {
       return addCAKeyPair(dname, keyAlias);
     }
-    else if (param.isCertAuth) {
+    //else if (param.isCertAuth) {
+    else if (cryptoClientPolicy.isCertificateAuthority()) {
       return addKeyPairOnCA(dname, keyAlias);
     }
 
@@ -1718,7 +1734,8 @@ public class DirectoryKeyStore
 	  // At this point, the key pair has been added to the keystore,
 	  // but we don't have the reply from the certificate authority yet.
 	  // Send the public key to the Certificate Authority (PKCS10)
-	  if (!param.isCertAuth) {
+          //if (!param.isCertAuth) {
+          if (!cryptoClientPolicy.isCertificateAuthority()) {
 	    X509Certificate cert=null;
 	    if(cacheservice!=null) {
 	      cert= cacheservice.getCertificate(alias);
@@ -2311,7 +2328,16 @@ public class DirectoryKeyStore
    */
   public void checkOrMakeCert(String commonName) {
     
-    if (param.isCertAuth) {
+    // this only happens in unzip & run, originally there is no trusted CA policy
+    if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+      requestedIdentities.put(commonName, commonName);
+      if (log.isDebugEnabled()) {
+        log.debug("saving " + commonName + " to requested identity cache.");
+      }
+    }
+
+    //if (param.isCertAuth) {
+    if (cryptoClientPolicy.isCertificateAuthority()) {
       X500Name dname = CertificateUtility.getX500Name(getX500DN(commonName));
       checkOrMakeCert(dname, false, null);
       return;
@@ -2320,14 +2346,6 @@ public class DirectoryKeyStore
     // go through all the trusted policies
     // more than one certificate may be acquired
     TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getIssuerPolicy();
-
-    // this only happens in unzip & run, originally there is no trusted CA policy
-    if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
-      requestedIdentities.put(commonName, commonName);
-      if (log.isDebugEnabled()) {
-        log.debug("saving " + commonName + " to requested identity cache.");
-      }
-    }
 
     // create a dummy host key so that https server can be started
     if (commonName.equals(NodeInfo.getHostName())) {
@@ -2425,7 +2443,8 @@ public class DirectoryKeyStore
 	}
 	  
         if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
-          if (param.isCertAuth) {
+          //if (param.isCertAuth) {
+          if (cryptoClientPolicy.isCertificateAuthority()) {
             X500Name [] caDNs = configParser.getCaDNs();
             if (caDNs.length != 0) {
               publishCAToLdap(caDNs[0].getName());
@@ -2457,6 +2476,13 @@ public class DirectoryKeyStore
       if (commonname.equals(NodeInfo.getNodeName())) {
         handleRequestedIdentities(trustedCaPolicy);
       }
+
+      // notify validity listener
+      CertValidityService validityService = (CertValidityService)
+        param.serviceBroker.getService(this,
+                                       CertValidityService.class,
+                                       null);
+      validityService.updateCertificate(commonname);
     }
   }
 
@@ -2475,7 +2501,7 @@ public class DirectoryKeyStore
         X500Name dname = null;
         try {
           dname = new X500Name(getX500DN(cname,
-            trustedCaPolicy.getCertificateAttributesPolicy()));
+            cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy)));
         } catch (IOException iox) {}
 
         if (log.isDebugEnabled()) {
@@ -2874,8 +2900,15 @@ public class DirectoryKeyStore
 
       // go get the CA dn to find out who signed the cert
       X500Name x500Principal = x500Name;
+
+      // no longer need to give URL information in naming
+      // cert dir lookup will lookup CA in naming to get CA's ldap info
+      /*
       String ldapUrl = param.ldapServerUrl;
       int ldapType = param.ldapServerType;
+      */
+      String ldapUrl = "";
+      int ldapType = 0;
       TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
       if (tc.length > 1) {
 	while (true) {
@@ -2992,7 +3025,8 @@ public class DirectoryKeyStore
     }
 
     // no need for naming service for CA
-    if (param.isCertAuth) {
+    //if (param.isCertAuth) {
+    if (cryptoClientPolicy.isCertificateAuthority()) {
       return certificateFinder;
     }
     CertificateCacheService cacheservice=(CertificateCacheService)
@@ -3033,8 +3067,14 @@ public class DirectoryKeyStore
 	  if (cdType != null && cdUrl != null) {
 
 	    CertDirectoryServiceRequestor cdsr =
+            // will no longer need to establish ldap here
+            // cert dir lookup service will handle this
+              new CertDirectoryServiceRequestorImpl("", 0,
+                                                    param.serviceBroker, "");
+            /*
 	      new CertDirectoryServiceRequestorImpl(cdUrl, cdType.intValue(),
 						    param.serviceBroker, param.defaultCaDn);
+		*/
 	    CertDirectoryServiceClient cdsc = (CertDirectoryServiceClient)
 	      param.serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
 	    return cdsc;
@@ -3126,8 +3166,10 @@ public class DirectoryKeyStore
     boolean expired = false;
     TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
     if (tc.length == 0) {
+      // should not check expiry if haven't received trusted policy
+
       // root CA
-      expired = checkExpiry(commonName, null);
+      //expired = checkExpiry(commonName, null);
     }
     else {
       for (int i = 0; i < tc.length; i++) {
@@ -3172,8 +3214,6 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled())
       log.debug("Certificate expired, requesting again.");
 
-    // TODO: get the certificate that is expiring, get the trusted CA
-    // from signer, then find the TrustedCaPolicy.
     addKeyPair(commonName, null, trustedCaPolicy);
     // Problem: If a certificate has been revoked, the CA should not regenerate a certificate
     // automatically. However, this is what the CA is doing right now.
@@ -3677,7 +3717,9 @@ public class DirectoryKeyStore
 	cs.setCertificateTrust(CertificateTrust.CERT_TRUST_SELF_SIGNED);
 
 	// is CA certificate created but pending?
-	if (!cryptoClientPolicy.isRootCA() && param.isCertAuth) {
+        if (!cryptoClientPolicy.isRootCA() &&
+          //param.isCertAuth) {
+          cryptoClientPolicy.isCertificateAuthority()) {
 	  // We are a subordinate CA
 	  if (cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	    // should this be moved to after initialization?
