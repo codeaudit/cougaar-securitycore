@@ -4,22 +4,23 @@ RULES = File.join(CIP, 'csmart','config','rules')
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
+$:.unshift File.join(CIP, 'csmart', 'lib', 'security')
 
-$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
 
 # Uncomment the following line if working in the CSI testbed
 # I haven't yet fixed the problem that this depends on linux postgres.so
 #require 'framework/scripting'
 
-require 'cougaar/scripting'
-require 'framework/cougaarMods'
-require 'framework/cond_policy'
-require 'framework/misc'
 
 require 'cougaar/scripting' 
+require 'cougaar/experiment'
 require 'cougaar/communities' 
 require 'ultralog/scripting'
 require 'ultralog/services' 
+
+require 'lib/cougaarMods'
+require 'actions/cond_policy'
+require 'lib/misc'
  
 require 'socket' 
 require 'rexml/document' 
