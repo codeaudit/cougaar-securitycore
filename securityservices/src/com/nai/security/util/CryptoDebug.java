@@ -24,32 +24,15 @@
  * - 
  */
 
-package com.nai.security.policy;
+package com.nai.security.util;
 
-import sun.security.x509.*;
-import java.net.*;
 
-public class CaPolicy {
-
-  public String keyStoreFile;
-  public String keyStorePassword;
-  public String caCommonName;
-
-  public String ldapURL;
-  public int ldapType;
-  // Values for ldapType
-  static public final int NETTOOLS = 1;
-  static public final int COUGAAR_OPENLDAP = 2;
-
-  public String serialNumberFile;
-  public String pkcs10Directory;
-  public String x509CertDirectory;
-
-  // Client policy
-  public int certVersion;
-  public AlgorithmId algorithmId;
-  public int keySize;
-  public long howLong;
-  public AlgorithmId CRLalgorithmId;
+public  class CryptoDebug {
+  public static boolean debug =false;
+  static {
+     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+  }
   
-};
+ 
+} 
