@@ -36,8 +36,8 @@ import org.apache.catalina.Realm;
  * A Realm extension for Tomcat 4.0 that will use
  * org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true".
+ * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * is "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Engine&gt; section:
  * <pre>
@@ -48,7 +48,7 @@ import org.apache.catalina.Realm;
  */
 public class SecureRealm implements Realm {
 
-  private static final String PROP_DISABLE = "org.cougaar.core.security.coreservices.tomcat.disableAuth";
+  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
   private String _realmClass  = "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
   private Realm _secureRealm = null;
   private Container _container = null;
@@ -57,7 +57,7 @@ public class SecureRealm implements Realm {
    * Default constructor.
    */
   public SecureRealm() {
-    init(false);
+    init();
   }
 
   /**
@@ -67,15 +67,13 @@ public class SecureRealm implements Realm {
     return _secureRealm;
   }
 
-  private synchronized void init(boolean log) {
-    if (!Boolean.getBoolean(PROP_DISABLE)) {
+  private synchronized void init() {
+    if (Boolean.getBoolean(PROP_ENABLE)) {
       try {
         Class c = Class.forName(_realmClass);
         _secureRealm = (Realm) c.newInstance();
       } catch (ClassNotFoundException e) {
-        if (log) {
-          System.out.println("Error: could not find class " + _realmClass);
-        }
+        System.out.println("Error: could not find class " + _realmClass);
       } catch (ClassCastException e) {
         System.out.println("Error: the class " + _realmClass + " is not a Realm");
       } catch (Exception e) {
@@ -194,7 +192,7 @@ public class SecureRealm implements Realm {
    */
   public void setRealmClass(String realmClass) {
     _realmClass = realmClass;
-    init(true);
+    init();
   }
   
   /**

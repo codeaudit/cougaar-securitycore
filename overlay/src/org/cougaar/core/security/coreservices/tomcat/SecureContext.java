@@ -33,31 +33,30 @@ import org.apache.catalina.core.StandardContext;
  * A Tomcat Context which will inform the security services
  * of its creation if the security services exist and the
  * System property
- * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true".
+ * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * is "true".
  */
 public class SecureContext extends StandardContext {
 
-  private static final String PROP_DISABLE =
-    "org.cougaar.core.security.coreservices.tomcat.disableAuth";
+  private static final String PROP_ENABLE =
+    "org.cougaar.core.security.coreservices.tomcat.enableAuth";
   private static final String SPP_CLASS  = 
     "org.cougaar.core.security.provider.ServletPolicyServiceProvider";
 
   private Method _sppSetDualAuthenticator = null;
 
   public SecureContext() {
-    if (!Boolean.getBoolean(PROP_DISABLE)) {
+    if (Boolean.getBoolean(PROP_ENABLE)) {
       try {
         Class c  = Class.forName(SPP_CLASS);
         Method m = c.getMethod("setContext", new Class[] { Context.class });
         m.invoke(null, new Object[] { this });
       } catch (ClassNotFoundException e) {
+        System.out.println("Error: Couldn't find " + SPP_CLASS);
         // don't worry about it
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
-    
   }
-
 }

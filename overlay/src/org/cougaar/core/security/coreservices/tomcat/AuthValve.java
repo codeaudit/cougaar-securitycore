@@ -41,8 +41,8 @@ import org.apache.catalina.Response;
  * A Valve for Tomcat 4.0 that will use
  * org.cougaar.core.security.acl.auth.DualAuthenticator if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true".
+ * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * is "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Context&gt; section:
  * <pre>
@@ -58,7 +58,7 @@ import org.apache.catalina.Response;
  */
 public class AuthValve implements Valve, Contained {
 
-  private static final String PROP_DISABLE = "org.cougaar.core.security.coreservices.tomcat.disableAuth";
+  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
   private String _authClass  = "org.cougaar.core.security.acl.auth.DualAuthenticator";
   private ValveBase _authValve = null;
   private Container _container = null;
@@ -67,7 +67,7 @@ public class AuthValve implements Valve, Contained {
    * Default constructor.
    */
   public AuthValve() {
-    init(false);
+    init();
   }
 
   /**
@@ -77,15 +77,13 @@ public class AuthValve implements Valve, Contained {
     return _authValve;
   }
 
-  private synchronized void init(boolean log) {
-    if (!Boolean.getBoolean(PROP_DISABLE)) {
+  private synchronized void init() {
+    if (Boolean.getBoolean(PROP_ENABLE)) {
       try {
         Class c = Class.forName(_authClass);
         _authValve = (ValveBase) c.newInstance();
       } catch (ClassNotFoundException e) {
-        if (log) {
-          System.out.println("Error: could not find class " + _authClass);
-        }
+        System.out.println("Error: could not find class " + _authClass);
       } catch (ClassCastException e) {
         System.out.println("Error: the class " + _authClass + " is not a Valve");
       } catch (Exception e) {
@@ -123,7 +121,7 @@ public class AuthValve implements Valve, Contained {
    */
   public void setValveClass(String authClass) {
     _authClass = authClass;
-    init(true);
+    init();
   }
   
   /**
@@ -143,7 +141,7 @@ public class AuthValve implements Valve, Contained {
           getMethod("setRealmName", new Class[] { String.class });
         m.invoke( _authValve, new Object[] { realmName } );
       } catch (Exception e) {
-        // don't worry about it.
+        e.printStackTrace();
       }
     } 
   }

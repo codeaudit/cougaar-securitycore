@@ -36,8 +36,8 @@ import org.cougaar.lib.web.tomcat.HookServlet;
  * This class is designed to load 
  * org.cougaar.core.security.acl.auth.SecureHookServlet if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.disableAuth</code> 
- * is not "true".
+ * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * is "true".
  * <p>
  * The <code>web.xml</code> should have within the &lt;web-app&gt; element:
  * <pre>
@@ -51,7 +51,7 @@ import org.cougaar.lib.web.tomcat.HookServlet;
  * who has logged in.
  */
 public class HookServletFront implements Servlet {
-  private static final String PROP_DISABLE = "org.cougaar.core.security.coreservices.tomcat.disableAuth";
+  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
 
   private String  _servletClass = "org.cougaar.core.security.acl.auth.SecureHookServlet";
   private String  _fallbackClass = "org.cougaar.lib.web.tomcat.HookServlet;";
@@ -62,18 +62,12 @@ public class HookServletFront implements Servlet {
    * default constructor
    */
   public HookServletFront() {
-    init(false);
-  }
-
-  private synchronized void init(boolean log) {
-    if (!Boolean.getBoolean(PROP_DISABLE)) {
+    if (Boolean.getBoolean(PROP_ENABLE)) {
       try {
         Class c = Class.forName(_servletClass);
         _hookServlet = (Servlet) c.newInstance();
       } catch (ClassNotFoundException e) {
-        if (log) {
-          System.out.println("Error: could not find class " + _servletClass);
-        }
+        System.out.println("Error: could not find class " + _servletClass);
       } catch (ClassCastException e) {
         System.out.println("Error: the class " + _servletClass + " is not a Servlet");
       } catch (Exception e) {
