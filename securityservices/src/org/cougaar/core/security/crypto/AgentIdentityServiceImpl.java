@@ -148,6 +148,9 @@ public class AgentIdentityServiceImpl
 	try {
 	  X500Name dname = null;
 	  dname = new X500Name(requestorAddress.toAddress());
+	  String cn = dname.getCommonName();
+	  String title = ", t=" + DirectoryKeyStore.getTitle(cn);
+	  dname = new X500Name(requestorAddress.toAddress() + title);
 	  keyRing.checkOrMakeCert(dname);
 	}
 	catch (Exception e) {

@@ -381,6 +381,10 @@ public class KeyManagement
     for (int i = 0 ; i < ar.size() ; i++) {
       reply[i] = (X509Certificate)ar.get(i);
     }
+    if (CryptoDebug.debug) {
+      System.out.println("Reply contains " + ar.size()
+			 + " certificates");
+    }
     return reply;
   }
 
@@ -409,11 +413,23 @@ public class KeyManagement
         else {
           out.print(URLEncoder.encode(reply, "UTF-8"));
         }
+	if (CryptoDebug.debug) {
+	  System.out.println("replyInHtml=" + replyInHtml + "\n"
+	    + reply);
+	}
 
       }
       catch (CertificateEncodingException e) {
+	if (CryptoDebug.debug) {
+	  System.out.println("Unable to process PKCS10 request:" + e);
+	  e.printStackTrace();
+	}
       }
       catch (IOException e) {
+	if (CryptoDebug.debug) {
+	  System.out.println("Unable to process PKCS10 request:" + e);
+	  e.printStackTrace();
+	}
       }
 
       return reply;

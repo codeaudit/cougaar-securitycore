@@ -31,8 +31,7 @@ import org.cougaar.util.*;
  **/
 
 public abstract class SecurityComponent
-  extends GenericStateModelAdapter
-  implements Component
+  extends ComponentSupport
 {
   public final static String PROP_PREFIX = "org.cougaar.core.security";
   public final static String SMC_PROP = PROP_PREFIX+".Component";

@@ -39,8 +39,14 @@ public final class SecurityComponentFactory
   extends SecurityComponent
 {
   protected BindingSite bindingSite = null;
+  private Object param = null;
 
   public SecurityComponentFactory() {
+  }
+
+  public void setParameter(Object o) {
+    System.out.println("Parameter: " + o.getClass().getName());
+    param = o;
   }
 
   public void setBindingSite(BindingSite bs) {

@@ -56,6 +56,9 @@ public class NameMapping {
   private void addName(Principal principal)
     throws IllegalArgumentException
   {
+    if (CryptoDebug.debug) {
+      System.out.println("Add name:" + principal.getName());
+    }
     X500Name x500Name = null;
     String cn = null;
     if (principal == null) {
@@ -73,8 +76,8 @@ public class NameMapping {
       System.out.println("AddName: " + principal.getName());
     }
 
-    /* Since the common name must currently be unique, it is a configuration error
-     * if two distinguished names have the same common name. */
+    /* Since the common name must currently be unique, it is a configuration
+     * error if two distinguished names have the same common name. */
     X500Name aPrincipal = (X500Name)cn2dn.get(cn);
     if (aPrincipal != null &&
 	!aPrincipal.equals(x500Name)) {

@@ -45,8 +45,8 @@ public class MessageProtectionServiceTest
   private BasicNode bn;
   private SecurityServiceProvider secProvider;
 
-  private MessageAddress source = new MessageAddress("TheSender");
-  private MessageAddress destination = new MessageAddress("TheReceiver");
+  private MessageAddress source = new MessageAddress("theSender");
+  private MessageAddress destination = new MessageAddress("theReceiver");
 
   public MessageProtectionServiceTest(String name) {
     super(name);
@@ -88,7 +88,8 @@ public class MessageProtectionServiceTest
     }
     catch (Exception e) {
       e.printStackTrace();
-      Assert.assertTrue("Exception while trying to encrypt header", false);
+      Assert.assertTrue("Exception while trying to encrypt header:"
+			+ e.toString(), false);
     }
     Assert.assertNotNull("Encrypted Header is null", encryptedHeader);
    
@@ -100,7 +101,8 @@ public class MessageProtectionServiceTest
     }
     catch (Exception e) {
       e.printStackTrace();
-      Assert.assertTrue("Exception while trying to decrypt header", false);
+      Assert.assertTrue("Exception while trying to decrypt header:"
+			+ e.toString(), false);
     }
     String newHeader = new String (decryptedHeader);
     Assert.assertNotNull("Deccrypted Header is null", decryptedHeader);
@@ -138,7 +140,8 @@ public class MessageProtectionServiceTest
     }
     catch (IOException e) {
       e.printStackTrace();
-      Assert.assertTrue("Exception while calling getOutputStream", false);
+      Assert.assertTrue("Exception while calling getOutputStream:"
+			+ e.toString(), false);
     }
     Assert.assertNotNull("Protected Output stream is null", pos);
 
@@ -166,7 +169,8 @@ public class MessageProtectionServiceTest
     }
     catch (IOException e) {
       e.printStackTrace();
-      Assert.assertTrue("Exception while calling getInputStream", false);
+      Assert.assertTrue("Exception while calling getInputStream:"
+			+ e.toString(), false);
     }
     Assert.assertNotNull("Protected Input stream is null", pis);
 

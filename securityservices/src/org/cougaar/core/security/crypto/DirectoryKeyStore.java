@@ -1127,25 +1127,27 @@ public class DirectoryKeyStore
 				     boolean signedByAtLeastOneCA)
   {
     Principal principal = x509certificate.getSubjectDN();
-    Principal principal1 = x509certificate.getIssuerDN();
+    Principal principalSigner = x509certificate.getIssuerDN();
     if (CryptoDebug.debug) {
       System.out.println("Build chain: " + principal.getName());
     }
 
-    X500Name x500Name1 = null;
+    X500Name x500NameSigner = null;
     try {
-      x500Name1 = new X500Name(principal1.getName());
+      x500NameSigner = new X500Name(principalSigner.getName());
     } catch(Exception e) {
       System.out.println("Unable to get X500 name - " + e);
     }
 
-    ArrayList list1 = certCache.getValidCertificates(x500Name1);
+    ArrayList listSigner = certCache.getCertificates(x500NameSigner);
 
-    if(principal.equals(principal1)) {
+    if(principal.equals(principalSigner)) {
       // Self-signed certificate
       vector.addElement(x509certificate);
-      CertificateStatus cs = (CertificateStatus)
-        ((list1 == null) ? null : list1.get(0));
+      CertificateStatus cs = null;
+      if (listSigner != null && listSigner.size() > 0) {
+	cs = (CertificateStatus) listSigner.get(0);
+      }
 
       if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	// This is a trusted certificate authority.
@@ -1164,8 +1166,8 @@ public class DirectoryKeyStore
       }
     }
 
-    //Vector vector1 = (Vector)hashtable.get(principal1);
-    if(list1 == null) {
+    //Vector vector1 = (Vector)hashtable.get(principalSigner);
+    if(listSigner == null) {
       if (CryptoDebug.debug) {
 	System.out.println("No Signer certificate in cache");
       }
@@ -1176,12 +1178,12 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Looking up certificate in directory service");
 	}
-	String filter = parseDN(principal1.toString());
+	String filter = parseDN(principalSigner.toString());
 	lookupCertInLDAP(filter);
 
 	// Now, seach again.
-	list1 = certCache.getValidCertificates(x500Name1);
-	if (list1 == null) {
+	listSigner = certCache.getValidCertificates(x500NameSigner);
+	if (listSigner == null) {
 	  // It's OK not to have the full chain if at least one certificate in the
 	  // chain is trusted.
 	  return signedByAtLeastOneCA;
@@ -1195,7 +1197,7 @@ public class DirectoryKeyStore
     }
 
     //Enumeration enumeration = vector1.elements();
-    Iterator it = list1.listIterator();
+    Iterator it = listSigner.listIterator();
     // Loop through all the issuer keys
     while(it.hasNext()) {
       CertificateStatus cs = (CertificateStatus) it.next();
@@ -1221,7 +1223,7 @@ public class DirectoryKeyStore
       }
 
       if (CryptoDebug.debug) {
-	System.out.println("Found acceptable signing key: "
+	System.out.println("Found signing key: "
 			   + x509certificate1.getSubjectDN().toString());
       }
 
@@ -1345,21 +1347,23 @@ public class DirectoryKeyStore
    * through this function to get the name, otherwise title is
    * not set and the CA will give out only user previlege.
    */
-
-  protected String getX500DN(String commonName) {
+  public static String getTitle(String commonName) {
     String title = CERT_TITLE_AGENT;
     if (commonName.equals(NodeInfo.getNodeName()))
       title = CERT_TITLE_NODE;
     else if (commonName.equals(getHostName()))
       title = CERT_TITLE_WEBSERVER;
+    return title;
+  }
 
+  protected String getX500DN(String commonName) {
     String dn = "cn=" + commonName
       + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
       + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
       + ",l=" + cryptoClientPolicy.getCertificateAttributesPolicy().l
       + ",st=" + cryptoClientPolicy.getCertificateAttributesPolicy().st
       + ",c=" + cryptoClientPolicy.getCertificateAttributesPolicy().c
-      + ",t=" + title;
+      + ",t=" + getTitle(commonName);
     //    + "," + cryptoClientPolicy.getCertificateAttributesPolicy().domain;
     return dn;
   }
@@ -2200,6 +2204,9 @@ public class DirectoryKeyStore
 	  reply = reply + new String(cbuf, 0, read);
 	}
 	in.close();
+	if (CryptoDebug.debug) {
+	  System.out.println("Reply: " + reply);
+	}
         reply = URLDecoder.decode(reply, "UTF-8");
 	if (CryptoDebug.debug) {
 	  System.out.println("Reply: " + reply);

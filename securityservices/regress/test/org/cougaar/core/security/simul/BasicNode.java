@@ -55,18 +55,16 @@ public class BasicNode
         excludedJars.add(files[i]);
       }
     }
-
-    s = System.getProperty("org.cougaar.bootstrap.Bootstrapper.loud");
-    if ("true".equals(s)) {
-      loudness = 1;
-    } else if ("shout".equals(s)) {
-      loudness = 2;
-    } else {
-      loudness = 0;
-    }
+    loudness = 2;
   }
 
   public BasicNode() {
+    List l = computeURLs();
+    Assert.assertNotNull("Could not get jar file URLs", l);
+    ClassLoader cl = createClassLoader(l);
+    Assert.assertNotNull("Could not create class loader", cl);
+    loadCryptoProviders(cl);
+
     // Initialize Security Service Provider
     secProvider = new SecurityServiceProvider();
     Assert.assertNotNull("Could not initialize SecurityServiceProvider", secProvider);
@@ -78,10 +76,6 @@ public class BasicNode
     // Create Guard
     GuardFactory gf = new GuardFactory(serviceBroker);
     Assert.assertNotNull("Could not initialize Guard", gf);
-
-    List l = computeURLs();
-    ClassLoader cl = createClassLoader(l);
-    loadCryptoProviders(cl);
   }
 
   public ServiceBroker getServiceBroker() {
@@ -289,9 +283,6 @@ public class BasicNode
     catch(IOException ioexp) {
       System.err.println("Cannot read cryptographic provider configuration file: " + ioexp);
       ioexp.printStackTrace();
-    }
-    if (loudness>0) {
-      printProviderProperties();
     }
   }
 
