@@ -459,16 +459,6 @@ public class DataProtectionServiceImpl
           return;
         }
 
-        // the original code repeats the same function but allows
-        // expiration checking, there will be new function in
-        // encryption service later on that enables decrypt using
-        // expired certs
-        SecretKey skey = encryptionService.decryptSecretKey(
-                          policy.asymmSpec,
-                          (byte[])dpKey.getObject(),
-			  policy.symmSpec,
-			  dpKey.getCertificateChain()[0]);
-
 
 	List certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
         if (certList == null || certList.size() == 0) {
@@ -515,6 +505,23 @@ public class DataProtectionServiceImpl
         if (agentCert == null) {
 	  throw new Exception("Cannot find a certificate from keystore to reprotect secret key.");
         }
+
+
+        // the original code repeats the same function but allows
+        // expiration checking, there will be new function in
+        // encryption service later on that enables decrypt using
+        // expired certs
+        SecretKey skey = null;
+        try {
+          skey = encryptionService.decryptSecretKey(
+                          policy.asymmSpec,
+                          (byte[])dpKey.getObject(),
+			  policy.symmSpec,
+			  dpKey.getCertificateChain()[0]);
+        } catch (GeneralSecurityException gse) {
+          log.warn("Exception occured trying to decrypt secret key: ", gse);
+        }
+
         if (skey == null) {
           if (keyCollection.size() == 1) {
             log.error("Cannot recover key for; " + dpsClient.getAgentIdentifier()
