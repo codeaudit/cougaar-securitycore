@@ -30,6 +30,10 @@ import java.util.*;
 import java.io.*;
 import java.security.cert.X509Certificate;
 import java.security.*;
+import java.security.cert.Certificate;
+import sun.security.pkcs.*;
+import sun.security.x509.*;
+import javax.naming.NameAlreadyBoundException;
 
 // Cougaar core services
 import org.cougaar.core.service.BlackboardService;
@@ -42,14 +46,19 @@ import org.cougaar.core.blackboard.BlackboardClient;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.naming.CACertificateEntry;
 
-public class CACertDirectoryServiceImpl
-  implements CACertDirectoryService, BlackboardClient
-{
+
+public class CACertDirectoryServiceImpl  implements 
+CACertDirectoryService, BlackboardClient  {
+
   private ServiceBroker _serviceBroker;
   private BlackboardService _blackboardService;
   private LoggingService _log;
@@ -145,6 +154,11 @@ public class CACertDirectoryServiceImpl
       _certStore.put(certEntry.getUniqueIdentifier(), certEntry);
     }
     updateBlackBoard();
+
+    if (certEntry.getCertificateType() == CertificateType.CERT_TYPE_CA 
+      && certEntry instanceof CACertificateEntry) {
+      publishCA((CACertificateEntry)certEntry);
+    }
   }
 
   private synchronized void updateBlackBoard() {
@@ -272,6 +286,126 @@ public class CACertDirectoryServiceImpl
       }
     }
 
+    // now publish CA certificate
+    publishCA();
+  }
+
+  private synchronized void publishCA() {
+    CertificateCacheService cacheservice=(CertificateCacheService)
+      _serviceBroker.getService(this,
+			       CertificateCacheService.class,
+			       null);
+
+    if(cacheservice==null) {
+      _log.warn("Unable to get Certificate cache Service in publishCAinLdap");
+    }
+    KeyRingService keyRing = (KeyRingService)
+      _serviceBroker.getService(this, KeyRingService.class, null);
+    if (keyRing == null) {
+      _log.warn("KeyRing service not available yet, cannot update naming with CA cert.");
+      return;
+    }
+    Certificate c=null;
+    List certList = null;
+    Enumeration enum=null;
+    if(cacheservice!=null) {
+      enum=cacheservice.getAliasList();
+    }
+    if(enum==null) {
+      _log.warn("Alias list is null in Key management publishCAinLdap:");
+    }
+    if(enum!=null) {
+      for(;enum.hasMoreElements();) {
+        String a = (String)enum.nextElement();
+        String cn = cacheservice.getCommonName(a);
+        if(cn!=null) {
+          _log.debug("Got common name for alias :"+ a + cn);
+        }
+        certList = keyRing.findCert(cn);
+        // is there any valid certificate here?
+        if (certList == null || certList.size() == 0){
+          _log.debug(" Could not find cert in key ring for ca :"+cn);
+          continue;
+        }
+        // is it a CA certificate? (not node, server, agent ...)
+        c=((CertificateStatus)certList.get(0)).getCertificate();
+        if (((CertificateStatus)certList.get(0)).getCertificateType()
+            != CertificateType.CERT_TYPE_CA){
+          _log.debug(" Certificate is not ca Type  :"+cn);
+          continue;
+        }
+        _log.debug("got common name from alias : " + a
+                  + " cn = " + cn);
+         
+        /*
+          This is no longer required as we will not go to LDAP to get CA Cert
+
+          List ldapList = keyRing.findCert(cn, KeyRingService.LOOKUP_LDAP);
+          Certificate ldapcert = null;
+          if (ldapList != null && ldapList.size() > 0)
+          ldapcert = ((CertificateStatus)certList.get(0)).getCertificate();
+          if(ldapcert==null) {
+          log.debug("Found no certificate in LDAP for --> "
+          + cn);
+          }
+          else {
+          log.debug("found CA cert in ldap for :"
+          + cn
+          + " going to try next from ca keyStore");
+          continue;
+          }
+        */
+
+        // need to update CA to naming
+        List bbEntryList = findCertByDistinguishedName(
+          ((X509Certificate)c).getSubjectDN().getName());
+          
+        if (bbEntryList == null || bbEntryList.isEmpty()) {
+          _log.warn("CA cert found in keystore but not in Blackboard!");
+          continue;
+        }
+        CACertificateEntry certEntry = (CACertificateEntry)
+          bbEntryList.get(0);
+        publishCA(certEntry);
+      }
+    }
+    else {
+      _log.debug(" CA key store is empty ::");
+    }
+    _serviceBroker.releaseService(this,
+                                 CertificateCacheService.class,
+                                 cacheservice); 
+     _serviceBroker.releaseService(this,
+                                  KeyRingService.class,
+                                  keyRing);
+  }
+
+  private void publishCA(CACertificateEntry certEntry) {
+    KeyRingService keyRing = (KeyRingService)
+      _serviceBroker.getService(this, KeyRingService.class, null);
+    if (keyRing == null) {
+      _log.warn("KeyRing service not available yet, cannot update naming with CA cert.");
+      return;
+    }
+    try {
+      X500Name dname = new X500Name(
+        certEntry.getCertificate().getSubjectDN().getName());
+      List pkc = keyRing.findPrivateKey(dname);
+      if (pkc == null || pkc.isEmpty()) {
+        _log.warn("Cannot publish a CA cert without a private key." + dname);
+      }
+      keyRing.updateNS(certEntry);
+    }
+    catch (Exception e) {
+      if (_log.isWarnEnabled()) {
+        if (!(e instanceof NameAlreadyBoundException)){
+          _log.warn("Unable to publish CA certificate to LDAP: ", e);
+        }
+      }
+    }
+    _serviceBroker.releaseService(this,
+                                  KeyRingService.class,
+                                  keyRing);
   }
 
   /** Service listener for the Blackboard Service.
