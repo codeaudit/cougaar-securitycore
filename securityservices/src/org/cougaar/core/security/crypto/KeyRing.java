@@ -1223,19 +1223,21 @@ final public class KeyRing  implements KeyRingService  {
 
     // how deep is the trusted cert
     X509Certificate [] tgtCerts = null;
-    int trustedIndex = 1000;
+    /*
+    int trustedIndex = -1;
     TrustedCaPolicy [] tc = cryptoClientPolicy.getTrustedCaPolicy();
     Hashtable tcTable = new Hashtable();
     for (int i = 0; i < tc.length; i++) {
       tcTable.put(tc[i].caDN, tc[i].caDN);
     }
-    if (cryptoClientPolicy.isRootCA()) {
-      // trust itself
+    // CA will be communicating now, so need to add them too
+    if (cryptoClientPolicy.isCertificateAuthority()) {
       X500Name [] caDNs = configParser.getCaDNs();
       for (int i = 0; i < caDNs.length; i++) {
         tcTable.put(caDNs[i].getName(), caDNs[i].getName());
       }
     }
+    */
 
     Iterator it = tgtdns.iterator();
     while (it.hasNext()) {
@@ -1247,21 +1249,27 @@ final public class KeyRing  implements KeyRingService  {
         // path is supposed to be established and valid
         CertificateStatus cs = (CertificateStatus)tgtList.get(0);
         // chain should be valid because findCert has been called
-        tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-        for (int i = 0; i < tgtCerts.length && i < trustedIndex; i++) {
+        //tgtCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+        // now that certificate status includes chain, no need to build chain again
+        tgtCerts = cs.getCertificateChain();
+        /*
+        // CA signing certificate should never be used to communicate, if it is self signed
+        for (int i = 1; i < tgtCerts.length; i++) {
           String principalName = tgtCerts[i].getSubjectDN().getName();
           if (tcTable.get(principalName) != null) {
             trustedIndex = i;
           }
         }
+        */
 
         // there must be one that matches, otherwise check trust is not correct
         certTable.put(target, tgtCerts[0]);
       }
     }
 
+    /*
     // find the matching source path
-    if (certTable.get(target) == null) {
+    if (certTable.get(target) == null || trustedIndex == -1) {
       String errMsg = "No trusted path found for " + target;
       if (log.isDebugEnabled()) {
         log.debug(errMsg);
@@ -1273,6 +1281,7 @@ final public class KeyRing  implements KeyRingService  {
       log.debug("Found trusted cert : " + certTable.get(target) + " for " + target
                 + ", the shortest path to trusted ca: " + trustedPrincipal);
     }
+    */
 
     X509Certificate [] srcCerts = null;
     boolean found = false;
@@ -1284,8 +1293,10 @@ final public class KeyRing  implements KeyRingService  {
       if (srcList != null && srcList.size() != 0) {
         CertificateStatus cs = (CertificateStatus)srcList.get(0);
         // the trust chain should be valid
-        srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+        //srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
+        srcCerts = cs.getCertificateChain();
 
+        /*
         // we can communicate now, put a cert that is trusted by both sides here
         // if we find a cert that has the shortest path to target then replace
         // the hashtable entry with that one
@@ -1298,11 +1309,14 @@ final public class KeyRing  implements KeyRingService  {
             found = true;
           }
         }
+        */
+        certTable.put(source, srcCerts[0]);
       }
     }
 
     // is it successful?
-    if (!found) {
+    //if (!found) {
+    if (certTable.get(source) == null) {
       String errMsg = "Can not find matching source cert with same trust.";
       if (log.isDebugEnabled()) {
         log.debug(errMsg);
@@ -1310,6 +1324,7 @@ final public class KeyRing  implements KeyRingService  {
       throw new CertificateException(errMsg);
     }
 
+    /*
     if (log.isDebugEnabled()) {
       log.debug("Found trusted cert : " + certTable.get(source) + " for " + source);
     }
@@ -1319,6 +1334,7 @@ final public class KeyRing  implements KeyRingService  {
                  trustedPrincipal + " has been found.");
       }
     }
+    */
 
     return certTable;
   }
