@@ -176,7 +176,9 @@ society.each_host do |host|
     # java.class.path=/mnt/shared/integ/lib/bootstrap.jar
     # However, the Jython interpreter requires the JAR files
     # referenced from Python be on the "real" classpath.
-    node.override_parameter("-Djava.class.path", "#{cip}/lib/CougaarCRLextensions.jar")
+    node.remove_parameter("-classpath")
+    node.add_parameter("-classpath #{cip}/lib/CougaarCRLextensions.jar")
+    #node.override_parameter("-Djava.class.path", "#{cip}/lib/CougaarCRLextensions.jar")
         
     # Set the config path, which uses ";" separators.
     #
