@@ -71,6 +71,13 @@ public class CACertificateEntry extends CertificateEntry
     }
     return crl;
   }
+  
+  public byte[] getEncodedCRL() {
+    if(derEncodedCRL!=null) {
+      return derEncodedCRL;
+    }
+    return null;
+  }
 
   /**
    * Public accessor method for setting  the CRL.
@@ -80,6 +87,13 @@ public class CACertificateEntry extends CertificateEntry
       derEncodedCRL=crl.getEncoded();
     }
     lastModifiedTime=DateUtil.getCurrentUTC();
+  }
+
+  public String getLastModifiedTimeStamp() {
+    if(lastModifiedTime!=null) {
+      return lastModifiedTime;
+    }
+    return null;
   }
 
 
