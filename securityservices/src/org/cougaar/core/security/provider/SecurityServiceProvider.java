@@ -176,7 +176,6 @@ public class SecurityServiceProvider
     ServiceBroker sb = getServiceBroker();
     if (sb == null) {
       // Install a default broker. This is only for test purposes
-      log.warn("WARNING: Running in a test environment");
       serviceBroker = new ServiceBrokerSupport();
     }
     else {

@@ -185,6 +185,7 @@
                 <include name="ibmpkcs.jar" />
                 <include name="jas.jar" />
                 <include name="mail.jar" />
+                <include name="log4j.jar" />
              </fileset>
           </classpath>
           <formatter type="plain"/>
@@ -409,6 +410,11 @@
         <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
         <delete file="${securityservices.classes}/CougaarCRLextensions.jar" verbose="true"/>
         <delete file="${securityservices.classes}/idmef.jar" verbose="true"/>
+
+        <!-- Delelete log files... -->
+        <delete verbose="true">
+          <fileset  dir="${securityservices.configs}/demo" includes="*.log"/>
+        </delete>
         <echo message="+++++ Cleaned build environment"/>
     </target>
     
