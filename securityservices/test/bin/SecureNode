@@ -69,6 +69,12 @@ push @commandLine, @ARGV;
 
 #print "@commandLine\n";
 
+if ( ! -d "$cip/workspace/log4jlogs" ) {
+  mkdir "$cip/workspace", 0777;
+  mkdir "$cip/workspace/log4jlogs", 0777;
+} elsif ( -f "$cip/workspace/log4jlogs/$node.log" ) {
+  unlink "$cip/workspace/log4jlogs/$node.log";
+}
 system(@commandLine);
 # Subroutines
 
