@@ -89,6 +89,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
         serviceBroker.getService(this,
                                  CertValidityService.class, null);
       cvs.addValidityListener(this);
+      cvs.addInvalidateListener(this);
     }
 
     updateKeystore();
@@ -131,14 +132,14 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       }
     }
 
-    if (log.isDebugEnabled()) {
+    if (log.isInfoEnabled()) {
       String s = "SSLContext:KeyManager: node name: " + nodename
 	+ " - nodealias is " + nodealias
 	+ " and nodex509 is " + nodex509 + " - cert Chain: ";
       if (certChain != null) {
 	s = s + certChain[0];
       }
-      log.debug(s);
+      log.info(s);
     }
   }
 
@@ -261,7 +262,12 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     return NodeInfo.getNodeName();
   }
  
-  public void invalidate(String cname) {}
+  public void invalidate(String cname) {
+    if (log.isInfoEnabled()) {
+      log.info("Received invalidate notification for: " + cname);
+    }
+    updateKeystore();
+  }
 
   public void updateCertificate() {
     updateKeystore();
