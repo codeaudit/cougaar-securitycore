@@ -385,18 +385,24 @@ public class PersistenceMgrPolicyServiceImpl
 	  }
 	  return;
 	}
-	Iterator i = dns.iterator();
-	while(i.hasNext()) {
-	  X500Name name = (X500Name)i.next();
-	  addPolicy(createPolicy(servletUrl, name.getName()));
-	}
 	// only add the agent if haven't already
 	if(dns.size() > 0) {
 	  synchronized (_agents) {
 	    if(!_agents.contains(_agent)) {
 	      _agents.add(_agent);
 	    }
+            else {
+              if (_log.isDebugEnabled()) {
+                _log.debug("PM already exist: " + _agent);
+              }
+              return;
+            }
 	  }
+	}
+	Iterator i = dns.iterator();
+	while(i.hasNext()) {
+	  X500Name name = (X500Name)i.next();
+	  addPolicy(createPolicy(servletUrl, name.getName()));
 	}
       }
       else {
