@@ -219,6 +219,7 @@ public class DualAuthenticator extends ValveBase {
       sendFailureMessage(realm, KeyRingJNDIRealm.LF_USER_MISMATCH,
                          certPrincipal.getName(),
                          passPrincipal.getName(),
+                         null,
                          remoteAddr, serverPort, protocol, url);
       return false;
     } else if ( ( certInvoked && passInvoked ) ||
@@ -250,14 +251,14 @@ public class DualAuthenticator extends ValveBase {
         }           
         
         sendFailureMessage(realm,KeyRingJNDIRealm.LF_REQUIRES_CERT,
-                           name, null,
+                           name, null, null,
                            remoteAddr, serverPort, protocol, url);
         return false;
       } else if (!certInvoked && !passInvoked) {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You do not have the required role to access this URL");
         sendFailureMessage(realm, KeyRingJNDIRealm.LF_REQUIRES_ROLE,
-                           certPrincipal.getName(), null,
+                           certPrincipal.getName(), null, null,
                            remoteAddr, serverPort, protocol, url);
         return false;
       } else {
@@ -269,19 +270,22 @@ public class DualAuthenticator extends ValveBase {
       // the password authentication has already given a response.
       String name = null;
       int    errno = KeyRingJNDIRealm.LF_REQUIRES_ROLE;
+      Exception e = null;
       if (certError != null) {
         name = (String) certError[1];
         errno = ((Integer) certError[0]).intValue();
+        e = (Exception) certError[2];
       } else if (passError != null) {
         name = (String) passError[1];
         errno = ((Integer) passError[0]).intValue();
+        e = (Exception) passError[2];
       } else if (certPrincipal != null) {
         name=certPrincipal.getName();
       } else if (passPrincipal != null) {
         name=passPrincipal.getName();
       }
       if (name != null) {
-        sendFailureMessage(realm, errno, name, null,
+        sendFailureMessage(realm, errno, name, null, e,
                            remoteAddr, serverPort, protocol, url);
       }
       return false;
@@ -295,10 +299,11 @@ public class DualAuthenticator extends ValveBase {
   private static void sendFailureMessage(KeyRingJNDIRealm realm, 
                                          int messageID, 
                                          String user1, String user2, 
+                                         Exception e,
                                          String remoteAddr, int serverPort,
                                          String protocol, String url) {
     if (realm != null) {
-      realm.alertLoginFailure( messageID, user1, user2, remoteAddr,
+      realm.alertLoginFailure( messageID, user1, user2, e, remoteAddr,
                                serverPort, protocol, url);
     }    
   }

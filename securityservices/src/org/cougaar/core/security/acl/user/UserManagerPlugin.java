@@ -94,6 +94,11 @@ public class UserManagerPlugin extends ComponentPlugin {
 
   private static final CasResponse RESPONSE_OK = new CasResponse(null);
   public static final String ROLE_ASSIGNMENT = "role";
+  private static final UnaryPredicate USER_ENTRIES = new UnaryPredicate() {
+      public boolean execute(Object obj) {
+        return (obj instanceof UserEntries);
+      }
+    };
 
   public UserManagerPlugin() {
   }
@@ -161,20 +166,31 @@ public class UserManagerPlugin extends ComponentPlugin {
    */
   protected void setupSubscriptions() {
     setDomain();
-    // FIXME -- rehydrate!
-    
-    UIDService uidService = (UIDService)
-      getServiceBroker().getService(this, UIDService.class, null);
-    _userCache = new UserEntries(uidService.nextUID());
-    getBlackboardService().publishAdd(_userCache);
+    BlackboardService bbs = getBlackboardService();
+    Collection entries = bbs.query(USER_ENTRIES);
+    if (entries.size() != 0) {
+      _userCache = (UserEntries) entries.iterator().next();
+      _log.info("Rehydrating with " + _userCache.getUserCount() +
+                " users and " + _userCache.getRoleCount() + 
+                " roles");
+    } else {
+      UIDService uidService = (UIDService)
+        getServiceBroker().getService(this, UIDService.class, null);
+      _userCache = new UserEntries(uidService.nextUID());
+      getBlackboardService().publishAdd(_userCache);
 
-    try {
-      File userFile = ConfigFinder.getInstance().locateFile("UserFile.xml");
-      readUsers(new FileInputStream(userFile));
-    } catch (Exception e) {
-      _log.warn("Couldn't load users from file: ", e);
+      try {
+        File userFile = ConfigFinder.getInstance().locateFile("UserFile.xml");
+        if (userFile != null) {
+          _log.info("Reading users from " + userFile);
+          readUsers(new FileInputStream(userFile));
+        } else {
+          _log.info("UserFile.xml does not exist -- no users or role");
+        }
+      } catch (Exception e) {
+        _log.warn("Couldn't load users from file: ", e);
+      }
     }
-
     _relaySub = (IncrementalSubscription) 
       getBlackboardService().subscribe(CAS_TARGETS);
   }

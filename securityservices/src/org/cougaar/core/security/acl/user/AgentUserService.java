@@ -326,9 +326,11 @@ public class AgentUserService implements UserService, BlackboardClient {
     relay.getUser(getId(uid));
     Map user =  changeMapId((Map) waitResponse(relay), 
                             UserEntries.FIELD_UID, domain);
-    Set roles = (Set) user.get(getRoleListAttribute());
-    if (roles != null) {
-      user.put(getRoleListAttribute(), setIdDomains(roles, domain));
+    if (user != null) {
+      Set roles = (Set) user.get(getRoleListAttribute());
+      if (roles != null) {
+        user.put(getRoleListAttribute(), setIdDomains(roles, domain));
+      }
     }
     return user;
   }
@@ -397,9 +399,11 @@ public class AgentUserService implements UserService, BlackboardClient {
   }
 
   private Map changeMapId(Map map, String key, String domain) {
-    String id = (String) map.get(key);
-    if (id != null) {
-      map.put(key, domain + "\\" + id);
+    if (map != null) {
+      String id = (String) map.get(key);
+      if (id != null) {
+        map.put(key, domain + "\\" + id);
+      }
     }
     return map;
   }

@@ -263,7 +263,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
       return getPrincipal(attrs);
     } catch (UserServiceException e) {
-      setLoginError(LF_LDAP_ERROR, username);
+      setLoginError(LF_LDAP_ERROR, username, e);
     }
     return null;
   }
@@ -289,7 +289,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         certs[i].checkValidity();
       } catch (Exception e) {
         if (debug >= 2) super.log("  Validity exception", e);
-        setLoginError(LF_CERTIFICATE_INVALID, null);
+        setLoginError(LF_CERTIFICATE_INVALID, null, e);
         return null;
       }
     }
@@ -299,7 +299,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     String user = getUserName(userdn);
     if (user == null) {
       // certificate is bad, bad, bad!
-      setLoginError(LF_BAD_CERTIFICATE_SUBJECT, userdn);
+      setLoginError(LF_BAD_CERTIFICATE_SUBJECT, userdn, null);
       return null;
     }
 
@@ -307,16 +307,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 //       log.debug("Getting attributes for user: " + user);
       Map attrs = _userService.getUser(user);
       if (attrs == null) {
-        setLoginError(LF_USER_DOESNT_EXIST, user);
+        setLoginError(LF_USER_DOESNT_EXIST, user, null);
         return null; // user isn't in the database
       }
       if (!userDisabled(attrs, true)) {
         return getPrincipal(attrs);
       } else {
-        setLoginError(LF_USER_DISABLED, user);
+        setLoginError(LF_USER_DISABLED, user, null);
       }
     } catch (UserServiceException ne) {
-      setLoginError(LF_LDAP_ERROR, user);
+      setLoginError(LF_LDAP_ERROR, user, ne);
     }
     return null;
   }
@@ -356,7 +356,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Map userAttrs = _userService.getUser(username);
       Object pwdVal = userAttrs.get(_userService.getPasswordAttribute());
       if (pwdVal == null) {
-        setLoginError(LF_LDAP_PASSWORD_NULL, username);
+        setLoginError(LF_LDAP_PASSWORD_NULL, username, null);
         return null;
       }
       String md5a1;
@@ -376,9 +376,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
       
-      setLoginError(LF_PASSWORD_MISMATCH, username);
+      setLoginError(LF_PASSWORD_MISMATCH, username, null);
     } catch (UserServiceException ne) {
-      setLoginError(LF_LDAP_ERROR, username);
+      setLoginError(LF_LDAP_ERROR, username, ne);
     }
     return null;
   }
@@ -467,18 +467,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     throws UserServiceException {
     boolean match = false;
     if (attrs == null) {
-      setLoginError(LF_USER_DOESNT_EXIST, username);
+      setLoginError(LF_USER_DOESNT_EXIST, username, null);
       return false;
     }
 
     if (userDisabled(attrs, false)) {
-      setLoginError(LF_USER_DISABLED, username);
+      setLoginError(LF_USER_DISABLED, username, null);
       return false;
     }
     Object attrVal = attrs.get(_userService.getPasswordAttribute());
 //     log.debug("attrVal = " + attrVal);
     if (attrVal == null) {
-      setLoginError(LF_LDAP_PASSWORD_NULL, username);
+      setLoginError(LF_LDAP_PASSWORD_NULL, username, null);
       return false;
     }
 
@@ -497,7 +497,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     if (!match) {
-      setLoginError(LF_PASSWORD_MISMATCH, username);
+      setLoginError(LF_PASSWORD_MISMATCH, username, null);
     }
     // in the future log a password match failure in a finally block
     return match;
@@ -667,7 +667,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     return targets;
   }
   
-  private List createAdditionalData(int failureType, String targetIdent) {
+  private List createAdditionalData(int failureType, String targetIdent,
+                                    Exception e) {
     Agent agentinfo = _idmefFactory.getAgentInfo();
     String [] ref=null;
     if (agentinfo.getRefIdents()!=null) {
@@ -688,11 +689,17 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                 createAdditionalData(AdditionalData.STRING, FAILURE_REASON,
                                      FAILURE_REASONS[failureType]));
     addData.add(additionalData);
+    if (e != null) {
+      addData.add(_idmefFactory.
+                  createAdditionalData(AdditionalData.STRING,
+                                       "Exception", e.getMessage()));
+    }
     return addData;
   }
 
   public void alertLoginFailure(int failureType, String userName1, 
-                                String userName2, String remoteAddr,
+                                String userName2, Exception ex,
+                                String remoteAddr,
                                 int serverPort, String protocol,
                                 String url) {
     if (!isAlertInitialized()) {
@@ -708,7 +715,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                  userName1, userName2);
     List classifications = createClassifications();
     String targetIdent = ((Target) targets.get(0)).getIdent();
-    List additionalData = createAdditionalData(failureType, targetIdent);
+    List additionalData = createAdditionalData(failureType, targetIdent, ex);
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
                                             sources, targets,
                                             classifications,
@@ -735,10 +742,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     return false;
   }
 
-  private void setLoginError(int err, String userName) {
+  private void setLoginError(int err, String userName, Exception e) {
     log.info("Login failed for " + userName + " . Reason:" + FAILURE_REASONS[err]);
     _errors.put(Thread.currentThread(), 
-                new Object[] { new Integer(err), userName} );
+                new Object[] { new Integer(err), userName, e} );
   }
 
   public Object[] getLoginError() {

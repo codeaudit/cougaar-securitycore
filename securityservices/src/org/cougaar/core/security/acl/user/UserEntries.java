@@ -80,6 +80,8 @@ public class UserEntries implements UniqueObject {
     _uid = uid;
   }
 
+  public int getUserCount() { return _users.size(); }
+  public int getRoleCount() { return _roles.size(); }
   public String getRoleListAttribute() { return FIELD_ROLE_LIST; }
   public String getPasswordAttribute() { return FIELD_PASSWORD; }
   public String getCertOkAttribute() { return FIELD_CERT_OK; }
@@ -169,8 +171,11 @@ public class UserEntries implements UniqueObject {
   }
     
   public Map getUser(String uid) throws UserServiceException {
+    UserData entry = (UserData) _users.get(uid);
+    if (entry == null) {
+      return null;
+    }
     Map user = new HashMap();
-    UserData entry = getUserData(uid);
     user.put(FIELD_UID, uid);
     user.put(FIELD_PASSWORD, entry.password);
     user.put(FIELD_ENABLE_TIME, entry.enableTime);

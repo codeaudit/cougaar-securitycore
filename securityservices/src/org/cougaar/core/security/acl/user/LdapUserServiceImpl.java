@@ -454,12 +454,17 @@ public class LdapUserServiceImpl implements UserService {
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
         Attributes attrs = _context.getAttributes(uid2dn(uid));
+        if (attrs == null) {
+          return null;
+        }
         Map rv = createMap(attrs, USER_ATTRIBUTES, uid);
         Set roles = getRoles(uid);
         if (roles != null) {
           rv.put(ROLE_LIST_ATTR, roles);
         }
         return rv;
+      } catch (NameNotFoundException ne) {
+        return null; // no such user
       } catch (NamingException ne) {
         if (tryCount + 1 == MAX_RETRIES) throw new UserServiceException(ne);
         if (ne instanceof CommunicationException) resetContext();
