@@ -13,6 +13,21 @@
            class='org.cougaar.core.security.test.OrgActivityAddTest'
            priority='COMPONENT'
            insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+        <component
+           name='org.cougaar.core.security.test.coordinator.UpdatePolicyPlugin'
+           class='org.cougaar.core.security.test.coordinator.UpdatePolicyPlugin'
+           priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+          <argument>
+            RearPolicyManager
+          </argument>
+        </component>
+        <component
+          name='org.cougaar.core.security.test.coordinator.SetThreatConActionPlugin'
+          class='org.cougaar.core.security.test.coordinator.SetThreatConActionPlugin'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
      </agent>
     </node>
     <node name='RearEnclaveCaNode'>
