@@ -60,26 +60,30 @@ public class WebProxyInstaller
   public static void main(String [] args)
     throws Exception
   {
-    WebProxyInstaller proxyInstaller = new WebProxyInstaller();
-    proxyInstaller.install();
-    if (args == null || args.length < 1) {
-      System.out
-        .println("Requires at least one argument - the class being invoked");
-    }
-    String className = args[0];
-    String [] newargs = new String[args.length-1];
-    for (int i = 1 ; i < args.length; i++) {
-      newargs[i-1] = args[i];
-    }
+    try {
+      WebProxyInstaller proxyInstaller = new WebProxyInstaller();
+      proxyInstaller.install();
+      if (args == null || args.length < 1) {
+        System.out
+          .println("Requires at least one argument - the class being invoked");
+      }
+      String className = args[0];
+      String [] newargs = new String[args.length-1];
+      for (int i = 1 ; i < args.length; i++) {
+        newargs[i-1] = args[i];
+      }
 
-    Class cmdClass = Class.forName(className);
-    System.out.println(cmdClass);
-    String [] a = {"Fix", "this"};
-    Class [] parameters = { a.getClass() };
-    Method m = cmdClass.getDeclaredMethod("main", parameters);
-    System.out.println("Method = " + m);
-    Object [] objectArgs = { newargs };
-    m.invoke(null, objectArgs);
+      Class cmdClass = Class.forName(className);
+      System.out.println(cmdClass);
+      String [] a = {"Fix", "this"};
+      Class [] parameters = { a.getClass() };
+      Method m = cmdClass.getDeclaredMethod("main", parameters);
+      System.out.println("Method = " + m);
+      Object [] objectArgs = { newargs };
+      m.invoke(null, objectArgs);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
  
   /**
