@@ -46,7 +46,7 @@ public class ThreatConLevelSensor extends ComponentPlugin
     private LoggingService log;
     private ThreatConDiagnosis diagnosis;
     private ServiceBroker sb;
-    private boolean start = true; 
+    private boolean techspecError = false;
 
   private CommunityServiceUtil _csu;
 
@@ -80,14 +80,11 @@ public class ThreatConLevelSensor extends ComponentPlugin
     _csu = new CommunityServiceUtil(sb);
   }
 
-    int tsLookupCnt = 0;
+    boolean start = true;
     public synchronized void execute() {
 
       if (start) {
         initThreatConDiagnosis();
-        if (start) {
-          return;
-        }
       }
 
       // get the threatcon level change object, publish change
@@ -125,6 +122,10 @@ public class ThreatConLevelSensor extends ComponentPlugin
     private void initThreatConDiagnosis() {
       final CommunityServiceUtilListener csu = new CommunityServiceUtilListener() {
         public void getResponse(Set resp) {
+          if (diagnosis != null) {
+            return;
+          }
+
           if(log.isDebugEnabled()){
             log.debug(" call back for community is called :" + resp );
           }
@@ -142,24 +143,25 @@ public class ThreatConLevelSensor extends ComponentPlugin
     }
 
     private void createDiagnosis(String communityName) {
+      if (techspecError) {
+        return;
+      }
+
       if (log.isDebugEnabled()) {
         log.debug("initializing diagnosis for " + communityName);
       }
 
       try {
+        start = false;
         diagnosis = new ThreatConDiagnosis(communityName, sb);
         blackboard.publishAdd(diagnosis);
-        start = false;
         if (log.isDebugEnabled()) {
           log.debug(diagnosis + " added.");
         }
       }
       catch (TechSpecNotFoundException e) {
-                if (tsLookupCnt > 10) {
-                    log.warn("TechSpec not found for ThreatConDiagnosis.  Will retry.", e);
-                    tsLookupCnt = 0;
-                }
-                blackboard.signalClientActivity();
+                    log.error("TechSpec not found for ThreatConDiagnosis.  ");
+         techspecError = true;
       }
     }
 }

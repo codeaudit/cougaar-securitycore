@@ -137,6 +137,7 @@ public class ThreatConActuator extends ComponentPlugin
                         if (log.isDebugEnabled()) 
                             log.debug(action + " started.");
               ThreatConActionInfo info = new ThreatConActionInfo(action.getAssetName(), value);
+              blackboard.publishAdd(info);
           } catch (IllegalValueException e) {
               log.error("Illegal action "+action,e);
               continue;
@@ -165,7 +166,8 @@ public class ThreatConActuator extends ComponentPlugin
       } catch (NoStartedActionException nsae) {
         log.error("Not started action "+action,nsae);
         continue;
-      } 
+      }
+      blackboard.publishRemove(info); 
     }
   }
 }

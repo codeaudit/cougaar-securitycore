@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Enumeration;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -50,9 +51,7 @@ public class AgentCompromiseSensor extends ComponentPlugin
     private boolean start = true; 
     private Hashtable _agentCache = new Hashtable();
   private CommunityServiceUtil _csu;
-
-    public final static String COMMUNITY_TYPE = "MnR-Security";
-    public final static String AGENT_ROLE = "MEMBER";
+    private boolean techspecError = false;
 
     private IncrementalSubscription _subscription;
     private final UnaryPredicate coordinatorPredicate =
@@ -65,17 +64,13 @@ public class AgentCompromiseSensor extends ComponentPlugin
         }
       };
 
-    private final UnaryPredicate diagnosisPredicate = new UnaryPredicate() {
-      public boolean execute(Object o) {
-        return (o instanceof AgentCompromiseDiagnosis);
-      }
-    };
-
     public void load() {
         super.load();
         sb = getServiceBroker();
         log = (LoggingService)sb.getService(this, LoggingService.class, null);
 
+        _csu = new CommunityServiceUtil(sb);
+                blackboard.signalClientActivity();
     }
 
     public synchronized void unload() {
@@ -87,24 +82,16 @@ public class AgentCompromiseSensor extends ComponentPlugin
     _subscription = (IncrementalSubscription)
       blackboard.subscribe(coordinatorPredicate);
 
-    _csu = new CommunityServiceUtil(sb);
   }
 
-    int tsLookupCnt = 0;
     public synchronized void execute() {
-
       if (start) {
         initAgentCompromiseDiagnosis();
-        if (start) {
-          return;
-        }
       }
 
       // get the threatcon level change object, publish change
-      if (_subscription.hasChanged()) {
       // notify all the agents in a particular enclave/security community 
-          changeLevel(_subscription.getAddedCollection());
-      }
+      changeLevel(_subscription.getAddedCollection());
 
 
     }
@@ -158,20 +145,26 @@ public class AgentCompromiseSensor extends ComponentPlugin
 
           // remove agent that is no longer in the community
           // remove the diagnosis if it exists before (MnR manager restarted or agent moved across enclave)
-          Collection c = blackboard.query(diagnosisPredicate);
-          it = c.iterator();
-          while (it.hasNext()) {
-            AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)it.next();
-            String agent = diagnosis.getAssetName();
-            if (agents.contains(agent)) {
-              if (log.isDebugEnabled()) {
-                log.debug("Removing previous diagnosis " + diagnosis);
-              }
-              _agentCache.remove(agent);
-
-              blackboard.publishRemove(diagnosis);
+          Collection removeList = new ArrayList();
+          for (Enumeration en = _agentCache.keys(); en.hasMoreElements(); ) {
+            String agent = (String)en.nextElement();
+            if (!agents.contains(agent)) {
+              removeList.add(agent);
             }
           } 
+
+          it = removeList.iterator();
+          while (it.hasNext()) {    
+            String agent = (String)it.next();
+            AgentCompromiseDiagnosis diagnosis = (AgentCompromiseDiagnosis)_agentCache.get(agent);
+
+            if (log.isDebugEnabled()) {
+              log.debug("Removing previous diagnosis for " + agent);
+            }
+            _agentCache.remove(agent);
+
+            blackboard.publishRemove(diagnosis);
+          }
 
           it = agentList.iterator();
           while (it.hasNext()) {
@@ -180,31 +173,32 @@ public class AgentCompromiseSensor extends ComponentPlugin
           }
         }
       };
-      _csu.getCommunityAgent(COMMUNITY_TYPE, AGENT_ROLE, csu);
+      _csu.getCommunityAgent(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE, 
+        CommunityServiceUtil.MEMBER_ROLE, csu, true);
     }
 
 
     private void createDiagnosis(String agent) {
+      if (techspecError) {
+        return;
+      }
+
       if (log.isDebugEnabled()) {
         log.debug("initializing diagnosis for " + agent);
       }
 
-
+        start = false;
       try {
         AgentCompromiseDiagnosis diagnosis = new AgentCompromiseDiagnosis(agent, sb);
         _agentCache.put(agent, diagnosis);
         blackboard.publishAdd(diagnosis);
-        start = false;
         if (log.isDebugEnabled()) {
           log.debug(diagnosis + " added.");
         }
       }
       catch (TechSpecNotFoundException e) {
-                if (tsLookupCnt > 10) {
-                    log.warn("TechSpec not found for AgentCompromiseDiagnosis.  Will retry.", e);
-                    tsLookupCnt = 0;
-                }
-                blackboard.signalClientActivity();
+                    log.warn("TechSpec not found for AgentCompromiseDiagnosis. ");
+        techspecError = true;
       }
     }
 }
