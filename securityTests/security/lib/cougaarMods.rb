@@ -127,7 +127,7 @@ module Cougaar
            @run.society.each_agent(true) { |agent|
              agent.each_facet("org_id") { |facet| 
                if facet["org_id"] == "OSD.GOV"
-	         @agent = agent
+	         @agent = agent.name
 	         break
                end
              }
