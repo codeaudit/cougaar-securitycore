@@ -116,22 +116,17 @@ public class AccessAgentProxy
     }
   }
   
-  private int checkNodeAgent(String name, boolean recheck){
+  private boolean checkNodeAgent(String name, boolean recheck){
     if(nodeList.contains(name)){
       //is NodeAgent
-      return 1;
-    }else{
-      if(agentList.contains(name)){
-        return 2;
-      }else if(recheck){
+      return true;
+    }else if(recheck){
         //may be list is not updated
         nodeList = toporead.getAll(TopologyReaderService.NODE);
-        agentList = toporead.getAll(TopologyReaderService.AGENT);
         checkNodeAgent(name, false);
-      }
-      //fall through, we don't know
-      return 3;
     }
+    return false;
+ 
   }
   /* ********************************************************
    *  BEGIN MessageTransportService implementation
@@ -167,19 +162,11 @@ public class AccessAgentProxy
        *is addressed remember to take this out.
        */
       String target = message.getTarget().toString();
-      int ret = checkNodeAgent(target, true);
-      if(ret==1){
+      if(checkNodeAgent(target, true)){
         //isNode agent, no wrapping with trust
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
           log.debug("no wrapping with trust for node agent." + message);
-        }
-        return;
-      }else if(ret == 3){
-        //can't send, drop message
-        if(log.isErrorEnabled()){
-          log.error("The target has to be an agent or a node agent in msg: " 
-            + message + " ; Message dropped.");
         }
         return;
       }
