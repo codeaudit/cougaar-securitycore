@@ -122,12 +122,13 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
-  private String          _certComponent = "CN";
-  private LdapUserService     _userService;
-  private BlackboardService   _blackboardService;
-  private IdmefMessageFactory _idmefFactory;
-  private CmrFactory          _cmrFactory;
-  private SensorInfo          _sensor = new LoginFailureSensor();
+  private String                     _certComponent = "CN";
+  private LdapUserService            _userService;
+
+  private static BlackboardService   _blackboardService;
+  private static IdmefMessageFactory _idmefFactory;
+  private static CmrFactory          _cmrFactory;
+  private static SensorInfo          _sensor;
 
   public static final int    LF_USER_DOESNT_EXIST       = 0;
   public static final int    LF_LDAP_ERROR              = 1;
@@ -190,6 +191,26 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    */
   public static void setNodeServiceBroker(ServiceBroker sb) {
     _nodeServiceBroker = sb;
+  }
+
+  /**
+   * Sets the message factory and BlackboardService to use
+   */
+  public static synchronized void initAlert(IdmefMessageFactory mf,
+                                            CmrFactory cf,
+                                            BlackboardService bbs,
+                                            SensorInfo sensor) {
+    _idmefFactory = mf;
+    _cmrFactory = cf;
+    _blackboardService = bbs;
+    _sensor = sensor;
+  }
+
+  /**
+   * Returns true if the IDMEF message service is initialized
+   */
+  public static boolean isAlertInitialized() {
+    return (_idmefFactory != null);
   }
 
   /**
@@ -632,7 +653,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   public void alertLoginFailure(int failureType, String userName1, 
                                 String userName2) {
-    if (!initAlert(_nodeServiceBroker)) {
+    if (!isAlertInitialized()) {
       log.debug("Couldn't alert about " + 
                          REASONS[failureType][0].getAdditionalData() +
                          ", userName1: " + userName1 + ", userName2: " +
@@ -705,29 +726,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   public boolean triggerEvent(Object event) {
     return false;
-  }
-
-  private static class LoginFailureSensor implements SensorInfo {
-
-    public String getName() {
-      return "Login Failure Sensor";
-    }
-
-    public String getManufacturer() {
-      return "NAI Labs";
-    }
-
-    public String getModel() {
-      return "Servlet Login Failure";
-    }
-    
-    public String getVersion() {
-      return "1.0";
-    }
-
-    public String getAnalyzerClass() {
-      return "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
-    }
   }
 
   static {

@@ -37,6 +37,12 @@ import java.util.ArrayList;
 
 import edu.jhuapl.idmef.*;
 
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+
 /**
  * This class must be placed in the Node ini file to allow
  * Tomcat to report login failures. This essentially passes the NodeAgent's
@@ -44,23 +50,24 @@ import edu.jhuapl.idmef.*;
  * <code>BlackboardService</code> and <code>IdmefMessageFactory</code>
  * Services. Add the following line to your Node ini file's Plugins section:
  * <pre>
- * plugin = org.cougaar.core.security.monitoring.plugin.LoginSensor
+ * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureSensor
  * </pre>
  */
 public class LoginFailureSensor extends ComponentPlugin {
-  private DomainService domainService = null;
+  private DomainService _domainService = null;
+
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
   public void setDomainService(DomainService aDomainService) {
-    domainService = aDomainService;
+    _domainService = aDomainService;
   }
 
   /**
    * Used by the binding utility through reflection to get my DomainService
    */
   public DomainService getDomainService() {
-    return domainService;
+    return _domainService;
   }
 
   /**
@@ -68,12 +75,52 @@ public class LoginFailureSensor extends ComponentPlugin {
    * login failures can be reported with the IDMEF service.
    */
   protected void setupSubscriptions() {
-    KeyRingJNDIRealm.setNodeServiceBroker(getServiceBroker());
+    SensorInfo          sensor       = new LFSensor();
+    BlackboardService   bbs          = getBlackboardService();
+    DomainService       ds           = getDomainService(); 
+    CmrFactory          cmrFactory   = (CmrFactory) ds.getFactory("cmr");
+    IdmefMessageFactory idmefFactory = cmrFactory.getIdmefMessageFactory();
+
+    List capabilities = new ArrayList();
+    capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
+      
+    RegistrationAlert reg = 
+      idmefFactory.createRegistrationAlert( sensor, capabilities,
+                                            idmefFactory.newregistration ,
+                                            idmefFactory.SensorType);
+    NewEvent regEvent = cmrFactory.newEvent(reg);
+      
+    boolean close = true;
+    bbs.publishAdd(regEvent);
+    KeyRingJNDIRealm.initAlert(idmefFactory, cmrFactory, bbs, sensor);
   }  
 
   /**
    * dummy function doesn't do anything... no subscriptions are made.
    */
   protected void execute () {
+  }
+
+  private static class LFSensor implements SensorInfo {
+
+    public String getName() {
+      return "Login Failure Sensor";
+    }
+
+    public String getManufacturer() {
+      return "NAI Labs";
+    }
+
+    public String getModel() {
+      return "Servlet Login Failure";
+    }
+    
+    public String getVersion() {
+      return "1.0";
+    }
+
+    public String getAnalyzerClass() {
+      return "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
+    }
   }
 }
