@@ -33,6 +33,12 @@ import sun.security.x509.*;
 import org.cougaar.core.component.Service;
 
 public interface CertificateSearchService extends Service {
-  List findCert(X500Name dname);
   List findDNFromNS(String cname);
+
+  /**
+   * Find a list of certificates matching a distinguished name.
+   * @param identifier - The distinguished name of the certificate to look for.
+   */
+  List findCert(X500Name dname);
+
 }
