@@ -1306,6 +1306,8 @@ public class DirectoryKeyStore
         // requires the peer to supply the chain.
         certFinder = getCertDirectoryServiceClient(
           CertificateUtility.findAttribute(cname, "cn"));
+      else
+        certFinder = certificateFinder;
     }
 
     boolean ret = internalBuildChain(x509certificate, vector, false, certFinder);
@@ -2880,7 +2882,7 @@ public class DirectoryKeyStore
       Date notafter = cs.getCertificate().getNotAfter();
       Date curdate = new Date();
       if (log.isDebugEnabled())
-        log.debug("Envelope: " + envelope + " ? " + curdate + " : " + notafter);
+        log.debug("Alias: " + cs.getCertificateAlias() + ", Envelope: " + envelope + " ? " + curdate + " : " + notafter);
       if (curdate.getTime() + envelope * 1000L < notafter.getTime()) {
         // maybe upper level has expired
         try {
