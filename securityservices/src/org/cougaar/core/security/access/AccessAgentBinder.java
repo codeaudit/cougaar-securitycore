@@ -135,21 +135,15 @@ public class AccessAgentBinder
 	serviceBroker = getServiceBroker();
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
-	  try  {
-	    log = (LoggingService)
-	      serviceBroker.getService(this,LoggingService.class, null);
-	    acps = (AccessControlPolicyService)
-	      serviceBroker.getService(this,AccessControlPolicyService.class, null);
-	    if (acps == null) {
-	      throw new RuntimeException("Access Crl Aspect. No policy service");
-	    }
+	  log = (LoggingService)
+	    serviceBroker.getService(this,LoggingService.class, null);
+	  acps = (AccessControlPolicyService)
+	    serviceBroker.getService(this,AccessControlPolicyService.class, null);
+	  if (acps == null) {
+	    throw new RuntimeException("Message Access Crl Binder. No policy service");
 	  }
-	  catch(Exception e)  {
-	    throw new RuntimeException("Access Control Aspect:"
-				       +e.toString());
-	  }
-	}else{
-	  throw new RuntimeException("Access Control Aspect: no service broker");
+	} else {
+	  throw new RuntimeException("Message Access Control Binder: no service broker");
 	}
 	SecurityManager security = System.getSecurityManager();
 	if (serviceclass == null) {

@@ -85,8 +85,14 @@ public class CertificateValidityMonitor
 	interruptedexp.printStackTrace();
       }
 
-      if(log.isDebugEnabled())
+      if(log.isDebugEnabled()) {
 	log.debug("**************** CertificateValidity THREAD IS RUNNING ***********************************");
+      }
+
+      if (keyRing == null) {
+	log.warn("Unable to update certificate. KeyRing service is null");
+	continue;
+      }
 
       Vector list = new Vector();
       checkValidity(NodeInfo.getNodeName());

@@ -374,12 +374,18 @@ public class DirectoryKeyStore
       security.checkPermission(new KeyRingPermission("readPrivateKey"));
     }
 
+    if (log.isDebugEnabled()) {
+      log.debug("get Private key for " + x500Name + ". ValidOnly=" + validOnly);
+    }
+
     // First, try with the hash map (cache)
     List pkc = null;
-    if (validOnly)
+    if (validOnly) {
       pkc = certCache.getValidPrivateKeys(x500Name);
-    else
+    }
+    else {
       pkc = certCache.getPrivateKeys(x500Name);
+    }
     if (log.isDebugEnabled()) {
       log.debug("Found " +
 		(pkc == null ? 0 : pkc.size()) +
@@ -678,8 +684,15 @@ public class DirectoryKeyStore
       log.debug("installPkcs7Reply for " + alias);
     }
     CertificateFactory cf = CertificateFactory.getInstance("X509");
+    Collection collection = null;
+    try {
+      collection = cf.generateCertificates(inputstream);
+    }
+    catch (Exception e) {
+      log.warn("Reply for " + alias + " is not a certificate");
+      throw new CertificateException("Reply for " + alias + " is not a certificate");
+    }
 
-    Collection collection = cf.generateCertificates(inputstream);
     if(collection.isEmpty()) {
       log.warn("Reply for " + alias + " has no certificate");
       throw new CertificateException("Reply has no certificate");
@@ -2953,7 +2966,8 @@ public class DirectoryKeyStore
 	// We are trying to lookup an agent's certificate, but the agent
 	// hasn't registered yet in the naming service.
         if (log.isInfoEnabled())
-          log.info("Unable to get certificate finder for " + cname + ". Reason:" + nx);
+          log.info("Unable to get certificate finder for " + cname + ". Reason:" + nx
+	    + ". Returning default certificate Finder");
       }
     }
     // default

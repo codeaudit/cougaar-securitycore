@@ -465,6 +465,9 @@ public class CertificateCache
   public ArrayList getValidPrivateKeys(X500Name x500Name) {
     ArrayList v = getPrivateKeys(x500Name);
     if (v == null || v.size() == 0) {
+      if (log.isDebugEnabled()) {
+	log.debug("No private key for " + x500Name);
+      }
       return null;
     }
     ArrayList validPrivateKeys = new ArrayList();
@@ -473,6 +476,10 @@ public class CertificateCache
     while (it.hasNext()) {
       PrivateKeyCert cs = (PrivateKeyCert) it.next();
       boolean isTrustedAndValid = checkCertificate(cs.getCertificateStatus());
+      if (log.isDebugEnabled()) {
+	log.debug("Checking certificate trust: " + cs.getCertificateStatus()
+		  + ". Trust: " + isTrustedAndValid);
+      }
       if (isTrustedAndValid) {
 	validPrivateKeys.add(cs);
       }

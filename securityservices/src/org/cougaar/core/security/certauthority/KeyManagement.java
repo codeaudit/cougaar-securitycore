@@ -377,12 +377,14 @@ public class KeyManagement
 	X509CertImpl clientX509 = (X509CertImpl) i.next();
 	// Lookup certificate using DirectoryKeyStore
 
-	// Save the X509 reply in a file
-	saveX509Request(clientX509, false);
+	if (clientX509 != null) {
+	  // Save the X509 reply in a file
+	  saveX509Request(clientX509, false);
 
-	// Publish certificate in LDAP directory
-	caOperations.publishCertificate(clientX509,
-					CertificateUtility.EntityCert,null);
+	  // Publish certificate in LDAP directory
+	  caOperations.publishCertificate(clientX509,
+					  CertificateUtility.EntityCert,null);
+	}
       }
       if (configParser.isCertificateAuthority()) {
         publishCAinLdap();
@@ -970,6 +972,10 @@ public class KeyManagement
 
     // Get Signature object for certificate authority
     List caPrivateKeyList = keyRing.findPrivateKey(caX500Name);
+    if (caPrivateKeyList == null || caPrivateKeyList.size() == 0) {
+      log.warn("Unable to sign certificate request. CA does not have a private key");
+      return null;
+    }
     PrivateKey caPrivateKey = ((PrivateKeyCert)caPrivateKeyList.get(0)).getPrivateKey();
     //Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // TODO

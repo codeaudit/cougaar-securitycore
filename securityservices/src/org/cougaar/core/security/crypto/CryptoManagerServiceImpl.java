@@ -151,6 +151,10 @@ public class CryptoManagerServiceImpl
 
   public Object verify(String name, String spec, SignedObject obj, boolean expiredOk)
     throws CertificateException {
+    if (obj == null) {
+      throw new IllegalArgumentException("Signed object with " + name
+					 + " key is null. Unable to verify signature");
+    }
     List certList =
       keyRing.findCert(name,
 		       KeyRingService.LOOKUP_LDAP |
@@ -186,6 +190,10 @@ public class CryptoManagerServiceImpl
 	Signature ve;
 	//if(spec==null||spec=="")spec=pk.getAlgorithm();
 	spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
+	if (spec == null) {
+	  log.warn("Unable to retrieve Algorithm specification from key");
+	  continue;
+	}
 	ve=Signature.getInstance(spec);
 	if (obj.verify(pk,ve)) {
 	  return obj.getObject();
@@ -214,7 +222,7 @@ public class CryptoManagerServiceImpl
   public SealedObject asymmEncrypt(String name, String spec, Serializable obj,
 				   java.security.cert.Certificate cert)
     throws GeneralSecurityException, IOException {
-    /*encrypt the secretekey with receiver's public key*/
+    /*encrypt the secret key with receiver's public key*/
 
     PublicKey key = cert.getPublicKey();
 

@@ -85,7 +85,7 @@ public class UserAliasPwdDialog extends JDialog {
     aliasLabel.setText("Alias list:");
     aliaslistBox.setPreferredSize(new Dimension(130, 22));
     aliaslistBox.setMinimumSize(new Dimension(120, 21));
-    aliaslistBox.setMaximumSize(new Dimension(130, 22));
+    aliaslistBox.setMaximumSize(new Dimension(200, 22));
     aliaslistBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         aliaslistBox_actionPerformed(e);
