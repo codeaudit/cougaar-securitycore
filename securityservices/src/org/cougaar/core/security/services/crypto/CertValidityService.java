@@ -28,6 +28,9 @@ package org.cougaar.core.security.services.crypto;
 
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.crypto.CertValidityListener;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+
+import sun.security.x509.X500Name;
 
 public interface CertValidityService extends Service {
 // will make the certificate if it is not present, this should only be used for local agents!
@@ -47,5 +50,7 @@ public interface CertValidityService extends Service {
 
 // check if the (local) agent has been revoked
   public boolean isInvalidated(String commonName);
+
+  public void addCertRequest(X500Name dname, boolean isCA, TrustedCaPolicy tcp);
 }
 
