@@ -1,0 +1,39 @@
+#! /usr/bin/ruby -W0
+
+$:.unshift File.join(ENV['CIP'], 'csmart', 'acme_service', 'src', 'redist')
+$:.unshift File.join(ENV['CIP'], 'csmart', 'acme_scripting', 'src', 'lib')
+
+require 'cougaar/scripting'
+require 'ultralog/scripting'
+
+MaxTime= 1 * 60 # time in seconds
+threads = []
+Ultralog::OperatorUtils::HostManager.new.load_society.each_service_host("acme") do |host|
+  threads << Thread.fork do
+    begin
+      puts "ssh #{host.host_name} #{ARGV.join(" ")}"
+      STDOUT.flush
+      sleep 1
+      puts `ssh #{host.host_name} #{ARGV.join(" ")}`
+    rescue => e
+      puts e.message
+      puts e.backtrace.join("\n")
+      raise e
+    end
+  end
+end
+
+begin
+  status = timeout (MaxTime) {
+    threads.each {|thread| thread.join}
+  }
+rescue TimeoutError => ex
+  puts "Timeout on executing tasks"
+  threads.each { |thread|
+    if thread.alive?
+      puts "Thread #{thread} is still alive - thread status:#{thread.status}"
+      #Thread.kill (thread)
+    end
+  }
+end
+
