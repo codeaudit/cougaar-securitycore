@@ -57,7 +57,7 @@ public class PolicyBootstrapper
   private XMLPolicyCreator xpc;
   private static ParsedPolicyFile ppf;
 
-  public static final String _damlBootPolicies = "DamlBootPolicyList";
+  public static final String _damlBootPolicies = "OwlBootPolicyList";
   private HashMap _damlBootMap;
 
   static String policyPath =
