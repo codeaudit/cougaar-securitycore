@@ -237,6 +237,9 @@ public class KeyManagement
   public X509Certificate[] processPkcs10Request(InputStream request) {
     ArrayList ar = new ArrayList();
     try {
+      if (debug) {
+	System.out.println("processPkcs10Request");
+      }
       // First, get all the PKCS10 requests in an array list.
       ArrayList requests = getSigningRequests(request);
 
