@@ -101,4 +101,8 @@ public class AggregationDrillDownQuery implements DrillDownQuery,java.io.Seriali
    public UID getOriginatorsUID() {
     return originators_uid;
   }
+
+  public boolean isPersistent() {
+    return _persistent;
+  }
 }
