@@ -40,12 +40,13 @@ throws PolicyCompilerException
 
 declaration[ParsedPolicyFile ppf]
 throws PolicyCompilerException
-    : "declareInstance" instanceName:URI className:URI
-        { ppf.declareInstance(ParsedPolicy.tokenToURI(instanceName), 
-                              ParsedPolicy.tokenToURI(className)); }
-    | "Agent" agentName:URI
+    : "Agent" agentName:URI
         { ppf.declareInstance(ParsedPolicy.tokenToURI(agentName),
                               ActorConcepts._Agent_); }
+    | "UserRole" userRoleName:TOKEN
+        { ppf.declareInstance(GroupInstancesConcepts.GroupInstancesDamlURL
+                              + userRoleName.getText() + "Role",
+                              UltralogGroupConcepts._Role_); }
     | "Servlet" servletName:TOKEN
         { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
                               + servletName.getText(),
