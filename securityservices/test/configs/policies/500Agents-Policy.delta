@@ -1,0 +1,15 @@
+
+PolicyPrefix=%tests/
+
+
+Policy DenyOne = [
+   MessageAuthTemplate
+   Deny messages from members of $AgentsInGroup#GroupOne to
+   members of $AgentsInGroup#GroupTwo
+]
+
+Policy DenyTwo = [
+   MessageAuthTemplate
+   Deny messages from members of $AgentsInGroup#GroupThree to
+   members of $AgentsInGroup#GroupFour
+]
