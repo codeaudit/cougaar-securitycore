@@ -207,7 +207,8 @@ society.each_host do |host|
     ########################################################################
     node.override_parameter("-Dorg.cougaar.core.security.Domain", "TestDomain")
     node.override_parameter("-Dorg.cougaar.safe.domainName", "TestDomain")
-    
+    node.override_parameter("-Dsafe.guard.NodeGuard.createPolicies", "true")
+
     
     ########################################################################
     # CSI Security services
@@ -353,8 +354,8 @@ society.each_host do |host|
     node.override_parameter("-Dorg.cougaar.domain.cmr", "org.cougaar.core.security.monitoring.blackboard.CmrDomain")
     
     # daml settings
-    #node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.servlet.useDaml", "true") 
-    #node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.crypto.useDaml", "true") 
-    #node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.access.useDaml", "true") 
+    node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.servlet.useDaml", "true") 
+    node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.crypto.useDaml", "true") 
+    node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.access.useDaml", "true") 
   end
 end
