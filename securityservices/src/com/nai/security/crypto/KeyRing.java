@@ -23,13 +23,12 @@
 
 package com.nai.security.crypto;
 
-import org.cougaar.util.ConfigFinder;
-
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Properties;
 import java.util.Collection;
@@ -42,9 +41,11 @@ import java.security.Principal;
 import java.security.cert.*;
 import java.security.KeyPair;
 
+import sun.security.pkcs.*;
+
+import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.*;
 
-import sun.security.pkcs.*;
 
 /** A common holder for Security keystore information and functionality
  **/
@@ -82,7 +83,7 @@ final public class KeyRing implements Runnable {
     ksPass = System.getProperty("org.cougaar.security.keystore.password","alpalp");
     ksPath = System.getProperty("org.cougaar.security.keystore", defaultKeystorePath);
 
-    // CA keystore
+    // CA keystore: contains trusted certificates of Certificate Authorities
     String defaultCaKeystorePath = installpath + File.separatorChar
       + "configs" + File.separatorChar + "common"
       + File.separatorChar + "keystoreCA";
@@ -521,11 +522,43 @@ final public class KeyRing implements Runnable {
   }
 
   /** Generate a PKCS10 request from a public key */
-  public static byte[] generateSigningCertificateRequest(PublicKey key) {
+  public static String generateSigningCertificateRequest(PublicKey key) {
     PKCS10 request = new PKCS10(key);
-    return request.getEncoded();
+    byte der[] = request.getEncoded();
+    char base64req[] = Base64.encode(der);
+    String reply = new String(base64req);
+    return reply;
   }
-  
+
+  /** Get a list of all the certificates in the keystore */
+  public Certificate[] getCertificates()
+  {
+    Enumeration en = null;
+    try {
+      en = keystore.aliases();
+    }
+    catch (KeyStoreException e) {
+      System.out.println("Unable to get list of aliases in keystore");
+      return null;
+    }
+
+    ArrayList certificateList = new ArrayList();
+
+    while(en.hasMoreElements()) {
+      String alias = (String)en.nextElement();
+      try {
+	Certificate c = keystore.getCertificate(alias);
+	certificateList.add(c);
+      }
+      catch (KeyStoreException e) {
+	System.out.println("Unable to get certificate for " + alias);
+      }
+    }
+    Certificate certificateReply[] = (Certificate[]) certificateList.toArray();
+
+    return certificateReply;
+  }
+
   /**add keys to the key ring**/
   private static void addKeyPair(String name){
       //is node?
@@ -535,7 +568,7 @@ final public class KeyRing implements Runnable {
           KeyPair kp = makeKeys();
           //send the public key to the ca
           PublicKey pk = kp.getPublic();
-          byte[] request;
+          String request;
           request = generateSigningCertificateRequest(pk);
           
       }else{
