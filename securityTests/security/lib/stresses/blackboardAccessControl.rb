@@ -12,8 +12,8 @@ class Stress1d < SecurityStressFramework
     #Requires Oplan ready
     begin
       @run.society.each_agent(true) do |agent|
-        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
-        #puts "starting testBlackboardManager #{url}"
+        url = "http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
+        logInfoMsg "starting testBlackboardManager #{url}"
         result = Cougaar::Communications::HTTP.get(url)
       end
     rescue

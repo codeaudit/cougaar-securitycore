@@ -16,7 +16,6 @@ end
 
 insert_after :after_stage_1 do
   do_action  "InjectStress", "Stress1d", "preSocietyQuiesced"
-  do_action  "InjectStress", "Stress1d", "compileResults"
 
 #  do_action "InitiateSecurityMopCollection"
 
