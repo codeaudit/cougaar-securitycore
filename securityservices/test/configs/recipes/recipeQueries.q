@@ -10,10 +10,13 @@ recipeQueryAllAgentsAndNodeAgents=\
 recipeQueryUserAdminAgent=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME like 'UserAdminAgent%'
 
-
-############################################################################################
+################################################################################################################
 # NAI queries
-############################################################################################
+################################################################################################################
+
+################################################################################################################
+# BEGIN M&R security manager queries
+################################################################################################################
 
 # Find all agents that are SecurityMnRManagers
 # Use this when adding AdaptivityEngine stuff for security thread
@@ -81,6 +84,7 @@ recipeQueryEnclave4SecurityMnRAgent=\
     AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
+
 # Get all Agents that are _not_ SecurityMnRAgents. IE, those that are managed
 recipeQueryNOTSecurityMnRAgents=\
  SELECT C.COMPONENT_ALIB_ID \
@@ -89,7 +93,6 @@ recipeQueryNOTSecurityMnRAgents=\
                                '%SecurityMnRManager' \
     AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
-
 
 # Get the Society Security Manager agent
 #This is for LoginFailureSensor stuff
@@ -102,7 +105,13 @@ SELECT C.COMPONENT_ALIB_ID \
     AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
+################################################################################################################
+# END M&R security manager queries
+################################################################################################################
 
+################################################################################################################
+# BEGIN Policy Domain Manager queries
+################################################################################################################
 # Find all agents that are DomainManager
 recipeQueryDomainManagerAgent=\
  SELECT C.COMPONENT_ALIB_ID \
@@ -113,7 +122,7 @@ recipeQueryDomainManagerAgent=\
     (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
-# Find all agents that are DomainManger Servlet Agents
+# Find all agents that are DomainManager Servlet Agents
 recipeQueryDomainManagerServletAgent=\
  SELECT C.COMPONENT_ALIB_ID \
    FROM alib_component C, asb_component_hierarchy H \
@@ -123,6 +132,85 @@ recipeQueryDomainManagerServletAgent=\
     (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
+################################################################################################################
+
+# Find the PolicyDomainManager1 agent
+recipeQueryPolicyDomainManager1Agent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager1' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager2 agent
+recipeQueryPolicyDomainManager2Agent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager2' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager3 agent
+recipeQueryPolicyDomainManager3Agent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager3' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager4 agent
+recipeQueryPolicyDomainManager4Agent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager4' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+################################################################################################################
+
+# Find the PolicyDomainManager1Servlet agent
+recipeQueryPolicyDomainManager1ServletAgent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager1ServletAgent' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager2Servlet agent
+recipeQueryPolicyDomainManager2ServletAgent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager2ServletAgent' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager3Servlet agent
+recipeQueryPolicyDomainManager3ServletAgent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager3ServletAgent' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find the PolicyDomainManager4Servlet agent
+recipeQueryPolicyDomainManager4ServletAgent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
+                               'PolicyDomainManager4ServletAgent' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+################################################################################################################
+# END Policy Domain Manager queries
+################################################################################################################
 
 recipeQueryRoverAgent=\
  SELECT COMPONENT_ALIB_ID FROM alib_component WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='TestRover'

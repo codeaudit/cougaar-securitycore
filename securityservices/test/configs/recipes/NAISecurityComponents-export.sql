@@ -9,11 +9,11 @@
 #
 
 LOCK TABLES alib_component WRITE;
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponents','NAISecurityComponents','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponentsParam','NAISecurityComponentsParam','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Node.AgentManager.Agent.SecurityComponent|org.cougaar.core.security.provider.SecurityComponentFactory','Node.AgentManager.Agent.SecurityComponent',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -42,7 +42,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-NAISecurityComponents','RCP','NAISecurityComponents');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-NAISecurityComponentsParam','RCP','NAISecurityComponentsParam');
 UNLOCK TABLES;
 
 #
@@ -50,10 +50,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','Enclave1Security-COMM',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Enclave2Security-COMM',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Enclave3Security-COMM',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Enclave4Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','Enclave1Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Enclave2Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Enclave3Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Enclave4Security-COMM',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -61,10 +61,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','NAISecurityComponents','HIGH',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAISecurityComponents','HIGH',1.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAISecurityComponents','HIGH',2.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponents','NAISecurityComponents|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAISecurityComponents','HIGH',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave1Security-COMM','NAISecurityComponentsParam','HIGH',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAISecurityComponentsParam','HIGH',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAISecurityComponentsParam','HIGH',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-NAISecurityComponentsParam','NAISecurityComponentsParam|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAISecurityComponentsParam','HIGH',3.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -116,7 +116,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0001NAISecurityComponents','NAISecurityComponents','org.cougaar.tools.csmart.recipe.ComponentCollectionRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0001NAISecurityComponentsParam','NAISecurityComponentsParam','org.cougaar.tools.csmart.recipe.ComponentCollectionRecipe','No description available');
 UNLOCK TABLES;
 
 #
@@ -124,12 +124,12 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-0',5.000000000000000000000000000000,'recipeQueryEnclave1SecurityCommunityNodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-1',4.000000000000000000000000000000,'recipeQueryEnclave2SecurityCommunityNodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-2',3.000000000000000000000000000000,'recipeQueryEnclave3SecurityCommunityNodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-3',2.000000000000000000000000000000,'recipeQueryEnclave4SecurityCommunityNodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','Assembly Id',0.000000000000000000000000000000,'RCP-0001-NAISecurityComponents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','Target Component Selection Query',1.000000000000000000000000000000,'recipeQuerySelectNothing');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-0',5.000000000000000000000000000000,'recipeQueryEnclave1SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-1',4.000000000000000000000000000000,'recipeQueryEnclave2SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-2',3.000000000000000000000000000000,'recipeQueryEnclave3SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-3',2.000000000000000000000000000000,'recipeQueryEnclave4SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','Assembly Id',0.000000000000000000000000000000,'RCP-0001-NAISecurityComponentsParam');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponentsParam','Target Component Selection Query',1.000000000000000000000000000000,'recipeQuerySelectNothing');
 UNLOCK TABLES;
 
 #
