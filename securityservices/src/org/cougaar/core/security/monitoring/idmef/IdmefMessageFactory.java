@@ -400,6 +400,11 @@ final public class IdmefMessageFactory {
       targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
     if( classificationList != null )
       classifications = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+    
+    if( dataList == null ){
+      dataList = new ArrayList(1);
+    }
+    
     if( dataList != null ){
       // add agent info to the alert
       if( analyzer != null ){
@@ -410,9 +415,11 @@ final public class IdmefMessageFactory {
         dataList.add( createAdditionalData( Agent.AGENT_INFO_MEANING,
 					                                  newAgent ) ); 
       } 
-      
-      data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
+      if( dataList.size() != 0 ) {
+        data = ( AdditionalData [] )dataList.toArray( ( new AdditionalData[ 0 ] ) );
+      }
     }
+   
     return new Alert( analyzer,
 		      new CreateTime(),
 		      detectTime,           // is this needed? if not, null.
@@ -1529,7 +1536,11 @@ final public class IdmefMessageFactory {
    */      
   public String createUniqueId(){
     // delegate to some global unique id generator
-    return m_uidServer.nextUID().toString();
+    String uid = null;
+    if(m_uidServer != null) {
+      uid = m_uidServer.nextUID().toString();
+    }
+    return uid;
   }
     
   // Need for Analyzer information as per IDMEF v1.0 draft

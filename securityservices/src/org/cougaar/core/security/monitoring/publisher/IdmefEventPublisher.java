@@ -142,40 +142,64 @@ public class IdmefEventPublisher implements EventPublisher {
    * private method to create an M&R domain objects
    */
   private Event createIDMEFAlert(FailureEvent event){
-    List sources = new ArrayList(1);
-    List targets = new ArrayList(1);
+    List sources = null; 
+    List targets = null;
     List classifications = new ArrayList(1);
     List data = new ArrayList();
-    List sRefList = new ArrayList(1);
-    List tRefList = new ArrayList(1);
-     
+    Source s = null;
+    Target t = null;
+    Agent sAgent = null;
+    Agent tAgent = null;
+
     String src = event.getSource();
     String tgt = event.getTarget();
-    Address sAddr = m_idmefFactory.createAddress(src, null, Address.URL_ADDR);
-    Address tAddr = m_idmefFactory.createAddress(tgt, null, Address.URL_ADDR);
-    // the source and target are agents
-    Source s = m_idmefFactory.createSource(null, null, null, null, null);
-    Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+    
     // the 2 list specify agent reference the source and target object respectively
-    sRefList.add(s.getIdent());
-    tRefList.add(t.getIdent());
     // since there isn't a data model for cougaar Agents, the Agent object is
     // added to the AdditionalData of an IDMEF message
-    Agent sAgent = m_idmefFactory.createAgent(src, null, null, sAddr, sRefList);
-    Agent tAgent = m_idmefFactory.createAgent(tgt, null, null, tAddr, tRefList);
-    sources.add(s);
-    targets.add(t);
+    if(src != null) {
+      List sRefList = new ArrayList(1);
+      Address sAddr = m_idmefFactory.createAddress(src, null, Address.URL_ADDR);
+      sources = new ArrayList(1);
+      s = m_idmefFactory.createSource(null, null, null, null, null);
+      sRefList.add(s.getIdent());
+      sAgent = m_idmefFactory.createAgent(src, null, null, sAddr, sRefList);
+      sources.add(s);
+    }
+    if(tgt != null) {
+      List tRefList = new ArrayList(1);
+      Address tAddr = m_idmefFactory.createAddress(tgt, null, Address.URL_ADDR);
+      targets = new ArrayList(1);
+      t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+      tRefList.add(t.getIdent());
+      tAgent = m_idmefFactory.createAgent(tgt, null, null, tAddr, tRefList);
+      targets.add(t);
+    }
     // add the event classification to the classification list
-		classifications.add(m_idmefFactory.createClassification(event.getClassification(), null));
-		// add the agent information to the additional data
-		data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
-			                                           event.getReasonIdentifier(),
-			                                           event.getReason()));
-    data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
-		                                             event.getDataIdentifier(),
-			                                           event.getData()));
-    data.add(m_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
-    data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    classifications.add(m_idmefFactory.createClassification(event.getClassification(), null));
+    String reason = event.getReason();
+    String evtData = event.getData(); 
+    if(reason != null) {
+      data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
+			                           event.getReasonIdentifier(),
+			                           event.getReason()));
+    }
+    if(evtData != null) {
+      data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
+		                                   event.getDataIdentifier(),
+			                           event.getData()));
+    }
+    // add the agent information to the additional data
+    if(sAgent != null) {
+      data.add(m_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
+    }
+    if(tAgent != null) {
+      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    }
+    // check if any data has been added to the additional data
+    if(data.size() == 0) {
+      data = null;
+    }
     // create the alert for this event
     Alert alert = m_idmefFactory.createAlert(m_sensorInfo, 
                                              event.getDetectTime(), 
