@@ -26,36 +26,49 @@ package org.cougaar.core.security.policy;
 import java.util.Properties;
 import java.io.File;
 
-import org.cougaar.planning.ldm.policy.Policy;
-
 import org.cougaar.util.ConfigFinder;
+
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.config.ConfigParserServiceImpl;
 
 public class PolicyBootstrapper {
 
-  XMLPolicyCreator xpc;
+  static private ConfigParserService cps;
   static private boolean debug = false;
 
   static String PolicyPath =
     System.getProperty("org.cougaar.core.security.BootPolicy",
 		       "BootPolicy.ldm.xml");
   
-  public PolicyBootstrapper(){
+  public PolicyBootstrapper(ConfigParserService s){
     debug = System.getProperty("org.cougaar.core.security.policy.debug",
 			       "false").equalsIgnoreCase("true");
 
     if (debug) {
       System.out.println("Initializing Policy bootstrapper");
     }
-    xpc = new XMLPolicyCreator(PolicyPath, new ConfigFinder(),
-			       "PolicyBootstrapper");
+    
+    //absolutely required.
+    if (!(s instanceof ConfigParserService))
+      throw new RuntimeException("PolicyBootstrapper failed to get ConfigParserService.");
+    cps = s;
   }
   
-  public Policy[] getBootPolicy(String type)
+  public SecurityPolicy[] getBootPolicy(Class type)
   {
     if (debug) {
       System.out.println("getBootPolicy: " + type);
     }
-    if(xpc!=null) return xpc.getPoliciesByType(type);
-    return null;
+    return cps.getSecurityPolicies(type);
   }
+
+  public static void main(String[] args) {
+    try{
+    ConfigParserService  c = new ConfigParserServiceImpl();
+    PolicyBootstrapper p = new PolicyBootstrapper(c);
+    p.getBootPolicy(Class.forName("org.cougaar.core.security.policy.CryptoPolicy"));
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+  }  
 }
