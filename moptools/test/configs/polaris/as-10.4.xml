@@ -7,7 +7,7 @@ This configuration will run FULL-TRANS with:
   </description>
   <cougaar branch="B10_4_5" />
 
-  <society file="society/MASTER-SB-1AD-NEW-AL-STRIPPED.xml" />
+  <society file="society/MASTER-SB-1AD-NEW-AL-STRIPPED.rb" />
 
   <layout file="operator/1ad-layout-10_4_5.xml" />
 
