@@ -30,6 +30,8 @@ package org.cougaar.core.security.certauthority;
 import java.io.File;
 import java.io.IOException;
 import java.security.PublicKey;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -83,10 +85,13 @@ public class PendingCertCache
   private PendingCertCache(String cadnname, ServiceBroker sb) 
     throws Exception {
     serviceBroker = sb;
-    configParser = (ConfigParserService)
-      serviceBroker.getService(this,
-			       ConfigParserService.class,
-			       null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        configParser = (ConfigParserService)
+           serviceBroker.getService(this, ConfigParserService.class, null);
+        return null;
+      }
+    });
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
