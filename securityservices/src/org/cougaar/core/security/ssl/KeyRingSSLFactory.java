@@ -106,7 +106,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket()
    */
   public Socket createSocket() throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket");
     }
     Socket socket = _fact.createSocket();
@@ -122,7 +122,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    */
   public Socket createSocket(Socket sock, String host, int port,
                              boolean autoClose) throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket to " + host + ":" + port);
     }
     Socket socket = _fact.createSocket(sock,host,port,autoClose);
@@ -137,7 +137,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(InetAddress, int)
    */
   public Socket createSocket(InetAddress host, int port) throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket to " + host + ":" + port);
     }
     Socket socket = _fact.createSocket(host,port);
@@ -154,7 +154,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(InetAddress host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket to " + host + ":" + port);
     }
     Socket socket = _fact.createSocket(host,port,localAddress,localPort);
@@ -169,7 +169,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(String, int)
    */
   public Socket createSocket(String host, int port) throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket to " + host + ":" + port);
     }
     Socket socket = _fact.createSocket(host,port);
@@ -186,7 +186,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(String host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
-    if (_log.isInfoEnabled()) {
+    if (_log.isDebugEnabled()) {
       _log.debug("Creating Client socket to " + host + ":" + port);
     }
     Socket socket = _fact.createSocket(host,port,localAddress,localPort);

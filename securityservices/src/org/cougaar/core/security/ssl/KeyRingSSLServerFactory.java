@@ -182,12 +182,18 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   public ServerSocket createServerSocket()
     throws IOException
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Creating Server socket");
+    }
     return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket()));
   }
 
   public ServerSocket createServerSocket(int port)
     throws IOException
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Creating Server socket on port = " + port);
+    }
     return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port)));
   }
 
@@ -195,6 +201,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
                                           int backlog)
     throws IOException
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Creating Server socket on port = " + port);
+    }
     return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port, backlog)));
   }
 
@@ -203,6 +212,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
                                           InetAddress ifAddress)
     throws IOException
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Creating Server socket on port = " + port + " and interface "+ ifAddress);
+    }
     return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port, backlog, ifAddress)));
   }
 
@@ -226,6 +238,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
     public WrappedSSLServerSocket(ServerSocket socket) throws IOException {
       super(socket);
+      if (_log.isDebugEnabled()){
+        _log.debug("Port actually obtained = " + socket.getLocalPort());
+      }
     }
 
     public Socket accept()
@@ -248,6 +263,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     public InputStream getInputStream()
       throws IOException{
       setPrincipal(_socket);
+
       return super.getInputStream();
     }
   }
