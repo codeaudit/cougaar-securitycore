@@ -55,7 +55,7 @@
       <!-- How long to certify for. -->
       <certValidity>6 M</certValidity>
 
-      <requirePending>false</requirePending>
+      <requirePending>true</requirePending>
     </clientCertPolicy>
   </certificateAuthority>
 

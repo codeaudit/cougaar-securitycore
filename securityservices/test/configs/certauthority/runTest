@@ -12,7 +12,8 @@ set choice3="3: JAAS      - simulate three security contexts (node/agent/PlugIn)
 set choice4="4: Hashtable - Test hashtables"
 set choice5="5: Log4j     - Test log4j security capabilities"
 set choice6="6: IDMEF     - Test JavaIDMEF library"
-set choice7="7: SSL     - Test SSL service"
+set choice7="7: SSL       - Test SSL service"
+set choice8="8: LDAP      - Test LDAP service"
 
 echo "Select test:"
 echo "  ${choice1}"
@@ -22,7 +23,8 @@ echo "  ${choice4}"
 echo "  ${choice5}"
 echo "  ${choice6}"
 echo "  ${choice7}"
-echo "Enter your choice: [1, 2, 3, 4, 5, 6, 7]"
+echo "  ${choice8}"
+echo "Enter your choice: [1, 2, 3, 4, 5, 6, 7, 8]"
 
 set choice=$<
 
@@ -84,6 +86,14 @@ case "7":
     echo "Running ${choice7} ..."
     set execclass = com.nai.security.test.ssl.SSLTest
     set args = ""
+    breaksw
+
+case "8":
+    # LDAP test
+    echo "Running ${choice8} ..."
+    set execclass = com.nai.security.test.crypto.LdapTest
+    set args = "ldap://pear:389/dc=srosset,dc=cougaar,dc=org"
+    #set args = "ldap://pear:389/"
     breaksw
 
 default:

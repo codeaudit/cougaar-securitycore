@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE policies system "securityPolicy.dtd" []>
+
+<policies>
+
+  <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
+    <cryptoClientPolicy>
+      <isCertificateAuthority>true</isCertificateAuthority>
+      <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
+      <keystorePassword>keystorePassword</keystorePassword>
+      <trustedCAs>
+        <!-- Name of keystore where to find private key of CA -->
+        <CA_keystore>keystore-CONUS-RSA</CA_keystore>
+        <!-- Password of keystore where to find private key of CA -->
+        <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+      </trustedCAs>
+
+      <certificateAttributes>
+        <distinguishedName>
+          <!-- Organizational unit -->
+          <ou>CONUS</ou>
+          <!-- Organizational -->
+          <o>DLA</o>
+          <!-- City or Locality -->
+          <l>San Francisco</l>
+          <!-- State -->
+          <st>CA</st>
+          <!-- Country Code -->
+          <c>US</c>
+          <!-- Domain -->
+          <domain>dc=cougaar,dc=org</domain>
+        </distinguishedName>
+        <!-- The key algorithm -->
+        <keyAlgName>RSA</keyAlgName>
+        <!-- The key size -->
+        <keysize>1024</keysize>
+        <!-- The signature algorithm -->
+        <sigAlgName>SHA1WithRSA</sigAlgName>
+        <!-- The validity of self-signed certificates.
+             This value is overriden when the CA signs the certificate. -->
+        <validity>1 M</validity>
+      </certificateAttributes>
+
+    </cryptoClientPolicy>
+  </policy>
+
+  <javaproperties>
+     <property>
+        <name>org.cougaar.workspace</name>
+        <value>${cougaar.install.path}${/}workspace${/}</value>
+     </property>
+     <property>
+     <!-- CA_CERTPATH -->
+        <name>org.cougaar.security.CA.certpath</name>
+        <value>config/certauthority</value>
+     </property>
+     <property>
+     <!-- CRYPTO_CONFIG -->
+        <name>org.cougaar.security.crypto.config</name>
+        <value>config/certauthority/cryptoPolicy.xml</value>
+     </property>
+     <property>
+        <name>org.cougaar.security.keystore.password</name>
+        <value>Ultra*Log</value>
+     </property>
+     <property>
+        <name>org.cougaar.security.keystore</name>
+        <value>keystoreTest</value>
+     </property>
+     <property>
+        <name>org.cougaar.core.security.crypto.debug</name>
+        <value>true</value>
+     </property>
+  </javaproperties>
+
+  <!-- Configuration of Certificate Authority
+       The name should be the distinguished name of the X509 certificate -->
+  <policy name="" type="certificateAuthorityPolicy">
+    <certificateAuthority name="CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US">
+      <!-- Alias of CA private key in the keystore (RSA encryption) -->
+      <distinguishedName>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</distinguishedName>
+      <!-- Certificate directory service for certificate storage -->
+      <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
+      <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
+
+      <!-- The type of the certificate directory service.
+           Currently, either CougaarOpenLdap or NetTools -->
+      <ldapType>CougaarOpenLdap</ldapType>
+
+      <!-- The name of a file where the next serial number is stored -->
+      <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
+      <!-- The name of directory where to store PKCS10 certificate requests -->
+      <pkcs10Directory>pkcs10requests</pkcs10Directory>
+
+      <!-- The name of directory where to store signed certificates -->
+      <x509CertDirectory>x509certificates</x509CertDirectory>
+
+      <!-- The name of directory where to store the pending certificates, after
+      it is approved it will be moved to the certificate storage directory for
+      approved certificates (ie. x509CertDirectory) -->
+      <CertPendingDirectory>pending</CertPendingDirectory>
+
+      <!-- The name of directory where to store the denial certificates,
+      this directory should be periodicly cleaned -->
+      <CertDeniedDirectory>denied</CertDeniedDirectory>
+ 
+      <!-- Policy when issuing certificates -->
+      <clientCertPolicy>
+        <!-- The X509 version number to be created -->
+        <certVersion>0</certVersion>
+        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
+        <keysize>1024</keysize>
+        <!-- How long to certify for. -->
+        <certValidity>6 M</certValidity>
+        <requirePending>true</requirePending>
+      </clientCertPolicy>
+    </certificateAuthority>
+  </policy>
+</policies>

@@ -45,6 +45,8 @@ set useGuardedNode=true
 
 ####################################################################
 
+set COUGAAR_WORKSPACE=$COUGAAR_INSTALL_PATH/workspace
+
 # set COUGAAR_INSTALL_PATH=/alpine/demo98
 if (! $?COUGAAR3RDPARTY) then
     setenv COUGAAR3RDPARTY /opt/cougaar-jars
@@ -103,6 +105,15 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 # END DEBUG properties
 # ########################################################
 
+
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace.path=$COUGAAR_WORKSPACE"
+# Name of configuration file for cryptographic service provider
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+
+# Role to take when making LDAP requests
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
+
+# ########################################################
 if ( "$useBootstrapper" == "true") then
         # The following property defines the keystore filename. It is used by
 	# the authenticated class loader (to verify that jar files have been
@@ -166,11 +177,6 @@ if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.CryptoAspect,com.nai.security.access.AccessControlAspect"
 
-	# Name of configuration file for cryptographic service provider
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
-
-	# Role to take when making LDAP requests
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 
 endif
 
@@ -261,7 +267,7 @@ if ("$os" == "Linux") then
 endif
 
 set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
-set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
+#set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"

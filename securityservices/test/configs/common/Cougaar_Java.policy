@@ -159,6 +159,8 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "path.separator", "read";
 	permission java.util.PropertyPermission "line.separator", "read";
 
+	permission java.util.PropertyPermission "org.xml.sax.driver", "read";
+
 	permission java.util.PropertyPermission "java.specification.version", "read";
 	permission java.util.PropertyPermission "java.specification.vendor", "read";
 	permission java.util.PropertyPermission "java.specification.name", "read";
@@ -236,6 +238,9 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
 
+	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}*", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}-", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace.path}${/}", "read, write";
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";
