@@ -385,4 +385,3 @@ def processLogFiles
   return $testPassed
 end
 
-processLogFiles
