@@ -36,7 +36,7 @@ import org.cougaar.core.cluster.ClusterIdentifier;
 import org.cougaar.core.cluster.IncrementalSubscription;
 import org.cougaar.core.plugin.SimplePlugIn;
 import org.cougaar.core.society.UID;
-import org.cougaar.core.security.crypto.KeyRing;
+import org.cougaar.core.security.crypto.PublicKeyRing;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -196,7 +196,7 @@ public class CRLGUIPlugIn extends SimplePlugIn
 			
 	sleep_time=sleeptime*1000L*60L*60L;
       }
-    KeyRing.setSleeptime(sleep_time);
+    PublicKeyRing.setSleeptime(sleep_time);
   }
 
   private void jTimerComboBoxactionPerformed(java.awt.event.ActionEvent evt)
@@ -207,7 +207,7 @@ public class CRLGUIPlugIn extends SimplePlugIn
 
   private void jCrlButtonMouseClicked(java.awt.event.MouseEvent evt) 
   {
-    Vector crllist=KeyRing.getCRL();
+    Vector crllist=PublicKeyRing.getCRL();
     jCrlList.setListData(crllist);
   
   }
