@@ -45,7 +45,7 @@ import org.cougaar.core.util.UID;
  * cm agent :     <b>(org.cougaar.core.security.cm.location)</b>
  *
  * @author ttschampel
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class CMServiceImpl implements CMService {
   /** Logging Service */
@@ -58,7 +58,7 @@ public class CMServiceImpl implements CMService {
   private AgentIdentificationService agentIdService;
   /** Location of Configuration Manager */
   String cmAgentLocation = null;
-
+  private MessageAddress defaultAddress = MessageAddress.getMessageAddress("RootCaManager");
   /**
    * Creates a new CMService object.
    *
@@ -95,7 +95,8 @@ public class CMServiceImpl implements CMService {
         "org.cougaar.core.security.cm.location");
     if (cmAgentLocation == null) {
       //use current agent as location
-      cmAgentLocation = agentIdService.getMessageAddress().getAddress();
+      //cmAgentLocation = agentIdService.getMessageAddress().getAddress();
+      cmAgentLocation = this.defaultAddress.getAddress();
     }
 
     if (logging.isDebugEnabled()) {
