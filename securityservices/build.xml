@@ -56,6 +56,7 @@
         <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
         <pathelement location="${cougaar.install.path}/sys/icu4j.jar"/>
         <pathelement location="${cougaar.install.path}/sys/iw.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jas.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jdom.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jtp.jar"/>
