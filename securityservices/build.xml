@@ -343,9 +343,9 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy file="${securityservices.classes}/securityservices_config.jar" 
+        <copy file="${securityservices.signed}/securityservices_config.jar" 
             todir="${cougaar.install.path}/configs/security"/>
-        <copy file="${securityservices.classes}/log4j_config.jar" 
+        <copy file="${securityservices.signed}/log4j_config.jar" 
             todir="${cougaar.install.path}/configs/security"/>
         <copy todir="${cougaar.install.path}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
