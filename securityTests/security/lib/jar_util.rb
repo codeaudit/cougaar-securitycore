@@ -171,7 +171,7 @@ def searchDir(dir, filename, dirok = true)
   return nil
 end
 
-def getConfigFile(fileName = nil, jarFile="#{CIP}/configs/security/securityservices_config.jar")
+def getConfigFile(fileName = nil, jarFile="#{CIP}/configs/security/reference/securityservices_config.jar")
   if (!FileTest.exists?($jarDir)) 
     Dir.mkdirs($jarDir);
     files = `cd #{$jarDir} && jar xvf #{jarFile}`.split

@@ -417,6 +417,7 @@
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
 	<mkdir dir="${cougaar.install.path}/configs/security/bin"/>
+	<mkdir dir="${cougaar.install.path}/configs/security/reference"/>
         <!--
             Do not copy files individually. Files are now stored in JAR files
         -->
@@ -481,6 +482,12 @@
             todir="${cougaar.install.path}/configs/security/bin"/>
         <copy file="${securityservices.signed}/securityservices_config.jar" 
             todir="${cougaar.install.path}/configs/security"/>
+        <!-- Also copy securityservices_config.jar in another location where
+             we know it won't be modified, to keep a reference file.
+             The securityservices_config.jar file is modified every time the
+             society is ran. -->
+        <copy file="${securityservices.signed}/securityservices_config.jar" 
+            todir="${cougaar.install.path}/configs/security/reference"/>
         <copy file="${securityservices.signed}/log4j_config.jar" 
             todir="${cougaar.install.path}/configs/security"/>
         <copy todir="${cougaar.install.path}/webtomcat/data/conf"
