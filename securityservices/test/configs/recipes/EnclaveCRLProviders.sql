@@ -10,15 +10,15 @@
 
 
 LOCK TABLES alib_component WRITE;
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave3CRLProvider','Enclave3CRLProvider','Enclave3CRLProvider','agent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave4CRLProvider','Enclave4CRLProvider','Enclave4CRLProvider','agent',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('EnclaveCRLProviders','EnclaveCRLProviders','recipe|##RECIPE_CLASS##','recipe',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave2CRLProvider','Enclave2CRLProvider','Enclave2CRLProvider','agent',0.000000000000000000000000000000);
-REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave3CRLProvider','Enclave3CRLProvider','Enclave3CRLProvider','agent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave1CRLProvider','Enclave1CRLProvider','Enclave1CRLProvider','agent',0.000000000000000000000000000000);
 REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave1CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave1CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave2CRLProvider','Enclave2CRLProvider','Enclave2CRLProvider','agent',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
+REPLACE INTO alib_component (COMPONENT_ALIB_ID, COMPONENT_NAME, COMPONENT_LIB_ID, COMPONENT_TYPE, CLONE_SET_ID) VALUES ('Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 --
@@ -27,10 +27,10 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_agent WRITE;
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave1CRLProvider','Enclave1CRLProvider',0.000000000000000000000000000000,'Enclave1CRLProvider');
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave2CRLProvider','Enclave2CRLProvider',0.000000000000000000000000000000,'Enclave2CRLProvider');
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave3CRLProvider','Enclave3CRLProvider',0.000000000000000000000000000000,'Enclave3CRLProvider');
-REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave4CRLProvider','Enclave4CRLProvider',0.000000000000000000000000000000,'Enclave4CRLProvider');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave1CRLProvider','Enclave1CRLProvider',0.000000000000000000000000000000,'Enclave1CRLProvider');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave2CRLProvider','Enclave2CRLProvider',0.000000000000000000000000000000,'Enclave2CRLProvider');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave3CRLProvider','Enclave3CRLProvider',0.000000000000000000000000000000,'Enclave3CRLProvider');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave4CRLProvider','Enclave4CRLProvider',0.000000000000000000000000000000,'Enclave4CRLProvider');
 UNLOCK TABLES;
 
 --
@@ -55,7 +55,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_assembly WRITE;
-REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-EnclaveCRLProviders','RCP','EnclaveCRLProviders');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','RCP','EnclaveCRLProviders');
 UNLOCK TABLES;
 
 --
@@ -64,10 +64,14 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_component_arg WRITE;
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave1CRLProvider','Enclave1CRLProvider',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave2CRLProvider','Enclave2CRLProvider',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave3CRLProvider','Enclave3CRLProvider',1.000000000000000000000000000000);
-REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave4CRLProvider','Enclave4CRLProvider',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave3CRLProvider','Enclave3CRLProvider',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','60',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave4CRLProvider','Enclave4CRLProvider',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','60',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave1CRLProvider','Enclave1CRLProvider',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave1CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','60',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave2CRLProvider','Enclave2CRLProvider',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','60',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 --
@@ -76,14 +80,14 @@ UNLOCK TABLES;
 
 
 LOCK TABLES asb_component_hierarchy WRITE;
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave3CRLProvider','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave4CRLProvider','EnclaveCRLProviders','COMPONENT',3.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave4CRLProvider','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave3CRLProvider','EnclaveCRLProviders','COMPONENT',2.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave2CRLProvider','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave2CRLProvider','EnclaveCRLProviders','COMPONENT',1.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave1CRLProvider','EnclaveCRLProviders','COMPONENT',0.000000000000000000000000000000);
-REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders','Enclave1CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave1CRLProvider','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave4CRLProvider','EnclaveCRLProviders','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave3CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave3CRLProvider','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave3CRLProvider','EnclaveCRLProviders','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave1CRLProvider','EnclaveCRLProviders','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave1CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave1CRLProvider','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave2CRLProvider','EnclaveCRLProviders','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave2CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave2CRLProvider','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders','Enclave4CRLProvider|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Enclave4CRLProvider','COMPONENT',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 --
@@ -136,12 +140,12 @@ UNLOCK TABLES;
 
 
 LOCK TABLES lib_component WRITE;
-REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave3CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
-REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin','org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave4CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('recipe|##RECIPE_CLASS##','recipe','##RECIPE_CLASS##','recipe','Added recipe');
-REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave2CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave3CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('plugin|org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','plugin','org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin','Node.AgentManager.Agent.PluginManager.Plugin','Added plugin');
 REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave1CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
+REPLACE INTO lib_component (COMPONENT_LIB_ID, COMPONENT_TYPE, COMPONENT_CLASS, INSERTION_POINT, DESCRIPTION) VALUES ('Enclave2CRLProvider','agent','org.cougaar.core.agent.ClusterImpl','Node.AgentManager.Agent','Added agent');
 UNLOCK TABLES;
 
 --
@@ -150,7 +154,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES lib_mod_recipe WRITE;
-REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0002EnclaveCRLProviders','EnclaveCRLProviders','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
+REPLACE INTO lib_mod_recipe (MOD_RECIPE_LIB_ID, NAME, JAVA_CLASS, DESCRIPTION) VALUES ('RECIPE-0002EnclaveCRLProvidersEnclaveCRLProviders','EnclaveCRLProviders','org.cougaar.tools.csmart.recipe.CompleteAgentRecipe','No description available');
 UNLOCK TABLES;
 
 --
@@ -159,7 +163,7 @@ UNLOCK TABLES;
 
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0002EnclaveCRLProviders','Assembly Id',0.000000000000000000000000000000,'RCP-0002-EnclaveCRLProviders');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0002EnclaveCRLProvidersEnclaveCRLProviders','Assembly Id',0.000000000000000000000000000000,'RCP-0002-EnclaveCRLProviders-EnclaveCRLProviders');
 UNLOCK TABLES;
 
 --
