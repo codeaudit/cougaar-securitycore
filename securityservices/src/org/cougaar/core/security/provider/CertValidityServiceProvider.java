@@ -35,11 +35,9 @@ public class CertValidityServiceProvider
   extends BaseSecurityServiceProvider
 {
   static private CertificateValidityMonitor service = null;
-  ServiceBroker serviceBroker;
 
   public CertValidityServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
-    serviceBroker = sb;
   }
 
   /**

@@ -36,14 +36,12 @@ public class CommunityProtectionServiceProvider
   extends BaseSecurityServiceProvider
 {
   static private CommunityProtectionService _cps;
-  private LoggingService _log;
 
   public CommunityProtectionServiceProvider(ServiceBroker sb, String community) 
   {
     super(sb, community);
-    _log = (LoggingService) sb.getService(this, LoggingService.class, null);
-    if (_log.isDebugEnabled()) {
-      _log.debug("Constructing the Commmunity Service Protection Service Provider");
+    if (log.isDebugEnabled()) {
+      log.debug("Constructing the Commmunity Service Protection Service Provider");
     }
   }
 
@@ -59,8 +57,8 @@ public class CommunityProtectionServiceProvider
 						    Class serviceClass) 
   {
     if (_cps == null) {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Construction the implementation of the Commmunity Protection Service");
+      if (log.isDebugEnabled()) {
+        log.debug("Construction the implementation of the Commmunity Protection Service");
       }
 
       _cps = new CommunityProtectionServiceImpl(sb);

@@ -44,12 +44,9 @@ public class CertDirectoryServiceProvider
 {
   private Hashtable ldapConnectionPool = new Hashtable();
   private static CACertDirectoryService caOperations = null;
-  private ServiceBroker serviceBroker;
 
   public CertDirectoryServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
-
-    serviceBroker = sb;
   }
 
   ///////////////////////////////////////

@@ -42,11 +42,6 @@ public class ServletPolicyServiceProvider
   static private DualAuthenticator     _dualAuthenticator    = null;
   static private Context               _context              = null;
   static private ServiceBroker         _staticServiceBroker  = null;
-  static private Logger                _log;
-
-  static {
-    _log = LoggerFactory.getInstance().createLogger(ServletPolicyServiceProvider.class);
-  }
   
   public ServletPolicyServiceProvider(ServiceBroker sb, 
                                       String community) {
@@ -59,8 +54,9 @@ public class ServletPolicyServiceProvider
       if (_staticServiceBroker == null) {
         String s = ServletPolicyServiceProvider.class.getName() +
           " provider has not been initialized yet.";
-        if(_log.isWarnEnabled()) {
-          _log.warn(s, new Throwable());
+        Logger myLogger = LoggerFactory.getInstance().createLogger(ServletPolicyServiceProvider.class);
+        if(myLogger.isWarnEnabled()) {
+          myLogger.warn(s, new Throwable());
         }
         throw new RuntimeException(s);
       }

@@ -37,14 +37,9 @@ public class  CRLCacheServiceProvider
   extends BaseSecurityServiceProvider  {
  
   static private CRLCacheService crlCacheService;
-  //private BindingSite bindingSite=null;
-  private LoggingService log=null;
   
   public CRLCacheServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
-    //bindingSite=bs;
-    log = (LoggingService) sb.getService(this,
-					 LoggingService.class, null);
     if (log.isDebugEnabled()) {
       log.debug("Creating an instance of crl cache in Constructor of CRLCacheServiceProvider :");
     }
