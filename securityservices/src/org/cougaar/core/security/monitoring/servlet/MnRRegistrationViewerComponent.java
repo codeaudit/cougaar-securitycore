@@ -30,6 +30,7 @@ package org.cougaar.core.security.monitoring.servlet;
 // Imported java classes
 import java.io.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Enumeration;
@@ -220,12 +221,14 @@ public class MnRRegistrationViewerComponent
       StringBuffer sb=new StringBuffer();
       sb.append("<table align=\"center\" border=\"2\">\n");
       sb.append("<TR><TH> AnalyzerID </TH><TH> Classification </TH></TR>\n");
-      Enumeration keys=capabilitiesObject.keys();
+      List keyList = Collections.list(capabilitiesObject.keys());
+      Collections.sort(keyList);
       String key=null;
       //Classification classification=null;
       RegistrationAlert registartion=null;
-      while(keys.hasMoreElements()) {
-	key=(String)keys.nextElement();
+      Iterator it = keyList.iterator();
+      while(it.hasNext()) {
+	key=(String)it.next();
 	registartion=(RegistrationAlert)capabilitiesObject.get(key);
 	Classification[] classifications=registartion.getClassifications();
 	sb.append("<TR><TD>\n");
@@ -245,8 +248,5 @@ public class MnRRegistrationViewerComponent
       return sb.toString();
     }
   }
-
 }
-
-
 
