@@ -86,7 +86,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   # replace the last parameter with your jabber server's host name  
   do_action "StartJabberCommunications"
 #  do_action "CleanupSociety"
-  do_action "VerifyHosts" 
+   do_action "VerifyHosts" 
   do_action "ConnectOperatorService"
 #  do_action "ClearPersistenceAndLogs"
 #  do_action "GenericAction" do 
