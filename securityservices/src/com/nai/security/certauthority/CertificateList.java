@@ -48,7 +48,7 @@ public class CertificateList extends  HttpServlet
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
                         ldapentry=(LdapEntry)enum.nextElement();
-                        sb.append("<TR><TD><a Href=\"../CertificateDetails?hash="+ldapentry.getHash() +"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a><TD>\n");
+                        sb.append("<TR><TD><a Href=\"../certdetails?hash="+ldapentry.getHash() +"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a><TD>\n");
                         sb.append("<TD>"+ldapentry.getStatus()+"</TD>\n" );
                         sb.append("<TD>"+ldapentry.getCertificate().getIssuerDN().getName()+"</TD></TR>\n");
 
