@@ -160,6 +160,10 @@ public class CertificateStatus
     certificateTrust = trust;
   }
 
+  public void setCertificateType(CertificateType type) {
+    certificateType = type;
+  }
+
   public void setCertificate(X509Certificate c) {
     certificate = c;
   }

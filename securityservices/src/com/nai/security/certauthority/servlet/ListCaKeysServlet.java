@@ -1,0 +1,122 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
+ *  
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
+ * 
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * - 
+ */
+
+package com.nai.security.certauthority.servlet;
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.security.cert.X509Certificate;
+import sun.security.x509.*;
+import javax.security.auth.x500.X500Principal;
+
+// Cougaar security services
+import com.nai.security.policy.CaPolicy;
+import com.nai.security.crypto.*;
+import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
+import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
+import com.nai.security.crypto.ldap.LdapEntry;
+import com.nai.security.certauthority.*;
+import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.services.crypto.*;
+import com.nai.security.util.CryptoDebug;
+
+public class ListCaKeysServlet
+  extends  HttpServlet
+{
+  private SecurityPropertiesService secprop = null;
+  private ConfigParserService configParser = null;
+  private KeyRingService keyRingService= null;
+
+  protected boolean debug = false;
+
+  private SecurityServletSupport support;
+
+  public ListCaKeysServlet(SecurityServletSupport support) {
+    this.support = support;
+  }
+
+  public void init(ServletConfig config) throws ServletException
+  {
+    secprop = support.getSecurityProperties(this);
+    debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+						"false"))).booleanValue();
+    keyRingService = (KeyRingService)
+      support.getServiceBroker().getService(this,
+					    KeyRingService.class,
+					    null);
+  }
+
+  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+    throws ServletException,IOException
+  {
+  }
+  
+  protected void doGet(HttpServletRequest req,HttpServletResponse res)
+    throws ServletException, IOException  {
+    res.setContentType("Text/HTML");
+    PrintWriter out=res.getWriter();
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+    out.println("<html>");
+    out.println("<head>");
+    out.println("<title>CA Keys List</title>");
+    out.println("</head>");
+    out.println("<body>");
+    out.println("<H2>CA Keys List</H2>");
+    out.println("<table>");
+    out.println("<form action=\"\" method =\"post\">");
+
+    Enumeration aliases = keyRingService.getAliasList();
+    out.println("<table align=\"center\" border=\"2\">\n");
+    out.println("<TR><TH> DN-Certificate </TH><TH> DN-Signed By </TH></TR>\n");
+
+    while (aliases.hasMoreElements()) {
+      String a = (String)aliases.nextElement();
+      String cn = keyRingService.getCommonName(a);
+      X509Certificate c = (X509Certificate)
+	keyRingService.findCert(cn, DirectoryKeyStore.LOOKUP_KEYSTORE);
+
+      System.out.println("alias=" + a + " - cn=" + cn);
+      if (c != null) {
+	out.println("<TR>");
+	out.println("<TD>" + c.getSubjectDN().getName() +"</TD>\n" );
+	out.println("<TD>" + c.getIssuerDN().getName());
+	out.println("</TD></TR>\n");
+      }
+    }
+    out.println("</table>");
+    out.flush();
+    out.close();
+    
+  }
+  
+  public String getServletInfo()  {
+    return("Generate a CA key");
+  }
+  
+}

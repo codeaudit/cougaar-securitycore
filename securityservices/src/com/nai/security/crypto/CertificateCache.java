@@ -359,6 +359,9 @@ public class CertificateCache
 	      return;
 	    }
 
+	    /*
+	      A certificate which is both in the node keystore and the trusted CA
+	      keystore is a CA certificate.
 	    if (aCertEntry.getCertificateType() != certEntry.getCertificateType()) {
 		//|| aCertEntry.getCertificateOrigin() != certEntry.getCertificateOrigin()) {
 	      // Error. Certificate type and Certificate Origin cannot change
@@ -371,12 +374,15 @@ public class CertificateCache
 	      }
 	      throw new SecurityException("Error. Trying to update immutable fields");
 	    }
+	    */
 	    if (CryptoDebug.debug) {
 	      System.out.println("\nUpdating certificate status. Old trust:"
 				 + aCertEntry.getCertificateTrust()
 				 + " - new trust:"
 				 + certEntry.getCertificateTrust());
 	    }
+	    // Update type
+	    aCertEntry.setCertificateType(certEntry.getCertificateType());
 	    // Update trust.
 	    aCertEntry.setCertificateTrust(certEntry.getCertificateTrust());
 

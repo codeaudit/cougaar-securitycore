@@ -671,7 +671,7 @@ public class DirectoryKeyStore
     addCN2alias(alias, certificate[0]);
     try {
       keystore.setKeyEntry(alias, privatekey, param.keystorePassword,
-			   certificate);
+			    certificate);
     } catch(Exception e) {
       System.out.println("Unable to set key entry in the keystore - "
 			 + e.getMessage());
@@ -1779,16 +1779,27 @@ public class DirectoryKeyStore
     ax509certificate[0] = certandkeygen.getSelfCertificate(dname, howLong);
     setKeyEntry(alias, privatekey, ax509certificate);
 
-    // Add the certificate to the certificate cache. The key cannot be used
-    // yet because it has not been signed by the Certificate Authority.
+    CertificateType certificateType = null;
+    CertificateTrust certificateTrust = null;
+    if (!param.isCertAuth) {
+      // Add the certificate to the certificate cache. The key cannot be used
+      // yet because it has not been signed by the Certificate Authority.
+      certificateType = CertificateType.CERT_TYPE_END_ENTITY;
+      certificateTrust = CertificateTrust.CERT_TRUST_SELF_SIGNED;
+    }
+    else {
+      // This is a certificate authority, so the CA is trusting itself.
+      certificateType= CertificateType.CERT_TYPE_CA;
+      certificateTrust= CertificateTrust.CERT_TRUST_CA_SIGNED;
+    }
     CertificateStatus certstatus =
       new CertificateStatus(ax509certificate[0], true,
 			    CertificateOrigin.CERT_ORI_KEYSTORE,
-			    CertificateType.CERT_TYPE_END_ENTITY,
-			    CertificateTrust.CERT_TRUST_SELF_SIGNED, alias);
-    certstatus.setPKCS10Date(new Date());
-    certCache.addCertificate(certstatus);
-    certCache.addPrivateKey(privatekey, certstatus);
+			    certificateType,
+			    certificateTrust, alias);
+      certstatus.setPKCS10Date(new Date());
+      certCache.addCertificate(certstatus);
+      certCache.addPrivateKey(privatekey, certstatus);
   }
   
   public void checkOrMakeCert(String commonName) {
@@ -2063,6 +2074,8 @@ public class DirectoryKeyStore
     if (CryptoDebug.debug) {
       System.out.println("Setting CA keystore certificate entry:" + alias);
     }
+    addCN2alias(alias, aCertificate);
+
     try {
       caKeystore.setCertificateEntry(alias, aCertificate);
     } catch(Exception e) {
