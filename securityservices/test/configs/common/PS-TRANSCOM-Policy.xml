@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE Policies SYSTEM "Policy.ldm.dtd" []>
+
+<!-- Policies for BOOTPOLICY -->
+
+<Policies>
+ <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AccessControlPolicy">
+  <RuleParam name="IncomingMessageAction">
+    <KeySet value="">
+      <KeyValue key="Criticality0" value="SetAside" />
+      <KeyValue key="Criticality1" value="SetAside" />
+      <KeyValue key="Criticality2" value="AcceptMessage" />
+      <KeyValue key="Criticality3" value="AcceptMessage" />
+      <KeyValue key="Criticality4" value="AcceptMessage" />
+      <KeyValue key="Criticality5" value="AcceptMessage" />
+    </KeySet>
+  </RuleParam>
+
+  <RuleParam name="IncomingVerb">
+    <KeySet value="None">
+	<!--<KeyValue key="TRANSCOM" value="GetLogSupport"/>-->
+	<!--<KeyValue key="3-69-ARBN" value="Transport:ProjectSupply"/>-->
+	<!--<KeyValue key="703-MSB" value="none"/>-->
+    </KeySet>
+  </RuleParam>
+
+  <RuleParam name="OutgoingVerb">
+    <KeySet value="*">
+	<!--<KeyValue key="TRANSCOM" value="GetLogSupport"/>-->
+	<!--<KeyValue key="3-69-ARBN" value="Transport:ProjectSupply"/>-->
+	<!--<KeyValue key="703-MSB" value="none"/>-->
+    </KeySet>
+  </RuleParam>
+
+  <RuleParam name="OutgoingAgentAction">
+    <KeySet value="AcceptMessage">
+      <!-- <KeyValue key="3-69-ARBN" value="SetAside" /> -->
+      <!-- <KeyValue key="2-7-INFBN" value="SetAside" /> -->
+    </KeySet>
+  </RuleParam>
+
+  <RuleParam name="IncomingAgentAction">
+    <KeySet value="AcceptMessage">
+      <!-- <KeyValue key="3-69-ARBN" value="SetAside" /> -->
+      <!-- <KeyValue key="2-7-INFBN" value="SetAside" /> -->
+    </KeySet>
+  </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="OutgoingMessageIntegrity">
+      <KeySet value="3">
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>
+
