@@ -722,7 +722,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
         consclassifications=consCapabilities.getClassifications();
         //printConsolidation(consclassifications," consolidated classification after processing is :");
         if (loggingService.isDebugEnabled()) {
-          loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+_managerAddress.toString()); 
+          loggingService.debug("Relay to be created for address :"+_managerAddress.toString()); 
         }
         if(_managerAddress!=null) {
           addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
