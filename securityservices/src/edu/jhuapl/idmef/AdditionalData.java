@@ -145,6 +145,8 @@ public class AdditionalData implements XMLSerializable{
 
     if (type != null && type.equals(this.XML)){
 	    //read in xml additional data
+	    // extract class name from element name Cougaar:Agent
+	    // create instance of that class
     } else {
 	    additionalData = XMLUtils.getAssociatedString(inNode);
     }
@@ -161,7 +163,7 @@ public class AdditionalData implements XMLSerializable{
 	if(meaning != null)
 	    additionalDataNode.setAttribute("meaning", meaning);
 
-    if( type.equals( XML ) ){
+    if( type.equals( XML ) && xmlData != null ){
         additionalDataNode.appendChild( xmlData.convertToXML( parent ) );
     }
     else{

@@ -66,7 +66,7 @@ public class Address implements XMLSerializable{
 
 
     //constants
-
+    public static final String ELEMENT_NAME    = "Address";
     public static final String UNKNOWN         = "unknown";
     public static final String ATM             = "atm";
     public static final String E_MAIL          = "e-mail";
@@ -82,7 +82,8 @@ public class Address implements XMLSerializable{
     public static final String IPV6_ADDR_HEX   = "ipv6-addr-hex";
     public static final String IPV6_NET        = "ipv6-net";
     public static final String IPV6_NET_MASK   = "ipv6-addr-net-mask";
-
+    public static final String URL_ADDR        = "url";
+    
     public String getAddress(){
 	return address;
     }
