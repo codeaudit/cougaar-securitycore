@@ -2,9 +2,9 @@
 # enclave_security_mnr_mgrs.rule
 # Adds EnclaveSecurityMnRManagers complete agent recipe
 
-
 society.each_node do |node|
   agentname = ""
+  enclave = ""
   if node.name == "FWD-MGMT-NODE"
     enclave = "1"
   elsif node.name == "REAR-MGMT-NODE"

@@ -37,15 +37,15 @@ caInfoServlet = "/CA/CAInfoServlet"
  
 society.each_node do |node|
   agentname = ""
-  if node.name == "Enclave1CANode"
+  if node.name == "ENCLAVE1-CA-NODE"
     agentname = "Enclave1CA"
-  elsif node.name == "Enclave2CANode"
-      agentname = "Enclave2CA"
+  elsif node.name == "ENCLAVE2-CA-NODE"
+    agentname = "Enclave2CA"
   elsif node.name == "ROOT-CA-NODE"
     agentname = "ROOTCA"
-  elsif node.name == "Enclave3CANode"
+  elsif node.name == "ENCLAVE3-CA-NODE"
     agentname = "Enclave3CA"
-  elsif node.name == "Enclave4CANode"
+  elsif node.name == "ENCLAVE4-CA-NODE"
     agentname = "Enclave4CA"
   end
 

@@ -1,15 +1,28 @@
 ####################################################
 # enclave_crl_providers.rule
 
-node = nil
-society.each_node {|n| node = n}
-enclaves = 1..4 # there are 4 enclaves...do this once per enclave
-enclaves.each do |this_enclave|
-  enclave_sec_mgr = "Enclave" + this_enclave.to_s + "CRLProvider"
-  node.add_agent(enclave_sec_mgr) do |agent|
-    agent.add_component do |c|
-      c.classname = "org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin"
-      c.add_argument("60")
+society.each_node do |node|
+  agentname = ""
+  enclave = ""
+  if node.name == "FWD-MGMT-NODE"
+    enclave = "1"
+  elsif node.name == "REAR-MGMT-NODE"
+    enclave = "2"
+  elsif node.name == "CONUS-MGMT-NODE" 
+    enclave = "3"
+  elsif node.name == "TRANS-MGMT-NODE"
+    enclave = "4"
+  end
+  if enclave != ""
+    agentname = "Enclave" + enclave + "CRLProvider"
+  end
+
+  if agentname != ""
+    node.add_agent(agentname) do |agent|
+      agent.add_component do |c|
+        c.classname = "org.cougaar.core.security.crypto.crl.plugin.CrlAgentRegistrationPlugin"
+        c.add_argument("60")
+      end
     end
   end
 end

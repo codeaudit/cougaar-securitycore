@@ -6,20 +6,24 @@ enclave = nil
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
 
 society.each_node do |node|
-  if node.name =~ /.*REAR.*/ or node.name == "Enclave1CANode"
+  if node.name =~ /.*REAR.*/
+	or node.name == "REAR-CA-NODE"
 	or node.name == "REAR-MGMT-NODE"
     enclave = "1"
-  elsif node.name =~ /.*FWD.*/ or node.name == "Enclave2CANode"
+  elsif node.name =~ /.*FWD.*/
+	or node.name == "FWD-CA-NODE"
 	or node.name == "FWD-MGMT-NODE"
       enclave = "2"
   elsif node.name == "NCA-NODE"
 	or node.name == "CONUS-NODE"
 	or node.name == "ROOT-CA-NODE"
-	or node.name == "Enclave3CANode"
+	or node.name == "CONUS-CA-NODE"
 	or node.name == "CONUS-MGMT-NODE"
     enclave = "3"
-  elsif node.name =~ /.*TRANS.*/ or node.name == "AIR-NODE"
-	or node.name == "SEA-NODE" or node.name == "Enclave4CANode"
+  elsif node.name =~ /.*TRANS.*/
+	or node.name == "AIR-NODE"
+	or node.name == "SEA-NODE"
+	or node.name == "TRANS-CA-NODE"
 	or node.name == "TRANS-MGMT-NODE"
     enclave = "4"
   end

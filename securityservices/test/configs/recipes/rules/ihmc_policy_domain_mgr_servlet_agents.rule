@@ -4,17 +4,17 @@
 
 society.each_node do |node|
   agentname = ""
+  enclave = ""
   if node.name == "FWD-MGMT-NODE"
     enclave = "1"
-    agentname = "PolicyDomainManager" + enclave + "ServletAgent"
   elsif node.name == "REAR-MGMT-NODE"
     enclave = "2"
-    agentname = "PolicyDomainManager" + enclave + "ServletAgent"
   elsif node.name == "CONUS-MGMT-NODE" 
     enclave = "3"
-    agentname = "PolicyDomainManager" + enclave + "ServletAgent"
   elsif node.name == "TRANS-MGMT-NODE"
     enclave = "4"
+  end
+  if enclave != ""
     agentname = "PolicyDomainManager" + enclave + "ServletAgent"
   end
 

@@ -1,36 +1,41 @@
 ####################################################
 # certificate_bootstrapper_enclaves.rule
 
-arg = nil
 society.each_node do |node|
+  # Some of the  ** and node.name != ** tests are not necessary
+  # but it's helpful to remember that the component should not
+  # go in the CA node.
+  arg = nil
   if (node.name =~ /.*REAR.*/)
-	and node.name != 'REAR-MGMT-NODE'
+	and node.name != 'REAR-CA-NODE'
     # node agents in enclave 1
     arg = "sb040:Enclave1CA"
 
   elsif (node.name =~ /.*FWD.*/)
-	and node.name != 'FWD-MGMT-NODE'
+	and node.name != 'FWD-CA-NODE'
     # node agents in enclave 2
     arg = "sb039:Enclave2CA"
 
   elsif (node.name == "NCA-NODE"
 	 or node.name == "CONUS-NODE")
-	and node.name != 'CONUS-MGMT-NODE'
+	and node.name != 'CONUS-CA-NODE'
     # node agents in enclave 3
     arg = "sb041:Enclave3CA"
 
   elsif (node.name =~ /.*TRANS.*/
 	 or node.name == "AIR-NODE"
 	 or node.name == "SEA-NODE")
-	and node.name != 'TRANS-MGMT-NODE'
+	and node.name != 'TRANS-CA-NODE'
     # node agents in enclave 4
     arg = "sb043:Enclave4CA"
   end
 
-  node.agent.add_component do |c|
-    c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
-    c.priority = "HIGH"
-    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-    c.add_argument(arg)
+  if arg != nil
+    node.agent.add_component do |c|
+      c.classname = "org.cougaar.core.security.crypto.AutoConfigPlugin"
+      c.priority = "HIGH"
+      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+      c.add_argument(arg)
+    end
   end
 end
