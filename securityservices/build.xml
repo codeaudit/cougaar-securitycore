@@ -106,19 +106,19 @@
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${securityservices.classes}/bootstrapper.jar" alias="bootstrapper" 
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="true"/>
+            storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="true"/>
+            storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="true"/>
+            storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="true"/>
+            storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
-            storepass="keystore" verbose="true"/>
+            storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
     </target>
     
@@ -141,7 +141,10 @@
     <target name="install-jars">
         <echo message="+++++ Installing jar files"/>
         <copy todir="${cougaar.install.path}/sys">
-            <fileset dir="${securityservices.sys}" includes="*.jar"/>
+            <fileset dir="${securityservices.sys}">
+                <include name="*.jar"/>
+                <exclude name="jasper-compiler.jar"/>
+            </fileset>
         </copy>
         <copy todir="${cougaar.install.path}/lib">
             <fileset dir="${securityservices.lib}" includes="*.jar"/>
