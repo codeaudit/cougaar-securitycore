@@ -33,8 +33,10 @@ mkdir $COUGAAR_INSTALL_PATH/sys
 cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
 cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
 mkdir -p $COUGAAR_INSTALL_PATH/csmart/config/rules/security/mop
+mkdir -p $COUGAAR_INSTALL_PATH/csmart/config/rules/security/assessment
 mkdir -p $COUGAAR_INSTALL_PATH/csmart/config/lib/security/mop
 cp test/configs/recipes/rules/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/mop
+cp test/configs/recipes/rules/assessment/*.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/assessment
 cp test/configs/acme_scripts/*.rb $COUGAAR_INSTALL_PATH/csmart/config/lib/security/mop
 mkdir -p $COUGAAR_INSTALL_PATH/configs/testKeystore
 cp test/configs/testKeystore/*keystore $COUGAAR_INSTALL_PATH/configs/testKeystore
@@ -67,6 +69,7 @@ echo "Zipping files to AS_csi_mop_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
 zip -qr AS_csi_mop_secserv.zip \
 	csmart/config/rules/security/mop \
+	csmart/config/rules/security/assessment \
 	csmart/config/lib/security/mop \
 	Manifest \
         configs/testKeystore \
