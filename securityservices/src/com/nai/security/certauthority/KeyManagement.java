@@ -89,9 +89,42 @@ public class KeyManagement
     // Create a KeyRing with the appropriate keystore
   }
 
-  public String processX509Request(BufferedReader request) {
-    String reply = null;
-    return reply;
+  public void processX509Request(PrintStream out, InputStream inputstream, String caDN) {
+    Collection c = null;
+    if(inputstream == null)
+      return;
+    try {
+      X500Name caX500Name = new X500Name(caDN); 
+
+      // Extract X509 certificates from the input stream
+      if(!inputstream.markSupported()) {
+	byte abyte0[] = getTotalBytes(new BufferedInputStream(inputstream));
+	inputstream = new ByteArrayInputStream(abyte0);
+      }
+      if(isBase64(inputstream)) {
+	byte abyte1[] = base64_to_binary(inputstream);
+	c = parseX509orPKCS7Cert(new ByteArrayInputStream(abyte1));
+      } else {
+	c = parseX509orPKCS7Cert(inputstream);
+      }
+
+      Iterator i = c.iterator();
+      while (i.hasNext()) {
+	X509CertImpl clientX509 = (X509CertImpl) i.next();
+	X509Certificate caX509 = null;
+	// Lookup certificate using DirectoryKeyStore
+
+	// Save the X509 reply in a file
+	saveX509Request(clientX509, caX509);
+
+	// Publish certificate in LDAP directory
+	publish2Ldap(clientX509, caX509 );
+      }
+    }
+    catch(Exception e) {
+      System.out.println("Unable to process request: " + e);
+      e.printStackTrace();
+    }
   }
 
   public X509Certificate[] processPkcs10Request(InputStream request, String caDN) {
