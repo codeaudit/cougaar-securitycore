@@ -117,8 +117,8 @@ public class KeyManagement
 						  of the CA */
   private X500Name caX500Name = null;          // the X.500 name of the CA
 
-  private CertDirectoryServiceCA caOperations = null;
-  private CACertDirectoryService crlOperations = null;
+  private CertDirectoryServiceCA crlOperations = null;
+  private CACertDirectoryService caOperations = null;
 
   private String role;
 
