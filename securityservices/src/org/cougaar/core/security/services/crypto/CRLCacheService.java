@@ -54,8 +54,8 @@ public interface CRLCacheService extends Service {
   void addToCRLCache(String dnname,String ldapURL,int ldapType);
   long getSleeptime();
   void setSleeptime(long sleeptime);
-  String getLastModifiedTime(String dnname);
+  /*String getLastModifiedTime(String dnname);
   void updateCRLCache(CRLWrapper wrapperFromDirectory);
   void setBlackboardService (BlackboardService bbs);
-  
+  */
 }
