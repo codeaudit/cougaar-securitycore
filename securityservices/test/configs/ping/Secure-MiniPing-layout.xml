@@ -11,8 +11,12 @@
       <facet role="CertificateAuthority"/> 
     </node> 
     <node name='MGMT-NODE'> 
-      <facet role="Management"/> 
+      <facet role="AS-Management"/> 
+      <facet role="AS-RootManagement"/> 
     </node> 
+  </host> 
+  <host name='HOST2'> 
+    <facet enclave='EnclaveA'/> 
     <node name='NodeA'> 
       <agent name='AgentA'/> 
     </node> 
