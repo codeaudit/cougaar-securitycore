@@ -109,7 +109,10 @@ society.each_host do |host|
     #
     node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
     node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
-   
+
+    # Secure bootstrapper logger   
+    # node.override_parameter("-Dorg.cougaar.core.security.securebootstrap.logger", "org.cougaar.core.security.securebootstrap.ConsoleLogger")
+
     # Interval (in milliseconds) between persistence snapshots
     #node.override_parameter("-Dorg.cougaar.core.persistence.lazyInterval", "3600000")
     #
@@ -239,7 +242,7 @@ society.each_host do |host|
     # This is needed because of a bug in the SDK 1.4.
     # Internal Java runtime classes can create infinite recursive calls
     #node.remove_parameter("-Xbootclasspath/a.*")
-    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar")
+    node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}secure_bootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar")
     #node.replace_parameter(/-Xbootclasspath\/p/, "-Xbootclasspath/p:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}buffer-java-patch.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}javaiopatch.jar")
     
     # Aspects: MessageProtectionAspect
@@ -452,7 +455,7 @@ society.each_node do |node|
      #     export CLASSPATH=<OptItDir>/lib/optit.jar:$CLASSPATH
      # 4) Add -Xrunpri:startAudit=t
      # Put oibcp.jar and optit.jar under $CIP/sys
-     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}oibcp.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}optit.jar")
+     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}secure_bootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}oibcp.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}optit.jar")
      # Memory profiler enabled:
      #node.add_parameter("-Xrunpri:startAudit=t,port=1470,pause=t,filter=$COUGAAR_INSTALL_PATH#{File::SEPARATOR}configs#{File::SEPARATOR}security#{File::SEPARATOR}cougaarOptimizeIt.oif")
      # Memory profiler disabled:
@@ -477,7 +480,7 @@ society.each_node do |node|
    if facet[:role] == 'jprofiler'
      node.add_parameter("-Xmixed")
      node.add_parameter("-Xrunjprofiler:port=8849")
-     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}agent.jar")
+     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}secure_bootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}agent.jar")
    end
  end
 end
