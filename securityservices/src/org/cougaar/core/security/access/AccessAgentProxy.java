@@ -477,9 +477,23 @@ public class AccessAgentProxy
     int newLen = len;
 
     for (int i = 0; i < len; i++) {
-      if (!directive[i].getSource().toString().equals(source) ||
+      /*
+        Modified by Rakesh 
+        Modified the code to check directive source with message source and ignore
+        the target directives as the target directive will be an ABA 
+        */
+      if (!directive[i].getSource().toString().equals(source)){
+          /*||
           !directive[i].getDestination().toString().equals(target)) {
+          */
         // the directives are bad!
+        
+        log.debug(" Source at directive is :"+directive[i].getSource().toString());
+        log.debug(" Source is  in message :"+ source);
+        /*
+        log.debug(" Target at directive is :"+directive[i].getDestination().toString());
+        log.debug(" Target is  in message :"+ target);
+        */
         directive[i] = null;
         newLen--;
       } else {
