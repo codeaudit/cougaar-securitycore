@@ -8,7 +8,7 @@ echo "Please enter user name:"
 ##################
 set USER=$<
 
-set cougaarPath=cougaar-8.8.0
+set cougaarPath=cougaar
 
 echo "Please enter Cougaar path: [ ${cougaarPath} ] "
 set cougaarUserPath=$<
@@ -106,7 +106,12 @@ jar -xvf $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/securityservices.jar \
         com/nai/security/certauthority/CertificateSigningRequest.class \
         com/nai/security/certauthority/CertificateList.class \
         com/nai/security/certauthority/CertificateDetailsServlet.class \
-        com/nai/security/certauthority/RevokeCertificateServlet.class
+        com/nai/security/certauthority/RevokeCertificateServlet.class \
+        com/nai/security/certauthority/ProcessPendingCertServlet.class \
+        com/nai/security/certauthority/PendingCertificateServlet.class \
+        com/nai/security/certauthority/PendingCertDetailsServlet.class \
+        com/nai/security/certauthority/PendingCertCache.class 
+
 
 cd  ${TOMCAT_HOME}/webapps/${APP_HOME}
 tar -xvf servlet.tar
