@@ -3,17 +3,29 @@
 
 enclaves = 1..4  # there are 4 enclaves...do this once per enclave
 society.each_node do |node|
-  enclaves.each do |enclave|
-    if node.name == "Enclave" + enclave.to_s() + "CANode"
-      node.agent.add_component do |c|
-        c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
-        c.priority = "HIGH"
-        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-        c.add_argument("CN=Enclave" + enclave.to_s() + "_CA, OU=Enclave" + enclave.to_s() +
-			", O=DLA, L=San Francisco, ST=CA, C=US, T=ca")
-        c.add_argument("")
-        c.add_argument("cypress:RootCA")
-      end
+  arg = nil
+  if node.name == 'REAR-MGMT-NODE'
+    # Enclave 1
+    arg = "CN=Enclave1_CA, OU=Enclave1, O=DLA, L=MV, ST=CA, C=US, T=ca"
+  elsif node.name == 'FWD-MGMT-NODE'
+    # Enclave 2
+    arg = "CN=Enclave2_CA, OU=Enclave2, O=DLA, L=MV, ST=CA, C=US, T=ca"
+  elsif node.name == 'CONUS-MGMT-NODE'
+    # Enclave 3
+    arg = "CN=Enclave3_CA, OU=Enclave3, O=DLA, L=MV, ST=CA, C=US, T=ca"
+  elsif node.name == 'TRANS-MGMT-NODE'
+    # Enclave 4
+    arg = "CN=Enclave4_CA, OU=Enclave4, O=DLA, L=MV, ST=CA, C=US, T=ca"
+  end
+
+  if arg != nil
+    node.agent.add_component do |c|
+      c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
+      c.priority = "HIGH"
+      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+      c.add_argument(arg)
+      c.add_argument("")
+      c.add_argument("sb029:RootCA")
     end
   end
 end
