@@ -95,9 +95,16 @@ include_scripts:
 CIP = ENV['CIP']
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
-# Below is the path when using open-source ACME
-$:.unshift File.join(CIP, 'acme', 'acme_scripting',  'src', 'lib')
-$:.unshift File.join(CIP, 'acme', 'acme_service', 'src', 'redist')
 
-require 'cougaar/scripting'
+if File.exist?("#{CIP}/acme")
+  # Below is the path when using open-source ACME
+  $:.unshift File.join(CIP, 'acme', 'acme_scripting',  'src', 'lib')
+  $:.unshift File.join(CIP, 'acme', 'acme_service', 'src', 'redist')
+  require 'cougaar/scripting'
+  $:.unshift File.join(CIP, 'csmart', 'lib')
+  require 'security/actions/cleanup_society'
+else
+  require 'cougaar/scripting'
+end
+
 Cougaar::ExperimentDefinition.register(__FILE__)
