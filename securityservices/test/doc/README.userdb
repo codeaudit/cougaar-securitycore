@@ -52,6 +52,13 @@ openssl req  -new -keyout slapdkey.pem -out slapdreq.pem  -days 3653 \
 keytool -export -rfc -file slapdca.pem -keystore ./keystore-CONUS-RSA \
         -alias conusca-1
 
+   Here's a little trick to make it so that your key doesn't require
+   a password:
+
+openssl rsa -in slapdkey.pem -out slapd.key
+
+   Will ask you for your password and write out a key file without a password.
+
 4. Edit the slapd.conf which was installed into /etc/openldap unless
    you have installed OpenLDAP other than the default location. You must
    be sure to include the cougaar user schema:
@@ -143,6 +150,17 @@ plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.
    to those users. Once you have done so, you can assign policy to servlets
    using your domain manager (or modifying the BootPolicy.ldm.xml) to force
    users to login to particular agents or URLs.
+
+9. WARNING: LDAPS FOR OPENLDAP DOES NOT SEEM TO BE WORKING WITH JAVA.
+   I have gotten around this problem by using stunnel. Instead of using
+   LDAPS in the slapd.conf file, use stunnel like this:
+
+cd /usr/share/ssl/certs/
+cat slapdcert.pem slapdkey.pem > slapd.pem
+stunnel -p /usr/share/ssl/certs/slapd.pem -d 636 -r 389
+
+   You should also add this to your /etc/init.d/ldap script so that it is
+   automagically started.
 
 
 Full 1AD society
