@@ -2,7 +2,7 @@
 
 name: MOAS-II-AS-RESTORE-Basline
 description: MOAS-II-AS-preStage5-Restore-Baseline
-script: $CIP/csmart/scripts/definitions/BaselineTemplate-ExtOplan.rb
+script: $CIP/csmart/scripts/definitions/BaselineTemplate.rb
 parameters:
   - run_count: 1
   - snapshot_name: $CIP/SAVE-PreStage5.tgz

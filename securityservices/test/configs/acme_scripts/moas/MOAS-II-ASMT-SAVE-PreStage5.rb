@@ -2,7 +2,7 @@
 
 name: MOAS-II-AS-Save
 description: MOAS-II-AS save pre-Stage5
-script: $CIP/csmart/scripts/definitions/BaselineTemplate-ExtOplan.rb
+script: $CIP/csmart/scripts/definitions/BaselineTemplate.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/csmart/config/societies/ua/full-tc20-232a703v.plugins.rb
@@ -57,7 +57,8 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
-#  - script: $CIP/csmart/lib/security/scripts/check_wp.rb
+  - script: $CIP/csmart/lib/security/scripts/check_wp.rb
+  - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb
 #  - script: $CIP/csmart/lib/security/scripts/revoke_agent_and_node_cert.rb
 #  - script: $CIP/csmart/lib/security/scripts/stress_security_uc1.rb
 #  - script: $CIP/csmart/lib/security/scripts/stress_security_uc3.rb
