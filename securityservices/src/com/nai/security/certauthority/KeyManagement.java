@@ -221,10 +221,15 @@ public class KeyManagement
   }
 
   public void processPkcs10Request(PrintStream out, InputStream request)
-    throws CertificateEncodingException, IOException
   {
-    X509Certificate[] certs = processPkcs10Request(request);
-    base64EncodeCertificates(out, certs);
+    try {
+      X509Certificate[] certs = processPkcs10Request(request);
+      base64EncodeCertificates(out, certs);
+    }
+    catch (CertificateEncodingException e) {
+    }
+    catch (IOException e) {
+    }
   }
 
   public void base64EncodeCertificates(PrintStream out, X509Certificate[] certs)
