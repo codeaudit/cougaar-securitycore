@@ -2,18 +2,24 @@
 # enclave_ca_config_component.rule
 
 configPlugin = "org.cougaar.core.security.certauthority.ConfigPlugin"
+trustedCAConfigPlugin = "org.cougaar.core.security.crypto.TrustedCAConfigPlugin"
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
  
 
-cahost = nil
 redundantroot = nil
+caDupManager = 'RootBackupCaManager'
+caDupHttpPort = '8830'
+caDupHttpsPort = '9830'
+
+caroot = nil
 caHttpPort = nil
 caHttpsPort = nil
 caManager = 'RootCaManager'
+
 society.each_node do |node|
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority'
-      cahost = node.host.name 
+      caroot = node
       caHttpPort = node.cougaar_port
       if (caHttpPort == nil)
         raise "Unable to find HTTP port number of root CA"
@@ -31,10 +37,6 @@ end
 
 # use redundant root if there is one
 if redundantroot != nil
-      cahost = redundantroot.host.name
-      caManager = 'RootBackupCaManager'
-      caHttpPort = '8830'
-      caHttpsPort = '9830'
          facetval = redundantroot.host.get_facet(:enclave)
     securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
 
@@ -48,14 +50,33 @@ if redundantroot != nil
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
         c.add_argument("CN=RedundantRootCA, OU=RedundantRoot, O=DLA, L=MV, ST=CA, C=US, T=ca")
       end
+
+      redundantroot.agent.add_component do |c|
+        c.name = "TrustedCAConfigPlugin"
+        c.classname = trustedCAConfigPlugin
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        arg = "#{caroot.host.name}:#{caManager}:#{caHttpPort}:#{caHttpsPort}"
+        c.add_argument(arg);
+      end
+    end
+    
+         facetval = caroot.host.get_facet(:enclave)
+    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
+    if caroot.agent.has_component?(securityFactoryComponentName)
+      caroot.agent.add_component do |c|
+        c.name = "TrustedCAConfigPlugin"
+        c.classname = trustedCAConfigPlugin
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        arg = "#{redundantroot.host.name}:#{caDupManager}:#{caDupHttpPort}:#{caDupHttpsPort}"
+        c.add_argument(arg);
+      end
     end
 
-#    redundantroot.agent.each_component do |c|
-#      puts "component #{c.name}"
-#    end
 end
 
-if cahost != nil
+if caroot != nil
   society.each_node do |node|
     node.each_facet(:role) do |facet|
       if facet[:role] == 'RedundantCertificateAuthority'
@@ -79,7 +100,54 @@ if cahost != nil
                #  2nd arg: Name of CA agent
                #  3rd arg: HTTP port number of CA
                #  4th arg: HTTPs port number of CA
-               c.add_argument(cahost + ":" + caManager + ":" + caHttpPort + ":" + caHttpsPort)
+               if redundantroot != nil
+                 arg = "#{redundantroot.host.name}:#{caDupManager}:#{caDupHttpPort}:#{caDupHttpsPort}"
+                 c.add_argument(arg);
+               else
+                 arg = "#{caroot.host.name}:#{caManager}:#{caHttpPort}:#{caHttpsPort}"
+                 c.add_argument(arg);
+               end
+             end
+
+             # the trusted CA plugin
+             if redundantroot != nil
+               node.agent.add_component do |c|
+                 c.name = enclave + "TrustedCaConfigPlugin"
+                 c.classname = trustedCAConfigPlugin
+                 c.priority = "HIGH"
+                 c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+               #  1st arg: host name where CA is running
+               #  2nd arg: Name of CA agent
+               #  3rd arg: HTTP port number of CA
+               #  4th arg: HTTPs port number of CA
+                 arg = "#{caroot.host.name}:#{caManager}:#{caHttpPort}:#{caHttpsPort}"
+                 c.add_argument(arg);
+               end 
+             end
+           end
+        else
+          #puts "Not adding component yet (to preserve component order requirements)"
+        end
+      end
+      if facet[:role] == 'CertificateAuthority' \
+         and redundantroot != nil
+         facetval = node.host.get_facet(:enclave)
+
+         enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
+         if node.agent.has_component?(securityFactoryComponentName)
+           if enclave != nil
+             node.agent.add_component do |c|
+               c.name = enclave + "TrustedCaConfigPlugin"
+               c.classname = trustedCAConfigPlugin
+               c.priority = "HIGH"
+               c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+               #  1st arg: host name where CA is running
+               #  2nd arg: Name of CA agent
+               #  3rd arg: HTTP port number of CA
+               #  4th arg: HTTPs port number of CA
+                 arg = "#{redundantroot.host.name}:#{caDupManager}:#{caDupHttpPort}:#{caDupHttpsPort}"
+                 c.add_argument(arg);
              end
            end
         else
