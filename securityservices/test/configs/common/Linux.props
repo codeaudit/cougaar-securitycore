@@ -195,8 +195,8 @@ org.cougaar.core.security.crypto.validitypoll=600
 
 # for unzip & run
 # indicates unzip & run
-#org.cougaar.core.autoconfig=true
-# org.cougaar.core.security.configpoll=5000;
+org.cougaar.core.autoconfig=true
+org.cougaar.core.security.configpoll=5000;
 
 # Enable/disable use of component execution using multiple subjects.
 # Not used anymore.
