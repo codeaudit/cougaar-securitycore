@@ -1,11 +1,10 @@
 ####################################################
 # Rule to insert the community viewer servlet to every node
 
-plugin = "org.cougaar.community.util.CommunityViewerServlet
+plugin = "org.cougaar.community.util.CommunityViewerServlet"
 
 society.each_node do |node|
   node.add_component do |c|
       c.classname = plugin
   end
 end
-
