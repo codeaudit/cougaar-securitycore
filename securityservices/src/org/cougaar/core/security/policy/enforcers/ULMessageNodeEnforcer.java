@@ -21,7 +21,6 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 
@@ -30,7 +29,6 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import kaos.core.util.AttributeMsg;
-import kaos.ontology.jena.*;
 import kaos.ontology.matching.*;
 import kaos.policy.information.KAoSProperty;
 import kaos.policy.information.PolicyInformation;
@@ -53,7 +51,6 @@ import safe.enforcer.AgentEnforcer;
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;
-import safe.ontology.jena.UltralogActionConcepts;
 
 /**
  * This class is responsible for enforcing policy for Ultralog messages.
@@ -66,10 +63,12 @@ public class ULMessageNodeEnforcer
   private CommunityService _communityService;
 
   private final String _enforcedActionType 
-    = ActionConcepts._EncryptedCommunicationAction_;
+    = kaos.ontology.jena.ActionConcepts._EncryptedCommunicationAction_;
   private final String _verbGetLogSupport = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "GetLogSupport";
   private final String _verbGetWater = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "GetWater";
 
   private List      _agents;
@@ -83,7 +82,7 @@ public class ULMessageNodeEnforcer
   {
     Vector result = new Vector();
     result.add(_enforcedActionType);
-    result.add(ActionConcepts._CommunicationAction_);
+    result.add(kaos.ontology.jena.ActionConcepts._CommunicationAction_);
     return result;
   }
 
@@ -271,7 +270,7 @@ public class ULMessageNodeEnforcer
 
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription
-                (ActionConcepts._hasDestination_, 
+                (kaos.ontology.jena.ActionConcepts._hasDestination_, 
                  receiver));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
@@ -279,10 +278,11 @@ public class ULMessageNodeEnforcer
                                     targets);
     Set verbs = 
       _guard.getAllowableValuesForProperty(
-                                   UltralogActionConcepts._hasSubject_,
-                                   action,
-                                   HardWired.hasSubjectValues,
-                                   false);
+                      org.cougaar.core.security.policy.enforcers.ontology.jena.
+                      UltralogActionConcepts._hasSubject_,
+                      action,
+                      HardWired.hasSubjectValues,
+                      false);
     if (verbs == null) { return false; }
     else { 
       _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
@@ -308,7 +308,7 @@ public class ULMessageNodeEnforcer
     }
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription
-                (ActionConcepts._hasDestination_, 
+                (kaos.ontology.jena.ActionConcepts._hasDestination_, 
                  receiver));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
@@ -316,6 +316,7 @@ public class ULMessageNodeEnforcer
                                     targets);
     Set ciphers = 
       _guard.getAllowableValuesForProperty(
+                   org.cougaar.core.security.policy.enforcers.ontology.jena.
                    UltralogActionConcepts._usedProtectionLevel_,
                    action,
                    HardWired.usedProtectionLevelValues,

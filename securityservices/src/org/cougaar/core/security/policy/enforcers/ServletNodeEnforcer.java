@@ -21,10 +21,9 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
-import org.cougaar.core.security.policy.enforcers.util.DAMLMapping;
+import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
@@ -33,12 +32,9 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import kaos.core.util.AttributeMsg;
-import kaos.ontology.jena.ActionConcepts;
 import kaos.ontology.matching.*;
 import kaos.policy.information.KAoSProperty;
 import kaos.policy.information.PolicyInformation;
-
-import safe.ontology.jena.UltralogActionConcepts;
 
 // Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
@@ -65,15 +61,17 @@ public class ServletNodeEnforcer
 {
   private ServiceBroker _sb;
   protected LoggingService _log;
-  private final String _enforcedActionType = ActionConcepts.actionDamlURL 
-    + "AccessAction";
+  private final String _enforcedActionType =
+    kaos.ontology.jena.ActionConcepts.actionDamlURL + "AccessAction";
   private final String _authWeak = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "Weak";
   private final String _authStrong = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
   private List _people;
   private NodeGuard _guard;
-  private DAMLMapping _uriMap;
+  private DAMLServletMapping _uriMap;
 
   /**
    * Returns a list of the classes controlled by this enforcer - currently 
@@ -108,7 +106,7 @@ public class ServletNodeEnforcer
     // FIXME!!
     HardWired.setServiceBroker(sb);
 
-    _uriMap = new DAMLMapping(sb);
+    _uriMap = new DAMLServletMapping(sb);
     _uriMap.initializeUri();
 
     _sb = sb;
@@ -305,7 +303,8 @@ public class ServletNodeEnforcer
     Set targets = new HashSet();
     if (!targets.add(
                      new TargetInstanceDescription
-                     (UltralogActionConcepts._accessedServlet_, 
+                     (org.cougaar.core.security.policy.enforcers.ontology.jena.
+                      UltralogActionConcepts._accessedServlet_, 
                       kaosuri))) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
@@ -315,10 +314,11 @@ public class ServletNodeEnforcer
       new ActionInstanceDescription(_enforcedActionType,
                                     UserDatabase.anybody(),  
                                     targets);
-    action.removeProperty(ActionConcepts._performedBy_);
+    action.removeProperty(kaos.ontology.jena.ActionConcepts._performedBy_);
     action.removeAllActorInstances();
     Set cipherSuites = 
       _guard.getAllowableValuesForProperty(
+                  org.cougaar.core.security.policy.enforcers.ontology.jena.
                   UltralogActionConcepts._usedAuthenticationLevel_,
                   action,
                   HardWired.usedAuthenticationLevelValues,
@@ -363,9 +363,10 @@ public class ServletNodeEnforcer
     }
         
     Set targets = new HashSet();
-    if ( !targets.add(new TargetInstanceDescription
-                      (UltralogActionConcepts._accessedServlet_, 
-                       kaosuri)) ) {
+    if (!targets.add(new TargetInstanceDescription
+                     (org.cougaar.core.security.policy.enforcers.ontology.jena.
+                      UltralogActionConcepts._accessedServlet_, 
+                      kaosuri)) ) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
       return false;
@@ -377,7 +378,8 @@ public class ServletNodeEnforcer
       new ActionInstanceDescription(_enforcedActionType,
                                     user,  
                                     targets);
-    KAoSProperty userProp = action.getProperty(ActionConcepts._performedBy_);
+    KAoSProperty userProp = action.getProperty(kaos.ontology.jena.
+                                               ActionConcepts._performedBy_);
     try {
       boolean result = _guard.isActionAuthorized(action);
       UserDatabase.logout(user);
