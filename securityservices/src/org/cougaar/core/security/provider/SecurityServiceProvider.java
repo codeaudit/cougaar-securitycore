@@ -40,7 +40,6 @@ import org.cougaar.core.security.policy.dynamic.DynamicPolicy;
 import org.cougaar.core.security.policy.mediator.XmlPolicyMediator;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.auth.AuthorizationService;
-import org.cougaar.core.security.services.auth.PedigreeService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
 import org.cougaar.core.security.services.crypto.CertValidityService;
@@ -53,6 +52,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.SSLService;
 import org.cougaar.core.security.services.crypto.ServletPolicyService;
 import org.cougaar.core.security.services.crypto.UserSSLService;
+import org.cougaar.core.security.services.crypto.CertificateRequestorService;
 import org.cougaar.core.security.services.identity.WebserverIdentityService;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
@@ -63,14 +63,13 @@ import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
-import org.cougaar.core.service.DataProtectionService;
+//import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.service.LDMService;
 
-import java.lang.reflect.Constructor;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
 
@@ -87,8 +86,8 @@ public class SecurityServiceProvider
   private boolean isExecutedWithinNode = true;
   private boolean initDone = false;
 
-  private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
-  private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
+//  private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
+//  private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
 
   public SecurityServiceProvider() {
     ServiceBroker sb = new ServiceBrokerSupport();
@@ -230,10 +229,12 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(CACertDirectoryService.class, newSP);
 
     /* Certificate Management service */
+    // move to certauth to be started in its own component
+    /*
     newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateManagementService.class, newSP);
     rootServiceBroker.addService(CertificateManagementService.class, newSP);
-
+    */
 
     /* Starting Certificate Cache  service */
 
@@ -275,27 +276,27 @@ public class SecurityServiceProvider
     if (isExecutedWithinNode) {
       
       /* Persistence Manager Service */
+/*
 //      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
       newSP = null;
       Class cls = null;
       try {
       	cls = Class.forName(PMP_PROVIDER_CLASS);
-        Class [] param = {ServiceBroker.class, String.class};
-        Constructor constructor = cls.getConstructor(param);
-        Object [] values = {serviceBroker, mySecurityCommunity};
-        newSP = (ServiceProvider)constructor.newInstance(values);
+      	newSP = (ServiceProvider)cls.newInstance();
       } catch (Exception ex) {
       	log.error("Exception while instantiating " + PMP_PROVIDER_CLASS + ": " + ex);
       }
 //      newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(PMP_PROVIDER_CLASS);
       
       if (newSP != null) {
+      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
         services.put(PersistenceMgrPolicyService.class, newSP);
         rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
       }
       else {
         log.error("No persistence policy service provider, the module is not installed.");
       }
+*/
       
       /* Encryption Service */
       newSP = new EncryptionServiceProvider(serviceBroker, mySecurityCommunity);
@@ -303,6 +304,7 @@ public class SecurityServiceProvider
       rootServiceBroker.addService(EncryptionService.class, newSP);
 
       /* Data protection service */
+/*
       boolean dataOn =
 	Boolean.valueOf(System.getProperty("org.cougaar.core.security.dataprotection", "true")).booleanValue();
       if (dataOn) {
@@ -311,16 +313,14 @@ public class SecurityServiceProvider
         cls = null;
         try {
         	cls = Class.forName(DP_PROVIDER_CLASS);
-          Class [] param = {ServiceBroker.class, String.class};
-          Constructor constructor = cls.getConstructor(param);
-          Object [] values = {serviceBroker, mySecurityCommunity};
-          newSP = (ServiceProvider)constructor.newInstance(values);
+        	newSP = (ServiceProvider)cls.newInstance();
         } catch (Exception ex) {
         	log.error("Exception while instantiating " + DP_PROVIDER_CLASS + ": " + ex);
         }
 //        newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(DP_PROVIDER_CLASS);
        
         if (newSP != null) {
+      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
 	services.put(DataProtectionService.class, newSP);
 	rootServiceBroker.addService(DataProtectionService.class, newSP);
         }
@@ -332,6 +332,7 @@ public class SecurityServiceProvider
       else {
 	log.warn("Data protection service disabled");
       }
+*/
 
       /* Message protection service */
       newSP = new MessageProtectionServiceProvider(serviceBroker, mySecurityCommunity);
@@ -391,6 +392,7 @@ public class SecurityServiceProvider
     /* ********************************
      * SSL services
      */
+/*
       newSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(SSLService.class, newSP);
       rootServiceBroker.addService(SSLService.class, newSP);
@@ -413,11 +415,17 @@ public class SecurityServiceProvider
 
       // configured to use SSL?
       if (secprop.getProperty(SecurityPropertiesService.WEBSERVER_HTTPS_PORT, null) != null) {
-	newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
-        services.put(WebserverIdentityService.class, newSP);
-        rootServiceBroker.addService(WebserverIdentityService.class, newSP);
-        rootServiceBroker.getService(this, WebserverIdentityService.class, null);
+        if (serviceBroker.hasService(CertificateRequestorService.class)) {
+          registerSSLServices();
+        }
+        else {
+          if (log.isDebugEnabled()) {
+            log.debug("Registering  CQServiceAvailableListener ");
+          }
+          serviceBroker.addServiceListener(new CRServiceAvailableListener ());
+        }
       }
+*/
 
       /* ********************************
        * LDAP user administration
@@ -500,6 +508,25 @@ public class SecurityServiceProvider
      log.debug("Service broker is :"+ serviceBroker.toString());
    }
   }
+
+/*
+  private void registerSSLServices() {
+    ServiceProvider newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(WebserverIdentityService.class, newSP);
+    rootServiceBroker.addService(WebserverIdentityService.class, newSP);
+    rootServiceBroker.getService(this, WebserverIdentityService.class, null);
+  }
+
+  private class CRServiceAvailableListener implements ServiceAvailableListener
+  { 
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      Class sc = ae.getService();
+      if(CertificateRequestorService.class.isAssignableFrom(sc)) {
+        registerSSLServices();
+      }
+    }
+  }
+*/
 
   private class LDMServiceAvailableListener implements ServiceAvailableListener
   {
