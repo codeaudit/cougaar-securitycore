@@ -35,7 +35,7 @@ import java.util.*;
 import org.cougaar.core.security.util.UIUtil;
 
 
-public class AuthSchemeDialog
+public class RequestIdentity
   extends JDialog
 {
   BorderLayout borderLayout1 = new BorderLayout();
@@ -47,10 +47,13 @@ public class AuthSchemeDialog
   JTextArea jTextArea1 = new JTextArea();
   BorderLayout borderLayout2 = new BorderLayout();
 
-  Vector authHandlers = new Vector();
+  boolean isOk = false;
+  JPanel jPanel1 = new JPanel();
+  BorderLayout borderLayout3 = new BorderLayout();
+  Border border1;
 
-  public AuthSchemeDialog() {
-    super((Frame)null, "Select Authenticate Scheme", true);
+  public RequestIdentity() {
+    super((Frame)null, "Request Identity", true);
 
     try {
       jbInit();
@@ -62,6 +65,8 @@ public class AuthSchemeDialog
   private void jbInit() throws Exception {
     border1 = BorderFactory.createEmptyBorder(10,20,10,20);
     this.getContentPane().setLayout(borderLayout1);
+
+    // Buttons
     cancelButton.setText("Cancel");
     cancelButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -75,22 +80,13 @@ public class AuthSchemeDialog
       }
     });
 
-    createCertButton.setText("Request Identitty");
-    createCertButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        createCertButton_actionPerformed(e);
-      }
-    });
-
     jTextArea1.setEditable(false);
-    jTextArea1.setText("\n    Please select authentication schemes.");
+    jTextArea1.setText("\n    Request certificate from CA");
     jTextArea1.setLineWrap(true);
     jTextArea1.setWrapStyleWord(true);
     jPanel3.setLayout(borderLayout2);
     jPanel3.setPreferredSize(new Dimension(68, 60));
     jPanel1.setLayout(borderLayout3);
-    handlerList.setBackground(Color.pink);
-    handlerList.setBorder(BorderFactory.createEtchedBorder());
     jPanel1.setBorder(border1);
     this.getContentPane().add(jPanel2, BorderLayout.SOUTH);
     jPanel2.add(okButton, null);
@@ -99,7 +95,6 @@ public class AuthSchemeDialog
     this.getContentPane().add(jPanel3, BorderLayout.NORTH);
     jPanel3.add(jTextArea1, BorderLayout.CENTER);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(handlerList,  BorderLayout.CENTER);
 
     setSize(300, 300);
 
@@ -111,43 +106,12 @@ public class AuthSchemeDialog
     return isOk;
   }
 
-  public void setHandlers(Vector handlers) {
-    authHandlers.removeAllElements();
-    authHandlers.addAll(handlers);
-    handlerList.updateUI();
-  }
-
-  public Vector getSelection() {
-    Vector selection = new Vector();
-    Object [] values = handlerList.getSelectedValues();
-    for (int i = 0; i < values.length; i++) {
-      //System.out.println("selected: " + i + " : " + handlerList.isSelectedIndex(i));
-      if (handlerList.isSelectedIndex(i))
-       selection.addElement(values[i]);
-    }
-    return selection;
-  }
-
-  boolean isOk = false;
-  JPanel jPanel1 = new JPanel();
-  JList handlerList = new JList(authHandlers);
-  BorderLayout borderLayout3 = new BorderLayout();
-  Border border1;
-
   void okButton_actionPerformed(ActionEvent e) {
     isOk =true;
     this.dispose();
   }
 
   void cancelButton_actionPerformed(ActionEvent e) {
-    this.dispose();
-  }
-
-  void createCertButton_actionPerformed(ActionEvent e) {
-    // TODO: popup window to create certificate
-    // and send request to CA.
-    RequestIdentity identityDialog = new RequestIdentity();
-    identityDialog.showDialog();
     this.dispose();
   }
 
