@@ -59,6 +59,7 @@ import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
 import org.cougaar.core.security.policy.ontology.UltralogEntityConcepts;
 import org.cougaar.core.security.policy.ontology.UltralogGroupConcepts;
+import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
 
 import com.hp.hpl.jena.ontology.OntClass;
 
@@ -267,12 +268,19 @@ public class PolicyUtils
   }
 
   public static void loadDeclarations(Map declarations)
-    throws ReasoningException
+    throws ReasoningException, IOException
   {
     for (Iterator instanceIt = declarations.keySet().iterator(); 
          instanceIt.hasNext();) {
       String instanceName = (String) instanceIt.next();
       String className    = (String) declarations.get(instanceName);
+      _ontology.declareInstance(instanceName, className);
+    }
+    CipherSuiteMapping csm = new CipherSuiteMapping();
+    for (Iterator instanceIt = csm.usedProtectionLevelValues().iterator();
+         instanceIt.hasNext();) {
+      String instanceName = (String) instanceIt.next();
+      String className = UltralogEntityConcepts.ProtectionLevel;
       _ontology.declareInstance(instanceName, className);
     }
   }
