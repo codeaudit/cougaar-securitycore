@@ -397,6 +397,7 @@ public class DataProtectionServiceImpl
 
 	List certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
         if (certList == null || certList.size() == 0) {
+/*
           int totalWait = 400000; // the persistence time is 5 minutes
           int wait_time = 10000;
           try {
@@ -419,7 +420,14 @@ public class DataProtectionServiceImpl
             }
             catch (Exception ex) {}
           }
+*/
+        // a heck to get agent certificate 
+        // persistence rehydration is started before agent identity so
+        // we will never get the agent cert here
+          keyRing.checkOrMakeCert(agent);
+          certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
         }
+        
         if (certList == null || certList.size() == 0) {
           CertificateException cx = new CertificateException("No certificate available to sign.");
           publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
