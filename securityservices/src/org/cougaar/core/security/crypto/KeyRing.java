@@ -123,6 +123,7 @@ final public class KeyRing  implements KeyRingService  {
    * will be cleared after CA key has been generated.
    */
   private Hashtable requestedIdentities = new Hashtable();
+  private boolean _requestingIdentities = false;
 
   /**
    * For introducing stress to be able to use expired certificate to test the system
@@ -1735,6 +1736,7 @@ try {
     // certificate
     // flag for unzip & run
     if (System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
+      _requestingIdentities = true;
       for (Enumeration en = requestedIdentities.keys(); en.hasMoreElements(); ) {
         String cname = (String)en.nextElement();
         // no need to do dname again
@@ -1754,6 +1756,9 @@ try {
         checkOrMakeCert(dname, false, trustedCaPolicy);
         updateNS(dname);
       }
+
+      requestedIdentities.clear();
+      _requestingIdentities = false;
     }
   }
 
@@ -2145,7 +2150,8 @@ try {
 
   private boolean checkExpiry(String commonName, TrustedCaPolicy trustedCaPolicy) {
     // certificate have not been generated yet, still waiting in initial stage
-    if (requestedIdentities.get(commonName) != null) {
+    // after handleRequestedIdentities are called the table becomes irelevant
+    if (_requestingIdentities) {
       return false;
     }
 
@@ -2187,6 +2193,10 @@ try {
     // it claims certificates have been generated, is it true?
       certificateList = findCert(x500name, KeyRingService.LOOKUP_KEYSTORE, false);
       if (certificateList == null || certificateList.size() == 0) {
+        if (log.isWarnEnabled()) {
+          log.warn("Missing certificate for " + commonName + ", adding it to request monitor thread.");
+        }
+
         // let the certificate request thread handle it
         CertValidityService validityService = (CertValidityService)
           serviceBroker.getService(this,
