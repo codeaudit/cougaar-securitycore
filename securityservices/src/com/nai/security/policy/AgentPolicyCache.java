@@ -28,8 +28,8 @@ package com.nai.security.policy;
 
 import org.cougaar.planning.ldm.policy.Policy;
 
-import SAFE.Enforcer.AgentEnforcer;
-import KAoS.Util.Msg;
+import safe.enforcer.AgentEnforcer;
+import kaos.core.util.Msg;
 
 public class AgentPolicyCache extends PolicyCache implements AgentEnforcer {
 

@@ -34,18 +34,22 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.io.*;
 
+import org.w3c.dom.Document;
+
+// Core Cougaar
 import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
-import org.w3c.dom.Document;
-
-import KAoS.Util.Msg;
-import KAoS.Policy.PolicyConstants;
-import KAoS.KPAT.message.PolicyMsg;
-import KAoS.Util.Logger;
-import SAFE.Util.*;
-
 import org.cougaar.planning.ldm.policy.Policy;
+
+// KAoS policy management
+import kaos.core.util.Msg;
+import kaos.core.policy.PolicyConstants;
+import kaos.core.util.Logger;
+import kaos.core.util.PolicyMsg;
+import safe.util.*;
+
+// Cougaar security services
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.core.security.policy.TypedPolicy;
 

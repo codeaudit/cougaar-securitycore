@@ -36,16 +36,17 @@ import org.cougaar.core.plugin.*;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.util.*;
 
-import KAoS.enforcer.IGuard;
-import KAoS.enforcer.GuardRetriever;
-import KAoS.Policy.PolicyConstants;
-import KAoS.guard.IEnforcer;
-import KAoS.KPAT.message.PolicyMsg;
-import KAoS.Util.*;
+import kaos.core.guard.Guard;
+import kaos.core.guard.GuardRetriever;
+import kaos.core.enforcer.Enforcer;
+import kaos.core.policy.PolicyConstants;
+import kaos.core.util.*;
 
 import com.nai.security.util.DOMWriter;
 
-public abstract class GuardRegistration implements IEnforcer {
+public abstract class GuardRegistration
+  implements Enforcer
+{
   public final String XML_KEY = "XMLContent";
 
   /**
@@ -54,7 +55,7 @@ public abstract class GuardRegistration implements IEnforcer {
   protected boolean debug = true;
 
   /** The KAoS guard **/
-  private IGuard guard = null;
+  private Guard guard = null;
 
   /** The policy type to which we are subscribing
       This is the fully-qualified class name of the policy **/
@@ -128,17 +129,34 @@ public abstract class GuardRegistration implements IEnforcer {
   }
 
   /** Receive a policy change from the guard.
-	IEnforcer implementation.
-	(IEnforcer is the interface exposed by enforcers to the guard). **/
+   *	IEnforcer implementation.
+   *    (IEnforcer is the interface exposed by enforcers to the guard).
+   * @param updateType can be one of SET_POLICIES, ADD_POLICIES,
+   *                   CHANGE_POLICIES or REMOVE_POLICIES
+   @ @param policies a list of kaos.core.util.PolicyMsg objects
+  **/
 
-  public void receivePolicyChange(KAoS.Util.Msg aMsg) { //throws PolicyMessageException
+  public void receivePolicyUpdate(String updateType,
+				  List policies)
+  //throws PolicyMessageException
+  {
     if (debug == true) {
-      System.out.println("GuardEnforcer. Received a policy message:" + aMsg);
+      System.out.println("GuardEnforcer. Received a list of policy msg. Type="
+			 + updateType);
     }
+
+    Iterator it = policies.iterator();
+    while (it.hasNext()) {
+      kaos.core.util.PolicyMsg aMsg = (kaos.core.util.PolicyMsg) it.next();
+      processPolicyMessage(aMsg);
+    }
+  }
+
+  private void processPolicyMessage(kaos.core.util.PolicyMsg aMsg)
+  {
     Vector attributes = null;
     String policyTypeInMessage = null;
-    Policy policy = null;
-    Object o;
+
     String policyID = null;
     String policyName = null;
     String policyDescription = null;
@@ -150,20 +168,19 @@ public abstract class GuardRegistration implements IEnforcer {
     String policyType = null;
 
     try {
-      attributes = aMsg.getNamedVector(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL);
+      attributes = aMsg.getAttributes();
       policyTypeInMessage = (String) aMsg.getSymbol(PolicyConstants.HLP_POLICY_TYPE);
-      policyID =          (String) aMsg.getSymbol("PolicyID");
-      // Go figure why this is not PolicyMsg.POLICY_ID);
-      policyName =        (String) aMsg.getSymbol(PolicyMsg.POLICY_NAME);
-      policyDescription = (String) aMsg.getSymbol(PolicyMsg.POLICY_DESC);
-      policyScope =       (String) aMsg.getSymbol(PolicyMsg.POLICY_SCOPE);
-      policySubjectID =   (String) aMsg.getSymbol(PolicyMsg.POLICY_SUBJECT_ID);
-      policySubjectName = (String) aMsg.getSymbol(PolicyMsg.POLICY_SUBJECT_NAME);
-      policyTargetID =    (String) aMsg.getSymbol(PolicyMsg.POLICY_TARGET_ID);
-      policyTargetName =  (String) aMsg.getSymbol(PolicyMsg.POLICY_TARGET_NAME);
-      policyType =        (String) aMsg.getSymbol(PolicyMsg.POLICY_TYPE);
+      policyID =          (String) aMsg.getId();
+      policyName =        (String) aMsg.getName();
+      policyDescription = (String) aMsg.getDescription();
+      policyScope =       (String) aMsg.getScope();
+      policySubjectID =   (String) aMsg.getSubjectId();
+      policySubjectName = (String) aMsg.getSubjectName();
+      policyTargetID =    (String) aMsg.getTargetId();
+      policyTargetName =  (String) aMsg.getTargetName();
+      policyType =        (String) aMsg.getPolicyType();
 
-    } catch (KAoS.Util.SymbolNotFoundException e) {
+    } catch (kaos.core.util.SymbolNotFoundException e) {
       if (debug == true) {
 	System.out.println("GuardEnforcer. Unknown policy type: " + e);
 	e.printStackTrace();
@@ -202,24 +219,36 @@ public abstract class GuardRegistration implements IEnforcer {
     for (int i=0; i<attributes.size(); i++) {
       Msg attrMsg = (Msg) attributes.elementAt(i);
       if (debug) {
-	System.out.println("Policy type: " +
-			   PolicyMsg.getAttributeName(attrMsg));
+	System.out.println("Policy type: " + policyType);
       }
-      if (PolicyMsg.getAttributeName(attrMsg).equals("POLICY_OBJECT")) {
-	boolean isSelected = PolicyMsg.getAttributeIsSelected(attrMsg);
-	policy = (Policy) PolicyMsg.getAttributeValue(attrMsg);
-	receivePolicyMessage(policy,
+      Object policy = null;
+      try {
+	policy = attrMsg.getSymbol("POLICY_OBJECT");
+      }
+      catch (SymbolNotFoundException e) {
+	// This is not an policy message
+      }
+      if (policy instanceof Policy) {
+	receivePolicyMessage((Policy) policy,
 			     policyID, policyName, policyDescription,
 			     policyScope,
 			     policySubjectID, policySubjectName,
 			     policyTargetID, policyTargetName,
 			     policyType);
       }
+      else {
+	// This is not a recognized policy message
+      }
 
-      if (PolicyMsg.getAttributeName(attrMsg).equals("XMLContent")) {
-	boolean isSelected = PolicyMsg.getAttributeIsSelected(attrMsg);
-
-        Document doc = (Document) PolicyMsg.getAttributeValue(attrMsg);
+      // XML policy messages
+      try {
+	policy = attrMsg.getSymbol("XMLContent");
+      }
+      catch (SymbolNotFoundException e) {
+	// This is not an XMLpolicy message
+      }
+      if (policy instanceof Document) {
+        Document doc = (Document) policy;
         //reconstruct the policy from xml doc
         XMLPolicyCreator xpc = new XMLPolicyCreator(doc, "NodeGuard");
         Policy[] p = xpc.getPoliciesByType(policyType);
@@ -242,8 +271,9 @@ public abstract class GuardRegistration implements IEnforcer {
 			     policyType);
         }
       }
-    } //end if
-  } //end for each attribute
+    }
+  }
+
 
 
 

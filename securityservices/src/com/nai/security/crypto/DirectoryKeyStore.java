@@ -69,10 +69,12 @@ public class DirectoryKeyStore
 
 {
   /** This keystore stores the following keys:
-   *  - Keys that have been introduced through the automated key pair generation process.
-   *  - (Optional) Keys that have been manually installed during Cougaar installation
-   *    This may include key pairs for a Cougaar entity (user, node, agent, ...) as
-   *    well as certificates from other entities.
+   *  - Keys that have been introduced through the automated key pair
+   *  generation process.
+   *  - (Optional) Keys that have been manually installed during Cougaar
+   *  installation
+   *  This may include key pairs for a Cougaar entity (user, node, agent, ...)
+   *   as well as certificates from other entities.
    */
   private KeyStore keystore = null;
 
@@ -131,10 +133,6 @@ public class DirectoryKeyStore
   /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
     try {
-      /* debug =
-	(Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-					    "false"))).booleanValue();
-      */
       param = aParam;
 
       // LDAP certificate directory
@@ -657,7 +655,7 @@ public class DirectoryKeyStore
     storeKeyStore();
   }
 
-  private void deleteEntry(String alias)
+  public void deleteEntry(String alias)
   {
     removeCN2alias(alias);
     try {

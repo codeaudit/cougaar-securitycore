@@ -25,8 +25,8 @@
  */
 package com.nai.security.policy;
 
-import KAoS.Util.Msg;
-import SAFE.Enforcer.NodeEnforcer;
+import kaos.core.util.Msg;
+import safe.enforcer.NodeEnforcer;
 /**
  * A cache for storing node policies. 
  */

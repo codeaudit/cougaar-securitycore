@@ -29,7 +29,7 @@ import java.util.Iterator;
 import com.nai.security.policy.*;
 import org.cougaar.planning.ldm.policy.*;
 
-import SAFE.Enforcer.NodeEnforcer;
+import safe.enforcer.NodeEnforcer;
 
 public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 

@@ -36,7 +36,7 @@ import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.planning.ldm.plan.Verb;
 
 // KAoS
-import SAFE.Enforcer.AgentEnforcer;
+import safe.enforcer.AgentEnforcer;
 
 // Cougaar Security Services
 import com.nai.security.policy.*;
@@ -347,7 +347,10 @@ public class AccessControlPolicyServiceImpl
   /** ********************************************************************
    *  AccessPolicyProxy
    */
-  private class AccessPolicyProxy extends GuardRegistration implements AgentEnforcer{
+  private class AccessPolicyProxy
+    extends GuardRegistration
+    implements AgentEnforcer
+  {
     private String agent;
     //private boolean debug=this.debug;
     public AccessPolicyProxy(String name) {

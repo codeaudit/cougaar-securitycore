@@ -32,9 +32,9 @@ import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
 
-import KAoS.enforcer.IGuard;
-import KAoS.enforcer.GuardRetriever;
-import KAoS.guard.IEnforcer;
+import kaos.core.enforcer.IGuard;
+import kaos.core.enforcer.GuardRetriever;
+import kaos.core.enforcer.Enforcer;
 
 /**
  * Parent class, which defines methods for processing Cougaar and KAoS 
@@ -47,7 +47,10 @@ import KAoS.guard.IEnforcer;
  * @author Anya Figlin
  * @author Jay Jacobs
  */
-public class PolicyCache extends GuardRegistration implements IEnforcer {
+public class PolicyCache
+  extends GuardRegistration
+  implements Enforcer
+{
   /**
    * toggles debugging messages for a vebose mode
    */
