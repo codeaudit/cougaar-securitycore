@@ -75,8 +75,6 @@ public class CryptoServiceFactory {
     serviceBroker.addService(DataProtectionService.class,
 			     cryptoServiceProvider);
 
-    serviceBroker.addService(IdentityService.class,
-			     cryptoServiceProvider);
 
     serviceBroker.addService(MessageService.class,
 			     cryptoServiceProvider);
@@ -84,6 +82,10 @@ public class CryptoServiceFactory {
     serviceBroker.addService(KeyRingService.class,
 			     cryptoServiceProvider);
 
+    /* Register Identity services.
+     */
+    serviceBroker.addService(AgentIdentityService.class,
+			     cryptoServiceProvider);
   }
 
 }
