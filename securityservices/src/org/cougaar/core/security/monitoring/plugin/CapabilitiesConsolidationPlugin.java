@@ -74,8 +74,11 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
-      Event event = (Event)relay.getContent();
-      ret = (event.getEvent() instanceof AgentRegistration);
+      Object content = relay.getContent();
+      if (content instanceof Event) {
+        Event event = (Event) content;
+        ret = (event.getEvent() instanceof AgentRegistration);
+      }
     }
     return ret;
   }
