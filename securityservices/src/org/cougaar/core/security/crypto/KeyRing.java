@@ -809,6 +809,9 @@ try {
       while (iter.hasNext()) {
         X500Name dname = (X500Name) iter.next();
         List pkCerts = findPrivateKey(dname);
+        if (pkCerts == null) {
+          throw new Exception("No private key found.");
+        }
         Iterator jter = pkCerts.iterator();
         while (jter.hasNext()) {
           PrivateKeyCert pkc = (PrivateKeyCert) jter.next();
@@ -1596,13 +1599,13 @@ try {
     }
 
     for (int i = 0; i < trustedCaPolicy.length; i++) {
-      X500Name dname = CertificateUtility.getX500Name(CertificateUtility.getX500DN
-						      (commonName,title,
-						       cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy[i])));
+      CertificateAttributesPolicy cap = 
+        cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy[i]);
+      X500Name dname = CertificateUtility.getX500Name(
+        CertificateUtility.getX500DN(commonName,title, cap));
       checkOrMakeCert(dname, false, trustedCaPolicy[i]);
     }
   }
-
 
   /**
    * This function should only be used by user or CA identity request
@@ -1696,6 +1699,18 @@ try {
           updateNS(dname);
           handleRequestedIdentities(trustedCaPolicy);
         }
+      }
+      else {
+        // if not succeeded, continue to the request in validity service
+        CertValidityService validityService = (CertValidityService)
+          serviceBroker.getService(this,
+                                 CertValidityService.class,
+                                 null);
+        validityService.addCertRequest(dname, isCACert, trustedCaPolicy);
+        serviceBroker.releaseService(this,
+                                   CertValidityService.class,
+                                   validityService);
+
       }
     }
   }
