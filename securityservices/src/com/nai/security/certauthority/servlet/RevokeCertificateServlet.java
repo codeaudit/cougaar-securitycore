@@ -114,7 +114,7 @@ public class RevokeCertificateServlet extends  HttpServlet
     
       keymanagement = support.getCertificateManagementService();
       keymanagement.setParameters(cadnname, role, certpath, confpath,
-				  true, null);
+				  true);
       String uniqueIdentifier=distinguishedName;
       status=keymanagement.revokeCertificate(cadnname,uniqueIdentifier);
     }

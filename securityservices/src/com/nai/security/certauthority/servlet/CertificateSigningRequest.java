@@ -160,7 +160,7 @@ public class CertificateSigningRequest
       }
       signer = support.getCertificateManagementService();
       signer.setParameters(CA_DN_name, aRole, 
-			   certpath, confpath, true, null);
+			   certpath, confpath, true);
     }
     catch (Exception exp)  {
       printstream.print("Error ---" + exp.toString());

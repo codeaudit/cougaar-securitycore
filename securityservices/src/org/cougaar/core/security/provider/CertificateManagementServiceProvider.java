@@ -58,7 +58,7 @@ public class CertificateManagementServiceProvider
 
     KeyManagement km = null;
     try {
-      km =new KeyManagement();
+      km =new KeyManagement(ksr);
     }
     catch (Exception e) {
     }

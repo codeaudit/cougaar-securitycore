@@ -1922,7 +1922,7 @@ public class DirectoryKeyStore
 				       CertificateManagementService.class,
 				       null);
       km.setParameters(nodeDN, role,
-		       null, null, false, null);
+		       null, null, false);
 
       X509Certificate[] cf =
 	km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));

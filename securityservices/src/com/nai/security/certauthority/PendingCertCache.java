@@ -86,7 +86,7 @@ public class PendingCertCache extends Hashtable {
 				 CertificateManagementService.class,
 				 null);
       signer.setParameters(cadnname, role, certpath, confpath,
-			   true, null);
+			   true);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN="

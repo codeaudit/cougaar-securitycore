@@ -69,8 +69,7 @@ public interface CertificateManagementService extends Service {
 			    String role,
 			    String certPath,
 			    String confpath,
-			    boolean isCertAuth,
-			    KeyRingService krs);
+			    boolean isCertAuth);
 
   public void processX509Request(PrintStream out, InputStream inputstream);
 

@@ -74,7 +74,8 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
  *     The property should not be defined if the CA service is instantiated
  *     from Cougaar. 
  * + See also com.nai.security.crypto.ConfParser for other required properties. */
-public class KeyManagement implements CertificateManagementService
+public class KeyManagement
+  implements CertificateManagementService
 {
   private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
@@ -104,8 +105,9 @@ public class KeyManagement implements CertificateManagementService
 					     node. */
   /**  KeyManagement constructor
    */
-  public KeyManagement() 
+  public KeyManagement(KeyRingService keyRing)
   {
+    this.keyRing = keyRing;
   }
 
   /**  Set key management parameters
@@ -128,8 +130,7 @@ public class KeyManagement implements CertificateManagementService
 			    String role,
 			    String certPath,
 			    String confpath,
-			    boolean isCertAuth,
-			    KeyRingService krs) {
+			    boolean isCertAuth) {
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
@@ -199,15 +200,19 @@ public class KeyManagement implements CertificateManagementService
       System.out.println("Error: Unable to read policy for DN="
 			 + caDN + ". Role="
 			 + role + " - " + e );
+      e.printStackTrace();
       return;
     }
     try {
-      init(role, krs);
+      init(role);
     }
-    catch (Exception e) {}
+    catch (Exception e) {
+      System.out.println("Error. Unable to initialize KeyManagement: " + e);
+      e.printStackTrace();
+    }
   }
 
-  public void init(String role, KeyRingService krs)
+  public void init(String role)
     throws java.io.FileNotFoundException {
       if(isCertAuth) {
       String keystoreFile = confDirectoryName + File.separatorChar
@@ -240,7 +245,6 @@ public class KeyManagement implements CertificateManagementService
       publishCAinLdap();
     }
     else{
-      keyRing = krs;
       try {
 	caPolicy = confParser.readCaPolicy("", role);
       }
@@ -292,7 +296,7 @@ public class KeyManagement implements CertificateManagementService
       caX509cert = findCert(caX500Name.getCommonName());
     }
     catch (java.io.IOException e) {
-      throw new RuntimeException("Unable to find CA cert: " + e);
+      throw new RuntimeException("Error: Unable to find CA cert: " + e);
     }
     x509DirectoryName =  confDirectoryName + File.separatorChar
       + "x509certificates";

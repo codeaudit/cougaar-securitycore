@@ -131,7 +131,7 @@ public class KeyStoreTest
       serviceBroker.getService(this,
 			       CertificateManagementService.class,
 			       null);
-    km.setParameters(caDN, role, null, null, false, null);
+    km.setParameters(caDN, role, null, null, false);
 
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
@@ -149,7 +149,7 @@ public class KeyStoreTest
       serviceBroker.getService(this,
 			       CertificateManagementService.class,
 			       null);
-    km.setParameters(caDN, role, null, null, false, null);
+    km.setParameters(caDN, role, null, null, false);
 
     FileInputStream is = new FileInputStream(filename);
     km.printPkcs7Request(is);
