@@ -581,6 +581,10 @@ public class AgentUserService implements UserService, BlackboardClient {
     return UserEntries.FIELD_CERT_OK;
   }
 
+  public String getDefaultDomain() {
+    return _defaultDomain;
+  }
+
   private class CommunityServiceListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (ae.getService().equals(CommunityService.class)) {

@@ -33,6 +33,15 @@ public interface UserService
 {
 
   /**
+   * Each user is divided into 'domains' for which each
+   * user mananger is responsible. The default domain for users
+   * attempting to use the agent is returned. This depends on
+   * the community service roles -- which "User" community does
+   * the agent/node belong to.
+   */
+  public String getDefaultDomain();
+
+  /**
    * Returns the user attribute used for comparing passwords
    */
   public String getPasswordAttribute();

@@ -238,6 +238,7 @@ public class DualAuthenticator extends ValveBase {
       // authorization is ok
       context.invokeNext(request, response);
     } else {
+      alertAuthorizationFailure(hsrequest, principal);
       failSleep();
       _log.debug("roles are bad... returning error");
       hsresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
@@ -246,6 +247,19 @@ public class DualAuthenticator extends ValveBase {
     } catch (Throwable t) {
       t.printStackTrace();
     }
+  }
+
+  private void alertAuthorizationFailure(HttpServletRequest req, 
+                                         Principal user) {
+    String userName = "<no name>";
+    if (user != null) {
+      userName = user.getName();
+    }
+    getRealm().alertLoginFailure(KeyRingJNDIRealm.LF_REQUIRES_ROLE,
+                                 userName, null /* exception */,
+                                 req.getRemoteAddr(), req.getServerPort(),
+                                 req.isSecure() ? "https" : "http",
+                                 req.getRequestURL().toString());
   }
 
   private static String getCipher(HttpRequest req) {
@@ -581,10 +595,11 @@ public class DualAuthenticator extends ValveBase {
             if (hreq.isSecure()) {
               // I know it will return an error
               authenticate(_primaryAuth, req, resp);
-              return null;
+            } else {
+              // redirect to Https
+              redirectToHttps(req, resp, hreq, hresp);
             }
-            // redirect to Https
-            redirectToHttps(req, resp, hreq, hresp);
+            return null;
           }
         }
       }

@@ -928,6 +928,10 @@ public class LdapUserServiceImpl implements UserService {
     return _policy.certOkAttr;
   }
 
+  public String getDefaultDomain() {
+    return _defaultDomain;
+  }
+
   private void setUserAttributes() {
     USER_ATTRIBUTES[0] = getUserIDAttribute();
     USER_ATTRIBUTES[1] = getPasswordAttribute();

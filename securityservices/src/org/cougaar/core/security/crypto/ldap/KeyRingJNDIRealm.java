@@ -512,6 +512,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       passwordCheck = attrVal.toString();
     }
 
+    String uid = (String) attrs.get(_userService.getUserIDAttribute());
+    if (uid != null) {
+      username = uid;
+    }
     password = encryptPassword(username, password);
     if (hasMessageDigest()) {
       match = digest(password).equalsIgnoreCase(passwordCheck);

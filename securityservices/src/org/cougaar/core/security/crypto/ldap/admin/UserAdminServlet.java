@@ -302,11 +302,28 @@ public class UserAdminServlet extends HttpServlet {
     resp.sendRedirect(url);
   }
 
+  private String addDefaultDomain(String uid) {
+    int index = uid.indexOf('\\');
+    if (index == -1) {
+      String defDomain = _userService.getDefaultDomain();
+      if (defDomain != null) {
+        uid = defDomain + '\\' + uid;
+      }
+    }
+    return uid;
+  }
+
   private void editUser(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException, UserServiceException {
 
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
     Map orig = _userService.getUser(uid);
+    String userName = (String) orig.get(_userService.getUserIDAttribute());
+    if (userName != null) {
+      uid = userName;
+    } else {
+      uid = addDefaultDomain(uid);
+    }
     Map adds = new HashMap();
     Map edits = new HashMap();
     Set deletes = new HashSet();
@@ -331,6 +348,7 @@ public class UserAdminServlet extends HttpServlet {
     // now do the special password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
     if (pwd != null && pwd.length() != 0) {
+      pwd = KeyRingJNDIRealm.encryptPassword(uid, pwd);
       if (orig.get(UserInterface.LDAP_USER_PASSWORD) != null) {
         // modify the password
         edits.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
@@ -379,6 +397,7 @@ public class UserAdminServlet extends HttpServlet {
     throws ServletException, IOException, UserServiceException {
 
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
+    uid = addDefaultDomain(uid);
     Map attrs = new HashMap();
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String field = UserInterface.LDAP_USER_FIELDS[i][0];
@@ -468,9 +487,8 @@ public class UserAdminServlet extends HttpServlet {
   }
 
   private class UserServiceListener implements ServiceAvailableListener {
-    public final String USER_SERVICE_NAME = UserService.class.getName();
     public void serviceAvailable(ServiceAvailableEvent ae) {
-      if (ae.getService().equals(USER_SERVICE_NAME)) {
+      if (ae.getService().equals(UserService.class)) {
         _userService = (UserService) ae.getServiceBroker().
            getService(this, UserService.class, null);
         if (_userService != null) {
