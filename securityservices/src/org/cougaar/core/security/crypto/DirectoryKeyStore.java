@@ -1083,7 +1083,12 @@ public class DirectoryKeyStore
     X509Certificate certificate, CertDirectoryServiceClient certFinder)
     throws CertificateChainException, CertificateExpiredException,
 	   CertificateNotYetValidException, CertificateRevokedException
-  {
+  {   
+    boolean revoked = certCache.checkRevokedCache(certificate); 
+    if (revoked) {
+      throw new CertificateRevokedException("Certificate revoked");
+    }
+
     // Prepare a vector that will contain at least the entity certificate
     // and the signer.
     Vector vector = new Vector(2);
