@@ -243,6 +243,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   public String getName() {
     return NodeInfo.getNodeName();
   }
+ 
+  public void invalidate(String cname) {}
 
   public void updateCertificate() {
     updateKeystore();
