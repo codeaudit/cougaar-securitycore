@@ -13,7 +13,7 @@ require 'security/lib/SecurityMop2_4'
 require 'security/lib/SecurityMop2_5'
 require 'security/lib/SecurityMop2_6'
 
-insert_after :after_stage_1 do
+insert_after :society_running do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "setup"
 end

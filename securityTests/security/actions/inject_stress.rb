@@ -113,7 +113,7 @@ module Cougaar
 	  Stressors.setRunState(@stressorClassName, @methodName, "true")
 	  id = 0
 	  while (Stressors.getRunState(@stressorClassName, @methodName)) 
-	    logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
+	    logInfoMsg "Invoking scheduled stress: #{@stressorClassName}.#{@methodName}"
 	    begin
 	      @aMethod.call()
 	    rescue => ex

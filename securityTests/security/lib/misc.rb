@@ -180,11 +180,11 @@ end
 
 def logInfoMsg(msg='')
   # Cougaar.logger.info  "[#{Time.now}]     #{msg}"
-  if defined?(Cougaar::Run) and getRun
+  if defined?(Cougaar::Run) and run
     if msg and msg!=''
-      getRun.info_message msg
+      run.info_message msg
     else
-      getRun.info_message ''
+      run.info_message ''
     end
   else
     if msg and msg!=''
@@ -196,15 +196,11 @@ def logInfoMsg(msg='')
 end
 
 def logWarningMsg(msg='')
-  logInfoMsg "*********** WARNING ************"
-  logInfoMsg msg
-  logInfoMsg "********************************"
+  logInfoMsg "WARNING: #{msg}"
 end
 
 def logErrorMsg(msg='')
-  logInfoMsg "************ ERROR *************"
-  logInfoMsg msg
-  logInfoMsg "********************************"
+  logInfoMsg "ERROR: #{msg}"
 end
 
 def logExceptionMsg(msg='')
