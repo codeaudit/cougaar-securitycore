@@ -19,6 +19,7 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
+  - script: $CIP/csmart/lib/security/scripts/cleanup_societyRestore.rb
 ###########################################
   - script: $CIP/csmart/lib/isat/datagrabber_include.rb
   - script: $CIP/csmart/lib/isat/network_shaping.rb
