@@ -155,13 +155,14 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
       try {
         return keystore.checkCertificateTrust(userx509);
       } catch (Exception e) {
-        if (log.isDebugEnabled())
-          e.printStackTrace();
+        if (log.isWarnEnabled()) {
+	  log.warn("Failed to check certificate trust of user certificate");
+	}
       }
     }
 
-    if (log.isDebugEnabled())
-      log.debug("Failed to getCertificateChain");
+    if (log.isWarnEnabled())
+      log.warn("Failed to getCertificateChain");
 
     return new X509Certificate[] {};
   }

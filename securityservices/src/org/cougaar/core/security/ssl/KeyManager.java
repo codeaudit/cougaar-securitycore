@@ -183,6 +183,9 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       return null;
 
     PrivateKeyCert pkc = (PrivateKeyCert)keylist.get(0);
+    if (pkc == null) {
+      log.error("Could not find private key for " + alias);
+    }
     return pkc.getPrivateKey();
   }
 
