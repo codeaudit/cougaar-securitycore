@@ -2,15 +2,66 @@ package com.nai.security.certauthority;
 
 import java.io.*;
 import java.util.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import org.jdom.*;
+import org.jdom.input.SAXBuilder;
+import org.jdom.input.*;
+
+
 public class CertificateSigningRequest extends  HttpServlet
 {
   private KeyManagement signer;
 
   public void init(ServletConfig config) throws ServletException
   {
+        super.init(config);
+        String file= config.getInitParameter("configfile");;
+         try
+             {
+                SAXBuilder builder = new SAXBuilder();
+                Document doc = builder.build(new File(file));
+                Element root = doc.getRootElement();
+                setjavaproperty(root);
+             }
+             catch(org.jdom.JDOMException jdexp)
+             {
+                 jdexp.printStackTrace();
+             }
+  }
+  public void setjavaproperty(Element root)
+  {
+        List Children = root.getMixedContent();
+        Iterator propertyIterator = Children.iterator();
+         // Iterate through javaproperty
+        while (propertyIterator.hasNext())
+        {
+            Object o = propertyIterator.next();
+            if (o instanceof Element && ((Element)o).getName().equals("servletjavaproperties"))
+            {
+                Element propertyelement = (Element)o;
+                String propertyName =  propertyelement.getChildText("propertyname");
+                String propertyValue = propertyelement.getChildText("propertyvalue");
+                if((propertyName==null )||(propertyValue==null))
+                {
+                    System.out.println("wrong xml format error");
+                    return;
+                }
+                try
+                {
+                        System.setProperty(propertyName,propertyValue);
+                }
+                catch(SecurityException sexp)
+                {
+                        sexp.printStackTrace();
+                }
 
+
+
+            }
+        }
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res) throws ServletException,IOException
@@ -20,7 +71,7 @@ public class CertificateSigningRequest extends  HttpServlet
     String CA_DN_name=null;
     //System.out.println("got post request");
     String data;
-    res.setContentType("text/html");
+    //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
     CA_DN_name =(String)req.getParameter("dnname");
     ByteArrayInputStream bytestream=null;

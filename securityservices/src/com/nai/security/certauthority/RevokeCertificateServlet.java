@@ -30,24 +30,22 @@ public class RevokeCertificateServlet extends  HttpServlet
         if((hash==null)||(hash==""))
         {
                 out.println("Error in getting the certificate hash");
-		out.flush();
-		out.close();
-		return;
+                out.flush();
+                out.close();
+                return;
         }
         //ldapentry=ldapcert.getCertificate(hash);
-	try
-	{
-		
-        	keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName());
-	}
-	catch(Exception exp)
-	{
+        try
+        {
+                keymanage=new KeyManagement(ldapentry.getCertificate().getIssuerDN().getName());
+        }
+        catch(Exception exp)
+        {
                 out.println("Error -------"+exp.toString());
-		out.flush();
-		out.close();
-		return;
-		
-	}	
+                out.flush();
+                out.close();
+                return;
+        }
        boolean status= keymanage.revokeCertificate(ldapentry.getCertificate());
        if(status)
         {
