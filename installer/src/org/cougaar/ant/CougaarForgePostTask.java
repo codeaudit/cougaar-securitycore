@@ -739,9 +739,9 @@ public class CougaarForgePostTask
       System.out.println("File: " + f.getAbsolutePath());
       String releaseName = "securebootstrap-SNAPSHOT-HEAD-HEAD";
       
-      hp.setPassword("ski123");
+      hp.setPassword("");
       hp.setUrl("http://cougaar.org");
-      hp.setUsername("srosset");
+      hp.setUsername("");
       hp.setVerbose(true);
       hp.setUnixprojectname("securebootstrap");
       Property p1 = new Property("userfile", fileName);
