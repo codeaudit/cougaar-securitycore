@@ -23,13 +23,6 @@
  * </copyright> 
  */ 
  
- 
- 
- 
- 
- 
-
-
 package org.cougaar.core.security.acl.user;
 
 // cougaar core classes
@@ -72,6 +65,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
+/**
+ *
+ */
 public class UserManagerPlugin extends ComponentPlugin {
   private DomainService    _domainService;
   private LoggingService   _log;
