@@ -60,8 +60,7 @@ public class ServletNodeEnforcer
 {
   private ServiceBroker _sb;
   protected LoggingService _log;
-  private final String _enforcedActionType 
-    = ActionConcepts.ActionOwlURL() + "AccessAction";
+  private final String _enforcedActionType = UltralogActionConcepts.ServletAccess();
   private final String _authWeak = 
     EntityInstancesConcepts.EntityInstancesOwlURL() + "Weak";
   private final String _authStrong = 
