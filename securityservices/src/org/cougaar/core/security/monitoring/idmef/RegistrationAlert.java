@@ -28,7 +28,7 @@ import edu.jhuapl.idmef.CreateTime;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 
-import java.io.Serializable;
+
 
 /**
  * Registration subclasses Alert, and is used to distinguish
@@ -36,7 +36,7 @@ import java.io.Serializable;
  * avoiding the need to determine the message type via the AdditionalData
  * object.
  */
-public class RegistrationAlert extends Alert implements Registration,Serializable{
+public class RegistrationAlert extends Alert implements Registration{
     
   private String Type=null;
   private int operation_type=-1;

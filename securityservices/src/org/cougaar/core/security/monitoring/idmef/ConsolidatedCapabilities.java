@@ -28,6 +28,9 @@ import edu.jhuapl.idmef.CreateTime;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 
+
+
+
 import org.cougaar.core.util.XMLizable;
 import org.cougaar.core.util.XMLize;
 /**
@@ -36,7 +39,7 @@ import org.cougaar.core.util.XMLize;
  * avoiding the need to determine the message type via the AdditionalData
  * object.
  */
-public class ConsolidatedCapabilities extends Alert implements AgentRegistration, XMLizable {
+public class ConsolidatedCapabilities extends Alert implements AgentRegistration, XMLizable{
     
   private  String Type =null;
   private String AgentName=null;
