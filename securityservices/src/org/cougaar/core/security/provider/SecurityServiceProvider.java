@@ -270,6 +270,10 @@ public class SecurityServiceProvider
 		 new KeyRingServiceProvider());
     rootServiceBroker.addService(KeyRingService.class, this);
 
+    services.put(CertValidityService.class,
+                 new CertValidityServiceProvider());
+    rootServiceBroker.addService(CertValidityService.class, this);
+
     if (!standalone) {
       /* Encryption Service */
       services.put(EncryptionService.class,
