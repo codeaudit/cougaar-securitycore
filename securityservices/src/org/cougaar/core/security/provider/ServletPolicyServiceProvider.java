@@ -46,10 +46,14 @@ public class ServletPolicyServiceProvider
   static private DualAuthenticator     _dualAuthenticator    = null;
   static private Context               _context              = null;
   static private ServiceBroker         _staticServiceBroker  = null;
+//   static private ServiceBroker         _rootServiceBroker    = null;
 
-  public ServletPolicyServiceProvider(ServiceBroker sb, String community) {
+  public ServletPolicyServiceProvider(ServiceBroker sb, 
+                                      /*ServiceBroker rootSB,*/
+                                      String community) {
     super(sb, community);
     _staticServiceBroker = sb;
+//     _rootServiceBroker = rootSB;
   }
 
   private static synchronized void init() {
@@ -80,6 +84,7 @@ public class ServletPolicyServiceProvider
   public static synchronized void setDualAuthenticator(DualAuthenticator da) {
     init();
     _dualAuthenticator = da;
+    da.setServiceBroker(_staticServiceBroker);
     if (_servletPolicyService != null) {
       _servletPolicyService.setDualAuthenticator(da);
     }

@@ -322,7 +322,7 @@ public class ULMessageNodeEnforcer
      * 
      * @param verb - a String representing the verb in the message.
      */
-    boolean isActionAuthorized(String sender,
+    public boolean isActionAuthorized(String sender,
                                String receiver,
                                String verb)
     {

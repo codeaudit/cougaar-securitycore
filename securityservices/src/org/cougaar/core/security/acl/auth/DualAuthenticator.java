@@ -59,9 +59,12 @@ import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
 import org.cougaar.lib.web.tomcat.SecureRealm;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
+import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
 
 public class DualAuthenticator extends ValveBase {
   static final byte AUTH_NONE     = 0x00;
@@ -69,6 +72,7 @@ public class DualAuthenticator extends ValveBase {
   static final byte AUTH_CERT     = 0x02;
 
   private static ResourceBundle _authenticators = null;
+  private ServletNodeEnforcer _enforcer;
   AuthenticatorBase _primaryAuth;
   AuthenticatorBase _secondaryAuth;
   LoginConfig       _loginConfig = new LoginConfig();
@@ -77,6 +81,9 @@ public class DualAuthenticator extends ValveBase {
   HashMap           _starConstraints = new HashMap();
   long              _failSleep   = 1000;
   long              _sessionLife = 60000;
+  public static final String DAML_PROPERTY = 
+    "org.cougaar.core.security.policy.enforcers.servlet.useDaml";
+  private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -91,6 +98,13 @@ public class DualAuthenticator extends ValveBase {
     setPrimaryAuthenticator(primaryAuth);
     setSecondaryAuthenticator(secondaryAuth);
     ServletPolicyServiceProvider.setDualAuthenticator(this);
+  }
+
+  public void setServiceBroker(ServiceBroker sb) {
+    if (USE_DAML && _enforcer == null) {
+      _enforcer = new ServletNodeEnforcer(sb);
+      _enforcer.registerEnforcer();
+    }
   }
 
   /**
@@ -122,9 +136,15 @@ public class DualAuthenticator extends ValveBase {
 
     String cipher = getCipher(hrequest);
 
+    // this is only for DAML (efficiency -- only ask once and use in
+    // two calls...)
+    CypherSuiteWithAuth authReq = 
+      getAuthRequirements(hsrequest.getRequestURI(), cipher);
+
 //     System.out.println("cipher = " + cipher);
     // determine if we need to redirect to HTTPS
-    if (!hsrequest.isSecure() && needHttps(hsrequest, cipher)) {
+    if (!hsrequest.isSecure() && 
+        needHttps(hsrequest, cipher, authReq)) {
 //       System.out.println("moving over to https");
       redirectToHttps(hrequest, hresponse, hsrequest, hsresponse);
       return;
@@ -132,7 +152,7 @@ public class DualAuthenticator extends ValveBase {
 
     // determine the authentication requirement for this URI
     byte uriAuthLevel = 
-      getURIAuthRequirement(hsrequest.getRequestURI(), cipher);
+      getURIAuthRequirement(hsrequest.getRequestURI(), cipher, authReq);
     byte userAuthLevel;
 
 //     System.out.println("URI requires " + uriAuthLevel);
@@ -284,7 +304,11 @@ public class DualAuthenticator extends ValveBase {
     return null;
   }
 
-  protected byte getURIAuthRequirement(String path, String cipher) {
+  protected byte getURIAuthRequirement(String path, String cipher, 
+                                       CypherSuiteWithAuth cwa) {
+    if (USE_DAML) {
+      return (byte) cwa.getAuth();
+    }
     byte constraint = 0;
     HashMap checkAgainst = _constraints;
     do {
@@ -318,7 +342,20 @@ public class DualAuthenticator extends ValveBase {
     } while (true);
   }
 
-  protected boolean needHttps(HttpServletRequest req, String cipher) {
+  private CypherSuiteWithAuth getAuthRequirements(String uri, String cipher) {
+    if (USE_DAML) {
+      Set reqs = _enforcer.whichCypherSuiteWithAuth(uri);
+      return (CypherSuiteWithAuth) reqs.iterator().next();
+    }
+    return null;
+  }
+
+  protected boolean needHttps(HttpServletRequest req, String cipher, 
+                              CypherSuiteWithAuth cwa) {
+    if (USE_DAML) {
+      int authReq = cwa.getAuth();
+      return (authReq != cwa.authPassword && authReq != cwa.authNoAuth);
+    }
     SecurityConstraint constraint = findConstraint(req.getRequestURI());
     if (constraint == null) {
       return false;

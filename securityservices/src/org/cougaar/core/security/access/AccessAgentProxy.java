@@ -54,6 +54,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 
 import java.util.*;
 
@@ -70,6 +71,10 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
+  public static final String DAML_PROPERTY = 
+    "org.cougaar.core.security.policy.enforcers.access.useDaml";
+  private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
+  private ULMessageNodeEnforcer _enforcer = null;
   //private Set nodeList = null;
   //private Set agentList = null;
   //private TopologyReaderService toporead = null;
@@ -82,6 +87,10 @@ public class AccessAgentProxy
     this.object=myobj;
     acps=myacps;
     serviceBroker = sb;
+    if (USE_DAML) {
+      _enforcer = new ULMessageNodeEnforcer(sb, new LinkedList());
+      _enforcer.registerEnforcer();
+    }
     
     if (object instanceof Agent) {
       myID = ((Agent)object).getAgentIdentifier();
@@ -470,6 +479,9 @@ public class AccessAgentProxy
 
   private boolean matchVerb(String source, String target,
 			    Verb verb, boolean direction)  {
+    if (USE_DAML) {
+      return _enforcer.isActionAuthorized(source, target, verb.toString());
+    }
 
     Object[] verbs = null;
     if (direction) {
