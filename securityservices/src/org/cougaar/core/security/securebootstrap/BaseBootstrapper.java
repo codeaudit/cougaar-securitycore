@@ -164,7 +164,7 @@ public class BaseBootstrapper
       configproviderpath=System.getProperty("org.cougaar.install.path");    
       if((configproviderpath!=null)||(configproviderpath!="")) {
 	configfile.append(configproviderpath);
-	configfile.append(sep+"configs"+sep+"common"+sep+"cryptoprovider.conf");
+	configfile.append(sep+"configs"+sep+"security"+sep+"cryptoprovider.conf");
       }
       else {
 	System.err.println("Error loading cryptographic providers: org.cougaar.install.path not set");
