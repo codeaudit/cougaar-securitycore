@@ -13,14 +13,12 @@ require 'cougaar/scripting'
 require 'cougaar/communities' 
 require 'cougaar/experiment'
 
-require 'security/actions/cond_policy'
-require 'security/actions/configFiles'
 require 'security/actions/saveEvents'
 require 'security/lib/cougaarMods'
 require 'security/actions/buildPolicies'
 require 'security/actions/configFiles'
-require 'security/actions/cond_policy'
 require 'security/actions/saveEvents'
+require 'security/actions/cond_policy'
 require 'security/scripts/setup_scripting'
 require 'security/actions/inject_stress'
 require 'security/lib/misc'
@@ -28,6 +26,7 @@ require 'security/lib/misc'
 
 require 'ultralog/scripting'
 require 'ultralog/services' 
+
  
 require 'rexml/document' 
 require 'socket' 
