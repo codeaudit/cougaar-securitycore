@@ -21,6 +21,8 @@
 
 package org.cougaar.core.security.policy.builder;
 
+import java.net.*;
+
 import antlr.Token;
 
 import java.io.*;
@@ -59,12 +61,10 @@ public class TunnelledOntologyConnection extends OntologyConnection
   {
     super();
     try {
-      UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl();
+      UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl("RearUserDomainComm\\george");
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
-      userAuth.authenticateUser();
-
-      System.out.println("getting ready to tunnel: URI = " + uri);
+      userAuth.authenticateWithPassword("RearUserDomainComm\\george", "george".toCharArray());
       _brains = new TunnelClient(uri);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);
