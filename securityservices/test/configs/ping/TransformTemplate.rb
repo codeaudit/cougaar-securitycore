@@ -6,6 +6,9 @@ include Cougaar
 $:.unshift File.join(CIP, 'csmart', 'lib')
 require 'security/actions/buildHostFile'
 require 'security/actions/build_config_files'
+require 'security/actions/buildUserFiles'
+require 'security/actions/buildPolicies'
+require 'security/actions/configFiles'
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -36,6 +39,9 @@ at :transformed_society
   do_action "SaveCurrentSociety", "mySociety.xml"
   do_action 'SaveCurrentCommunities', 'myCommunity.xml'
 
+  do_action "BuildConfigJarFiles"
+  do_action "BuildUserFiles"
+  do_action "BuildPolicies"
   do_action "BuildSignedCommunityJarFile", "myCommunity.xml"
   do_action "BuildSignedNodeJarFiles"
 }
