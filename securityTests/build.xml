@@ -2,24 +2,15 @@
  
 <!-- 
     Generic ant build script for Cougaar security services. 
-     
-    Usage: ant [-v] <target>
-     
-    Run ant in the current directory.  If no target is specified, ant will build
-    securityservices, jar and sign the jars.  Include  "-v" with ant for verbose mode.
-     
-    target:
-        all         - build, security services and create a ZIP file (default).
-        install     - call "all" target and unzip ZIP file in $CIP.
-        clean       - delete $CIP/workspace directory and ant-generated files.
-        cvs-update  - execute "cvs update -d" in the current directory
-        with-update - execute the cvs-update and all targets
-        javadocs    - create javadocs for securityservices
-        help        - print out usage message     
- 
-   To run junit tests, the following files must be included in the ANT lib directory:
-     1) junit.jar
-     2) jakarta-ant-1.4.1-optional.jar
+    
+    To get help, type:
+       ant help 
+
+    WARNING: The master copy of this file is in the "installer" module.
+             Do not modify this file directly under another module.
+             Make modifications to custom-build.xml file instead.
+             If you really have to modify this file, then changes should
+             be propagated to all modules.
 -->
 
 <project basedir="." default="all" name="Cougaar security services">
@@ -308,11 +299,6 @@
     	     dest="${cougaar.install.path}"/>	
     </target>
 
-    <!-- Updating repository before building -->
-    <target name="cvs-update">
-      <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
-    </target>
-
     <!-- Build another security services module.
          The name of the module should be provided in the "build.module.name" property.
          Usually the value of "ant.target.name" should be "all" -->
@@ -391,6 +377,19 @@
          <case value="6">
            <antcall target="install"/>
          </case>
+         <case value="7">
+           <for list="${module.subordinates}" delimiter="," param="build.module.name">
+             <sequential>
+                <echo message="Copying build.xml file to ${securityservices.base}/../@{build.module.name}"/>
+                <copy toDir="${securityservices.base}/../@{build.module.name}"
+                      file="build.xml"/>
+                <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
+                      command="-q commit -m 'Updated build.xml file' build.xml"
+                      dest="${securityservices.base}/../@{build.module.name}"
+                      failonerror="true"/>
+             </sequential>
+           </for>
+         </case>
          <default>
             <fail message="The value of property build.choice is invalid"/>
          </default>
@@ -424,13 +423,19 @@
        <echo level="info" message="4: Update and build the modules listed above."/>
        <echo level="info" message="5: Update, build and install the modules listed above."/>
        <echo level="info" message="6: Build and install current module (${current.module.name}) only."/>
-       <input message="Enter your choice:" validargs="1,2,3,4,5,6" addproperty="build.choice"/>
+       <if>
+         <equals arg1="installer" arg2="${current.module.name}"/>
+         <then>
+           <echo level="info" message="7: Copy and commit build.xml to all other modules"/>
+           <input message="Enter your choice:" validargs="1,2,3,4,5,6,7" addproperty="build.choice"/>
+         </then>
+         <else>
+           <input message="Enter your choice:" validargs="1,2,3,4,5,6" addproperty="build.choice"/>
+         </else>
+       </if>
        <antcall target="process-interactive-command"/>
     </target>
 		
-    <!-- use 'ant with-update' to update repository executing the ALL target -->
-    <target name="with-update" depends="cvs-update, all"/>
-    
     <!-- create javadocs -->
     <target name="javadocs" depends="init" description="Generating javadoc">
         <echo message="Creating JavaDocs"/>
@@ -458,19 +463,13 @@
         <echo message=""/>
         <echo message="Usage: ant [-v] &lt;target&gt;"/>
         <echo message=""/>
-        <echo message="Run ant in the current directory.  If no target is specified,"/>
-        <echo message="ant will build securityservices, jar and sign the jars.  Include"/>
-        <echo message="'-v' with ant for verbose mode."/>
-        <echo message=""/>
         <echo message="target:"/>
-        <echo message="    all - build, jar and sign securityservices (default)."/>
-        <echo message="    cvs-update  - execute 'cvs update -d' in the current directory"/>
-        <echo message="    with-update - execute the cvs-update and all targets"/>
-        <echo message="    install     - execute the all target, and install securityservices"/>
+        <echo message="    all         - build, jar and sign securityservices (default)."/>
+        <echo message="    install     - execute the all target, and install module"/>
         <echo message="                  signed jars and configuration files"/>
-        <echo message="    javadocs    - create javadocs for securityservices"/>
-        <echo message="    tar-docs    - tar and zip the javadocs"/>
-        <echo message="    clean       - Delete .class and .jar files"/>
+        <echo message="    interactive - display an interactive menu to build the security services"/>
+        <echo message="    javadocs    - create javadocs for the module"/>
+        <echo message="    clean       - Delete build environment"/>
         <echo message="    help        - print out the usage message"/>
     </target>
         
