@@ -319,7 +319,7 @@ public class PolicyUtils
       for (Iterator agentIt = ((Set) agentGroupMap.get(agentGroup)).iterator();
            agentIt.hasNext();) {
         String agent =  ULOntologyNames.agentPrefix + (String) agentIt.next();
-        _ontology.verifyInstanceOf(agent, ActorConcepts.Agent());
+        // _ontology.verifyInstanceOf(agent, ActorConcepts.Agent());
         model.createIndividual(agent, agentGroupClass);
       }
       //      model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
