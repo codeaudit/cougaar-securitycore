@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -56,7 +56,7 @@ public interface EncryptionService extends Service {
 			   String signAlgSpec,
 			   Serializable object)
     throws GeneralSecurityException, IOException;
-  
+
   /** Verify the signature of a signed object.
    *
    *  @param signerName   the common name of the signer. Should be the
@@ -68,6 +68,12 @@ public interface EncryptionService extends Service {
   public Object verify(String signerName,
 		       String signAlgSpec,
 		       SignedObject signedObject)
+    throws CertificateException;
+
+  public Object verify(String signerName,
+		       String signAlgSpec,
+		       SignedObject signedObject,
+                       boolean expiredOk)
     throws CertificateException;
 
   /** Encrypt an object using public-key encryption.
@@ -101,7 +107,7 @@ public interface EncryptionService extends Service {
 			     String cipherAlgSpec,
 			     SealedObject sealedObject)
     throws CertificateException;
-  
+
   /** Encrypt a message using secret key encryption.
    *
    *  @param secretKey     the secret key used to encrypt the object.
