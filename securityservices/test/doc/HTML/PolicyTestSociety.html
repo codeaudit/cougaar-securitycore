@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+  <body>
+
+In this document, we will describe a society that has been explicitly
+designed for testing policy requirements.  The society is located in
+<pre>
+    securityservices/test/configs/policies/society/Policy.rb 
+</pre>
+and is configured in the same way as other csmart societies.  It has
+the following features:
+<ul>
+<li> It can be run on a single node.
+<li> It has special features for testing message passing policies,
+     blackboard policies and servlet policies.
+<li> There are a collection of command line tool policies that can
+     used to test various policy features.
+</ul>
+We will illustrate these features by describing all the test policies
+associated with this society and what they do.
+<p>
+Before doing any testing of the command line policies, one must
+first run the policy script (Policy.rb) and wait for it to complete.
+This script 
+<ol>
+<li> starts the society, 
+<li> waits for critical Ultra*Log security components to come up
+  (particularly the user manager which is  waiting for the community
+  service to provide community information)
+<li> commits an initial set of policies to the domain manager.
+</ol>
+Once the script is completed we are ready to continue with the policy tests.
+</body>
