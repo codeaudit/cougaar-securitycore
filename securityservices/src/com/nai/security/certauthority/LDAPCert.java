@@ -47,6 +47,7 @@ import javax.naming.ldap.InitialLdapContext;
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
@@ -57,7 +58,7 @@ import java.text.SimpleDateFormat;
 
 import com.nai.security.crypto.Base64;
 
-    public class LDAPCert //extends LdapContext
+public class LDAPCert //extends LdapContext
 {
     protected static String CONTEXT_FACTORY = 
 	"com.sun.jndi.ldap.LdapCtxFactory";
@@ -78,6 +79,7 @@ import com.nai.security.crypto.Base64;
     protected static SimpleDateFormat time = new SimpleDateFormat("hhmmss");
 
     static {
+
 	try {
 	    md5 = MessageDigest.getInstance("MD5");
 	}
@@ -98,6 +100,7 @@ import com.nai.security.crypto.Base64;
 	objectclass.add("xuda_certifcate");
 	set.put(objectclass);	
 	init(ca, ca);
+	put();
     }
 
     public void publish2Ldap(X509Certificate client, X509Certificate signator)
@@ -107,6 +110,12 @@ import com.nai.security.crypto.Base64;
 	objectclass.add("xuda_certifcate");
 	set.put(objectclass);	
 	init(client, signator);
+	put();
+    }
+
+    public Vector searchLdap() 
+    {
+	return getCertificates();
     }
 
     public static X509Certificate loadCert(String fileName) {
@@ -124,7 +133,27 @@ import com.nai.security.crypto.Base64;
 	return cert;
     }
 
-    public LDAPCert() {  }
+    public LDAPCert() 
+    {
+	Hashtable env = new Hashtable();
+	
+	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
+	env.put(Context.PROVIDER_URL, 
+		System.getProperty("org.cougaar.security.ldap.url",
+				   "ldap://palm:389/"));
+	if(debug) {
+	    System.out.println(Context.INITIAL_CONTEXT_FACTORY + " = " + 
+			       env.get(Context.INITIAL_CONTEXT_FACTORY));
+	    System.out.println(Context.PROVIDER_URL + " = " + 
+			       env.get(Context.PROVIDER_URL));
+	}
+	try {
+	    ctx = new InitialDirContext(env);
+	}
+	catch(Exception ex) {
+	    if(debug)ex.printStackTrace();
+	}
+    }
 
     public LDAPCert(String filename) {
 	X509Certificate cert = loadCert(filename);
@@ -252,6 +281,32 @@ import com.nai.security.crypto.Base64;
 	}
     }
 
+    public Vector getCertificates() {
+	BasicAttributes match = new BasicAttributes();
+	NamingEnumeration results = null;
+	String name = null;
+	Vector entries = new Vector();
+
+	objectclass = new BasicAttribute("objectclass");
+	objectclass.add("xuda_certifcate");
+	match.put(objectclass);
+
+	try {
+	    System.out.println("ldap namespace = " + 
+			       ctx.getNameInNamespace());
+	    System.out.println("NAME = " + name);
+	    name = (String)ctx.getEnvironment().get(Context.PROVIDER_URL);
+	    ctx.search(name, match);
+	    while(results.hasMoreElements()) {
+		Object elm = results.nextElement();
+		System.out.println("Result: " + elm.getClass().toString());
+	    }
+	}
+	catch(Exception ex) {
+	    if(debug)ex.printStackTrace();
+	}
+	return entries;
+    }
 
     public void put() {
 	try {
@@ -263,26 +318,26 @@ import com.nai.security.crypto.Base64;
     }
     
     public static void main(String arg[]) {
-	LDAPCert lcert;
+	LDAPCert lcert = new LDAPCert();
 	Hashtable env = new Hashtable();
 
 	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
 	env.put(Context.PROVIDER_URL, "ldap://palm:389/");
 	
-	switch(arg.length) {
-	case 0:  return;
-	case 1:  lcert = new LDAPCert(arg[0]);
-	         break;
-	default: env.put(Context.PROVIDER_URL, "ldap://palm:389/");
-	case 2:  lcert = new LDAPCert(arg[0], arg[1]);
-	}
+	//switch(arg.length) {
+	//case 0:  return;
+	//case 1:  lcert = new LDAPCert(arg[0]);
+	//         break;
+	//default: env.put(Context.PROVIDER_URL, "ldap://palm:389/");
+	//case 2:  lcert = new LDAPCert(arg[0], arg[1]);
+	//}
 	
-	System.out.println("Using certificate file = " + arg[0]);
+	//System.out.println("Using certificate file = " + arg[0]);
 	if(debug)System.out.println("Initial context is " + 
 				    env.get(Context.PROVIDER_URL));
 	try {
-	    lcert.setDirContext(new InitialDirContext(env));
-	    //lcert.put(); 
+	    lcert.getCertificates();
+	    
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
