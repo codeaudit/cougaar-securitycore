@@ -77,6 +77,11 @@ public class OpenLdapCertDirectoryService
 			       "cn=manager, dc=cougaar, dc=org");
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
       resetBaseContext(attr);
+      // in case we've reset the context, we also need to
+      // reset the password
+      context.addToEnvironment(Context.SECURITY_PRINCIPAL,
+			       "cn=manager, dc=cougaar, dc=org");
+      context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
     }
     catch (Exception e) {
       if (log.isDebugEnabled()) {
@@ -133,8 +138,12 @@ public class OpenLdapCertDirectoryService
       }
 
       // reset the context to point to the child
-      context.addToEnvironment(context.PROVIDER_URL, newURL);
-      ldapServerUrl = newURL;
+      context.close();
+      context = null;
+      super.setDirectoryServiceURL(newURL);
+      // the following doesn't work:
+//       context.addToEnvironment(context.PROVIDER_URL, newURL);
+//       ldapServerUrl = newURL;
     } catch (NamingException ne) {
       log.warn("Could not check/add base dn for CA");
       if (log.isDebugEnabled()) {
