@@ -185,6 +185,16 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "vishnu.*", "read";
 	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugIn.complainAboutMissingMovabilityPG", "read"; 
 
+
+	// CSMART permissions (csmart.jar)
+	permission java.util.PropertyPermission "csmart.log.severity", "read";
+	permission java.util.PropertyPermission "csmart.log.location", "read";
+	// FIX: the following property is needed by CSMART to write a log file
+	// directly under $COUGAAR_INSTALL_PATH, but it is not good security practice.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
+
+
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";
 
