@@ -22,6 +22,7 @@ package org.cougaar.core.security.test.coordinator;
 
 import javax.agent.JasBean;
 
+import java.util.Iterator;
 import java.util.List;
 
 import kaos.core.service.directory.KAoSAgentDirectoryServiceProxy;
@@ -38,6 +39,7 @@ import org.cougaar.core.security.provider.SecurityComponent;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.util.UnaryPredicate;
 
 import ri.JasBeanImpl;
@@ -52,6 +54,11 @@ public class UpdatePolicyPlugin
   private LoggingService                 _log;
   private KAoSAgentDirectoryServiceProxy _kds;
   private IncrementalSubscription        _threatAction;
+
+
+  private ThreadService                  _ts;
+  private TransactionLock                _tlock;
+
   private UnaryPredicate                 _threatDetector
     = new UnaryPredicate() {
         public boolean execute(Object o) {
@@ -78,7 +85,7 @@ public class UpdatePolicyPlugin
       = (BlackboardService) _sb.getService(this,
                                           BlackboardService.class,
                                           null);
-    TransactionLock lock = new TransactionLock();
+    TransactionLock __tlock = new TransactionLock();
     AgentIdentificationService idService 
       = (AgentIdentificationService) _sb.getService(
                    this, 
@@ -87,8 +94,12 @@ public class UpdatePolicyPlugin
     _myAgentName = idService.getMessageAddress().toAddress();
     _sb.releaseService(this, AgentIdentificationService.class, idService);
 
+    _ts = (ThreadService) _sb.getService(this,
+                                         ThreadService.class,
+                                         null);
+
     CougaarServiceRoot sr 
-      = new CougaarServiceRoot(_sb, bbs, lock, obtainEntityEnv());
+      = new CougaarServiceRoot(_sb, bbs, _tlock, obtainEntityEnv());
     Object o = sr.getAgentDirectoryService();
     if (!(o instanceof KAoSAgentDirectoryServiceProxy)) {
       _log.error("got directory service of wrong class - " + 
@@ -106,6 +117,14 @@ public class UpdatePolicyPlugin
   private boolean firstTime = true;
   public void execute()
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("In execute");
+    }
+    for (Iterator threatIt = _threatAction.getAddedCollection().iterator();
+         threatIt.hasNext();) {
+      ThreatConActionInfo threatAction = (ThreatConActionInfo) threatIt.next();
+      
+    }
     if (firstTime) {
       firstTime = false;
       new Thread(new Runnable() {
@@ -136,5 +155,11 @@ public class UpdatePolicyPlugin
     jasBean.set(CougaarServiceRoot.DOMAIN_MANAGER_NICKNAME, _policyManager);
     return jasBean;
   }
+
+  private void commitPolicy(String policy)
+  {
+
+  }
+
 
 }
