@@ -213,7 +213,7 @@ public abstract class LoginFailureQueryPluginBase extends ComponentPlugin {
     Classification classification = 
       imessage.createClassification("LOGINFAILURE", null);
     MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                              classification);
+                                              classification,null,null);
     ClusterIdentifier destination = 
       new ClusterIdentifier(getSocietySecurityManagerAgent());
     CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
