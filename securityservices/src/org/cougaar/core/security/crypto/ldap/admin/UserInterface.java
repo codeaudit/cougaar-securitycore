@@ -44,6 +44,7 @@ class UserInterface {
   public static final String PAGE                        = "page";
   public static final String PAGE_BLANK                  = "blank";
   public static final String PAGE_NEW_USER_JSP           = "newUser.jsp";
+  public static final String PAGE_SAVE_USERS_JSP         = "saveUsers.jsp";
   public static final String PAGE_NEW_ROLE_JSP           = "newRole.jsp";
   public static final String PAGE_SEARCH_USER            = "searchUsers";
   public static final String PAGE_SEARCH_ROLE            = "searchRoles";
@@ -76,6 +77,7 @@ class UserInterface {
   public static final String ACTION_BUTTON_ADD_USER      = "Add User";
   public static final String ACTION_BUTTON_ADD_ROLE      = "Add Role";
   public static final String ACTION_BUTTON_REFRESH       = "Refresh";
+  public static final String ACTION_BUTTON_SAVE_USERS    = "Save users";
 
   public static final String ROLES                       = "roles";
 

@@ -1,29 +1,28 @@
 <%
-/*
- * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
- *  under sponsorship of the Defense Advanced Research Projects
- *  Agency (DARPA).
- * 
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
+/* 
+ * <copyright> 
+ *  Copyright 1999-2004 Cougaar Software, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects 
+ *  Agency (DARPA). 
  *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
- * </copyright>
- *
- * CHANGE RECORD
- * - 
- */
+ *  You can redistribute this software and/or modify it under the
+ *  terms of the Cougaar Open Source License as published on the
+ *  Cougaar Open Source Website (www.cougaar.org).  
+ *  
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *  
+ * </copyright> 
+ */ 
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -33,6 +32,9 @@
 <script language="JavaScript">
 function newUser() {
   top.frames['UserMatchFrame'].location.href='<%=request.getRequestURI() + "?" + UserInterface.PAGE + "=" + UserInterface.PAGE_NEW_USER_JSP%>';
+}
+function saveUsers() {
+  top.frames['UserMatchFrame'].location.href='<%=request.getRequestURI() + "?" + UserInterface.PAGE + "=" + UserInterface.PAGE_SAVE_USERS_JSP%>';
 }
 </script>
   </head>
@@ -86,6 +88,10 @@ function newUser() {
           <td align="left">
             <input type="button" value="<%=UserInterface.ACTION_BUTTON_NEW%>" 
                    onClick="newUser()">
+          </td>
+          <td align="center">
+            <input type="submit" name="<%=UserInterface.ACTION_BUTTON_SAVE_USERS%>"
+             onClick="saveUsers()">
           </td>
           <td align="right">
             <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>"
