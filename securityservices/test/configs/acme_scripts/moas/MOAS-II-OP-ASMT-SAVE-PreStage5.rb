@@ -60,7 +60,7 @@ include_scripts:
 ###########################################
 # Security include scripts
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
