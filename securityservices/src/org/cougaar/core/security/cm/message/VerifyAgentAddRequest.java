@@ -28,6 +28,8 @@
 package org.cougaar.core.security.cm.message;
 
 
+import java.io.Serializable;
+
 import org.cougaar.core.security.cm.CMMessage.CMRequest;
 
 
@@ -36,9 +38,9 @@ import org.cougaar.core.security.cm.CMMessage.CMRequest;
  * 	add agent request.
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public class VerifyAgentAddRequest implements CMRequest {
+public class VerifyAgentAddRequest implements CMRequest, Serializable {
   private String addToNode;
   private String agent;
 

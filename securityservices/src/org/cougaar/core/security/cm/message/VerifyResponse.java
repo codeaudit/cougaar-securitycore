@@ -28,6 +28,8 @@
 package org.cougaar.core.security.cm.message;
 
 
+import java.io.Serializable;
+
 import org.cougaar.core.security.cm.CMMessage.CMResponse;
 
 
@@ -35,10 +37,10 @@ import org.cougaar.core.security.cm.CMMessage.CMResponse;
  * A simple true of false response verifying that a CMRequest
  * 	is valid.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author ttschampel
  */
-public class VerifyResponse implements CMResponse {
+public class VerifyResponse implements CMResponse, Serializable {
   private boolean validRequest;
 
   /**
