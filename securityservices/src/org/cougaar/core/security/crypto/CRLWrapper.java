@@ -46,28 +46,36 @@ public class CRLWrapper  implements Serializable
   // private CertificateCache certCache;
   
   // private boolean debug = false;
-
-  public CRLWrapper(String dn,String directoryUrl,int directoryType)//,CertificateCache certcache)
-  {
+  
+  public CRLWrapper(String dn) {
     this.dnname=dn;
     this.derencodedCRL=null;
-    this.certDirectoryURL=directoryUrl;
-    this.certDirectoryType=directoryType;
-    this.lastModifiedTime=null;
-    
-  }
-  public CRLWrapper(String dn ,byte[] certcrl ,String modifiedTimestamp)
-  {
-    this.dnname=dn;
-    this.derencodedCRL=certcrl;
-     this.certDirectoryURL=null;
+    this.certDirectoryURL=null;
     this.certDirectoryType=-1;
-    lastModifiedTime=modifiedTimestamp;
+    this.lastModifiedTime=null;
   }
+
+  public CRLWrapper(String dn,String directoryUrl,int directoryType)//,CertificateCache certcache)
+    {
+      this.dnname=dn;
+      this.derencodedCRL=null;
+      this.certDirectoryURL=directoryUrl;
+      this.certDirectoryType=directoryType;
+      this.lastModifiedTime=null;
+    
+    }
+  public CRLWrapper(String dn ,byte[] certcrl ,String modifiedTimestamp)
+    {
+      this.dnname=dn;
+      this.derencodedCRL=certcrl;
+      this.certDirectoryURL=null;
+      this.certDirectoryType=-1;
+      lastModifiedTime=modifiedTimestamp;
+    }
   public void setCRL( byte [] encodedcrl)
-  {
-    derencodedCRL=encodedcrl;
-  }
+    {
+      derencodedCRL=encodedcrl;
+    }
   public X509CRL getCRL() {
     X509CRL crl =null;
     if(derencodedCRL!=null){
@@ -78,8 +86,8 @@ public class CRLWrapper  implements Serializable
 	inStream.close();
       }
       catch (Exception exp){
-	  return crl;
-	}
+        return crl;
+      }
     }
     return crl;
   }
