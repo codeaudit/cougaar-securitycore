@@ -6,7 +6,7 @@ require 'security/actions/buildHostFile'
 require 'security/actions/resetCsiAcme'
 
 insert_before "build_host_file" do
-  do_action "BuildCsiHostFile", "example-hosts-secureMV.xml"
+  do_action "BuildCsiHostFile", "host-layout-file.xml"
   do_action "ResetCsiAcme"
   do_action "Sleep", 5.seconds
 end

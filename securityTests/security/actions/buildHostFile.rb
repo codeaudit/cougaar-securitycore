@@ -5,7 +5,7 @@ module Cougaar
     class BuildCsiHostFile < Cougaar::Action
       @@hosts = nil
 
-      def initialize(run, hostfilename="example-hosts-secureMV.xml")
+      def initialize(run, hostfilename="host-layout-file.xml")
         super(run)
         user = ENV["USER"]
         hostsMap = {
