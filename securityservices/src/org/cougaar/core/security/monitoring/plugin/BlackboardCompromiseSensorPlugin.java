@@ -18,6 +18,8 @@ import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 
 import java.util.Enumeration;
 
@@ -32,7 +34,7 @@ public class BlackboardCompromiseSensorPlugin extends SensorPlugin {
     private LoggingService logging = null;
     private ThreadService _threadService;
     private final String[] CLASSIFICATIONS = {
-        CompromiseBlackboard.CLASSIFICATION
+      IdmefClassifications.BLACKBOARD_COMPROMISE_FAILURE
     };
     private UIDService uidService;
     private SensorInfo _sensorInfo;
