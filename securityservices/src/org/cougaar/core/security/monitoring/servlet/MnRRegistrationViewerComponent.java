@@ -1,4 +1,3 @@
-
 /*
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
@@ -30,7 +29,6 @@ package org.cougaar.core.security.monitoring.servlet;
 // Imported java classes
 import java.io.*;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Enumeration;
@@ -97,18 +95,51 @@ public class MnRRegistrationViewerComponent
   public void setCommunityService(CommunityService cs) {
     this.cs=cs;
   }
+
+  public void setAgentIdentificationService( AgentIdentificationService agentis){
+    if(agentis!=null) {
+      this.ais=agentis;
+      agentId = ais.getMessageAddress(); 
+    }
+  }
   
   public void setLoggingService(LoggingService ls) {
     this.logging=ls;
   }
   
   protected Servlet createServlet() {
+    if(ais!=null) {
+      agentId = ais.getMessageAddress(); 
+    }
+    else {
+      if(logging.isDebugEnabled()) {
+        logging.debug("  createServlet()called  in MnRRegistrationViewerComponent and ais is null ");
+      }
+    }
+    
     return new RegistrationViewerServlet();
   }
 
   public void unload() {
     super.unload();
     // FIXME release the rest!
+  }
+
+  public void init(ServletConfig config)
+    throws ServletException {
+    if(logging.isDebugEnabled()) {
+      logging.debug("  init(ServletConfig config)called  in MnRRegistrationViewerComponent");
+    }
+    ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if(ais!=null) {
+      agentId = ais.getMessageAddress();
+    }
+    else {
+      if(logging.isDebugEnabled()) {
+        logging.debug("  init() called  in MnRRegistrationViewerComponent and ais is null ");
+      }
+    }
   }
 
   public String getBlackboardClientName() {
@@ -118,7 +149,7 @@ public class MnRRegistrationViewerComponent
   // odd BlackboardClient method:
   public long currentTimeMillis() {
     throw new UnsupportedOperationException(
-        this+" asked for the current time???");
+      this+" asked for the current time???");
   }
 
   // unused BlackboardClient method:
@@ -127,8 +158,8 @@ public class MnRRegistrationViewerComponent
     //
     // see "ComponentPlugin" for details.
     throw new UnsupportedOperationException(
-        this+" only supports Blackboard queries, but received "+
-        "a \"trigger\" event: "+event);
+      this+" only supports Blackboard queries, but received "+
+      "a \"trigger\" event: "+event);
   }
 
   private class RegistrationViewerServlet extends HttpServlet {
@@ -221,14 +252,12 @@ public class MnRRegistrationViewerComponent
       StringBuffer sb=new StringBuffer();
       sb.append("<table align=\"center\" border=\"2\">\n");
       sb.append("<TR><TH> AnalyzerID </TH><TH> Classification </TH></TR>\n");
-      List keyList = Collections.list(capabilitiesObject.keys());
-      Collections.sort(keyList);
+      Enumeration keys=capabilitiesObject.keys();
       String key=null;
       //Classification classification=null;
       RegistrationAlert registartion=null;
-      Iterator it = keyList.iterator();
-      while(it.hasNext()) {
-	key=(String)it.next();
+      while(keys.hasMoreElements()) {
+	key=(String)keys.nextElement();
 	registartion=(RegistrationAlert)capabilitiesObject.get(key);
 	Classification[] classifications=registartion.getClassifications();
 	sb.append("<TR><TD>\n");
@@ -248,5 +277,7 @@ public class MnRRegistrationViewerComponent
       return sb.toString();
     }
   }
+
 }
+
 
