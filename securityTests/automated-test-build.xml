@@ -97,6 +97,15 @@
                      dest="${overlays.directory.name}/@{build.module.name}-${project.branch.name}-${cougaar.branch.name}.zip"/>
              </sequential>
           </for>
+          <!-- Add Cougaar support modules -->
+          <get src="${webdav.url}/support/yp.tar.gz"
+                   dest="${overlays.directory.name}/yp.tar.gz"/>
+          <get src="${webdav.url}/support/acme-enclave-support.zip"
+                   dest="${overlays.directory.name}/acme-enclave-support.zip"/>
+          <get src="${webdav.url}/support/isat.tar.gz"
+                   dest="${overlays.directory.name}/isat.tar.gz"/>
+          <get src="${webdav.url}/support/acme_oss_1.6.zip"
+                   dest="${overlays.directory.name}/acme_oss_1.6.zip"/>
         </then>
       </if>
     </target>
@@ -114,6 +123,7 @@
          <fileset dir="${overlays.directory.name}">
            <patternset>
              <include name="*.zip"/>
+             <include name="*.tar.gz"/>
            </patternset>
          </fileset>
        </zip>
@@ -155,15 +165,15 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; rm -f cougaar-test.zip"
-        timeout="20000"
+	command="cd ${testbed.cip.dir} ; rm -f cougaar-test.zip ; mkdir acme-1.6 ; ln -s acme-1.6 acme"
+        timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Unzip overlay files on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done ; for f in *.tar.gz ; do tar tfz $f ; done ;'"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -179,7 +189,16 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
-        timeout="60000"
+        timeout="600000"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <!-- parse results -->
+      <echo message="Parsing log4j logs..."/>
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; ruby ${testbed.cip.dir}/operator/security/checkTraceAlt.rb"
+        timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
     </target>
 
