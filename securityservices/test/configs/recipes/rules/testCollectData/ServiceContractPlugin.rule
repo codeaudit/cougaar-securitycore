@@ -11,16 +11,3 @@ society.each_agent(true) do |agent|
     c.classname = scPlugin
   end
 end
-
-File.open(File.join(CIP, "workspace", "test", "subordinates.rb"), "w") do |rubyFile|
-  rubyFile.puts("def installExpectedRelations(rcr)")
-  society.each_agent(true) do |agent|
-    facetval = agent.get_facet(:superior_org_id)
-    if facetval != nil then
-      subordinate = agent.name
-      superior = facetval
-      rubyFile.puts "  rcr.addExpectedRelation(\"#{subordinate}\", \"#{superior}\")"
-    end  
-  end
-  rubyFile.puts("end")
-end
