@@ -3,14 +3,12 @@
 <target name="create_cougaar_overlay">
 	<property name="zip" value="SRI_auto.zip"/>
 	<delete dir="staging"/>			
-  <mkdir dir="staging/scripting/lib/cougaar"/>
-	<copy todir="staging/scripting/lib/cougaar">
-		<fileset dir="lib"/>
+  <mkdir dir="staging/csmart/assessment/"/>
+	<copy todir="staging/csmart/assessment/lib/">
+		<fileset dir="lib03"/>
 	</copy>
-  <mkdir dir="staging/scripting/assessment02"/>
-	<copy todir="staging/scripting/assessment02">
-		<fileset dir="scripts"/>
-		<fileset dir="configs"/>
+	<copy todir="staging/csmart/assessment/scripts/">
+		<fileset dir="scripts03"/>
 	</copy>
 	<zip zipfile="${zip}" basedir="staging"/>
 </target>
