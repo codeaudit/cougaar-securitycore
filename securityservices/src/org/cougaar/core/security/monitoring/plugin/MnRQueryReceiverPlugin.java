@@ -545,6 +545,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("REMOVING MAPPING :"+mapping.toString());
         }
+        
         if(isRelayQueryOriginator(relay.getUID(),queryMappingCollection)) {
           removeRelay(mapping,null);
         }
@@ -583,7 +584,6 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       if(relay!=null) {
         if(relayuid!=null) {
           if(relay.getUID().equals(relayuid)) {
-            
             getBlackboardService().publishRemove(relay); 
           }
         }
