@@ -146,7 +146,7 @@ throws PolicyCompilerException
     pp = null; }
     : "Priority" EQ priority:INT COMMA
       subject:URI "is" modality = genericAuth
-        "to" "perform" action:URI "as" "long" "as"
+        "to" "perform" action:URI 
   { GenericParsedPolicy gpp 
           = new GenericParsedPolicy(pn,
                                     ParsedPolicyFile.identifierToInt(priority),
@@ -167,7 +167,8 @@ returns [boolean modality]
 
 genericTargets[GenericParsedPolicy pp]
 throws PolicyCompilerException
-    : genericTarget[pp] genericMoreTargets[pp]
+    :
+    | "as" "long" "as" genericTarget[pp] genericMoreTargets[pp]
     ;
 
 genericMoreTargets[GenericParsedPolicy pp]

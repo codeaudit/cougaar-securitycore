@@ -54,8 +54,7 @@ public class GenericParsedPolicy extends ParsedAuthenticationPolicy
       "Priority  = " + priority + ",\n"
       + subject + " is " 
       + (modality?"authorized":"not authorized")
-      + " to perform\n" + action
-      + " as long as \n";
+      + " to perform\n" + action + "\n";
   }
 
   public void addTarget(String  property,
@@ -72,6 +71,8 @@ public class GenericParsedPolicy extends ParsedAuthenticationPolicy
 
     if (!firstTarget) {
       _description += "\t\tand\n";
+    } else {
+      _description += " as long as ";
     }
     _description += "the value of " + property + "\n";
     if (resType.equals(PolicyConstants._toClassRestriction)) {
