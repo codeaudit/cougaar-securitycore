@@ -549,7 +549,7 @@ public class AccessAgentProxy
       return false;		// we have no policy so return
     }
 
-    if( verbs[0].toString()=="ALL" ) {
+    if( verbs[0].equals("ALL") ) {
       log.debug("ALL are kept.");
       return false;  //all allowed, no removal.
     }
