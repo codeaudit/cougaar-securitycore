@@ -13,6 +13,11 @@ require 'security/lib/SecurityMop2_4'
 require 'security/lib/SecurityMop2_5'
 require 'security/lib/SecurityMop2_6'
 
+insert_before :setup_run do
+  do_action "StoreMopsInRunHashTable"
+  do_action "StartTcpCapture", ["AgentA", "AgentB"]
+end
+
 insert_after :society_running do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "setup"
@@ -39,6 +44,9 @@ insert_after :after_stage_1 do
 
   # MOP 2.5: IDMEF events
   do_action  "InjectStress", "SecurityMop2_6", "calculate"
+
+  do_action "Sleep", 3.minutes
+  do_action "InjectStress", "SecurityMop23", "postCalculate"
 
 end
 
