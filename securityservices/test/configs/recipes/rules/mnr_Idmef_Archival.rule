@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert IDMEF Archival Plugin 
+
+plugin = "org.cougaar.core.security.monitoring.plugin.IdmefArchivalPlugin"
+
+society.each_agent (true) do |agent|     
+  agent.add_component do |c|     
+    c.classname = plugin        
+  end   
+end     
