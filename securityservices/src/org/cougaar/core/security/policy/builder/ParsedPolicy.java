@@ -34,6 +34,8 @@ import kaos.ontology.util.ValueNotSet;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.SpecifiedModalityTypeNotExists;
 
+import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
+
 public abstract class ParsedPolicy 
 {
   protected String  _policyName;
@@ -113,7 +115,7 @@ public abstract class ParsedPolicy
         str =  str.substring(1, str.length());
         return "http://ontology.coginst.uwf.edu/" + str;
       } else {
-        return str;
+        return str.substring(1, str.length());
       }
     } catch (IndexOutOfBoundsException e) {
       PolicyCompilerException pe 
@@ -163,10 +165,10 @@ public abstract class ParsedPolicy
   protected void initiateBuildPolicy(OntologyConnection ontology)
     throws PolicyCompilerException
   {
+    boolean actorIsInstance = false;
     try {
       _pb = new DAMLPolicyBuilderImpl();
-      ontology.verifySubClass(_actor, 
-                              kaos.ontology.jena.ActorConcepts._Actor_);
+      actorIsInstance = checkActorIsInstance(ontology);
       ontology.verifySubClass(_action,  
                               kaos.ontology.jena.ActionConcepts._Action_);
 
@@ -193,11 +195,15 @@ public abstract class ParsedPolicy
 
       // build the KAoSClassBuilderImp (e.g. the targets)
       _controls = new KAoSClassBuilderImpl(_action);
-      _controls.setPropertyRangeClass
-        (org.cougaar.core.security.policy.enforcers.ontology.jena.
-         ActionConcepts._performedBy_,
-         _actor);
+      if (actorIsInstance) {
+        _controls.addPropertyRangeInstance(ActionConcepts._performedBy_, 
+                                           _actor);
+      } else {
+        _controls.setPropertyRangeClass(ActionConcepts._performedBy_, _actor);
+      }
       _pb.setControlsActionClass(_controls);
+    } catch (PolicyCompilerException pce) {
+      ;
     } catch (Exception e) {
       PolicyCompilerException pe 
         = new PolicyCompilerException("trouble building generic policy named "
@@ -205,7 +211,29 @@ public abstract class ParsedPolicy
       pe.initCause(e);
       throw pe;
     }
+  }
 
+  protected boolean checkActorIsInstance(OntologyConnection ontology)
+    throws PolicyCompilerException
+  {
+    try {
+      ontology.verifySubClass(_actor, 
+                              kaos.ontology.jena.ActorConcepts._Actor_);
+      return false;
+    } catch (PolicyCompilerException pceClass) {
+      try {
+        ontology.verifyInstanceOf(_actor, 
+                                  kaos.ontology.jena.ActorConcepts._Actor_);
+        return true;
+      } catch (PolicyCompilerException pceInstance) {
+        PolicyCompilerException pce = 
+          new PolicyCompilerException(_actor + 
+                                      " is not a subclass or instance of " +
+                                      "the kaos actor class");
+        pce.initCause(pceInstance);
+        throw pce;
+      }
+    }
   }
 
   /**

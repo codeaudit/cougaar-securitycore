@@ -241,7 +241,9 @@ returns [Set items]
 
 
 class PolicyLexer extends Lexer;
-
+options {
+    charVocabulary='\3'..'\377'; 
+}
 
 // one-or-more letters followed by a newline
 TOKEN:   ( 'a'..'z'|'A'..'Z' )+
@@ -250,7 +252,8 @@ TOKEN:   ( 'a'..'z'|'A'..'Z' )+
 INT : ( '0'..'9' )+ 
     ;
 
-URI: '$' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.'|'#')+
+URI: '$' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.'|'#')+ 
+    | '%' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.'|'#')+ 
     ;
 
 EQ: '='
@@ -273,6 +276,7 @@ COMMA: ','
 
 
 
+
 // whitespace
 WS	:	(	' '
 		|	'\t'
@@ -284,8 +288,8 @@ WS	:	(	' '
 
 
 // I have been having trouble with comments - what is matchNot doing?
-//COMMENT: '#' (~'\n')* '\n'
-COMMENT: '#' ('0'..'9'|'a'..'z'|'A'..'Z'|'.'|','|'('|')'|';'|'-'|'\"'|'$'|'='|'['|']'|'{'|'}'|':'|'/'|'#'|'<'|'>'|'\''|' '|'\t')* '\n'
+COMMENT: '#' (~'\n')* '\n'
+//COMMENT: '#' ('0'..'9'|'a'..'z'|'A'..'Z'|'.'|','|'('|')'|';'|'-'|'\"'|'$'|'='|'['|']'|'{'|'}'|':'|'/'|'#'|'<'|'>'|'\''|' '|'\t')* '\n'
 		{$setType(Token.SKIP);}	//ignore this token
     ;
 
