@@ -9,5 +9,5 @@ wait
 sleep 10
 foreach i (`cat integmachines`)
   echo xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server"
-  xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server" &
+  xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server " &
 end
