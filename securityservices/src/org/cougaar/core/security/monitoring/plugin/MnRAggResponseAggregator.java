@@ -90,7 +90,7 @@ class RemoteResponsePredicate implements  UnaryPredicate{
       CmrRelay relay = (CmrRelay)o;
       ret = ((relay.getSource().equals(myAddress)) &&
              ((relay.getContent() instanceof DrillDownQuery) &&
-              (relay.getResponse() instanceof ConsolidatedEvent)));
+              (relay.getResponse() instanceof AggregatedResponse)));
     }
     return ret;
   }
@@ -106,7 +106,24 @@ class LocalResponsePredicate implements UnaryPredicate {
   }
   
 }
-
+class RemoteConsolidatedPredicate implements UnaryPredicate {
+  
+  UID parentUID;
+  public RemoteConsolidatedPredicate(UID puid) {
+    parentUID=puid;
+    
+  }
+   public boolean execute(Object o) {
+     RemoteConsolidatedEvent rconsolidated=null; 
+    if( o instanceof RemoteConsolidatedEvent){
+      rconsolidated=(RemoteConsolidatedEvent)o;
+      if(rconsolidated.getparentUID().equals(parentUID)){
+        return true;
+      }
+    }
+    return false;
+  }
+}
 
 
 public class MnRAggResponseAggregator extends MnRAggQueryBase  {
@@ -151,49 +168,86 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
   public void processRemoteResponse(Collection remote){
     CmrRelay relay=null;
     Iterator iter=remote.iterator();
-    ConsolidatedEvent remoteResponse=null;
+   
+    AggregatedResponse aggResponse=null;
     UID relayuid=null;
     //QueryResultAdapter sensorResponse=null;
      BlackboardService bbs = getBlackboardService();
     Collection aggQueryMappingCol=bbs.query(new AggQueryMappingPredicate()); 
-    
     while(iter.hasNext()) {
       if( loggingService.isDebugEnabled()) {
         loggingService.debug(" Receive Remote  Response in MnRAggResponseAggregator");
       }
       relay=(CmrRelay)iter.next();
-      remoteResponse=(ConsolidatedEvent)relay.getResponse();
+      //remoteResponse=(ConsolidatedEvent)relay.getResponse();
       relayuid=relay.getUID();
+      Collection remoteConsolidatedResponseCol=bbs.query(new RemoteConsolidatedPredicate(relayuid)); 
+      
       AggQueryMapping aggQueryMapping=findAggQueryMappingFromBB(relayuid,aggQueryMappingCol);
-      synchronized(aggQueryMapping) {
-        ArrayList queryList=aggQueryMapping.getQueryList();
-        if(queryList==null) {
-          loggingService.debug("Found Agg query mapping object but Query list empty ");
-          //bbs.publishAdd(event);
-          continue;
+      aggResponse=(AggregatedResponse)relay.getResponse();
+      Iterator consolidatedIterator=aggResponse.getEvents();
+       ConsolidatedEvent remoteResponse=null;
+      while(consolidatedIterator.hasNext()){
+        remoteResponse=(ConsolidatedEvent)consolidatedIterator.next();
+        if( loggingService.isDebugEnabled()) {
+          loggingService.debug(" Consolidated event in AggregatedResponse in MnRAggResponseAggregator"+ remoteResponse.toString());
         }
-        AggQueryResult queryresult=null;
-        IDMEF_Message message=null;
-        for(int i=0;i<queryList.size();i++) {
-          queryresult=(AggQueryResult)queryList.get(i);
-          if(queryresult.getUID().equals(relayuid)) {
-            message=remoteResponse.getEvent();
-            if(message instanceof Alert){
-              queryresult.setCurrentCount(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_CURRENT_EVENTS));
-              queryresult.setTotal(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_EVENTS));
-              queryresult.setRate(getRate((Alert)message));
-              queryList.set(i,queryresult);
-            }
-          }// end of if(queryresult.getUID().equals(relayuid))
-        }//end of for
-       bbs.publishChange(aggQueryMapping); 
-      }// end of synchronized
+        synchronized(aggQueryMapping) {
+          ArrayList queryList=aggQueryMapping.getQueryList();
+          if(queryList==null) {
+            loggingService.debug("Found Agg query mapping object but Query list empty ");
+            //bbs.publishAdd(event);
+            continue;
+          }
+          removeOldRemoteConsolidatedResponse(remoteConsolidatedResponseCol);
+          AggQueryResult queryresult=null;
+          IDMEF_Message message=null;
+          RemoteConsolidatedEvent remoteConsolidatedEvent=null;
+          for(int i=0;i<queryList.size();i++) {
+            queryresult=(AggQueryResult)queryList.get(i);
+            if(queryresult.getUID().equals(relayuid)) {
+              message=remoteResponse.getEvent();
+              if(message instanceof Alert){
+                queryresult.setCurrentCount(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_CURRENT_EVENTS));
+                queryresult.setTotal(getRateData((Alert)message,DrillDownQueryConstants.TOTAL_EVENTS));
+                queryresult.setRate(getRate((Alert)message));
+                queryList.set(i,queryresult);
+                remoteConsolidatedEvent=new RemoteConsolidatedEvent(remoteResponse);
+                if(loggingService.isDebugEnabled()) {
+                  loggingService.debug(" publishing REMOTE Consolidated : "+remoteConsolidatedEvent.toString());
+                }
+                bbs.publishAdd(remoteConsolidatedEvent);
+              }
+            }// end of if(queryresult.getUID().equals(relayuid))
+          }//end of for
+          bbs.publishChange(aggQueryMapping); 
+        }// end of synchronized
+      }
            
     }//end of while
     
   }
   
-
+  private void removeOldRemoteConsolidatedResponse(Collection oldConsolidatedResponse){
+    if(oldConsolidatedResponse.isEmpty()){
+       if( loggingService.isDebugEnabled()) {
+         loggingService.debug(" No old Remote Consolidated Response available:");
+       }
+    }
+    if( loggingService.isDebugEnabled()) {
+      if(oldConsolidatedResponse.size()>1) {
+        loggingService.debug("Size of Remote Consolidated Response available should not be more than 1  ******");
+      }
+      loggingService.debug(" Size of old Remote Consolidated Response available is : " +oldConsolidatedResponse.size());
+    }
+    Iterator iter=oldConsolidatedResponse.iterator();
+    RemoteConsolidatedEvent remoteevent=null;
+    BlackboardService bbs = getBlackboardService();
+    while(iter.hasNext()) {
+      remoteevent=(RemoteConsolidatedEvent)iter.next();
+      bbs.publishRemove(remoteevent);
+    }
+  }
   public void processLocalResponse(Collection local){
     Iterator iter=local.iterator();
     SensorAggregationDrillDownQuery sensorResponse=null;
@@ -322,7 +376,7 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
     System.arraycopy(inAdditionalData,0,outAdditionalData,0,inAdditionalData.length);
     AdditionalData adddata=null;
     adddata = imessage.createAdditionalData(AdditionalData.STRING,DrillDownQueryConstants.ORIGINATORS_UID, 
-                                            queryMapping.getParentQueryUID().toString());
+                                            queryMapping.getOriginatorUID().toString());
     outAdditionalData[inAdditionalData.length]=adddata;
    
     adddata = imessage.createAdditionalData(AdditionalData.STRING,DrillDownQueryConstants.PARENT_UID, 
