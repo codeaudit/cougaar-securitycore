@@ -519,8 +519,8 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write, delete";
 
 	permission java.io.FilePermission "${/}proc${/}-", "read";
-	permission java.io.FilePermission "${/}tmp${/}", "read";
-	permission java.io.FilePermission "${/}tmp${/}*", "read";
+	permission java.io.FilePermission "${/}tmp${/}", "read, write";
+	permission java.io.FilePermission "${/}tmp${/}*", "read, write";
 
 	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}*", "read, write, delete";
 	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}-", "read, write, delete";
