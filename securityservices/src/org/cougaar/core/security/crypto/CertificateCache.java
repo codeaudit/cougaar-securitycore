@@ -36,11 +36,13 @@ import org.cougaar.core.security.crypto.blackboard.InUseDNObject;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
+import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyRingSSLFactory;
+import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.security.ssl.TrustManager;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.AgentIdentificationService;
@@ -573,16 +575,18 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       BigInteger certserialno=c1.getSerialNumber();
       if((issuername.equals(issuerDN))&&(certserialno.equals(serialno))){
 	found=true;
-	aCertEntry.setCertificateTrust( CertificateTrust.CERT_TRUST_REVOKED_CERT);
-
 	// Give the opportunity to invalidate existing or future sessions that
 	// currently use this certificate.
 	invalidateSessions(c1);
 
+	aCertEntry.setCertificateTrust( CertificateTrust.CERT_TRUST_REVOKED_CERT);
+
 	log.debug("revoked status in cache:");
 	X500Name subjectname=null;
+        String cname = null;
 	try {
 	  subjectname= new X500Name(subjectDN);
+          cname = subjectname.getCommonName();
 	}
 	catch(IOException ioexp) {
 	  if (log.isWarnEnabled()) {
@@ -591,6 +595,11 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	}
 	certsCache.put(subjectname.getName(),list);
 	log.debug("revoked status in cache:" + subjectDN);
+        // inform validity listeners
+        CertValidityService validityService = (CertValidityService)
+          serviceBroker.getService(this, CertValidityService.class, null);
+        validityService.updateCertificate(cname);
+        serviceBroker.releaseService(this, CertValidityService.class, validityService);
 	break;
       }
 
@@ -630,6 +639,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
    */
   private void invalidateSessions(X509Certificate cert) {
     KeyRingSSLFactory.invalidateSession(cert);
+    KeyRingSSLServerFactory.invalidateSession(cert);
   }
 
 
