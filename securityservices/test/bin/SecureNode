@@ -8,11 +8,11 @@ chomp $host;
 #print "$host\n";
 
 if ($user eq 'redmond') {
-  $httpport=9000;
-  $httpsport=9500;
+  $httpport=8830;
+  $httpsport=9830;
 } elsif ($user eq 'tredmond') {
-  $httpport=9000;
-  $httpsport=9500;
+  $httpport=8830;
+  $httpsport=9830;
 } elsif ($user eq 'srosset') {
   $httpport=5561;
   $httpsport=6561;
