@@ -38,8 +38,11 @@ society.each_node do |node|
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin"
         end
-
-        agent.add_component do |c|
+	agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.monitoring.plugin.MnRAggSendCompleteEventPlugin"
+        end
+        
+	agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin"
           c.add_argument("20")
           c.add_argument("3600")
