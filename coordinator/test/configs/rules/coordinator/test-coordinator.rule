@@ -6,8 +6,9 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 require 'security/lib/common_security_rules'
 
 sact = "org.cougaar.core.security.test.coordinator.CoordinatorTest"
+stca = "org.cougaar.core.security.test.coordinator.SetThreatConActionPlugin"
 
-plugins = [sact]
+plugins = [sact, stca]
 
 society.each_agent(true) do |agent|
     agent.each_facet(:role) do |facet|
