@@ -14,7 +14,9 @@ Ultralog::OperatorUtils::HostManager.new.load_society.each_service_host("acme") 
       #puts "ssh #{host.host_name} #{ARGV.join(" ")}"
       #STDOUT.flush
       string = `ssh #{host.host_name} #{ARGV.join(" ")}`
-      puts string
+      if !string.strip.empty?
+        puts string
+      end
       #string.split("\n").each { |x|
       #  puts "#{host.host_name} - #{x}"
       #}
