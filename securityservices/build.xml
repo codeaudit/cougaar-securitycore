@@ -417,7 +417,84 @@
             </fileset>
         </delete>
     </target>
-    
+
+		<target name="create_cougaar_overlay">
+			<echo message="#### Preparing staging area"/>
+			<delete dir="staging"/>
+			<mkdir dir="staging"/>
+
+        <echo message="#### Copying configuration files to staging area"/>
+        <copy todir="staging/configs">
+            <fileset dir="${securityservices.configs}">
+                <patternset>
+                    <include name="common/*"/>
+                    <include name="small-135/*"/>
+                    <exclude name="**/CVS/**"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="staging/webtomcat/data/conf"
+            file="${securityservices.configs}/tomcat4/server.xml"/>    
+        <copy todir="staging/webtomcat/data/webapps/ROOT/WEB-INF"
+            file="${securityservices.configs}/tomcat4/web.xml"/>
+        <copy todir="staging/configs/common"
+            file="${securityservices.configs}/mysql/cougaar.rc"/>
+       <mkdir dir="staging/configs/cougaarCA"/>
+        <copy todir="staging/configs/cougaarCA">
+            <fileset dir="${securityservices.configs}/cougaarCA">
+                <include name="*"/>
+            </fileset>
+        </copy>
+        <copy todir="staging/configs/cougaarCA">
+            <fileset dir="${securityservices.base}/test/bin">
+                <include name="SecureNode"/>
+            </fileset>
+        </copy>
+			<echo message="#### Compiling code/building jars"/>
+			<antcall target="jar-idmef"/>
+			<antcall target="jar-securityservices"/>
+
+			<echo message="#### Signing jars"/>
+        <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
+            signedjar="${securityservices.signed}/securebootstrapper.jar"
+            keystore="staging/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/securityservices.jar"
+            keystore="staging/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
+            keystore="staging/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/idmef.jar"
+            keystore="staging/configs/common/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+
+			<echo message="#### Copying jars to staging area"/>
+        <copy todir="staging/sys">
+            <fileset dir="${securityservices.sys}">
+                <include name="*.jar"/>
+                <exclude name="jasper-compiler.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="staging/lib">
+            <fileset dir="${securityservices.lib}" includes="*.jar"/>
+        </copy>
+				<copy file="${securityservices.signed}/securebootstrapper.jar" 
+            todir="staging/lib"/>
+        <copy file="${securityservices.signed}/securityservices.jar" 
+            todir="staging/lib"/>
+        <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
+            todir="staging/lib"/>
+        <copy file="${securityservices.signed}/idmef.jar" 
+            todir="staging/lib"/>
+			
+			<echo message="#### Building Zip file"/>
+			<zip zipfile="nai_cougaar_overlay.zip" basedir="staging"/>	
+		</target>
+   
     <!-- Delete log files -->
     <target name="clean-log">
         <echo message="+++++ Cleaning log files"/>
