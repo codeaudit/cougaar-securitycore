@@ -106,8 +106,8 @@ public class JaasAgentBinder
   public String getName() {return getAgentManager().getName(); }
 
   private String getAgentName(){
-    String tmp = getAgentBinder().toString();
-    return tmp.substring(9, tmp.indexOf('>'));
+    MessageAddress id = getAgentBinder().getAgentIdentifier();
+    return id.toString();
   }
 
   private void doLoad() { super.load();}
