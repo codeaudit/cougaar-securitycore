@@ -506,6 +506,12 @@ public class AgentIdentityServiceImpl
         for (int i = 0 ; i < certificates.length ; i++) {
           keyRing.setKeyEntry(privateKeys[i], certificates[i]);
         }
+
+        /* Step 3 */
+        if (log.isDebugEnabled()) {
+          log.debug("updating wp");
+        }
+        keyRing.updateNS(requestorAddress.toAddress());
       }
     }
 
