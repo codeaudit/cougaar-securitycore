@@ -117,6 +117,10 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
         permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 };
 
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged"  {
+        permission javax.security.auth.AuthPermission "getSubject";
+};
+
 ////////////////////////////////////////////////////////////
 // Permissions for bootstrapper package.
 //grant codeBase "file:${org.cougaar.install.path}${/}lib${/}bootstrapper.jar" {
