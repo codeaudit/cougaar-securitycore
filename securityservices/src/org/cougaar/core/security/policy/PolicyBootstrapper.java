@@ -55,7 +55,7 @@ public class PolicyBootstrapper
   private LoggingService log;
   private XMLPolicyCreator xpc;
 
-  private String _damlBootPolicies = "BootPolicies-DAML";
+  private String _damlBootPolicies = "DamlBootPolicyList";
   private HashMap _damlBootMap;
 
   static String policyPath =
