@@ -108,6 +108,50 @@ givenName: Sebastien
 cn: Sebastien Rosset
 cougaarAcctEnableTime: 20020616000839Z
 
+dn: uid=Enclave1SecurityMnRManager,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: Enclave1SecurityMnRManager 
+cougaarAuthReq: CERT
+sn: Responder
+givenName: Enclave1SecurityMnRManager 
+cn: Enclave1SecurityMnRManager Responder
+cougaarAcctEnableTime: 20020616000839Z
+
+dn: uid=Enclave2SecurityMnRManager,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: Enclave2SecurityMnRManager 
+cougaarAuthReq: CERT
+sn: Responder
+givenName: Enclave2SecurityMnRManager 
+cn: Enclave2SecurityMnRManager Responder
+cougaarAcctEnableTime: 20020616000839Z
+
+dn: uid=Enclave3SecurityMnRManager,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: Enclave3SecurityMnRManager 
+cougaarAuthReq: CERT
+sn: Responder
+givenName: Enclave3SecurityMnRManager 
+cn: Enclave3SecurityMnRManager Responder
+cougaarAcctEnableTime: 20020616000839Z
+
+dn: uid=Enclave4SecurityMnRManager,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: Enclave4SecurityMnRManager 
+cougaarAuthReq: CERT
+sn: Responder
+givenName: Enclave4SecurityMnRManager 
+cn: Enclave4SecurityMnRManager Responder
+cougaarAcctEnableTime: 20020616000839Z
+
 dn: cn=LogisticsViewer,dc=roles,dc=cougaar,dc=org
 objectClass: organizationalRole
 description: Able to view logistics data in a society
@@ -143,6 +187,15 @@ description: Manages M&R Security Console
 cn: MonitorManager
 roleOccupant: uid=amarinea,dc=users,dc=cougaar,dc=org
 roleOccupant: uid=mbarger,dc=users,dc=cougaar,dc=org
+
+dn: cn=MnRResponder,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: MnR Responder components allowed to revoke certificates
+cn: MnRResponder 
+roleOccupant: uid=Enclave1SecurityMnRManager,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=Enclave2SecurityMnRManager,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=Enclave3SecurityMnRManager,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=Enclave4SecurityMnRManager,dc=users,dc=cougaar,dc=org
 
 dn: cn=CAAdministrator,dc=roles,dc=cougaar,dc=org
 objectClass: organizationalRole
