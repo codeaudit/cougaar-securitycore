@@ -161,7 +161,9 @@ public class ULInstanceClassifierFactory
     public void init ()
       throws InstanceClassifierInitializationException 
     {
-      _log.debug("Initializing the Actor Instance Classifier");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Initializing the Actor Instance Classifier");
+      }
       return;
     }
 
