@@ -1,0 +1,87 @@
+#!/usr/bin/ruby
+####################################################
+
+attackHost = nil
+
+society.each_host do |host|
+  if host.has_facet? "attacker"
+    attackHost = host
+    break
+  end
+end
+
+if attackHost == nil
+  # fine! we'll add it to the first host where a redundant CA is running
+  society.each_host do |host|
+    host.each_node do |node|
+      node.each_facet(:role) do |facet|
+        if facet[:role] == 'RedundantCertificateAuthority'
+          host.add_facet({"attacker" => "true"})
+          attackHost = host
+          break
+        end
+      end # node.each_facet
+      if attackHost != nil
+        break
+      end
+    end #host.each_node
+    if attackHost != nil
+      break
+    end
+  end #society.each_host
+end
+
+if attackHost == nil
+  # fine! we'll add it to the first non management host
+  society.each_host do |host|
+    mgmtComp = false
+    host.each_node do |node|
+      node.each_facet(:role) do |facet|
+        if facet[:role] == $facetManagement ||
+           facet[:role] == $facetSubManagement ||
+           facet[:role] == $facetRootManagement ||
+           facet[:role] == 'RootCertificateAuthority' ||
+           facet[:role] == 'CertificateAuthority' ||
+           facet[:role] == 'RedundantCertificateAuthority' ||
+           facet[:role] == 'AR-Management'
+          mgmtComp = true
+          break
+        end
+      end # node.each_facet
+    end # host.each_node
+    if mgmtComp == false
+      host.add_facet({"attacker" => "true"})
+      attackHost = host
+      break
+    end
+  end # society.each_host
+end
+
+if attackHost == nil
+  # fine! we'll add it to the first host
+  society.each_host do |host|
+    host.add_facet({"attacker" => "true"})
+    attackHost = host
+    break
+  end
+end
+
+if attackHost != nil
+  attackHost.add_node("MESSAGE-ATTACK-NODE") do |node|
+    #node.override_parameter('-Dorg.cougaar.lib.web.http.port', '8830');
+    node.add_facet({"NodeAttacker" => "true"})
+    node.add_agent("MessageAttacker") do |agent|
+      agent.add_facet({"AgentAttacker" => "true"})
+    end
+
+    # Install servlet to request new certificate
+    node.add_component do |c|
+      c.classname = 'org.cougaar.core.security.certauthority.CaServletComponent'
+      c.add_argument("org.cougaar.core.security.crypto.servlet.MakeCertificateServlet")
+      c.add_argument("/MakeCertificateServlet")
+    end
+
+  end
+else
+  raise "There are no hosts in the society"
+end
