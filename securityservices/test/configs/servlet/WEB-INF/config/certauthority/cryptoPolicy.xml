@@ -3,7 +3,7 @@
 
   <!-- Configuration of Certificate Authority
        The name should be the distinguished name of the X509 certificate -->
-  <certificateAuthority name="CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US">
+  <certificateAuthority name="CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US">
     <!-- Alias of CA private key in the keystore (RSA encryption) -->
     <caCommonName>NCA_CA</caCommonName>
 
