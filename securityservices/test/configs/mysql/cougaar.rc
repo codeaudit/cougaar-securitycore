@@ -3,44 +3,44 @@ driver.oracle=oracle.jdbc.driver.OracleDriver
 driver.postgresql=org.postgresql.Driver 
 
 # core database 
-org.cougaar.database=jdbc:mysql://fern/cougaar_922
+org.cougaar.database=jdbc:mysql://fern/cougaar_941
 org.cougaar.database.user=ultralog
 org.cougaar.database.password=ul-password 
 
 # oplan database 
-oplan.test.database=jdbc:mysql://fern/cougaar_922 
+oplan.test.database=jdbc:mysql://fern/cougaar_941 
 oplan.test.database.user=ultralog 
 oplan.test.database.password=ul-password 
 
 # blackjack 
-blackjack.database=jdbc:mysql://fern/cougaar_922 
+blackjack.database=jdbc:mysql://fern/cougaar_941 
 blackjack.database.user=ultralog 
 blackjack.database.password=ul-password 
 
 # blackjack8 
-blackjack8.database=jdbc:mysql://fern/cougaar_922 
+blackjack8.database=jdbc:mysql://fern/cougaar_941 
 blackjack8.database.user=ultralog 
 blackjack8.database.password=ul-password 
 
 # icis 
-icis.database=jdbc:mysql://fern/cougaar_922 
+icis.database=jdbc:mysql://fern/cougaar_941 
 icis.database.user=ultralog 
 icis.database.password=ul-password 
 
 # generic database expander 
-generic.database.expander.database=jdbc:mysql://fern/cougaar_922 
+generic.database.expander.database=jdbc:mysql://fern/cougaar_941 
 generic.database.expander.user=ultralog 
 generic.database.expander.password=ul-password 
 generic.database.expander.expansion_table=construction_expansion 
 
 # configuration database 
-org.cougaar.configuration.database=jdbc:mysql://fern/csmart_922
+org.cougaar.configuration.database=jdbc:mysql://fern/csmart_941
 org.cougaar.configuration.user=ultralog
 org.cougaar.configuration.password=ul-password
 
 # datagrabber database configuration
 # On the next line, DATAGRABBER_DBNAME is typically "Grabber" but can be anything you like.
-org.cougaar.domain.mlm.ui.grabber.config.DBConfig.connectionURL=jdbc:mysql://fern/cougaar_922
+org.cougaar.domain.mlm.ui.grabber.config.DBConfig.connectionURL=jdbc:mysql://fern/cougaar_941
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.user=ultralog
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.password=ul-password
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.syntax=MySQL
