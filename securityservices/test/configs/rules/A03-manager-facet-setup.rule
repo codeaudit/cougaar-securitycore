@@ -41,10 +41,11 @@ society.each_node do |node|
       if facet[:role] == nodeFacet
       # Add security manager agents and facets
         if society.agents[securityMgrAgentName] == nil
-          #puts "Adding agent #{securityMgrAgentName} with facets #{securityMgrAgentFacets.join(' ')}"
+          # run.info_message("Found facet #{nodeFacet} for node #{node.name} on enclave #{enclave}")
+          # run.info_message("Adding agent #{securityMgrAgentName} with facets #{securityMgrAgentFacets.join(' ')}")
           node.add_agent(securityMgrAgentName) do |agent|
-            securityMgrAgentFacets.each do |facet|
-              agent.add_facet({:role=>facet})
+            securityMgrAgentFacets.each do |facetInner|
+              agent.add_facet({:role=>facetInner})
             end
           end
         end 
