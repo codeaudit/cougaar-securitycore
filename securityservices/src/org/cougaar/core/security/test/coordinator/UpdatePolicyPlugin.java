@@ -231,12 +231,12 @@ public class UpdatePolicyPlugin
           } // synchronized(_threatLock)
 
           try {
-            if (level.equals(ThreatConActionInfo.LOW)) {
+            if (level.equals(ThreatConActionInfo.LOWDiagnosis)) {
               if (_log.isDebugEnabled()) {
                 _log.debug("committing low policy");
               }
               commitPolicy(LOW_POLICY);
-              myThreatLevel = ThreatConActionInfo.LOW;
+              myThreatLevel = ThreatConActionInfo.LOWDiagnosis;
               if (_log.isDebugEnabled()) {
                 _log.debug("low policy committed");
               }
@@ -245,7 +245,7 @@ public class UpdatePolicyPlugin
                 _log.debug("committing high policy");
               }
               commitPolicy(HIGH_POLICY);
-              myThreatLevel = ThreatConActionInfo.HIGH;
+              myThreatLevel = ThreatConActionInfo.HIGHDiagnosis;
               if (_log.isDebugEnabled()) {
                 _log.debug("high policy committed");
               }
