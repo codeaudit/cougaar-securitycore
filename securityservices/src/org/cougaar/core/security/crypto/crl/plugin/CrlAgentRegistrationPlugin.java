@@ -302,13 +302,14 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	  CrlRelay crlrelay=null;
 	  for(int i=0;i<messageAddress.size();i++){
 	    MessageAddress agent=(MessageAddress)messageAddress.elementAt(i);
-	    crlrelay=getAgentrelay(agent);
+	    crlrelay=getAgentrelay(agent,regObject.dnName);
 	    if(crlrelay!=null) { 
 	      try{
 		crlrelay.updateResponse(crlrelay.getSource(),
 					new CRLWrapper(regObject.dnName,crl.getEncoded(),modifiedTimestamp)); 
 		bbs.publishChange(crlrelay);
 		loggingService.debug("Updating response  :"+agent.toString());
+		loggingService.debug("Updating response  :"+crlrelay.toString());
 	      }
 	      catch(Exception exp) {
 		loggingService.warn("Unable to send updated CRL to agent :"+agent.toString()+ exp.getMessage());
@@ -360,18 +361,22 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       dumpX509CRL(currentset,oldset);
     }
     
-    private CrlRelay getAgentrelay(MessageAddress agent){
+    private CrlRelay getAgentrelay(MessageAddress agent, String dn){
       BlackboardService bbs = getBlackboardService();
       Collection regrelayCollection=null;
       CrlRelay crlrelay=null;
+      CRLAgentRegistration agentReg=null;
       //bbs.openTransaction();
       regrelayCollection=bbs.query(new CRLAgentRegistrationPredicate ());
       Iterator iter=regrelayCollection.iterator();
       while(iter.hasNext()) {
 	crlrelay=(CrlRelay)iter.next();
 	if(crlrelay.getSource().equals(agent)){
+	  agentReg=(CRLAgentRegistration)crlrelay.getContent();
+	  if(agentReg.dnName.equals(dn)) {
 	  // bbs.closeTransaction();
-	  return crlrelay;
+	    return crlrelay;
+	  }
 	}
       }
       return crlrelay;
