@@ -94,7 +94,7 @@ import org.cougaar.util.UnaryPredicate;
  * [ Plugins ]
  * plugin = org.cougaar.core.servlet.SimpleServletComponent(org.cougaar.planning.servlet.PlanViewServlet, /tasks)
  * plugin = org.cougaar.core.security.monitorin.plugin.RateCalculatorPlugin(20,60,org.cougaar.core.security.monitoring.LOGIN_FAILURE,org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE)
- * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
+ * plugin = org.cougaar.core.security.monitoring.plugin.EventQueryPlugin(SocietySecurityManager,org.cougaar.core.security.monitoring.plugin.AllLoginFailures)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>

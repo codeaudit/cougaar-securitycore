@@ -74,7 +74,7 @@ import javax.naming.NamingException;
  * Add these lines to your agent:
  * <pre>
  * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400)
- * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
+ * plugin = org.cougaar.core.security.monitoring.plugin.EventQueryPlugin(SocietySecurityManager,org.cougaar.core.security.monitoring.plugin.AllLoginFailures)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
