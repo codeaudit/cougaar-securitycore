@@ -116,15 +116,18 @@ public class ActionPermission extends java.security.Permission {
   public boolean equals(Object obj) {
     if (this.getClass().isInstance(obj)) {
       ActionPermission p = (ActionPermission) obj;
-      return (_name.equals(p._name) && 
-              _wildName == p._wildName &&
-              _nameIsOther == p._nameIsOther &&
-              _mask == p._mask);
+      return
+        (_name.equals(p._name) &&
+         _actionStr.equals(p._actionStr) &&
+         _wildName == p._wildName &&
+         _nameIsOther == p._nameIsOther &&
+         _mask == p._mask);
     }
     return false;
   }
 
   protected void parseName(String name) {
+    _name = name;
     if (name.equals("%Other%")) {
       _nameIsOther = true;
       _wildName    = false;
@@ -132,12 +135,11 @@ public class ActionPermission extends java.security.Permission {
       _nameIsOther = false;
       _wildName = true;
       // get everything up to the '*'
-      _name = name.substring(0, name.length() - 1);
+      _name = _name.substring(0, name.length() - 1);
     } else {
       // a class name
       _nameIsOther = false;
       _wildName = false;
-      _name = name;
     }
   }
 
