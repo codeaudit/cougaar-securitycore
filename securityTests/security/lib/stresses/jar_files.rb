@@ -293,12 +293,14 @@ class StressComponentJar < StressJarFile
 
   def postLoadSociety
     @component = "Stress#{@attackNum}"
-    @jarFile = createComponentJar(@component, <<COMPONENT)
+    componentContent = <<COMPONENT
     package org.cougaar.core.security.test.temp#{@component};
     public class #{@component} implements Runnable {
              public void run() {}
            }
-    COMPONENT
+COMPONENT
+
+    @jarFile = createComponentJar(@component, componentContent)
     if (@keystore != nil)
       signJar(@jarFile, @keystore, @cert)
     end
@@ -366,13 +368,14 @@ class Stress5a4 < StressComponentJar
   def preConditionalStartSociety
     super
     File.rename(@jarFile, "#{@jarFile}.bk")
-    createComponentJar(@component, <<COMPONENT)
+    componentContent = <<COMPONENT
     package org.cougaar.core.security.test.temp#{@component};
     public class #{@component} implements Runnable {
              int _tempVar = 0;
              public void run() {}
            }
-    COMPONENT
+COMPONENT
+    createComponentJar(@component, componentContent)
     jarDir = "/tmp/jar-#{@component}-new"
     Dir.mkdirs(jarDir)
     #    puts "======================================================"
