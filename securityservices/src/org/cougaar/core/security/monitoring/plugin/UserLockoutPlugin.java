@@ -38,6 +38,7 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
 import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
@@ -136,7 +137,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
       public boolean execute(Object o) {
         if (o instanceof Event) {
           IDMEF_Message msg = ((Event) o).getEvent();
-	  if (msg instanceof RegistrationAlert) {
+	  if (msg instanceof RegistrationAlert ||
+              msg instanceof ConsolidatedCapabilities) {
 	    return false;
 	  }
           if (msg instanceof Alert) {
