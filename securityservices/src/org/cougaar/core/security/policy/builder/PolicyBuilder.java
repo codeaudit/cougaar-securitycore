@@ -1,10 +1,23 @@
 package org.cougaar.core.security.policy.builder;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.*;
+
+import kaos.core.util.AttributeMsg;
+import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
+import kaos.core.util.SubjectMsg;
 import kaos.ontology.DefaultOntologies;
 import kaos.ontology.repository.KAoSContext;
 import kaos.ontology.repository.OntologyRepository;
 import kaos.ontology.repository.OntologyLoader;
+import kaos.ontology.util.KAoSClassBuilderImpl;
+import kaos.policy.util.PolicyBuildingNotCompleted;
+import kaos.ontology.util.RangeIsBasedOnInstances;
+import kaos.ontology.util.ValueNotSet;
+import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.information.PolicyInformation;
 import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilder;
@@ -37,25 +50,55 @@ public class PolicyBuilder extends DAMLPolicyBuilderImpl
     return LocalPolicyInformationManager.readPolicyFromBuilder(this);
   }
 
-  /*
   public PolicyMsg getPolicyMsg()
+    throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
-    DAMLPolicyContainer damlPolicy = damlPolicyBuilder.getPolicy();
+    DAMLPolicyContainer damlPolicy = getPolicy();
+    KAoSClassBuilderImpl controls = getControlsActionClass();
     Vector subjects = new Vector();
-    subjects.addElement(_subject);
-    PolicyMsg policyMsg = new PolicyMsg(_idValueLbl.getText(),
-                                        name,
-                                        description,
+    if (!controls.
+        isPropertyRangeBasedOnClass(kaos.ontology.jena.ActionConcepts.
+                                    _performedBy_)) {
+      throw new RuntimeException("Standalone tool failed to find actors");
+    }
+    String subjectClass = controls.
+      getBasePropertyRangeClass(kaos.ontology.jena.ActionConcepts.
+                                _performedBy_);
+    SubjectMsg subject = new SubjectMsg(subjectClass, 
+                                        null, 
+                                        KAoSConstants.ACTOR_CLASS_SCOPE);
+    subjects.addElement(subject);
+    String action = controls.getClassName();
+    PolicyMsg policyMsg = new PolicyMsg(getPolicyID(),
+                                        getPolicyName(),
+                                        getPolicyDesc(),
                                         action,
                                         "", // admin
                                         subjects,
                                         true);
-    policyMsg.setModality(modality);
-    policyMsg.setPriority(_priorityFld.getText());
+    policyMsg.setModality(getModalityType());
+    policyMsg.setPriority("" + getPriority());
     policyMsg.setAttribute(new AttributeMsg(AttributeMsg.DAML_CONTENT,
                                             damlPolicy,
                                             true));
-
+    return policyMsg;
   }
-  */
+
+  public void writePolicyMsg(String filename)
+    throws IOException
+  {
+    PolicyMsg pm = null;
+    try {
+      pm = getPolicyMsg();
+    } catch (Exception e) {
+      IOException ioerror = new IOException("Failed to obtain policy");
+      ioerror.initCause(e);
+      throw ioerror;
+    }
+    FileOutputStream fos = new FileOutputStream(filename);
+    ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+    oos.writeObject(pm);
+    oos.close(); 
+  }
 }

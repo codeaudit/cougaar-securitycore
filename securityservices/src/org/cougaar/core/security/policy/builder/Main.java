@@ -2,6 +2,7 @@ package org.cougaar.core.security.policy.builder;
 
 import java.util.*;
 
+import kaos.core.util.PolicyMsg;
 import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.information.PolicyInformation;
@@ -46,10 +47,14 @@ public class Main
       pb.setControlsActionClass(controls);
       pb.showPolicy();
       PolicyInformation pi = pb.getPolicyInformation();
+      System.out.println("--------------------------------------------------");
       System.out.println("Policy Information Format\n" + pi);
-
-    }
-    catch (Exception xcp) {
+      System.out.println("--------------------------------------------------");
+      PolicyMsg pm = pb.getPolicyMsg();
+      System.out.println("Policy Message Format\n" + pm);
+      System.out.println("Writing to file testpolicy.msg");
+      pb.writePolicyMsg("testpolicy.msg");
+    } catch (Exception xcp) {
       xcp.printStackTrace();
     }
   }
