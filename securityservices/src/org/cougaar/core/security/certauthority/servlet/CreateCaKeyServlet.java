@@ -46,6 +46,7 @@ import org.cougaar.core.service.identity.*;
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
+import  org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
@@ -60,6 +61,7 @@ public class CreateCaKeyServlet
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
+  private CertificateCacheService certificateCacheService= null; 
   private LoggingService log;
 
   protected boolean debug = false;
@@ -82,6 +84,10 @@ public class CreateCaKeyServlet
     keyRingService = (KeyRingService)
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,
+					    null);
+    certificateCacheService=(CertificateCacheService)
+      support.getServiceBroker().getService(this,
+					    CertificateCacheService.class,
 					    null);
     configParser = (ConfigParserService)
       support.getServiceBroker().getService(this,
@@ -112,7 +118,7 @@ public class CreateCaKeyServlet
       + ", l=" + caL
       + ", st=" + caST
       + ", c=" + caC
-      + ", t=" + DirectoryKeyStore.CERT_TITLE_CA;
+      + ", t=" + CertificateCache.CERT_TITLE_CA;
     if (log.isDebugEnabled()) {
       log.debug("Creating CA key for: " + caDN);
     }
@@ -167,9 +173,9 @@ public class CreateCaKeyServlet
     out.println("<H2>CA key generation</H2>");
     out.println("CA key has been generated.<br><br>");
     out.println("CA private key has been stored in:<br>"
-		+ keyRingService.getKeyStorePath());
+		+ certificateCacheService.getKeyStorePath());
     out.println("<br><br>CA certificate has been stored in:<br>"
-		+ keyRingService.getCaKeyStorePath());
+		+ certificateCacheService.getCaKeyStorePath());
     out.println("<br></body></html>");
     out.flush();
     out.close();
