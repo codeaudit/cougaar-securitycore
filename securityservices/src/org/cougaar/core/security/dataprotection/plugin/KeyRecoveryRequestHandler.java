@@ -61,7 +61,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -96,32 +96,6 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
         public boolean execute(Object o) {
         	if(o instanceof DataProtectionKeyContainer){
         		DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
-        		if(log.isDebugEnabled()){
-        			try{
-        				byte[] _new = dpKey.getCertificateChain()[0].getSignature();
-        				byte[] original = container.getKey().getCertificateChain()[0].getSignature();
-        				BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(original)));
-						BufferedReader newreader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(_new)));
-						String line = reader.readLine();
-						log.debug("Original");
-						while(line!=null){
-							log.debug(line);
-							line =reader.readLine();
-						}
-						log.debug("new");
-						line =newreader.readLine();
-						while(line!=null){
-							log.debug(line);
-							line = newreader.readLine();
-						}
-        				
-        			//log.debug("Check dpkey, remote copy:" + dpKey.getCertificateChain()[0].getSignature());
-        			//log.debug("Check dpkey, local copy:" + container.getKey().getCertificateChain()[0].getSignature());
-        			}catch(Exception npe){
-        				log.debug("Null dpkey cert");
-        				
-        			}
-        		}
         		return container.getKey().equals(dpKey);
         	}
           return false;
