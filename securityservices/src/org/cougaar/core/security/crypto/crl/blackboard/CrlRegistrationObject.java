@@ -40,6 +40,14 @@ public class CrlRegistrationObject implements Serializable,Publishable {
   private String modifiedTimestamp;
   public String dnName;
 
+  public CrlRegistrationObject (String dnname) {
+     dnName=dnname;
+    ldapUrl=null;
+    ldapType=-1;
+    modifiedTimestamp=null;
+    messageAddress=new Vector();
+  }
+  
   public CrlRegistrationObject (String dnname,String ldapURL,int ldaptype) {
     dnName=dnname;
     ldapUrl=ldapURL;
@@ -49,18 +57,17 @@ public class CrlRegistrationObject implements Serializable,Publishable {
   }
 
   public void addAgent(MessageAddress agentAddress) throws CRLAgentRegistrationException{
+    
     if(agentAddress!=null) {
       MessageAddress msgAddress=null;
       Enumeration enum =messageAddress.elements();
       while(enum.hasMoreElements()) {
         msgAddress=(MessageAddress)enum.nextElement();
-        if(msgAddress.equals(agentAddress)) {
+        if(msgAddress.toString().equals(agentAddress.toString())) {
           throw new CRLAgentRegistrationException(" Agent " +agentAddress.toString()+
 						  "alredy registered");
         }
       }
-      messageAddress.add(agentAddress);
-
       messageAddress.add(agentAddress);
     }
   }
