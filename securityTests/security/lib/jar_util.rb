@@ -141,6 +141,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
     option = "umf #{jarDir}/META-INF/MANIFEST.MF"
   end
+#  puts "Copying #{replacementFile} to #{File.join(jarDir, targetFile)}"
   File.cp(replacementFile, File.join(jarDir, targetFile) )
 #  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
   results = `jar #{option} #{jarFile} -C #{jarDir} #{targetFile} 2&>1`
@@ -151,6 +152,8 @@ end
 
 $jarDir = "/tmp/config.#{rand(100000)}"
 $jarChanges = 0
+$createdJars=[]
+
 def searchDir(dir, filename, dirok = true) 
   Dir.foreach(dir) { |file|
     fullName = File.join(dir, file)
@@ -202,7 +205,14 @@ def commitConfigChanges(jarFile="#{CIP}/configs/security/securityservices_config
     return nil
   end
   getConfigFile() #force creating the jar directory
-  `cd #{$jarDir} && jar cf #{jarFile} .`
+  if $createdJars.include?(jarFile) then
+#    puts "cd #{$jarDir} && jar uf #{jarFile} ."
+    `cd #{$jarDir} && jar uf #{jarFile} .`
+  else
+#    puts "cd #{$jarDir} && jar cf #{jarFile} ."
+    `cd #{$jarDir} && jar cf #{jarFile} .`
+    $createdJars.push(jarFile)
+  end
   signJar(jarFile, "#{CIP}/operator/signingCA_keystore",            
           "privileged")
 
