@@ -86,7 +86,7 @@ public class MessageFailureSensor extends SensorPlugin {
     ServiceBroker sb = getServiceBroker();
     //initialize the EventPublisher in the following services
     EventPublisher publisher = 
-      new IdmefEventPublisher(m_blackboard, m_cmrFactory, m_log, m_sensorInfo);
+      new IdmefEventPublisher(m_blackboard, m_cmrFactory, m_log, getSensorInfo());
     AccessAgentProxy.addPublisher(publisher);
     sb.getService(publisher, MessageProtectionService.class, null);
   }  
