@@ -38,22 +38,24 @@ public class CertificateDetailsServlet extends  HttpServlet
 	  }
           try
           {
-                if((role==null)||(role==""))
-                {
-                keymanage=new KeyManagement(dnname,null);
+	    if((role==null)||(role==""))
+	      {
+		System.out.println("creating keymanagement with role null");
+		keymanage=new KeyManagement(dnname,null);
 
-                }
-                else
-                {
-                keymanage=new KeyManagement(dnname,role);
-                }
+	      }
+	    else
+	      {
+		System.out.println("creating keymanagement with role:"+role);
+		keymanage=new KeyManagement(dnname,role);
+	      }
 
-                if((hash==null)||(hash==""))
-                {
+	    if((hash==null)||(hash==""))
+	      {
                 out.print("Error in hash ");
                 out.flush();
                 out.close();
-                }
+	      }
           }
           catch(Exception exp)
                 {
@@ -92,17 +94,44 @@ public class CertificateDetailsServlet extends  HttpServlet
        out.println("</head>");
        out.println("<body>");
        out.println("<H2> Certificate Details</H2><BR>");
-       out.println("<form name=\"revoke\" action=\"../RevokeCertificate\" method=\"post\">");
+       out.println("<form name=\"revoke\" action=\"/CA/servlet/revokecertificate\" method=\"post\">");
        out.println("<input type=\"hidden\" name=\"hash\" value=\""+ldapentry.getHash()+"\">");
        if((role==null)||(role==""))
        {
-	 out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
+	 System.out.println("got role as null or empty in certificate details:::::++++");
+	
+       }
+       else{
+	  out.println("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
        }
        out.println("<input type=\"hidden\" name=\"dnname\" value=\""+dnname+"\">");
        out.println("<p>");
-       System.out.println(certimpl.toString());
-       out.println(certimpl.toString());
-       out.println("<input type=\"button\" value=\"Revoke Certificate \" onClick=\"submit\">");
+        out.println("<p>");
+       out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getVersion());
+       out.println("<br>");
+       out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSubjectDN().getName());
+       out.println("<br>");
+       out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSigAlgName()+ ",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
+       out.println("<br>");
+       out.println("<b>Key&nbsp;&nbsp;&nbsp;:</b>"+keymanage.toHexinHTML(certimpl.getPublicKey().getEncoded()));
+       out.println("<br>");
+       out.println("<b>Validity&nbsp;&nbsp;&nbsp;:</b>");
+       out.println("<br>");
+       out.println("<b>&nbsp;&nbsp;&nbsp;From &nbsp;:</b>"+certimpl.getNotBefore().toString());
+       out.println("<br>");
+       out.println("<b>&nbsp;&nbsp;&nbsp;To &nbsp;:</b>"+certimpl.getNotAfter().toString());
+       out.println("<br>");
+       out.println("<b>Issuer&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getIssuerDN().getName());
+       out.println("<br>");
+       out.println("<b>Serial No &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSerialNumber());
+       out.println("<br>");
+       out.println("<b>Algorithm&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getPublicKey().getAlgorithm());
+       out.println("<br>");
+       out.println("<b>Signature &nbsp;&nbsp;&nbsp;:</b>"+keymanage.toHexinHTML(certimpl.getSignature()));
+       out.println("<br>");
+       out.println("<br>");
+       out.println("<br>");
+       out.println("<input type=\"submit\" value=\"Revoke Certificate \">");
        out.println("</form>");
        out.println("</body></html>");
        out.flush();

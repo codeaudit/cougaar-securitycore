@@ -66,12 +66,13 @@ public class RevokeCertificateServlet extends  HttpServlet
        if(status)
         {
                 out.println("Successfully Revoked certificate :"+ldapentry.getCertificate().getSubjectDN().getName() );
+		out.println("<p>");
         }
         else
         {
                 out.println("Error in  Revoking  certificate :"+ldapentry.getCertificate().getSubjectDN().getName() );
         }
-        out.println("<a href=\"../CertificateList\"> Back to Certificate List ></a>");
+        out.println("<a href=\"/certlist\"> Back to Certificate List ></a>");
         out.println("</body>");
         out.println("</html>");
 

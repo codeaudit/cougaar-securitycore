@@ -60,10 +60,12 @@ public class CertificateList extends  HttpServlet
        out.println("<table>");
        if((role==null)||(role==""))
 	 {
+	   System.out.println("calling create table will role:null");
 	   out.println(createtable(keymanage.getCertificates(),dnname));
 	 }
        else
 	 {
+	    System.out.println("calling create table will role:"+role);
 	   out.println(createtable(keymanage.getCertificates(),dnname,role));
 	 }
 out.println("</body></html>");
