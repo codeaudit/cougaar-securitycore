@@ -78,6 +78,9 @@ public class RelayBase
   }
 
   public MessageAddress[] getTargetList() {
+    if (_targets == null) {
+      return new MessageAddress[0];
+    }
     return (MessageAddress[]) 
       _targets.toArray(new MessageAddress[_targets.size()]);
   }
