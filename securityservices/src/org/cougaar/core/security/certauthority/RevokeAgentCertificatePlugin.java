@@ -143,10 +143,7 @@ public class RevokeAgentCertificatePlugin extends ComponentPlugin {
             RevokeTask revokeTask = new RevokeTask(caDN, agentName, keymanagement);
             ThreadService threadService = (ThreadService)this.getServiceBroker().getService(this, ThreadService.class, null);
             threadService.schedule(revokeTask,1);
-          } catch (MultipleEntryException mee) {
-            if (logging.isErrorEnabled()) {
-              logging.error("Multiple entry found for : " + mee.getMessage());
-            }
+         
           } catch (Exception e) {
             if (logging.isErrorEnabled()) {
               logging.error("Error has occured due to  following reason", e);
