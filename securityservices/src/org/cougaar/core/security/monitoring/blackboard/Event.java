@@ -50,4 +50,8 @@ public interface Event
    */
   public ClusterIdentifier getSource();
 
+
+  /**
+   * Convenience methods to get a synopsis of the IDMEF message
+   */
 }
