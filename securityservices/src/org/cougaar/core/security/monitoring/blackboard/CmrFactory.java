@@ -47,7 +47,6 @@ public class CmrFactory
   private  IdmefMessageFactory idmefmessagefactory;
 
   private ServiceBroker serviceBroker;
-  private LoggingService log;
 
     /**
      * Constructor for use by domain specific Factories
@@ -56,7 +55,6 @@ public class CmrFactory
     public CmrFactory() { }
 
     public CmrFactory(LDMServesPlugin ldm) {
-	log.debug(" CMR factory is being initilized:");
 	// Attach our factory to the M&R factory
 	RootFactory rf = ldm.getFactory();
 	

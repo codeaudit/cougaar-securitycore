@@ -48,7 +48,6 @@ public final class SecurityComponentFactory
   }
 
   public void setParameter(Object o) {
-    log.debug("Parameter: " + o.getClass().getName());
     param = o;
   }
 

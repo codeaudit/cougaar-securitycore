@@ -36,8 +36,8 @@ public class CertDirectoryServiceFactory
   public static CertDirectoryServiceClient getCertDirectoryServiceClientInstance(
 					      int serverType, String serverUrl, ServiceBroker sb)
   {
-    LoggingService logStatic = (LoggingService)
-      sb.getService(null,
+    LoggingService log = (LoggingService)
+      sb.getService(new CertDirectoryServiceFactory(),
 		    LoggingService.class, null);
     CertDirectoryServiceClient ldapClient = null;
     //log.debug("%%%%%%%%%%%%  type found is : "+serverType);
@@ -49,8 +49,8 @@ public class CertDirectoryServiceFactory
       ldapClient = new NetToolsCertDirectoryService(serverUrl, sb);
       break;
     default:
-      if (logStatic.isDebugEnabled()) {
-	logStatic.debug("Client: Unknown directory service type: " + serverType);
+      if (log.isDebugEnabled()) {
+	log.debug("Client: Unknown directory service type: " + serverType);
       }
     }
     return ldapClient;
@@ -61,8 +61,8 @@ public class CertDirectoryServiceFactory
 					      ServiceBroker sb)
   {
     CertDirectoryServiceCA instance = null;
-    LoggingService logStatic = (LoggingService)
-      sb.getService(null,
+    LoggingService log = (LoggingService)
+      sb.getService(new CertDirectoryServiceFactory(),
 		    LoggingService.class, null);
 
     switch (serverType) {
@@ -71,8 +71,8 @@ public class CertDirectoryServiceFactory
       break;
     default:
       // Net Tools does not support CA functions programmatically.
-      if (logStatic.isDebugEnabled()) {
-	logStatic.debug("CA: Unknown directory service type: " + serverType);
+      if (log.isDebugEnabled()) {
+	log.debug("CA: Unknown directory service type: " + serverType);
       }
     }
     return instance;
