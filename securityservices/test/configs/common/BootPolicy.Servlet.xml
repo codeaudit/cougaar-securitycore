@@ -60,14 +60,14 @@
     </agent>
 
     <agent name="UMmrmanager">
-      <rule requireSSL="false">
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/*</pattern>
         <role>MonitorManager</role>
       </rule>
     </agent>
 
     <agent name="NCA">
-      <rule requireSSL="false">
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/glsinit</pattern>
         <pattern>/glsreply</pattern>
         <pattern>/editOplan</pattern>
@@ -85,7 +85,7 @@
     </agent>
 
     <agent name="*">
-      <rule requireSSL="false">
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/useradmin</pattern>
         <role>UserManager</role>
       </rule>
@@ -108,7 +108,7 @@
         <role>LogisticsViewer</role>
       </rule>
 
-      <rule>
+      <rule requireSSL="false" auth="EITHER">
         <!-- All users and agents should be allowed to
              request a certificate -->
         <pattern>/CA/CertificateSigningRequest</pattern>
@@ -116,7 +116,7 @@
         <role>*</role>
       </rule>
 
-      <rule requireSSL="false">
+      <rule requireSSL="false" auth="EITHER">
         <!-- This rule allows access to read-only portions of the CA. -->
         <pattern>/CA/Index</pattern>
         <pattern>/CA/Browser</pattern>
@@ -132,7 +132,12 @@
         <role>*</role>
       </rule>
 
-      <rule requireSSL="false">
+      <rule requireSSL="true" auth="CERT">
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <role>MnRResponder</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
         <!-- only let the administrator do write-only stuff -->
         <pattern>/CA/RevokeCertificateServlet</pattern>
         <pattern>/CA/CreateCaKeyServlet</pattern>
@@ -142,7 +147,7 @@
         <role>CAAdministrator</role>
       </rule>
 
-      <rule requireSSL="false">
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/move</pattern>
         <pattern>/load</pattern>
         <pattern>/topology</pattern>
@@ -150,19 +155,19 @@
       </rule>
       <!-- For Rovers Managers to control and modify rovers -->
       <!-- Perhaps this should be moved to a specific agent? -->
-      <rule>
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/Rover/ui</pattern>
         <role>RoverManager</role>
       </rule>
       <!-- Allow only rovers to install code and communicate directly
            with other rovers -->
-      <rule>
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/Rover/messageChallenge</pattern>
         <role>Rover</role>
       </rule>
 
       <!-- use this rule to test the blackboard filter policies
-      <rule>
+      <rule requireSSL="false" auth="EITHER">
         <pattern>/tasks</pattern>
         <role>MoveAgent</role>
         <role>CAAdministrator</role>
