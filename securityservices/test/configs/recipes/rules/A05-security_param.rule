@@ -70,6 +70,13 @@ society.each_host do |host|
     #  node.remove_parameter("-Dorg.cougaar.name.server")
     end
     
+    # Change the timeouts for white pages
+    society.each_node do |node|
+      node.override_parameter("-Dorg.cougaar.core.wp.server.expireTTD","240000")
+      node.override_parameter("-Dorg.cougaar.core.wp.server.successTTD","90000")
+      node.override_parameter("-Dorg.cougaar.core.wp.server.failTTD","30000")
+    end
+
     # ACME rule for setting security services parameters
     # 
     # Edit the classpath, install-path and config-path to reflect your 
