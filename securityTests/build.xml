@@ -4,6 +4,9 @@
 	<property name="zip" value="SRI_auto.zip"/>
 	<delete dir="staging"/>			
   <mkdir dir="staging/csmart/assessment/"/>
+	<copy todir="staging/csmart/assessment/configs/">
+		<fileset dir="configs"/>
+	</copy>
 	<copy todir="staging/csmart/assessment/lib/">
 		<fileset dir="lib03"/>
 	</copy>
