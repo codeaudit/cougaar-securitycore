@@ -58,8 +58,9 @@ public class BaseClassLoader
     // primordial class loader. The methods sets this variable
     // to an instance of a SAXParserFactory that must be loaded
     // by the same class loader.
-    exclusions.add("javax.xml.");
-    exclusions.add("org.xml.");
+    //exclusions.add("javax.xml.");
+    //exclusions.add("org.xml.");
+    //exclusions.add("org.w3c.");
 
     //exclusions.add("com.sun.");
     //exclusions.add("sun.");
