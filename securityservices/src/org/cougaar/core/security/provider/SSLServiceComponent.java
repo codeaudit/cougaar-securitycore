@@ -40,6 +40,7 @@ import org.cougaar.core.security.services.identity.WebserverIdentityService;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
+import org.cougaar.core.security.ssl.AxisSSLSocketFactory;
 
 public final class SSLServiceComponent
   extends SecurityComponent
@@ -154,9 +155,12 @@ public final class SSLServiceComponent
       // in the functions the permission will be checked.
       rootServiceBroker.getService(this, SSLService.class, null);
 
-
+      JaasSSLFactory jaasSSLFactory = new JaasSSLFactory(krs, rootServiceBroker);
       javax.net.ssl.HttpsURLConnection.
-        setDefaultSSLSocketFactory(new JaasSSLFactory(krs, rootServiceBroker));
+        setDefaultSSLSocketFactory(jaasSSLFactory);
+
+      // Axis SSL socket factory (web services)
+      AxisSSLSocketFactory.setSSLSocketFactory(jaasSSLFactory);
 
       krs.finishInitialization();
 
