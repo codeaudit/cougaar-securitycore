@@ -7,7 +7,7 @@
          deployment configuration -->
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
-    <CA_keystore>keystoreCA</CA_keystore>
+    <CA_keystore>keystoreNCACA</CA_keystore>
     <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->

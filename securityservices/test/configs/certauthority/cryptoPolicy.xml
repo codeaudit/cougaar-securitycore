@@ -5,7 +5,7 @@
   <nodeConfiguration>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
-    <CA_keystore>keystoreCA</CA_keystore>
+    <CA_keystore>keystoreNCA_CA</CA_keystore>
     <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
@@ -61,49 +61,6 @@
       <certValidity>720</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
-
-  <!-- Configuration of Certificate Authority
-       The name should be the distinguished name of the X509 certificate -->
-  <certificateAuthority name="CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US">
-    <!-- Alias of CA private key in the keystore -->
-    <caCommonName>NCA</caCommonName>
-
-    <!-- Name of keystore where to find private key of CA -->
-    <keystoreFile>keystore-CONUS</keystoreFile>
-
-    <!-- Password of keystore where to find private key of CA -->
-    <keystorePassword>CONUS-Ultra*Log</keystorePassword>
-
-    <!-- Certificate directory service for certificate storage -->
-    <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="ychen">ldap://pear:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
-
-    <!-- The name of a file where the next serial number is stored -->
-    <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
-
-    <!-- The name of directory where to store PKCS10 certificate requests -->
-    <pkcs10Directory>pkcs10requests</pkcs10Directory>
-
-    <!-- The name of directory where to store signed certificates -->
-    <x509CertDirectory>x509certificates</x509CertDirectory>
-
-    <!-- Policy when issuing certificates -->
-    <clientCertPolicy>
-      <!-- The X509 version number to be created -->
-      <certVersion>0</certVersion>
-
-      <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
-
-      <keysize>1024</keysize>
-
-      <!-- How long to certify for -->
-      <certValidity>720</certValidity>
-    </clientCertPolicy>
-  </certificateAuthority>
-
 
   <!-- Configuration of Certificate Authority (with RSA key)
        The name should be the distinguished name of the X509 certificate -->
