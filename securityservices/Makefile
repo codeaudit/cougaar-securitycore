@@ -22,14 +22,20 @@ clean:
 
 clean-data:
 	@echo +++++++ Removing configuration data
-	rm -f test/configs/ul-mini-config-openldap/keystore-*
-	rm -rf test/configs/ul-mini-config-openldap/Crypto-*
+
 	rm -rf ${COUGAAR_INSTALL_PATH}/configs/small135/Crypto-*
-	rm -f test/configs/ul-mini-config-openldap/*.log
+	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small135/keystore-*
+	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small135/*.log
+
+	rm -rf test/configs/ul-mini-config-openldap/Crypto-*
+	rm -f  test/configs/ul-mini-config-openldap/*.log
+	rm -f  test/configs/ul-mini-config-openldap/keystore-*
+
 	rm -rf test/configs/certauthority/Crypto-*
-	rm -f test/configs/certauthority/keystoreTest
-	rm -f test/configs/demo/*.log
-	rm -f test/configs/demo/*.swp
+	rm -f  test/configs/certauthority/keystoreTest
+
+	rm -f  test/configs/demo/*.log
+	rm -f  test/configs/demo/*.swp
 	rm -rf ${COUGAAR_INSTALL_PATH}/P
 
 jar: classes
