@@ -32,18 +32,20 @@ module Cougaar
 
       def commitPolicies
         @run.society.each_enclave do |enclave|
-          file = "#{policyFileName()}-#{enclave}"
-          host, port, manager = getPolicyManager(enclave)
-          puts "for enclave found #{host}, #{port}, #{manager}"
-          puts "waiting for user manager"
-          waitForUserManager(manager)
-          puts "user manager ready"
-          mutex = getPolicyLock(enclave)
-          mutex.synchronize do
-          puts "committing policy"
-            result = commitPolicy(host, port, manager, 
-                                  isDelta()? "setpolicies" : "commit", file,@staging)
-            puts "policy committed"
+          Thread.fork do
+            file = "#{policyFileName()}-#{enclave}"
+            host, port, manager = getPolicyManager(enclave)
+            puts "for enclave found #{host}, #{port}, #{manager}"
+            puts "waiting for user manager"
+            waitForUserManager(manager)
+            puts "user manager ready"
+            mutex = getPolicyLock(enclave)
+            mutex.synchronize do
+              puts "committing policy"
+              result = commitPolicy(host, port, manager, 
+                                    isDelta()? "setpolicies" : "commit", file,@staging)
+              puts "policy committed for enclave #{enclave}"
+            end
           end
         end
       end
@@ -70,6 +72,7 @@ module Cougaar
 
       def calculatePolicies
         puts"calculating policies"
+        `rm -rf #{@staging}`
         Dir.mkdir(@staging)
         p = CommPolicies.new(@run)
         p.commonDecls()
