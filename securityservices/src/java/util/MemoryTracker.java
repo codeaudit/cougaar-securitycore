@@ -42,7 +42,7 @@ public class MemoryTracker {
       m.addTreeSet((TreeSet)o);
     }
     else if (o instanceof Vector) {
-      m.addVector((Vector)o);
+      //m.addVector((Vector)o);
     }
     else if (o instanceof Stack) {
       m.addStack((Stack)o);
