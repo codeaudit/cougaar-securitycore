@@ -154,7 +154,11 @@ public class KeyManager implements X509KeyManager {
 
     // DirectoryKeyStore sends out request if key not found
     // Get the first key in the list
-    PrivateKeyCert pkc = (PrivateKeyCert)keyRing.findPrivateKey(nodename).get(0);
+    List keylist = keyRing.findPrivateKey(nodename);
+    if (keylist == null || keylist.size() == 0)
+      return null;
+
+    PrivateKeyCert pkc = (PrivateKeyCert)keylist.get(0);
     return pkc.getPrivateKey();
   }
 
