@@ -135,7 +135,8 @@ public class KeyStoreTest
 
     FileInputStream f = new FileInputStream(filename);
     PrintStream ps = new PrintStream(System.out);
-    km.processPkcs10Request(ps, f);
+    String reply = km.processPkcs10Request(f, false);
+    ps.print(reply);
   }
 
   private void sendPkcs7Request(String role, String filename)

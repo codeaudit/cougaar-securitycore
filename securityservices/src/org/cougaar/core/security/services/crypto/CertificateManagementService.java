@@ -73,9 +73,7 @@ public interface CertificateManagementService extends Service {
    */
   public X509Certificate[] processPkcs10Request(InputStream request);
 
-  public void processPkcs10Request(PrintStream out, InputStream request);
-
-  public String processPkcs10Request(PrintStream out, InputStream request, boolean replyInHtml);
+  public String processPkcs10Request(InputStream request, boolean replyInHtml);
 
   public ArrayList getSigningRequests(InputStream reader)
     throws FileNotFoundException, IOException, SignatureException,

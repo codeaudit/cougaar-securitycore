@@ -2349,9 +2349,12 @@ public class DirectoryKeyStore
 	  new BufferedReader(new InputStreamReader(huc.getInputStream()));
 	int len = 2000;     // Size of a read operation
 	char [] cbuf = new char[len];
-	while (in.ready()) {
-	  int read = in.read(cbuf, 0, len);
-	  reply = reply + new String(cbuf, 0, read);
+	int read = 0;
+	while (read != -1) {
+	  read = in.read(cbuf, 0, len);
+	  if (read != -1) {
+	    reply = reply + new String(cbuf, 0, read);
+	  }
 	}
 	in.close();
         reply = URLDecoder.decode(reply, "UTF-8");

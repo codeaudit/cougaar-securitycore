@@ -425,12 +425,12 @@ public class KeyManagement
     return reply;
   }
 
-  public void processPkcs10Request(PrintStream out, InputStream request)
-  {
-    processPkcs10Request(out, request, false);
-  }
-
-  public String processPkcs10Request(PrintStream out, InputStream request, boolean replyInHtml)
+  /**
+   * @param replyInHtml true if the reply is in HTML format. Set to true when the request comes from a browser.
+   * 
+   */
+  public String processPkcs10Request(InputStream request,
+				     boolean replyInHtml)
   {
     String reply = "";
     if (!caPolicy.requirePending) {
@@ -448,13 +448,12 @@ public class KeyManagement
           reply = reply.replaceAll("\n", "<br>");
         }
         else {
-          out.print(URLEncoder.encode(reply, "UTF-8"));
+          reply = URLEncoder.encode(reply, "UTF-8");
         }
 	if (log.isDebugEnabled()) {
 	  log.debug("replyInHtml=" + replyInHtml + "\n"
 	    + reply);
 	}
-
       }
       catch (CertificateEncodingException e) {
 	if (log.isDebugEnabled()) {
@@ -542,7 +541,7 @@ public class KeyManagement
 
         }
         else
-          out.println("status=" + status);
+          reply = "status=" + status;
 
       }
     }

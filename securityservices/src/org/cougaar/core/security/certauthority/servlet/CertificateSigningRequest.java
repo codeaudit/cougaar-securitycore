@@ -145,7 +145,7 @@ public class CertificateSigningRequest
 
           if (replyhtml) {
             String reply = signer.processPkcs10Request(
-              printstream,(InputStream)bytestream, true);
+              (InputStream)bytestream, true);
 
             log.debug("reply: " + reply);
 
@@ -172,8 +172,11 @@ public class CertificateSigningRequest
               printstream.print(reply);
             }
           }
-          else
-            signer.processPkcs10Request(printstream,(InputStream)bytestream);
+          else {
+            String reply = signer.processPkcs10Request(
+	      (InputStream)bytestream, false);
+	    printstream.print(reply);
+	  }
 	}
 	else  {
 	  printstream.print("Error ----Got a wrong parameter for type"+type);
