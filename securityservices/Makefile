@@ -11,6 +11,8 @@ CLASSPATH = ${COUGAARCLASSES}
 
 all: build-classes jar signjar install
 
+installclean: build-classes jar signjar install clean-data
+
 clean:
 	@echo +++++++ Removing jarfiles
 	rm -rf ${COUGAARCLASSES}/com ${COUGAARCLASSES}/org 
@@ -22,6 +24,7 @@ clean-data:
 	@echo +++++++ Removing configuration data
 	rm -f test/configs/ul-mini-config-openldap/keystore-*
 	rm -rf test/configs/ul-mini-config-openldap/Crypto-*
+	rm -rf ${COUGAAR_INSTALL_PATH}/configs/small135/Crypto-*
 	rm -f test/configs/ul-mini-config-openldap/*.log
 	rm -rf test/configs/certauthority/Crypto-*
 	rm -f test/configs/certauthority/keystoreTest
@@ -87,7 +90,7 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 	@echo +++++++ Done installing jar files and log directories
 
-installconf: clean-data
+installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
 	cp -r test/configs/small-135 ${COUGAAR_INSTALL_PATH}/configs
