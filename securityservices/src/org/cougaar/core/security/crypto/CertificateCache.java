@@ -703,10 +703,7 @@ final public class CertificateCache implements CertificateCacheService  {
                         + certEntry.getCertificateTrust());
             }
             // Update type
-            // should keep the cert type, this fixes a bug in subordinate CA
-            // which needs another CA to sign its cert, the replacing cert
-            // status is using entity cert as type
-            //aCertEntry.setCertificateType(certEntry.getCertificateType());
+            aCertEntry.setCertificateType(certEntry.getCertificateType());
             // Update trust.
             aCertEntry.setCertificateTrust(certEntry.getCertificateTrust());
             // Update certificate (the signature may have changed)
@@ -1356,6 +1353,12 @@ final public class CertificateCache implements CertificateCacheService  {
 			    CertificateRevocationStatus.VALID,
                             CertificateType.CERT_TYPE_END_ENTITY,
                             CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
+    // need to check whether it is a CA
+    String title = CertificateUtility.findAttribute(importCert.getSubjectDN().getName(), "t");
+    if (title != null && title.equals(CERT_TITLE_CA)) {
+      certstatus.setCertificateType(CertificateType.CERT_TYPE_CA);
+    }
+
     if (log.isDebugEnabled()) {
       log.debug("Update cert status in hash map. AddPrivateKey");
     }
