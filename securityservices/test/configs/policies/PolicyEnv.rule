@@ -1,3 +1,10 @@
+#
+# I am somewhat surprised that this file needs to be here but without
+# it everything dies instantly.  I put the things or interest to me
+# at the begining.
+#
+# I don't know where I found this file either...
+#
 
 #
 # Basically identical to the standard TIC env rule, except:
@@ -12,10 +19,55 @@ society.each_node do |node|
     end
 
     node.add_prog_parameter("org.cougaar.core.node.Node") unless node.prog_parameters.include?("org.cougaar.core.node.Node")
-    
+
+
+#######################################################################
+#
+#  Put my overrides in here
+
+
+#
+#  Blackboard policy settings
+#
+
+  node.override_parameter("-Dorg.cougaar.core.security.policy.auth.role.useAccessCaching",
+                          "true")
+  node.override_parameter("-Dorg.cougaar.core.security.access.efficientBBS",
+                          "false")
+
+
+#
+# persistence parameters
+#
+
+#  node.override_parameter("-Dorg.cougaar.core.persistence.lazyInterval",
+#                          "25000")  
+  node.override_parameter("-Dorg.cougaar.core.persistence.enable","true")
+  node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
+
+#
+# KAoS Settings
+#
+
+#  node.override_parameter("-Dkaos.ontology.repository.maxReasoningDepth",
+#                          "150");
+
+
+#
+#Java Virtual Machine Parameters
+#
+  node.replace_parameter(/\-Xms/, "-Xms64m")
+  node.replace_parameter(/\-Xmx/, "-Xmx512m")
+
+  node.override_parameter("-Dorg.cougaar.planning.ldm.lps.ComplainingLP.level",
+                          "0")
+
+#  End of my overrides.
+#
+#######################################################################
+
     node.override_parameter("-Dorg.cougaar.core.node.InitializationComponent","XML")
-    node.override_parameter("-Dorg.cougaar.core.persistence.enable","false")
-    node.override_parameter("-Dorg.cougaar.core.persistence.clear","false")
+    
     node.override_parameter("-Dorg.cougaar.core.logging.config.filename","loggingConfig.conf")
 
     
@@ -43,8 +95,5 @@ society.each_node do |node|
     node.override_parameter("-Djava.class.path","$COUGAAR_INSTALL_PATH/lib/bootstrap.jar")
     node.replace_parameter(/\-Xbootclasspath/, "-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar")
 
-    #Java Virtual Machine Parameters
-    node.replace_parameter(/\-Xms/, "-Xms50m")
-    node.replace_parameter(/\-Xmx/, "-Xmx256m")
-    node.replace_parameter(/\-XX\:ThreadStackSize/, "-XX:ThreadStackSize=256")
+
 end

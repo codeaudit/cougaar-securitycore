@@ -4,7 +4,7 @@
 	 xsi:noNamespaceSchemaLocation='http://www.cougaar.org/2003/society.xsd'>
   <host name='BlackHole.local.'>
     <facet enclave='Rear'/>
-    <node name='EnclaveOneWorkerNode'>
+    <node name='RearWorkerNode'>
      <agent name='testBBPolicyAgent' 
             class='org.cougaar.core.agent.SimpleAgent'>
         <component

@@ -10,7 +10,7 @@
       <facet role="RootCertificateAuthority"/> 
       <agent name='testBBPolicyAgent'/>
     </node> 
-    <node name='EnclaveOneWorkerNode'> 
+    <node name='RearPolicyManagerNode'> 
       <facet role="NameServer"/> 
       <facet role="AS-Management"/> 
     </node> 

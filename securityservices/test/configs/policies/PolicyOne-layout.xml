@@ -6,12 +6,12 @@
     <node name='RearEnclaveCaNode'> 
       <facet role="CertificateAuthority"/>
     </node>
-    <node name='EnclaveOneWorkerNode'> 
+    <node name='RearWorkerNode'> 
       <facet role="RootCertificateAuthority"/> 
       <agent name='testBBPolicyAgent'/>
       <agent name='FwdUserAdminAgent'/>
     </node> 
-    <node name='EnclaveOnePolicyManagerNode'> 
+    <node name='RearPolicyManagerNode'> 
       <facet role="NameServer"/> 
       <facet role="AS-Management"/> 
     </node> 
