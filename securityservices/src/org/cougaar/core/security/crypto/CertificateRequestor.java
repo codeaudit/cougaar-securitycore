@@ -62,7 +62,6 @@ public class CertificateRequestor {
   private CryptoClientPolicy cryptoClientPolicy;
   private LoggingService log;
   private String role;
-  private boolean isCertAuth;
 
 
   public CertificateRequestor(ServiceBroker sb, ConfigParserService configparser, String irole ) {
@@ -75,14 +74,12 @@ public class CertificateRequestor {
 						   null);
 
     role=irole;
-    isCertAuth = configParser.isCertificateAuthority();
   }
 
 
   protected synchronized PrivateKey addKeyPair(String commonName,
 					       String keyAlias,
-					       TrustedCaPolicy trustedCaPolicy,
-					       boolean iscertAuth)
+					       TrustedCaPolicy trustedCaPolicy)
     {
 
       CertificateAttributesPolicy certAttribPolicy =
@@ -91,7 +88,7 @@ public class CertificateRequestor {
 	CertificateUtility.getX500DN(commonName,
 				     CertificateCache.getTitle(commonName),
 				     certAttribPolicy));
-      return addKeyPair(dname, keyAlias, false, trustedCaPolicy,iscertAuth);
+      return addKeyPair(dname, keyAlias, false, trustedCaPolicy);
     }
 
 
@@ -120,8 +117,7 @@ public class CertificateRequestor {
   protected synchronized PrivateKey addKeyPair(X500Name dname,
 					       String keyAlias,
 					       boolean isCACert,
-					       TrustedCaPolicy trustedCaPolicy,
-					       boolean isCertAuth) {
+					       TrustedCaPolicy trustedCaPolicy) {
 
       String request = "";
       String reply = "";
@@ -164,10 +160,10 @@ public class CertificateRequestor {
      * Handle CA cert
      */
     if (isCACert) {
-      return addCAKeyPair(dname, keyAlias,isCertAuth);
+      return addCAKeyPair(dname, keyAlias);
     }
-    else if (isCertAuth) {
-      return addKeyPairOnCA(dname, keyAlias,isCertAuth);
+    else if (cryptoClientPolicy.isCertificateAuthority()) {
+      return addKeyPairOnCA(dname, keyAlias);
     }
 
     try {
@@ -206,7 +202,7 @@ public class CertificateRequestor {
 	// At this point, the key pair has been added to the keystore,
 	// but we don't have the reply from the certificate authority yet.
 	// Send the public key to the Certificate Authority (PKCS10)
-	if (!isCertAuth) {
+	if (!cryptoClientPolicy.isCertificateAuthority()) {
 	  X509Certificate cert=null;
 	  if(cacheservice!=null) {
 	    cert= cacheservice.getCertificate(alias);
@@ -302,7 +298,7 @@ public class CertificateRequestor {
   }
 
 
-  private PrivateKey addKeyPairOnCA(X500Name dname, String keyAlias, boolean isCertAuth) {
+  private PrivateKey addKeyPairOnCA(X500Name dname, String keyAlias) {
 
     String alias = null;
     PrivateKey privatekey = null;
@@ -349,7 +345,7 @@ public class CertificateRequestor {
 	  if (log.isDebugEnabled()) {
 	    log.debug("CA alias: " + caAlias);
 	  }
-	  addCAKeyPair(configParser.getCaDNs()[0], caAlias,isCertAuth);
+	  addCAKeyPair(configParser.getCaDNs()[0], caAlias);
 	  return null;
 	}
       }
@@ -392,7 +388,7 @@ public class CertificateRequestor {
     return privatekey;
   }
 
-  private PrivateKey addCAKeyPair(X500Name dname, String keyAlias, boolean isCertAuth) {
+  private PrivateKey addCAKeyPair(X500Name dname, String keyAlias) {
     String alias = null;
     PrivateKey privatekey = null;
     CertificateCacheService cacheservice=(CertificateCacheService)
@@ -408,7 +404,7 @@ public class CertificateRequestor {
       log.warn("Unable to get Certificate Cache service in addCAKeyPair");
     }
 
-    if (!isCertAuth) {
+    if (!cryptoClientPolicy.isCertificateAuthority()) {
       log.error("Cannot make CA cert, this node is not a CA");
       return null;
     }
@@ -1180,7 +1176,7 @@ public class CertificateRequestor {
 	log.debug("Recursively creating key pair for node: "
 		  + nodex500name);
       }
-      nodeprivatekey = addKeyPair(nodex500name, null, false, trustedCaPolicy,isCertAuth);
+      nodeprivatekey = addKeyPair(nodex500name, null, false, trustedCaPolicy);
       if (log.isDebugEnabled()) {
 	log.debug("Node key created: " + nodex500name);
       }

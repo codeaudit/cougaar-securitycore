@@ -1534,8 +1534,7 @@ final public class KeyRing  implements KeyRingService  {
     }
     //we'll have to make one
     PrivateKey privatekey = certRequestor.addKeyPair(dname, null,
-      isCACert, trustedCaPolicy,
-      cryptoClientPolicy.isCertificateAuthority());
+      isCACert, trustedCaPolicy);
     if (privatekey != null) {
       String commonname=cacheservice.getCommonName(dname);
       // only do it for node cert, otherwise will have infinite loop here
@@ -1868,12 +1867,13 @@ final public class KeyRing  implements KeyRingService  {
    /**
    * Adding LDAP URL entry in the naming service.
    */
-   /*
   public void updateNS(X500Name x500Name) {
 
 // check whether cert exist and whether it is agent
+/*
     String dname = x500Name.toString();
     String title = CertificateUtility.findAttribute(dname, "t");
+    */
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
 			       CertificateCacheService.class,
@@ -1883,6 +1883,7 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
 
+    /*
     if (log.isDebugEnabled()) {
       log.debug("updateNS: " + dname);
     }
@@ -1893,12 +1894,14 @@ final public class KeyRing  implements KeyRingService  {
       log.info("Not registering LDAP URL to naming service. Wrong title. DN:" + dname);
       return;
     }
+    */
     List certificateList = findCert(x500Name);
     if (certificateList == null || certificateList.size() == 0) {
-      log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + dname);
+      log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + x500Name);
       return;
     }
     try {
+    /*
       DirContext ctx = ensureCertContext();
       String cname = x500Name.getCommonName();
 
@@ -1953,16 +1956,17 @@ final public class KeyRing  implements KeyRingService  {
       if (log.isDebugEnabled()) {
 	log.debug("successfully update: " + value + " attrib: " + attributes + " in NS");
       }
+      */
+      namingService.updateNS(x500Name);
 
     } catch (Exception nx) {
       if (log.isWarnEnabled()) {
-	log.warn("Cannot update "+dname+ " ldap in naming." + nx.toString(), nx);
+	log.warn("Cannot update "+x500Name+ " ldap in naming." + nx.toString(), nx);
       }
     }
 
     //log.warn("Cannot update agent ldap in naming.");
   }
-  */
 
 
   /**
@@ -2056,8 +2060,7 @@ final public class KeyRing  implements KeyRingService  {
 
     // TODO: get the certificate that is expiring, get the trusted CA
     // from signer, then find the TrustedCaPolicy.
-    certRequestor.addKeyPair(commonName,
-      null, trustedCaPolicy,cryptoClientPolicy.isCertificateAuthority());
+    certRequestor.addKeyPair(commonName,null, trustedCaPolicy);
     // Problem: If a certificate has been revoked, the CA should not regenerate a certificate
     // automatically. However, this is what the CA is doing right now.
     // In the checkExpiry method, we call findCert() first, which returns null if the certificate
