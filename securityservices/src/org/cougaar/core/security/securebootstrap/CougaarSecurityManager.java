@@ -50,6 +50,9 @@ import java.security.DomainCombiner;
 import javax.security.auth.Subject;
 import javax.security.auth.SubjectDomainCombiner;
 
+import org.cougaar.core.security.auth.SecuredObject;
+import org.cougaar.core.security.auth.SecuredObjectPrincipal;
+
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
 
@@ -82,12 +85,6 @@ public class CougaarSecurityManager
   private EventHolder eventholder=null;
   private String type=null;
  
-  /**
-   * The principal class used for SecuredObject's
-   */
-  private final static String SECURED_OBJECT_PRINCIPAL = 
-    "org.cougaar.core.security.auth.SecuredObjectPrincipal";
-
   /**
    * cougaar classification name prefix
    */
@@ -150,36 +147,17 @@ public class CougaarSecurityManager
     return null;
   }
 
-  private static boolean isSecuredObject(Object obj) {
-    System.out.println("Checing if it is a secured object");
-    if (obj instanceof org.cougaar.core.security.auth.SecuredObject) {
-      System.out.println("yes");
-      return true;
-    }
-    try {
-      Class c = obj.getClass();
-      Method m = c.getMethod("getObjectContext", null);
-      System.out.println("yes");
-      return true;
-    } catch (Exception e) {
-      System.out.println("no");
-      return false;
-    }
-  }
-
   public void checkPermission(Permission perm, Object context) {
     if (context instanceof AccessControlContext) {
       super.checkPermission(perm, context);
       return;
     } 
 
-    if (isSecuredObject(context)) {
+    if (context instanceof SecuredObject) {
       ClassLoader loader = context.getClass().getClassLoader();
       AccessControlContext acc = AccessController.getContext();
       try {
-//         Class princClass = Class.forName(SECURED_OBJECT_PRINCIPAL);
-        Principal p = 
-          new org.cougaar.core.security.auth.SecuredObjectPrincipal(context);
+        Principal p = new SecuredObjectPrincipal((SecuredObject)context);
         Subject subject = new Subject();
         subject.getPrincipals().add(p);
         DomainCombiner dc = new BothSubjectDomainCombiner(subject);

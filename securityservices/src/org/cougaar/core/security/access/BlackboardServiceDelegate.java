@@ -38,6 +38,9 @@ import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
+import org.cougaar.core.security.auth.SecuredObject;
+import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
 
 import java.util.Collection;
 import java.util.Hashtable;
@@ -126,52 +129,75 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   public boolean haveCollectionsChanged() {
     return _bs.haveCollectionsChanged();
   }
-  public void publishAdd(Object o) {
-    // check if the component has permission to add the object
-    SecurityManager sm = System.getSecurityManager();
-    if(sm != null) {
-      if(_debug) {
-        _log.debug("checking permission for adding object " + o.getClass().getName());
-      }
-      BlackboardPermission bbp = new BlackboardPermission(o.getClass().getName(), "add");
-      sm.checkPermission(bbp);
+
+  private static boolean isProtected(Object o) {
+    // hard code for now...
+    return (o instanceof org.cougaar.glm.ldm.oplan.OrgActivity);
+  }
+
+  private static SecuredObject protectObject(Object o) {
+    if (o instanceof SecuredObject) {
+      return (SecuredObject) o;
     }
+    if (o instanceof OrgActivity) {
+      return new SecuredOrgActivity((OrgActivity) o);
+    }
+    // can't protect anything other than OrgActivity
+    // we should never get here!
+    throw new RuntimeException("We should never get here");
+  }
+
+  private static String getClassName(Object o) {
+    if (o instanceof OrgActivity) {
+      return OrgActivity.class.getName();
+    }
+    return o.getClass().getName();
+  }
+
+  private static boolean isValidClass(Object o) {
+    return (o instanceof SecuredOrgActivity);
+  }
+
+  private Object protectObject(Object o, String perm) {
+    if (isProtected(o)) {
+      // check if the component has permission to add the object
+      SecurityManager sm = System.getSecurityManager();
+      if(sm != null) {
+        String className = getClassName(o);
+        if(_debug) {
+          _log.debug("checking permission for '" +
+                     perm + "' on object " + className);
+        }
+        BlackboardPermission bbp = new BlackboardPermission(className, perm);
+        sm.checkPermission(bbp);
+      }
+      if (o instanceof SecuredObject) {
+        if (!isValidClass(o)) {
+          throw new SecurityException("You may not publish an object of " +
+                                      "class " + o.getClass().getName());
+        }
+      } else {
+        o = protectObject(o);
+      }
+    }
+    return o;
+  }
+
+  public void publishAdd(Object o) {
+    o = protectObject(o, "add");
     _bs.publishAdd(o);
   }
+
   public void publishRemove(Object o) {
-    // check if the component has permission to remove the object
-    SecurityManager sm = System.getSecurityManager();
-    if(sm != null) {
-      if(_debug) {
-        _log.debug("checking permission for removing object " + o.getClass().getName());
-      }
-      BlackboardPermission bbp = new BlackboardPermission(o.getClass().getName(), "remove");
-      sm.checkPermission(bbp);
-    }
+    o = protectObject(o, "remove");
     _bs.publishRemove(o);
   }
   public void publishChange(Object o) {
-    // check if the component has permission to change the object
-    SecurityManager sm = System.getSecurityManager();
-    if(sm != null) {
-      if(_debug) {
-        _log.debug("checking permission for changing object " + o.getClass().getName());
-      }
-      BlackboardPermission bbp = new BlackboardPermission(o.getClass().getName(), "change");
-      sm.checkPermission(bbp);
-    }
+    o = protectObject(o, "change");
     _bs.publishChange(o);
   }
   public void publishChange(Object o, Collection changes) {
-    // check if the component has permission to change the object
-    SecurityManager sm = System.getSecurityManager();
-    if(sm != null) {
-      if(_debug) {
-        _log.debug("checking permission for changing object " + o.getClass().getName());
-      }
-      BlackboardPermission bbp = new BlackboardPermission(o.getClass().getName(), "change");
-      sm.checkPermission(bbp);
-    }
+    o = protectObject(o, "change");
     _bs.publishChange(o,changes);
   }
   public void openTransaction() {

@@ -25,25 +25,10 @@ import java.security.Principal;
 import java.lang.reflect.Method;
 
 public class SecuredObjectPrincipal implements Principal {
-  private final Object        _obj;
-  private final ObjectContext _context;
+  private final SecuredObject _obj;
 
-  public SecuredObjectPrincipal(Object obj) {
+  public SecuredObjectPrincipal(SecuredObject obj) {
     _obj = obj;
-    if (obj instanceof SecuredObject) {
-      _context = ((SecuredObject)obj).getObjectContext();
-    } else {
-      Class c = obj.getClass();
-      ObjectContext ctx = null;
-      try {
-        Method m = c.getMethod("getObjectContext", null);
-        ctx = (ObjectContext) m.invoke(obj,null);
-      } catch (Exception e) {
-        // should never get here! We already checked earlier
-        e.printStackTrace(); 
-      }
-      _context = ctx;
-    }
   }
 
   public boolean equals(Object another) {
@@ -55,7 +40,7 @@ public class SecuredObjectPrincipal implements Principal {
   }
 
   public String getName() {
-    return _obj.toString();
+    return _obj.getClass().getName();
   }
 
   public int hashCode() {
@@ -67,10 +52,10 @@ public class SecuredObjectPrincipal implements Principal {
   }
 
   public ObjectContext getObjectContext() {
-    return _context;
+    return _obj.getObjectContext();
   }
 
-  public Object getObject() {
+  public SecuredObject getObject() {
     return _obj;
   }
 }
