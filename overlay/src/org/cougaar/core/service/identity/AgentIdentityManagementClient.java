@@ -20,11 +20,12 @@
  * Created on September 12, 2001, 10:55 AM
  */
 
-package org.cougaar.core.security.coreservices.identity;
+package org.cougaar.core.service.identity;
 
-import java.io.Serializable;
+// Cougaar core services
+import org.cougaar.core.mts.MessageAddress;
 
-public interface TransferableIdentity
-  extends Serializable
+public interface AgentIdentityManagementClient
 {
+  void identityRevoked(MessageAddress agentName);
 }

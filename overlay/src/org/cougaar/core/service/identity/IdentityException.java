@@ -24,17 +24,9 @@
  * - 
  */
 
-package org.cougaar.core.security.coreservices.identity;
+package org.cougaar.core.service.identity;
 
-import java.lang.*;
-
-/** This interface must be implemented by all components that
- *  wish to use the <code>CryptographicIdentityService</code>
- *  service.
- *  This allows the cryptographic service to notify the client
- *  of the identity service that an identity was revoked.
- *  
- */
-public interface RevocationCallBack {
-  public void IdentityUnavailable(String agentName);
+public class IdentityException
+  extends Exception
+{
 }

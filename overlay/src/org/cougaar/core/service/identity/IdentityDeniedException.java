@@ -24,7 +24,9 @@
  * - 
  */
 
-package org.cougaar.core.security.coreservices.identity;
+package org.cougaar.core.service.identity;
 
-public class IdentityDeniedException extends Exception {
+public class IdentityDeniedException
+  extends IdentityException
+{
 }
