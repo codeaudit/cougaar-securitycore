@@ -69,9 +69,9 @@ public class JaasClient {
    *   });
    */
   public Object doAs(String agentName,
-		     java.security.PrivilegedAction action) {
+		     java.security.PrivilegedAction action, boolean displaySubject) {
     Subject subj = createSubject(agentName);
-    return doAs(subj, action);
+    return doAs(subj, action, displaySubject);
   }
 
   /**
@@ -91,10 +91,10 @@ public class JaasClient {
    *  }
    */
   public Object doAs(String agentName,
-		     java.security.PrivilegedExceptionAction action)
+		     java.security.PrivilegedExceptionAction action, boolean displaySubject)
     throws Exception {
     Subject subj = createSubject(agentName);
-    return doAs(subj, action);
+    return doAs(subj, action, displaySubject);
   }
 
   /** Print the list of principals associated with the running
@@ -226,10 +226,10 @@ public class JaasClient {
     System.out.println("\nJaasClient. Calling doAs ");
   }
 
-  private Object doAs(Subject subj, java.security.PrivilegedAction action) {
+  private Object doAs(Subject subj, java.security.PrivilegedAction action, boolean displaySubject) {
     Object o = null;
 
-    if (debug > 0) {
+    if (debug > 0 && displaySubject) {
       printPrincipalsInSubject(subj);
     }
 
@@ -244,18 +244,18 @@ public class JaasClient {
      */
     o = Subject.doAs(subj, action);
 
-    if (debug > 0) {
+    if (debug > 0 && displaySubject) {
       System.out.println("JaasClient. doAs done ");
     }
     return o;
   }
 
   private Object doAs(Subject subj,
-		     java.security.PrivilegedExceptionAction action)
+		     java.security.PrivilegedExceptionAction action, boolean displaySubject)
     throws Exception {
     Object o = null;
 
-    if (debug > 0) {
+    if (debug > 0 && displaySubject) {
       printPrincipalsInSubject(subj);
     }
     
@@ -270,7 +270,7 @@ public class JaasClient {
      */
     o = Subject.doAs(subj, action);
 
-    if (debug > 0) {
+    if (debug > 0 && displaySubject) {
       System.out.println("JaasClient. doAs done ");
     }
     return o;

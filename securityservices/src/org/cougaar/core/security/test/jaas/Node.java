@@ -72,7 +72,7 @@ public class Node {
 		      agent.execute();
 		      return (Object) agent;
 		    }
-		  });
+		  }, true);
     }
     catch (Exception e) {
       e.printStackTrace();

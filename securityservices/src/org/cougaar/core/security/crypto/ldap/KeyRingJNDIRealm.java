@@ -274,7 +274,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       setLoginError(LF_USER_DOESNT_EXIST, username);
     } catch (NamingException e) {
       setLoginError(LF_LDAP_ERROR, username);
-      e.printStackTrace();
     }
     return null;
   }
@@ -328,10 +327,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
     } catch (NameNotFoundException nnfe) {
       setLoginError(LF_USER_DOESNT_EXIST, user);
-      nnfe.printStackTrace();
     } catch (NamingException ne) {
       setLoginError(LF_LDAP_ERROR, user);
-      ne.printStackTrace();
     }
     return null;
   }
@@ -395,10 +392,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       setLoginError(LF_PASSWORD_MISMATCH, username);
     } catch (NameNotFoundException nnfe) {
       setLoginError(LF_USER_DOESNT_EXIST, username);
-      nnfe.printStackTrace();
     } catch (NamingException ne) {
       setLoginError(LF_LDAP_ERROR, username);
-      ne.printStackTrace();
     }
     return null;
   }
@@ -480,7 +475,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (username != null) {
         return new CougaarPrincipal(this, username, null, authFields);
       }
-      e.printStackTrace();
       setLoginError(LF_LDAP_ERROR, username);
     }
     return null;
@@ -626,18 +620,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
           close = _blackboardService.tryOpenTransaction();
         } catch (Exception e) {
           close = false;
-          e.printStackTrace();
+	  log.warn("Unable to open blackboard transaction: " + e);
         }
         _blackboardService.publishAdd(regEvent);
         try {
           if (close) _blackboardService.closeTransaction();
         } catch (Exception e) {
-          e.printStackTrace();
+	  log.warn("Unable to close blackboard transaction: " + e);
         }
       }
     }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to initialize Alert:" + e);
     }
     return (_idmefFactory != null);
   }
@@ -754,7 +748,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       _blackboardService.publishAdd(event);
       _blackboardService.closeTransaction();
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to publish alert login failure to the blackboard:" + e);
     }
   }
 
@@ -769,6 +763,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   private void setLoginError(int err, String userName) {
+    log.info("Login failed for " + userName + " . Reason:" + FAILURE_REASONS[err]);
     _errors.put(Thread.currentThread(), 
                 new Object[] { new Integer(err), userName} );
   }

@@ -61,7 +61,7 @@ public class Agent
 		      plugin.execute();
 		      return (Object) plugin;
 		    }
-		  });
+		  }, true);
     }
     catch (Exception e) {
       System.out.println("Exception occuring while executing Plugin: " + e);

@@ -130,7 +130,7 @@ public class JaasAgentBinder
                   doLoad();
                   return null;
                 }
-              });
+              }, true);
   }
 
    
@@ -146,7 +146,7 @@ public class JaasAgentBinder
                   doStart();
                   return null;
                 }
-              });
+              }, false);
   }
    
   public void registerAgent(Agent agent) {

@@ -320,7 +320,7 @@ public class LdapUserServiceImpl implements LdapUserService {
     return null; // it will never get here
   }
 
-  public Attributes        getUser(String uid) throws NamingException {
+  public Attributes getUser(String uid) throws NamingException {
     checkContext();
     for (int tryCount = 0; tryCount < MAX_RETRIES; tryCount++) {
       try {
@@ -615,7 +615,7 @@ public class LdapUserServiceImpl implements LdapUserService {
         registerEnforcer();
       } catch (Exception ex) {
         // FIXME: Shouldn't just let this drop, I think
-        ex.printStackTrace();
+	log.warn("Unable to register LdapUserServiceConfigurer policy enforcer", ex);
       }
     }
 

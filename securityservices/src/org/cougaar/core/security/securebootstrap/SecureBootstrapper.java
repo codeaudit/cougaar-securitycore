@@ -113,7 +113,7 @@ public class SecureBootstrapper
 		    SecureBootstrapper.super.launchMain(cl, classname, args);
 		    return null;
 		  }
-		});
+		}, true);
     }
     catch (Exception e) {
       System.out.println("Unable to start application:" + e);

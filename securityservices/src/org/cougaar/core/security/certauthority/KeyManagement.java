@@ -1211,11 +1211,13 @@ public class KeyManagement
     List caprivatekeyList = keyRing.findPrivateKey(x500name);
     PrivateKey caprivatekey = ((PrivateKeyCert)caprivatekeyList.get(0)).getPrivateKey();
     if(caprivatekey==null) {
-      throw new IOException(" Could not find PrivateKey for CA :"+caDN);
+      String msg = "Unable to revoke. Could not find PrivateKey for CA :" + caDN;
+      log.warn(msg);
+      throw new IOException(msg);
     }
     try {
       if(log.isDebugEnabled()) {
-	log.debug(" found private key going to revoke certificate in caOperations :");
+	log.debug("Found private key going to revoke certificate in caOperations :");
       }
       String filter=keyRing.parseDN(caDN);
       SearchResult caresult=caOperations.getLdapentry(filter,false);
@@ -1261,23 +1263,32 @@ public class KeyManagement
 					 caPolicy.CRLalgorithmId.getName());
 	if (ret == false) {
 	  // Unable to revoke certificate
+	  log.warn("Unable to revoke certificate. ldapFilter:" + ldapFilter);
 	  return -1;
 	}
       }
       else {
-	throw new CertificateException(" CA with DN name  : "
-				       + cacert.getSubjectDN().getName()
-				       +" cannot revoke user certificate with dn name : "
-				       + usercert.getSubjectDN().getName());
+	String msg = "CA with DN name  : "
+	  + cacert.getSubjectDN().getName()
+	  +" cannot revoke user certificate with dn name : "
+	  + usercert.getSubjectDN().getName() + ". Chain is not valid. ldapFilter:"
+	  + ldapFilter;
+	log.warn(msg);
+	throw new CertificateException(msg);
       }
-	//caOperations.revokeCertificate(CADN,UseruniqueIdentifier,caprivatekey,caPolicy.CRLalgorithmId.getName());
+      //caOperations.revokeCertificate(CADN,UseruniqueIdentifier,
+      //caprivatekey,caPolicy.CRLalgorithmId.getName());
     }
     catch (MultipleEntryException miop) {
-      throw new  IOException("Found multiple entry for :"+miop.getMessage());
+      String msg = "Found multiple entries. ldapFilter:" + ldapFilter;
+      log.warn(msg, miop);
+      throw new IOException(msg);
     }
-    catch ( Exception exp) {
-      exp.printStackTrace();
-      throw new Exception (exp.getMessage());
+    catch (Exception exp) {
+      String msg = "Unable to revoke key. ldapFilter: " + ldapFilter
+	+ ". Reason:" + exp;
+      log.warn(msg, exp);
+      throw exp;
     }
     return status;
     //gInteger serialNumber = cert.getSerialNumber();

@@ -376,7 +376,7 @@ public abstract class GuardRegistration
       }
       ba = out.toByteArray();
       ByteArrayInputStream in = new ByteArrayInputStream(ba);
-      cps.parsePolicy(in);
+      cps.parsePolicy(in, "KAoS propagated policy");
       SecurityPolicy[] p = cps.getSecurityPolicies(pt);
       
       if (log.isDebugEnabled()) {
