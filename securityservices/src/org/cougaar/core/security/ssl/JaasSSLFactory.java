@@ -59,7 +59,7 @@ import javax.security.auth.Subject;
 import org.cougaar.core.security.auth.StringPrincipal;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
+//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
@@ -82,7 +82,7 @@ public class JaasSSLFactory extends SSLSocketFactory {
   TrustManager             _trustManager;
   ServiceBroker            _sb;
   KeyRingService           _krs;
-  DirectoryKeyStore        _dirKeystore;
+  //DirectoryKeyStore        _dirKeystore;
   LoggingService           _log;
 
   /**
@@ -91,7 +91,7 @@ public class JaasSSLFactory extends SSLSocketFactory {
   public JaasSSLFactory(KeyRingService krs, ServiceBroker sb) {
     _krs = krs;
     _sb  = sb;
-    _dirKeystore = _krs.getDirectoryKeyStore();
+    //  _dirKeystore = _krs.getDirectoryKeyStore();
     _log = (LoggingService)
       _sb.getService(this,LoggingService.class, null);
     _trustManager = new TrustManager(_krs, sb);
@@ -183,7 +183,11 @@ public class JaasSSLFactory extends SSLSocketFactory {
         
         // create keymanager and trust manager
         UserKeyManager km = new UserKeyManager(_krs, _sb);
-        List l = _dirKeystore.findPrivateKey(name);
+	
+        List l =null;
+	if(_krs!=null){
+	 l= _krs.findPrivateKey(name);
+	}
         if (l == null || l.isEmpty()) {
           _log.info("Couldn't find private key for " + name + 
                     " when creating SSLSocketFactory");
@@ -195,10 +199,11 @@ public class JaasSSLFactory extends SSLSocketFactory {
         } else {
           PrivateKeyCert pkc = (PrivateKeyCert) l.get(0);
           km.setPrivateKey(pkc.getPrivateKey());
-	  km.setAlias(_dirKeystore.findAlias(name));
-
-	  l = _dirKeystore.findCert(name, KeyRingService.LOOKUP_LDAP | 
+	  if(_krs!=null){
+	  km.setAlias(_krs.findAlias(name));
+	  l = _krs.findCert(name, KeyRingService.LOOKUP_LDAP | 
 				    KeyRingService.LOOKUP_KEYSTORE);
+	  }
 	  if (l == null || l.isEmpty()) {
 	    _log.warn("Couldn't find certificate for " + name + 
 		      " when creating SSLSocketFactory");

@@ -152,7 +152,7 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
     //X509Certificate userx509 = (X509Certificate)aliasTable.get(alias);
     if (alias.equals(nodealias) && userx509 != null) {
       try {
-        return keystore.checkCertificateTrust(userx509);
+        return keyRing.checkCertificateTrust(userx509);
       } catch (Exception e) {
         if (log.isWarnEnabled()) {
 	  log.warn("Failed to check certificate trust of user certificate");

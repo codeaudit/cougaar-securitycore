@@ -33,7 +33,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
+//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class UserTrustManager

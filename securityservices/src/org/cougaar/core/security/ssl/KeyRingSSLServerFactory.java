@@ -28,43 +28,17 @@ package org.cougaar.core.security.ssl;
 import javax.net.ssl.*;
 import javax.net.*;
 import java.net.*;
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import java.security.cert.*;
-import javax.security.auth.*;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.io.IOException;
 
 import org.cougaar.core.security.crypto.KeyRingPermission;
-import org.cougaar.core.security.util.*;
 
 public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static KeyRingSSLServerFactory _default;
   private static SSLContext _sslcontext;
-  private static WeakHashMap _sessionMap = new WeakHashMap();
 
   SSLServerSocketFactory ssocfac;
 
   boolean needAuth = false;
-
-  public static Principal getPrincipal() {
-    synchronized (_sessionMap) {
-      return (Principal) _sessionMap.get(Thread.currentThread());
-    }
-  }
-
-  private static void setPrincipal(SSLSocket socket) throws SSLPeerUnverifiedException {
-    SSLSession session = socket.getSession();
-    java.security.cert.Certificate[] peer = session.getPeerCertificates();
-    if (peer != null && peer.length > 0 &&
-        peer[0] instanceof X509Certificate) {
-      X509Certificate cert = (X509Certificate) peer[0];
-      synchronized (_sessionMap) {
-        _sessionMap.put(Thread.currentThread(),cert.getSubjectDN());
-      }
-    }
-  }
 
   public void setNeedClientAuth(boolean needAuth) {
     this.needAuth = needAuth;
@@ -126,20 +100,20 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   public ServerSocket createServerSocket()
     throws IOException
   {
-    return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket()));
+    return applySocketConstraints(ssocfac.createServerSocket());
   }
 
   public ServerSocket createServerSocket(int port)
     throws IOException
   {
-    return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port)));
+    return applySocketConstraints(ssocfac.createServerSocket(port));
   }
 
   public ServerSocket createServerSocket(int port,
                                           int backlog)
     throws IOException
   {
-    return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port, backlog)));
+    return applySocketConstraints(ssocfac.createServerSocket(port, backlog));
   }
 
   public ServerSocket createServerSocket(int port,
@@ -147,7 +121,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
                                           InetAddress ifAddress)
     throws IOException
   {
-    return applySocketConstraints(new WrappedSSLServerSocket(ssocfac.createServerSocket(port, backlog, ifAddress)));
+    return applySocketConstraints(ssocfac.createServerSocket(port, backlog, ifAddress));
   }
 
   private ServerSocket applySocketConstraints(ServerSocket soc) {
@@ -163,30 +137,4 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     if (_sslcontext == null)
       _sslcontext = sslcontext;
   }
-
-  private static final class WrappedSSLServerSocket 
-    extends SSLServerSocketWrapper {
-
-    public WrappedSSLServerSocket(ServerSocket socket) throws IOException {
-      super(socket);
-    }
-
-    public Socket accept()
-      throws IOException {
-      return new WrappedSSLSocket(super.accept());
-    }
-  }
-
-  private static final class WrappedSSLSocket extends SSLSocketWrapper {
-    public WrappedSSLSocket(Socket socket) {
-      super(socket);
-    }
-    
-    public InputStream getInputStream()
-      throws IOException{
-      setPrincipal(_socket);
-      return super.getInputStream();
-    }
-  }
-  
 }

@@ -41,7 +41,7 @@ import org.cougaar.core.security.services.crypto.*;
 
 public class KeyManager implements X509KeyManager, CertValidityListener {
   protected KeyRingService keyRing = null;
-  protected DirectoryKeyStore keystore = null;
+ 
   protected String nodealias = null;
   protected PrivateKey privatekey = null;
   protected X509Certificate [] certChain = null;
@@ -76,8 +76,8 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
       throw new RuntimeException("KeyRing service is not available");
     }
 
-    keystore = keyRing.getDirectoryKeyStore();
-    keystore.setKeyManager(this);
+    // keystore = keyRing.getDirectoryKeyStore();
+    keyRing.setKeyManager(this);
   }
 
   public synchronized void finishInitialization() {
@@ -100,7 +100,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // get the last valid certificate
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
-    nodealias = keystore.findAlias(nodename);
+    
+    if(keyRing!=null) {
+      nodealias =  keyRing.findAlias(nodename);
+    }
     if(nodealias==null) {
       return;
     }
@@ -157,7 +160,9 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
 
     if (nodex509 != null && alias.equals(nodealias)) {
       try {
-        return keystore.checkCertificateTrust(nodex509);
+	if(keyRing!=null){
+	  return keyRing.checkCertificateTrust(nodex509);
+	}
       } catch (Exception e) {
         if (log.isWarnEnabled()) {
 	  log.warn("Unable to get certificate chain for "

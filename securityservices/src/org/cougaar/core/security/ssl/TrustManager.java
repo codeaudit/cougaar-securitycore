@@ -43,7 +43,7 @@ import org.cougaar.core.security.crypto.CertificateCache;
 
 public class TrustManager implements X509TrustManager {
   protected KeyRingService keyRing = null;
-  protected DirectoryKeyStore keystore = null;
+  //protected DirectoryKeyStore keystore = null;
   protected X509Certificate [] issuers;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -54,7 +54,7 @@ public class TrustManager implements X509TrustManager {
       serviceBroker.getService(this,
 			       LoggingService.class, null);
     keyRing = krs;
-    keystore = keyRing.getDirectoryKeyStore();
+    //keystore = keyRing.getDirectoryKeyStore();
 
     updateKeystore();
   }
@@ -179,7 +179,7 @@ public class TrustManager implements X509TrustManager {
     
     try {
       for (int i = (chain.length - 1) ; i >= 0 ; i--) {
-	keystore.checkCertificateTrust(chain[i]);
+	keyRing.checkCertificateTrust(chain[i]);
 	// Add the first certificate in the chain if it was not already in the cache.
 	if (log.isDebugEnabled()) {
 	  log.debug("Checked trust of " + chain[i].getSubjectDN().getName()
