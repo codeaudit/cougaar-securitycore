@@ -85,8 +85,10 @@ public class MnRResponseViewerComponent
     path=(String)l.get(0);
   }
   public void setAgentIdentificationService(AgentIdentificationService ais) {
-    this.ais = ais;
-    agentId = ais.getMessageAddress();
+    if (ais != null) {
+      this.ais = ais;
+      agentId = ais.getMessageAddress();
+    }
   }
 
    public void setBlackboardService(BlackboardService blackboard) {
