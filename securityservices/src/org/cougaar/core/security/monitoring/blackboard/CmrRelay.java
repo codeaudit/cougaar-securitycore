@@ -32,7 +32,8 @@ import org.cougaar.core.util.XMLize;
  * This class implements a Relay capable of transmitting an event from one
  * agent to another.  Create instances using the CmrFactory.
  */
-public class CmrRelay implements Relay.Source, Relay.Target, XMLizable
+public class CmrRelay
+implements Relay.Source, Relay.Target, XMLizable
 {
   private MessageAddress source;
   private MessageAddress target;
@@ -160,4 +161,9 @@ public class CmrRelay implements Relay.Source, Relay.Target, XMLizable
   public String toString() {
     return "("+uid+", "+content+", "+response+")";
   }
+
+  public MessageAddress getTarget() {
+    return target;
+  }
+
 }

@@ -131,23 +131,27 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     Iterator iter;
     CmrRelay relay;
-    loggingService.debug("updateRelayedQueryResponse of MnRQueryResponderPlugin called !!!!!!!!!!! :"+ myAddress); 
+    loggingService.debug("updateRelayedQueryResponse of MnRQueryResponderPlugin called:"
+			 + myAddress); 
     if(queryRelays.hasChanged()) {
-      loggingService.debug("queryRelays has changed in MnRQueryResponderPlugin at  :"+myAddress); 
+      loggingService.debug("queryRelays has changed in MnRQueryResponderPlugin at:"
+			   +myAddress); 
       Collection  querymapping_col=querymapping.getCollection();
       if (loggingService.isDebugEnabled())  {
-	loggingService.debug(" collection size of query mapping in MnRQueryResponderPlugin :"+ querymapping_col.size() );
+	loggingService.debug(" collection size of query mapping in MnRQueryResponderPlugin:"
+			     + querymapping_col.size() );
 	loggingService.debug(" Going to get iterator for query relays:");
       }
       Collection cols=queryRelays.getChangedCollection();
-      loggingService.debug("query relays changed collection size in MnRQueryResponderPlugin is  "+ cols.size());
+      loggingService.debug("query relays changed collection size in MnRQueryResponderPlugin is "
+			   + cols.size());
       iter = cols.iterator();
       while (iter.hasNext()) {
 	relay = (CmrRelay)iter.next();
 	if (relay.getSource().equals(myAddress)) {
 	  if (loggingService.isDebugEnabled())
 	    loggingService.debug(" Got query relay with source as my address :");
-	  if(relay.getResponse()!=null) {
+	  if(relay.getResponse() != null) {
 	    if (loggingService.isDebugEnabled()) {
 	      loggingService.debug(" Got response  :"+relay.getResponse().toString());
 	      loggingService.debug(" Going to look for query mapping object with UID :"+ relay.getUID()); 
@@ -169,28 +173,36 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	      }
 	      boolean anyOutStandingquery=findQueryStatus(mapping);
 	      if(!anyOutStandingquery) {
-		if (loggingService.isDebugEnabled())
-		  loggingService.debug(" updating response in responder plugin with no outstanding query :");
-		UpdateResponse(mapping);
+		// All the replies have been received.
+		// Update the response and send it back to the originator.
+		if (loggingService.isDebugEnabled()) {
+		  loggingService.debug("Updating response in responder plugin with no outstanding query");
+		}
+		updateResponse(mapping);
 	      }
 	    }
 	    else {
-	      if (loggingService.isDebugEnabled())
+	      if (loggingService.isDebugEnabled()) {
 		loggingService.debug(" Could not find Query mapping object for UId :"+ relay.getUID());
+	      }
 	    }
 	  }
 	  else {
-	    if (loggingService.isDebugEnabled())
-	      loggingService.debug("got relay as my address but response is null :"+relay.toString()); 
+	    if (loggingService.isDebugEnabled()) {
+	      loggingService.debug("got relay as my address but response is null:"
+				   +relay.toString());
+	    }
 	  }
 	}
 	else{
-	  if (loggingService.isDebugEnabled())
+	  if (loggingService.isDebugEnabled()) {
 	    loggingService.debug(" i'm not the source and I want relay with me as source :"+relay.toString());
+	  }
 	}
       }
-      if (loggingService.isDebugEnabled())
+      if (loggingService.isDebugEnabled()) {
 	loggingService.debug(" Done with update relay from responder plugin:");
+      }
     }
   }
   
@@ -200,8 +212,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     OutStandingQuery outstandingq;  
     //QueryMapping tempqMapping;
     if(!queryMappingCol.isEmpty()){
-      if (loggingService.isDebugEnabled())
+      if (loggingService.isDebugEnabled()) {
 	loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
+      }
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
 	foundqMapping=(QueryMapping)iter.next();
@@ -209,8 +222,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
 	for(int i=0;i<relayList.size();i++) {
 	  outstandingq=(OutStandingQuery)relayList.get(i);
 	  if(outstandingq.getUID().equals(givenUID)) {
-	    if (loggingService.isDebugEnabled())
+	    if (loggingService.isDebugEnabled()) {
 	      loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
+	    }
 	    return foundqMapping;
 	  }
 	}
@@ -235,26 +249,35 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
     return outStandingQuery;
   }
   
-  public void UpdateResponse (QueryMapping map) {
-    CmrRelay relay;
+  public void updateResponse (QueryMapping map) {
+    CmrRelay relay; // Original query
     UID uid;
-    CmrRelay response_relay;
+    CmrRelay response_relay; // subquery sent to lower level managers
     MRAgentLookUpReply reply;
     ArrayList agentList=new ArrayList();
     relay=findCmrRelay(map.getRelayUID());
     if(relay!=null) {
-      if (loggingService.isDebugEnabled())
-	loggingService.debug("update response called for realy :"+relay.toString());
+      if (loggingService.isDebugEnabled()) {
+	loggingService.debug("Update response called for relay :"+relay.toString());
+      }
       ArrayList list=map.getQueryList();
       OutStandingQuery outstandingquery;
       for(int i=0;i<list.size();i++) {
 	outstandingquery=(OutStandingQuery)list.get(i);
-	if (loggingService.isDebugEnabled())
-	  loggingService.debug(" finding relay for outstanding query :");
+	if (loggingService.isDebugEnabled()) {
+	  loggingService.debug("Finding relay for outstanding query");
+	}
 	response_relay=findCmrRelay(outstandingquery.getUID());
 	if(response_relay!=null) {
 	  reply=(MRAgentLookUpReply ) response_relay.getResponse();
-	  agentList.addAll(reply.getAgentList());
+	  if (reply == null) {
+	    loggingService.error("Lookup query marked as completed, but at least one response is null. "
+		      + "Subquery:" + response_relay.toString()
+		      + ". Original query:" + relay.toString());
+	  }
+	  else {
+	    agentList.addAll(reply.getAgentList());
+	  }
 	}
 	else {
 	  if (loggingService.isDebugEnabled())
@@ -268,8 +291,9 @@ public class MnRQueryResponderPlugin extends ComponentPlugin {
       getBlackboardService().publishChange(map);
     }
     else {
-      if (loggingService.isDebugEnabled())
-	loggingService.debug(" could not find relay for :"+map.getRelayUID().toString());
+      if (loggingService.isDebugEnabled()) {
+	loggingService.debug("Could not find relay for :"+map.getRelayUID().toString());
+      }
     }
   }
   

@@ -350,6 +350,10 @@ public class EventQueryPlugin extends ComponentPlugin {
         new ClusterIdentifier(_societySecurityManager);
       CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
       getBlackboardService().publishAdd(relay);
+      if (_log.isDebugEnabled()) {
+	_log.debug("Searching for sensors using security manager cluster " +
+		   "id: " + _societySecurityManager);
+      }
     } // end of for (int i = 0 ; i < classifications.length; i++)
     
   }
@@ -427,6 +431,9 @@ public class EventQueryPlugin extends ComponentPlugin {
       while (iter.hasNext()) {
         String agent = iter.next().toString();
         if (!_agents.contains(agent)) {
+	  if (_log.isInfoEnabled()) {
+	    _log.info("Added source sensor agent: " + agent);
+	  }
           query.addSourceCluster(agent);
           _agents.add(agent);
         }

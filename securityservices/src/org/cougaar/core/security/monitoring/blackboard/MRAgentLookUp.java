@@ -31,17 +31,38 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.apache.xml.serialize.*;
 
+// Cougaar core services
+import org.cougaar.core.util.XMLizable;
+import org.cougaar.core.util.XMLize;
 
-public class MRAgentLookUp implements XMLSerializable  {
+public class MRAgentLookUp
+  implements XMLSerializable, XMLizable
+{
 
+  /** If set, the lookup returns sensors that are in the specified community. */
   public String community;
+
+  /** If set, the lookup returns sensors that are in the specified role. */
   public String role;
+
+  /** If set, the lookup returns sensors that monitor the specified source. */
   public Source source;
+
+  /** If set, the lookup returns sensors that monitor the specified target. */
   public Target target;
+
+  /** If set, the lookup returns sensors that monitor the specified classification. */
   public Classification classification;
-  public String source_agent; //Agent name of Source of attack.
-  public String target_agent;//Agent name of Target of attack. 
+
+  /** If set, the lookup returns sensors that monitor the specified source agent. */
+  public String source_agent;
+
+  /** If set, the lookup returns sensors that monitor the specified target agent. */
+  public String target_agent;
+
+  /** Will get reply updates if set to true. */
   public boolean updates;
+
   public MRAgentLookUp (String findcommunity,
 			String findrole,
 			Source findsource,
@@ -159,7 +180,33 @@ public class MRAgentLookUp implements XMLSerializable  {
     return agentLookUpNode;
   
   }
-  
+
+  public String getCommunity() {
+    return community;
+  }
+
+  public String getRole() {
+    return role;
+  }
+  public Source getSource() {
+    return source;
+  }
+  public Target getTarget() {
+    return target;
+  }
+  public Classification getClassification() {
+    return classification;
+  }
+  public String getSourceAgent() {
+    return source_agent;
+  }
+  public String getTargetAgent() {
+    return target_agent;
+  }
+  public boolean getIsUpdatable() {
+    return updates;
+  }
+
   public String toString() {
     StringBuffer buff=new StringBuffer(" MRAgent Look up Object :\n");
     if(community!=null) {
@@ -187,5 +234,10 @@ public class MRAgentLookUp implements XMLSerializable  {
     return buff.toString();
   }
 
+
+  // XMLizable method for UI, other clients
+  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc) {
+    return XMLize.getPlanObjectXML(this, doc);
+  }
 
 }

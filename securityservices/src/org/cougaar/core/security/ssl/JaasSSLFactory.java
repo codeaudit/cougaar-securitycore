@@ -28,6 +28,8 @@ package org.cougaar.core.security.ssl;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
+import java.util.Iterator;
+import java.lang.reflect.Method;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +39,7 @@ import java.net.SocketException;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.security.PrivilegedAction;
+import java.security.Principal;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.NoSuchAlgorithmException;
@@ -223,13 +226,35 @@ public class JaasSSLFactory extends SSLSocketFactory {
     AccessControlContext acc = AccessController.getContext();
     Subject subject = (Subject) 
       AccessController.doPrivileged(new GetSubject(acc));
+    Iterator it = subject.getPrincipals().iterator(); 
+    while (it.hasNext()) {
+      Principal p = (Principal) it.next();
+      // Do not use (p instanceof ChainedPrincipal) as 
+      // the class may have been loaded by a different class loader.
+      if (p.getClass().getName().
+	  equals("org.cougaar.core.security.securebootstrap.StringPrincipal")) {
+      }
+      try {
+	Class c = p.getClass();
+	Method m = c.getDeclaredMethod("getName", null);
+	return (String) m.invoke(p, null);
+      }
+      catch (Exception e) {
+	_log.error("Unable to get principal: " + e);
+      }
+    }
+    _log.error("Unable to get principal. Using NodeInfo.getNodeName()");
+    return NodeInfo.getNodeName();
+
+    /*
     Set set = subject.getPrincipals(StringPrincipal.class);
     if (set.isEmpty()) {
       return NodeInfo.getNodeName();
     } // end of if (set.isEmpty())
-    
+ 
     return ((StringPrincipal)set.iterator().next()).getName();
-  }
+    */
+ }
 
   private static class GetSubject implements PrivilegedAction {
     AccessControlContext _acc;
