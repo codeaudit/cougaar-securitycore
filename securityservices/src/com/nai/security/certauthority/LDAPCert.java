@@ -28,6 +28,7 @@ package com.nai.security.certauthority;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 
 import javax.naming.directory.Attribute;
@@ -65,6 +66,10 @@ public class LDAPCert //extends LdapContext
 {
     protected static String CONTEXT_FACTORY = 
 	"com.sun.jndi.ldap.LdapCtxFactory";
+    protected static final String PEM_ATTRIBUTE = "pem_x509";
+    //protected static final String PEM_ATTRIBUTE = "userCertificate";
+    protected static final String UID_ATTRIBUTE = "md5";
+    protected static final String CA_UID_ATTRIBUTE = "ca_md5";
 
     private static boolean debug = true;
 
@@ -101,6 +106,7 @@ public class LDAPCert //extends LdapContext
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certificate");
+	objectclass.add("top");
 	set.put(objectclass);	
 	init(ca, ca);
 	put();
@@ -111,6 +117,7 @@ public class LDAPCert //extends LdapContext
 	set = new BasicAttributes(true);
 	objectclass = new BasicAttribute("objectclass");
 	objectclass.add("xuda_certificate");
+	objectclass.add("top");
 	set.put(objectclass);	
 	init(client, signator);
 	put();
@@ -120,6 +127,23 @@ public class LDAPCert //extends LdapContext
     {
 	return getCertificates();
     }
+
+    public static X509Certificate createCert(String pem) {
+	X509Certificate cert = null;
+
+	try {
+	    InputStream inStream = 
+		new ByteArrayInputStream(Base64.decode(pem.toCharArray()));
+	    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+	    cert = (X509Certificate)cf.generateCertificate(inStream);
+	    inStream.close();
+	}
+	catch(Exception ex) {
+ 	    if(debug)ex.printStackTrace();
+	}
+	return cert;
+    }
+
 
     public static X509Certificate loadCert(String fileName) {
 	X509Certificate cert = null;
@@ -250,7 +274,7 @@ public class LDAPCert //extends LdapContext
 	parseDN(cert.getSubjectDN().getName(), set);
 	if(debug) {
 	    System.out.println("Loaded certificate with dn = " + dn);
-	    formatAttributes(set);
+	    //formatAttributes(set);
 	}
     }
 
@@ -288,20 +312,18 @@ public class LDAPCert //extends LdapContext
 	}
     }
 
-    /**
-     *
     public LdapEntry getCertificate(String hash) 
     {
 	NamingEnumeration results = null;
-	StringBuffer name = null;
 	Attributes set = null;
 	X509Certificate cert;
-	
+	String status = null;
+
+	//hash = (hash.startsWith("md5"))? hash: "md5=" + hash;	
 	try {
-	    name = new StringBuffer();
-	    //name.append((String)ctx.getEnvironment().get(Context.PROVIDER_URL));
-	    name.append("md5=").append(hash);
-	    set = ctx.getAttributes(name.toString());
+	    set = ctx.getAttributes(hash);
+	    status = (String)set.get("cert_status").get();
+	    cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
 	}
 	catch(Exception ex) {
 	    ex.printStackTrace();
@@ -310,9 +332,9 @@ public class LDAPCert //extends LdapContext
 	if(debug) {
 	    formatAttributes(set);
 	}
-	return new LdapEntry(null, null, null);
+	return new LdapEntry(cert, hash, status);
     } 
-    */
+
 
     public Vector getCertificates() {
 	NamingEnumeration results = null;
@@ -339,8 +361,9 @@ public class LDAPCert //extends LdapContext
 		Object elm = results.nextElement();
 		if(elm instanceof NameClassPair) {
 		    NameClassPair pair = (NameClassPair)elm;
-		    System.out.println("++++" + pair.getName());
-		    formatAttributes(ctx.getAttributes(pair.getName()));
+		    if(debug)System.out.println("Adding " + pair.getName());
+		    //formatAttributes(ctx.getAttributes(pair.getName()));
+		    entries.add(getCertificate(pair.getName()));
 		}
 	    }
 	}
