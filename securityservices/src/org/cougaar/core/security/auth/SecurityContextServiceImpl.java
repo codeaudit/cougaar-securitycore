@@ -35,8 +35,10 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Stack;
 import javax.security.auth.Subject;
 
 public final class SecurityContextServiceImpl 
@@ -48,10 +50,8 @@ public final class SecurityContextServiceImpl
   private LoggingService _log;
   // the client of this service
   //private Object _requestor;
-  // current mapping between an object and an security context
-  private HashMap _currentSCMap = new HashMap();
-  // previous mapping between an object and an security context
-  private HashMap _previousSCMap = new HashMap();
+  // current mapping between an object and an security context stack
+  private HashMap _contextMap = new HashMap();
   // logging flags  
   private boolean _debug = false;
   
@@ -137,78 +137,74 @@ public final class SecurityContextServiceImpl
     }
     return null;
   }
-  
+
+  // IMPLEMENTATION USING STACK TO TRACK ALL EXECUTION CONTEXT
   private void setSecurityContext(Object context, Object o) {
-    Object oldContext = null;
-    if(_debug) {
-      _log.debug("setting security context for " + o);
-      _log.debug("security context = " + context);
-    }
-    synchronized(_currentSCMap) {
+    synchronized(_contextMap) {
       // associate the new security context with o,
       // and keep the old security context 
-      oldContext = _currentSCMap.put(o, context);       
-    }
-    if(oldContext != null) {
-      synchronized(_previousSCMap) {
-        _previousSCMap.put(o, oldContext);
+      Stack es = (Stack)_contextMap.get(o);
+      if(es == null) {
+        if(_debug) {
+          _log.debug("creating stack for " + o);
+        }
+        es = new Stack();
+        _contextMap.put(o, es); 
       }
+      es.push(context);
       if(_debug) {
-        _log.debug("preserving previous security context for " + o);
-        _log.debug("previous security context " + oldContext);
+        _log.debug("pushed (" + o + ", " + context + ") onto stack"); 
+        _log.debug("stack size: " + es.size());
       }
     }
   }
-  
   private Object resetSecurityContext(Object o) {
-    Object currentSC = null;
-    Object oldSC = null;
-    synchronized(_previousSCMap) {
-       oldSC = _previousSCMap.get(o);
-    }
-    if(oldSC != null) {
-      synchronized(_currentSCMap) {
-        currentSC = _currentSCMap.put(o, oldSC);
-      }
-      if(_debug) {
-        _log.debug("restoring security context for " + o);
-        _log.debug("restored security context " + oldSC);
-      }
-    }
-    else {
-      synchronized(_currentSCMap) {
-        currentSC = _currentSCMap.remove(o);
+    Object context = null;
+    synchronized(_contextMap) {
+      Stack es = (Stack)_contextMap.get(o);
+      if(es != null) {
+        try {
+          context = (ExecutionContext)es.pop();
+          if(_debug) {
+            _log.debug("reset security context for: " +  o);
+            _log.debug("stack size: " +  es.size());
+          }
+        }
+        catch(EmptyStackException ese) {
+          _log.warn("execution stack is empty for: " + o);
+        }
       }
     }
-    if(_debug) {
-        _log.debug("resetting security context for " + o);
-        _log.debug("current security context = " + currentSC);
-    }
-    return currentSC;  
+    return context;  
   }
   
   private Object getSecurityContext(Object o) {
     Object context = null;
-    synchronized(_currentSCMap) {
-      context = _currentSCMap.get(o);
-      // don't know if we should do this?
-      // if we don't, it means that we get a null context, and will deny all request
-      if(context == null) {
+    synchronized(_contextMap) {
+      Stack es = (Stack)_contextMap.get(o);
+      try {
+        if(es != null) {
+          context = es.peek(); 
+        }
+      }
+      catch(EmptyStackException ese) {
         if(_debug) {
-          _log.debug("no security context for " + o + ", getting JAAS context.");
+          _log.debug("execution stack is empty for: " + o);
         }
-        context = getExecutionContextFromJaas();  // obtain context from Jaas
-        /*
-        if(context != null) {
-          _currentSCMap.put(o, context); // associate the Jaas context with the object
-        }
-        */
-        // return null if no ExecutionPrincipal in subject 
-      }     
+      }
     }
-
+    // don't know if we should do this?
+    // if we don't, it means that we get a null context, and will deny all request
+    if(context == null) {
+      if(_debug) {
+        _log.debug("no security context for " + o + ", getting JAAS context.");
+      }
+      context = getExecutionContextFromJaas();  // obtain context from Jaas
+      // return null if no ExecutionPrincipal in subject 
+    }     
+   
     if(_debug) {
-      _log.debug("getting security context for " + o + " = " + context);
+      _log.debug("got security context (" + o + ", " + context + ")");
     }
     return context; 
   }

@@ -119,7 +119,7 @@ class ThreadServiceProxy extends SecureServiceProxy
     }
     public void run() {
       _scs.setExecutionContext(_ec);
-      _timerTask.scheduledExecutionTime();
+      _timerTask.run();
       _scs.resetExecutionContext();
     }
     public long scheduledExecutionTime() {
