@@ -42,24 +42,43 @@ public class ServletPolicyServiceProvider
   implements ServiceProvider
 {
   static private ServletPolicyEnforcer _servletPolicyService = null;
-  static private ServiceBroker serviceBroker;
+  static private DualAuthenticator     _dualAuthenticator    = null;
+  static private Context               _context              = null;
+  static private ServiceBroker         _serviceBroker        = null;
 
   public ServletPolicyServiceProvider(ServiceBroker sb) {
-    serviceBroker = sb;
+    _serviceBroker = sb;
+//     init();
+  }
+
+  private static synchronized void init() {
+    if (_servletPolicyService == null) {
+      _servletPolicyService = new ServletPolicyEnforcer(_serviceBroker);
+      /*
+      if (_dualAuthenticator != null) {
+        _servletPolicyService.setDualAuthenticator(_dualAuthenticator);
+      }
+      if (_context != null) {
+        _servletPolicyService.setContext(_context);
+      }
+      */
+    }
   }
 
   public static synchronized void setContext(Context context) {
-    if (_servletPolicyService == null) {
-      _servletPolicyService = new ServletPolicyEnforcer(serviceBroker);
+    init();
+    _context = context;
+    if (_servletPolicyService != null) {
+      _servletPolicyService.setContext(context);
     }
-    _servletPolicyService.setContext(context);
   }
 
   public static synchronized void setDualAuthenticator(DualAuthenticator da) {
-    if (_servletPolicyService == null) {
-      _servletPolicyService = new ServletPolicyEnforcer(serviceBroker);
+    init();
+    _dualAuthenticator = da;
+    if (_servletPolicyService != null) {
+      _servletPolicyService.setDualAuthenticator(da);
     }
-    _servletPolicyService.setDualAuthenticator(da);
   }
 
   /**
