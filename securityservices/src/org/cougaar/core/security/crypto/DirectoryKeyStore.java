@@ -247,6 +247,16 @@ public class DirectoryKeyStore
 
   }
 
+  private void publishCAToLdap(String caDN) {
+    CertificateManagementService km = (CertificateManagementService)
+      param.serviceBroker.getService(
+        new CertificateManagementServiceClientImpl(caDN),
+        CertificateManagementService.class,
+        null);
+    if (log.isDebugEnabled())
+      log.debug("adding CA certificate to LDAP: " + caDN);
+  }
+
   public Enumeration getAliasList()
   {
     Enumeration alias;
@@ -508,8 +518,8 @@ public class DirectoryKeyStore
     }
     else {
       if (certs.length == 0) {
-	if (log.isInfoEnabled()) {
-	  log.info("Failed to get Certificate for " + filter);
+	if (log.isWarnEnabled()) {
+	  log.warn("Failed to get Certificate for " + filter);
 	}
       }
     }
@@ -2401,6 +2411,13 @@ public class DirectoryKeyStore
 				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
 	//checkOrMakeHostKey();
+        if (param.isCertAuth && dname.getCommonName().equals(NodeInfo.getNodeName())) {
+          X500Name [] caDNs = configParser.getCaDNs();
+          if (caDNs.length != 0) {
+            publishCAToLdap(caDNs[0].getName());
+          }
+        }
+
         return;
       }
     }
