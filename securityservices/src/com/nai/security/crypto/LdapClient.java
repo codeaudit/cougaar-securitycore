@@ -68,7 +68,9 @@ public class LdapClient
     }
     try {
       context=new InitialDirContext(env);
-      System.out.println("Using LDAP certificate directory: " + Provider_Url);
+      if (debug) {
+	System.out.println("Using LDAP certificate directory: " + Provider_Url);
+      }
       initializationOK = true;
     }
     catch(NamingException nexp) {

@@ -49,7 +49,7 @@ public class ConfParser {
 
   private String configFile = null;
   private Document configDoc = null;
-  private boolean debug = true;
+  private boolean debug = false;
 
   public ConfParser() {
     init();
@@ -60,6 +60,9 @@ public class ConfParser {
   }
 
   public void init() {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+
     //String installpath = System.getProperty("org.cougaar.install.path");
     String defaultConfigFile = /*installpath + File.separatorChar
       + "configs" + File.separatorChar + "common"
@@ -128,7 +131,7 @@ public class ConfParser {
     throws NoSuchFieldException, IllegalAccessException
   {
     if (debug) {
-      System.out.println("Readind node policy");
+      System.out.println("Reading node policy");
     }
     Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
     NodePolicy nodePolicy = new NodePolicy();

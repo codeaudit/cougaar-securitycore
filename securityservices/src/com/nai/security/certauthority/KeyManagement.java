@@ -62,7 +62,7 @@ import com.nai.security.util.*;
  * + See also com.nai.security.crypto.ConfParser for other required properties. */
 public class KeyManagement
 {
-  private static boolean debug = true;
+  private static boolean debug = false;
   public static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
   public static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
@@ -87,7 +87,11 @@ public class KeyManagement
 						  false if run within Cougaar */
 
   public KeyManagement(String aCA_DN, String role) 
-    throws Exception{
+    throws Exception
+  {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+
     caDN = aCA_DN;
     confParser = new ConfParser();
 
@@ -603,7 +607,9 @@ public class KeyManagement
     int byteRead = fInSerial.read(cbuf);
     fInSerial.close();
     serialNbString = new String(cbuf, 0, byteRead);
-    System.out.println("Serial = " + serialNbString);
+    if (debug) {
+      System.out.println("Serial = " + serialNbString);
+    }
     nextSerialNumber = Integer.parseInt(serialNbString);
 
     // Write next serial number back to file.
@@ -927,7 +933,9 @@ public class KeyManagement
     try {
       KeyManagement km = null;
       km = new KeyManagement(caDN, role);
-      System.out.println("Option is : " + option);
+      if (debug) {
+	System.out.println("Option is : " + option);
+      }
 
       if (option.equals("-10")) {
 	FileInputStream f = new FileInputStream(args[2]);
@@ -958,13 +966,19 @@ public class KeyManagement
 	// km.printPkcs7Request(args[1]);
       }
       else if (option.equals("-1")) {
-	System.out.println("Search private key for " + args[2]);
+	if (debug) {
+	  System.out.println("Search private key for " + args[2]);
+	}
 	PrivateKey pk = KeyRing.findPrivateKey(args[2]);
-	System.out.println(" ========================================");
-	System.out.println(" ========================================");
-	System.out.println("Search cert for " + args[2]);
+	if (debug) {
+	  System.out.println(" ========================================");
+	  System.out.println(" ========================================");
+	  System.out.println("Search cert for " + args[2]);
+	}
 	Certificate c = KeyRing.findCert(args[2]);
-	System.out.println("Certificate is : " + c);
+	if (debug) {
+	  System.out.println("Certificate is : " + c);
+	}
       }
     } catch (Exception e) {
       System.out.println("Exception: " + e);

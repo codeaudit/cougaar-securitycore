@@ -794,7 +794,9 @@ public class DirectoryKeyStore implements Runnable
     String reply = KeyManagement.base64encode(request.getEncoded(), KeyManagement.PKCS10HEADER,
 				KeyManagement.PKCS10TRAILER);
 
-    System.out.println("generateSigningCertificateRequest:\n" + reply);
+    if (debug) {
+      System.out.println("generateSigningCertificateRequest:\n" + reply);
+    }
     return reply;
   }
 
