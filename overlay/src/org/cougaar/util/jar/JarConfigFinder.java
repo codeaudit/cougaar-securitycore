@@ -431,6 +431,11 @@ public class JarConfigFinder
     if (entry == null) {
       return null;
     }
+    if (getLogger().isDebugEnabled()) {
+      getLogger().debug("Locate file " +
+			aFileName + " in " + entry.getJarFileURL()
+			+ " Processed: " + entry.isJarFileProcessed());
+    }
     if (entry.isJarFileProcessed()) {
       // The JAR file has already been processed. Therefore,
       // we should have already looked in the cache for that Jar file.
