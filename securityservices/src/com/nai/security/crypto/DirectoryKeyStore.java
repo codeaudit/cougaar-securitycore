@@ -760,7 +760,7 @@ public class DirectoryKeyStore implements Runnable
     String request = "";
     String reply = "";
     //is node?
-    String nodeName = System.getProperty("org.cougaar.node.name");
+    String nodeName = System.getProperty("org.cougaar.core.society.Node.name");
     String alias = null;
     PrivateKey privatekey = null;
     try {
