@@ -235,7 +235,8 @@ public class LDAPCert //extends LdapContext
 	hash = hash(der, certDigest);
 	ca_hash = hash(ca_der, issuerDigest);
 
-        dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
+        //dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
+	dn = cert.getSubjectDN().getName();
 	set.put("md5", toHex(hash));
 	set.put("ca_md5", toHex(ca_hash));
 	set.put("serialNumber",
@@ -246,7 +247,7 @@ public class LDAPCert //extends LdapContext
 	set.put("notafter_tim" , time.format(cert.getNotAfter()));
 	set.put("cert_status", "1");
 	set.put("userCertificate", pem);
-	parseDN(cert.getIssuerDN().getName(), set);
+	parseDN(cert.getSubjectDN().getName(), set);
 	if(debug) {
 	    System.out.println("Loaded certificate with dn = " + dn);
 	    formatAttributes(set);
