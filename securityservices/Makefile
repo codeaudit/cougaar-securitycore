@@ -9,7 +9,7 @@ CLASSPATH = ${COUGAARCLASSES}
 #  $*      - Current target without extension
 #  $<      - Current dependency
 
-all: jar signjar install
+all: build-classes jar signjar install
 
 clean:
 	@echo +++++++ Removing jarfiles
@@ -28,12 +28,6 @@ clean-data:
 	rm -f test/configs/certauthority/keystoreTest
 	rm -f test/configs/demo/*.log
 	rm -f test/configs/demo/*.swp
-
-classes:
-	@echo +++++++ Compiling the source code
-	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
-	echo ${COUGAARCLASSES}
-	./test/bin/myalpc src
 
 jar: classes
 # Build core.jar
@@ -65,7 +59,13 @@ jar: classes
 		org 
 	@echo +++++++ Done Building securityservices.jar
 
-signjar: jar
+build-classes:
+	@echo +++++++ Compiling the source code
+	export COUGAAR_INSTALL_PATH; export COUGAARCLASSES; export CLASSPATH
+	echo ${COUGAARCLASSES}
+	./test/bin/myalpc src
+
+signjar: jar classes
 	@echo +++++++ Signing bootstrapper.jar and core.jar
 #	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 #		-storepass keystore ${COUGAARCLASSES}/core.jar privileged
@@ -90,7 +90,7 @@ install: installconf
 installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
-	cp test/configs/small-135/* ${COUGAAR_INSTALL_PATH}/configs/small-135
+	cp -r test/configs/small-135 ${COUGAAR_INSTALL_PATH}/configs
 	cp sys/*.jar ${COUGAAR_INSTALL_PATH}/sys
 #	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
