@@ -140,18 +140,21 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
     if(consolidatedResponse.hasChanged()) {
       responsecol=consolidatedResponse.getAddedCollection();
        if(loggingService.isDebugEnabled()) {
-        loggingService.debug("receive consolidated response chnage and size is "+responsecol.size());
+        loggingService.debug("receive consolidated response change and size is "+responsecol.size());
       }
       sendAggResponse(responsecol);
     }
     Collection detailscol=null;
     if(detailedResponse.hasChanged()) {
       detailscol=detailedResponse.getAddedCollection();
+       if(loggingService.isDebugEnabled()) {
+        loggingService.debug("receive Details Drill Down Query and size  "+ detailscol.size());
+      }
       processDetailsResponseQuery(detailscol);
     }
     Collection idmefEventCollection=null;
     if(idmefEventResponse.hasChanged()){
-       detailscol=idmefEventResponse.getAddedCollection();
+       idmefEventCollection=idmefEventResponse.getAddedCollection();
       processIdmefEvent(idmefEventCollection);
     }
 
@@ -224,7 +227,7 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       relay=getCmrRelayWithDetailsDrillDownQuery(key,detailsQueryCollection);
       if(relay==null) {
         if (loggingService.isDebugEnabled()) {
-          loggingService.debug("Canot find Details drill down query relay with parent UID :"+key.toString() );
+          loggingService.debug("No Details drill down query relay  present for parent UID :"+key.toString() );
         } 
         continue;
       }
@@ -310,9 +313,10 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       consolidatedresult=(ConsolidatedEvent)iter.next();
       parentuid=consolidatedresult.getparentUID();
       if (loggingService.isDebugEnabled()) {
-        loggingService.debug("Received Consolidated response  received "+ 
+        loggingService.debug("Received Consolidated response "+ 
                              consolidatedresult.toString()+"\n"+
-                             "parent id  "+parentuid );
+                             "parent id  "+parentuid +"\n"+
+                             "Source :"+consolidatedresult.getSource() );
       }
       relay=getCmrRelayWithDetailsDrillDownQuery(parentuid,detailsQueryCollection);
       List list=new ArrayList();
@@ -321,7 +325,7 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
       if(relay==null) {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("No Details DrillDown query Relay present for parent UID :"+parentuid.toString() );
-          loggingService.debug("No Details DrillDown query Relay present looking for Receive agg query relay  :");
+          loggingService.debug("No Details DrillDown query Relay present looking for received AGG DRILL DOWN query relay  :");
         } 
         relay=findCmrRelay(parentuid);
         if(relay!=null) {
