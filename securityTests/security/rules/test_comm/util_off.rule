@@ -1,0 +1,5 @@
+#!/usr/bin/ruby
+
+society.each_node do |node|
+  node.override_parameter("-Dorg.cougaar.core.security.csutil.ignoreCall", "true")
+end
