@@ -404,7 +404,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           ois.close();
 
           if (log.isDebugEnabled()) {
-            log.debug("Received reply from " + certURL + " for name server cert");
+            log.debug("Received reply from " + certURL + " for name server cert with " +
+                 (certs == null ? "null array" : certs.length + " elements"));
           }
 
           for (int i = 0; i < certs.length; i++) {
