@@ -1,0 +1,15 @@
+####################################################
+# Rule to insert TestUserPolicyServlet
+
+
+facerrole ="OSD.GOV"
+society.each_agent(true) do |agent|
+  agent.each_facet(:org_id) do |facet|
+    if facet[:org_id] == facerrole
+      agent.add_component do |c|
+          c.classname ="org.cougaar.core.security.test.policy.TestUserPolicyServlet"
+          c.add_argument("/TestUserPolicy")
+      end
+    end
+  end
+end
