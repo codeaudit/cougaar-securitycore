@@ -523,8 +523,9 @@ public class ServletNodeEnforcer
       result=true;
     } catch (SecurityException e) {
       if (_log.isWarnEnabled()) {
-        _log.warn("Permission denied " + e);
+        _log.warn("Permission denied");
         _log.warn("Action = " + action);
+        _log.warn("User " + user + " in roles " + policyRoles);
       }
       result=false;
     }
