@@ -922,11 +922,12 @@
           	</else>
           </if>
           <echo message="Posting ${project.name} to CougaarForge - project [${cougaarforge.project.unixname}]"/>
+          <dirname property="upload.file.path" file="${securityservices.base}/${overlay.zip.name}"/>
           <postToCougaarForge url="http://cougaar.org"
           	    verbose="true"
           	    username="${cougaarforge.username}" password="${cougaarforge.password}"
           	    unixprojectname="${cougaarforge.project.unixname}">
-            <prop name="userfile"     value="${securityservices.base}/${overlay.zip.name}"/>
+            <prop name="userfile"     value="${upload.file.path}/${overlay.zip.name}"/>
             <prop name="release_name" value="${project.name}-${anthill.branch.name}-${cougaar.branch.name}"/>
             <prop name="type_id"      value="3000"/>
             <prop name="processor_id" value="8000"/>
