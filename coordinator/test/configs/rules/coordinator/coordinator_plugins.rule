@@ -14,6 +14,8 @@ sact = "org.cougaar.core.security.coordinator.AgentCompromiseActuator"
 ssen = "org.cougaar.core.security.coordinator.AgentCompromiseSensor"
 tact = "org.cougaar.core.security.coordinator.ThreatConActuator"
 tsen = "org.cougaar.core.security.coordinator.ThreatConLevelSensor"
+upp  = "org.cougaar.core.security.test.coordinator.UpdatePolicyPlugin"
+
 
 plugins = [sact,ssen,tact,tsen]
 
@@ -30,6 +32,26 @@ techspecs = ['AgentCompromise_AgentAssetStateDimensions.xml',
              'Security_Sensors.xml', 
              'Security_Actuators.xml']
 
+def getPolicyMgrForAgent(agent)
+ enclave = agent.host.enclave
+ policyMgr = nil
+ society.each_agent do |possPolicyMgr|
+   if possPolicyMgr.host.enclave != enclave then
+     next
+   end
+   possPolicyMgr.each_facet(:role) do |facet|
+     if facet[:role] == $facetPolicyManagerAgent then
+       policyMgr = possPolicyMgr
+       break
+     end 
+   end
+   if (policyMgr != nil) then
+     break
+   end
+ end
+ policyMgr
+end
+
 society.each_agent(true) do |agent|
     insert_to_node = false
 #    agent.add_components(plugins) 
@@ -37,6 +59,10 @@ society.each_agent(true) do |agent|
         if facet[:role] == $facetMonitoringManagerAgent
             agent.add_components(plugins)
             insert_to_node = true
+            agent.add_component do |c|
+                c.classname = upp
+                c.add_argument(getPolicyMgrForAgent(agent).name)
+            end
         end
     end
     if agent.name =~ /.*ARManager.*/
