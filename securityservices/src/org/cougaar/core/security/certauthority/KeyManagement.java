@@ -232,6 +232,7 @@ public class KeyManagement
       publishCAinLdap();
     }
     else{
+      // We are a node
       caPolicy = configParser.getCaPolicy("");
       if (caPolicy == null) {
 	if (log.isWarnEnabled()) {
@@ -319,8 +320,15 @@ public class KeyManagement
 
 	 List pkc = keyRing.findPrivateKey(cn);
 	 PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
-	 caOperations.publishCertificate((X509Certificate)c,CertificateUtility.CACert,pk);
-
+	 try {
+	   caOperations.publishCertificate((X509Certificate)c,
+					   CertificateUtility.CACert,pk);
+	 }
+	 catch (javax.naming.NamingException e) {
+	   if (log.isWarnEnabled()) {
+	     log.warn("Unable to publish CA certificate to LDAP");
+	   }
+	 }
        }
      }
      else {
@@ -367,11 +375,12 @@ public class KeyManagement
 	saveX509Request(clientX509, false);
 
 	// Publish certificate in LDAP directory
-	caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,null);
+	caOperations.publishCertificate(clientX509,
+					CertificateUtility.EntityCert,null);
       }
     }
     catch(Exception e) {
-      log.debug("Unable to process request: " + e);
+      log.error("Unable to process request: " + e);
       e.printStackTrace();
     }
   }
@@ -405,13 +414,15 @@ public class KeyManagement
 	  if (log.isDebugEnabled()) {
 	    log.debug("Publishing cert to LDAP service");
 	  }
-	  caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,null);
+	  caOperations.publishCertificate(clientX509,
+					  CertificateUtility.EntityCert,null);
 	}
       }
     }
     catch (Exception e) {
-      log.debug("Unable to process request: " + e);
+      log.error("Unable to process request: " + e);
       e.printStackTrace();
+      return null;
     }
 
     X509Certificate[] reply = new X509Certificate[ar.size()];
@@ -793,8 +804,10 @@ public class KeyManagement
 
   public final static int KEYUSAGE_CERT_SIGN_BIT = 5;
 
-  public void publishCertificate(X509Certificate clientX509) {
-    caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,null);
+  public void publishCertificate(X509Certificate clientX509)
+    throws javax.naming.NamingException {
+    caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,
+				    null);
   }
 
   /** Sign a PKCS10 certificate signing request with a CA key
@@ -1081,9 +1094,11 @@ public class KeyManagement
       SearchResult caresult=caOperations.getLdapentry(filter,false);
       Attributes caAttributes=caresult.getAttributes();
       String cabindingName=caresult.getName();
-      SearchResult userresult=caOperations.getLdapentry(userUniqueIdentifier,true);
+      SearchResult userresult=caOperations.getLdapentry(userUniqueIdentifier,
+							true);
       Attributes userAttributes=userresult.getAttributes();
-      CertificateRevocationStatus userstatus=caOperations.getCertificateRevocationStatus(userAttributes);
+      CertificateRevocationStatus userstatus=
+	caOperations.getCertificateRevocationStatus(userAttributes);
       if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
 	status=-2;
 	return status;
@@ -1095,8 +1110,10 @@ public class KeyManagement
       String userbindingName=userresult.getName();
       X509Certificate cacert= caOperations.getCertificate(caAttributes);
       X509Certificate usercert=caOperations.getCertificate(userAttributes);
-      Certificate [] certchain=keyRing.checkCertificateTrust(usercert);
       PublicKey capublickey=cacert.getPublicKey();
+      boolean validchain=true;
+      /*
+      Certificate [] certchain=keyRing.checkCertificateTrust(usercert);
       boolean validchain=false;
       if((certchain!=null)&&(certchain.length>0)) {
 	PublicKey certpk=null;
@@ -1111,11 +1128,23 @@ public class KeyManagement
 	  }
 	}
       }
+      */
       if(validchain) {
-	caOperations.revokeCertificate(cabindingName,userbindingName,caprivatekey,caPolicy.CRLalgorithmId.getName());
+	boolean ret =
+	  caOperations.revokeCertificate(cabindingName,
+					 userbindingName,
+					 caprivatekey,
+					 caPolicy.CRLalgorithmId.getName());
+	if (ret == false) {
+	  // Unable to revoke certificate
+	  return -1;
+	}
       }
       else {
-	throw new CertificateException(" CA with DN name  : " + cacert.getSubjectDN().getName() +" cannot revoke user certificate with dn name : "+ usercert.getSubjectDN().getName());
+	throw new CertificateException(" CA with DN name  : "
+				       + cacert.getSubjectDN().getName()
+				       +" cannot revoke user certificate with dn name : "
+				       + usercert.getSubjectDN().getName());
       }
 	//caOperations.revokeCertificate(CADN,UseruniqueIdentifier,caprivatekey,caPolicy.CRLalgorithmId.getName());
     }

@@ -37,7 +37,9 @@ import java.security.cert.CRLException;
 
 public interface CertDirectoryServiceCA {
 
-  void publishCertificate(X509Certificate c, int Type,PrivateKey privatekey);
+  void publishCertificate(X509Certificate c, int Type,PrivateKey privatekey)
+    throws javax.naming.NamingException;
+
   void publishCRLentry(X509CRLEntry crl);
   /* boolean revokeCertificate(LdapEntry ldapEntry);
   // public boolean revokeCertificate(LdapEntry ldapentry,String CA_DN,LdapEntry ldapentry_ca,PrivateKey privateky, String alg) throws NoSuchAlgorithmException,
@@ -62,8 +64,11 @@ public interface CertDirectoryServiceCA {
     IOException,
     NamingException;
 
-  X509Certificate getCertificate(Attributes attributes) throws CertificateException, NamingException;
+  X509Certificate getCertificate(Attributes attributes)
+    throws CertificateException, NamingException;
+
   boolean isCAEntry(Attributes attributes)throws NamingException;
+
   CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
 
   void getContexts();

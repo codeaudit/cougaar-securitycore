@@ -73,7 +73,8 @@ public interface CertificateManagementService extends Service {
    */
   public X509Certificate[] processPkcs10Request(InputStream request);
 
-  public void publishCertificate(X509Certificate clientX509);
+  public void publishCertificate(X509Certificate clientX509)
+    throws javax.naming.NamingException;
 
   public String processPkcs10Request(InputStream request, boolean replyInHtml);
 

@@ -324,11 +324,14 @@ public class OpenLdapCertDirectoryService
   /********************************************************************************
    * CertDirectoryServiceCA interface. */
 
-  public void publishCertificate(X509Certificate cert,int type,PrivateKey privatekey)  {
+  public void publishCertificate(X509Certificate cert,
+				 int type,
+				 PrivateKey privatekey)
+    throws javax.naming.NamingException {
     Attributes set = new BasicAttributes(true);
     String dnname = cert.getSubjectDN().getName();
     if(log.isDebugEnabled()) {
-      log.debug("Publishing certificate, dn in publish certificate of OpenLdap :" + dnname);
+      log.debug("Publish certificate, dn:" + dnname);
     }
     try {
       setLdapAttributes(cert, set,type,privatekey);
@@ -354,22 +357,27 @@ public class OpenLdapCertDirectoryService
 	 }*/
     }
     catch(javax.naming.NameAlreadyBoundException nameexp) {
-      if(log.isDebugEnabled()) {
-	log.debug(" name  already exists  in ldap for dn name in publish certificate of OpenLdap : " +dnname);
+      if(log.isErrorEnabled()) {
+	log.error("PublishCertificate: Name already exists: " +dnname);
       }
-
+      throw nameexp;
     }
-    catch(Exception ex) {
-      ex.printStackTrace();
+    catch(javax.naming.NamingException ex) {
+      if(log.isWarnEnabled()) {
+	log.warn("Unable to publish certificate: " + dnname
+	  + " - Reason: " + ex.toString());
+      }
+      throw ex;
     }
   }
 
   public void publishCRLentry(X509CRLEntry crl) {
   }
 
-  public SearchResult getLdapentry(String searchfilter,boolean uniqueid) throws MultipleEntryException, IOException  {
+  public SearchResult getLdapentry(String searchfilter,boolean uniqueid)
+    throws MultipleEntryException, IOException  {
 
-    StringBuffer  filter=new StringBuffer();
+    StringBuffer filter=new StringBuffer();
 
     if(!uniqueid) {
       filter.append(searchfilter);
@@ -381,7 +389,6 @@ public class OpenLdapCertDirectoryService
     SearchResult  result=null;
     Attributes attributes=null;
     Vector activeentry=new Vector();
-
     try {
       if(namingenum!=null) {
 	for(;namingenum.hasMore();) {
@@ -391,62 +398,62 @@ public class OpenLdapCertDirectoryService
 	  dump(result);
 	  log.debug("result is " +result.toString());
 	  attributes =result.getAttributes();
-	  CertificateRevocationStatus status=getCertificateRevocationStatus(attributes);
+	  CertificateRevocationStatus status=
+	    getCertificateRevocationStatus(attributes);
 	  if(! status.equals(CertificateRevocationStatus.REVOKED)){
 	    activeentry.add(result);
 	  }
 	  else {
 	    if(log.isDebugEnabled()){
-	      log.debug(" cert is revoked  in get ldapentry object for filter :  "+filter.toString() +" status is :"+status.toString());
+	      log.debug("Cert is revoked. filter: "
+			+ filter.toString()
+			+ " status is :"+status.toString());
 	    }
 	  }
 	}
 	// result=(SearchResult)namingenum.next();
-	if(log.isDebugEnabled())
-	  log.debug("Size of serch result  in getldapentry function qith filter "+ filter.toString()+ "  is :"+ activeentry.size() + " result is :"+result.toString());
+	if(log.isDebugEnabled()) {
+	  log.debug("Search results: "
+		    + filter.toString() + "  is :"
+		    + activeentry.size()
+		    + " result is :"
+		    + (result == null ? null : result.toString()));
+	}
 	if(activeentry.size()>1) {
-	  throw new MultipleEntryException("Found multiple active entries for filter : "+filter.toString());
+	  throw new MultipleEntryException("Found multiple active entries for filter : "
+					   +filter.toString());
 	}
-	//result=null;
-	if((result!=null)&&(activeentry.isEmpty())){
-	  return result;
-	}
-	else{
-	  result=null;
+	if (result == null && !activeentry.isEmpty()){
 	  result=(SearchResult)activeentry.elementAt(0);
 	}
-	//log.debug("
       }
-      else {
-	return result;
-      }
-      return result;
     }
     catch (NamingException nexp) {
       if(log.isDebugEnabled()) {
 	log.debug("could not find entry with filter :"+ filter.toString());
 	nexp.printStackTrace();
       }
-      return result;
+    }
+    return result;
+  }
+  public void dump (SearchResult result)
+    throws NamingException {
+    Attributes answer = result.getAttributes();
+    for (NamingEnumeration ae = answer.getAll(); ae.hasMore();) {
+      Attribute attr = (Attribute)ae.next();
+      log.debug("attribute: " + attr.getID());
+      /* Print each value */
+      for (NamingEnumeration e = attr.getAll(); e.hasMore(); ) {
+	log.debug("value: " + e.next());
+      }
     }
   }
-  public void dump (SearchResult result) throws NamingException {
-    Attributes answer = result.getAttributes();
-    for (NamingEnumeration ae = answer.getAll(); ae.hasMore();)
-      {
-	Attribute attr = (Attribute)ae.next();
-	log.debug("attribute: " + attr.getID());
-	/* Print each value */
-	for (NamingEnumeration e = attr.getAll(); e.hasMore(); )
-	  {
-	    log.debug("value: " + e.next());
-	  }
-
-      }
-  }
 
 
-  public boolean revokeCertificate(String caBindingName,String userBindingName,PrivateKey caprivatekey, String crlsignalg)
+  public boolean revokeCertificate(String caBindingName,
+				   String userBindingName,
+				   PrivateKey caprivatekey,
+				   String crlsignalg)
     throws NoSuchAlgorithmException,
 	   InvalidKeyException,
 	   CertificateException,
@@ -488,8 +495,10 @@ public class OpenLdapCertDirectoryService
       }
     }
     crlentrys.trimToSize();
-    if(log.isDebugEnabled())
-      log.debug(" size of crl entry object from crl in revoke certificate  is : "+crlentrys.size());
+    if(log.isDebugEnabled()) {
+      log.debug("Size of crl entry object from crl is : "
+		+crlentrys.size());
+    }
     X509CRLImpl crlimpl=null;
     X509CRLEntry[] crlentryarray=new X509CRLEntry[crlentrys.size()+1];
     crlentrys.copyInto(crlentryarray);
@@ -497,8 +506,32 @@ public class OpenLdapCertDirectoryService
     String issuerdn=userCert.getIssuerDN().getName();
     String filterforIssuer=parseDN(issuerdn);
     SearchResult issuerresult=getLdapentry(filterforIssuer,false);
+    if (issuerresult == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get issuer certificate of "
+		 + userCert.getSubjectDN().getName()
+		 + " (No SearchResult) - Filter was:"
+		 + filterforIssuer);
+      }
+      return false;
+    }
     Attributes issuerattributes=issuerresult.getAttributes();
+    if (issuerattributes == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get issuer certificate of "
+		 + userCert.getSubjectDN().getName() + " ( no Attributes)"
+		 + " Filter was:" + filterforIssuer);
+      }
+      return false;
+    }
     X509Certificate issuercertificate=getCertificate(issuerattributes);
+    if (issuercertificate == null) {
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get issuer certificate of "
+		 + userBindingName + " ( no X509 certificate)");
+      }
+      return false;
+    }
     PublicKey issuerPublicKey=issuercertificate.getPublicKey();
     String userDN=userCert.getSubjectDN().getName();
     CRLExtensions  extensions=null;
@@ -512,19 +545,23 @@ public class OpenLdapCertDirectoryService
     }
 
     if(issuerPublicKey.equals(caPublicKey)) {
-
       if(log.isDebugEnabled()) {
-	log.debug(" Both issuer of certificate & Revoking CA are same for user dn : "+ userDN +" Revoking CA : "+ CA_DN);
+	log.debug("Both issuer of certificate & Revoking CA are same for user dn : "
+		  + userDN +" Revoking CA : "+ CA_DN);
       }
 
       crlentryimpl=new X509CRLEntryImpl(userCert.getSerialNumber(),current);
       crlentryarray[crlentryarray.length-1]=crlentryimpl;
 
       if(extensions!=null) {
-	crlimpl=new X509CRLImpl(new X500Name(caCert.getSubjectDN().getName()),current,next,crlentryarray,extensions);
+	crlimpl=
+	  new X509CRLImpl(new X500Name(caCert.getSubjectDN().getName()),
+			  current,next,crlentryarray,extensions);
       }
       else {
-	crlimpl=new X509CRLImpl(new X500Name(caCert.getSubjectDN().getName()),current,next,crlentryarray);
+	crlimpl=
+	  new X509CRLImpl(new X500Name(caCert.getSubjectDN().getName()),
+			  current,next,crlentryarray);
       }
 
 

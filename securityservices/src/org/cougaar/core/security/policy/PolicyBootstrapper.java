@@ -73,12 +73,15 @@ public class PolicyBootstrapper
 
     xpc = new XMLPolicyCreator(policyPath, new ConfigFinder(), "PolicyBootstrapper");
 
+    if (log.isWarnEnabled()) {
+      log.warn("Cannot get XML policy creator instance");
+    }
   }
   
   public PolicyMsg getBootPolicy(Class type)
   {
     if (log.isDebugEnabled()) {
-      log.debug("getBootPolicy: " + type);
+      log.debug("getBootPolicy: " + type.getName());
     }
     Policy[] ruleParamPolicies = null;
     SecurityPolicy[] policies = null;
@@ -92,7 +95,7 @@ public class PolicyBootstrapper
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug("getBootPocicy: " + type.getName()
+      log.debug("getBootPolicy: " + type.getName()
 	+ " - " + (policies == null ? 0 : policies.length) + " Security policies - "
 	+ (ruleParamPolicies == null ? 0 : ruleParamPolicies.length) +
 	" rule parameters policies");

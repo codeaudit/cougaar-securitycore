@@ -56,14 +56,13 @@ public class CertificateUtility {
     try {
       inputstream.mark(inputstream.available());
       X509CertImpl x509certimpl = new X509CertImpl(inputstream);
+      /*
       if (CryptoDebug.debug) {
 	System.out.println("X509: " + x509certimpl);
-      }
-      
-      // Print DN
-      if (CryptoDebug.debug) {
+	// Print DN
 	System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
       }
+      */
       return Arrays.asList(new X509Certificate[] {
 	x509certimpl
       });

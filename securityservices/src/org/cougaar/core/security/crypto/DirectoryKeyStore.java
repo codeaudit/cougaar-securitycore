@@ -1610,7 +1610,7 @@ public class DirectoryKeyStore
                                 keystore.getCertificate(alias),
                                 alias));
 
-        // publish to LDAP
+        // publish CA certificate to LDAP
         km.publishCertificate(certImpl);
 
         // install
@@ -2557,7 +2557,7 @@ public class DirectoryKeyStore
             cdType.intValue(), cdUrl, param.serviceBroker);
       }
     } catch (NamingException nx) {
-      log.info("Cannot get certificate information from naming server"
+      log.info("Cannot get certificate information from naming server: "
         + nx.toString());
     }
     // default
