@@ -272,7 +272,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       return false;
     }
     else {
-      return true;
+      if(destcluster!=null) {
+	return false;
+      }
+      else {
+	return true;
+      }
     }
   }
 
@@ -1279,6 +1284,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       else if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
 	destrole="SecurityMnRManager-Society";
       }
+      else if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
+	return null;
+      }
+      
+      loggingService.info(" Dest role for agent "+myAddress.toString()+ "dest role:"+ destrole);
       String filter="(CommunityType=Security)";
       Collection securitycol=communityService.search(filter);
       Iterator itersecurity=securitycol.iterator();
@@ -1287,6 +1297,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       Collection societysearchresult = null;
       while(itersecurity.hasNext()) {
 	comm=(String)itersecurity.next();
+	loggingService.info(" Doing search in community :"+comm +"for dest role:" + destrole);
 	societysearchresult=communityService.searchByRole(comm,destrole);
 	if(societysearchresult.isEmpty()) {
 	  continue;
@@ -1296,16 +1307,15 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	    loggingService.error(" Too many Society Manager " +myAddress.toString());
 	    return null;
 	  }
-	  break;
+	  else if(societysearchresult.size()==1) {
+	    dest=(MessageAddress)societysearchresult.iterator().next();
+	    if(dest!=null)
+	      loggingService.info(" setting the Destination Address in agent :"+ myAddress.toString() + "to:"+dest); 
+	    return dest; 
+	  }
 	}
       }
-      if(societysearchresult.isEmpty()) {
-	return null;
-      }
-      if(societysearchresult.size()>0) {
-	return null;
-      }
-      dest=(MessageAddress)societysearchresult.iterator().next();
+      // dest=(MessageAddress)societysearchresult.iterator().next();
       return dest;
     }
    
