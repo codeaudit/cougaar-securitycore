@@ -33,63 +33,78 @@ import com.nai.security.crypto.ConfParser;
 
 public class CAClient {
 
-    private KeyPairGenerator kpg;
-    private NodePolicy policy;
-    /** Creates new CertGenerator */
-    public CAClient() {
-        ConfParser confParser = new ConfParser();
-        try{
-            kpg = KeyPairGenerator.getInstance("RSA");
-            
-            //get related policies 
-            NodePolicy policy = confParser.readNodePolicy();
-            
-        }catch(Exception e){
-            System.out.println("Error: can't start CA client--"+e.getMessage());
-        }
-    }
-    
-    public KeyPair makeKeyPair(){
-        //generate key pair.
-        return kpg.genKeyPair();
-    }
-    
-    public String sendPKCS(String request, String pkcs){
-        String reply = "";
-        try{
-            URL url = new URL(policy.CA_URL);
-            HttpURLConnection huc = (HttpURLConnection)url.openConnection();
-            huc.setDoOutput(true);
-            PrintWriter out = new PrintWriter(huc.getOutputStream());
-            out.println("pkcs=" + URLEncoder.encode(pkcs));
-            out.println("dnname=" + URLEncoder.encode(policy.CA_DN));
-            out.println("pkcsdata=" + URLEncoder.encode(request));
-            out.close();
+  private KeyPairGenerator kpg;
+  private NodePolicy policy;
+  private boolean debug = false;
+  /** Creates new CertGenerator */
+  public CAClient() {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
-            String input;
-            while((input = in.readLine()) != null)
-                reply = reply + input;
-            in.close();
+    ConfParser confParser = new ConfParser();
+    try{
+      //kpg = KeyPairGenerator.getInstance("RSA");
             
-            }catch(Exception e){
-            System.err.println("Error: sending PKCS request to CA failed--" + e.getMessage());
-        }
-        return reply;
+      //get related policies 
+      policy = confParser.readNodePolicy();
+            
+    } catch(Exception e) {
+      System.out.println("Error: can't start CA client--"+e.getMessage());
+      e.printStackTrace();
     }
+  }
+
+  public NodePolicy getNodePolicy() {
+    return policy;
+  }
+
+  public String sendPKCS(String request, String pkcs){
+    String reply = "";
+    try {
+      if (debug) {
+	System.out.println("Sending PKCS10 request to " + policy.CA_URL);
+	System.out.println("DN= " + policy.CA_DN);
+	System.out.println("= " + policy.CA_DN);
+      }
+      URL url = new URL(policy.CA_URL);
+      HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+      huc.setDoOutput(true);
+      huc.setRequestMethod("POST");
+      PrintWriter out = new PrintWriter(huc.getOutputStream());
+      out.println("pkcs=" + URLEncoder.encode(pkcs));
+      out.println("dnname=" + URLEncoder.encode(policy.CA_DN));
+      out.println("pkcsdata=" + URLEncoder.encode(request));
+      out.close();
+
+      BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
+      String input;
+      while((input = in.readLine()) != null)
+	reply = reply + input;
+      in.close();
+      if (debug) {
+	System.out.println("Reply: " + reply);
+      }
+ 
+    } catch(Exception e) {
+      System.err.println("Error: sending PKCS request to CA failed--" + e.getMessage());
+      e.printStackTrace();
+    }
+    return reply;
+  }
         
-    public String signPKCS(String request, String nodeName){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try{
-            KeyManagement km = new KeyManagement(nodeName);
-            X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
-            PrintStream ps = new PrintStream(baos);
-            km.base64EncodeCertificates(ps,cf);
-            //get the output to the CA
-            String reply = sendPKCS(baos.toString(), "PKCS7");
-        }catch(Exception e){
-            System.err.println("Error: can't get the certificate signed--" + e.getMessage());
-        }    
-        return baos.toString();
-    }
+  public String signPKCS(String request, String nodeName){
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try{
+      KeyManagement km = new KeyManagement(nodeName);
+      X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
+      PrintStream ps = new PrintStream(baos);
+      km.base64EncodeCertificates(ps,cf);
+      //get the output to the CA
+      String reply = sendPKCS(baos.toString(), "PKCS7");
+    }catch(Exception e){
+      System.err.println("Error: can't get the certificate signed--" + e.getMessage());
+    }    
+    return baos.toString();
+  }
+
 }

@@ -42,15 +42,20 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Principal;
 import java.security.MessageDigest;
+import java.security.SignatureException;
 import java.security.NoSuchAlgorithmException;
+import java.security.InvalidKeyException;
+import java.security.Signature;
 import java.security.cert.*;
 import java.security.KeyPair;
+import java.security.SecureRandom;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
 
 import org.cougaar.util.ConfigFinder;
 import com.nai.security.certauthority.CAClient;
+import com.nai.security.policy.NodePolicy;
 
 public class DirectoryKeyStore implements Runnable
 {
@@ -68,6 +73,8 @@ public class DirectoryKeyStore implements Runnable
 
   private HashMap privateKeys = new HashMap(89);
   private HashMap certs = new HashMap(89);
+
+  private CAClient caClient = null;
 
   public DirectoryKeyStore(String ldapURL, InputStream stream, char[] password,
 			   InputStream caStream, char[] caPassword) {
@@ -100,7 +107,13 @@ public class DirectoryKeyStore implements Runnable
       if (caStream != null) {
 	caKeystorePassword = caPassword;
 	caKeystore = KeyStore.getInstance(KeyStore.getDefaultType());
-	caKeystore.load(caStream, caPassword);
+	try {
+	  caKeystore.load(caStream, caPassword);
+	} catch (Exception e) {
+	  // Unable to use CA keystore. Do not use it
+	  caKeystore = null;
+	  caKeystorePassword = null;
+	}
       }
 
       Enumeration alias = keystore.aliases();
@@ -117,6 +130,9 @@ public class DirectoryKeyStore implements Runnable
 	  //e.printStackTrace();
 	}
       }
+
+      caClient = new CAClient();
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -151,7 +167,7 @@ public class DirectoryKeyStore implements Runnable
 	      System.out.println("No private key for " + name + " was found in keystore, generating...");
 	    }
 	    //let's make our own key pair
-	    addKeyPair(name);
+	    pk = addKeyPair(name);
 	  }
 	}
 	if (pk != null) {
@@ -503,16 +519,40 @@ public class DirectoryKeyStore implements Runnable
   }
 
   /** Generate a PKCS10 request from a public key */
-  public static String generateSigningCertificateRequest(PublicKey key) {
-    PKCS10 request = new PKCS10(key);
+  public String generateSigningCertificateRequest(Certificate certificate,
+						  String signerAlias)
+    throws IOException, SignatureException, NoSuchAlgorithmException, InvalidKeyException
+  {
+    PublicKey pk = certificate.getPublicKey();
+    PKCS10 request = new PKCS10(pk);
+
+    // Get Signature object for certificate authority
+    PrivateKey signerPrivateKey = getPrivateKey(signerAlias);
+    X509Certificate cert = (X509Certificate)getCert(signerAlias);
+    Signature signerSignature = Signature.getInstance(signerPrivateKey.getAlgorithm());
+    signerSignature.initSign(signerPrivateKey);
+
+    X500Name signerX500Name = new X500Name(cert.getSubjectDN().toString());
+    X500Signer x500signer = new X500Signer(signerSignature, signerX500Name);
+
+    try {
+      if (debug) {
+	System.out.println("Signing certificate request with alias=" + signerAlias);
+      }
+      request.encodeAndSign(x500signer);
+    }
+    catch (CertificateException e) {
+      System.out.println("Unable to sign certificate request." + e);
+    }
     byte der[] = request.getEncoded();
+    System.out.println("generateSigningCertificateRequest. der size:" + der.length);
     char base64req[] = Base64.encode(der);
     String reply = new String(base64req);
     return reply;
   }
 
   /** Get a list of all the certificates in the keystore */
-  public Certificate[] getCertificates()
+  public Key[] getCertificates()
   {
     Enumeration en = null;
     try {
@@ -529,71 +569,162 @@ public class DirectoryKeyStore implements Runnable
       String alias = (String)en.nextElement();
       try {
 	Certificate c = keystore.getCertificate(alias);
-	certificateList.add(c);
+	Key key = new Key(c, alias);
+	certificateList.add(key);
       }
       catch (KeyStoreException e) {
 	System.out.println("Unable to get certificate for " + alias);
       }
     }
-    Certificate certificateReply[] = (Certificate[]) certificateList.toArray();
+    Key[] keyReply = new Key[certificateList.size()];
+    for (int i = 0 ; i < certificateList.size() ; i++) {
+      keyReply[i] = (Key) certificateList.get(i);
+    }
 
-    return certificateReply;
+    return keyReply;
   }
 
   /**add keys to the key ring**/
-  private void addKeyPair(String name){
-    CAClient cac = new CAClient();
+  private PrivateKey addKeyPair(String commonName){
     String request = "";
     String reply = "";
     //is node?
     String nodeName = System.getProperty("org.cougaar.node.name");
-    if(name==nodeName){
-      //we're node
-      KeyPair kp = cac.makeKeyPair();
-      //send the public key to the ca
-      PublicKey pk = kp.getPublic();
-      //pkcs10
-      request = generateSigningCertificateRequest(pk);
-      
-      reply = cac.sendPKCS(request, "PKCS10");
-    }else{
-      //check if node cert exist
-      if(certs.get(name)==null){
-	//we don't have a node key pair, so make it
-	addKeyPair(nodeName);
-      }else{
-	KeyPair kp = cac.makeKeyPair();
-          //send the public key to the ca
-          PublicKey pk = kp.getPublic();
-          //pkcs10
-          request = generateSigningCertificateRequest(pk);
-          
-          reply = cac.signPKCS(request, nodeName);
+    String alias = null;
+    PrivateKey privatekey = null;
+    try {
+      if(commonName == nodeName){
+	// We are node
+	if (debug) {
+	  System.out.println("Creating key pair for node: " + nodeName);
+	}
+	alias = makeKeyPair(commonName);
+	// Send the public key to the Certificate Authority (PKCS10)
+	request = generateSigningCertificateRequest(getCert(alias), alias);
+	if (debug) {
+	  System.out.println("Sending PKCS10 request to CA");
+	}
+	reply = caClient.sendPKCS(request, "PKCS10");
+      } else {
+	// check if node cert exist
+	if(findCert(nodeName) == null) {
+	  //we don't have a node key pair, so make it
+	  if (debug) {
+	    System.out.println("Recursively creating key pair for node: " + nodeName);
+	  }
+	  addKeyPair(nodeName);
+	} else {
+	  // Node key exists
+	  if (debug) {
+	    System.out.println("Creating key pair for agent: " + commonName);
+	  }
+	  alias = makeKeyPair(commonName);
+	  // Generate a pkcs10 request, then sign it with node's key
+	  //String nodeAlias = findAlias(nodeName);
+	  request = generateSigningCertificateRequest(getCert(alias), alias);
+	
+	  reply = caClient.signPKCS(request, nodeName);
+	}
+      }
+    } catch (Exception e) {
+      System.out.println("Unable to create key: " + commonName + " - Reason:" + e);
+      e.printStackTrace();
+    }
+    if (alias != null) {
+      try{ 
+	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
+	privatekey = getPrivateKey(alias);
+      } catch(Exception e) {
+	System.err.println("Error: can't get certificate for " + commonName);
+	e.printStackTrace();
       }
     }
-    
-    try{ 
-      installPkcs7Reply(name, new ByteArrayInputStream(reply.getBytes()));
-    }catch(Exception e){
-    System.err.println("Error: can't get certificate for "+name);
-    }
-    
-    return;
+    return privatekey;
   }
 
   public String getAlias(X509Certificate clientX509) 
-    throws CertificateEncodingException, NoSuchAlgorithmException, IOException {
-    String alg = "MD5"; // TODO: make this dynamic
-    MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
-    byte [] digest = md.digest();
-    
-    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
-    String prefix = clientX500Name.getCommonName();
-    String alias = prefix + "-" + toHex(digest);
-
+  {
+    String alias = null;
+    try {
+      String alg = "MD5"; // TODO: make this dynamic
+      MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
+      byte [] digest = md.digest();
+      
+      X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString());
+      String prefix = clientX500Name.getCommonName();
+      alias = prefix + "-" + toHex(digest);
+    }
+    catch (Exception e) {
+      System.out.println("Unable to get alias: " + e);
+      e.printStackTrace();
+    }
     return alias;
   }
 
+  public X509Certificate findCert(String commonName) {
+    Key[] keys = getCertificates();
+    X509Certificate cert = null;
+    for (int i = 0 ; i < keys.length ; i++) {
+      if (keys[i].cert instanceof X509Certificate) {
+	X509Certificate aCert = (X509Certificate) keys[i].cert;
+	X500Name dname = null;
+	try {
+	  dname = new X500Name(aCert.getSubjectDN().getName());
+	  if (commonName.equals(dname.getCommonName())) {
+	    return aCert;
+	  }
+	}
+	catch (Exception e) {
+	  System.out.println("Unable to find cert:"+ e);
+	  e.printStackTrace();
+	}
+      }
+    }
+    return cert;
+  }
+
+  public String findAlias(String commonName) {
+    Key[] keys = getCertificates();
+    String alias = null;
+    for (int i = 0 ; i < keys.length ; i++) {
+      if (keys[i].cert instanceof X509Certificate) {
+	X509Certificate aCert = (X509Certificate) keys[i].cert;
+	X500Name dname = null;
+	try {
+	  dname = new X500Name(aCert.getSubjectDN().getName());
+	  if (commonName.equals(dname.getCommonName())) {
+	    return keys[i].alias;
+	  }
+	}
+	catch (Exception e) {
+	  System.out.println("Unable to find cert:"+ e);
+	  e.printStackTrace();
+	}
+      }
+    }
+    return alias;
+  }
+
+  public PrivateKey findPrivateKey(String commonName) {
+    Key[] keys = getCertificates();
+    PrivateKey privatekey = null;
+    for (int i = 0 ; i < keys.length ; i++) {
+      if (keys[i].cert instanceof X509Certificate) {
+	X509Certificate cert = (X509Certificate) keys[i].cert;
+	X500Name dname = null;
+	try {
+	  dname = new X500Name(cert.getSubjectDN().getName());
+	  if (commonName.equals(dname.getCommonName())) {
+	    return getPrivateKey(keys[i].alias);
+	  }
+	}
+	catch (Exception e) {
+	  System.out.println("Unable to find private key:"+ e);
+	}
+      }
+    }
+    return privatekey;
+  }
   private MessageDigest createDigest(String algorithm, byte[] data)
     throws NoSuchAlgorithmException
   {
@@ -614,6 +745,58 @@ public class DirectoryKeyStore implements Runnable
       buff.append(digit);
     }
     return buff.toString();
+  }
+
+    
+  public String makeKeyPair(String commonName)
+    throws Exception 
+  {
+    //generate key pair.
+    NodePolicy policy = caClient.getNodePolicy();
+    SecureRandom sr = new SecureRandom();
+    byte bytes[] = new byte[10];
+    sr.nextBytes(bytes);
+    String rdm = toHex(bytes);
+    // TODO: find a better alias name
+    String alias = commonName + "-" + rdm;
+    if (debug) {
+      System.out.println("Make key pair for alias=" + alias + ", cn=" + commonName + ", ou=" 
+			 + policy.ou + ",o=" +  policy.o + ",l=" + policy.l
+			 + ",st=" + policy.st + ",c=" + policy.c);
+    }
+    X500Name dname = new X500Name(commonName,
+				  policy.ou, policy.o, policy.l, policy.st, policy.c);
+    doGenKeyPair(alias, dname.getName(), policy.keyAlgName, policy.keysize, policy.sigAlgName,
+		 policy.validity);
+    return alias;
+  }
+
+  public void doGenKeyPair(String alias, String dname,
+			    String keyAlgName, int keysize, String sigAlgName,
+			    int validity)
+    throws Exception
+  {
+    if(sigAlgName == null)
+      if(keyAlgName.equalsIgnoreCase("DSA"))
+	sigAlgName = "SHA1WithDSA";
+      else
+	if(keyAlgName.equalsIgnoreCase("RSA"))
+	  sigAlgName = "MD5WithRSA";
+	else
+	  throw new Exception("Cannot derive signature algorithm");
+    CertAndKeyGen certandkeygen = new CertAndKeyGen(keyAlgName, sigAlgName);
+    X500Name x500name;
+    x500name = new X500Name(dname);
+    if (debug) {
+      System.out.println("Generating " + keysize + " bit " + keyAlgName
+			 + " key pair and " + "self-signed certificate (" + sigAlgName + ")");
+      System.out.println("\tfor: " + x500name);
+    }
+    certandkeygen.generate(keysize);
+    PrivateKey privatekey = certandkeygen.getPrivateKey();
+    X509Certificate ax509certificate[] = new X509Certificate[1];
+    ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
+    keystore.setKeyEntry(alias, privatekey, keystorePassword, ax509certificate);
   }
 
 }

@@ -146,8 +146,8 @@ final public class KeyRing {
   }
 
   /** Generate a PKCS10 request from a public key */
-  public static String generateSigningCertificateRequest(PublicKey key) {
-    return keystore.generateSigningCertificateRequest(key);
-  }
+  //public static String generateSigningCertificateRequest(byte[] dervalue) {
+  //  return keystore.generateSigningCertificateRequest(dervalue);
+  //}
 }
 

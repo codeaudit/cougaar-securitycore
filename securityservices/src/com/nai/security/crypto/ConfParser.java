@@ -82,6 +82,15 @@ public class ConfParser {
   public static final String NODE_POLICY_ELEMENT       = "nodeConfiguration";
   public static final String NODE_CA_DN_ELEMENT        = "CA_DN";
   public static final String NODE_CA_URL_ELEMENT       = "CA_URL";
+  public static final String NODE_OU_ELEMENT           = "ou";
+  public static final String NODE_O_ELEMENT            = "o";
+  public static final String NODE_L_ELEMENT            = "l";
+  public static final String NODE_ST_ELEMENT           = "st";
+  public static final String NODE_C_ELEMENT            = "c";
+  public static final String NODE_KEYALGNAME_ELEMENT   = "keyAlgName";
+  public static final String NODE_SIGALGNAME_ELEMENT   = "sigAlgName";
+  public static final String NODE_KEYSIZE_ELEMENT      = "keysize";
+  public static final String NODE_VALIDITY_ELEMENT     = "validity";
 
   // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
@@ -115,6 +124,17 @@ public class ConfParser {
 
     nodePolicy.CA_DN = nodePolicyElement.getChildText(NODE_CA_DN_ELEMENT);
     nodePolicy.CA_URL = nodePolicyElement.getChildText(NODE_CA_URL_ELEMENT);
+
+    nodePolicy.ou = nodePolicyElement.getChildText(NODE_OU_ELEMENT);
+    nodePolicy.o = nodePolicyElement.getChildText(NODE_O_ELEMENT);
+    nodePolicy.l = nodePolicyElement.getChildText(NODE_L_ELEMENT);
+    nodePolicy.st = nodePolicyElement.getChildText(NODE_ST_ELEMENT);
+    nodePolicy.c = nodePolicyElement.getChildText(NODE_C_ELEMENT);
+
+    nodePolicy.keyAlgName = nodePolicyElement.getChildText(NODE_KEYALGNAME_ELEMENT);
+    nodePolicy.sigAlgName = nodePolicyElement.getChildText(NODE_SIGALGNAME_ELEMENT);
+    nodePolicy.keysize = (Integer.valueOf(nodePolicyElement.getChildText(NODE_KEYSIZE_ELEMENT))).intValue();
+    nodePolicy.validity = (Integer.valueOf(nodePolicyElement.getChildText(NODE_VALIDITY_ELEMENT))).intValue();
     return nodePolicy;
   }
 

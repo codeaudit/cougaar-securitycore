@@ -24,24 +24,18 @@
  * - 
  */
 
-package com.nai.security.policy;
+package com.nai.security.crypto;
 
-import sun.security.x509.*;
-import java.net.*;
+import java.io.*;
+import java.security.cert.*;
 
-public class NodePolicy {
-  // Client policy
-  public String CA_DN = null;
-  public String CA_URL = null;
+public class Key
+{
+  public Key(Certificate c, String aAlias) {
+    cert = c;
+    alias = aAlias;
+  }
 
-  public String ou = null;
-  public String o = null;
-  public String l = null;
-  public String st = null;
-  public String c = null;
-
-  public String keyAlgName = null;
-  public int keysize = 0;
-  public int validity = 0;
-  public String sigAlgName = null;
-};
+  public Certificate cert;
+  public String alias;
+}
