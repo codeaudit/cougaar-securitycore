@@ -111,6 +111,11 @@
       <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#OQLDataField"/>
     </owl:ObjectProperty>
 
+    <owl:ObjectProperty rdf:ID="oqlHasDataSet">
+      <rdfs:domain rdf:resource="OQLAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#OQLDataSet"/>
+    </owl:ObjectProperty>
+
     <owl:ObjectProperty rdf:ID="oqlHasDataSource">
       <rdfs:domain rdf:resource="OQLAction"/>
       <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#OQLDataSource"/>

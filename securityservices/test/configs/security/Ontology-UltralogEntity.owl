@@ -97,6 +97,7 @@
 
     <owl:Class rdf:ID="OQLPrivilege"/>
     <owl:Class rdf:ID="OQLDataField"/>
+    <owl:Class rdf:ID="OQLDataSet"/>    
     <owl:Class rdf:ID="OQLDataSource"/>    
 
 </rdf:RDF>
