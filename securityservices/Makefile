@@ -45,6 +45,7 @@ jar:
 	@echo +++++++ Building securityservices.jar
 	cd ${COUGAARCLASSES}; \
 	jar cf ${COUGAARCLASSES}/securityservices.jar \
+		com/nai/security/certauthority \
 		com/nai/security/access \
 		com/nai/security/crypto \
 		com/nai/security/monitoring \
@@ -65,5 +66,18 @@ signjar: jar
 	@echo +++++++ Done signing bootstrapper.jar and core.jar
 
 install:
+	@echo +++++++ Installing jar files into ${COUGAAR_INSTALL_PATH}
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
+	@echo +++++++ Creating log directories
+	rm -rf ${COUGAAR_INSTALL_PATH}/log
+	mkdir ${COUGAAR_INSTALL_PATH}/log
+	mkdir ${COUGAAR_INSTALL_PATH}/log/bootstrap
+	mkdir ${COUGAAR_INSTALL_PATH}/log/core
+	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
+	@echo +++++++ Done installing jar files and log directories
+
+installconf:
+	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/.
+#	cp -r ./test/configs/demo ${COUGAAR_INSTALL_PATH}/configs/.
+#	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
