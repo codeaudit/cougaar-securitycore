@@ -360,6 +360,43 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
     }
   */
   
+  public Set getAllowedVerbs(String sender, String receiver) {
+      long now = 0;
+      if (_log.isInfoEnabled()) {
+        now = System.currentTimeMillis();
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("Called isActionAuthorized for " + sender + " to " +
+                   receiver);
+      }
+
+      Set targets = new HashSet(2);
+      targets.add(new TargetInstanceDescription(ActionConcepts.hasDestination(), 
+                                                ULOntologyNames.agentPrefix + receiver));
+      ActionInstanceDescription action = 
+        new ActionInstanceDescription(sender.equals(receiver) ?
+                                        _messageActionSelf : _messageAction,
+                                      ULOntologyNames.agentPrefix + sender,
+                                      targets);
+      Set verbs = null;
+      try {
+        verbs = _guard.getAllowableValuesForActionProperty(
+          UltralogActionConcepts.hasSubject(),
+          action,
+          VerbBuilder.hasSubjectValues(),
+          false);
+      } catch (ServiceFailure sf) {
+        if (_log.isErrorEnabled()) {
+          _log.error("This shouldn't happen", sf);
+        }
+      }
+
+      if (_log.isInfoEnabled()) {
+        _log.info("Time spent: " + (System.currentTimeMillis() - now));
+      }
+      return verbs;
+  }
+
   /**
    * This function determines if an action is authorized.  
    *
@@ -381,6 +418,10 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
                                     String receiver,
                                     String verb)
     {
+      long now = 0;
+      if (_log.isInfoEnabled()) {
+        now = System.currentTimeMillis();
+      }
       if (_log.isDebugEnabled()) {
         _log.debug("Called isActionAuthorized for " + sender + " to " +
                    receiver + " with verb " + verb);
@@ -393,7 +434,7 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
         _log.debug("Verb has been Damlized and has become " + kaosVerb);
       }
 
-      Set targets = new HashSet();
+      Set targets = new HashSet(2);
       targets.add(new TargetInstanceDescription(ActionConcepts.hasDestination(), 
                                                 ULOntologyNames.agentPrefix + receiver));
       ActionInstanceDescription action = 
@@ -422,9 +463,14 @@ public class OwlMessagePolicyMediator implements NodeEnforcer,PolicyMediator {
         _log.error("Verb = " + kaosVerb);
         _log.error("Allowed verbs = " + verbs);
       }
-      _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
-      _log.debug("end of isactionauthorized: verbs = " + verbs);
+      if (_log.isDebugEnabled()) {
+        _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
+        _log.debug("end of isactionauthorized: verbs = " + verbs);
+      }
 
+      if (_log.isInfoEnabled()) {
+        _log.info("Time spent: " + (System.currentTimeMillis() - now));
+      }
       return allowed;
     }
 

@@ -26,6 +26,7 @@
 package org.cougaar.core.security.access.message;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.cougaar.community.manager.Request;
 import org.cougaar.core.blackboard.Directive;
@@ -55,6 +56,11 @@ public class XmlMessageAccessAgentProxy extends AccessAgentProxy {
                                     Object myobj, PolicyService ps, ServiceBroker sb) {
     super(mymts, myobj, ps, sb);
 
+  }
+
+  /** This method is broken. We are using OWL anyway. */
+  public Set getAllowedVerbs(String source, String target) {
+    return null;
   }
 
   boolean isMessageDenied(String source, String target, String verb,

@@ -25,6 +25,8 @@
 
 package org.cougaar.core.security.access.message;
 
+import java.util.Set;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.MessageAccessPermission;
 import org.cougaar.core.security.policy.mediator.PolicyMediator;
@@ -40,6 +42,30 @@ public class OwlMessageAccessAgentProxy extends AccessAgentProxy {
     super(mymts,myobj,ps,sb);
         
   }
+
+  public Set getAllowedVerbs(String source, String target) {
+    if(log.isDebugEnabled()){
+      log.debug("getAllowedVerbs called ");
+    }
+    Set ret = null;
+    if(this.messageMediator!= null) {
+      if(log.isDebugEnabled()){
+        log.debug("Message Mediator is not null calling getAllowedVerbs");
+      }
+      ret = messageMediator.getAllowedVerbs(source,target);
+    }
+    else {
+      if(log.isDebugEnabled()){
+        log.debug("Message Mediator is Null calling checkForMediator");
+      }
+      checkForMediator();
+      if(this.messageMediator!= null) {
+        ret = messageMediator.getAllowedVerbs(source,target);
+      }
+    }
+    return ret;
+  }
+
   public boolean isMessageDenied(String source, String target, String verb,
                                  boolean direction) {
     if(log.isDebugEnabled()){

@@ -28,6 +28,7 @@ package org.cougaar.core.security.access.message;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.cougaar.community.manager.Request;
 import org.cougaar.core.agent.Agent;
@@ -43,6 +44,7 @@ import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.policy.enforcers.WPEnforcer;
+import org.cougaar.core.security.policy.builder.VerbBuilder;
 import org.cougaar.core.security.services.policy.PolicyService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.LoggingService;
@@ -190,7 +192,9 @@ public abstract class AccessAgentProxy implements MessageTransportService,
 
   abstract boolean isMessageDenied( String source, String target, String verb,
                                     boolean direction );
-  
+ 
+  abstract Set getAllowedVerbs(String source, String target); 
+
   /*private boolean checkMessage( Message msg, boolean direction ) {
     if (log.isDebugEnabled()) {
     log.debug("checkMessage(" + msg + "), class " + msg.getClass().getName()
@@ -218,6 +222,13 @@ public abstract class AccessAgentProxy implements MessageTransportService,
     int len = directive.length;
     int newLen = len;
 
+    long now = 0;
+    if (log.isInfoEnabled()) {
+      now = System.currentTimeMillis();
+      log.info("Message has " + len + " directives");
+    }
+    // Get the list of allowed verbs.
+    Set allowedVerbs = getAllowedVerbs(source, target);
     for (int i = 0; i < len; i++) {
       /*
        * Modified by Rakesh Modified the code to check directive source
@@ -225,9 +236,11 @@ public abstract class AccessAgentProxy implements MessageTransportService,
        * target directive will be an ABA
        */
       if (!directive[i].getSource().toString().equals(source)) {
-        log.debug(" Source at directive is :"
+        if (log.isDebugEnabled()) {
+          log.debug(" Source at directive is :"
                   + directive[i].getSource().toString());
-        log.debug(" Source is  in message :" + source);
+          log.debug(" Source is  in message :" + source);
+        }
         publishMessageFailure(source, target,
                               MessageFailureEvent.SOURCE_ADDRESS_MISMATCH, dmsg.toString());
 
@@ -285,8 +298,12 @@ public abstract class AccessAgentProxy implements MessageTransportService,
         if(log.isDebugEnabled()){
           log.debug("Directive calling isMessageDenied ");
         }
-        boolean denied = isMessageDenied(source, target, verb, direction);
-        if (denied) {
+        // Is verb allowed?
+        String kaosVerb = VerbBuilder.kaosVerbFromVerb(verb);
+        boolean allowed = ((allowedVerbs != null) && allowedVerbs.contains(kaosVerb));
+
+        //boolean denied = isMessageDenied(source, target, verb, direction);
+        if (!allowed) {
           if (log.isDebugEnabled()) {
             log.debug("Stripping task with verb " + verb);
           }
@@ -296,6 +313,10 @@ public abstract class AccessAgentProxy implements MessageTransportService,
           newLen--;
         }
       }
+    }
+
+    if (log.isInfoEnabled()) {
+      log.info("checkDirectiveMessage in " + (System.currentTimeMillis() - now) + "ms");
     }
 
     if (newLen == 0) {
@@ -413,8 +434,8 @@ public abstract class AccessAgentProxy implements MessageTransportService,
                + myID);
       return;
     }
-    if (log.isInfoEnabled()) {
-      log.info("receiveMessage: " + getMessageAddress().toString() + " : "
+    if (log.isDebugEnabled()) {
+      log.debug("receiveMessage: " + getMessageAddress().toString() + " : "
                + m.toString());
     }
     /**
@@ -448,8 +469,8 @@ public abstract class AccessAgentProxy implements MessageTransportService,
    *          The message to send.
    */
   public void sendMessage( Message message ) {
-    if (log.isInfoEnabled()) {
-      log.info("SendMessage: " + message.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("SendMessage: " + message.toString());
     }
 
     if (myID != null && !message.getOriginator().equals(myID)) {

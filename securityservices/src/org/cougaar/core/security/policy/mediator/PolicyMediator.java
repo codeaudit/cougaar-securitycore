@@ -26,6 +26,7 @@
 
 package org.cougaar.core.security.policy.mediator;
 
+import java.util.Set;
 import java.security.Permission;
 
 import org.cougaar.core.security.access.message.MessageAccess;
@@ -35,4 +36,5 @@ public interface PolicyMediator extends MessageAccess {
   
   public boolean checkPermision (Permission permission);
 
+  public Set getAllowedVerbs(String source, String target);
 }

@@ -27,6 +27,7 @@ package org.cougaar.core.security.policy.mediator;
 
 import java.security.Permission;
 import java.util.Vector;
+import java.util.Set;
 
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -558,5 +559,8 @@ public class XmlMessagePolicyMediator implements XmlPolicyMediator {
     return agentAddress.toString(); 
   }
 
-
+  public Set getAllowedVerbs(String source, String target) {
+    return null;
+  }
 }
+
