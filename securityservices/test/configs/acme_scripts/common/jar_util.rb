@@ -42,7 +42,23 @@ if defined? File.rm_all == nil
       }
     end # cp
   end # File
+
+  class Dir
+    def self.mkdirs(dir)
+      head, tail = File.split(dir)
+      if (head != dir)
+        mkdirs(head)
+      end
+
+      begin
+        stat = File.stat(dir)
+      rescue
+        Dir.mkdir(dir)
+      end
+    end # mkdirs
+  end # Dir
 end
+
 def createJar(contents_file, jar_file)
   `jar cf #{jar_file} #{contents_file}`
   jar_file
