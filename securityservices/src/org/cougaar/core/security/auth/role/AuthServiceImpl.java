@@ -497,7 +497,7 @@ public class AuthServiceImpl
       }
     } catch (SecurityException e) {
       if (_log.isWarnEnabled()) {
-        _log.warn("Permission denied " + e);
+        _log.warn("Permission denied ", e);
       }
     }
     if (_log.isWarnEnabled() && 
