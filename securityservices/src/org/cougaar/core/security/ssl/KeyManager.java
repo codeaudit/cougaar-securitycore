@@ -11,16 +11,16 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public final class KeyManager implements X509KeyManager {
   private KeyRingService keyRing = null;
+  private DirectoryKeyStore keystore = null;
   private String nodealias = null;
   private X509Certificate nodex509 = null;
-  private DirectoryKeyStore keystore = null;
   private String nodename = null;
   // provides the default implementation, but it can be overwritten
   private UserCertificateUI userUI = new UserCertificateUIImpl();
 
-  public KeyManager(KeyRingService krs, DirectoryKeyStore ks) {
+  public KeyManager(KeyRingService krs) {
     keyRing = krs;
-    keystore = ks;
+    keystore = keyRing.getDirectoryKeyStore();
 
     // get nodename, nodealias, and node certificate
     updateKeystore();
@@ -53,6 +53,8 @@ public final class KeyManager implements X509KeyManager {
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
     // node alias if opening socket for RMI... node service
     // if server is tomcat prompt for user certificate
+    //if (CryptoDebug.debug)
+    //  System.out.println("chooseClientAlias: " + socket);
     return nodealias;
   }
 
@@ -63,6 +65,8 @@ public final class KeyManager implements X509KeyManager {
    */
   public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
     // if tomcat return tomcat alias
+    //if (CryptoDebug.debug)
+    //  System.out.println("chooseServerAlias: " + nodealias);
     return nodealias;
   }
 
@@ -74,7 +78,7 @@ public final class KeyManager implements X509KeyManager {
     if (CryptoDebug.debug)
       System.out.println("getCertificateChain: " + alias);
 
-    if (alias.equals(nodealias) && nodex509 != null) {
+    if (nodex509 != null && alias.equals(nodealias)) {
       try {
         return keystore.checkCertificateTrust(nodex509);
       } catch (Exception e) {
@@ -82,6 +86,10 @@ public final class KeyManager implements X509KeyManager {
           e.printStackTrace();
       }
     }
+
+    if (CryptoDebug.debug)
+      System.out.println("Failed to getCertificateChain");
+
     return new X509Certificate[] {};
   }
 
@@ -92,6 +100,8 @@ public final class KeyManager implements X509KeyManager {
    */
   public String[] getClientAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
+    //if (CryptoDebug.debug)
+    //  System.out.println("getClientAliases: " + issuers);
     return new String [] {nodealias};
   }
 
@@ -100,11 +110,11 @@ public final class KeyManager implements X509KeyManager {
    */
   public PrivateKey getPrivateKey(String alias) {
     // only find for node, why would agent certificate be asked?
+    if (nodex509 == null || nodealias == null || !alias.equals(nodealias))
+      return null;
+
     if (CryptoDebug.debug)
       System.out.println("getPrivateKey: " + alias);
-
-    if (!alias.equals(nodealias) || nodealias == null)
-      return null;
 
     // DirectoryKeyStore sends out request if key not found
     return keyRing.findPrivateKey(nodename);
@@ -115,6 +125,8 @@ public final class KeyManager implements X509KeyManager {
    */
   public String[] getServerAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
+    //if (CryptoDebug.debug)
+    //  System.out.println("getServerAliases: " + issuers);
     return new String [] {nodealias};
   }
 

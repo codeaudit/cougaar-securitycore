@@ -9,15 +9,15 @@ import com.nai.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class TrustManager implements X509TrustManager {
-  KeyRingService keyRing = null;;
+  KeyRingService keyRing = null;
   DirectoryKeyStore keystore = null;
   X509Certificate [] issuers;
 
-  public TrustManager(KeyRingService krs, DirectoryKeyStore ks) {
+  public TrustManager(KeyRingService krs) {
     keyRing = krs;
-    keystore = ks;
+    keystore = keyRing.getDirectoryKeyStore();
 
-    updateKeystore();
+    //updateKeystore();
   }
 
   public synchronized void updateKeystore() {
@@ -42,6 +42,8 @@ public class TrustManager implements X509TrustManager {
    */
 
   public void checkClientTrusted(X509Certificate[] chain, String authType) {
+    if (CryptoDebug.debug)
+      System.out.println("checkClientTrusted: " + chain);
     // check whether cert is valid, then build the chain
     try {
       if (chain.length == 0)
@@ -61,6 +63,9 @@ public class TrustManager implements X509TrustManager {
    */
   public void checkServerTrusted(X509Certificate[] chain, String authType) {
     // check whether cert is valid, then build the chain
+    if (CryptoDebug.debug)
+      System.out.println("checkServerTrusted: " + chain);
+
     try {
       if (chain.length == 0)
         return;
@@ -79,6 +84,8 @@ public class TrustManager implements X509TrustManager {
     // how about trusted CA?
     // since node configuration has only one CA, the issues will only
     // be one CA and the node itself
+    if (CryptoDebug.debug)
+      System.out.println("getAcceptedIssuers.");
     return issuers;
   }
 }

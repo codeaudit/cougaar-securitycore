@@ -57,9 +57,9 @@ public final class SSLServiceImpl implements SSLService {
       SSLContext context = SSLContext.getInstance(SSLContextProtocol);
 
       // create keymanager and trust manager
-      DirectoryKeyStore ks = createDirectoryKeyStore();
-      km = new KeyManager(krs, ks);
-      tm = new TrustManager(krs, ks);
+      //DirectoryKeyStore ks = createDirectoryKeyStore();
+      km = new KeyManager(krs);
+      tm = new TrustManager(krs);
 
       context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
       sslcontext = context;
@@ -71,10 +71,12 @@ public final class SSLServiceImpl implements SSLService {
         System.out.println("Successfully created SSLContext.");
 
     } catch (Exception ex) {
+      System.out.println("Exception when creating SSLContext.");
       ex.printStackTrace();
     }
   }
 
+  /*
   public static DirectoryKeyStore createDirectoryKeyStore() {
     DirectoryKeyStore keystore = null;
 
@@ -164,6 +166,7 @@ public final class SSLServiceImpl implements SSLService {
     }
     return keystore;
   }
+  */
 
   public void setUserCertificateCallback(UserCertificateUI userUI) {
     km.setUserCertificateUI(userUI);
