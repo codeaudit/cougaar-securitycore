@@ -47,7 +47,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
   protected X509Certificate [] certChain = null;
   protected X509Certificate nodex509 = null;
   protected String nodename = null;
-  private ServiceBroker serviceBroker;
+  protected ServiceBroker serviceBroker;
   protected LoggingService log;
   private boolean warningLogged = false;
 
@@ -101,6 +101,9 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
     nodealias = keystore.findAlias(nodename);
+    if(nodealias==null) {
+      return;
+    }
     List certList = keyRing.findCert(nodename);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
