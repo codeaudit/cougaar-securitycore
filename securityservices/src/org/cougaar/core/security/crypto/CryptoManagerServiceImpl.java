@@ -25,13 +25,9 @@ package org.cougaar.core.security.crypto;
 import java.io.Serializable;
 import java.io.IOException;
 import java.security.*;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.security.cert.CertificateException;
+import java.util.*;
+import java.security.cert.*;
 import javax.crypto.*;
-import java.security.cert.X509Certificate;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceRevokedListener;
@@ -62,7 +58,7 @@ public class CryptoManagerServiceImpl
   private LoggingService log;
   // helper class to publish message failure events as idmef messages
   private static IdmefHelper msgFailureHelper = null;
-    
+
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
     serviceBroker = sb;
@@ -74,10 +70,10 @@ public class CryptoManagerServiceImpl
   // static method used to initialize IdmefHelper
   public static synchronized void initIdmefHelper(IdmefHelper idmefHelper) {
     if(msgFailureHelper == null) {
-      msgFailureHelper = idmefHelper; 
+      msgFailureHelper = idmefHelper;
     }
   }
-  
+
   public SignedObject sign(final String name,
 			   String spec,
 			   Serializable obj)
@@ -90,17 +86,17 @@ public class CryptoManagerServiceImpl
 	  });
     if (pkList == null || pkList.size() == 0) {
       String message = "Unable to sign object. Private key of " + name
-	      + " does not exist."; 
+	      + " does not exist.";
       if (log.isWarnEnabled()) {
 	      log.warn(message);
       }
-      
+
       throw new CertificateException("Private key not found.");
     }
     PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
     Signature se;
     // if(spec==null||spec=="")spec=pk.getAlgorithm();
-    
+
     // Richard Liao
     // private key might not be found, if pending is required
     // the certficates are not approved automatically.
@@ -115,10 +111,15 @@ public class CryptoManagerServiceImpl
 
   public Object verify(String name, String spec, SignedObject obj)
     throws CertificateException {
+    return verify(name, spec, obj, false);
+  }
+
+  public Object verify(String name, String spec, SignedObject obj, boolean expiredOk)
+    throws CertificateException {
     List certList =
       keyRing.findCert(name,
 		       KeyRingService.LOOKUP_LDAP |
-		       KeyRingService.LOOKUP_KEYSTORE);
+		       KeyRingService.LOOKUP_KEYSTORE, !expiredOk);
     if (certList == null || certList.size() == 0) {
       if (log.isWarnEnabled()) {
 	log.warn("Unable to verify object. Certificate of " + name
@@ -129,10 +130,23 @@ public class CryptoManagerServiceImpl
 				 + name);
     }
     Iterator it = certList.iterator();
+
     while (it.hasNext()) {
       try {
-	java.security.cert.Certificate c = 
+	java.security.cert.Certificate c =
 	  ((CertificateStatus)it.next()).getCertificate();
+    // filter out those non valid certificates first
+            System.out.println("Cert: " + c + " : " + new Date());
+        if (expiredOk) {
+          try {
+            keyRing.checkCertificateTrust((X509Certificate)c);
+          } catch (CertificateException ce) {
+            if (!(ce instanceof CertificateExpiredException))
+              continue;
+          }
+            System.out.println("Certificate has expired.");
+        }
+
 	PublicKey pk = c.getPublicKey();
 	Signature ve;
 	//if(spec==null||spec=="")spec=pk.getAlgorithm();
@@ -212,7 +226,7 @@ public class CryptoManagerServiceImpl
     Cipher ci = null;
     while (it.hasNext()) {
       key = ((PrivateKeyCert)it.next()).getPrivateKey();
-      if(spec==null||spec=="") 
+      if(spec==null||spec=="")
 	spec=key.getAlgorithm();
       try {
 	ci=Cipher.getInstance(spec);
@@ -315,7 +329,7 @@ public class CryptoManagerServiceImpl
 
     int method = policy.secureMethod;
     if (log.isDebugEnabled()) {
-      log.debug("Protect object " + source.toAddress() + " -> " 
+      log.debug("Protect object " + source.toAddress() + " -> "
 		+ target.toAddress() + " with policy: "
 		+ method);
     }
@@ -389,7 +403,7 @@ public class CryptoManagerServiceImpl
     // Check the policy.
     if (policy.secureMethod != protectedObject.getSecureMethod().secureMethod) {
       // The object does not comply with the policy
-      GeneralSecurityException gse = 
+      GeneralSecurityException gse =
         new GeneralSecurityException("Object does not comply with the policy");
       publishMessageFailure(source.toString(),
                             target.toString(),
@@ -401,7 +415,7 @@ public class CryptoManagerServiceImpl
     // Unprotect the message.
     int method = policy.secureMethod;
     if (log.isDebugEnabled()) {
-      log.debug("Unprotect object " + source.toAddress() + " -> " 
+      log.debug("Unprotect object " + source.toAddress() + " -> "
 		+ target.toAddress() + "with policy: "
 		+ method);
     }
@@ -465,7 +479,7 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to sign object. Certificate of " + source.toAddress()
 		 + " was not found.");
       }
-      throw new CertificateException("Unable to find sender certificate: " 
+      throw new CertificateException("Unable to find sender certificate: "
 				     + source.toAddress());
     }
     X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
@@ -506,7 +520,7 @@ public class CryptoManagerServiceImpl
       keyRing.findCert(target.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (receiverList == null || receiverList.size() == 0) {
-      throw new CertificateException("Unable to find target certificate: " 
+      throw new CertificateException("Unable to find target certificate: "
 				     + target.toAddress());
     }
     X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
@@ -542,7 +556,7 @@ public class CryptoManagerServiceImpl
     SealedObject sessionKeySender = null;
     SealedObject sealedObject = null;
     SignedObject signedObject = null;
-      
+
     if(log.isDebugEnabled()) {
       log.debug("Encrypting session key with "
 		+ target.toAddress() + " certificate");
@@ -563,7 +577,7 @@ public class CryptoManagerServiceImpl
     }
     // Encrypt object
     sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
-      
+
     if(log.isDebugEnabled()) {
       log.debug("Looking up source certificate");
     }
@@ -573,10 +587,10 @@ public class CryptoManagerServiceImpl
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (senderList == null || senderList.size() == 0) {
       if(log.isErrorEnabled()) {
-	log.error("Unable to find sender certificate: " 
+	log.error("Unable to find sender certificate: "
 		  + source.toAddress());
       }
-      throw new CertificateException("Unable to find sender certificate: " 
+      throw new CertificateException("Unable to find sender certificate: "
 				 + source.toAddress());
     }
     X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
@@ -590,10 +604,10 @@ public class CryptoManagerServiceImpl
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (receiverList == null || receiverList.size() == 0) {
       if(log.isErrorEnabled()) {
-	log.error("Unable to find target certificate: " 
+	log.error("Unable to find target certificate: "
 		  + target.toAddress());
       }
-      throw new CertificateException("Unable to find target certificate: " 
+      throw new CertificateException("Unable to find target certificate: "
 				 + target.toAddress());
     }
     X509Certificate receiver =
@@ -603,7 +617,7 @@ public class CryptoManagerServiceImpl
       log.debug("Creating secure envelope");
     }
 
-    envelope = 
+    envelope =
       new PublicKeyEnvelope(sender, receiver, policy,
 			    sessionKey, sessionKeySender, sealedObject);
     return envelope;
@@ -724,7 +738,7 @@ public class CryptoManagerServiceImpl
 	       (SignedObject)envelope.getObject());
     return o;
   }
-  
+
   /**
    * publish a message failure idmef alert
    */
@@ -735,13 +749,13 @@ public class CryptoManagerServiceImpl
                                                  reason,
                                                  data);
     if(msgFailureHelper != null) {
-      msgFailureHelper.publishIDMEFAlert(event); 
+      msgFailureHelper.publishIDMEFAlert(event);
     }
     else {
       if(log.isDebugEnabled()) {
         log.debug("IdmefHelper uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    }
   }
 }
 
