@@ -115,7 +115,7 @@ public class AccessAgentProxy
   public void sendMessage(Message message) {
     if(log.isDebugEnabled())
        log.debug(" Send message of access binder called :"+message.toString());
-/*
+
     if(myID != null && message.getOriginator() != myID){
       //not suppose to happen
       publishMessageFailure(message.getOriginator().toString(),
@@ -127,7 +127,7 @@ public class AccessAgentProxy
       }
       return;
     }
-*/      
+      
     if(mts!=null) {
       TrustSet[] ts;
       ts = checkOutgoing(message);
