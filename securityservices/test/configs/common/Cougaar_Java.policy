@@ -101,6 +101,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar" signed
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
 };
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signedBy "privileged" {
         permission java.security.SecurityPermission "getPolicy";
@@ -110,6 +111,8 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signed
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.LdapUserService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.SecurityPropertiesService";
 	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.util.ConfigParserService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.CertificateManagementService";
+	permission org.cougaar.core.security.provider.SecurityServicePermission "org.cougaar.core.security.services.crypto.KeyRingService";
 };
 grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar" signedBy "privileged"  {
         permission java.security.SecurityPermission "getPolicy";
