@@ -6,19 +6,19 @@ society.each_node do |node|
   arg = nil
   if node.name == 'REAR-CA-NODE'
     # Enclave 1
-    arg = "CN=Enclave1_CA\, OU=Enclave1\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca"
+    arg = 'CN=Enclave1_CA\, OU=Enclave1\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
 
   elsif node.name == 'FWD-CA-NODE'
     # Enclave 2
-    arg = "CN=Enclave2_CA\, OU=Enclave2\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca"
+    arg = 'CN=Enclave2_CA\, OU=Enclave2\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
 
   elsif node.name == 'CONUS-CA-NODE'
     # Enclave 3
-    arg = "CN=Enclave3_CA\, OU=Enclave3\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca"
+    arg = 'CN=Enclave3_CA\, OU=Enclave3\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
 
   elsif node.name == 'TRANS-CA-NODE'
     # Enclave 4
-    arg = "CN=Enclave4_CA\, OU=Enclave4\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca"
+    arg = 'CN=Enclave4_CA\, OU=Enclave4\, O=DLA\, L=MV\, ST=CA\, C=US\, T=ca'
   end
 
   if arg != nil
