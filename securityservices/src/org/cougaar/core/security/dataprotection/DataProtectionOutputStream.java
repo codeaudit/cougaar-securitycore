@@ -77,7 +77,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
    * buffer size, when reached will flush to output stream
    */
   private static int buffersize = 30000;
-  private ByteArrayOutputStream bos = new ByteArrayOutputStream();
+  private ByteArrayOutputStream bos = new ByteArrayOutputStream((int)(buffersize * 1.2));
 
   // used to publish data failures
   private EventPublisher eventPublisher;
@@ -217,7 +217,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
 
     bos.writeTo(this.out);
-    bos = new ByteArrayOutputStream();
+    bos.reset();
   }
 
   public synchronized void close() throws IOException {
