@@ -27,6 +27,7 @@ import java.util.Date;
 
 import edu.jhuapl.idmef.*;
 import org.w3c.dom.Node;
+import org.cougaar.core.domain.LDMServesPlugin;
 
 
 /********************************************************************* 
@@ -151,8 +152,12 @@ import org.w3c.dom.Node;
 final public class IdmefMessageFactory {
 
     public static String CLASSIFICATION_ORIGIN = "Cougaar";
+    private LDMServesPlugin LDM;
 
-    public static IdmefMessageFactory getFactory() {
+    public IdmefMessageFactory(LDMServesPlugin ldm){
+	LDM=ldm;
+    }
+    /*public static IdmefMessageFactory getFactory() {
         if( m_idmefMessageFactory == null ) {
             synchronized( factoryLock ) {
                 if( m_idmefMessageFactory == null ) {
@@ -162,6 +167,7 @@ final public class IdmefMessageFactory {
         }
         return m_idmefMessageFactory;
     }
+    */
         
    /** 
     * Stub Factory method to create an alert.
