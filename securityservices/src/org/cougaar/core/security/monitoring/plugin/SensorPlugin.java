@@ -250,8 +250,9 @@ extends ComponentPlugin {
     final List targets = new ArrayList();
     final List  sources=new ArrayList();
     final List  data =new ArrayList() ;
-    Thread td=Thread.currentThread();
-    _log.error("Current thread is :"+td.toString());
+    if (_log.isDebugEnabled()) {
+      _log.debug("Current thread is :" + Thread.currentThread());
+    }
     if(myManager == null) {
       // manager may not have been initialize yet
       return;
