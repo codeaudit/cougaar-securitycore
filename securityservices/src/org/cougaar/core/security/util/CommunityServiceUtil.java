@@ -111,7 +111,9 @@ public class CommunityServiceUtil {
 
   public Community getSecurityCommunity(String agent) {
     Community myCommunity = null;
+    if (_log.isDebugEnabled()) {
      _log.debug("Find security community for " + agent);
+    }
 
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
@@ -142,48 +144,38 @@ public class CommunityServiceUtil {
       }
     }
 
-    if(communities.isEmpty()) {
-      _log.debug(agent + " does not belong to any security community... yet. Waiting..."); 
+    Iterator it = communities.iterator();
+    filter = "(Role=" + MANAGER_ROLE +")";
+    while(it.hasNext() && myCommunity != null) {
+      Community community = (Community)it.next();
+      Set entities = community.search(filter, Community.AGENTS_ONLY);
+      Iterator it2 = entities.iterator();
+      while (it2.hasNext()) {
+        Entity ent = (Entity)it2.next();
+        if (agent.equals(ent.getName())) {
+          myCommunity = community;
+          break;
+        }
+      }
+    }
+    if (myCommunity == null) {
+      if (_log.isDebugEnabled()) {
+        _log.debug(agent + " is not manager of any security community. " +
+                   "Waiting..."); 
+      }
       try {
-        GetSecurityCommunity listener = new GetSecurityCommunity(s);
+        GetSecurityCommunity listener = new GetSecurityCommunity(s, agent);
         _cs.addListener(listener);
         s.acquire();
         _cs.removeListener(listener);
-//         communities = Collection.singleton(listener.getCommunity());
-        if (_log.isDebugEnabled()) {
-          _log.debug(agent + " belongs to community " + 
-                     listener.getCommunity().getName()); 
-        }
-        return listener.getCommunity();
+        myCommunity = listener.getCommunity();
       } catch (InterruptedException ie) {
         _log.error("Error in listening:", ie);
       }
     }
-    if(communities.size() == 1) {
-      myCommunity = (Community)communities.iterator().next();  
+    if (_log.isDebugEnabled()) {
+      _log.debug(agent + " is manager of community " + myCommunity);
     }
-    else {
-      _log.debug("multiple security communities for " + agent);  
-      Iterator it = communities.iterator();
-      //Collection members = null;
-      filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
-      while(it.hasNext()) {
-	Community community = (Community)it.next();
-	Set entities = community.search(filter, Community.AGENTS_ONLY);
-	Iterator it2 = entities.iterator();
-	while (it2.hasNext()) {
-	  Entity ent = (Entity)it2.next();
-	  if (agent.equals(ent.getName())) {
-	    myCommunity = community;
-	    break;
-	  }
-	}
-	if (myCommunity != null) {
-	  break;
-	}
-      }
-    }
-    _log.debug("returning security community '" + myCommunity.getName() + "'");
     return myCommunity;
   }
 
@@ -263,33 +255,75 @@ public class CommunityServiceUtil {
     public Object value;
   }
 
-  private static class GetSecurityCommunity 
+  private static boolean isSecurityCommunity(Community community) {
+    try {
+      Attributes attrs = community.getAttributes();
+      Attribute attr = attrs.get("CommunityType");
+      if (attr == null) {
+        return false;
+      }
+      for (int i = 0; i < attr.size(); i++) {
+        Object type = attr.get(i);
+        if (type.equals("Security")) {
+          return true;
+        }
+      }
+      return false;
+    } catch (NamingException e) {
+      throw new RuntimeException("This should never happen");
+    }
+  }
+
+  private class GetSecurityCommunity 
     implements CommunityChangeListener {
     private Community _member;
     private Semaphore _semaphore;
+    private String    _agent;
 
-    public GetSecurityCommunity(Semaphore s) {
+    public GetSecurityCommunity(Semaphore s, String agent) {
       _semaphore = s;
+      _agent = agent;
     }
 
     public void communityChanged(CommunityChangeEvent event) {
       Community community = event.getCommunity();
-      try {
-        Attributes attrs = community.getAttributes();
-        Attribute attr = attrs.get("CommunityType");
-        if (attr != null) {
-          for (int i = 0; i < attr.size(); i++) {
-            Object type = attr.get(i);
-            if (type.equals("Security")) {
-              _member = community;
-              _semaphore.release();
-            }
-          }
+      if (_log.isDebugEnabled()) {
+        _log.debug("community change: " + 
+                   event.getChangeTypeAsString(event.getType()) +
+                   ", " +
+                   event.getWhatChanged());
+      }
+      if (!isSecurityCommunity(community)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("not a security community: " + community.getName());
         }
-      } catch (NamingException e) {
-        throw new RuntimeException("This should never happen");
+        return;
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("examining security community: " + community.getName());
+      }
+      Set set = community.search("(Role=" +MANAGER_ROLE + ')', 
+                                 Community.AGENTS_ONLY);
+      Iterator iter = set.iterator();
+      while (iter.hasNext()) {
+        Entity agent = (Entity) iter.next();
+        if (_log.isDebugEnabled()) {
+          _log.debug("Managing agent = " + agent.getName());
+        }
+        if (agent.getName().equals(_agent)) {
+          _member = community;
+          _semaphore.release();
+          if (_log.isDebugEnabled()) {
+            _log.debug("found security community: " + community.getName());
+          }
+          return;
+        }
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug(_agent + " is not any of the managers");
       }
     }
+
     public String getCommunityName() {
       return null; // all MY communities
     }
@@ -309,25 +343,14 @@ public class CommunityServiceUtil {
 
     public void communityChanged(CommunityChangeEvent event) {
       Community community = event.getCommunity();
-      try {
-        Attributes attrs = community.getAttributes();
-        Attribute attr = attrs.get("CommunityType");
-        if (attr == null) {
-          return;
+      if (!isSecurityCommunity(community)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("not a security community: " + community.getName());
         }
-        boolean isSecurity = false;
-        for (int i = 0; i < attr.size(); i++) {
-          Object type = attr.get(i);
-          if (type.equals("Security")) {
-            isSecurity = true;
-            break;
-          }
-        }
-        if (!isSecurity) {
-          return;
-        }
-      } catch (NamingException e) {
-        throw new RuntimeException("This should never happen");
+        return;
+      }
+      if (_log.isDebugEnabled()) {
+        _log.debug("examining security community: " + community.getName());
       }
       Set set = community.search("(Role=" +MANAGER_ROLE + ')', 
                                  Community.AGENTS_ONLY);
@@ -336,6 +359,11 @@ public class CommunityServiceUtil {
         _listener.getResponse(set);
         if (_log.isDebugEnabled()) {
           _log.debug("Security manager found: " + set);
+        }
+      } else {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Security community does not have manager yet: " +
+                     community.getName());
         }
       }
     }
