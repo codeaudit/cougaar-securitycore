@@ -292,6 +292,10 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
         String paramString = (String) iter.next();
         String param = paramString.substring(0, paramString.indexOf("="));
         String value = paramString.substring(paramString.indexOf("=") + 1, paramString.length());
+        if (logging.isDebugEnabled()) {
+          logging.debug("Param=" + param + " Value = " + value);
+        }
+	
         if (param.equals(TIME_INTERVAL_PLUGIN_PARAM)) {
           this.timeInterval = Long.parseLong(value);
         } else if (param.equals(ANALYZER_DATABASE_PLUGIN_PARAM)) {
@@ -386,13 +390,14 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       } else {
         Timer timer = new Timer();
         QueryTimerTask qtt = new QueryTimerTask();
-	if (timeInterval < DEFAULT_TIME_INTERVAL) {
-	  timeInterval = DEFAULT_TIME_INTERVAL;
+	if (this.timeInterval < DEFAULT_TIME_INTERVAL) {
 	  if (logging.isWarnEnabled()) {
-	    logging.warn("Time interval too small. Resetting to default value");
+	    logging.warn("Time interval too small. Resetting to default value. Was "
+			 + this.timeInterval + " Now " + DEFAULT_TIME_INTERVAL);
 	  }
+	  this.timeInterval = DEFAULT_TIME_INTERVAL;
 	}
-        timer.schedule(qtt, timeInterval);
+        timer.schedule(qtt, this.timeInterval);
 
       }
     }
@@ -549,6 +554,10 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
 
       //System.err.println(value.toString());
       this.timeInterval = (new Long(value.toString())).longValue();
+      if (logging.isInfoEnabled()) {
+	logging.info("Change time interval as instructed per operating mode: "
+		     + this.timeInterval);
+      }
 
     } else {
       changedOperatingMode = operatingModeSubscription.getAddedList();

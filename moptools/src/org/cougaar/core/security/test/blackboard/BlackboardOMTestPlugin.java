@@ -81,10 +81,10 @@ public class BlackboardOMTestPlugin extends ServiceUserPlugin {
      * Sets up subscriptions to operating modes and policies for BalckboardTest plugins
      */
     public void setupSubscriptions() {
-    	// create a new OM that takes any integer (from 1 to MAX_VALUE) and defaults to 1000
+    	// create a new OM that takes any integer (from 1 to MAX_VALUE) and defaults to 60000
         blackboardOM = new OperatingModeImpl(BLACKBOARD_TEST_OM,
                 new OMCRangeList(new OMCThruRange(1, Integer.MAX_VALUE)),
-                new Integer(1000));
+                new Integer(60 * 1000));
         
         // initialize the subscriptions
         blackboardOMSubscription = (IncrementalSubscription) blackboard
