@@ -61,7 +61,7 @@ import java.util.Iterator;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -91,7 +91,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
     bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
   }
 
-  private UnaryPredicate dataProtectionPredicate(final DataProtectionKey dpKey) {
+  private UnaryPredicate dataProtectionPredicate(final DataProtectionKeyImpl dpKey) {
     return new UnaryPredicate() {
         public boolean execute(Object o) {
         	if(o instanceof DataProtectionKeyContainer){
@@ -143,7 +143,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
 
     //TODO Is this in the right place 
     //check if exists on blackboard, if not return b/c invalid snap shot
-    Collection dpKeyCollection = bbs.query(dataProtectionPredicate((DataProtectionKey)keyImpl));
+    Collection dpKeyCollection = bbs.query(dataProtectionPredicate(keyImpl));
     if (dpKeyCollection.size() == 0) {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
