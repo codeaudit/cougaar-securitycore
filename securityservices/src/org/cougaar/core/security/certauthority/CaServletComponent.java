@@ -149,7 +149,7 @@ public class CaServletComponent
 		    null);
     if (certificateManagementService == null) {
       throw new RuntimeException(
-          "Unable to obtain certoficate management service");
+          "Unable to obtain certificate management service");
     }
 
     support = new SecurityServletSupportImpl(getPath(),
