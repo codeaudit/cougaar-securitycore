@@ -52,6 +52,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
   private static TunnelClient _brains = null;
 
 
+
   /**
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
@@ -64,7 +65,30 @@ public class TunnelledOntologyConnection extends OntologyConnection
       UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl("RearUserDomainComm\\george");
       SecurityServiceProvider secprov   = new SecurityServiceProvider();
       userAuth.init(secprov);
-      userAuth.authenticateWithPassword("RearUserDomainComm\\george", "george".toCharArray());
+      _brains = new TunnelClient(uri);
+    } catch (Exception e) {
+      IOException ioe =  new IOException("Could not tunnel to client: " + uri);
+      ioe.initCause(e);
+      throw ioe;
+    }
+  }
+
+
+  /**
+   * Opens a tunnelled connection (through the policy servlet) to the
+   * KAoSDirectoryService.  
+   */
+  public TunnelledOntologyConnection(String  uri, 
+                                     String  user,
+                                     char [] password)
+    throws IOException
+  {
+    super();
+    try {
+      UserAuthenticatorImpl   userAuth  = new UserAuthenticatorImpl(user);
+      SecurityServiceProvider secprov   = new SecurityServiceProvider();
+      userAuth.init(secprov);
+      userAuth.authenticateWithPassword(user, password);
       _brains = new TunnelClient(uri);
     } catch (Exception e) {
       IOException ioe =  new IOException("Could not tunnel to client: " + uri);

@@ -58,6 +58,9 @@ class Main {
   private boolean _quiet;
   private String  _policyFile;
   private boolean _useDomainManager;
+  private boolean _cmdLineAuth;
+  private String  _cmdLineUser;
+  private char [] _cmdLinePassword;
   private String  _url;
 
   /*
@@ -89,11 +92,20 @@ class Main {
       } else if (args[counter].equals("commit")) {
         counter++;
         _cmd = COMMIT_CMD;
-        if (args[counter].equals("--dm")) {
-          counter++;
-          _useDomainManager = true;
-        } else {
-          _useDomainManager = false;
+        _useDomainManager = false;
+        _cmdLineAuth      = false;
+        while (args.length - counter > 4) {
+          if (args[counter].equals("--dm")) {
+            counter++;
+            _useDomainManager = true;
+          } else if (args[counter].equals("--auth")) {
+            counter++;
+            _cmdLineAuth     = true;
+            _cmdLineUser     = args[counter++];
+            _cmdLinePassword = args[counter++].toCharArray();
+          } else {
+            usage();
+          }
         }
         _url = "http://" + args[counter++] + ":" + args[counter++] + 
           "/$" + args[counter++] + "/policyAdmin";
@@ -106,7 +118,6 @@ class Main {
         usage();
       }
     } catch (IndexOutOfBoundsException e) {
-      e.printStackTrace();
       usage();
     }
   }
@@ -120,11 +131,13 @@ class Main {
     System.out.println("\tThe --quiet options supresses messages");
     System.out.println("" + (counter++) + ". jtp");
     System.out.println("\tTo run a loaded version of jtp");
-    System.out.println("" + (counter++) + ". commit {--dm} " + 
+    System.out.println("" + (counter++) + ". commit {--dm} "
+                       + "{--auth username password} " +
                        "host port agent policiesFile");
     System.out.println("\tTo commit policies using policy servlet");
     System.out.println("\t--dm = use the Domain Manager to build policies");
     System.out.println("\t\tBy default policy files are read from disk");
+    System.out.println("\t--auth = supply authentication on the command line");
     System.out.println("\thost  = host on which the servlet runs");
     System.out.println("\tport  = port on which the servlet listens");
     System.out.println("\tagent = agent running the servlet");
@@ -219,7 +232,13 @@ class Main {
     throws IOException
   {
     try {
-      _ontology = new TunnelledOntologyConnection(_url);
+      if (_cmdLineAuth) {
+        _ontology = new TunnelledOntologyConnection(_url,
+                                                    _cmdLineUser,
+                                                    _cmdLinePassword);
+      } else {
+        _ontology = new TunnelledOntologyConnection(_url);
+      }
       System.out.println("Parsing policies from grammar");
       List policies = compile(_policyFile);
       System.out.println("Policies parsed");
@@ -345,8 +364,16 @@ class Main {
                                 (Vector) m.getSymbol(PolicyMsg.SUBJECTS),
                                 ((String) m.getSymbol(PolicyMsg.INFORCE))
                                 .equals("true"));
-    p.setModality((String) m.getSymbol(PolicyMsg.MODALITY));
-    p.setPriority((String) m.getSymbol(PolicyMsg.PRIORITY));
+    try {
+      p.setModality((String) m.getSymbol(PolicyMsg.MODALITY));
+    } catch (SymbolNotFoundException e) {
+      ;
+    }
+    try {
+      p.setPriority((String) m.getSymbol(PolicyMsg.PRIORITY));
+    } catch (SymbolNotFoundException e) {
+      ;
+    }
     Vector attribs = (Vector) m.getSymbol(PolicyMsg.ATTRIBUTES);
     for (int i=0; i<attribs.size(); i++) {
       Msg attrib = (Msg) attribs.elementAt(i);
