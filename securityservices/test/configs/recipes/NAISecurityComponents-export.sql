@@ -124,10 +124,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-0',5.000000000000000000000000000000,'recipeQuerySecurityEnclave1NodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-1',4.000000000000000000000000000000,'recipeQuerySecurityEnclave2NodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-2',3.000000000000000000000000000000,'recipeQuerySecurityEnclave3NodeAgents');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-3',2.000000000000000000000000000000,'recipeQuerySecurityEnclave4NodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-0',5.000000000000000000000000000000,'recipeQueryEnclave1SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-1',4.000000000000000000000000000000,'recipeQueryEnclave2SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-2',3.000000000000000000000000000000,'recipeQueryEnclave3SecurityCommunityNodeAgents');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','$$CP=org.cougaar.core.security.provider.SecurityComponentFactory-3',2.000000000000000000000000000000,'recipeQueryEnclave4SecurityCommunityNodeAgents');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','Assembly Id',0.000000000000000000000000000000,'RCP-0001-NAISecurityComponents');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-0001NAISecurityComponents','Target Component Selection Query',1.000000000000000000000000000000,'recipeQuerySelectNothing');
 UNLOCK TABLES;

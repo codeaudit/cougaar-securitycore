@@ -1,5 +1,5 @@
 #!/bin/tcsh 
-rm recipeQueriesAll.sql
+rm -f recipeQueriesAll.sql
 
 ls *.sql > recipelist
 
