@@ -180,19 +180,20 @@ class ThreatConChange < SecurityStressFramework
   #
   def searchForTarget
     @run.society.each_node do |node|
-      securityComp = false
+      mgmtComp = false
       node.each_facet(:role) do |facet|
         if facet[:role] == $facetManagement ||
             facet[:role] == $facetSubManagement ||
             facet[:role] == $facetRootManagement ||
             facet[:role] == 'RootCertificateAuthority' ||
             facet[:role] == 'CertificateAuthority' ||
-            facet[:role] == 'RedundantCertificateAuthority'
-          securityComp = true
+            facet[:role] == 'RedundantCertificateAuthority' ||
+            facet[:role] == 'AR-Management'
+          mgmtComp = true
           break 
         end 
       end
-      if securityComp == false
+      if mgmtComp == false
         #logInfoMsg "found first non-security node: #{node.name}"
         # get the enclave for this node
         @enclave = node.host.get_facet(:enclave).capitalize
@@ -203,9 +204,8 @@ class ThreatConChange < SecurityStressFramework
           # get the first agent from this node
           @attackAgent = agent
 	  saveAssertion('Stress1e1', "Found attack agent: #{@attackAgent.name}" )
-          break 
+          return
         end 
-        return
       end # if securityComp == false
     end # @run.society.each_node
   end # searchForTarget
