@@ -27,7 +27,7 @@
 package org.cougaar.core.security.crypto.blackboard;
 
 
-import java.io.*;
+import java.io.Serializable;
 
 
 public class InUseDNObject implements Serializable {

@@ -25,8 +25,6 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 // Core classes
 import org.cougaar.core.util.UID;
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.lib.aggagent.util.Enum;
 import org.cougaar.core.util.UniqueObject;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
 import org.cougaar.lib.aggagent.query.QueryResultAdapter;

@@ -26,14 +26,12 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.io.*;
-import java.net.*;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Iterator;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
 import java.util.Hashtable;
 import java.util.jar.JarFile;
-import java.security.*;
 
 public class SecureClassLoader
   extends BaseClassLoader

@@ -26,33 +26,35 @@
 
 package org.cougaar.core.security.config;
 
-import java.security.cert.*;
-import java.security.KeyStore;
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import java.lang.reflect.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-
-import org.w3c.dom.*;
-import org.cougaar.util.*;
-
-import sun.security.x509.*;
-import sun.security.util.ObjectIdentifier;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.jar.JarConfigFinder;
 
-// Cougaar Security Services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.config.jar.SecureConfigFinder;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import sun.security.x509.X500Name;
 
 /** Helper class to read the cryptographic service configuration.
  *

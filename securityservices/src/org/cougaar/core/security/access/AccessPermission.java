@@ -23,7 +23,7 @@
 
 package org.cougaar.core.security.access;
 
-import java.security.*;
+import java.security.BasicPermission;
 
 
 /**

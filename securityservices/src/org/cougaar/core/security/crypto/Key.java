@@ -26,8 +26,7 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.security.cert.*;
+import java.security.cert.Certificate;
 
 public class Key
 {

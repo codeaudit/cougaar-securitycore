@@ -25,15 +25,12 @@
  */
 package org.cougaar.core.security.test;
 
-import java.io.*;
-import java.lang.*;
-
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.DomainService;
+import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
-import org.cougaar.planning.ldm.PlanningFactory;
 
 /** This Plugin repeatedely sends tasks to an agent.
  * Parameters:

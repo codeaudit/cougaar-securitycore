@@ -25,8 +25,8 @@
  */
 package org.cougaar.core.security.userauth;
 
-import java.security.*;
-import java.security.cert.*;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 public interface CertAuthListener extends AuthenticationListener {
   public void setAlias(String alias);

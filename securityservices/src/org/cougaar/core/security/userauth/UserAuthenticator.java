@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.userauth;
 
-import java.util.*;
+import java.util.Hashtable;
 
 public abstract class UserAuthenticator {
   static Hashtable handlers = new Hashtable();

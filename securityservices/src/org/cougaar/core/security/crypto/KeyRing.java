@@ -23,50 +23,52 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import javax.naming.*;
-
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Principal;
-import java.security.cert.*;
-import java.security.KeyPair;
-import java.security.MessageDigest;
-import javax.security.auth.x500.X500Principal;
-
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.util.ObjectIdentifier;
-
-
-import javax.naming.directory.*;
-import javax.naming.*;
-
-// Cougaar core infrastructure
-import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-//import org.cougaar.core.service.NamingService;
-
-// Cougaar security services
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.services.crypto.*;
-//import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-
-import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.certauthority.KeyManagement;
-import org.cougaar.core.security.ssl.KeyManager;
-import org.cougaar.core.security.naming.*;
-
-import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
+import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
+import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.naming.NamingCertDirectoryServiceClient;
+import org.cougaar.core.security.policy.CertificateAttributesPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+import org.cougaar.core.security.services.crypto.CRLCacheService;
+import org.cougaar.core.security.services.crypto.CertValidityService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.services.util.CertificateSearchService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.ssl.KeyManager;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.monitoring.event.*;
-import org.cougaar.core.security.monitoring.plugin.*;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Vector;
+
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.KeyUsageExtension;
+import sun.security.x509.OIDMap;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509CertImpl;
 
 /** A common holder for Security keystore information and functionality
  */

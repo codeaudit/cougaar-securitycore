@@ -21,24 +21,30 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.util.Enumeration;
-import java.util.List;
-import java.util.ArrayList;
-
-import edu.jhuapl.idmef.*;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
-import org.cougaar.core.service.*;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
 
-// Cougaar security services
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
+import edu.jhuapl.idmef.FileList;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.IDMEF_Process;
+import edu.jhuapl.idmef.Service;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
 
 /** A dummy sensor used to show how to register capabilities and
  *  publish IDMEF events.

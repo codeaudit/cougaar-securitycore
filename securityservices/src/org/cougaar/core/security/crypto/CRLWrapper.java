@@ -26,13 +26,11 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.*;
-import java.security.Principal;
-import java.security.PrivateKey;
-
-import sun.security.x509.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
 
 
 

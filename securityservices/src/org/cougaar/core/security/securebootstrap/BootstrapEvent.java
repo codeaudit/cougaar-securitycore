@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.security.Permission;
 import java.security.Principal;
 import java.util.Date;
 

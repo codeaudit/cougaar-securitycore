@@ -27,8 +27,7 @@
 package org.cougaar.core.security.services.crypto;
 
 import org.cougaar.core.component.Service;
-
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.crypto.CertValidityListener;
 
 public interface CertValidityService extends Service {
   public void addValidityListener(CertValidityListener listener);

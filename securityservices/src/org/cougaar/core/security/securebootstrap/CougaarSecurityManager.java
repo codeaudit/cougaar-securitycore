@@ -26,36 +26,29 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.FileOutputStream;
-import java.util.Date;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.CodeSource;
+import java.security.DomainCombiner;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Principal;
+import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
+import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.ArrayList;
-import java.security.Permission;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
-import java.security.AccessController;
-import java.security.AccessControlContext;
-import java.security.PermissionCollection;
-import java.security.ProtectionDomain;
-import java.security.CodeSource;
-import java.security.Principal;
-import java.security.DomainCombiner;
+
 import javax.security.auth.Subject;
 import javax.security.auth.SubjectDomainCombiner;
-
-//import org.cougaar.core.security.auth.SecuredObject;
-//import org.cougaar.core.security.auth.SecuredObjectPrincipal;
-
-// Needed to retrieve the subject associated with an accessController context
-import javax.security.auth.Subject;
 
 /** At the minimum, this security manager requires the following permissions:
 

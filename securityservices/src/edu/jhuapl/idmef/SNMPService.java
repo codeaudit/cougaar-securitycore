@@ -33,15 +33,9 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.util.*;
-import java.text.*;
-import java.io.*;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-import java.math.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 /** 
  * <pre>
  *  The SNMPService class carries additional information related to SNMP

@@ -21,23 +21,18 @@
 
 package org.cougaar.core.security.policy.webproxy;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.PrintStream;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-
-import org.cougaar.core.security.policy.webproxy.DamlURLStreamHandlerFactory;
-import org.cougaar.core.security.policy.webproxy.DamlURLStreamHandler;
-import org.cougaar.core.security.policy.webproxy.DamlURLConnection;
 
 
 /**

@@ -1,6 +1,5 @@
 package org.cougaar.core.security.test;
 
-import java.util.*;
 import java.math.BigInteger;
 
 class HashKey

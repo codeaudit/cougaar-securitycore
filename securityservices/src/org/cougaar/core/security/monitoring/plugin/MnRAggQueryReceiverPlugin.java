@@ -25,70 +25,33 @@ package org.cougaar.core.security.monitoring.plugin;
 
 
 //Cougaar core  
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.service.UIDService;
-import org.cougaar.core.service.BlackboardService;
-
+import org.cougaar.core.security.monitoring.blackboard.AggQueryMapping;
+import org.cougaar.core.security.monitoring.blackboard.AggQueryResult;
+import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.DrillDownQuery;
+import org.cougaar.core.security.monitoring.blackboard.MnRAggRateCalculator;
+import org.cougaar.core.security.monitoring.blackboard.SensorAggregationDrillDownQuery;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.service.ThreadService;
-import org.cougaar.lib.aggagent.query.AlertDescriptor;
+import org.cougaar.core.service.UIDService;
+import org.cougaar.core.util.UID;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
-import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.query.AggregationResultSet;
-
-
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.lib.aggagent.util.Enum.Language;
-import org.cougaar.lib.aggagent.util.Enum.AggType;
-import org.cougaar.lib.aggagent.util.Enum.ScriptType;
-import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
-import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
-
-import org.cougaar.lib.aggagent.session.UpdateDelta;
-import org.cougaar.lib.aggagent.session.SessionManager;
-import org.cougaar.lib.aggagent.session.XMLEncoder;
-import org.cougaar.lib.aggagent.session.SubscriptionAccess;
-import org.cougaar.lib.aggagent.session.IncrementFormat;
-
-import org.cougaar.util.ConfigFinder;
+import org.cougaar.lib.aggagent.query.QueryResultAdapter;
+import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.util.XmlUtils;
+import org.cougaar.util.UnaryPredicate;
 
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
-
-
-import org.cougaar.core.mts.MessageAddress;
-
-//Security services
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
-
-
-//java api;
-import javax.naming.*;
-import javax.naming.directory.*;
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Vector;
-import java.util.TimerTask;
-import java.util.Date;
 
 
 class AggCapabilitiesPredicate implements UnaryPredicate{

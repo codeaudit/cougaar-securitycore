@@ -23,6 +23,9 @@
 
 package org.cougaar.core.security.acl.auth;
 
+import org.cougaar.core.security.audit.AuditLogger;
+import org.cougaar.util.log.LoggerFactory;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
@@ -34,9 +37,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.cougaar.core.security.audit.AuditLogger;
-import org.cougaar.util.log.LoggerFactory;
 
 /**
  * This class is designed to run the entire servlet service() as

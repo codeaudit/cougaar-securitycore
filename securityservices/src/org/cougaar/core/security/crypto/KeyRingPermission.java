@@ -23,7 +23,7 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.*;
+import java.security.BasicPermission;
 
 /** A custom permission to control access to the KeyRing class
  * The following permissions are defined:

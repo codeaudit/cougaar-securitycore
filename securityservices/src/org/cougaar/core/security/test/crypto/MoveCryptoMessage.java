@@ -27,13 +27,8 @@
 package org.cougaar.core.security.test.crypto;
 
 // Cougaar core services
-import org.cougaar.core.agent.*;
-import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.node.*;
-
-// Cougaar overlay
-import org.cougaar.core.service.identity.*;
+import org.cougaar.core.service.identity.TransferableIdentity;
 
 /**
  * This class can't be used since 9.4.0. I've removed the extends -- gmount

@@ -26,14 +26,10 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
+import org.cougaar.core.service.identity.AgentIdentityClient;
+import org.cougaar.core.service.identity.CrlReason;
+
 import java.security.Principal;
-import javax.security.auth.x500.X500Principal;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
-
-// Overlay
-import org.cougaar.core.service.identity.*;
 
 
 public class CAIdentityClientImpl

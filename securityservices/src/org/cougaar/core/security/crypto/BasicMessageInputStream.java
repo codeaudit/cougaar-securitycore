@@ -22,21 +22,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.lang.ClassNotFoundException;
-import java.security.GeneralSecurityException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-
-// Cougaar core services
-import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class BasicMessageInputStream
   extends ProtectedInputStream

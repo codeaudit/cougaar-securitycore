@@ -20,11 +20,19 @@
  */
 package org.cougaar.core.security.policy.builder;
 
-import com.hp.hpl.jena.daml.common.DAMLModelImpl;
-import com.hp.hpl.mesa.rdf.jena.model.RDFException;
+import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,15 +43,11 @@ import kaos.core.util.Msg;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
-import kaos.ontology.util.RangeIsBasedOnInstances;
-import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-import kaos.policy.util.PolicyBuildingNotCompleted;
+import sun.security.provider.PolicyParser;
 
-import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
-
-import kaos.policy.util.DAMLPolicyBuilderImpl;
+import com.hp.hpl.mesa.rdf.jena.model.RDFException;
 
 class Main 
 {

@@ -21,17 +21,11 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.service.ThreadService;
-
-// overlay classes
 import org.cougaar.core.security.constants.IdmefClassifications;
-
-// securityservices classes
-import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.IdmefEventPublisher;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.service.ThreadService;
 
 /**
  * This class must be placed in the Node ini file to allow

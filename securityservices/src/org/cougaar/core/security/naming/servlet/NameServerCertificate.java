@@ -25,9 +25,8 @@
  */
 package org.cougaar.core.security.naming.servlet;
 
-import java.security.cert.*;
-import sun.security.x509.*;
 import java.io.Serializable;
+import java.security.cert.X509Certificate;
 
 public class NameServerCertificate implements Serializable {
   public String nameserver;

@@ -26,8 +26,6 @@ package org.cougaar.core.security.provider;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
 import org.cougaar.core.security.dataprotection.PersistenceMgrPolicyServiceImpl;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 

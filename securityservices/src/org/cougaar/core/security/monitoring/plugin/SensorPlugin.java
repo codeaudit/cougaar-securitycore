@@ -27,61 +27,42 @@ package org.cougaar.core.security.monitoring.plugin;
 
 // cougaar core classes
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-import org.cougaar.core.service.MessageProtectionService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.util.UnaryPredicate;
-
-// overlay class
-import org.cougaar.core.security.constants.IdmefClassifications;
-
-// securityservices classes
-import org.cougaar.core.security.access.AccessAgentProxy;
-import org.cougaar.core.security.crypto.CryptoManagerServiceImpl;
-import org.cougaar.core.security.crypto.MessageProtectionServiceImpl;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-import org.cougaar.core.security.util.CommunityServiceUtilListener;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.Entity;
+import org.cougaar.util.UnaryPredicate;
 
-// JavaIDMEF classes
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.Address;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.Source;
-import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-// java classes
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.Set;
-import java.util.Hashtable;
+
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 
 /**
  * abstract sensor class that registers the capabilities of the sensor

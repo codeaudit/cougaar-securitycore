@@ -21,25 +21,11 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
+import org.cougaar.core.component.ServiceBroker;
+
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.util.ConfigFinder;
-import org.cougaar.core.security.policy.enforcers.util.StringPairMapping.StringPair;
 
 
 /**

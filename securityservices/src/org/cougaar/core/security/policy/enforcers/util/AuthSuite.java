@@ -21,9 +21,8 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class extends the CipherSuite class to include an

@@ -26,28 +26,33 @@
 
 package org.cougaar.core.security.config;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.util.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.config.jar.JarFileHandler;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.policy.DataProtectionPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import java.lang.reflect.Array;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.config.jar.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class ConfigParserHandler
   extends BaseConfigHandler

@@ -21,10 +21,6 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
-import org.cougaar.core.mts.MessageAddress;
 
 /** NewEvent interface
  *  Monitoring & Response sensors use Event objects to signal

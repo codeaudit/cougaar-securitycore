@@ -23,13 +23,17 @@
 package org.cougaar.core.security.test;
 
 import java.io.Serializable;
-import java.security.*;
-import java.util.HashMap;
-import java.security.cert.CertificateException;
-import javax.crypto.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.Provider;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
-import java.util.*;
+import java.security.cert.CertificateException;
+
+import javax.crypto.Cipher;
+import javax.crypto.SealedObject;
 
 public class TestCrypto {
         

@@ -22,15 +22,9 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import java.util.Collection;
-
-// Cougaar core services
 import org.cougaar.core.component.Service;
-
-// Cougaar security services
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.policy.CryptoPolicy;
-import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 
 public interface CryptoPolicyService
   extends Service

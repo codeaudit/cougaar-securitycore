@@ -21,12 +21,12 @@
 
 package org.cougaar.core.security.monitoring.event;
 
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
 import org.cougaar.core.security.constants.IdmefClassifications;
 
 import java.security.Principal;
 import java.util.Date;
+
+import edu.jhuapl.idmef.Classification;
 
 /**
  * Event used for Security Manager Exceptions and Jar Verification Exceptions

@@ -28,8 +28,6 @@ package org.cougaar.core.security.policy;
 // Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
 
-// Kaos policy management
-import kaos.core.util.Msg;
 import safe.enforcer.NodeEnforcer;
 
 /**

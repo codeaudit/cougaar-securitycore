@@ -21,14 +21,18 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import java.util.*;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import kaos.ontology.util.AlreadyComplement;
 import kaos.ontology.util.ClassNameNotSet;
-import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
 
 public class ServletAuthenticationParsedPolicy extends ParsedPolicy
 {

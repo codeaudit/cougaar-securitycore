@@ -21,14 +21,10 @@
 
 package org.cougaar.core.security.services.ldap;
 
-import java.util.Hashtable;
-import java.security.cert.X509Certificate;
-import java.security.cert.X509CRL;
-
-// Cougaar core services
 import org.cougaar.core.component.Service;
-
 import org.cougaar.core.security.crypto.ldap.LdapEntry;
+
+import java.security.cert.X509CRL;
 
 public interface CertDirectoryServiceClient  extends Service  {
 

@@ -27,17 +27,15 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.AccessControlPolicy;
+
 import java.util.Vector;
 
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class MsgAccessPolicyHandler
   extends BaseConfigHandler

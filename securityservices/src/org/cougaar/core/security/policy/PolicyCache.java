@@ -26,17 +26,16 @@
 
 package org.cougaar.core.security.policy;
 
-import java.util.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.blackboard.*;
-import org.cougaar.core.plugin.*;
-import org.cougaar.util.*;
+import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.RangeRuleParameter;
+import org.cougaar.planning.ldm.policy.RangeRuleParameterEntry;
+import org.cougaar.planning.ldm.policy.RuleParameter;
 
-// KAoS policy management
+import java.util.Hashtable;
+
 import kaos.policy.enforcement.Enforcer;
 import kaos.policy.guard.Guard;
 

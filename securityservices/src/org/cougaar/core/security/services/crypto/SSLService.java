@@ -28,12 +28,6 @@ package org.cougaar.core.security.services.crypto;
 
 import org.cougaar.core.component.Service;
 
-import javax.net.ssl.*;
-import javax.net.*;
-import java.net.*;
-import java.security.cert.CertificateException;
-import java.io.IOException;
-
 public interface SSLService extends Service {
   /**
    * Notify SSLService to update certficates from keystore

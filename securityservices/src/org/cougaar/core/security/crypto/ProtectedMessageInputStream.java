@@ -21,34 +21,44 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
-import java.security.cert.*;
-import javax.crypto.*;
-import sun.security.x509.*;
-
-import org.cougaar.core.mts.SendQueue;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.AttributedMessage;
-import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.security.util.OnTopCipherInputStream;
-import org.cougaar.core.security.util.SignatureInputStream;
-import org.cougaar.core.security.util.NullOutputStream;
-
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-//import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.mts.SendQueue;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.NullOutputStream;
+import org.cougaar.core.security.util.OnTopCipherInputStream;
+import org.cougaar.core.security.util.SignatureInputStream;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.security.DigestOutputStream;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.SignatureException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 class ProtectedMessageInputStream extends ProtectedInputStream {
   private boolean                _eom;

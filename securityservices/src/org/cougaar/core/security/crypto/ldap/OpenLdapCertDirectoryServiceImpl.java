@@ -21,46 +21,46 @@
 
 package org.cougaar.core.security.crypto.ldap;
 
-import java.util.*;
-import java.io.*;
-import javax.naming.*;
-import javax.naming.directory.*;
-import java.security.cert.X509Certificate;
-import java.security.cert.X509CRLEntry;
-import java.security.cert.X509CRL;
-import java.security.cert.CertificateFactory;
-import java.security.*;
-import sun.security.x509.*;
-import sun.security.util.*;
-import java.lang.reflect.*;
-
-import java.security.cert.CertificateException;
-import java.security.cert.CRLException;
-import javax.naming.NamingException;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.component.ServiceRevokedEvent;
-
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.CrlUtility;
-import org.cougaar.core.security.services.ldap.MultipleEntryException;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-//import org.cougaar.core.security.services.ldap.LdapEntry;
 
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.policy.CryptoClientPolicy;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.policy.TrustedCaPolicy;
-import org.cougaar.core.security.crlextension.x509.extensions.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SignatureException;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
+import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchResult;
 
 public class OpenLdapCertDirectoryServiceImpl
 extends CertDirectoryService

@@ -26,6 +26,7 @@
 package org.cougaar.core.security.monitoring.publisher;
 
 import org.cougaar.core.security.monitoring.event.FailureEvent;
+
 import java.util.List;
 
 /**

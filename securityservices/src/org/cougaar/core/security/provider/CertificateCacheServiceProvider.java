@@ -26,18 +26,10 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 
 public class  CertificateCacheServiceProvider
   extends BaseSecurityServiceProvider  {

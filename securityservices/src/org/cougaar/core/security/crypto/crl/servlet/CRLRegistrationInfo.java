@@ -28,32 +28,32 @@
 package org.cougaar.core.security.crypto.crl.servlet;
 
 // Imported java classes
-import java.io.*;
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.crypto.crl.blackboard.CrlRegistrationObject;
+import org.cougaar.core.security.crypto.crl.blackboard.CrlRegistrationTable;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.servlet.BaseServletComponent;
+import org.cougaar.util.UnaryPredicate;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Enumeration;
 import java.util.Vector;
-import javax.servlet.*;
-import javax.servlet.http.*;
 
-
-// Cougaar core services
-
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.component.*;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.servlet.BaseServletComponent;
-
-import org.cougaar.core.servlet.SimpleServletSupport;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.crl.blackboard.*;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 

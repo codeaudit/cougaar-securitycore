@@ -21,15 +21,13 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
+import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.blackboard.Publishable;
-
 
 import java.io.Serializable;
+
+import edu.jhuapl.idmef.IDMEF_Message;
 
 
 /** ConsolidatedEvent interface

@@ -23,24 +23,19 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.blackboard.Subscriber;
+import org.cougaar.core.blackboard.SubscriberException;
 import org.cougaar.core.blackboard.Subscription;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
-import org.cougaar.core.blackboard.SubscriberException;
-//import org.cougaar.core.blackboard.SubscriptionWrapper;
-//import org.cougaar.core.blackboard.UnaryPredicateWrapper;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.persist.Persistence;
 import org.cougaar.core.persist.PersistenceNotEnabledException;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.util.UnaryPredicate;
-
+import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
 import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.auth.JaasClient;
-import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.auth.SecuredObject;
-import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
+import org.cougaar.core.service.BlackboardService;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Hashtable;

@@ -22,42 +22,33 @@
 
 package org.cougaar.core.security.access;
 
-import org.cougaar.core.component.BinderWrapper;
-import org.cougaar.core.component.BinderFactory;
-import org.cougaar.core.component.BindingSite;
-import org.cougaar.core.component.ComponentDescription;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.agent.AgentManager;
 import org.cougaar.core.agent.Agent;
-import org.cougaar.core.mts.AgentState;
-import org.cougaar.core.mts.MessageTransportClient;
-import org.cougaar.core.mts.Message;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MisdeliveredMessageException;
-import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.planning.ldm.plan.Verb;
-import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-//import org.cougaar.core.service.TopologyReaderService;
 import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.security.services.acl.AccessControlPolicyService;
-import org.cougaar.core.security.acl.trust.*;
-import org.cougaar.core.security.policy.AccessControlPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.mts.AgentState;
+import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageTransportClient;
+import org.cougaar.core.security.acl.trust.IntegrityAttribute;
+import org.cougaar.core.security.acl.trust.MissionCriticality;
+import org.cougaar.core.security.acl.trust.TrustAttribute;
+import org.cougaar.core.security.acl.trust.TrustSet;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
+import org.cougaar.core.security.policy.AccessControlPolicy;
+import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.MessageTransportService;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Verb;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class AccessAgentProxy
   implements MessageTransportService, MessageTransportClient

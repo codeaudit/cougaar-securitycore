@@ -21,50 +21,26 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core classes
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.adaptivity.OperatingMode;
-import org.cougaar.core.adaptivity.OperatingModeImpl;
-import org.cougaar.core.adaptivity.OMCRange;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-
-// Cougaar securityservices classes
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.util.UnaryPredicate;
 
-// Cougaar overlay classes
-import org.cougaar.core.security.constants.IdmefClassifications;
-import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
-
-// JavaIDMEF
-import edu.jhuapl.idmef.Source;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Address;
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.XMLSerializable;
-
-// java classes
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.TimerTask;
-import java.util.Enumeration;
 
 /**
  * This abstract class subscribes to failures and will take a response action

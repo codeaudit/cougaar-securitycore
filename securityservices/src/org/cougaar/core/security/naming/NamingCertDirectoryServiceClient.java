@@ -26,25 +26,29 @@
 
 package org.cougaar.core.security.naming;
 
-import java.security.cert.*;
-import java.security.*;
-import sun.security.x509.*;
-import java.net.*;
-import java.util.*;
-
-import org.cougaar.core.service.wp.*;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.util.WhitePagesUtil;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.wp.AddressEntry;
+import org.cougaar.core.service.wp.Callback;
+import org.cougaar.core.service.wp.Cert;
+import org.cougaar.core.service.wp.Response;
+import org.cougaar.core.service.wp.WhitePagesService;
 import org.cougaar.core.thread.Schedulable;
 
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.crypto.ldap.*;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.util.*;
+import java.net.URI;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 public class NamingCertDirectoryServiceClient {
   private LoggingService log;

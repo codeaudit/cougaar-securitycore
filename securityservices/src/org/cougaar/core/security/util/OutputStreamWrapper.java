@@ -1,6 +1,7 @@
 package org.cougaar.core.security.util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class OutputStreamWrapper extends OutputStream {
   private OutputStream _out;

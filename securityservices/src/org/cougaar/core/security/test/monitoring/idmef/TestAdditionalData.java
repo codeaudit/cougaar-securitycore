@@ -21,32 +21,14 @@
 package org.cougaar.core.security.test.monitoring.idmef;
 
 // java xml packages
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
-import java.net.InetAddress;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import org.cougaar.core.security.monitoring.idmef.Agent;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-// xerces package
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-
-// idmef package
 import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.XMLSerializable;
 import edu.jhuapl.idmef.XMLUtils;
-
-// cougaar package
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 
 public class TestAdditionalData extends TestIdmef {
     public static String MEANING = "test-additional-data";

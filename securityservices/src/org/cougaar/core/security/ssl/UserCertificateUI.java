@@ -25,7 +25,7 @@
  */
 package org.cougaar.core.security.ssl;
 
-import java.util.*;
+import java.util.Hashtable;
 
 public interface UserCertificateUI {
   /**

@@ -26,11 +26,7 @@
 
 package org.cougaar.core.security.test.jaas;
 
-import java.util.Iterator;
-import java.security.PrivilegedAction;
-
 import org.cougaar.core.security.auth.JaasClient;
-import org.cougaar.core.security.securebootstrap.CougaarSecurityManager;
 
 /** A simple simulation of a node with JAAS security contexts.
  *  The node starts the agents in their own security context.

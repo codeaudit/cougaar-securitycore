@@ -22,30 +22,39 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.Iterator;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.EventService;
-import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.security.monitoring.idmef.*;
 import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.NotificationObject;
+import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.Registration;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.util.CommunityServiceUtil;
-import edu.jhuapl.idmef.*;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.EventService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.util.UnaryPredicate;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 
 
 

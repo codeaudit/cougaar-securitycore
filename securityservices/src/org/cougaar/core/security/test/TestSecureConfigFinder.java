@@ -21,22 +21,19 @@
 
 package org.cougaar.core.security.test;
 
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.net.URL;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.util.ConfigFinder;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import EDU.oswego.cs.dl.util.concurrent.CountDown;
 

@@ -22,28 +22,23 @@
 package org.cougaar.core.security.monitoring.publisher;
 
 // cougaar core classes
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ThreadService;
-
-// securityservices classes
+import org.cougaar.core.security.constants.IdmefClassifications;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.SecurityExceptionEvent;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.services.auth.SecurityContextService;
-import org.cougaar.core.security.constants.IdmefClassifications;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
-
-// java classes
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Alert;
 
 
 public class SecurityExceptionPublisher extends IdmefEventPublisher {

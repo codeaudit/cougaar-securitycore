@@ -23,14 +23,12 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.ThreadListenerService;
 import org.cougaar.core.thread.Schedulable;
 import org.cougaar.core.thread.ThreadListener;
 
-import org.cougaar.core.security.auth.ExecutionContext;
-
 import java.util.Hashtable;
-import java.util.TimerTask;
 
 // this class is a proxy for the ThreadListenerService
 class ThreadListenerServiceProxy extends SecureServiceProxy 

@@ -26,21 +26,11 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.crl.CrlManagement;
+import org.cougaar.core.security.services.crypto.CrlManagementService;
 import org.cougaar.planning.ldm.LDMServesPlugin;
-
-// Cougaar security services
-
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-
-import  org.cougaar.core.security.crypto.crl.CrlManagement;
-
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class  CrlManagementServiceProvider
   extends BaseSecurityServiceProvider  {

@@ -22,14 +22,16 @@
 package org.cougaar.core.security.crypto.crl.blackboard;
 
 
-import java.util.*;
-import java.security.cert.*;
-import java.io.Serializable;
-import java.io.*;
-// Cougaar core services
+import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.mts.MessageAddress;
 
-import org.cougaar.core.blackboard.Publishable;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
+import java.util.Enumeration;
+import java.util.Vector;
 
 public class CrlRegistrationObject implements Serializable,Publishable {
 

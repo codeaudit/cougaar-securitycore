@@ -26,17 +26,14 @@
 
 package org.cougaar.core.security.provider;
 
-import java.util.Hashtable;
-
-// Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.certauthority.KeyManagement;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+
+import java.util.Hashtable;
 
 public class CertificateManagementServiceProvider 
   extends BaseSecurityServiceProvider

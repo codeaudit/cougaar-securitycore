@@ -21,26 +21,30 @@
 package org.cougaar.core.security.test.message;
 
 // java packages
-import java.util.*;
-import java.io.*;
-import java.text.*;
-import javax.servlet.http.*;
-
-// cougaar classes
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.util.RelayBase;
 import org.cougaar.core.service.EventService;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ServletService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 import org.cougaar.util.UnaryPredicate;
 
-// security services classes
-import org.cougaar.core.security.util.RelayBase;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Provides a Servlet to send a message to another agent and gives the status

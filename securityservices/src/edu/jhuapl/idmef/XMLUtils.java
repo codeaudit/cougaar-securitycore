@@ -33,17 +33,19 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import java.io.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
+import java.io.FileReader;
+import java.io.StringReader;
 import java.io.StringWriter;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**This class provides a set of utilities for XML*/
 public class XMLUtils{

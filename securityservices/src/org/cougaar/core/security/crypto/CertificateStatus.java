@@ -23,12 +23,10 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.util.Date;
-import java.security.cert.X509Certificate;
-
-// Cougaar security services
 import org.cougaar.core.security.naming.CertificateEntry;
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 public class CertificateStatus
   extends CertificateEntry

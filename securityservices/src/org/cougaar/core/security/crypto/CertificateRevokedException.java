@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.cert.*;
+import java.security.cert.CertificateException;
 
 public class CertificateRevokedException extends CertificateException {
   public String message;

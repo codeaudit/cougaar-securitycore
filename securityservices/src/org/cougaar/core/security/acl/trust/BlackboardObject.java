@@ -22,7 +22,7 @@
 
 package org.cougaar.core.security.acl.trust;
 
-import java.io.*;
+import java.io.Serializable;
 
 /**
  * Generic object used to encapsulate objects stored in the 

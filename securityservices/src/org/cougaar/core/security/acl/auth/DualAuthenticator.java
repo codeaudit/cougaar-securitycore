@@ -23,50 +23,55 @@
 
 package org.cougaar.core.security.acl.auth;
 
-import java.io.*;
-import java.util.*;
-import java.security.Principal;
-import java.net.*;
-import java.lang.reflect.*;
-import javax.net.ssl.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.ServletOutputStream;
-
-import org.apache.catalina.Session;
-import org.apache.catalina.Request;
-import org.apache.catalina.Response;
-import org.apache.catalina.Context;
-import org.apache.catalina.Container;
-import org.apache.catalina.ValveContext;
-import org.apache.catalina.HttpRequest;
-import org.apache.catalina.HttpResponse;
-import org.apache.catalina.Realm;
-import org.apache.catalina.Manager;
-import org.apache.catalina.valves.ValveBase;
-import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.catalina.deploy.SecurityCollection;
-import org.apache.catalina.authenticator.AuthenticatorBase;
-import org.apache.catalina.authenticator.SSLAuthenticator;
-import org.apache.catalina.authenticator.DigestAuthenticator;
-import org.apache.catalina.authenticator.BasicAuthenticator;
-import org.apache.catalina.connector.HttpResponseWrapper;
-
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.lib.web.tomcat.SecureRealm;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
+import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.lib.web.tomcat.SecureRealm;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import javax.net.ssl.SSLSocket;
+import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpSession;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.HttpRequest;
+import org.apache.catalina.HttpResponse;
+import org.apache.catalina.Manager;
+import org.apache.catalina.Realm;
+import org.apache.catalina.Request;
+import org.apache.catalina.Response;
+import org.apache.catalina.Session;
+import org.apache.catalina.ValveContext;
+import org.apache.catalina.authenticator.AuthenticatorBase;
+import org.apache.catalina.authenticator.BasicAuthenticator;
+import org.apache.catalina.authenticator.DigestAuthenticator;
+import org.apache.catalina.authenticator.SSLAuthenticator;
+import org.apache.catalina.connector.HttpResponseWrapper;
+import org.apache.catalina.deploy.LoginConfig;
+import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.valves.ValveBase;
 
 public class DualAuthenticator extends ValveBase {
   static final byte AUTH_NONE     = AuthSuite.authNoAuth;

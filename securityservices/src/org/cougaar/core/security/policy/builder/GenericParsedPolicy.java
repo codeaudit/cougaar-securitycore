@@ -21,10 +21,10 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import java.util.*;
-import java.util.regex.PatternSyntaxException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
-import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
 

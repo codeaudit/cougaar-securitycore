@@ -3,9 +3,13 @@ package org.cougaar.core.security.util;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
-import java.io.*;
-import java.security.*;
-import javax.crypto.*;
+import java.io.EOFException;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 
 public class OnTopCipherInputStream extends FilterInputStream {
   private InputStream _unfiltered;

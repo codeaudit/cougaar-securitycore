@@ -20,86 +20,12 @@
  */
 package org.cougaar.core.security.test;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.HashSet;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
 
 import java.io.Serializable;
-import java.io.StringReader;
-import java.io.IOException;
-
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-// Cougaar core services
-import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.community.CommunityService;
-
-import org.cougaar.core.util.UID;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.Condition;
-import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
-import org.cougaar.core.security.monitoring.blackboard.EventImpl;
-
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
-
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.ConfigFinder;
-
-import org.cougaar.lib.aggagent.query.AlertDescriptor;
-import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
-import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
-import org.cougaar.lib.aggagent.query.AggregationResultSet;
-
-import org.cougaar.lib.aggagent.session.UpdateDelta;
-import org.cougaar.lib.aggagent.session.SessionManager;
-import org.cougaar.lib.aggagent.session.XMLEncoder;
-import org.cougaar.lib.aggagent.session.SubscriptionAccess;
-import org.cougaar.lib.aggagent.session.IncrementFormat;
-
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.lib.aggagent.util.Enum.Language;
-import org.cougaar.lib.aggagent.util.Enum.AggType;
-import org.cougaar.lib.aggagent.util.Enum.ScriptType;
-import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
-import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
+import java.util.List;
 
 /**
  * This class just adds some objects to the blackboard. 

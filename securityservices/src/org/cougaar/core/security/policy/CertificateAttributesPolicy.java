@@ -28,9 +28,9 @@ package org.cougaar.core.security.policy;
 
 import org.cougaar.core.security.config.CryptoClientPolicyHandler;
 
-import org.w3c.dom.*;
-import sun.security.x509.*;
-import java.net.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /** This class contains the default attributes used to generate
  *  a certificate

@@ -24,18 +24,16 @@ package org.cougaar.core.security.access;
 
 // cougaar core
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.DynamicUnaryPredicate;
-import org.cougaar.glm.ldm.oplan.OrgActivity;
-
-// security services
-import org.cougaar.core.security.auth.BlackboardPermission;
-import org.cougaar.core.security.auth.SecuredObject;
-import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.access.bbo.SecuredOrgActivity;
+import org.cougaar.core.security.auth.BlackboardPermission;
+import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.auth.SecuredObject;
+import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.util.DynamicUnaryPredicate;
+import org.cougaar.util.UnaryPredicate;
 
 // service proxies will need to extend this class to provide a way to 
 // release the services that are required by the service proxy

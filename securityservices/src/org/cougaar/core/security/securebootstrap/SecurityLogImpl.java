@@ -26,12 +26,16 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SecurityLogImpl
   extends BaseSingleton

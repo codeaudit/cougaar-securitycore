@@ -27,8 +27,7 @@
 package org.cougaar.core.security.crypto;
 
 import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.security.cert.*;
+import java.security.cert.X509Certificate;
 
 /** This class contains the list of private keys and public keys
  *  that should be moved when an agent moves.

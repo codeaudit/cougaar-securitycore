@@ -26,19 +26,9 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.crypto.KeyRing;
-import org.cougaar.core.security.certauthority.KeyManagement;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.AgentIdentityServiceImpl;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.acl.*;
 
 public class AgentIdentityServiceProvider 
   extends BaseSecurityServiceProvider

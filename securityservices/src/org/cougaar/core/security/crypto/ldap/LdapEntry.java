@@ -25,12 +25,12 @@
  */
 package org.cougaar.core.security.crypto.ldap;
 
-import java.security.cert.X509Certificate;
-import java.io.Serializable;
-import java.security.PublicKey;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertificateType;
 
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+import java.io.Serializable;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 
 /**
  * A bean which represent a certificate entry in the LDAP server.

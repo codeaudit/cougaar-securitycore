@@ -26,17 +26,11 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.reflect.*;
-import java.util.List;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
+
+import java.util.List;
 
 public final class SecurityComponentFactory
   extends SecurityComponent

@@ -26,18 +26,10 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-import java.util.Hashtable;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.Service;
-
-// Cougaar security services
-import org.cougaar.core.security.provider.SecurityServicePermission;
-import org.cougaar.core.security.util.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceProvider;
+import org.cougaar.core.service.LoggingService;
 
 public abstract class BaseSecurityServiceProvider
   implements ServiceProvider

@@ -21,19 +21,17 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import com.hp.hpl.jena.daml.DAMLModel;
-
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import jtp.ReasoningException;
-
-import kaos.ontology.DefaultOntologies;
-import kaos.ontology.repository.KAoSContext;
-import kaos.ontology.repository.OntologyRepository;
-import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.JTPStringFormatUtils;
-import kaos.ontology.util.ValueNotSet;
+
+import com.hp.hpl.jena.daml.DAMLModel;
 
 
 /*

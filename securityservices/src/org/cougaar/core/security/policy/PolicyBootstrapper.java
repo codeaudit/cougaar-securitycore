@@ -23,34 +23,28 @@
 
 package org.cougaar.core.security.policy;
 
-import java.util.*;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.URL;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.util.ConfigFinder;
-import org.cougaar.planning.ldm.policy.Policy;
-
-// Cougaar security services
 import org.cougaar.core.security.policy.builder.ParsedPolicy;
 import org.cougaar.core.security.policy.builder.ParsedPolicyFile;
-import org.cougaar.core.security.policy.builder.PolicyParser;
-import org.cougaar.core.security.policy.builder.PolicyLexer;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
-import org.cougaar.core.security.config.ConfigParserServiceImpl;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.util.ConfigFinder;
 
-//from kaos
-import kaos.core.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import kaos.core.util.AttributeMsg;
+import kaos.core.util.PolicyMsg;
+import kaos.core.util.SubjectMsg;
+import sun.security.provider.PolicyParser;
 
 public class PolicyBootstrapper 
   implements PolicyBootstrapperService

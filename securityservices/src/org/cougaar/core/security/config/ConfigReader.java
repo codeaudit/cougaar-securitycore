@@ -26,17 +26,14 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.util.*;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
+import java.io.FileReader;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ConfigReader
 {

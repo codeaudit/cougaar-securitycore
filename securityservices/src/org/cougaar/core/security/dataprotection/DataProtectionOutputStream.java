@@ -26,27 +26,36 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.io.*;
-import java.util.*;
-import java.security.*;
-import javax.crypto.*;
-import java.security.cert.*;
-
-// Cougaar core infrastructure
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.NoValidKeyException;
+import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.monitoring.event.DataFailureEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.SignatureOutputStream;
+import org.cougaar.core.service.DataProtectionKeyEnvelope;
 import org.cougaar.core.service.LoggingService;
 
-// overlay
-import org.cougaar.core.service.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.PrivilegedAction;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
-// Security Service
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.event.DataFailureEvent;
-import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SealedObject;
+import javax.crypto.SecretKey;
 
 public class DataProtectionOutputStream extends FilterOutputStream {
   private static LoggingService log;

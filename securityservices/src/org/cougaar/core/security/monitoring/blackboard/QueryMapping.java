@@ -25,9 +25,8 @@ package org.cougaar.core.security.monitoring.blackboard;
 import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.util.UID;
 
-import java.util.Hashtable;
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 

@@ -26,11 +26,10 @@
 
 package org.cougaar.core.security.naming;
 
-import java.util.*;
-
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.util.CertDirectoryService;
 
-import org.cougaar.core.security.services.util.*;
+import java.util.Hashtable;
 
 public class CertDirectoryServiceFactory {
   Hashtable serviceCache = new Hashtable();

@@ -33,16 +33,21 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.util.*;
-import java.text.*;
-import java.io.*;
+import java.io.StringReader;
+import java.io.StringWriter;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-import org.apache.xerces.parsers.*;
-import java.math.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.xerces.parsers.DOMParser;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * <pre>

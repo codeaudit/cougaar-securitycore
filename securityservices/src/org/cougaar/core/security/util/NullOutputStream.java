@@ -21,7 +21,7 @@
 
 package org.cougaar.core.security.util;
 
-import java.io.*;
+import java.io.OutputStream;
 
 public class NullOutputStream extends OutputStream {
   public NullOutputStream() {

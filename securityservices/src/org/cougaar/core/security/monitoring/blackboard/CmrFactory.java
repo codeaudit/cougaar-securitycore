@@ -21,22 +21,17 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.domain.Factory;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.ldm.PlanningFactory;
+import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 public class CmrFactory
 implements Factory

@@ -21,9 +21,8 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Collections;
+import java.util.Set;
 
 /**
  * This class represents a suite of crypto algorithms including symmetric, 

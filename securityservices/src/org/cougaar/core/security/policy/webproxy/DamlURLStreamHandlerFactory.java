@@ -21,15 +21,11 @@
 
 package org.cougaar.core.security.policy.webproxy;
 
-import java.io.PrintStream;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-
-import org.cougaar.core.security.policy.webproxy.DamlURLStreamHandler;
-
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
 
 
 /**

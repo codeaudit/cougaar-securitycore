@@ -21,8 +21,9 @@
 
 package org.cougaar.core.security.monitoring.event;
 
-import edu.jhuapl.idmef.Classification;
 import org.cougaar.core.security.constants.IdmefClassifications;
+
+import edu.jhuapl.idmef.Classification;
 
 public class LoginFailureEvent extends FailureEvent {
   public static final String FAILURE_REASON = "LOGIN_FAILURE_REASON";

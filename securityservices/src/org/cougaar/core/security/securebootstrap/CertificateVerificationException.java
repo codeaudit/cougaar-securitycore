@@ -27,7 +27,7 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.security.*;
+import java.security.GeneralSecurityException;
 
 /** This exception is being thrown by the
  * org.cougaar.core.security.CertificateVerifier

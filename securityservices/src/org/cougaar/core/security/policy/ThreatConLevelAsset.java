@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.planning.ldm.asset.*;
+import org.cougaar.planning.ldm.asset.Asset;
 
 public class ThreatConLevelAsset extends Asset {
 

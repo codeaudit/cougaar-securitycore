@@ -26,18 +26,14 @@
 
 package org.cougaar.core.security.dataprotection.plugin;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-// Cougaar core services
-import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-
-// Cougaar security services
 import org.cougaar.core.security.dataprotection.DataProtectionKeyUnlockRequest;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 class DataProtectionKeyRequestPredicate
   implements UnaryPredicate

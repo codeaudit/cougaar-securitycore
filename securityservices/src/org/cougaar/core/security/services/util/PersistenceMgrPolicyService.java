@@ -25,11 +25,9 @@
  */
 package org.cougaar.core.security.services.util;
 
-import org.cougaar.core.security.policy.PersistenceManagerPolicy;
-import org.cougaar.core.security.dataprotection.*;
-
-// Cougaar core infrastructure
 import org.cougaar.core.component.Service;
+import org.cougaar.core.security.dataprotection.PersistenceMgrAvailListener;
+import org.cougaar.core.security.policy.PersistenceManagerPolicy;
 
 /**
  * The PersistenceMgrPolicyService queries the community service for agents

@@ -24,10 +24,8 @@
 package org.cougaar.core.security.services.acl;
 
 // Cougaar core infrastructure
-import org.cougaar.core.component.*;
-
-// Cougaar security services
-import org.cougaar.core.security.acl.trust.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.acl.trust.TrustAttribute;
 
 /**
  * An interface to allow Agents and Plugins limited access to the trust 

@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.provider;
 
-import java.util.Hashtable;
-
-// Cougaar security services
 import org.cougaar.core.service.LoggingService;
+
+import java.util.Hashtable;
 
 public class SecurityServiceTable
   extends Hashtable

@@ -23,6 +23,7 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.planning.ldm.LatePropertyProvider;
 import org.cougaar.planning.ldm.PropertyProvider;
 import org.cougaar.planning.ldm.PrototypeProvider;
@@ -30,8 +31,6 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.asset.PropertyGroup;
 import org.cougaar.planning.service.PrototypeRegistryService;
 import org.cougaar.util.StateModelException;
-
-import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Collection;
 

@@ -26,27 +26,24 @@
 
 package org.cougaar.core.security.certauthority;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-import sun.security.x509.*;
-import java.security.cert.*;
-import java.security.PublicKey;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.util.log.LoggerFactory;
-import org.cougaar.util.log.Logger;
-
-// Cougaar security services
+import org.cougaar.core.security.crypto.NodeConfiguration;
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class PendingCertCache
   extends Hashtable

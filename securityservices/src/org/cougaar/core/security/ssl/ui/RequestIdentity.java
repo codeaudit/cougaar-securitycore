@@ -25,14 +25,19 @@
  */
 package org.cougaar.core.security.ssl.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-
-import java.util.*;
-
 import org.cougaar.core.security.util.UIUtil;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 
 public class RequestIdentity

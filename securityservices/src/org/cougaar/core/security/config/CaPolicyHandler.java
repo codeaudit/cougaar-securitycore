@@ -26,22 +26,21 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.*;
-
-import sun.security.x509.*;
-import sun.security.util.ObjectIdentifier;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.util.Duration;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
+import java.io.IOException;
+import java.lang.reflect.Field;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.X500Name;
 
 public class CaPolicyHandler
   extends BaseConfigHandler

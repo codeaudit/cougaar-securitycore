@@ -26,55 +26,21 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.util.Observer;
-import java.util.Observable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.Collection;
-import java.lang.reflect.*;
-import java.security.Principal;
-
-// Cougaar core infrastructure
-import org.cougaar.core.adaptivity.Condition;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.OMCThruRange;
-import org.cougaar.core.component.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.core.service.community.*;
-// Cougaar security services
-//import org.cougaar.core.security.securebootstrap.EventHolder;
-import org.cougaar.core.security.securebootstrap.BootstrapEvent;
-
-// Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
-
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.adaptivity.OperatingMode;
-import org.cougaar.core.adaptivity.OperatingModeImpl;
-
-// Security services
-import org.cougaar.core.security.securebootstrap.CougaarSecurityManager;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.SecurityExceptionEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.SecurityExceptionPublisher;
-import org.cougaar.core.security.monitoring.idmef.*;
-import  org.cougaar.core.security.securebootstrap.BootstrapEvent;
-import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.service.ThreadService;
 
-import edu.jhuapl.idmef.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
 
 public class BootStrapEventPlugin extends SensorPlugin implements Observer {  
   /*

@@ -84,12 +84,14 @@
 
 package org.cougaar.core.security.config;
 
-import java.io.OutputStream;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.xml.sax.Attributes;
@@ -99,16 +101,7 @@ import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.ParserAdapter;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
 
 public class ConfigWriter
   extends BaseConfigHandler

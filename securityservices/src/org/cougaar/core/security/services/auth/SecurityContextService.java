@@ -23,8 +23,6 @@ package org.cougaar.core.security.services.auth;
 
 // core imports
 import org.cougaar.core.component.Service;
-
-// security services imports
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
 

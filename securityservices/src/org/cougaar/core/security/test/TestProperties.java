@@ -22,12 +22,11 @@
 
 package org.cougaar.core.security.test;
 
-import java.io.Serializable;
-import java.security.*;
-import java.util.HashMap;
-import java.util.*;
-import javax.naming.Context;
 import org.cougaar.bootstrap.SystemProperties;
+
+import java.util.Properties;
+
+import javax.naming.Context;
 
 public class TestProperties {
         

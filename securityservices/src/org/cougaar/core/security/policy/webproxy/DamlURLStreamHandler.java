@@ -21,16 +21,13 @@
 
 package org.cougaar.core.security.policy.webproxy;
 
-import java.io.IOException;
-
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.policy.webproxy.DamlURLConnection;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 
 /**
  * This code is responsible for handling http connections.  It

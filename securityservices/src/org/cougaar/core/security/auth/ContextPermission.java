@@ -21,9 +21,7 @@
 
 package org.cougaar.core.security.auth;
 
-import java.security.Permission;
 import java.security.BasicPermission;
-import java.util.StringTokenizer;
 
 /**
  * Permission for setting and getting object and execution

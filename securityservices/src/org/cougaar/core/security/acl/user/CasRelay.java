@@ -20,14 +20,12 @@
  */
 package org.cougaar.core.security.acl.user;
 
-import java.io.Serializable;
-import java.util.*;
-
-import org.cougaar.core.relay.*;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.security.util.RelayBase;
+import org.cougaar.core.util.UID;
+
+import java.util.Map;
+import java.util.Set;
 
 public class CasRelay extends RelayBase {
   public CasRelay(UID uid, MessageAddress source, Object content) {

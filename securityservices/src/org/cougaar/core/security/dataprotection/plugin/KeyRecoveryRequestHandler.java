@@ -26,26 +26,26 @@
 
 package org.cougaar.core.security.dataprotection.plugin;
 
-import java.util.Iterator;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import javax.security.auth.x500.X500Principal;
-import java.security.cert.X509Certificate;
-import java.security.GeneralSecurityException;
-import javax.crypto.SecretKey;
-import javax.crypto.SealedObject;
-import sun.security.x509.X500Name;
-
-// Cougaar core infrastructure
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.mts.MessageAddress;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.dataprotection.*;
+import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
+import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
+import org.cougaar.core.security.dataprotection.DataProtectionKeyUnlockRequest;
+import org.cougaar.core.security.dataprotection.DataProtectionRequestContent;
+import org.cougaar.core.security.dataprotection.DataProtectionStatus;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
+
+import java.security.cert.X509Certificate;
+import java.util.Iterator;
+
+import javax.crypto.SealedObject;
+import javax.crypto.SecretKey;
+import javax.security.auth.x500.X500Principal;
+
+import sun.security.x509.X500Name;
 
 public class KeyRecoveryRequestHandler {
   private ServiceBroker serviceBroker;

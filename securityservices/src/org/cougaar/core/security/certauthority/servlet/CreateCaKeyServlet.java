@@ -26,32 +26,26 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import java.io.*;
-import java.util.*;
-import java.security.Principal;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-import sun.security.x509.*;
-import javax.security.auth.x500.X500Principal;
-
-// Cougaar core infrastructure
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.config.PolicyHandler;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.identity.AgentIdentityService;
 
-// Overlay
-import org.cougaar.core.service.identity.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Hashtable;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import org.cougaar.core.security.config.*;
+import javax.security.auth.x500.X500Principal;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class CreateCaKeyServlet
   extends  HttpServlet

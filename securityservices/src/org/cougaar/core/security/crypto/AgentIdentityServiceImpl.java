@@ -26,40 +26,32 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.PrivateKey;
-import javax.crypto.SealedObject;
-import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.security.Principal;
-
-import java.lang.IllegalArgumentException;
-import sun.security.x509.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.component.ServiceBrokerSupport;
+import org.cougaar.core.agent.SimpleAgent;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.SimpleAgent;
 import org.cougaar.core.node.NodeAgent;
 import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.service.LoggingService;
-
-// Overlay
-import org.cougaar.core.service.identity.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.certauthority.servlet.*;
+import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
+import org.cougaar.core.security.services.crypto.CertValidityService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.identity.AgentIdentityClient;
+import org.cougaar.core.service.identity.AgentIdentityService;
+import org.cougaar.core.service.identity.IdentityDeniedException;
+import org.cougaar.core.service.identity.PendingRequestException;
+import org.cougaar.core.service.identity.TransferableIdentity;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 
 public class AgentIdentityServiceImpl

@@ -26,7 +26,9 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 public class DataProtectionStatus {
   public static final String INPUT_COMPLETE = "INPUT_COMPLETE";

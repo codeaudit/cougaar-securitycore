@@ -22,8 +22,9 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.*;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class DumpOutputStream extends OutputStream {
   FileOutputStream _fout;

@@ -22,14 +22,11 @@
 
 package org.cougaar.core.security.access;
 
-import java.security.PrivilegedAction;
-
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.SchedulerService;
-import org.cougaar.util.Trigger;
-
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
+import org.cougaar.core.service.SchedulerService;
+import org.cougaar.util.Trigger;
 
 import java.util.Hashtable;
 

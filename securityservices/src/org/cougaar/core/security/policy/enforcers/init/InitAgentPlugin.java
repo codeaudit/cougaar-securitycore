@@ -21,32 +21,11 @@
 
 package org.cougaar.core.security.policy.enforcers.init;
 
-import org.cougaar.core.security.policy.enforcers.SampleAgentEnforcer;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.util.*;
-
-import kaos.core.service.directory.DefaultKAoSAgentDescription;
-import kaos.core.service.directory.KAoSAgentDescription;
-import kaos.core.service.directory.KAoSAgentDirectoryServiceProxy;
-import kaos.core.service.util.cougaar.CougaarLocator;
-import kaos.core.util.VMIDGenerator;
-import kaos.ontology.management.UnknownConceptException;
-
-import safe.util.CougaarServiceRoot;
-
-import org.cougaar.core.blackboard.*;
 import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.*;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.policy.enforcers.SampleAgentEnforcer;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ServletService;
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.util.*;
-
-import org.cougaar.core.security.policy.EnforcerRegistrationException;
 
 public class InitAgentPlugin extends ComponentPlugin {
 

@@ -25,12 +25,9 @@ package org.cougaar.core.security.auth;
 
 // core imports
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-// security services imports
-import org.cougaar.core.security.acl.auth.URIPrincipal;
-import org.cougaar.core.security.auth.ExecutionPrincipal;
 import org.cougaar.core.security.services.auth.SecurityContextService;
-// java imports 
+import org.cougaar.core.service.LoggingService;
+
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
@@ -39,6 +36,7 @@ import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
+
 import javax.security.auth.Subject;
 
 public final class SecurityContextServiceImpl 

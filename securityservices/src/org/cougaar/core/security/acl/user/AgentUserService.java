@@ -25,57 +25,32 @@
  */
 package org.cougaar.core.security.acl.user;
 
-import java.util.*;
-import java.net.SocketException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import javax.naming.*;
-import javax.naming.directory.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-import org.cougaar.multicast.AttributeBasedAddress;
-
-import org.cougaar.core.mts.SimpleMessageAddress;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.UIDService;
-import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.planning.ldm.policy.RuleParameter;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
-import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
-import org.cougaar.core.service.community.CommunityChangeListener;
-import org.cougaar.core.service.community.CommunityChangeEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
-
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-
-// Cougaar security services
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.acl.user.CasRelay.CasResponse;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
-import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.core.security.policy.LdapUserServicePolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.acl.user.CasRelay;
-import org.cougaar.core.security.acl.user.CasRelay.CasRequest;
-import org.cougaar.core.security.acl.user.CasRelay.CasResponse;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.UIDService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.Entity;
+import org.cougaar.util.UnaryPredicate;
 
-// KAoS
-import safe.enforcer.NodeEnforcer;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class AgentUserService implements UserService, BlackboardClient {
 

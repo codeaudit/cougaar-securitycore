@@ -22,8 +22,8 @@
 package org.cougaar.core.security.crypto.crl.blackboard;
 
 
-import java.util.*;
 import java.io.Serializable;
+import java.util.Hashtable;
 
 // Cougaar core services
 

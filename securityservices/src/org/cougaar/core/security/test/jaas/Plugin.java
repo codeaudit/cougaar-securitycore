@@ -26,12 +26,7 @@
 
 package org.cougaar.core.security.test.jaas;
 
-import java.util.Iterator;
-import java.io.*;
-import java.net.*;
-import java.lang.*;
-
-import org.cougaar.core.security.auth.JaasClient;
+import java.io.FileReader;
 
 public class Plugin
 {

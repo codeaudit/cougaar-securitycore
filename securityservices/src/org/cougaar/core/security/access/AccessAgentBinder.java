@@ -22,19 +22,15 @@
 
 package org.cougaar.core.security.access;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceFilterBinder;
-import org.cougaar.core.component.Binder;
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.ContainerAPI;
-import org.cougaar.core.agent.Agent;
-import org.cougaar.core.agent.AgentManager;
-import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceFilterBinder;
+import org.cougaar.core.component.ServiceFilterBinder.FilteringServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.AgentIdentificationService;
-
+import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 

@@ -22,9 +22,14 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.*;
-import java.io.*;
-import java.security.*;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
 
 public class SignatureOutputStream extends FilterOutputStream {
   Signature _signature;

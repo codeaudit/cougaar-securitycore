@@ -26,17 +26,17 @@
 
 package org.cougaar.core.security.naming;
 
-import java.io.Serializable;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.CertificateExpiredException;
-
-import org.cougaar.core.security.crypto.CertificateTrust;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.CertificateType;
-import org.cougaar.core.security.crypto.CertificateRevokedException;
 import org.cougaar.core.security.crypto.CertificateNotTrustedException;
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateRevokedException;
+import org.cougaar.core.security.crypto.CertificateTrust;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.crypto.CertificateUtility;
+
+import java.io.Serializable;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 
 public class CertificateEntry
   implements Serializable

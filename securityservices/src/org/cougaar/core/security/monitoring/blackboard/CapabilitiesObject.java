@@ -22,10 +22,8 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import java.io.Serializable;
-
-// Cougaar core services
 import org.cougaar.core.blackboard.Publishable;
+
 import java.util.Hashtable;
 
 public class CapabilitiesObject extends Hashtable implements Publishable {

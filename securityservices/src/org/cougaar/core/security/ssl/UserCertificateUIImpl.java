@@ -25,10 +25,11 @@
  */
 package org.cougaar.core.security.ssl;
 
-import java.util.*;
-import javax.swing.*;
+import org.cougaar.core.security.ssl.ui.ChooseAliasDialog;
 
-import org.cougaar.core.security.ssl.ui.*;
+import java.util.Hashtable;
+
+import javax.swing.JOptionPane;
 
 public class UserCertificateUIImpl implements UserCertificateUI {
 

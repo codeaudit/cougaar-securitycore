@@ -26,15 +26,9 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.ssl.*;
-import org.cougaar.core.security.userauth.*;
+import org.cougaar.core.security.userauth.AuthenticationHandler;
 
-import javax.net.ssl.*;
-import javax.net.*;
-import java.net.*;
-import java.security.cert.CertificateException;
-import java.io.IOException;
+import javax.net.SocketFactory;
 
 public interface UserSSLService extends SSLService {
   public SocketFactory getUserSocketFactory();

@@ -28,53 +28,38 @@ package org.cougaar.core.security.monitoring.plugin;
 
 
 //Cougaar core  
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.blackboard.AggQueryMapping;
+import org.cougaar.core.security.monitoring.blackboard.AggQueryResult;
+import org.cougaar.core.security.monitoring.blackboard.AggregatedResponse;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.ConsolidatedEvent;
+import org.cougaar.core.security.monitoring.blackboard.DrillDownQuery;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.EventImpl;
+import org.cougaar.core.security.monitoring.blackboard.RemoteConsolidatedEvent;
+import org.cougaar.core.security.monitoring.blackboard.SensorAggregationDrillDownQuery;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
+import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.util.UID;
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
-import org.cougaar.core.service.*;
-import org.cougaar.lib.aggagent.query.AlertDescriptor;
-import org.cougaar.lib.aggagent.query.AggregationQuery;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
-import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.query.AggregationResultSet;
-import org.cougaar.core.service.community.*;
+import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
+import org.cougaar.util.UnaryPredicate;
 
-//Security services
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
-
-// XML
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
 
-
-//java api;
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.ArrayList;
-
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.util.*;
-
-
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 
 class RemoteResponsePredicate implements  UnaryPredicate{

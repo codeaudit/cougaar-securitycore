@@ -26,17 +26,16 @@
 
 package org.cougaar.core.security.crypto;
 
-import sun.security.x509.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.policy.*;
+import org.cougaar.core.service.LoggingService;
+
+import sun.security.x509.X500Name;
 
 public class CertDirectoryServiceRequestorImpl
   implements CertDirectoryServiceRequestor

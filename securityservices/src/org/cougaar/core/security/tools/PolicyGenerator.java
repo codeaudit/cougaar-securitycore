@@ -26,18 +26,29 @@
 
 package org.cougaar.core.security.tools;
 
-import java.io.*;
-import java.util.*;
-import java.io.*;
-
-import org.w3c.dom.*;
-import org.apache.xml.serialize.*;
-import org.apache.xerces.parsers.*;
-import org.xml.sax.InputSource;
-
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StreamTokenizer;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ListIterator;
+
+import org.apache.xerces.parsers.DOMParser;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class PolicyGenerator
 {

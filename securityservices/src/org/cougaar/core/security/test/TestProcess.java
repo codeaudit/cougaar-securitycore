@@ -22,10 +22,8 @@
 
 package org.cougaar.core.security.test;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
+import java.io.BufferedInputStream;
+import java.io.File;
 
 public class TestProcess
 {

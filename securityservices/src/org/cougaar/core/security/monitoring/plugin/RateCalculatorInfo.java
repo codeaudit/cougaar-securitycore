@@ -20,7 +20,6 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.planning.servlet.XMLize;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 

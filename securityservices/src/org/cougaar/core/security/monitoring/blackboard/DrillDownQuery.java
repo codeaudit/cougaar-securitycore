@@ -22,7 +22,6 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import org.cougaar.lib.aggagent.query.AggregationQuery;
 import org.cougaar.core.util.UID;
 
 public interface DrillDownQuery

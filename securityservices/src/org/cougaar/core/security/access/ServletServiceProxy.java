@@ -24,14 +24,12 @@ package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.ServletService;
-import org.cougaar.core.service.AgentIdentificationService;
-
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.services.auth.AuthorizationService;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.ServletService;
 
 import java.io.IOException;
-import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
 import javax.servlet.Servlet;

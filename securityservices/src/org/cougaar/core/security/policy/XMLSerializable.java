@@ -25,10 +25,10 @@
  */
 package org.cougaar.core.security.policy;
 
+import java.io.Serializable;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.Serializable;
 /**
  * This interface representes the ability to convert the implementing
  * object into XML.

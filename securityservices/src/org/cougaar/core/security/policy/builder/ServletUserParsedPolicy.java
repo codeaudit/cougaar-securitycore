@@ -22,7 +22,6 @@
 package org.cougaar.core.security.policy.builder;
 
 import kaos.ontology.util.ClassNameNotSet;
-import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 

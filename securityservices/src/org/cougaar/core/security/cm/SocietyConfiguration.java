@@ -28,20 +28,20 @@
 package org.cougaar.core.security.cm;
 
 
+import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
-import org.cougaar.core.util.UID;
-import org.cougaar.core.util.UniqueObject;
 
 
 /**
  * Society Configuration Value Object
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SocietyConfiguration implements Serializable, UniqueObject {
   private HashMap agentConfigurations;

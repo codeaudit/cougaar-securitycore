@@ -26,24 +26,22 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.security.Signature;
-import java.security.PrivateKey;
-
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.x509.AlgorithmId;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar Security Services
-import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
+
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+import sun.security.pkcs.ContentInfo;
+import sun.security.pkcs.PKCS7;
+import sun.security.pkcs.SignerInfo;
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.X500Name;
 
 
 /** This class provides support for the Cryptographic Message Syntax (CMS),

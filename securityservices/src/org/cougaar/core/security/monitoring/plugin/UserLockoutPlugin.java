@@ -20,81 +20,63 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityChangeListener;
-import org.cougaar.core.service.community.CommunityChangeEvent;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.adaptivity.OperatingMode;
-import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.adaptivity.OMCRange;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-import org.cougaar.core.security.util.CommunityServiceUtilListener;
-
-
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
 import org.cougaar.core.security.constants.AdaptiveMnROperatingModes;
 import org.cougaar.core.security.constants.IdmefAssessments;
+import org.cougaar.core.security.constants.IdmefClassifications;
+import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.multicast.AttributeBasedAddress;
+import org.cougaar.util.UnaryPredicate;
 
-import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.IDMEF_Node;
-import edu.jhuapl.idmef.IDMEF_Process;
-import edu.jhuapl.idmef.Source;
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.User;
-import edu.jhuapl.idmef.UserId;
-import edu.jhuapl.idmef.DetectTime;
-import edu.jhuapl.idmef.Assessment;
-import edu.jhuapl.idmef.Impact;
-import edu.jhuapl.idmef.Confidence;
-import edu.jhuapl.idmef.Action;
-
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.TimerTask;
-import java.util.Enumeration;
+import java.util.Set;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+
+import edu.jhuapl.idmef.Action;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Assessment;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.Confidence;
+import edu.jhuapl.idmef.DetectTime;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Impact;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
 
 /**
  * This class queries login failures and will lockout users who

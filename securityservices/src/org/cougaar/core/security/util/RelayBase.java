@@ -20,17 +20,15 @@
  */
 package org.cougaar.core.security.util;
 
-import java.io.Serializable;
-import java.util.*;
-import java.lang.reflect.*;
-
-import org.cougaar.core.relay.*;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.relay.Relay;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.util.UniqueObject;
-
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Set;
 
 public class RelayBase
   implements Relay.Source, Relay.Target, java.io.Serializable {

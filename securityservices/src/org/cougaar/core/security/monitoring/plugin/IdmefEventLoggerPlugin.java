@@ -22,23 +22,26 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.io.*;
-import java.util.*;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.security.monitoring.idmef.*;
 import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.Registration;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import edu.jhuapl.idmef.*;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
+
+import edu.jhuapl.idmef.IDMEF_Message;
 
 
 public class IdmefEventLoggerPlugin extends ComponentPlugin {

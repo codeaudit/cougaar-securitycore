@@ -23,24 +23,22 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.util.*;
-
-// Cougaar core services
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.policy.DataProtectionPolicy;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.planning.ldm.policy.Policy;
 
-// KAoS policy management
+import java.util.HashMap;
+
 import safe.enforcer.NodeEnforcer;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.crypto.SecureMethodParam;
 
 public class CryptoPolicyServiceImpl
   implements CryptoPolicyService

@@ -23,18 +23,22 @@
 package org.cougaar.core.security.crypto;
 
 
-import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.mts.AttributedMessage;
+import org.cougaar.core.mts.DestinationLink;
+import org.cougaar.core.mts.DestinationLinkDelegateImplBase;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.MessageProtectionAspect;
+import org.cougaar.core.mts.ReceiveLink;
+import org.cougaar.core.mts.ReceiveLinkDelegateImplBase;
+import org.cougaar.core.mts.SendQueue;
+import org.cougaar.core.mts.SendQueueDelegateImplBase;
+import org.cougaar.core.mts.SimpleMessageAttributes;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.mts.*;
-import java.security.*;
-import java.security.cert.*;
-import javax.security.auth.*;
-import java.io.*;
 import java.util.Iterator;
 import java.util.List;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
 
 /**
  * This class adds the necessary

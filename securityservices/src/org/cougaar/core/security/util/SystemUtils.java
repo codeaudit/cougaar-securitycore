@@ -20,12 +20,12 @@
  */
 package org.cougaar.core.security.util;
 
-import java.net.InetAddress;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SystemUtils {
   

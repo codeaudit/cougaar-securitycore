@@ -22,7 +22,7 @@
 
 package org.cougaar.core.security.acl.trust;
 
-import java.io.*;
+import java.io.Serializable;
 
 /**
  * A trust attribute which has an integer value denoting the 

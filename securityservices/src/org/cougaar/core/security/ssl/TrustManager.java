@@ -25,21 +25,17 @@
  */
 package org.cougaar.core.security.ssl;
 
-import javax.net.ssl.*;
-import java.security.*;
-import java.security.cert.*;
-import java.util.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.X509TrustManager;
 
 public class TrustManager implements X509TrustManager {
   protected KeyRingService keyRing = null;

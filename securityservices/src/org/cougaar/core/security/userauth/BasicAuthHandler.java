@@ -1,9 +1,8 @@
 package org.cougaar.core.security.userauth;
 
-import org.cougaar.core.security.ssl.ui.*;
+import org.cougaar.core.security.ssl.ui.UserAliasPwdDialog;
 
-import java.net.*;
-import javax.swing.*;
+import java.net.PasswordAuthentication;
 
 public class BasicAuthHandler extends AuthenticationHandler {
   String username = "";

@@ -21,8 +21,7 @@
 
 package org.cougaar.core.security.provider;
 
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.cougaar.core.component.ComponentSupport;
 
 /**
  * Base class for SecurityComponents.  Acceptable security managers must implement this 

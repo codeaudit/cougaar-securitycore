@@ -25,7 +25,10 @@
  */
 package org.cougaar.core.security.util;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 
 public class UIUtil {
  public static void centerWindow(Window w) {

@@ -26,20 +26,22 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-import sun.security.x509.*;
-
-// Cougaar security services
-import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.certauthority.PendingCertCache;
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.cert.X509Certificate;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class ProcessPendingCertServlet extends  HttpServlet
 {

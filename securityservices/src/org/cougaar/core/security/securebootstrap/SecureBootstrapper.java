@@ -26,15 +26,11 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.io.*;
-import java.net.*;
-import java.text.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.zip.*;
-import java.util.jar.*;
-import java.security.*;
-import java.security.cert.*;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  * A bootstrapping launcher, in particular, for a node.

@@ -25,23 +25,21 @@
  */
 package org.cougaar.core.security.ssl;
 
-import java.util.List;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.net.Socket;
-import java.net.ServerSocket;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSessionBindingEvent;
-import java.security.cert.X509Certificate;
-import java.security.cert.Certificate;
-
-// Cougaar core services
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.net.Socket;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSessionBindingEvent;
+import javax.net.ssl.SSLSocket;
 
 /**
  * SSLSocketCache keeps a cache of all SSL sockets.

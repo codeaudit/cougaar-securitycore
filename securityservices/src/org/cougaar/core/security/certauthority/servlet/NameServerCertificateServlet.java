@@ -26,18 +26,23 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.*;
-import sun.security.x509.*;
-
-import org.cougaar.core.service.*;
-
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
-import org.cougaar.core.security.naming.servlet.*;
-import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.naming.servlet.NameServerCertificate;
+import org.cougaar.core.security.naming.servlet.NameServerCertificateComponent;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.security.cert.X509Certificate;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class NameServerCertificateServlet extends HttpServlet {
   private SecurityServletSupport support;

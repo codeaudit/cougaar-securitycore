@@ -22,7 +22,6 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.util.UID;
 
 public class OutStandingQuery implements java.io.Serializable {

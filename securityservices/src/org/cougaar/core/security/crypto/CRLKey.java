@@ -26,10 +26,7 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
 import java.math.BigInteger;
-import java.security.cert.*;
 
 public class CRLKey 
 {

@@ -22,9 +22,7 @@
 
 package org.cougaar.core.security.auth;
 
-import java.security.Permission;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 /**
  * A Java security manager permission to add, delete, change, or 

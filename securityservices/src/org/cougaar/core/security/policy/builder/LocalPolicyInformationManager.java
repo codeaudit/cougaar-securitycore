@@ -1,8 +1,7 @@
 package org.cougaar.core.security.policy.builder;
 
-import java.util.*;
+import java.util.Set;
 
-import kaos.ontology.repository.OntologyRepository;
 import kaos.policy.information.PolicyInformationManager;
 
 

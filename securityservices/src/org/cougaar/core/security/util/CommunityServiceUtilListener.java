@@ -20,12 +20,6 @@
  */
 package org.cougaar.core.security.util;
 
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-
 import java.util.Set;
 
 public interface CommunityServiceUtilListener

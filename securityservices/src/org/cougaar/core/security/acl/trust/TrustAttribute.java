@@ -23,7 +23,7 @@
 
 package org.cougaar.core.security.acl.trust;
 
-import java.io.*;
+import java.io.Serializable;
 
 public class TrustAttribute implements Comparable, Serializable
 {

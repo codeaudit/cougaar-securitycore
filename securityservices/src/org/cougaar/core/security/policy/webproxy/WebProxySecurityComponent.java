@@ -21,13 +21,9 @@
 
 package org.cougaar.core.security.policy.webproxy;
 
-import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
-
 import org.cougaar.core.component.BindingSite;
-import org.cougaar.core.component.Component;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.util.GenericStateModelAdapter;
 import org.cougaar.core.component.ComponentSupport;
+import org.cougaar.core.component.ServiceBroker;
 
 public final class WebProxySecurityComponent
   extends ComponentSupport //GenericStateModelAdapter

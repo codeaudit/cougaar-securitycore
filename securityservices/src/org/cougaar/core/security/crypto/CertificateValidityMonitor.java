@@ -26,18 +26,16 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.util.*;
-import java.security.cert.*;
-import sun.security.x509.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.*;
+import org.cougaar.core.security.services.crypto.CertValidityService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.service.LoggingService;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class CertificateValidityMonitor
   implements CertValidityService, Runnable {

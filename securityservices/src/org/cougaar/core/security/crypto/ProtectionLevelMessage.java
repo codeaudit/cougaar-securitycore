@@ -21,9 +21,10 @@
  */
  
 package org.cougaar.core.security.crypto;
-import java.security.cert.X509Certificate;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageAddress;
+
+import java.security.cert.X509Certificate;
 
 public class ProtectionLevelMessage extends Message {
   private boolean         _signatureNeeded;

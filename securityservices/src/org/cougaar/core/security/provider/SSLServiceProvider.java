@@ -27,14 +27,12 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.ssl.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.component.ServiceRevokedEvent;
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.ssl.SSLServiceImpl;
 
 public class SSLServiceProvider
   extends BaseSecurityServiceProvider

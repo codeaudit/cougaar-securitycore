@@ -27,12 +27,10 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.PolicyBootstrapper;
-import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 
 public class PolicyBootstrapperServiceProvider 
   extends BaseSecurityServiceProvider

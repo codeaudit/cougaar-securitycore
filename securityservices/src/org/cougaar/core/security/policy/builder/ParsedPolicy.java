@@ -21,20 +21,18 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import antlr.Token;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.ActionConcepts;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 import jtp.ReasoningException;
-
 import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
-import kaos.ontology.util.ValueNotSet;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.SpecifiedModalityTypeNotExists;
-
-import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
+import antlr.Token;
 
 public abstract class ParsedPolicy 
 {

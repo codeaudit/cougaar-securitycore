@@ -26,19 +26,17 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.util.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.CertificateAttributesPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.security.util.Duration;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.services.util.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class CryptoClientPolicyHandler
   extends BaseConfigHandler

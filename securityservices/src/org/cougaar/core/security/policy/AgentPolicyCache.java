@@ -30,9 +30,7 @@ package org.cougaar.core.security.policy;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.Policy;
 
-// KAoS policy management
 import safe.enforcer.AgentEnforcer;
-import kaos.core.util.Msg;
 
 public class AgentPolicyCache extends PolicyCache implements AgentEnforcer {
 

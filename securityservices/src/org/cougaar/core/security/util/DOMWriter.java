@@ -84,17 +84,17 @@
 package org.cougaar.core.security.util;
 
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.xerces.parsers.DOMParser;
+import org.apache.xerces.readers.MIME2Java;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.apache.xerces.readers.MIME2Java;
-import org.apache.xerces.parsers.DOMParser;
 
 public class DOMWriter {
 

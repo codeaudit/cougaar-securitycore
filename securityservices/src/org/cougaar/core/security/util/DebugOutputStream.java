@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.util;
 
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class DebugOutputStream extends OutputStreamWrapper {
   private static Logger _log;

@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.test;
 
-import java.util.*;
 import java.util.StringTokenizer;
 
 public class TestTokenizer {

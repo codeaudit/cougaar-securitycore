@@ -23,18 +23,13 @@ package org.cougaar.core.security.crypto.crl;
 
 
 // Cougaar core services
-import org.cougaar.core.domain.Factory;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
+import org.cougaar.core.security.services.crypto.CrlManagementService;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
-import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.LDMServesPlugin;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-import  org.cougaar.core.security.services.crypto.CrlManagementService;
-import  org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
 
 
 final public class CrlManagement implements CrlManagementService {

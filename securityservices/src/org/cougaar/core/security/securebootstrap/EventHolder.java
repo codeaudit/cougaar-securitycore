@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 

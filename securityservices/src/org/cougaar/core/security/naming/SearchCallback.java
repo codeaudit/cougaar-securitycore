@@ -27,7 +27,7 @@
 
 package org.cougaar.core.security.naming;
 
-import java.util.*;
+import java.util.List;
 
 public interface SearchCallback {
   public void searchCallback(String cname, List l);

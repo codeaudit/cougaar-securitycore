@@ -27,46 +27,33 @@
 package org.cougaar.core.security.monitoring.servlet;
 
 // Imported java classes
-import java.io.*;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.naming.*;
-import javax.naming.directory.*;
-// IDMEF
-import edu.jhuapl.idmef.*;
-
-// Cougaar core services
-
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.component.*;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.servlet.BaseServletComponent;
-
-import org.cougaar.core.servlet.SimpleServletSupport;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.util.*;
-import org.cougaar.lib.aggagent.query.ScriptSpec;
-import org.cougaar.lib.aggagent.query.QueryResultAdapter;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.FormatEvent;
+import org.cougaar.core.security.monitoring.blackboard.MnRAggRateCalculator;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.servlet.BaseServletComponent;
 import org.cougaar.lib.aggagent.query.AggregationQuery;
-
-import org.cougaar.lib.aggagent.util.Enum.QueryType;
+import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.util.Enum.Language;
-import org.cougaar.lib.aggagent.util.Enum.AggType;
+import org.cougaar.lib.aggagent.util.Enum.QueryType;
 import org.cougaar.lib.aggagent.util.Enum.ScriptType;
 import org.cougaar.lib.aggagent.util.Enum.UpdateMethod;
 import org.cougaar.lib.aggagent.util.Enum.XmlFormat;
 
-// Cougaar security services
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**

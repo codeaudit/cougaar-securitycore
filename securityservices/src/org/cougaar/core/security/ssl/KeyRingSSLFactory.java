@@ -25,28 +25,19 @@
  */
 package org.cougaar.core.security.ssl;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.cert.X509Certificate;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketException;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.security.cert.X509Certificate;
+
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.HandshakeCompletedListener;
-import java.nio.channels.SocketChannel;
-
-
-// Cougaar core services
-import org.cougaar.util.log.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.KeyRingService;
 
 /**
  * KeyRingSSLFactory provides a mechanism for JNDI to use the KeyRingService

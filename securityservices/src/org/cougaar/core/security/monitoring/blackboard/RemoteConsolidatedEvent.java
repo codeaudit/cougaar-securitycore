@@ -21,17 +21,14 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
-import org.cougaar.core.util.UniqueObject;
-import org.cougaar.core.util.UID;
 import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
+import org.cougaar.core.security.monitoring.util.DrillDownUtils;
+import org.cougaar.core.util.UID;
 import org.cougaar.planning.servlet.XMLize;
 
-
-import org.cougaar.core.security.monitoring.util.*;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 /** Event implementation
  */

@@ -25,16 +25,32 @@
  */
 package org.cougaar.core.security.ssl.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.*;
-
-import java.security.cert.*;
-
 import org.cougaar.core.security.util.UIUtil;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 
 public class ChooseAliasDialog extends JDialog {

@@ -23,22 +23,19 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityRoster;
-import org.cougaar.core.mts.MessageAddress;
-
-//import org.cougaar.core.service.community.
-//import org.cougaar.core.service.community.
-
-import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.service.community.CommunityService;
 
 import java.util.Collection;
 import java.util.Hashtable;
+
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 

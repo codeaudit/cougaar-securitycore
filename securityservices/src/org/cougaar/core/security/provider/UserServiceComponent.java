@@ -22,16 +22,11 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.util.*;
 import org.cougaar.core.component.ComponentSupport;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.security.provider.UserServiceProvider;
 
 public class UserServiceComponent extends ComponentSupport
 {

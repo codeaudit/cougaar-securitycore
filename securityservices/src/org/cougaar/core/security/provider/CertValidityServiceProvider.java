@@ -27,13 +27,9 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.crypto.CertificateValidityMonitor;
 
 public class CertValidityServiceProvider
   extends BaseSecurityServiceProvider

@@ -26,21 +26,21 @@
 
 package org.cougaar.core.security.dataprotection.plugin;
 
-import java.io.*;
-import java.util.*;
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.dataprotection.DataProtectionStatus;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.security.certauthority.SecurityServletSupport;
-
-// Cougaar security services
-import org.cougaar.core.security.dataprotection.DataProtectionStatus;
 
 public class PersistenceVerificationServlet
   extends  HttpServlet

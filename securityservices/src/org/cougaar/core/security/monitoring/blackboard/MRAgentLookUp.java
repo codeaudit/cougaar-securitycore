@@ -23,16 +23,15 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 
-import edu.jhuapl.idmef.*;
-import java.io.Serializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-
-// Cougaar core services
-import org.cougaar.planning.servlet.XMLize;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.XMLSerializable;
+import edu.jhuapl.idmef.XMLUtils;
 
 public class MRAgentLookUp
   implements XMLSerializable

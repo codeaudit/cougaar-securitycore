@@ -21,11 +21,7 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-import org.cougaar.core.util.UniqueObject;
 import org.cougaar.planning.ldm.asset.Asset;
-import org.cougaar.core.mts.MessageAddress;
 
 /** NewEventTransfer interface. See Event class description.
  *  An EventTransfer logic provider is responsible for

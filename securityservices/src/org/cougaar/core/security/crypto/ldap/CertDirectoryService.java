@@ -21,26 +21,37 @@
 
 package org.cougaar.core.security.crypto.ldap;
 
-import java.util.*;
-import java.io.*;
-import java.lang.IllegalArgumentException;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.MessageDigest;
-import javax.naming.*;
-import javax.naming.directory.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-//import org.cougaar.core.security.services.ldap.LdapEntry;
-import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.MaxConnectionRetryException;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.naming.Context;
+import javax.naming.NameClassPair;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 /** RFCs that are applicable to LDAP:
  *  - RFC 2256: A summary of X.500 user schema for LDAPv3

@@ -26,8 +26,8 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.security.cert.X509Certificate;
 import java.io.Serializable;
+import java.security.cert.X509Certificate;
 
 /**
  * The content of the request that goes from the Data Protection service to the

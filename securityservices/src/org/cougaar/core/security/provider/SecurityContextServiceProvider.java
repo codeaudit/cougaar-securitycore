@@ -23,18 +23,15 @@
  */
 package org.cougaar.core.security.provider;
 
-import java.security.PrivilegedAction;
-import java.security.AccessController;
-
-// Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ObjectContextUtil;
+import org.cougaar.core.security.auth.SecurityContextServiceImpl;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.service.LoggingService;
 
-// Cougaar security services
-import org.cougaar.core.security.auth.SecurityContextServiceImpl;
-import org.cougaar.core.security.auth.ObjectContextUtil;
-import org.cougaar.core.security.services.auth.SecurityContextService;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 public class SecurityContextServiceProvider 
   extends BaseSecurityServiceProvider

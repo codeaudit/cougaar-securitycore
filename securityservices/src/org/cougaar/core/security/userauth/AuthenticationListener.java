@@ -25,7 +25,7 @@
  */
 package org.cougaar.core.security.userauth;
 
-import java.net.*;
+import java.net.PasswordAuthentication;
 
 public interface AuthenticationListener {
 

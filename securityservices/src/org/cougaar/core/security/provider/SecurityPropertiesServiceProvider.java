@@ -26,19 +26,15 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.SecurityPropertiesServiceImpl;
+
 import java.util.Hashtable;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServlet;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.util.SecurityPropertiesServiceImpl;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class SecurityPropertiesServiceProvider
   extends BaseSecurityServiceProvider

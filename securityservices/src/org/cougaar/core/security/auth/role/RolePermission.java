@@ -21,11 +21,9 @@
 
 package org.cougaar.core.security.auth.role;
 
-import org.cougaar.core.security.auth.*;
 import java.security.Permission;
-import java.security.PermissionCollection;
-import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 public abstract class RolePermission extends Permission {
   private String   _userRole;

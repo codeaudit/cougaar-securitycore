@@ -23,11 +23,10 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.ThreadControlService;
 import org.cougaar.core.thread.RightsSelector;
 import org.cougaar.util.UnaryPredicate;
-
-import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Comparator;
 

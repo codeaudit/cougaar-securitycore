@@ -21,26 +21,13 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-
-import kaos.ontology.jena.ActionConcepts;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.RuleParameter;
 
-// KAoS policy management
-import kaos.ontology.management.UnknownConceptException;
-import kaos.ontology.repository.ActionInstanceDescription;
-import kaos.ontology.repository.TargetInstanceDescription;
-import kaos.policy.guard.PolicyDistributor;
+import java.util.Vector;
 
+import kaos.ontology.jena.ActionConcepts;
 import safe.enforcer.AgentEnforcer;
-import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;
 

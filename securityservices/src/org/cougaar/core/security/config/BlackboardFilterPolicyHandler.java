@@ -27,21 +27,16 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.BlackboardFilterPolicy;
+
 import java.util.Collection;
 import java.util.HashSet;
 
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
   private BlackboardFilterPolicy _policy;

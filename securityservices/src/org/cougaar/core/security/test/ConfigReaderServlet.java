@@ -21,14 +21,17 @@
 package org.cougaar.core.security.test;
 
 // java packages
-import java.util.*;
-import java.io.*;
-import java.text.*;
-import javax.servlet.http.*;
-
-// cougaar classes
-import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.servlet.ComponentServlet;
+import org.cougaar.util.ConfigFinder;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Provides a Servlet whose only job is to read a config file and

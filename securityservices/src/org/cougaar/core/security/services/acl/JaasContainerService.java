@@ -26,10 +26,11 @@
 
 package org.cougaar.core.security.services.acl;
 
+import org.cougaar.core.component.Service;
+
+import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
-import java.security.Principal;
-import org.cougaar.core.component.Service;
 
 /** This service provides principal-based security contexts.
  *  It can be used by components that use the container model.

@@ -21,11 +21,19 @@
 
 package org.cougaar.core.security.acl.user;
 
-import org.cougaar.core.util.UniqueObject;
-import org.cougaar.core.util.UID;
-import java.util.*;
-import java.text.*;
 import org.cougaar.core.security.services.acl.UserServiceException;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 public class UserEntries implements UniqueObject {
   private UID _uid;

@@ -27,23 +27,34 @@
 package org.cougaar.core.security.monitoring.servlet;
 
 // Imported java classes
-import java.io.*;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.servlet.SimpleServletSupport;
+import org.cougaar.util.ConfigFinder;
+import org.cougaar.util.UnaryPredicate;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.servlet.*;
-import javax.servlet.http.*;
 
-// IDMEF
-import edu.jhuapl.idmef.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-// Cougaar core services
-import org.cougaar.core.servlet.SimpleServletSupport;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Assessment;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.CreateTime;
+import edu.jhuapl.idmef.Heartbeat;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 
 /**
  *  Use the TraX interface to perform a transformation.

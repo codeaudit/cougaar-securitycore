@@ -24,8 +24,8 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 
-import org.cougaar.core.util.UID;
 import org.cougaar.core.blackboard.Publishable;
+import org.cougaar.core.util.UID;
 
 import java.io.Serializable;
 

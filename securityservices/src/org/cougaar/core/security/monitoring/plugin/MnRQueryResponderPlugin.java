@@ -23,33 +23,22 @@ package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core services
 //import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.multicast.AttributeBasedAddress;
-
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
+import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
+import org.cougaar.core.security.monitoring.blackboard.OutStandingQuery;
+import org.cougaar.core.security.monitoring.blackboard.QueryMapping;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.util.UID;
+import org.cougaar.util.UnaryPredicate;
 
-//Security services
-import  org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
-
-
-//IDMEF
-import edu.jhuapl.idmef.*;
-
-//java api;
-
-import java.util.Enumeration;
-import java.util.Collection;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 

@@ -33,7 +33,10 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class is just a bunch of static methods for use with common file input operations. 

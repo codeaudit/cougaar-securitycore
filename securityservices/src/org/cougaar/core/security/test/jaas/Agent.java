@@ -26,8 +26,6 @@
 
 package org.cougaar.core.security.test.jaas;
 
-import java.util.Iterator;
-
 import org.cougaar.core.security.auth.JaasClient;
 
 public class Agent

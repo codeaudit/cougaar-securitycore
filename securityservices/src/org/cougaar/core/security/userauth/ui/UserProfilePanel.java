@@ -25,12 +25,14 @@
  */
 package org.cougaar.core.security.userauth.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.Vector;
 
-import java.util.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 
 public class UserProfilePanel extends JPanel {

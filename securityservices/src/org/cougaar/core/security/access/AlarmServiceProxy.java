@@ -22,12 +22,11 @@
 
 package org.cougaar.core.security.access;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.AlarmService;
 import org.cougaar.core.agent.service.alarm.Alarm;
 import org.cougaar.core.agent.service.alarm.PeriodicAlarm;
-
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.service.AlarmService;
 
 // this class is a proxy for the alarm service 
 class AlarmServiceProxy extends SecureServiceProxy 

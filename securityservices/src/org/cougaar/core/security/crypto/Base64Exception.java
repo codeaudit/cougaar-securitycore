@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.*;
 
 /** This exception is being thrown when a Base64 encode block does not
     contain the appropriate header or trailer.

@@ -1,7 +1,7 @@
 package org.cougaar.core.security.test;
 
-import java.util.*;
 import java.math.BigInteger;
+import java.util.Hashtable;
 
 public class TestHashtable
 {

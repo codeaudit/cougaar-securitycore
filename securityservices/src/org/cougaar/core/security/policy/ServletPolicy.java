@@ -26,9 +26,9 @@
 
 package org.cougaar.core.security.policy;
 
-import java.util.List;
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ServletPolicy extends SecurityPolicy {
   private List _rules = new ArrayList();

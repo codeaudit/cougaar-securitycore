@@ -21,9 +21,7 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import java.util.*;
-
-import kaos.ontology.util.KAoSClassBuilderImpl;
+import java.util.List;
 
 public class ParsedTarget
 {

@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.config.jar;
 
-import java.net.URL;
 import java.io.FilterInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 
 public class SecureJarFilterStream

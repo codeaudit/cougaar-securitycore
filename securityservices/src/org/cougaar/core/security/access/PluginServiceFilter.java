@@ -25,35 +25,31 @@ package org.cougaar.core.security.access;
 // core classes
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.ContainerAPI;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceFilter;
 import org.cougaar.core.component.ServiceFilterBinder;
 import org.cougaar.core.component.ServiceListener;
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.planning.service.PrototypeRegistryService;
+import org.cougaar.core.component.ServiceFilterBinder.FilteringServiceBroker;
 import org.cougaar.core.qos.metrics.MetricsService;
-import org.cougaar.core.service.AlarmService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.BlackboardMetricsService;
-import org.cougaar.core.service.BlackboardQueryService;
-import org.cougaar.core.service.SchedulerService;
-import org.cougaar.core.service.ServletService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.ThreadControlService;
-import org.cougaar.core.service.ThreadListenerService;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
-// securityservice classes
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
 import org.cougaar.core.security.services.auth.SecurityContextService;
-// java classes
-import java.security.PrivilegedAction;
+import org.cougaar.core.service.AlarmService;
+import org.cougaar.core.service.BlackboardMetricsService;
+import org.cougaar.core.service.BlackboardQueryService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.SchedulerService;
+import org.cougaar.core.service.ServletService;
+import org.cougaar.core.service.ThreadControlService;
+import org.cougaar.core.service.ThreadListenerService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.planning.service.PrototypeRegistryService;
+
 import java.util.Hashtable;
 
 public class PluginServiceFilter extends ServiceFilter {

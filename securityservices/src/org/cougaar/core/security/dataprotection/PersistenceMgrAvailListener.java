@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.policy.PersistenceManagerPolicy;
 
 public interface PersistenceMgrAvailListener {
   void newPMAvailable(PersistenceManagerPolicy pmp);

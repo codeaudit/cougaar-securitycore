@@ -27,25 +27,26 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import java.lang.*;
-import java.security.cert.X509Certificate;
-import java.security.Principal;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.*;
-import java.io.*;
-import java.security.cert.*;
-import sun.security.x509.*;
-
-// Cougaar
 import org.cougaar.core.component.Service;
-
-// Cougaar Security Services
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
-import  org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.crypto.CertificateChainException;
+import org.cougaar.core.security.crypto.CertificateRevokedException;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.ssl.KeyManager;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Hashtable;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 /** Low-level service to retrieve certificates and private keys
  */

@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.util.ArrayList;
-
-// Cougaar core services
 import org.cougaar.core.service.DataProtectionKey;
+
+import java.util.ArrayList;
 
 /**
  * A collection of keys used to encrypt the persisted blackboard.

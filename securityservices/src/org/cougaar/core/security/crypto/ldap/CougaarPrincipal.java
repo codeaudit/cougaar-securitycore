@@ -27,8 +27,8 @@ package org.cougaar.core.security.crypto.ldap;
 
 import java.util.List;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.Realm;
+import org.apache.catalina.realm.GenericPrincipal;
 
 public class CougaarPrincipal extends GenericPrincipal {
   String _loginRequirements;

@@ -26,29 +26,26 @@
 
 package org.cougaar.core.security.policy;
 
-import java.util.*;
-import org.w3c.dom.Document;
-import org.apache.xml.serialize.XMLSerializer;
-import java.io.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.blackboard.*;
-import org.cougaar.core.plugin.*;
-import org.cougaar.util.*;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.planning.ldm.policy.Policy;
 
-// KAoS policy management
-import kaos.policy.guard.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import kaos.core.util.AttributeMsg;
 import kaos.policy.enforcement.Enforcer;
-import kaos.policy.util.PolicyConstants;
-import safe.guard.EnforcerManagerService;
-import kaos.core.util.*;
+import kaos.policy.guard.PolicyDistributor;
 
-// Cougaar security services
-import org.cougaar.core.security.util.DOMWriter;
-import org.cougaar.core.security.services.util.*;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+
+import safe.guard.EnforcerManagerService;
 
 public abstract class GuardRegistration
   implements Enforcer, PolicyDistributor

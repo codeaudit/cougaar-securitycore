@@ -26,24 +26,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import org.w3c.dom.*;
-import sun.security.x509.X500Name;
-
-// Cougaar core infrastructure
-import org.cougaar.util.*;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-
-// Cougaar security services
-import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.w3c.dom.Element;
 
 public class NodeConfiguration
 {

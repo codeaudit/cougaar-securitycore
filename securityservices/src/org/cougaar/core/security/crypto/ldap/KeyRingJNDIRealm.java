@@ -25,73 +25,32 @@
  */
 package org.cougaar.core.security.crypto.ldap;
 
-import java.util.Iterator;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.util.Set;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-
-import java.security.Principal;
-import java.security.MessageDigest;
-import java.security.cert.X509Certificate;
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.catalina.Container;
-import org.apache.catalina.Valve;
-import org.apache.catalina.realm.RealmBase;
-import org.apache.catalina.core.ContainerBase;
-
-// IDMEF
-import edu.jhuapl.idmef.Address;
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
-import edu.jhuapl.idmef.IDMEF_Node;
-import edu.jhuapl.idmef.IDMEF_Process;
-import edu.jhuapl.idmef.Service;
-import edu.jhuapl.idmef.Source;
-import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.User;
-import edu.jhuapl.idmef.UserId;
-import edu.jhuapl.idmef.AdditionalData;
-
-// Cougaar security infrastructure
-import org.cougaar.core.security.acl.auth.DualAuthenticator;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.plugin.LoginFailureSensor;
-import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.identity.*;
-import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
+import org.cougaar.core.security.monitoring.plugin.LoginFailureSensor;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceAvailableEvent;
 
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+
+import org.apache.catalina.realm.RealmBase;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to

@@ -20,50 +20,13 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.community.CommunityService;
-
-import java.util.Enumeration;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collection;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.NamingException;
-
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.idmef.Agent;
+import org.cougaar.core.security.constants.IdmefClassifications;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.LoginEventPublisher;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.service.ThreadService;
 
-import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.IDMEF_Node;
-import edu.jhuapl.idmef.IDMEF_Process;
-import edu.jhuapl.idmef.AdditionalData;
-
-import org.cougaar.core.security.constants.IdmefClassifications;
+import java.util.List;
 
 /**
  * This class must be placed in the Node ini file to allow

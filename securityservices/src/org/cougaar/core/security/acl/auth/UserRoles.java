@@ -23,15 +23,14 @@
 
 package org.cougaar.core.security.acl.auth;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Iterator;
-import java.security.AccessController;
 import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.DomainCombiner;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.security.auth.Subject;
-import javax.security.auth.SubjectDomainCombiner;
 
 import org.apache.catalina.realm.GenericPrincipal;
 

@@ -26,23 +26,25 @@
 
 package org.cougaar.core.security.tools;
 
-import java.security.cert.*;
-import java.security.KeyStore;
-import java.util.*;
-import java.io.*;
-
-import org.w3c.dom.*;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
-// Cougaar security services
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class KeyGenerator {
 

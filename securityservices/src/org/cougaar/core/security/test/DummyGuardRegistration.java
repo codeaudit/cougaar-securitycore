@@ -26,18 +26,12 @@
 
 package org.cougaar.core.security.test;
 
-import java.util.*;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 
-// KAoS policy management
-import safe.enforcer.NodeEnforcer;  // or import SAFE.Enforcer.AgentEnforcer;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.GuardRegistration;
+import safe.enforcer.NodeEnforcer;
 
 public class DummyGuardRegistration
   extends GuardRegistration 

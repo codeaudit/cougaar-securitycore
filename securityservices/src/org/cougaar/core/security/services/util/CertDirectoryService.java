@@ -26,13 +26,12 @@
 
 package org.cougaar.core.security.services.util;
 
-import java.util.*;
-import java.net.*;
-
-import sun.security.x509.*;
-
-// Cougaar core infrastructure
 import org.cougaar.core.component.Service;
+
+import java.net.URI;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 public interface CertDirectoryService extends Service {
   List findCert(X500Name dname, URI uri);

@@ -26,31 +26,17 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.PrivateKey;
-import java.security.NoSuchAlgorithmException;
-import java.security.GeneralSecurityException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-
-import java.lang.IllegalArgumentException;
-
-// Cougaar core infrastructure
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-
-// Cougaar security services
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-
-// Cougaar Overlay
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.identity.TransferableIdentity;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 public class KeyWrapping
 {

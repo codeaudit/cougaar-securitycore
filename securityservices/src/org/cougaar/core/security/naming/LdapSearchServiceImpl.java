@@ -26,23 +26,21 @@
 
 package org.cougaar.core.security.naming;
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.*;
-import java.security.*;
-import sun.security.x509.*;
-import java.net.*;
-
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
+import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.services.util.CertDirectoryService;
+import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.config.*;
-import org.cougaar.core.security.crypto.*;
-import  org.cougaar.core.security.crypto.ldap.LdapEntry;
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.ldap.*;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 public class LdapSearchServiceImpl implements CertDirectoryService {
   private LoggingService log;

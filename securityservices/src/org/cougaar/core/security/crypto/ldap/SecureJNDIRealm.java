@@ -26,25 +26,23 @@
 package org.cougaar.core.security.crypto.ldap;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.util.Hashtable;
-
+import java.io.IOException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.security.KeyManagementException;
 import java.security.cert.CertificateException;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 

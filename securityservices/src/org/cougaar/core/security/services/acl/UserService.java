@@ -24,7 +24,6 @@ package org.cougaar.core.security.services.acl;
 
 import org.cougaar.core.component.Service;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 

@@ -23,17 +23,13 @@
 
 package org.cougaar.core.security.crypto;
 
-import org.cougaar.util.ConfigFinder;
+import java.security.Provider;
+import java.security.Security;
+import java.util.Enumeration;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.security.Security;
-import java.security.Provider;
-import java.io.*;
-import java.util.*;
 
 /** This class provides a method to dynamically load
     cryptographic service providers.

@@ -25,9 +25,6 @@ package org.cougaar.core.security.services.crypto;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 
-// Cougaar security services
-import org.cougaar.core.security.crypto.SecureMethodParam;
-
 public interface ServletPolicyService
   extends Service
 {

@@ -27,15 +27,13 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core infrastructure
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
+import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.naming.*;
 import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
-import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.naming.CertDirectoryServiceFactory;
+import org.cougaar.core.security.naming.CertificateSearchServiceImpl;
+import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.services.util.CertificateSearchService;
 
 public class CertificateSearchServiceProvider
   extends BaseSecurityServiceProvider {

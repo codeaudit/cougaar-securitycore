@@ -22,58 +22,47 @@
  
 package org.cougaar.core.security.crypto;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.lang.ClassNotFoundException;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.util.*; 
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.SendQueue;
-import org.cougaar.core.mts.Message;
-import org.cougaar.core.mts.Attributes;
+import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.AttributedMessage;
+import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
-import org.cougaar.core.mts.SimpleMessageAttributes;
-import org.cougaar.core.node.NodeMessage;
-import org.cougaar.core.service.MessageProtectionService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.wp.WhitePagesService;
+import org.cougaar.core.mts.SendQueue;
 import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.service.wp.AddressEntry;
-import org.cougaar.core.service.wp.Callback;
-import org.cougaar.core.service.wp.Response;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.plugin.MessageFailureSensor;
-import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.service.wp.Callback;
+import org.cougaar.core.service.wp.Response;
+import org.cougaar.core.service.wp.WhitePagesService;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.

@@ -22,31 +22,27 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.idmef.Agent;
+import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.Registration;
+import org.cougaar.core.service.EventService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
 import java.util.Collection;
 import java.util.Iterator;
 
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.EventService;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-
-// Cougaar Security Services
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.idmef.Registration;
-import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.constants.IdmefClassifications;
-
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.Address;
-import edu.jhuapl.idmef.IDMEF_Node;
-import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.XMLSerializable;
 
 public class IdmefEventPublisherPlugin

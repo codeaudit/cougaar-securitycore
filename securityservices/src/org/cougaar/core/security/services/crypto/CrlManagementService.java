@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.Service;
-
-import  org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
 
 public interface CrlManagementService  extends Service {
   

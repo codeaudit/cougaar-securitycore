@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.InputStream;
-
-// Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
+
+import java.io.InputStream;
 
 public class DirectoryKeyStoreParameters {
   // LDAP server parameters

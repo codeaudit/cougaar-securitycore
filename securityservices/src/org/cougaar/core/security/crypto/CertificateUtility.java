@@ -26,23 +26,39 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.cert.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.util.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import org.cougaar.core.security.policy.CertificateAttributesPolicy;
-import java.security.cert.CertificateEncodingException;
-
-// Cougaar security services
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.StringTokenizer;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+import sun.security.pkcs.PKCS7;
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.KeyUsageExtension;
+import sun.security.x509.OIDMap;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509CertImpl;
 
 public class CertificateUtility {
   //private static boolean debug = false;

@@ -23,22 +23,18 @@
 package org.cougaar.core.security.access;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.component.BinderWrapper;
 import org.cougaar.core.component.BinderFactory;
-import org.cougaar.core.component.ComponentDescription;
-import org.cougaar.util.ConfigFinder;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
+import org.cougaar.core.component.BinderWrapper;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 /**
  * add following line to the .ini file to activate this binder:

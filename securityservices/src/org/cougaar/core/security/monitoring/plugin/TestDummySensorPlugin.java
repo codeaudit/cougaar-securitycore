@@ -22,37 +22,36 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.multicast.AttributeBasedAddress;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
-import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-
-// Cougaar security services
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.multicast.AttributeBasedAddress;
 
-
-import java.util.Enumeration;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import edu.jhuapl.idmef.*;
+
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
 
 
 public class TestDummySensorPlugin  extends  ComponentPlugin   {

@@ -21,25 +21,18 @@
 
 package org.cougaar.core.security.provider;
 
-import java.util.Hashtable;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.Service;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.TrustedCaPolicy;
-import org.cougaar.core.security.crypto.ldap.OpenLdapCertDirectoryServiceImpl;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
 import org.cougaar.core.security.crypto.ldap.NetToolsCertDirectoryService;
-import org.cougaar.core.security.crypto.CertificateDirectoryHandler;
-import org.cougaar.core.security.crypto.ldap.LdapEntry;
+import org.cougaar.core.security.crypto.ldap.OpenLdapCertDirectoryServiceImpl;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-//import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
-import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
+
+import java.util.Hashtable;
 
 public class CertDirectoryServiceProvider
   extends BaseSecurityServiceProvider

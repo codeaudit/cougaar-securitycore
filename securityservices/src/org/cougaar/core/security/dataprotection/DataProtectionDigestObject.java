@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.io.*;
+import java.io.Serializable;
 
 public class DataProtectionDigestObject implements Serializable {
 

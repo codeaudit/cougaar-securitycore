@@ -25,16 +25,11 @@
  */
 package org.cougaar.core.security.ssl;
 
-import javax.net.ssl.*;
-import java.security.*;
-import java.security.cert.*;
-
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-import org.cougaar.core.security.util.*;
-//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 public class UserTrustManager
   extends org.cougaar.core.security.ssl.TrustManager {

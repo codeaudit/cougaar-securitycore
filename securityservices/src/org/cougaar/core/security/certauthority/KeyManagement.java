@@ -26,67 +26,80 @@
 
 package org.cougaar.core.security.certauthority;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.security.cert.*;
-import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.math.BigInteger;
-
-import javax.crypto.*;
-
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
-import javax.naming.NameAlreadyBoundException;
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.util.*;
-import sun.security.provider.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.component.ServiceRevokedEvent;
-
-// Cougaar Security Services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateType;
-import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.Base64;
-//import org.cougaar.core.security.crypto.DirectoryKeyStore;
-import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
-
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
-import org.cougaar.core.security.services.ldap.MultipleEntryException;
-import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.crypto.NodeConfiguration;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.naming.CACertificateEntry;
+import org.cougaar.core.security.naming.CertificateEntry;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.CrlUtility;
+import org.cougaar.core.security.util.DateUtil;
+import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.crypto.CertificateCache;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.naming.CACertificateEntry;
-import org.cougaar.core.security.naming.CertificateEntry;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SignatureException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import org.cougaar.core.security.util.*;
-import org.cougaar.core.security.services.util.*;
+import sun.security.pkcs.PKCS10;
+import sun.security.pkcs.PKCS10Attributes;
+import sun.security.pkcs.PKCS7;
+import sun.security.provider.X509Factory;
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.CertificateAlgorithmId;
+import sun.security.x509.CertificateIssuerName;
+import sun.security.x509.CertificateSerialNumber;
+import sun.security.x509.CertificateSubjectName;
+import sun.security.x509.CertificateValidity;
+import sun.security.x509.CertificateVersion;
+import sun.security.x509.CertificateX509Key;
+import sun.security.x509.KeyUsageExtension;
+import sun.security.x509.OIDMap;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509CertImpl;
+import sun.security.x509.X509CertInfo;
 
 /** Certification Authority service
  * The following java properties are necessary:

@@ -21,31 +21,29 @@
 package org.cougaar.core.security.util;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.thread.Schedulable;
 import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityChangeEvent;
-
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.thread.Schedulable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.HashSet;
-import javax.naming.directory.*;
-import javax.naming.*;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 /**
  * Utility methods for the CommunityService

@@ -21,21 +21,23 @@
 
 package org.cougaar.core.security.services.ldap;
 
-import java.util.*;
-import java.security.cert.X509Certificate;
-import java.security.cert.X509CRLEntry;
-import java.security.*;
-import java.io.IOException;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
-import java.security.cert.CertificateException;
-import java.security.cert.CRLException;
-
-// Cougaar core services
 import org.cougaar.core.component.Service;
-
 import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 
 public interface CertDirectoryServiceCA
   extends Service

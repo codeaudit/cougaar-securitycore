@@ -26,26 +26,18 @@
 
 package org.cougaar.core.security.certauthority;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.List;
-import java.util.Iterator;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.servlet.BaseServletComponent;
+import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
-import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.servlet.BaseServletComponent;
 
-// Cougaar security services
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
-import org.cougaar.core.security.policy.*;
+import java.lang.reflect.Constructor;
+import java.util.List;
+
+import javax.servlet.Servlet;
 
 public class CaServletComponent
   extends BaseServletComponent

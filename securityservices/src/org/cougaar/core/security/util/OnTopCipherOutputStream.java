@@ -1,8 +1,11 @@
 package org.cougaar.core.security.util;
 
-import java.io.*;
-import java.security.*;
-import javax.crypto.*;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 
 public class OnTopCipherOutputStream extends FilterOutputStream {
   private OutputStream _unfiltered;

@@ -26,23 +26,19 @@
 package org.cougaar.core.security.test.adaptivity;
 
 
-import org.cougaar.core.adaptivity.OperatingMode;
-import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.adaptivity.InterAgentOperatingMode;
 import org.cougaar.core.adaptivity.InterAgentOperatingModePolicy;
 import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ServiceUserPlugin;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator; 
+import java.util.Iterator;
 
 /**
  * Publishes an inter agent operating mode to be controlled by 

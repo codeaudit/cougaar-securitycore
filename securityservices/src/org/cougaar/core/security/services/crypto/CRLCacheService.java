@@ -26,26 +26,9 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import java.lang.*;
-import java.security.cert.X509Certificate;
-import java.security.Principal;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.*;
-import java.security.cert.*;
-import sun.security.x509.*;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.InvalidKeyException;
-import java.security.KeyException;
-import java.security.KeyStoreException;
-
-// Cougaar
 import org.cougaar.core.component.Service;
-import org.cougaar.core.service.BlackboardService;
 
-// Cougaar Security Services
-import org.cougaar.core.security.crypto.*;
+import java.security.cert.X509Certificate;
 
 /** Low-level service to update and retrive certificates and private keys from the Certificate Cache 
  */

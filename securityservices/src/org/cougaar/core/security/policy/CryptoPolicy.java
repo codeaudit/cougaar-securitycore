@@ -26,19 +26,18 @@
 
 package org.cougaar.core.security.policy;
 
-import java.util.HashMap;
-import java.util.Vector;
-import java.util.Collection;
-import java.util.Iterator;
-
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Vector;
+
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 public class CryptoPolicy extends SecurityPolicy {
   /**

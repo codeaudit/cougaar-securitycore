@@ -33,16 +33,13 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-import java.math.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /** 
  * This class represents the name of an alert.

@@ -28,8 +28,12 @@ package org.cougaar.core.security.policy;
 
 import org.cougaar.core.security.config.CryptoClientPolicyHandler;
 
-import org.w3c.dom.*;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Vector;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class CryptoClientPolicy
   extends SecurityPolicy

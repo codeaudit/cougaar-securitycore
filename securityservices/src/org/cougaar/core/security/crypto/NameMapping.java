@@ -26,18 +26,17 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.Principal;
-import sun.security.x509.*;
-import java.security.cert.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
-// Cougaar security services
-import org.cougaar.core.security.util.*;
+import java.io.IOException;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import sun.security.x509.X500Name;
 
 public class NameMapping {
   private ServiceBroker serviceBroker;

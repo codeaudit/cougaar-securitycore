@@ -26,15 +26,10 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.config.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.config.ConfigParserServiceImpl;
+import org.cougaar.core.security.services.util.ConfigParserService;
 
 public class ConfigParserServiceProvider 
   extends BaseSecurityServiceProvider

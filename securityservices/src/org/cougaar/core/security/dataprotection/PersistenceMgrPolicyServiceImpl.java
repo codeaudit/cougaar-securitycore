@@ -26,40 +26,40 @@
 package org.cougaar.core.security.dataprotection;
 
 // Cougaar core infrastructure
-import org.cougaar.core.component.Service;
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceListener;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.policy.PersistenceManagerPolicy;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
+import org.cougaar.core.security.services.util.WhitePagesUtil;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.service.wp.AddressEntry;
-import org.cougaar.core.service.wp.WhitePagesService;
 import org.cougaar.core.service.wp.Callback;
 import org.cougaar.core.service.wp.Response;
+import org.cougaar.core.service.wp.WhitePagesService;
 
-// security services
-import org.cougaar.core.security.policy.PersistenceManagerPolicy;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
-import org.cougaar.core.security.services.util.WhitePagesUtil;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-
-// java
 import java.net.URI;
-import java.util.*;
-import sun.security.x509.X500Name;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.NamingException;
+
+import sun.security.x509.X500Name;
 
 /**
  * The PersistenceMgrPolicyService queries the community service for agents

@@ -23,43 +23,28 @@
 
 package org.cougaar.core.security.acl.auth;
 
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.ServletPolicy;
+import org.cougaar.core.security.services.crypto.ServletPolicyService;
+import org.cougaar.planning.ldm.policy.Policy;
+
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
+import java.util.List;
 
-// Tomcat 4.0 security constraints
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
-import org.apache.catalina.Session;
 import org.apache.catalina.Manager;
-import org.apache.catalina.session.StandardManager;
-import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.Session;
 import org.apache.catalina.deploy.SecurityCollection;
+import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.session.StandardManager;
 
-// KAoS policy management
 import safe.enforcer.NodeEnforcer;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.RuleParameter;
-import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
-import org.cougaar.planning.ldm.policy.KeyRuleParameter;
-import org.cougaar.planning.ldm.policy.LongRuleParameter;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.core.security.services.crypto.ServletPolicyService;
-import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
-import org.cougaar.core.security.acl.auth.DualAuthenticator;
-import org.cougaar.core.security.policy.ServletPolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
 
 public class ServletPolicyEnforcer 
   implements ServletPolicyService/*, PropertyChangeListener*/ {

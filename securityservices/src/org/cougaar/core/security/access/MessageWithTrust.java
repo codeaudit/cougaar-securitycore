@@ -23,17 +23,12 @@
 package org.cougaar.core.security.access;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
 import org.cougaar.core.mts.Message;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.acl.trust.TrustSet;
 
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.acl.*;
-import  org.cougaar.core.security.acl.trust.TrustSet;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 public class MessageWithTrust
   extends Message

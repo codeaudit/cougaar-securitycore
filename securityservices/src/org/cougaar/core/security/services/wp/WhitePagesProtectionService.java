@@ -28,11 +28,11 @@
 package org.cougaar.core.security.services.wp;
 
 
-import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
-
 import org.cougaar.core.component.Service;
 import org.cougaar.core.service.wp.Request;
+
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
 
 
 /**

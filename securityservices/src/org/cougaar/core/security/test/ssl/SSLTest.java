@@ -21,20 +21,26 @@
 
 package org.cougaar.core.security.test.ssl;
 
-import java.net.*;
-import java.io.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.UserSSLService;
+import org.cougaar.core.security.ssl.KeyRingSSLFactory;
+import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
+import org.cougaar.core.security.ssl.SSLServiceImpl;
+import org.cougaar.core.security.userauth.UserAuthenticatorImpl;
 
-import javax.net.ssl.*;
-import javax.net.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.URL;
 
-import javax.swing.*;
-
-import org.cougaar.core.security.ssl.*;
-import org.cougaar.core.security.userauth.*;
-import org.cougaar.core.security.provider.*;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.component.*;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+import javax.swing.JOptionPane;
 
 public class SSLTest {
   private SSLServiceImpl sslservice;

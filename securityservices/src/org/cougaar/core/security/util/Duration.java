@@ -26,11 +26,10 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.StringTokenizer;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+
+import java.util.StringTokenizer;
 
 /** Helper class to handle certificate validity.
  * 

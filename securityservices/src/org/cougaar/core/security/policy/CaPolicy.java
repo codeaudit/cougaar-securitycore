@@ -26,11 +26,14 @@
 
 package org.cougaar.core.security.policy;
 
-import org.w3c.dom.*;
-import sun.security.x509.*;
-import java.net.*;
-
 import org.cougaar.core.security.config.CaPolicyHandler;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.X500Name;
 
 public class CaPolicy
   extends SecurityPolicy

@@ -20,34 +20,24 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.TreeSet;
-import java.util.Collection;
-import java.util.Comparator;
-
-import java.io.*;
-
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Alert;
-
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.agent.service.alarm.Alarm;
-import org.cougaar.core.agent.service.alarm.AlarmServiceProvider;
-
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.blackboard.CollectionSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-
 import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TreeSet;
+
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.IDMEFTime;
 
 /**
  * Deletes old or excessive IDMEF Alert events from the blackboard.  It only deletes

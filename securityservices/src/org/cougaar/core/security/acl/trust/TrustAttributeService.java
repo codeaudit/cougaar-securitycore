@@ -26,13 +26,11 @@
 
 package org.cougaar.core.security.acl.trust;
 
-import java.util.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.services.acl.AgentTrustService;
 
-// Cougaar core services
-import org.cougaar.core.component.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.acl.*;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 public class TrustAttributeService 
     implements Service, AgentTrustService

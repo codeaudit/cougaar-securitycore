@@ -17,23 +17,23 @@
  */
 package org.cougaar.core.security.test;
 
-import java.util.*;
-
-import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.blackboard.Directive;
+import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageTransportClient;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageTransportService;
-
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
+
+import java.util.Collection;
 
 /**
  * This plugin tests the use of Message Access Control binder.

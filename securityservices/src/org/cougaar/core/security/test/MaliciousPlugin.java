@@ -25,14 +25,9 @@
  */
 package org.cougaar.core.security.test;
 
-import java.io.*;
-import java.net.*;
-import java.lang.*;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Iterator;
-
 import org.cougaar.core.plugin.ComponentPlugin;
+
+import java.io.FileReader;
 
 public class MaliciousPlugin extends ComponentPlugin
 {

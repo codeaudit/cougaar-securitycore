@@ -33,12 +33,10 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-
 import java.io.Serializable;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /** 
  * This interface representes the ability to convert the implementing 

@@ -25,16 +25,20 @@
  */
 package org.cougaar.core.security.userauth;
 
-import java.util.*;
-import javax.swing.*;
-import java.net.*;
-
-import java.security.*;
-import java.security.cert.*;
-
-import org.cougaar.core.security.ssl.ui.*;
-import org.cougaar.core.security.crypto.*;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.ssl.ui.UserAliasPwdDialog;
+
+import java.net.PasswordAuthentication;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+
+import javax.swing.JOptionPane;
 
 public class KeyRingUserAuthImpl extends AuthenticationHandler {
   protected CertificateCacheService cacheService = null;

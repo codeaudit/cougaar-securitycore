@@ -27,7 +27,7 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.security.*;
+import java.security.GeneralSecurityException;
 
 /** This exception is being thrown by the org.cougaar.core.security.CertificateVerifier
    if a jar file does not contain a META-INF/MANIFEST.MF file.  It is easy to remove such file

@@ -20,9 +20,9 @@
  */
 package org.cougaar.core.security.util;
 
-import java.util.Date;
-import java.util.Calendar;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 

@@ -24,35 +24,27 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.service.UIDService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.AggQueryResult;
+import org.cougaar.core.security.monitoring.blackboard.AggregatedResponse;
 import org.cougaar.core.security.monitoring.blackboard.AggregationDrillDownQuery;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.ConsolidatedEvent;
 import org.cougaar.core.security.monitoring.blackboard.DetailsDrillDownQuery;
 import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.AggregatedResponse;
 import org.cougaar.core.security.monitoring.blackboard.RemoteConsolidatedEvent;
-import org.cougaar.core.security.monitoring.blackboard.DrillDownQuery;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.util.DrillDownUtils;
 import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
+import org.cougaar.core.security.monitoring.util.DrillDownUtils;
+import org.cougaar.core.util.UID;
+import org.cougaar.util.UnaryPredicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Hashtable;
 import java.util.Set;
 
 

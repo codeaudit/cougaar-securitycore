@@ -21,10 +21,10 @@
 
 package org.cougaar.core.security.auth;
 
-import java.security.Permission;
-
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
+
+import java.security.Permission;
 
 public class ObjectContextUtil {
   private static SecurityContextService _scs;

@@ -26,36 +26,30 @@
 
 package org.cougaar.core.security.config.jar;
 
-import java.security.GeneralSecurityException;
-import java.io.IOException;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.net.URL;
-import java.net.JarURLConnection;
-import java.util.Map;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.regex.PatternSyntaxException;
-
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.Logging;
-import org.cougaar.util.log.LoggerFactory;
-
-// Cougaar core infrastructure
-import org.cougaar.util.jar.JarConfigFinder;
-
-// Cougaar security services
 import org.cougaar.core.security.securebootstrap.CertificateVerifier;
 import org.cougaar.core.security.securebootstrap.CertificateVerifierImpl;
 import org.cougaar.core.security.securebootstrap.SecurityLog;
 import org.cougaar.core.security.securebootstrap.SecurityLogImpl;
+import org.cougaar.util.jar.JarConfigFinder;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * A secure config finder that looks configuration files in signed jar files

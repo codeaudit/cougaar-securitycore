@@ -26,23 +26,21 @@
 
 package org.cougaar.core.security.config;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.*;
-import java.util.regex.*;
-
-import sun.security.x509.*;
-import sun.security.util.ObjectIdentifier;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.service.LoggingService;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.*;
+import java.io.CharArrayWriter;
+import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class BaseConfigHandler
   extends DefaultHandler

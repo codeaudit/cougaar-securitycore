@@ -26,14 +26,9 @@
 
 package org.cougaar.core.security.naming;
 
-import java.util.*;
-import java.security.cert.*;
-import java.security.*;
-import sun.security.x509.*;
+import org.cougaar.core.service.wp.Cert;
 
-import org.cougaar.core.service.wp.*;
-
-import org.cougaar.core.security.crypto.*;
+import java.util.List;
 
 final public class NamingCertEntry extends Cert
 {

@@ -23,10 +23,9 @@
 package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.util.UnaryPredicate;
-
-import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Collection;
 

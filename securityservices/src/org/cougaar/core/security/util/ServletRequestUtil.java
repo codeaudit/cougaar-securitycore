@@ -20,14 +20,13 @@
  */
 package org.cougaar.core.security.util;
 
-import java.util.*;
-import java.io.*;
-import java.security.cert.X509Certificate;
-
-import sun.security.x509.*;
-import javax.security.auth.x500.X500Principal;
-import java.security.cert.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ServletRequestUtil {
 

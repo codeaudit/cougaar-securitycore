@@ -23,35 +23,28 @@
 
 package org.cougaar.core.security.access;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.HashSet;
-import java.util.Vector;
-import java.util.Iterator;
-import java.util.Collection;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceListener;
+import org.cougaar.core.security.acl.trust.IntegrityAttribute;
+import org.cougaar.core.security.acl.trust.MissionCriticality;
+import org.cougaar.core.security.acl.trust.TrustAttribute;
+import org.cougaar.core.security.acl.trust.TrustSet;
+import org.cougaar.core.security.policy.AccessControlPolicy;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.planning.ldm.plan.Verb;
+import java.util.Vector;
 
-// KAoS
 import safe.enforcer.AgentEnforcer;
-
-// Cougaar Security Services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.acl.AccessControlPolicyService;
-import org.cougaar.core.security.acl.trust.*;
 
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService

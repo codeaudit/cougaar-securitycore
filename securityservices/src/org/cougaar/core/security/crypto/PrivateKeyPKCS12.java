@@ -26,30 +26,22 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.*;
-import java.util.*;
-import java.security.PrivateKey;
-import java.security.KeyFactory;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CRL;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
+import java.util.Iterator;
+import java.util.List;
 
 import com.ibm.security.pkcs12.PKCS12PFX;
 import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
 
 
 public class PrivateKeyPKCS12

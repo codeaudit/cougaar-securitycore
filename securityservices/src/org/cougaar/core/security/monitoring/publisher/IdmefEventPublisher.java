@@ -26,40 +26,28 @@
 package org.cougaar.core.security.monitoring.publisher;
 
 // cougaar core classes
-import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.idmef.Agent;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.thread.Schedulable;
 
-// securityservices classes
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.idmef.Agent;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.plugin.UnknownSensorInfo;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.services.auth.SecurityContextService;
-
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.AdditionalData;
-import edu.jhuapl.idmef.Address;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.Source;
-import edu.jhuapl.idmef.Target;
-import edu.jhuapl.idmef.XMLUtils;
-
-// java classes
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 
 /*
 //for debugging purposes

@@ -24,11 +24,8 @@ import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Analyzer;
 import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.CreateTime;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
-
-import org.cougaar.planning.servlet.XMLize;
 /**
  * Registration subclasses Alert, and is used to distinguish
  * the difference been an Alert message and a Registration message

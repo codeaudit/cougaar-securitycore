@@ -26,15 +26,11 @@
 
 package org.cougaar.core.security.certauthority;
 
-import javax.servlet.Servlet;
-
-// Cougaar core infrastructure
-import org.cougaar.core.servlet.SimpleServletSupport;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.servlet.SimpleServletSupport;
+
+import javax.servlet.Servlet;
 
 public interface SecurityServletSupport
   extends SimpleServletSupport

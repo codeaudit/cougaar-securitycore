@@ -45,12 +45,10 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.yp.YPMessage;
 
 import java.io.IOException;
-
 import java.security.GeneralSecurityException;
 import java.security.SignedObject;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
 import java.util.List;
 
 

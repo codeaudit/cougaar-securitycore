@@ -30,17 +30,19 @@ package org.cougaar.core.security.crlextension.x509.extensions;
 
 
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Enumeration;
-import java.util.Vector;
-import sun.security.util.DerOutputStream;
+
 import sun.security.util.DerInputStream;
+import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
 import sun.security.util.ObjectIdentifier;
-import sun.security.x509.Extension;
-import sun.security.x509.CertAttrSet;
 import sun.security.x509.AttributeNameEnumeration;
+import sun.security.x509.CertAttrSet;
+import sun.security.x509.Extension;
 
 
 

@@ -23,47 +23,40 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.Iterator;
-import java.util.TimerTask;
-import java.util.Set;
-import java.util.Iterator;
-
-import edu.jhuapl.idmef.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.StateModelException ;
-import org.cougaar.multicast.AttributeBasedAddress;
-import org.cougaar.planning.ldm.plan.*;
-//import org.cougaar.planning.ldm.asset.*;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.*;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.core.domain.Factory;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageAddress;
-
-// Cougaar security services
-import org.cougaar.core.security.monitoring.blackboard.NewEvent;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.CmrObject;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
-import org.cougaar.core.security.monitoring.idmef.*;
-import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.blackboard.NotificationObject;
+import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.service.community.Entity;
+import org.cougaar.util.UnaryPredicate;
+
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Vector;
+
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
 
 class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   LoggingService log=null;

@@ -26,11 +26,28 @@
 
 package org.cougaar.core.security.util;
 
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
-import java.util.*;
-import java.util.jar.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+
 import sun.misc.BASE64Encoder;
 import sun.security.util.ManifestDigester;
 import sun.security.util.SignatureFile;

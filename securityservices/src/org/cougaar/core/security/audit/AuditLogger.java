@@ -28,25 +28,23 @@
 package org.cougaar.core.security.audit;
 
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.catalina.realm.GenericPrincipal;
-
 import org.cougaar.util.log.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.catalina.realm.GenericPrincipal;
 
 
 /**

@@ -25,14 +25,15 @@
  */
 package org.cougaar.core.security.ssl;
 
-import javax.net.*;
-import javax.net.ssl.*;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.userauth.*;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.UserSSLService;
+import org.cougaar.core.security.userauth.AuthenticationHandler;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 public class UserSSLServiceImpl
   extends SSLServiceImpl

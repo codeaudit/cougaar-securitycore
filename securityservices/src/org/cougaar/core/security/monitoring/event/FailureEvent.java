@@ -21,9 +21,9 @@
 
 package org.cougaar.core.security.monitoring.event;
 
-import edu.jhuapl.idmef.DetectTime;
-
 import java.util.Date;
+
+import edu.jhuapl.idmef.DetectTime;
 /**
  * A base representation of an Failure Event that could occurs in the cougaar
  * services, agents, or nodes.   This data structure represent events that are

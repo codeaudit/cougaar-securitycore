@@ -26,21 +26,21 @@
 
 package org.cougaar.core.security.policy.dynamic;
 
+import org.cougaar.core.security.auth.ServicePermission;
+import org.cougaar.core.security.services.auth.AuthorizationService;
+
+import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
+import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.security.SecurityPermission;
-import java.security.PrivilegedAction;
-import java.security.AccessController;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.Iterator;
-import java.util.Enumeration;
-
-import org.cougaar.core.security.services.auth.AuthorizationService;
-import org.cougaar.core.security.auth.ServicePermission;
 
 public class DynamicPolicy extends Policy {
   private Policy       _basePolicy;

@@ -6,13 +6,10 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-
-// security services classes
 import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.acl.auth.UserRoles;
-import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.BlackboardObjectPermission;
+import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ExecutionPrincipal;
 import org.cougaar.core.security.auth.ObjectContext;
@@ -21,29 +18,24 @@ import org.cougaar.core.security.policy.enforcers.util.RoleMapping;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.util.ActionPermission;
+import org.cougaar.core.service.LoggingService;
 
-// java classes
 import java.security.Permission;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.security.ProtectionDomain;
 
-// KAoS classes
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
-import kaos.policy.guard.KAoSGuard;
 import kaos.policy.information.KAoSProperty;
-
-// safe  classes
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;

@@ -27,7 +27,6 @@
 
 package org.cougaar.core.security.policy;
 
-import java.security.*;
 
 /** This exception is being thrown by the org.cougaar.core.security.policy.GuardRegistration
     when an unknown policy message is received.

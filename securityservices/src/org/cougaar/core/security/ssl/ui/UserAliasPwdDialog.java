@@ -1,11 +1,26 @@
 package org.cougaar.core.security.ssl.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
 import org.cougaar.core.security.util.UIUtil;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class UserAliasPwdDialog extends JDialog {
   BorderLayout borderLayout1 = new BorderLayout();

@@ -26,18 +26,18 @@
 
 package org.cougaar.core.security.test;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.cert.X509Certificate;
-
-import sun.security.x509.*;
-
-// Cougaar core services
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.servlet.SimpleServletSupport;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class SecurityManagerAttackerServlet
   extends  HttpServlet

@@ -26,8 +26,13 @@
 package org.cougaar.core.security.crypto;
 
 import org.cougaar.core.service.LoggingService;
-import com.linuxnet.jpcsc.*;
+
 import java.security.SecureRandom;
+
+import com.linuxnet.jpcsc.Card;
+import com.linuxnet.jpcsc.Context;
+import com.linuxnet.jpcsc.PCSC;
+import com.linuxnet.jpcsc.State;
 
 public class SmartCardApplet {
   

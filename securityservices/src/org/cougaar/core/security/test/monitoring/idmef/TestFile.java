@@ -27,11 +27,10 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-// idmef package
-import edu.jhuapl.idmef.IDMEF_File;
 import edu.jhuapl.idmef.FileAccess;
-import edu.jhuapl.idmef.Linkage;
+import edu.jhuapl.idmef.IDMEF_File;
 import edu.jhuapl.idmef.Inode;
+import edu.jhuapl.idmef.Linkage;
 import edu.jhuapl.idmef.XMLUtils;
 
 public class TestFile extends TestIdmef {

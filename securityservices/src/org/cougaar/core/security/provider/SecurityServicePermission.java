@@ -23,7 +23,7 @@
 
 package org.cougaar.core.security.provider;
 
-import java.security.*;
+import java.security.BasicPermission;
 
 
 public final class SecurityServicePermission extends BasicPermission {

@@ -22,7 +22,8 @@
 
 package org.cougaar.core.security.acl.trust;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 public class TrustSet extends Hashtable
 {

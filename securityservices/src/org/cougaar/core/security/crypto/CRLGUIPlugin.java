@@ -32,22 +32,16 @@
  */
 package org.cougaar.core.security.crypto;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
-
-// Cougaar Security Services
-import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.component.ServiceRevokedListener;
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+
+import java.awt.Dimension;
+import java.util.Vector;
+
+import javax.swing.JFrame;
 
 public class CRLGUIPlugin
   extends ComponentPlugin

@@ -26,13 +26,7 @@
 
 package org.cougaar.core.security.test;
 
-import java.util.*;
-
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.blackboard.*;
-import org.cougaar.core.plugin.*;
-import org.cougaar.util.*;
-
+import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.policy.EnforcerRegistrationException;
 
 public class DummyEnforcer extends ComponentPlugin {

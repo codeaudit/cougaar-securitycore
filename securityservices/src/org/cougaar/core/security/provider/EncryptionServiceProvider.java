@@ -26,19 +26,13 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-
-// Cougaar security services
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceRevokedEvent;
+import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.security.crypto.CryptoManagerServiceImpl;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.services.identity.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class EncryptionServiceProvider 
   extends BaseSecurityServiceProvider

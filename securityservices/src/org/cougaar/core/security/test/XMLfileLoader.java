@@ -26,23 +26,11 @@
 
 package org.cougaar.core.security.test;
 
-import java.util.Iterator;
-import java.security.PrivilegedAction;
-import java.security.AccessController;
-import java.security.AccessControlContext;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import java.io.*;
-import java.net.*;
-import java.lang.*;
+import org.cougaar.util.ConfigFinder;
+
+import java.io.File;
 
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.EntityResolver;
-import org.apache.xerces.parsers.DOMParser;
-
-import org.cougaar.util.ConfigFinder;
 
 
 public class XMLfileLoader {

@@ -27,33 +27,22 @@
 
 package org.cougaar.core.security.policy;
 
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Vector;
 import java.util.Iterator;
 import java.util.List;
-import java.io.*;
+import java.util.Vector;
 
-import org.w3c.dom.Document;
-
-// Core Cougaar
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.planning.ldm.policy.Policy;
-
-// KAoS policy management
-import kaos.policy.util.PolicyConstants;
-import kaos.core.util.*;
-import safe.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.policy.XMLPolicyCreator;
-import org.cougaar.core.security.policy.TypedPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.util.DOMWriter;
+import kaos.core.util.ConditionalPolicyMsg;
+import kaos.core.util.PolicyMsg;
+import safe.util.ProposedPolicyUpdate;
+import safe.util.UnexpandedConditionalPolicyMsg;
+import safe.util.UnexpandedPolicyUpdate;
 
 /**
  * The PolicyExpanderPlugIn expands policies before

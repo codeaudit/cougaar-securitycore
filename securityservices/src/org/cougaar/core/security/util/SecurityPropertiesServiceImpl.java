@@ -27,11 +27,9 @@
 package org.cougaar.core.security.util;
 
 // Cougaar core services
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
-
-// Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
 
 public class SecurityPropertiesServiceImpl
   implements SecurityPropertiesService

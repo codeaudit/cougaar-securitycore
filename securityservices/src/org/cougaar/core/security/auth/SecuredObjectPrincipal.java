@@ -22,7 +22,6 @@
 package org.cougaar.core.security.auth;
 
 import java.security.Principal;
-import java.lang.reflect.Method;
 
 public class SecuredObjectPrincipal implements Principal {
   private final SecuredObject _obj;

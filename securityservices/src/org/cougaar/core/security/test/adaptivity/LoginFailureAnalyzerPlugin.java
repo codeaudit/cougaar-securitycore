@@ -25,17 +25,14 @@
  */
 package org.cougaar.core.security.test.adaptivity;
 
+import org.cougaar.core.adaptivity.OMCRange;
+import org.cougaar.core.adaptivity.OMCRangeList;
+import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.adaptivity.OperatingModeCondition;
 import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.adaptivity.SensorCondition;
-import org.cougaar.core.adaptivity.OMCPoint;
-import org.cougaar.core.adaptivity.OMCRange;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.OMCThruRange;
-
 import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.persist.PersistenceState;
 import org.cougaar.core.plugin.ServiceUserPlugin;
@@ -43,7 +40,7 @@ import org.cougaar.core.service.ConditionService;
 import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
-import java.util.Iterator; 
+import java.util.Iterator;
 
 /**
  * Plugin to arbitrarily publish a LOGIN_FAILURE_RATE and LOGIN_LOCKOUTS condition,

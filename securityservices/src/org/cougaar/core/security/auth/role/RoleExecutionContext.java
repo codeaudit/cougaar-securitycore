@@ -21,14 +21,12 @@
 
 package org.cougaar.core.security.auth.role;
 
-import org.cougaar.core.security.auth.ExecutionContext;
-import org.cougaar.core.security.auth.ObjectContext;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

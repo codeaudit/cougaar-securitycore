@@ -26,23 +26,21 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.Arrays;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileReader;
+import org.cougaar.bootstrap.Bootstrapper;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.security.Provider;
 import java.security.Security;
-
-// Cougaar core services
-import org.cougaar.bootstrap.Bootstrapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class BaseBootstrapper
   extends Bootstrapper

@@ -26,13 +26,13 @@
 
 package org.cougaar.core.security.util;
 
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.Field;
-import java.net.*;
-
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.node.NodeIdentificationService;
+
+import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 public class NodeInfo
 {

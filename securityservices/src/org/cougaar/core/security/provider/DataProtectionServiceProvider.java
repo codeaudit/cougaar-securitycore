@@ -26,18 +26,9 @@
 
 package org.cougaar.core.security.provider;
 
-import java.lang.*;
-
-// Cougaar core services
-import org.cougaar.core.component.*;
-import org.cougaar.util.*;
-import org.cougaar.core.service.DataProtectionService;
-
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.services.acl.*;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.dataprotection.*;
+import org.cougaar.core.component.Service;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
 
 public class DataProtectionServiceProvider
   extends BaseSecurityServiceProvider

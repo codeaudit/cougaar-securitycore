@@ -33,16 +33,13 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.io.*;
-import java.math.*;
-import javax.xml.parsers.*;
+import java.util.ArrayList;
 
-import org.apache.xml.serialize.*;
-import org.xml.sax.*;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <pre>

@@ -22,21 +22,19 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
  
-import java.util.List;
+import org.cougaar.core.mts.MessageAddress;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
-import java.io.Serializable;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import edu.jhuapl.idmef.XMLSerializable;
 import edu.jhuapl.idmef.XMLUtils;
-
-
-import org.cougaar.core.mts.MessageAddress;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
 
 
 public class MRAgentLookUpReply implements XMLSerializable  {

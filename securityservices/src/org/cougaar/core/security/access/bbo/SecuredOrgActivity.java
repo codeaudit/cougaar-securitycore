@@ -20,35 +20,20 @@
  */
 package org.cougaar.core.security.access.bbo;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.security.Permission;
-
-import org.cougaar.core.util.OwnedUniqueObject;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.util.UniqueObject;
-
 import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.glm.ldm.oplan.OrgActivity;
-import org.cougaar.glm.ldm.oplan.TimeSpan;
-
-import org.cougaar.planning.ldm.plan.Location;
-import org.cougaar.planning.ldm.plan.LocationScheduleElement;
-import org.cougaar.planning.ldm.plan.LocationScheduleElementImpl;
-import org.cougaar.planning.ldm.plan.TaggedLocationScheduleElement;
-import org.cougaar.planning.ldm.plan.Transferable;
-
-import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.ldm.plan.NewGeolocLocation;
-
-import org.cougaar.core.security.auth.SecuredObject;
+import org.cougaar.core.security.auth.BlackboardObjectPermission;
 import org.cougaar.core.security.auth.ObjectContext;
 import org.cougaar.core.security.auth.ObjectContextUtil;
-import org.cougaar.core.security.auth.BlackboardObjectPermission;
+import org.cougaar.core.security.auth.SecuredObject;
+import org.cougaar.core.util.UID;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.glm.ldm.oplan.TimeSpan;
+import org.cougaar.glm.ldm.plan.GeolocLocation;
+import org.cougaar.planning.ldm.plan.LocationScheduleElement;
+import org.cougaar.planning.ldm.plan.Transferable;
+
+import java.security.Permission;
+import java.util.HashMap;
 
 public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   private        OrgActivity     _org;

@@ -25,13 +25,12 @@
  */
 package org.cougaar.core.security.naming;
 
-import java.util.*;
-import java.security.cert.*;
-import sun.security.x509.*;
+import org.cougaar.core.service.wp.Cert;
 
-import org.cougaar.core.service.wp.*;
+import java.util.Collection;
+import java.util.Hashtable;
 
-import org.cougaar.core.security.crypto.*;
+import sun.security.x509.X500Name;
 
 final public class IndirectCertEntry
   extends Cert

@@ -21,32 +21,32 @@
 
 package org.cougaar.core.security.policy.enforcers.match;
 
-import java.util.*;
-
-import kaos.ontology.matching.*;
-import kaos.policy.information.KAoSProperty;
-
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-
-// Cougaar core and securityservices imports
-import org.cougaar.core.service.community.Agent;
-import org.cougaar.core.service.community.CommunityChangeEvent;
-import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.policy.builder.PolicyUtils;
-import org.cougaar.core.security.policy.enforcers.util.DAMLBlackboardMapping;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Agent;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeEvent;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityResponseListener;
+import org.cougaar.core.service.community.CommunityService;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+
+import kaos.ontology.matching.InstanceClassifier;
+import kaos.ontology.matching.InstanceClassifierFactory;
+import kaos.ontology.matching.InstanceClassifierInitializationException;
+import kaos.policy.information.KAoSProperty;
 
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory

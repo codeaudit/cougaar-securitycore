@@ -23,7 +23,6 @@ package org.cougaar.core.security.test.monitoring.idmef;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-// idmef package
 import edu.jhuapl.idmef.Action;
 import edu.jhuapl.idmef.XMLUtils;
 

@@ -26,9 +26,10 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
+import org.cougaar.core.security.policy.TrustedCaPolicy;
+
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
-import org.cougaar.core.security.policy.*;
 
 public class CAInfo implements Serializable {
   public X509Certificate [] caCert;

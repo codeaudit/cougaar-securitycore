@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.Set;
-
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+
+import java.util.Set;
 
 public interface CommunityTimerTaskClient
 {

@@ -26,8 +26,8 @@
 
 package org.cougaar.core.security.crypto.blackboard;
 
-import java.util.*;
-import java.io.*;
+import java.io.Serializable;
+import java.util.Hashtable;
 
 public class CertificateBlackboardStore extends Hashtable implements Serializable {
 }

@@ -26,15 +26,17 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.lang.*;
-import java.util.jar.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
+import org.cougaar.bootstrap.XURLClassLoader;
 
-import org.cougaar.bootstrap.*;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.CodeSource;
+import java.security.PermissionCollection;
+import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class BaseClassLoader
   extends XURLClassLoader

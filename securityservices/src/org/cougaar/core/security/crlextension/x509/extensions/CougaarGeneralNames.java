@@ -30,12 +30,14 @@ package org.cougaar.core.security.crlextension.x509.extensions;
 
 
 
-import java.io.*;
+import java.io.IOException;
+import java.util.Enumeration;
+
+import sun.security.util.DerOutputStream;
+import sun.security.util.DerValue;
+import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.GeneralNames;
 import sun.security.x509.GeneralNamesException;
-import sun.security.x509.GeneralNameInterface;
-import sun.security.util.*;
-import java.util.Enumeration;
 
 
 public class CougaarGeneralNames extends GeneralNames{

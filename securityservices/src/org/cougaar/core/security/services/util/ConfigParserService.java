@@ -23,20 +23,14 @@
 
 package org.cougaar.core.security.services.util;
 
-import java.io.Serializable;
-import java.io.File;
-import java.io.InputStream;
-import sun.security.x509.*;
-import org.w3c.dom.*;
-import java.io.InputStream;
-
-// Cougaar core infrastructure
 import org.cougaar.core.component.Service;
-
-// Cougaar core services
-import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.config.PolicyUpdateException;
+import org.cougaar.core.security.policy.CaPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+
+import java.io.InputStream;
+
+import sun.security.x509.X500Name;
 
 /** Service for parsing security services configuration files
  */

@@ -26,25 +26,13 @@
 
 package org.cougaar.core.security.provider;
 
-import java.util.*;
-import javax.naming.NamingException;
-
-// Cougaar core infrastructure
-import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.Service;
-import org.cougaar.core.service.AgentIdentificationService;
-
-
-// Cougaar security services
-import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.component.ServiceProvider;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.acl.user.AgentUserService;
 import org.cougaar.core.security.acl.user.LdapUserServiceImpl;
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.security.acl.user.AgentUserService;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.AgentIdentificationService;
 
 
 public class UserServiceProvider implements ServiceProvider

@@ -21,7 +21,10 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SSLCipherSuites {
   public static final String SSL_RSA_WITH_NULL_MD5 =

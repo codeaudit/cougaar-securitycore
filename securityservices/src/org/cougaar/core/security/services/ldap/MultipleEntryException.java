@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.services.ldap;
 
-import java.security.cert.*;
 
 public class MultipleEntryException
   extends Exception

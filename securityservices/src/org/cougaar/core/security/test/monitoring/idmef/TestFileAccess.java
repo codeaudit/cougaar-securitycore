@@ -25,7 +25,6 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-// idmef package
 import edu.jhuapl.idmef.FileAccess;
 import edu.jhuapl.idmef.UserId;
 import edu.jhuapl.idmef.XMLUtils;

@@ -24,20 +24,13 @@
 
 package org.cougaar.core.security.access;
 
-import java.util.*;
-
-import org.cougaar.core.blackboard.*;
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.*;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.policy.ThreatConLevelAsset;
 import org.cougaar.core.service.DomainService;
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.service.LDMService;
-import org.cougaar.util.*;
-
-import org.cougaar.core.security.policy.*;
 
 /**
  * Creates and publishes a threat con level object so 

@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.cert.*;
 
 public class MultipleEntryException extends Exception {
   public String message;

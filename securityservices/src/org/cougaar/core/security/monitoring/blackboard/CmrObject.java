@@ -21,11 +21,10 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import java.io.Serializable;
-
-// Cougaar core services
-import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.blackboard.Publishable;
+import org.cougaar.core.util.UniqueObject;
+
+import java.io.Serializable;
 
 /** Cougaar Monitoring & Response base Object interface
  **/

@@ -27,9 +27,9 @@
 package org.cougaar.core.security.policy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.HashSet;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class BlackboardFilterPolicy extends SecurityPolicy {
   public static final String READ_ACCESS   = "read";

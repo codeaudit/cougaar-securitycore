@@ -20,15 +20,15 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
+import org.cougaar.core.security.constants.IdmefClassifications;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.util.UnaryPredicate;
+
+import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.constants.IdmefClassifications;
-import org.cougaar.util.UnaryPredicate;
 
 public class AllBootStrapFailures 
 implements UnaryPredicate, QueryClassificationProvider {

@@ -25,61 +25,31 @@
  */
 package org.cougaar.core.security.monitoring.plugin;
 
-import java.util.List;
-import java.util.TimerTask;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.Enumeration;
-import java.util.Collection;
-import java.util.Date;
-
-import java.io.Serializable;
-
-import java.security.SecureRandom;
-
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
-
-// Cougaar core services
-import org.cougaar.core.mts.MessageAddress;
-
-import org.cougaar.core.service.UIDService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.service.DomainService;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.community.CommunityService;
-
-import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.adaptivity.Condition;
+import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.adaptivity.OMCRangeList;
-import org.cougaar.core.adaptivity.Condition;
-import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.service.UIDService;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
-
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
-import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
-import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
-import org.cougaar.core.security.monitoring.blackboard.Event;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
-import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
-import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
-
-// Cougaar overlay
-import org.cougaar.core.security.constants.IdmefClassifications;
-
-import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
+
+import java.io.Serializable;
+import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 /**
  * Queries for IDMEF messages and creates a 

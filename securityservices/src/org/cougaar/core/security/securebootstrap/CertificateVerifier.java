@@ -27,17 +27,6 @@
 package org.cougaar.core.security.securebootstrap;
 
 import java.util.jar.JarFile;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-
-import java.security.SignatureException;
-import java.security.KeyStoreException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-
-import java.security.NoSuchAlgorithmException;
 
 public interface CertificateVerifier
 {

@@ -21,13 +21,12 @@
 
 package org.cougaar.core.security.crypto.crl.blackboard;
 
-import java.io.Serializable;
 import org.cougaar.core.blackboard.Publishable;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
+import java.io.Serializable;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class CRLAgentRegistration implements Serializable,Publishable{
   public  String dnName;

@@ -24,11 +24,8 @@
 package org.cougaar.core.security.services.acl;
 
 // Cougaar core services
-import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.core.component.Service;
-
-// Cougaar security services
-import org.cougaar.core.security.acl.trust.*;
+import org.cougaar.core.security.acl.trust.TrustSet;
 
 public interface AccessControlPolicyService 
   extends Service

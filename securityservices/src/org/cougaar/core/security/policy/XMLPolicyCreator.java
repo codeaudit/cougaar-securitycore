@@ -26,27 +26,30 @@
 
 package org.cougaar.core.security.policy;
 
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.File;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.util.UID;
+import org.cougaar.planning.ldm.policy.BooleanRuleParameter;
+import org.cougaar.planning.ldm.policy.ClassRuleParameter;
+import org.cougaar.planning.ldm.policy.DoubleRuleParameter;
+import org.cougaar.planning.ldm.policy.EnumerationRuleParameter;
+import org.cougaar.planning.ldm.policy.IntegerRuleParameter;
+import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
+import org.cougaar.planning.ldm.policy.LongRuleParameter;
+import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.RangeRuleParameter;
+import org.cougaar.planning.ldm.policy.RangeRuleParameterEntry;
+import org.cougaar.planning.ldm.policy.RuleParameter;
+import org.cougaar.planning.ldm.policy.RuleParameterIllegalValueException;
+import org.cougaar.planning.ldm.policy.StringRuleParameter;
+import org.cougaar.util.ConfigFinder;
+
 import java.util.Vector;
-import java.util.Enumeration;
-import java.util.Properties;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-
-import org.cougaar.planning.ldm.policy.*;
-import org.cougaar.core.util.*;
-import org.cougaar.util.*;
-import org.cougaar.core.util.UID;
-import org.cougaar.core.mts.MessageAddress;
 
 public class XMLPolicyCreator {
   private boolean debug = false;

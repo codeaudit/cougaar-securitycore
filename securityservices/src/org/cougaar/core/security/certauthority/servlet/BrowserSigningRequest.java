@@ -26,31 +26,38 @@
 
 package org.cougaar.core.security.certauthority.servlet;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.security.*;
-import java.security.cert.*;
-import java.math.BigInteger;
-import sun.security.x509.*;
-import sun.security.util.*;
-import sun.security.pkcs.*;
-
-import org.w3c.dom.*;
-
-// Cougaar core infrastructure
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.util.*;
-
-// Cougaar security services
-import org.cougaar.core.security.services.util.*;
+import org.cougaar.core.security.certauthority.CertificateResponse;
+import org.cougaar.core.security.certauthority.KeyManagement;
+import org.cougaar.core.security.certauthority.SecurityServletSupport;
+import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.certauthority.*;
-import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.Base64;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.service.LoggingService;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.CertificateEncodingException;
+import java.util.Enumeration;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import sun.security.pkcs.PKCS10;
+import sun.security.util.DerInputStream;
+import sun.security.util.DerValue;
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.X500Name;
+import sun.security.x509.X509Key;
 
 public class BrowserSigningRequest
   extends  HttpServlet

@@ -26,15 +26,16 @@
 
 package org.cougaar.core.security.util;
 
-import javax.net.ssl.*;
-import javax.net.*;
-import java.net.*;
-import java.io.*;
-import java.nio.channels.ServerSocketChannel;
-
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.nio.channels.ServerSocketChannel;
 
 public class DebugSSLServerSocket extends SSLServerSocketWrapper {
   private int _id = getID();

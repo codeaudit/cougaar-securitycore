@@ -1,33 +1,35 @@
 package org.cougaar.core.security.policy.builder;
 
+import org.cougaar.core.security.policy.PolicyBootstrapper;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.GroupInstancesConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActorConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogEntityConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogGroupConcepts;
+
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import jtp.ReasoningException;
-
 import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.KAoSConstants;
 import kaos.core.util.PolicyMsg;
 import kaos.core.util.SubjectMsg;
-import kaos.ontology.repository.OntologyLoader;
 import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
-import kaos.policy.util.PolicyBuildingNotCompleted;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.information.PolicyInformation;
-import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
-
-import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
-import org.cougaar.core.security.policy.PolicyBootstrapper;
-import org.cougaar.util.ConfigFinder;
+import kaos.policy.util.PolicyBuildingNotCompleted;
 
 public class PolicyUtils
 {

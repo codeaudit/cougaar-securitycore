@@ -33,15 +33,14 @@ OF SUCH DAMAGE.
 
 package edu.jhuapl.idmef;
 
-import java.util.*;
-import java.text.*;
-import java.io.*;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
-import java.math.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /** 
  * This class is a superclass of all the IDMEF Time classes (since they are so similar).

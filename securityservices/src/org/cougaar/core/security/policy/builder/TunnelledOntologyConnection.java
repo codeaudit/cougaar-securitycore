@@ -21,26 +21,19 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import java.net.*;
-
-import antlr.Token;
-
-import java.io.*;
-import java.util.*;
-
-import com.hp.hpl.jena.daml.DAMLModel;
-
-import jtp.ReasoningException;
-
-import kaos.kpat.tunnel.TunnelClient;
-import kaos.ontology.DefaultOntologies;
-import kaos.ontology.repository.KAoSContext;
-import kaos.ontology.util.KAoSClassBuilderImpl;
-import kaos.ontology.util.JTPStringFormatUtils;
-import kaos.ontology.util.ValueNotSet;
-
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.userauth.UserAuthenticatorImpl;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import jtp.ReasoningException;
+import kaos.kpat.tunnel.TunnelClient;
+
+import com.hp.hpl.jena.daml.DAMLModel;
 
 public class TunnelledOntologyConnection extends OntologyConnection
 {

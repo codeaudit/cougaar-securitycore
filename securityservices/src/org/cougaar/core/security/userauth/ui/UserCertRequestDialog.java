@@ -25,24 +25,33 @@
  */
 package org.cougaar.core.security.userauth.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-
-import java.util.*;
-import java.io.*;
-
-import java.security.*;
-import java.security.cert.*;
-import sun.security.x509.*;
-
-import org.cougaar.core.component.*;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.CertificateCache;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.UIUtil;
 import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.services.crypto.*;
-import org.cougaar.core.security.crypto.*;
-import org.cougaar.core.security.util.UIUtil;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
+import sun.security.x509.X500Name;
 
 public class UserCertRequestDialog extends JDialog {
   BorderLayout borderLayout1 = new BorderLayout();

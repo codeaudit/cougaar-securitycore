@@ -22,39 +22,43 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 // Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.*;
-import org.cougaar.core.service.community.Community;
+import org.cougaar.core.security.monitoring.blackboard.CapabilitiesObject;
+import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
+import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
+import org.cougaar.core.security.monitoring.blackboard.OutStandingQuery;
+import org.cougaar.core.security.monitoring.blackboard.QueryMapping;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.util.UID;
 import org.cougaar.util.UnaryPredicate;
 
-//Security services
-import org.cougaar.core.security.monitoring.blackboard.*;
-import org.cougaar.core.security.monitoring.idmef.*;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-import org.cougaar.core.security.util.CommunityServiceUtilListener;
-
-//IDMEF
-import edu.jhuapl.idmef.*;
-
-//java api;
-import java.util.Enumeration;
-import java.util.Collection;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.TimerTask;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Address;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.IDMEF_Process;
+import edu.jhuapl.idmef.Service;
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.Target;
+import edu.jhuapl.idmef.User;
+import edu.jhuapl.idmef.UserId;
 
 public abstract class MnRQueryBase extends ComponentPlugin {
   protected DomainService domainService;

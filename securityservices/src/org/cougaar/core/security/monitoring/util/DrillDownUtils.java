@@ -21,23 +21,11 @@
 
 package org.cougaar.core.security.monitoring.util;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 
-
-
-import edu.jhuapl.idmef.IDMEFTime;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Alert;
-
-
-
-import java.io.Serializable;
+import edu.jhuapl.idmef.IDMEF_Message;
 
 public class DrillDownUtils {
 

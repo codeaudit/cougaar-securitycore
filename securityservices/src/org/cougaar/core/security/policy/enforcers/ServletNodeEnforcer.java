@@ -21,34 +21,27 @@
 
 package org.cougaar.core.security.policy.enforcers;
 
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
-import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.StringPairMapping;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
+import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
-import kaos.core.util.AttributeMsg;
-import kaos.ontology.matching.*;
-import kaos.policy.information.KAoSProperty;
-import kaos.policy.information.PolicyInformation;
-
-// Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.RuleParameter;
-
-// KAoS policy management
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
-
-import safe.enforcer.AgentEnforcer;
+import kaos.policy.information.KAoSProperty;
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;

@@ -25,12 +25,12 @@
  */
 package org.cougaar.core.security.userauth.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 
-import java.util.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 
 public class PasswordPanel extends JPanel {
   GridLayout gridLayout1 = new GridLayout();

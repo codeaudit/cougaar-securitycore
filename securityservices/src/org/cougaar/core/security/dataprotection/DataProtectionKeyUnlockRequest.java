@@ -26,15 +26,14 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import java.util.Set;
-import java.util.Collections;
-import java.security.cert.X509Certificate;
-
-// Cougaar core services
-import org.cougaar.core.relay.Relay;
-import org.cougaar.planning.servlet.XMLize;
-import org.cougaar.core.util.UID;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.relay.Relay;
+import org.cougaar.core.relay.Relay.TargetFactory;
+import org.cougaar.core.util.UID;
+
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * A collection of keys used to encrypt the persisted blackboard.

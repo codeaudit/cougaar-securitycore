@@ -25,59 +25,54 @@
  */
 package org.cougaar.core.security.acl.user;
 
-import java.util.*;
-import java.lang.ref.*;
-import java.net.SocketException;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.LdapUserServicePolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.planning.ldm.policy.Policy;
+
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 import javax.naming.CommunicationException;
+import javax.naming.Context;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.AttributeModificationException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.directory.AttributeModificationException;
 
-import EDU.oswego.cs.dl.util.concurrent.Semaphore;
-
-// Cougaar core services
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.planning.ldm.policy.RuleParameter;
-import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
-import org.cougaar.planning.ldm.policy.KeyRuleParameter;
-
-// Cougaar security services
-import org.cougaar.core.security.services.acl.UserService;
-import org.cougaar.core.security.services.acl.UserServiceException;
-import org.cougaar.core.security.policy.GuardRegistration;
-import org.cougaar.core.security.policy.LdapUserServicePolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.util.CommunityServiceUtil;
-import org.cougaar.core.security.util.CommunityServiceUtilListener;
-import org.cougaar.core.service.AgentIdentificationService;
-import org.cougaar.core.service.community.Community;
-import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.service.community.CommunityResponseListener;
-import org.cougaar.core.service.community.CommunityResponse;
-import org.cougaar.core.service.community.Entity;
-import org.cougaar.core.service.community.CommunityChangeListener;
-import org.cougaar.core.service.community.CommunityChangeEvent;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceAvailableEvent;
-
-// KAoS
 import safe.enforcer.NodeEnforcer;
 
 public class LdapUserServiceImpl implements UserService {

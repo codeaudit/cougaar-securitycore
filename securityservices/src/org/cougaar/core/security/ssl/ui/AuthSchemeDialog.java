@@ -25,17 +25,24 @@
  */
 package org.cougaar.core.security.ssl.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-
-import java.util.*;
-
-import org.cougaar.core.component.*;
-
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.userauth.ui.UserCertRequestDialog;
 import org.cougaar.core.security.util.UIUtil;
-import org.cougaar.core.security.userauth.ui.*;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 
 public class AuthSchemeDialog

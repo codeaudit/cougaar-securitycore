@@ -22,8 +22,6 @@
 
 package org.cougaar.core.security.test;
 
-import java.util.*;
-
 import org.apache.log4j.Category;
 
 public class LoggingFacility {

@@ -25,26 +25,25 @@
 package org.cougaar.core.security.monitoring.blackboard;
 
 
-import org.cougaar.core.util.UID;
-import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.DomainService;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DomainService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.util.UID;
 import org.cougaar.util.UnaryPredicate;
 
-
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.monitoring.idmef.*;
-import org.cougaar.core.security.monitoring.util.*;
-
 import java.util.ArrayList;
-import java.util.TimerTask;
 import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import edu.jhuapl.idmef.*;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.DetectTime;
 
 
 

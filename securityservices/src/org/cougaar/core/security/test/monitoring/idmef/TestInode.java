@@ -25,7 +25,6 @@ import java.util.Date;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-// idmef package
 import edu.jhuapl.idmef.Inode;
 import edu.jhuapl.idmef.XMLUtils;
 

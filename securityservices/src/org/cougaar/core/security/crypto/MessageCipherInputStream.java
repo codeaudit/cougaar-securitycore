@@ -22,14 +22,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.InputStream;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+
 import java.io.IOException;
+import java.io.InputStream;
+
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-
-// Cougaar core services
-import org.cougaar.core.mts.ProtectedInputStream;
-import org.cougaar.core.mts.MessageAttributes;
 
 public class MessageCipherInputStream
   extends ProtectedInputStream

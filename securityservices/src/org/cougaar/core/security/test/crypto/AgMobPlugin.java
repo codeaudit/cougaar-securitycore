@@ -26,25 +26,26 @@
 
 package org.cougaar.core.security.test.crypto;
 
-import java.util.*;
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.*;
-
-// Cougaar core services
-import org.cougaar.core.node.*;
-import org.cougaar.core.agent.*;
-import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageTransportClient;
+import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.core.mts.*;
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.service.identity.AgentIdentityService;
+import org.cougaar.core.service.identity.TransferableIdentity;
 
-// Cougaar overlay
-import org.cougaar.core.service.identity.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class AgMobPlugin extends org.cougaar.core.plugin.ComponentPlugin
 {

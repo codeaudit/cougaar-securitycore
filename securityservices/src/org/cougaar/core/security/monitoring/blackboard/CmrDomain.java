@@ -20,14 +20,10 @@
  */
 package org.cougaar.core.security.monitoring.blackboard;
 
-import java.util.Collection;
-import java.util.Iterator;
-
+import org.cougaar.core.component.BindingSite;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.domain.DomainAdapter;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.component.BindingSite;
-
 import org.cougaar.planning.service.LDMService;
 /**
  * Create a barebones CmrDomain.  We have our own Factory
