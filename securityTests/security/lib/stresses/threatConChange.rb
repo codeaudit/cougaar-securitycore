@@ -38,26 +38,28 @@ class ThreatConChange < SecurityStressFramework
 	performLoginFailures
 	waitForHIGH
 	waitForLOW
+
 =begin
-    # sleep for a max of 10 minutes or at least until the THREATCON_LEVEL
-    # has gone back to the LOW state
-    count = 0
-    # wait for the THREATCON_LEVEL LOW event
-    logInfoMsg "Waiting for: THREATCON_LEVEL LOW"
-    while @enteredLOW == false && count < 50
-      #logInfoMsg "waiting(#{count}) for threat con to go back to the LOW state"
-      sleep(10) # sleep for 1 sec
-      count += 1
-    end
-    if count == 50 && @enteredLOW == false
-      logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL LOW"
-    end
+           # sleep for a max of 10 minutes or at least until the THREATCON_LEVEL
+           # has gone back to the LOW state
+           count = 0
+           # wait for the THREATCON_LEVEL LOW event
+           logInfoMsg "Waiting for: THREATCON_LEVEL LOW"
+           while @enteredLOW == false && count < 50
+             #logInfoMsg "waiting(#{count}) for threat con to go back to the LOW state"
+             sleep(10) # sleep for 1 sec
+             count += 1
+           end
+           if count == 50 && @enteredLOW == false
+             logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL LOW"
+           end
 =end
+
 	# check results
 	processResults
       rescue => ex
-	saveUnitTestResult('Stress1e1',
-            "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
+	saveAssertion('Stress1e1',
+                      "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
       end
     }
   end
@@ -82,16 +84,16 @@ class ThreatConChange < SecurityStressFramework
     saveResult(passed, "Stress3e1", msg)
     saveResult(passed, "Stress3e2", msg)
   end 
- 
+  
   #
   # called to process a CougaarEvent 
   #
   def eventCall(event)
     #logInfoMsg event
     if event.cluster_identifier == @pdm &&
-       event.component == 'ThreatConLevelReporter' &&
-       event.data =~ /OPERATING_MODE/
-       #logInfoMsg "operating mode detected from #{@pdm}"
+        event.component == 'ThreatConLevelReporter' &&
+        event.data =~ /OPERATING_MODE/
+      #logInfoMsg "operating mode detected from #{@pdm}"
       event.data.scan(/OPERATING_MODE\((.+), (.+), (.+)\)/) { |match|
         operation = match[0]
         op_mode = match[1]
@@ -100,14 +102,14 @@ class ThreatConChange < SecurityStressFramework
         #logInfoMsg "op_mode:   #{op_mode}"
         #logInfoMsg "om_value:  #{om_value}"
         if operation == "change" &&
-           op_mode == @threat_con_om 
-           if om_value == "HIGH"
-             @enteredHIGH = true
-             #logInfoMsg "Received THREATCON_LEVEL HIGH event" 
-           elsif om_value == "LOW"
-             @enteredLOW = true
-             #logInfoMsg "Received THREATCON_LEVEL LOW event" 
-           end
+            op_mode == @threat_con_om 
+          if om_value == "HIGH"
+            @enteredHIGH = true
+            #logInfoMsg "Received THREATCON_LEVEL HIGH event" 
+          elsif om_value == "LOW"
+            @enteredLOW = true
+            #logInfoMsg "Received THREATCON_LEVEL LOW event" 
+          end
         end
       } 
     end
@@ -120,7 +122,7 @@ class ThreatConChange < SecurityStressFramework
     servlet = '/move'
     user = 'george'
     badPasswd = 'thisisabadpasswd'
-    saveUnitTestResult('Stress1e1', "performLoginFailures" )
+    saveAssertion('Stress1e1', "performLoginFailures" )
     totalCount = 0
     run.society.each_agent do |agent|
       params = ['Basic', agent, user, badPasswd, servlet, 401]
@@ -136,18 +138,20 @@ class ThreatConChange < SecurityStressFramework
 	break
       end
     end
+
 =begin   
-    # wait for the THREATCON_LEVEL HIGH event
-    logInfoMsg "Waiting for: THREATCON_LEVEL HIGH" 
-    count = 0 
-    while @enteredHIGH == false && count < 10
-      sleep(10)
-      count += 1
-    end
-    if count == 10 && @enteredHIGH == false
-      logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL HIGH"
-    end
+       # wait for the THREATCON_LEVEL HIGH event
+       logInfoMsg "Waiting for: THREATCON_LEVEL HIGH" 
+       count = 0 
+       while @enteredHIGH == false && count < 10
+         sleep(10)
+         count += 1
+       end
+       if count == 10 && @enteredHIGH == false
+         logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL HIGH"
+       end
 =end
+
   end
 
   # 
@@ -179,11 +183,11 @@ class ThreatConChange < SecurityStressFramework
       securityComp = false
       node.each_facet(:role) do |facet|
         if facet[:role] == $facetManagement ||
-           facet[:role] == $facetSubManagement ||
-           facet[:role] == $facetRootManagement ||
-           facet[:role] == 'RootCertificateAuthority' ||
-           facet[:role] == 'CertificateAuthority' ||
-           facet[:role] == 'RedundantCertificateAuthority'
+            facet[:role] == $facetSubManagement ||
+            facet[:role] == $facetRootManagement ||
+            facet[:role] == 'RootCertificateAuthority' ||
+            facet[:role] == 'CertificateAuthority' ||
+            facet[:role] == 'RedundantCertificateAuthority'
           securityComp = true
           break 
         end 
@@ -198,7 +202,7 @@ class ThreatConChange < SecurityStressFramework
         node.each_agent do |agent|
           # get the first agent from this node
           @attackAgent = agent
-	  saveUnitTestResult('Stress1e1', "Found attack agent: #{@attackAgent.name}" )
+	  saveAssertion('Stress1e1', "Found attack agent: #{@attackAgent.name}" )
           break 
         end 
         return
@@ -210,7 +214,7 @@ class ThreatConChange < SecurityStressFramework
   # Set @userDomain for accessing servlets
   #  
   def setUserDomain
-    saveUnitTestResult('Stress1e1', "setUserDomain" )
+    saveAssertion('Stress1e1', "setUserDomain" )
     UserDomains.instance.ensureUserDomains
     @userDomain = @attackAgent.userDomain
     if @userDomain == nil
