@@ -19,11 +19,11 @@ class GetStackTrace < SecurityStressFramework
   def getStack(nodename)
     stacktrace = nil
     begin
-      logInfoMsg "getStack #{nodename}"
+      #logInfoMsg "getStack #{nodename}"
       nodeInfo = getJavaPid(nodename)
-      logInfoMsg "getStack after getJavaPid #{nodename}"
+      #logInfoMsg "getStack after getJavaPid #{nodename}"
       #stacktrace = getStackTraceFromProcFileSystem(nodeInfo.java_pid)
-      logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid}"
+      logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
       stacktrace = getStackTraceFromAcme(nodeInfo)
       logfile = "#{@stackbasedir}/stack-#{nodename}-#{nodeInfo.java_pid}.#{@stackTraceId}.log"
       f = File.new(logfile, "w");
@@ -111,7 +111,8 @@ class GetStackTrace < SecurityStressFramework
       end
       response = @run.comms.new_message(host).set_body("command[list_xml_nodes]").request(60)
       if (response != nil)
-        parsePids(response.body).each { |node, pid|
+        logInfoMsg "Retrieving XML node pid: #{response}"
+        parseNodePids(response.body).each { |node, pid|
           if (node == nodename)
             nodeInfo.node_pid = pid
             break
@@ -144,6 +145,26 @@ class GetStackTrace < SecurityStressFramework
     }
     return pidmap
   end
+
+  # response should be in the format:
+  # <message type="chat" to="acme_console@peach/expt-yew-ASMT-PING-1-1of1">
+  #   <thread>JRT_47a4d76a4bb10bd85eff</thread>
+  #  <body>Current Nodes:
+  # PID: 20049 Node: MGMT-NODE Experiment: yew-ASMT-PING-1-1of1
+  # PID: 19942 Node: CA-NODE Experiment: yew-ASMT-PING-1-1of1
+  # PID: 19835 Node: ROOT-CA-NODE Experiment: yew-ASMT-PING-1-1of1
+  # </body>
+  # </message>
+  def parseNodePids(str)
+    pidmap = {}
+    str.split(',').each { |i|
+      i.scan(/PID: (.+) Node: (.+) Experiment: (.+)/) { |match|
+        pidmap[match[1]] = match[0]
+      }
+    }
+    return pidmap
+  end
+
 
   class NodeProcessInfo
     attr_accessor :node_pid, :java_pid, :node
