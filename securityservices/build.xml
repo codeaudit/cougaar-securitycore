@@ -19,6 +19,8 @@
     <property name="securityservices.configs" value="${securityservices.base}/test/configs"/> 
     <!-- The classes directory for output classes and jar files -->
     <property name="securityservices.classes" value="classes"/>
+    <!-- The output directory for signed jar files -->
+    <property name="securityservices.signed" value="${securityservices.classes}/signed"/>
     <!-- The base directories where the java source files are located -->
     <property name="securityservices.src" value="${securityservices.base}/src"/>
 
@@ -48,15 +50,28 @@
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
     </path>
     
+    <!-- task definition for javamake -->
+    <!-- <taskdef name="javamake" classname="com.sun.tools.javamake.ant.JavaMake"/> -->
+    <!-- javamake global property file -->
+    <!-- <property name="javamake.pdb.filename" value="classes/securityservices.pdb"/> -->
+
+    <target name="tstamp">
+        <tstamp>
+            <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
+        </tstamp>
+        <echo message="Build started at ${currentTime}"/>
+    </target>
+
     <target name="init" depends="install-jars">
         <mkdir dir="${securityservices.classes}"/>
+        <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
     </target>
     
     <!-- Build the JavaIDMEF library -->
     <target name="build-idmef" depends="init">
         <echo message="+++++ Building JavaIDMEF"/>
-        <javac classpathref="securityservices.class.path" debug="true" depend="true" 
+        <javac classpathref="securityservices.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}" 
             includes="edu/jhuapl/idmef/*.java" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built JavaIDMEF"/>
@@ -65,8 +80,8 @@
     <!-- Build the org.cougaar.core.security package -->
     <target name="build-securityservices" depends="init, build-idmef">
         <echo message="+++++ Building security services"/>
-        <javac classpathref="securityservices.class.path" debug="true" depend="true" 
-            deprecation="true" destdir="${securityservices.classes}" 
+        <javac classpathref="securityservices.class.path" debug="true" 
+            deprecation="true" destdir="${securityservices.classes}"
             includes="org/cougaar/core/security/**" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built security services"/>
     </target>
@@ -84,20 +99,20 @@
     <target name="jar-securityservices" depends="build-securityservices">
         <echo message="+++++ Building jar files"/>
         <jar jarfile="${securityservices.classes}/bootstrapper.jar" 
-            basedir="${securityservices.classes}" update="true"
+            basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/bootstrap/*.class"/>
         <jar jarfile="${securityservices.classes}/securebootstrapper.jar" 
-            basedir="${securityservices.classes}" update="true"
+            basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/securebootstrap/*.class"/>
         <jar jarfile="${securityservices.classes}/securityservices.jar"
-            basedir="${securityservices.classes}" update="true"
+            basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/**/*.class"
             excludes="org/cougaar/core/security/*bootstrap/**,
                       org/cougaar/core/security/**/test/**,
                       org/cougaar/core/security/oldmonitoring/**"/>
         <jar jarfile="${securityservices.classes}/CougaarCRLextensions.jar"
-            basedir="${securityservices.classes}" update="true"
-            includes="org/cougaar/core/security/crlextension/*.class"/>
+            basedir="${securityservices.classes}"
+            includes="org/cougaar/core/security/crlextension/**"/>
         <echo message="+++++ Built jar files"/>
     </target>
     
@@ -105,18 +120,23 @@
     <target name="sign-jars" depends="jar-idmef, jar-securityservices">
         <echo message="+++++ Signing jar files"/>
         <signjar jar="${securityservices.classes}/bootstrapper.jar" alias="bootstrapper" 
+            signedjar="${securityservices.signed}/bootstrapper.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securebootstrapper.jar" alias="bootstrapper" 
+            signedjar="${securityservices.signed}/securebootstrapper.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securityservices.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/securityservices.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/CougaarCRLextensions.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/CougaarCRLextensions.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/idmef.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/idmef.jar"
             keystore="${cougaar.install.path}/configs/common/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
@@ -125,15 +145,30 @@
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing jar files"/>
-        <copy file="${securityservices.classes}/bootstrapper.jar" 
+        <copy file="${securityservices.signed}/bootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.classes}/securebootstrapper.jar" 
+        <copy file="${securityservices.signed}/securebootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.classes}/securityservices.jar" 
+        <copy file="${securityservices.signed}/securityservices.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.classes}/CougaarCRLextensions.jar" 
+        <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.classes}/idmef.jar" 
+        <copy file="${securityservices.signed}/idmef.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <echo message="+++++ Installed jar files"/>
+    </target>
+    
+    <target name="install-unsigned-jars" depends="jar-idmef, jar-securityservices">
+        <echo message="+++++ Installing jar files"/>
+        <copy file="${securityservices.signed}/bootstrapper.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.signed}/securebootstrapper.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.signed}/securityservices.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <copy file="${securityservices.signed}/idmef.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed jar files"/>
     </target>
@@ -187,8 +222,14 @@
         <echo message="+++++ Created log directories"/>
     </target>
 
+    <target name="compile-jsps">
+        <exec>
+        
+        </exec>
+    </target>
+    
     <!-- The ALL target does not include cvs-update and javadoc -->
-    <target name="all" depends="init, install-conf, install-signed-jars, create-log-dirs">
+    <target name="all" depends="tstamp, init, install-conf, install-signed-jars, create-log-dirs">
         <echo message="Ultra*Log/securityservices Build Complete"/>
         <echo message="***** Don't forget to run 'ant confnai' *****"/>
         <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
@@ -239,6 +280,7 @@
         <delete dir="${securityservices.classes}/edu" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/com" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/org" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${securityservices.signed}" includeEmptyDirs="true" quiet="true"/>
         <delete file="${securityservices.classes}/bootstrapper.jar" verbose="true"/>
         <delete file="${securityservices.classes}/securebootstrapper.jar" verbose="true"/>
         <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
