@@ -271,10 +271,6 @@ society.each_host do |host|
     # for coordinator 
     node.override_parameter("-Dorg.cougaar.core.security.coordinatorOn", "true")
 
-    # for community test
-    node.override_parameter("-Dorg.cougaar.core.security.dataprotection.communityTest", "1")
-    node.override_parameter("-Dorg.cougaar.core.security.acl.user.communityTest", "1")
-    
     # In the future, we need to store the name of the domain manager
     # in a configuration file.
     # KAoS required parameter.
