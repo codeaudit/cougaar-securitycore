@@ -2,49 +2,49 @@
 
 society.each_host do |host|
   managementNode = nil
+    num_nodes = (host.nodes.size).to_i
+
+  # no need to adjust memory if nodes don't exceed limit
+
   host.each_node do |node|
-    if node.has_facet?(:"AS-Management")
-      managementNode = node
+    node.each_facet(:role) do |facet|
+      if facet[:role] == "AS-Management"
+        managementNode = node
+      end
     end
   end
-  if managementNode != nil
+  if managementNode != nil and num_nodes > 3
 # for management node give it 50% of max memory
     host_mem = 2048
-    num_nodes = (host.nodes.size).to_i
 
     if host.has_facet?(:memory)
       host_mem = host.get_facet(:memory).to_i
     end
 
-    if (host.nodes.size == 1)
-      xms = host_mem * 0.25
-      xmx = host_mem * 0.75
-    elsif (host.nodes.size > 1)
-      xms = host_mem * 0.125
-      xmx = (host_mem * 0.4) / (num_nodes - 1)
-    else
-      xms = host_mem * 0.125
-      xmx = host_mem * 0.25
-    end   
+    xms = host_mem * 0.125
+    xmx = (host_mem * 0.5) / (num_nodes - 1)
+    if xmx < xms
+      xmx = xms
+    end
     xms = xms.floor
     xmx = xmx.floor
-    if xmx < xms
-      xms = xmx
-    end
 
-    xmx = 1536 if xmx >= 1536
-
-  host.each_node do |node|
-    if node.has_facet?(:"AS-Management")
-      node_xms = host_mem * 0.4
-      node_xmx = node_mem.floor
-    else
+  puts "for host #{host.name}"
+    host.each_node do |node|
       node_xms = xms
-      node_xmx = xmx
-    end # if
-      node.replace_parameter(/\-Xms/, "-Xms#{node_xms}m")
-      node.replace_parameter(/\-Xmx/, "-Xmx#{node_xmx}m")
+      node_xmx = nil
+        if node == managementNode
+          node_xmx = host_mem * 0.3
+          node_xmx = node_xmx.floor
+        else
+          node_xmx = xmx
+        end # if
+
+    puts "node #{node.name} xms #{node_xms}, xmx #{node_xmx}"
+
+        node.replace_parameter(/\-Xms/, "-Xms#{node_xms}m")
+        node.replace_parameter(/\-Xmx/, "-Xmx#{node_xmx}m")
       
-  end # each
- end # if
+    end # each node
+  end # if
 end
