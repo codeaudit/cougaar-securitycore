@@ -65,6 +65,7 @@ public class CertificateList extends  HttpServlet
     PrintWriter out=res.getWriter();
     String role=null;
     String cadnname=null;
+
     cadnname =(String)req.getParameter("cadnname");
     role =(String)req.getParameter("role");
     if (debug) {
@@ -93,26 +94,36 @@ public class CertificateList extends  HttpServlet
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Certificate List from Ldap </title>");
+    out.println("<title>Certificate List</title>");
     out.println("<script language=\"javascript\">");
     out.println("function submitme(form)");
     out.println("{ form.submit()}</script>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2> Get Certificate List from Ldap</H2>");
+    out.println("<H2>Certificate List</H2>");
+    out.println("<H3>Issuer: " + cadnname + "</H3>");
+    out.println("<H3>LDAP:   " + caPolicy.ldapURL + "</H3>");
+
     out.println("<table>");
     String filter = "(cn=*)";
-    if((role==null)||(role=="")) {
+
+    String uri = req.getRequestURI();
+    String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/certdetails";
+ 
+   if((role==null)||(role=="")) {
       if (debug) {
 	System.out.println("calling create table will role:null");
       }
-      out.println(createtable(certificateFinder.searchWithFilter(filter),cadnname));
+      out.println(createtable(certificateFinder.searchWithFilter(filter),
+			      cadnname, null,
+			      certDetailsUri));
     }
     else {
       if (debug) {
 	System.out.println("calling create table will role:"+role);
       }
-      out.println(createtable(certificateFinder.searchWithFilter(filter),cadnname,role));
+      out.println(createtable(certificateFinder.searchWithFilter(filter),
+			      cadnname, role, certDetailsUri));
     }
     out.println("</body></html>");
     out.flush();
@@ -130,7 +141,7 @@ public class CertificateList extends  HttpServlet
     out.println("<title>Certificate List from Ldap </title>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2> Get Certificate List from Ldap</H2>");
+    out.println("<H2>Certificate List</H2>");
 
     if (caDNs == null) {
       out.println("No CA has been configured yet");
@@ -182,15 +193,17 @@ public class CertificateList extends  HttpServlet
     return("List all certificate specified by role and CAS dn name");
   }
 
-  public String createtable(LdapEntry[] ldapentries, String cadnname, String role)
+  public String createtable(LdapEntry[] ldapentries, String cadnname,
+			    String role, String certDetailUri)
   {
     StringBuffer sb=new StringBuffer();
     sb.append("<table align=\"center\" border=\"2\">\n");
     sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
+    
     for(int i = 0 ; i < ldapentries.length ; i++) {
       sb.append("<TR><TD>\n");
       sb.append("<form name=\"form" + i
-		+ "\" action=\"/CA/servlet/certdetails\" method=\"post\">");
+		+ "\" action=\"" + certDetailUri + "\" method=\"post\">");
       sb.append("<input type=\"hidden\" name=\"distinguishedName\" value=\""
 		+ ldapentries[i].getUniqueIdentifier()+"\">");
       sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
@@ -206,10 +219,5 @@ public class CertificateList extends  HttpServlet
       }
     sb.append("</table>");
     return sb.toString();
-  }
-
-  public String createtable(LdapEntry[] ldapentries, String cadnname)
-  {
-    return createtable(ldapentries, cadnname, null);
   }
 }

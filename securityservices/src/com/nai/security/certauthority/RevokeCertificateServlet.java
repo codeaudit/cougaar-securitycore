@@ -22,8 +22,12 @@ public class RevokeCertificateServlet extends  HttpServlet
   private CertDirectoryServiceClient certificateFinder=null;
   private ConfParser confParser = null;
 
+  protected boolean debug = false;
+
   public void init(ServletConfig config) throws ServletException
   {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
     confParser = new ConfParser();
   }
 
@@ -74,6 +78,10 @@ public class RevokeCertificateServlet extends  HttpServlet
       out.flush();
       out.close();
       return;
+    }
+    if (debug) {
+      System.out.println("Revoking cert with filter:" + filter);
+      System.out.println(ldapentries.length + " certificates satisfy this filter");
     }
     if (ldapentries.length != 1) {
       out.println("Error: there are multiple certificates with the same UID");

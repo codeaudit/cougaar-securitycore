@@ -63,11 +63,20 @@ public class CertificateDetailsServlet extends  HttpServlet
     String cadnname=null;
 
     PrintWriter out=res.getWriter();
+
+    if (debug) {
+      //System.out.println("getContextPath:" + req.getContextPath());
+      System.out.println("getPathInfo:" + req.getPathInfo());
+      System.out.println("getPathTranslated:" + req.getPathTranslated());
+      System.out.println("getRequestURI:" + req.getRequestURI());
+      System.out.println("getServletPath:" + req.getServletPath());
+    }
+
     distinguishedName=req.getParameter("distinguishedName");
     role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
     if (debug) {
-      System.out.println("CertificateDetailsServlet. distinguishedName: "
+      System.out.println("CertificateDetailsServlet. Search DN="
 			 + distinguishedName
 			 + " - role: " + role
 			 + " - cadnname: " + cadnname);
@@ -123,6 +132,10 @@ public class CertificateDetailsServlet extends  HttpServlet
       out.close();
       return;
     }
+
+    String uri = req.getRequestURI();
+    String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/revokecertificate";
+
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
@@ -130,7 +143,8 @@ public class CertificateDetailsServlet extends  HttpServlet
     out.println("</head>");
     out.println("<body>");
     out.println("<H2> Certificate Details</H2><BR>");
-    out.println("<form name=\"revoke\" action=\"/CA/servlet/revokecertificate\" method=\"post\">");
+    out.println("<form name=\"revoke\" action=\"" +
+		certRevokeUri + "\" method=\"post\">");
     out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
 		+ ldapentries[0].getUniqueIdentifier()+"\">");
     if((role==null)||(role=="")) {
