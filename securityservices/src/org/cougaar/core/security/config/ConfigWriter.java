@@ -103,6 +103,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.ParserAdapter;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 public class ConfigWriter
   extends BaseConfigHandler
   implements LexicalHandler
@@ -188,7 +192,8 @@ public class ConfigWriter
 
   /** Default constructor.
    */
-  public ConfigWriter() {
+  public ConfigWriter(ServiceBroker sb) {
+    super(sb);
   } // <init>()
 
   //
@@ -634,7 +639,7 @@ public class ConfigWriter
 
       // setup writer
       if (writer == null) {
-	writer = new ConfigWriter();
+	writer = new ConfigWriter(null);
 	try {
 	  writer.setOutput(System.out, "US-ASCII");
 	}

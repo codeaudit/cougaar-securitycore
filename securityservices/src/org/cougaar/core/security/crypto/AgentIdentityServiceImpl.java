@@ -49,6 +49,7 @@ import org.cougaar.core.agent.SimpleAgent;
 import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.node.NodeAgent;
 import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.service.LoggingService;
 
 // Overlay
 import org.cougaar.core.service.identity.*;
@@ -72,10 +73,15 @@ public class AgentIdentityServiceImpl
   private MessageAddress requestorAddress;
   private boolean clientNameIsPrincipal;
   private MessageAddress thisNodeAddress;
+  private LoggingService log;
 
   public AgentIdentityServiceImpl(ServiceBroker sb, Object requestor)
   {
     serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     clientNameIsPrincipal = false;
     this.requestor = requestor;
 
@@ -140,9 +146,9 @@ public class AgentIdentityServiceImpl
       completeTransfer(transferableIdentity);
     }
     else {
-      if (CryptoDebug.debug) {
-	System.out.println("acquire identity:"
-			   + requestorAddress.toAddress());
+      if (log.isDebugEnabled()) {
+	log.debug("acquire identity:"
+		  + requestorAddress.toAddress());
       }
       if (clientNameIsPrincipal) {
 	try {
@@ -154,8 +160,8 @@ public class AgentIdentityServiceImpl
 	  keyRing.checkOrMakeCert(dname);
 	}
 	catch (Exception e) {
-	  if (CryptoDebug.debug) {
-	    System.out.println("Unable to get DN: " + e);
+	  if (log.isErrorEnabled()) {
+	    log.error("Unable to get DN: " + e);
 	  }
 	}
       }
@@ -177,7 +183,7 @@ public class AgentIdentityServiceImpl
       keyRing.checkOrMakeCert(dname);
     }
     catch (IOException e) {
-      System.out.println("ERROR: Unable to create identity:" + e);
+      log.error("ERROR: Unable to create identity:" + e);
     }
   }
   */
@@ -200,10 +206,10 @@ public class AgentIdentityServiceImpl
      */
 
     /* Step 1 */
-    if (CryptoDebug.debug) {
-      System.out.println("Initiating key transfer of " + requestorAddress.toAddress()
-			 + " from " + thisNodeAddress.toAddress()
-			 + " to " + targetNode.toAddress());
+    if (log.isInfoEnabled()) {
+      log.info("Initiating key transfer of " + requestorAddress.toAddress()
+	       + " from " + thisNodeAddress.toAddress()
+	       + " to " + targetNode.toAddress());
     }
     SecureMethodParam policy =
       cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
@@ -275,9 +281,9 @@ public class AgentIdentityServiceImpl
      * 2 - Install keys in the local keystore.
      */
 
-    if (CryptoDebug.debug) {
-      System.out.println("Encrypted TransferableIdentity is " +
-			 identity.getClass().getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypted TransferableIdentity is " +
+		identity.getClass().getName());
     }
 
     if (!(identity instanceof KeyIdentity)) {
@@ -293,18 +299,18 @@ public class AgentIdentityServiceImpl
       sender = dname.getCommonName();
     }
     catch (Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get sender Common Name: " + e);
+      if (log.isErrorEnabled()) {
+	log.error("Unable to get sender Common Name: " + e);
       }
       throw new RuntimeException("Unable to get sender information:"
 				 + ki.getSender().getSubjectDN().getName());
     }
 
     /* Step 1 */
-    if (CryptoDebug.debug) {
-      System.out.println("Completing key transfer from "
-			 + sender
-			 + " to " + thisNodeAddress.toAddress());
+    if (log.isInfoEnabled()) {
+      log.info("Completing key transfer from "
+	       + sender
+	       + " to " + thisNodeAddress.toAddress());
     }
 
     SecureMethodParam policy =
@@ -315,8 +321,8 @@ public class AgentIdentityServiceImpl
     KeySet keySet = null;
 
     KeyIdentity keyIdentity = (KeyIdentity) identity;
-    if (CryptoDebug.debug) {
-      System.out.println("Decrypting KeyIdentity");
+    if (log.isDebugEnabled()) {
+      log.debug("Decrypting KeyIdentity");
     }
     Object o = null;
     try {
@@ -327,14 +333,14 @@ public class AgentIdentityServiceImpl
     catch (GeneralSecurityException e) {
       return;
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Decrypted TransferableIdentity is " +
-			 o.getClass().getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Decrypted TransferableIdentity is " +
+		o.getClass().getName());
     }
     if (!(o instanceof KeySet)) {
       // Error
-      if (CryptoDebug.debug) {
-	System.out.println("ERROR: unexpected TransferableIdentity");
+      if (log.isErrorEnabled()) {
+	log.error("Unexpected TransferableIdentity");
       }
     }
     else {
@@ -342,18 +348,18 @@ public class AgentIdentityServiceImpl
       PrivateKey[]  privateKeys = keySet.getPrivateKeys();
       X509Certificate[] certificates = keySet.getCertificates();
       if (privateKeys != null) {
-	if (CryptoDebug.debug) {
-	  System.out.println("KeySet contains " + privateKeys.length
-			     + " private keys");
+	if (log.isDebugEnabled()) {
+	  log.debug("KeySet contains " + privateKeys.length
+		    + " private keys");
 	}
       }
       else {
 	return;
       }
       if (certificates != null) {
-	if (CryptoDebug.debug) {
-	  System.out.println("KeySet contains " + certificates.length
-			     + " certificates");
+	if (log.isDebugEnabled()) {
+	  log.debug("KeySet contains " + certificates.length
+		    + " certificates");
 	}
       }
       else {

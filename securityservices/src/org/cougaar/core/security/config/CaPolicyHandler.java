@@ -35,6 +35,10 @@ import java.lang.reflect.*;
 import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -44,12 +48,16 @@ public class CaPolicyHandler
 {
   private CaPolicy caPolicy;
 
+  public CaPolicyHandler(ServiceBroker sb) {
+    super(sb);
+  }
+
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
-    if (CryptoDebug.debug) {
-      System.out.println("Reading CA policy");
+    if (log.isDebugEnabled()) {
+      log.debug("Reading CA policy");
     }
     caPolicy = new CaPolicy();
     currentSecurityPolicy = caPolicy;
@@ -87,9 +95,9 @@ public class CaPolicyHandler
     if (endElementAction == SKIP) {
       return;
     }
-    if (CryptoDebug.debug) {
-      System.out.println("CaPolicy: " + localName
-			 + " = " + getContents());
+    if (log.isDebugEnabled()) {
+      log.debug("CaPolicy: " + localName
+		+ " = " + getContents());
     }
 
     // Names
@@ -97,15 +105,15 @@ public class CaPolicyHandler
       X500Name aDN = null;
       try {
 	aDN = new X500Name(getContents());
-	if (CryptoDebug.debug) {
-	  System.out.println(" Got aDN is :"+ aDN.toString());
+	if (log.isDebugEnabled()) {
+	  log.debug(" Got aDN is :"+ aDN.toString());
 	}
 	caPolicy.caDnName = aDN;
 	caPolicy.caCommonName = aDN.getCommonName();
       }
       catch (IOException e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Unable to parse DN");
+	if (log.isErrorEnabled()) {
+	  log.error("Unable to parse DN");
 	}
       }
     }
@@ -143,8 +151,8 @@ public class CaPolicyHandler
 	}
       }
       else {
-	if (CryptoDebug.debug) {
-	  System.out.println("Error !!!!!!! No LDAP server type specified.");
+	if (log.isErrorEnabled()) {
+	  log.error("No LDAP server type specified.");
 	}
       }
     }
@@ -172,10 +180,10 @@ public class CaPolicyHandler
 	  new AlgorithmId((ObjectIdentifier)algIdField.get(null));
       }
       catch (NoSuchFieldException e) {
-	System.out.println("Unable to get algorithm identifier");
+	log.error("Unable to get algorithm identifier");
       }
       catch (IllegalAccessException e) {
-	System.out.println("Unable to get algorithm identifier");
+	log.error("Unable to get algorithm identifier");
       }
     }
 
@@ -188,10 +196,10 @@ public class CaPolicyHandler
 	  new AlgorithmId((ObjectIdentifier)crlalgIdField.get(null));
       }
       catch (NoSuchFieldException e) {
-	System.out.println("No Such CRL algorithm");
+	log.error("No Such CRL algorithm");
       }
       catch (IllegalAccessException e) {
-	System.out.println("Cannot parse CRL algorithm");
+	log.error("Cannot parse CRL algorithm");
       }
     }
     if (localName.equals(CA_KEYSIZE_ELEMENT)) {

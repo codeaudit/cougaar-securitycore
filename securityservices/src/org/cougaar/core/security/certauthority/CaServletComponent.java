@@ -39,6 +39,7 @@ import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.service.NamingService;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
@@ -61,6 +62,7 @@ public class CaServletComponent
   private BlackboardService blackboardService;
   private NamingService namingService;
   private CertificateManagementService certificateManagementService;
+  private LoggingService log;
 
   /**
    * Capture the (optional) load-time parameters.
@@ -100,17 +102,18 @@ public class CaServletComponent
       throw new IllegalArgumentException("Unable to find servlet class:"
 					 + e);
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Creating servlet component: "
-			 + myServletClassName + " at " + myPath);
-    }
   }
 
   public void load() {
-    if (CryptoDebug.debug) {
-      System.out.println("Loading servlet component: "
-			 + myServletClassName + " at " + myPath);
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
+    if (log.isDebugEnabled()) {
+      log.debug("Loading servlet component: "
+		+ myServletClassName + " at " + myPath);
     }
+
     // FIXME need AgentIdentificationService
     org.cougaar.core.plugin.PluginBindingSite pbs =
       (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
@@ -121,11 +124,11 @@ public class CaServletComponent
     }
 
     /*
-    if (CryptoDebug.debug) {
-      System.out.println("Currently available services:");
+    if (log.isDebugEnabled()) {
+      log.debug("Currently available services:");
       Iterator it = serviceBroker.getCurrentServiceClasses();
       while (it.hasNext()) {
-	System.out.println(it.next().toString());
+	log.debug(it.next().toString());
       }
     }
     */
@@ -159,7 +162,7 @@ public class CaServletComponent
 		    CertificateManagementService.class,
 		    null);
     if (certificateManagementService == null) {
-      System.out.println("ERROR: Unable to obtain certificate management service");
+      log.error("Unable to obtain certificate management service");
     }
 
     support = new SecurityServletSupportImpl(getPath(),
@@ -215,9 +218,9 @@ public class CaServletComponent
       o = constructor.newInstance(arg);
     }
     catch (Exception e) {
-      if (CryptoDebug.debug) {
+      if (log.isErrorEnabled()) {
 	e.printStackTrace();
-	System.out.println("Unable to initialize servlet:" + e);
+	log.error("Unable to initialize servlet:" + e);
       }
     }
     if (o == null || !(o instanceof Servlet)) {

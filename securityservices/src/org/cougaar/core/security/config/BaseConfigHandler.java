@@ -36,6 +36,10 @@ import java.util.regex.*;
 import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -54,6 +58,9 @@ public class BaseConfigHandler
 
   protected SecurityPolicy currentSecurityPolicy;
 
+  protected ServiceBroker serviceBroker;
+  protected LoggingService log;
+
   protected String role;
   private String topLevelTag;
 
@@ -66,6 +73,13 @@ public class BaseConfigHandler
   protected static final int SKIP = 3;
   protected int endElementAction;
 
+  public BaseConfigHandler(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+  }
+
   public SecurityPolicy getSecurityPolicy() {
     return currentSecurityPolicy;
   }
@@ -74,8 +88,8 @@ public class BaseConfigHandler
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
-    if (CryptoDebug.debug) {
-      System.out.println("Reading policy");
+    if (log.isDebugEnabled()) {
+      log.debug("Reading policy");
     }
     this.parent = parent;
     this.parser = parser;
@@ -148,8 +162,8 @@ public class BaseConfigHandler
 
 
     if (replaceJavaProperties) {
-      //if (CryptoDebug.debug) {
-      //System.out.println("Looking up java property pattern in " + s);
+      //if (log.isDebugEnabled()) {
+      //log.debug("Looking up java property pattern in " + s);
       //}
       /* Search for java properties patterns.
      * ${java_property} will be replaced by the value of the java property.
@@ -165,7 +179,7 @@ public class BaseConfigHandler
 	String token = matcher.group();
 	String propertyName = token.substring(2, token.length() - 1);
 	String propertyValue = System.getProperty(propertyName);
-	System.out.println("Replacing " + token + " with " + propertyValue);
+	log.debug("Replacing " + token + " with " + propertyValue);
 	matcher.appendReplacement(sb, propertyValue);
 	result = matcher.find();
       }
@@ -176,8 +190,8 @@ public class BaseConfigHandler
     }
 
     if (attributeTable != null && replaceAttributes) {
-      if (CryptoDebug.debug) {
-	System.out.println("Looking up attribute pattern in " + s);
+      if (log.isDebugEnabled()) {
+	log.debug("Looking up attribute pattern in " + s);
       }
       /* Replace attributes with their value.
        * $[attribute] will be replaced by the value of the attribute.
@@ -194,7 +208,7 @@ public class BaseConfigHandler
 	String token = matcher.group();
 	String attributeName = token.substring(2, token.length() - 1);
 	String attributeValue = (String) attributeTable.get(attributeName);
-	System.out.println("Replacing " + token + " with " + attributeValue);
+	log.debug("Replacing " + token + " with " + attributeValue);
 	matcher.appendReplacement(sb, attributeValue);
 	result = matcher.find();
       }
@@ -211,9 +225,9 @@ public class BaseConfigHandler
   /** Receive notification of a notation declaration event.
    */
   public void notationDecl(String name, String publicId, String systemId) {
-    if (CryptoDebug.debug) {
-      System.out.println("Name: " + name + " publicId: " + publicId
-			 + " systemId: " + systemId);
+    if (log.isDebugEnabled()) {
+      log.debug("Name: " + name + " publicId: " + publicId
+		+ " systemId: " + systemId);
     }
   }
 
@@ -221,9 +235,9 @@ public class BaseConfigHandler
    */
   public void unparsedEntityDecl(String name, String publicId,
 				 String systemId, String notationName) {
-    if (CryptoDebug.debug) {
-      System.out.println("Name: " + name + " publicId: " + publicId
-			 + " notationName: " + notationName);
+    if (log.isDebugEnabled()) {
+      log.debug("Name: " + name + " publicId: " + publicId
+		+ " notationName: " + notationName);
     }
   }
 
@@ -231,9 +245,9 @@ public class BaseConfigHandler
    */
   public InputSource resolveEntity(String publicId, String systemId) {
     InputSource is = null;
-    if (CryptoDebug.debug) {
-      System.out.println(" publicId: " + publicId
-			 + " systemId: " + systemId);
+    if (log.isDebugEnabled()) {
+      log.debug(" publicId: " + publicId
+		+ " systemId: " + systemId);
     }
     return is;
   }

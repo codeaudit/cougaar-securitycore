@@ -34,6 +34,8 @@ import java.lang.reflect.Array;
 
 // Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
@@ -47,6 +49,8 @@ public class PolicyHandler
   private ByteArrayInputStream newPolicyInputStream;
   private ByteArrayOutputStream policy;
   private ConfigParserService configParser = null;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   protected static final String POLICIES_TAG = "policies";
 
@@ -59,8 +63,16 @@ public class PolicyHandler
   protected static final String LEXICAL_HANDLER_PROPERTY_ID =
   "http://xml.org/sax/properties/lexical-handler";
 
-  public PolicyHandler(ConfigParserService configParser) {
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+  public PolicyHandler(ConfigParserService configParser,
+		       ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class,
+			       null);
     this.configParser = configParser;
   }
 
@@ -78,10 +90,10 @@ public class PolicyHandler
     ByteArrayOutputStream newPolicyOutputStream =
       parseXmlTemplate(xmlTemplateFile, attributeTable);
 
-    System.out.println("NEW CA POLICY:");
-    System.out.println(newPolicyOutputStream.toString());
+    log.debug("NEW CA POLICY:");
+    log.debug(newPolicyOutputStream.toString());
 
-    ConfigWriter writer = new ConfigWriter();
+    ConfigWriter writer = new ConfigWriter(serviceBroker);
     writer.replaceAttributes(false);
     writer.replaceJavaProperties(false);
 
@@ -93,12 +105,12 @@ public class PolicyHandler
       writer.setOutput(newPolicy, "US-ASCII");
     }
     catch (UnsupportedEncodingException e) {
-      System.out.println("error: Unable to set output.");
+      log.error("Unable to set output.");
       return;
     }
-    System.out.println("Parsing policy file");
+    log.debug("Parsing policy file");
     parseXmlFile(policyFile, writer);
-    System.out.println("Parsing policy file done");
+    log.debug("Parsing policy file done");
 
     FileOutputStream newPolicyFile = null;
     file = configParser.findWorkspacePolicyPath("cryptoPolicy.xml");
@@ -107,7 +119,7 @@ public class PolicyHandler
       newPolicyFile.write(newPolicy.toByteArray());
     }
     catch (IOException e) {
-      System.out.println("Unable to open policy file for modification");
+      log.error("Unable to open policy file for modification");
       return;
     }
   }
@@ -115,7 +127,7 @@ public class PolicyHandler
   public ByteArrayOutputStream parseXmlTemplate(String xmlTemplateFile,
 						Hashtable attributeTable) {
 
-    ConfigWriter writer = new ConfigWriter();
+    ConfigWriter writer = new ConfigWriter(serviceBroker);
     writer.replaceAttributes(true);
     writer.replaceJavaProperties(true);
     writer.setAttributeTable(attributeTable);

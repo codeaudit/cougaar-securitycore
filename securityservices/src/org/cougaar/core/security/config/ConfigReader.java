@@ -31,6 +31,10 @@ import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 
@@ -38,8 +42,15 @@ public class ConfigReader
 {
   // XML Parser
   private XMLReader parser;
+  private LoggingService log;
+  private ServiceBroker serviceBroker;
 
-  public ConfigReader() {
+  public ConfigReader(ServiceBroker sb) {
+    serviceBroker = sb;
+    this.log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     try {
       // Create SAX 2 parser...
       parser = XMLReaderFactory.createXMLReader();
@@ -52,7 +63,8 @@ public class ConfigReader
   public void parsePolicy(String filePath, String role) {
     try {
       // Set the ContentHandler...
-      ConfigParserHandler handler = new ConfigParserHandler(parser, role);
+      ConfigParserHandler handler = new ConfigParserHandler(parser, role,
+							    serviceBroker);
       parser.setContentHandler(handler);
 
       // Parse the file...

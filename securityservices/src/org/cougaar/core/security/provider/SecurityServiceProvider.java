@@ -30,12 +30,18 @@ import java.lang.*;
 import java.util.Hashtable;
 
 // Cougaar core services
+import org.cougaar.bootstrap.SystemProperties;
+
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.service.DataProtectionService;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.node.NodeControlService;
+
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.logging.LoggingControlService;
+import org.cougaar.core.logging.LoggingServiceProvider;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -56,6 +62,7 @@ public class SecurityServiceProvider
   private SecurityServiceTable services;
   private NodeControlService nodeControlService;
   private boolean initDone = false;
+  private LoggingService log;
 
   public SecurityServiceProvider() {
     setServiceBroker();
@@ -92,13 +99,15 @@ public class SecurityServiceProvider
   public Object getService(ServiceBroker sb,
 			   Object requestor,
 			   Class serviceClass) {
-    if (CryptoDebug.debug) {
-      System.out.println("Security Service Request: "
-			 + requestor.getClass().getName()
-			 + " - " + serviceClass.getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Security Service Request: "
+		+ requestor.getClass().getName()
+		+ " - " + serviceClass.getName());
     }
     if (sb == null) {
-      System.out.println("WARNING: Running in a test environment");
+      if (log.isWarnEnabled()) {
+	log.warn("Running in a test environment");
+      }
       sb = serviceBroker;
     }
     ServiceProvider servMgr = null;
@@ -110,11 +119,15 @@ public class SecurityServiceProvider
 					     serviceClass);
     }
     catch (Exception e) {
-      System.out.println("Unable to get service request");
+      if (log.isWarnEnabled()) {
+	log.warn("Unable to get service request");
+      }
       e.printStackTrace();
     }
     if (service == null) {
-      System.out.println("Warning: Service not registered: " + serviceClass.getName());
+      if (log.isWarnEnabled()) {
+	log.warn("Service not registered: " + serviceClass.getName());
+      }
     }
     return service;
   }
@@ -162,7 +175,7 @@ public class SecurityServiceProvider
     ServiceBroker sb = getServiceBroker();
     if (sb == null) {
       // Install a default broker. This is only for test purposes
-      System.out.println("WARNING: Running in a test environment");
+      log.warn("WARNING: Running in a test environment");
       serviceBroker = new ServiceBrokerSupport();
     }
     else {
@@ -182,14 +195,34 @@ public class SecurityServiceProvider
       }
     }
     else {
-      System.out.println("WARNING: Running in a test environment");
+      System.err.println("WARNING: Running in a test environment");
       rootServiceBroker = serviceBroker;
     }
 
-    services = new SecurityServiceTable();
+    /* ********************************
+     * Logging service
+     */
+    // NodeAgent has not started the logging service at this point,
+    // but we need it.
+    try {
+      LoggingServiceProvider loggingServiceProvider = 
+        new LoggingServiceProvider(SystemProperties.getSystemPropertiesWithPrefix("org.cougaar.core.logging."));
+      rootServiceBroker.addService(LoggingService.class,
+                    loggingServiceProvider);
+      rootServiceBroker.addService(LoggingControlService.class,
+                    loggingServiceProvider);
+    } catch (java.io.IOException ioe) {
+      throw new Error("Couldn't initialize LoggingService "+ioe);
+    }
+
+    this.log = (LoggingService)
+      rootServiceBroker.getService(this,
+				   LoggingService.class, null);
+
+    services = new SecurityServiceTable(log);
 
     if (CryptoDebug.debug) {
-      System.out.println("Registering security services");
+      log.warn("Registering security services");
     }
 
     /* ********************************

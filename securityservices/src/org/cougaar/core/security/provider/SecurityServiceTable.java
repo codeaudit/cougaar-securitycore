@@ -30,14 +30,21 @@ import java.util.Hashtable;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.service.LoggingService;
 
 public class SecurityServiceTable
   extends Hashtable
 {
+  private LoggingService log;
+
+  public SecurityServiceTable(LoggingService aLog) {
+    log = aLog;
+  }
+
   public Object put(Object key, Object value) {
-    if (CryptoDebug.debug) {
-      System.out.println("Adding service " 
-			 + ((Class)key).getName());
+    if (log.isDebugEnabled()) {
+     log.debug("Adding service " 
+	       + ((Class)key).getName());
     }
     return super.put(key, value);
   }

@@ -32,6 +32,10 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.Array;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -40,9 +44,11 @@ public class ConfigParserHandler
   extends BaseConfigHandler
 {
   // Handler delegates
-  CryptoClientPolicyHandler cryptoClientHandler;
-  CaPolicyHandler caPolicyHandler;
-  CryptoPolicyHandler cryptoPolicyHandler;
+  private CryptoClientPolicyHandler cryptoClientHandler;
+  private CaPolicyHandler caPolicyHandler;
+  private CryptoPolicyHandler cryptoPolicyHandler;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   /** A Vector of SecurityPolicy
    */
@@ -51,12 +57,19 @@ public class ConfigParserHandler
   private static final String POLICY_ELEMENT = "policy";
 
   // Constructor with XML Parser...
-  ConfigParserHandler(XMLReader parser, String role) {
+  ConfigParserHandler(XMLReader parser, String role,
+		      ServiceBroker sb) {
+    super(sb);
     this.parser = parser;
     this.role = role;
-    cryptoClientHandler = new CryptoClientPolicyHandler();
-    caPolicyHandler = new CaPolicyHandler();
-    cryptoPolicyHandler = new CryptoPolicyHandler();
+    this.serviceBroker = sb;
+    this.log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
+    cryptoClientHandler = new CryptoClientPolicyHandler(serviceBroker);
+    caPolicyHandler = new CaPolicyHandler(serviceBroker);
+    cryptoPolicyHandler = new CryptoPolicyHandler(serviceBroker);
 
     securityPolicies = new ArrayList();
   }
@@ -79,9 +92,9 @@ public class ConfigParserHandler
     int size = al.size();
     SecurityPolicy[] array = (SecurityPolicy[]) Array.newInstance(policyClass, size);
     al.toArray(array);
-    if (CryptoDebug.debug) {
-      System.out.println("Requesting policy of type " + policyClass.getName()
-			 + " (size=" + array.length + ")");
+    if (log.isDebugEnabled()) {
+      log.debug("Requesting policy of type " + policyClass.getName()
+		+ " (size=" + array.length + ")");
     }
     return array;
   }
@@ -92,14 +105,14 @@ public class ConfigParserHandler
 			    Attributes attr )
     throws SAXException {
     super.startElement(namespaceURI, localName, qName, attr);
-    if (CryptoDebug.debug) {
-      System.out.println("ConfigParserHandler: " + localName);
+    if (log.isDebugEnabled()) {
+      log.debug("ConfigParserHandler: " + localName);
     }
 
     if (localName.equalsIgnoreCase(POLICY_ELEMENT)) {
       String policyType = attr.getValue("type");
-      if (CryptoDebug.debug) {
-	System.out.println("ConfigParserHandler: policyType=" + policyType);
+      if (log.isDebugEnabled()) {
+	log.debug("ConfigParserHandler: policyType=" + policyType);
       }
       if (policyType == null) {
 	return;

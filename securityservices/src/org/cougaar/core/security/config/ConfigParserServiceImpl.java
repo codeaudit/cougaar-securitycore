@@ -42,6 +42,10 @@ import org.cougaar.util.*;
 import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
+
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -60,15 +64,24 @@ public class ConfigParserServiceImpl
   private boolean isCertAuthority = false;
   private Document configDoc = null;
   private String role;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   // XML Parser
   private XMLReader parser;
   private ConfigParserHandler handler;
 
-  public ConfigParserServiceImpl() {
+  public ConfigParserServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+			       SecurityPropertiesService.class,
+			       null);
     confFinder = new ConfigFinder();
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
+
     try {
       // Create SAX 2 parser...
       parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
@@ -79,7 +92,7 @@ public class ConfigParserServiceImpl
     role = secprop.getProperty(secprop.SECURITY_ROLE);
 
     // Set the ContentHandler...
-    handler = new ConfigParserHandler(parser, role);
+    handler = new ConfigParserHandler(parser, role, serviceBroker);
     parser.setContentHandler(handler);
 
     setConfigurationFile("cryptoPolicy.xml");
@@ -90,7 +103,7 @@ public class ConfigParserServiceImpl
     String nodeName = secprop.getProperty("org.cougaar.node.name");
 
     String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
-    System.out.println("Cougaar workspace is :" + cougaarWsp);
+    log.debug("Cougaar workspace is :" + cougaarWsp);
 
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
@@ -118,17 +131,17 @@ public class ConfigParserServiceImpl
       f = confFinder.locateFile(policyfilename);
 
       if (f == null) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Unable to read policy filename: " + policyfilename);
+	if (log.isErrorEnabled()) {
+	  // Cannot proceed without policy
+	  log.error("Cannot continue secure execution without policy");
+	  log.error("Could not find configuration file: "
+		    + policyfilename);
 	}
-	// Cannot proceed without policy
-	System.err.println("ERROR: Cannot continue secure execution without policy");
-	System.err.println("ERROR: Could not find configuration file: " + policyfilename);
 	throw new RuntimeException("No policy available");
       }
     }
-    if(CryptoDebug.debug) {
-      System.out.println("Policy file:" + f.getPath());
+    if(log.isDebugEnabled()) {
+      log.debug("Policy file:" + f.getPath());
     }
     return f;
   }
@@ -143,8 +156,8 @@ public class ConfigParserServiceImpl
       parsePolicy(fis);
     }
     catch (IOException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to read configFile: " + e);
+      if (log.isErrorEnabled()) {
+	log.error("Unable to read configFile: " + e);
 	e.printStackTrace();
       }
     }
@@ -170,22 +183,22 @@ public class ConfigParserServiceImpl
       (CaPolicy[])getSecurityPolicies(CaPolicy.class);
 
     X500Name x500Name = null;
-    if (CryptoDebug.debug) {
-      System.out.println("Requesting CA policy for " + aDN);
+    if (log.isDebugEnabled()) {
+      log.debug("Requesting CA policy for " + aDN);
     }
     try {
       x500Name = new X500Name(aDN);
     }
     catch (IOException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to parse DN");
+      if (log.isErrorEnabled()) {
+	log.error("Unable to parse DN");
       }
       return null;
     }
 
     for (int i = 0 ; i < policy.length ; i++) {
-      if (CryptoDebug.debug) {
-	System.out.println("Current policy: " + policy[i]);
+      if (log.isDebugEnabled()) {
+	log.debug("Current policy: " + policy[i]);
       }
 
       /**
@@ -202,15 +215,15 @@ public class ConfigParserServiceImpl
   }
 
   public void parsePolicy(InputStream policy) {
-    if (CryptoDebug.debug) {
-      System.out.println("Reading policy object");
+    if (log.isDebugEnabled()) {
+      log.debug("Reading policy object");
     }
     try {
       // Parse the file...
       parser.parse(new InputSource(policy));
 
-      if (CryptoDebug.debug) {
-	System.out.println(handler.toString());
+      if (log.isDebugEnabled()) {
+	log.debug(handler.toString());
       }
     }
     catch ( Exception e ) {

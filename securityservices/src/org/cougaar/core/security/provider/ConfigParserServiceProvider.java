@@ -46,7 +46,7 @@ public class ConfigParserServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (configParserService == null) {
-      configParserService = new ConfigParserServiceImpl();
+      configParserService = new ConfigParserServiceImpl(sb);
     }
     return configParserService;
   }

@@ -42,10 +42,10 @@ import sun.security.util.ObjectIdentifier;
 // Cougaar core infrastructure
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
-import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
@@ -65,6 +65,7 @@ final public class KeyRing
   private ServiceBroker serviceBroker;
   private ConfigParserService configParser = null;
   private NodeConfiguration nodeConfiguration;
+  private LoggingService log;
 
   public KeyRing(ServiceBroker sb) {
     serviceBroker = sb;
@@ -72,6 +73,10 @@ final public class KeyRing
   }
 
   private synchronized void init() {
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class,
@@ -92,8 +97,8 @@ final public class KeyRing
 
       String role =
 	secprop.getProperty(secprop.SECURITY_ROLE); 
-      if (role == null && CryptoDebug.debug == true) {
-	System.out.println("Keyring Warning: LDAP role not defined");
+      if (role == null && log.isWarnEnabled() == true) {
+	log.warn("Keyring Warning: LDAP role not defined");
       }
 
       CryptoClientPolicy cryptoClientPolicy = configParser.getCryptoClientPolicy();
@@ -121,9 +126,9 @@ final public class KeyRing
 
       File file = new File(param.keystorePath);
       if (!file.exists()){
-	if (CryptoDebug.debug) {
-	  System.out.println(param.keystorePath +
-			     " keystore does not exist. Creating...");
+	if (log.isInfoEnabled()) {
+	  log.info(param.keystorePath +
+		   " keystore does not exist. Creating...");
 	}
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
         FileOutputStream fos = new FileOutputStream(param.keystorePath);
@@ -142,13 +147,13 @@ final public class KeyRing
       param.caKeystorePassword =
 	cryptoClientPolicy.getTrustedCaKeystorePassword().toCharArray();
 
-      if (CryptoDebug.debug) {
-	System.out.println("CA keystorePath=" + param.caKeystorePath);
+      if (log.isDebugEnabled()) {
+	log.debug("CA keystorePath=" + param.caKeystorePath);
       }
       File cafile = new File(param.caKeystorePath);
       if (!cafile.exists()) {
-	if (CryptoDebug.debug) {
-	  System.out.println(param.caKeystorePath +
+	if (log.isInfoEnabled()) {
+	  log.info(param.caKeystorePath +
 			     "Trusted CA keystore does not exist. in "
 			     + param.caKeystorePath + ". Trying with configFinder");
 	}
@@ -157,9 +162,9 @@ final public class KeyRing
 	  param.caKeystorePath = cafile2.getPath();
 	}
 	else if (param.isCertAuth) {
-	  if (CryptoDebug.debug) {
-	    System.out.println(param.caKeystorePath +
-			       " Trusted CA keystore does not exist. Creating...");
+	  if (log.isInfoEnabled()) {
+	    log.info(param.caKeystorePath +
+		     " Trusted CA keystore does not exist. Creating...");
 	  }
 	  KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
 	  FileOutputStream fos = new FileOutputStream(param.caKeystorePath);
@@ -173,20 +178,20 @@ final public class KeyRing
 	param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
       }
       catch (Exception e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Warning: Could not open CA keystore ("
-			     + param.caKeystorePath + "):" + e);
+	if (log.isWarnEnabled()) {
+	  log.warn("Warning: Could not open CA keystore ("
+		    + param.caKeystorePath + "):" + e);
 	}
 	param.caKeystoreStream = null;
 	param.caKeystorePath = null;
 	param.caKeystorePassword = null;
       }
 
-      if (CryptoDebug.debug) {
-	System.out.println("Secure message keystore: path="
-			   + param.keystorePath);
-	System.out.println("Secure message CA keystore: path="
-			   + param.caKeystorePath);
+      if (log.isDebugEnabled()) {
+	log.debug("Secure message keystore: path="
+		  + param.keystorePath);
+	log.debug("Secure message CA keystore: path="
+		  + param.caKeystorePath);
       }
     
       // LDAP certificate directory
@@ -251,8 +256,8 @@ final public class KeyRing
   }
 
   public synchronized List findCert(String cougaarName) {
-    if(CryptoDebug.debug)
-      System.out.println("Looking for cougaar name " + cougaarName + " in keystore ");
+    if(log.isDebugEnabled())
+      log.debug("Looking for cougaar name " + cougaarName + " in keystore ");
     return keystore.findCert(cougaarName);
   }
 

@@ -31,6 +31,10 @@ import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -71,13 +75,17 @@ public class CryptoClientPolicyHandler
   private static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
 
+  public CryptoClientPolicyHandler(ServiceBroker sb) {
+    super(sb);
+  }
+
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
     
-    if (CryptoDebug.debug) {
-      System.out.println("Reading crypto client policy");
+    if (log.isDebugEnabled()) {
+      log.debug("Reading crypto client policy");
     }
     cryptoClientPolicy = new CryptoClientPolicy();
     currentSecurityPolicy = cryptoClientPolicy;
@@ -111,9 +119,9 @@ public class CryptoClientPolicyHandler
       return;
     }
 
-    if (CryptoDebug.debug) {
-      System.out.println("CryptoClientPolicy: " + localName 
-			 + " = " + getContents());
+    if (log.isDebugEnabled()) {
+      log.debug("CryptoClientPolicy: " + localName 
+		+ " = " + getContents());
     }
 
     if (localName.equals(IS_CERT_AUTH_ELEMENT)) {
@@ -122,12 +130,12 @@ public class CryptoClientPolicyHandler
       if (st_value.equalsIgnoreCase("true")) {
 	value = true;
       }
-      if (CryptoDebug.debug) {
+      if (log.isInfoEnabled()) {
 	if (value) {
-	  System.out.println("Running as a Certificate Authority");
+	  log.info("Running as a Certificate Authority");
 	}
 	else {
-	  System.out.println("Running as a standard Cougaar node");
+	  log.info("Running as a standard Cougaar node");
 	}
       }
       cryptoClientPolicy.setIsCertificateAuthority(value);

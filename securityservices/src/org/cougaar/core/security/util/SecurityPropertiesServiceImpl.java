@@ -26,6 +26,10 @@
 
 package org.cougaar.core.security.util;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
@@ -33,11 +37,18 @@ public class SecurityPropertiesServiceImpl
   implements SecurityPropertiesService
 {
   private javax.servlet.ServletContext servletContext = null;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public SecurityPropertiesServiceImpl() {
+  public SecurityPropertiesServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
   }
 
-  public SecurityPropertiesServiceImpl(javax.servlet.ServletContext aServletContext) {
+  public SecurityPropertiesServiceImpl(javax.servlet.ServletContext aServletContext, ServiceBroker sb) {
+    this(sb);
     servletContext = aServletContext;
   }
 
@@ -50,8 +61,8 @@ public class SecurityPropertiesServiceImpl
     if (servletContext != null) {
       value = (String) servletContext.getAttribute(property);
       if (value == null) {
-	if (CryptoDebug.debug) {
-	  System.out.println("WARNING: servlet attribute undefined: " + property
+	if (log.isWarnEnabled()) {
+	  log.warn("servlet attribute undefined: " + property
 	    + ". Using system property");
 	}
       }
@@ -59,15 +70,15 @@ public class SecurityPropertiesServiceImpl
     if (value == null) {
       value = System.getProperty(property, defaultValue);
     }
-    if (CryptoDebug.debug) {
-      System.out.println("getProperty(" + property + ")=" + value);
+    if (log.isDebugEnabled()) {
+      log.debug("getProperty(" + property + ")=" + value);
     }
     return value;
   }
 
   public void setProperty(String property, String value) {
-    if (CryptoDebug.debug) {
-      System.out.println("setProperty(" + property + ")=" + value);
+    if (log.isDebugEnabled()) {
+      log.debug("setProperty(" + property + ")=" + value);
     }
     if (servletContext != null) {
       servletContext.setAttribute(property, value);

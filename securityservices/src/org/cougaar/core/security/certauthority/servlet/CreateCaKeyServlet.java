@@ -169,7 +169,8 @@ public class CreateCaKeyServlet
   }
 
   private void generateCaPolicy(Hashtable attributeTable) {
-    PolicyHandler ph = new PolicyHandler(configParser);
+    PolicyHandler ph = new PolicyHandler(configParser,
+					 support.getServiceBroker());
     ph.addCaPolicy(attributeTable);
   }
 

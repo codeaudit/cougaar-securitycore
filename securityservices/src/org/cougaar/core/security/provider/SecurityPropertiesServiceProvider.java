@@ -66,7 +66,7 @@ public class SecurityPropertiesServiceProvider
     }
     if (context == null) {
       if (secProp == null) {
-	secProp = new SecurityPropertiesServiceImpl();
+	secProp = new SecurityPropertiesServiceImpl(sb);
       }
       securityPropertiesService = secProp;
     }
@@ -77,7 +77,7 @@ public class SecurityPropertiesServiceProvider
 	(SecurityPropertiesService)contextMap.get(context);
       if (securityPropertiesService == null) {
 	securityPropertiesService =
-	  new SecurityPropertiesServiceImpl(context);
+	  new SecurityPropertiesServiceImpl(context, sb);
 	contextMap.put(context, securityPropertiesService);
       }
     }

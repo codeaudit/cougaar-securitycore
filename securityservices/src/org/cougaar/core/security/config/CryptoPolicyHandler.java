@@ -32,6 +32,10 @@ import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
@@ -51,13 +55,17 @@ public class CryptoPolicyHandler
   private static final String IS_ELEMENT = "IncomingSigningAlgorithm";
   private static final String OS_ELEMENT = "OutgoingSigningAlgorithm";
 
+  public CryptoPolicyHandler(ServiceBroker sb) {
+    super(sb);
+  }
+
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
     
-    if (CryptoDebug.debug) {
-      System.out.println("Reading crypto policy");
+    if (log.isDebugEnabled()) {
+      log.debug("Reading crypto policy");
     }
     cp = new CryptoPolicy();
     currentSecurityPolicy = cp;
@@ -81,9 +89,9 @@ public class CryptoPolicyHandler
       return;
     }
 
-    if (CryptoDebug.debug) {
-      System.out.println("CryptoPolicy: " + localName 
-			 + " = " + getContents());
+    if (log.isDebugEnabled()) {
+      log.debug("CryptoPolicy: " + localName 
+		+ " = " + getContents());
     }
 
     if (localName.equals(ISM_ELEMENT)) {
