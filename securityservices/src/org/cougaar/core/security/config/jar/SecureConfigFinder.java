@@ -30,6 +30,7 @@ import org.cougaar.core.security.securebootstrap.CertificateVerifier;
 import org.cougaar.core.security.securebootstrap.CertificateVerifierImpl;
 import org.cougaar.core.security.securebootstrap.SecurityLog;
 import org.cougaar.core.security.securebootstrap.SecurityLogImpl;
+import org.cougaar.core.security.util.ConcurrentHashMap;
 import org.cougaar.util.jar.JarConfigFinder;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.jar.JarFile;
@@ -77,6 +79,12 @@ public class SecureConfigFinder
    */
   private List _exceptionListRegularExpressions;
   private boolean _jarFilesOnly = true;
+
+  /**
+   * A Map from URLs to temporary Files.
+   */
+  private static ConcurrentHashMap m_filesProcessed = new ConcurrentHashMap();
+
 
   public SecureConfigFinder() {
     super();
@@ -298,40 +306,62 @@ public class SecureConfigFinder
     return _jarFilesOnly;
   }
 
-  protected File copyFileToTempDirectory(URL aUrl, String aFilename)
+  private File superCopyFileToTempDirectory(URL aUrl, String aFilename)
     throws IOException, GeneralSecurityException {
-    File tempFile = null;
-    try {
-      tempFile = super.copyFileToTempDirectory(aUrl, aFilename);
-    }
-    catch (SecurityException sex) {
-      _logger.warn("Unable to copy to temp directory: " + aFilename
-		   + ". Reason: " + sex);
+    return super.copyFileToTempDirectory(aUrl, aFilename);
+  }
+
+  protected File copyFileToTempDirectory(URL aUrl, final String aFilename)
+    throws IOException, GeneralSecurityException {
+
+    ConcurrentHashMap.Get getter = new ConcurrentHashMap.Get() {
+      public Object getValue(Object aUrl)
+       throws IOException, GeneralSecurityException {
+        File tempFile = null;
+        try {
+          tempFile = SecureConfigFinder.this.superCopyFileToTempDirectory((URL)aUrl, aFilename);
+        }
+        catch (Exception sex) {
+          _logger.warn("Unable to copy to temp directory: " + aFilename
+    		   + ". Reason: " + sex);
       
-      JarURLConnection juc = (JarURLConnection)aUrl.openConnection();
+          JarURLConnection juc = (JarURLConnection)((URL)aUrl).openConnection();
 
-      if (juc != null) {
-	logSecurityEvent(juc.getURL(), sex);
+          if (juc != null) {
+            logSecurityEvent(juc.getURL(), sex);
+          }
+          else {
+            // Log anyway. This may cause the system to log the same
+            // event more than once.
+            logSecurityEvent(null, sex);
+          }
+
+          // In addition, remove the file from the cache.
+          // It cannot be accessed.
+          _logger.debug("Removing " + aFilename + " from cache");
+          //_file2URLs.remove(aUrl);
+
+          if (tempFile.exists()) {
+  	    // Delete the file, as the components may try to open the
+            // file anyway.
+	    tempFile.delete();
+	    tempFile = null;
+          }
+        }
+        return tempFile;
       }
-      else {
-	// Log anyway. This may cause the system to log the same
-	// event more than once.
-	logSecurityEvent(null, sex);
-      }
+    };
 
-      // In addition, remove the file from the cache.
-      // It cannot be accessed.
-      _logger.debug("Removing " + aFilename + " from cache");
-      //_file2URLs.remove(aUrl);
-
-      if (tempFile.exists()) {
-	// Delete the file, as the components may try to open the
-	// file anyway.
-	tempFile.delete();
-	tempFile = null;
+    File file = null;
+    try {
+      file = (File) m_filesProcessed.get(aUrl, getter);
+    }
+    catch (Exception e) {
+      if (_logger.isErrorEnabled()) {
+        _logger.error("Unexpected error while copying file: " + aUrl, e);
       }
     }
-    return tempFile;
+    return file;
   }
 
   private void logSecurityEvent(URL url, Exception ex) {

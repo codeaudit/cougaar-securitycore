@@ -5,34 +5,49 @@ package org.cougaar.core.security.util;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 /**
  * A HashMap that performs synchronization on individual key entries (as opposed to the
  * entire Map as does Hashtable).
  * This is particularly helpful when a get() operation takes a lot of time.
  */
 public class ConcurrentHashMap extends HashMap {
+  private static final Logger _logger =
+  LoggerFactory.getInstance().createLogger(ConcurrentHashMap.class);
 
-  public Object get(Object keyEntry) {
+  public Object get(Object keyEntry, Get getter) throws Exception {
     Object value = null;
     Marker marker = null;
     boolean wait = false;
 
     synchronized (this) {
       if (containsKey(keyEntry)) {
-        if (! ((value = super.get(keyEntry)) instanceof Marker)) {
-          System.out.println("Object already processed. " + keyEntry + " => " + value);
+        value = super.get(keyEntry);
+        if (!(value instanceof MarkerException) && !(value instanceof Marker)) {
+          if (_logger.isDebugEnabled()) {
+            _logger.debug("Object already processed. " + keyEntry + " => " + value);
+          }
           return value;
         }
-        else {
+        else if (value instanceof Marker) {
           // Another thread is already retrieving the value 
           // We should wait until the thread gets it.
-          System.out.println("Object being processed by other thread. " + keyEntry);
+          if (_logger.isDebugEnabled()) {
+            _logger.debug("Object being processed by other thread. " + keyEntry);
+          }
           wait = true;
           marker = (Marker)value;
         }
       }
-      else {
-        System.out.println("Object not processed. " + keyEntry);
+      if (!wait) {
+        if (_logger.isDebugEnabled()) {
+          _logger.debug("Object not processed. " + keyEntry);
+          if (value instanceof MarkerException) {
+            _logger.debug("Object previously caused exception but retrying. " + keyEntry);
+          }
+        }
         marker = new Marker();
         put(keyEntry, marker);
       }
@@ -42,50 +57,96 @@ public class ConcurrentHashMap extends HashMap {
       if (wait) {
         synchronized (this) {
           if (! ((value = super.get(keyEntry)) instanceof Marker)) {
-            System.out.println("Object already processed after wait. " + keyEntry + " => " + value);
+            if (_logger.isDebugEnabled()) {
+              _logger.debug("Object already processed after wait. " + keyEntry + " => " + value);
+            }
+            if (value instanceof MarkerException) {
+              throw new Exception ("Exception while processing object",
+                ((MarkerException)value).getException());
+            }
             return value;
           }
         }
-        System.out.println("Wait - Object being processed by other thread. " + keyEntry);
+        if (_logger.isDebugEnabled()) {
+          _logger.debug("Wait - Object being processed by other thread. " + keyEntry);
+        }
         try {
-          System.out.println("Wait on " + marker);
+          if (_logger.isDebugEnabled()) {
+            _logger.debug("Wait on " + marker);
+          }
           marker.wait();
         }
         catch (InterruptedException ex) {}
-        System.out.println("Retrieved object after wait on " + marker);
+        if (_logger.isDebugEnabled()) {
+          _logger.debug("Retrieved object after wait on " + marker);
+        }
         value = super.get(keyEntry);
+        if (value instanceof MarkerException) {
+          throw new Exception ("Exception while processing object",
+              ((MarkerException)value).getException());
+        }
         return value;
       }
-      System.out.println("Retrieving object " + keyEntry);
+      if (_logger.isDebugEnabled()) {
+        _logger.debug("Retrieving object " + keyEntry);
+      }
+      Exception ex = null;
       try {
-        Thread.sleep(5 * 1000);
-        System.out.println("");
+        value = getter.getValue(keyEntry);
+        if (_logger.isDebugEnabled()) {
+          _logger.debug("Retrieved object " + keyEntry + " => " + value);
+        }
+        synchronized(this) {
+          put(keyEntry, value);
+        }
       }
-      catch (InterruptedException e) {};
-      value = "myEntry value: " + keyEntry;
-      synchronized(this) {
-        put(keyEntry, value);
+      catch (Exception e) {
+        // Threads that wait on the exception should also throw an exception
+        put(keyEntry, new MarkerException(e));
+        throw e;
       }
-      System.out.println("Retrieved object " + keyEntry + " => " + value);
-      System.out.println("Notify threads on " + marker);
-      marker.notifyAll();
+      finally {
+        if (_logger.isDebugEnabled()) {
+          _logger.debug("Notify threads on " + marker);
+        }
+        marker.notifyAll();
+      }
     }
     return value;
   }
 
+  public static abstract class Get {
+    public abstract Object getValue(Object key) throws Exception;
+  }
 
-  private void testSerialAccess(String keyEntry) {
+  private void testSerialAccess(String keyEntry, ConcurrentHashMap.Get getter) {
     for (int i = 0 ; i < 5 ; i++) {
-      get(keyEntry);
+      try {
+        get(keyEntry, getter);
+      }
+      catch (Exception e) {
+        if (_logger.isWarnEnabled()) {
+          _logger.warn("Unable to retrieve object" , e);
+        }
+      }
     }
   }
 
-  private void testConcurrentAccess(final String keyEntry) {
+  private void testConcurrentAccess(final String keyEntry, final ConcurrentHashMap.Get getter) {
     for (int i = 0 ; i < 5 ; i++) {
       Runnable r = new Runnable() {
         public void run() {
-           Object value = get(keyEntry);
-           System.out.println("Got object " + keyEntry + " => " + value);
+           try {
+             Object value = get(keyEntry, getter);
+             if (_logger.isDebugEnabled()) {
+               _logger.debug("Got object " + keyEntry + " => " + value);
+             }
+           }
+           catch (Exception e) {
+             if (_logger.isWarnEnabled()) {
+               _logger.warn("Unable to retrieve object" , e);
+             }
+           }
         }
       };
       Thread t = new Thread(r);
@@ -93,11 +154,68 @@ public class ConcurrentHashMap extends HashMap {
     }
   }
 
+  private void testException() {
+  }
+
   public void testHashMap() {
-    testSerialAccess("foo");
-    System.out.println("");
-    for (int i = 0 ; i < 5 ; i++) {
-      testConcurrentAccess("foobar" + i);
+    ConcurrentHashMap.Get getter1 = new ConcurrentHashMap.Get() {
+      public Object getValue(Object keyEntry) {
+        try {
+          Thread.sleep(5 * 1000);
+        }
+        catch (InterruptedException e) {};
+        return "myEntry value: " + keyEntry;
+      }
+    };
+
+    // Test serial access
+    testSerialAccess("foo", getter1);
+
+    // Test concurrent access
+    for (int i = 0 ; i < 1 ; i++) {
+      testConcurrentAccess("foobar" + i, getter1);
+    }
+
+    // Test null values
+    ConcurrentHashMap.Get getter2 = new ConcurrentHashMap.Get() {
+      public Object getValue(Object keyEntry) {
+        try {
+          Thread.sleep(5 * 1000);
+        }
+        catch (InterruptedException e) {};
+        return null;
+      }
+    };
+
+    testSerialAccess("foonull", getter2);
+
+    // Test concurrent access with exceptions
+    ConcurrentHashMap.Get getter3 = new ConcurrentHashMap.Get() {
+      public Object getValue(Object keyEntry) throws Exception {
+        try {
+          Thread.sleep(5 * 1000);
+        }
+        catch (InterruptedException e) {};
+        throw new Exception ("Unable to retrieve object");
+      }
+    };
+    for (int i = 0 ; i < 2 ; i++) {
+      testConcurrentAccess("foofailure" + i, getter3);
+    }
+
+    // Wait a little bit, then try again with no failure
+    if (_logger.isInfoEnabled()) {
+      _logger.info("wait a little bit, then try again with no failure");
+    }
+    try {
+      Thread.sleep(10 * 1000);
+    }
+    catch (Exception e) {}
+    if (_logger.isInfoEnabled()) {
+      _logger.info("Done waiting a little bit, try again with no failure");
+    }
+    for (int i = 0 ; i < 2 ; i++) {
+      testConcurrentAccess("foofailure" + i, getter1);
     }
   }
 
@@ -107,5 +225,14 @@ public class ConcurrentHashMap extends HashMap {
   }
 
   private class Marker {
+  }
+  private class MarkerException {
+    private Exception theException;
+    public MarkerException(Exception e) {
+      theException = e;
+    }
+    public Exception getException() {
+      return theException;
+    }
   }
 }
