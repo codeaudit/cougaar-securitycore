@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<cryptoConfiguration>
+
+  <!-- Client side -->
+  <nodeConfiguration>
+    <!-- The following parameter must be changed according to the appropriate
+         deployment configuration -->
+    <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
+    <CA_URL role="srosset">http://pear:8080/CAnew/servlet/certrequest</CA_URL>
+    <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
+    <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
+    <CA_keystore>keystoreNCA_CA</CA_keystore>
+    <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+
+    <!-- Certificate directory service for certificate storage -->
+    <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
+
+    <!-- The type of the certificate directory service.
+         Currently, either CougaarOpenLdap or NetTools -->
+    <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+
+    <!-- Organizational unit -->
+    <ou>CONUS</ou>
+    <!-- Organizational -->
+    <o>DLA</o>
+    <!-- City or Locality -->
+    <l>San Francisco</l>
+    <!-- State -->
+    <st>CA</st>
+    <!-- Country Code -->
+    <c>US</c>
+    <!-- The key algorithm -->
+    <keyAlgName>RSA</keyAlgName>
+    <!-- The key size -->
+    <keysize>1024</keysize>
+    <!-- The signature algorithm -->
+    <sigAlgName>SHA1WithRSA</sigAlgName>
+    <!-- The validity of self-signed certificates.
+	This value is overriden when the CA signs the certificate. -->
+    <validity>1 M</validity>
+  </nodeConfiguration>
+
+
+  <!-- Configuration of Certificate Authority
+       The name should be the distinguished name of the X509 certificate -->
+  <certificateAuthority name="">
+    <!-- The name of a file where the next serial number is stored -->
+    <serialNumberFile>SerialNumber_Node</serialNumberFile>
+
+    <!-- The name of directory where to store PKCS10 certificate requests -->
+    <pkcs10Directory>pkcs10requests</pkcs10Directory>
+
+    <!-- The name of directory where to store signed certificates -->
+    <x509CertDirectory>x509certificates</x509CertDirectory>
+
+    <!-- Policy when issuing certificates -->
+    <clientCertPolicy>
+      <!-- The X509 version number to be created -->
+      <certVersion>0</certVersion>
+
+      <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+
+      <keysize>1024</keysize>
+
+      <!-- How long to certify for. This is the validity of a certificate
+	signed by a node.  -->
+      <certValidity>1 y</certValidity>
+    </clientCertPolicy>
+
+    <caCommonName></caCommonName>
+    <keystoreFile></keystoreFile>
+    <keystorePassword></keystorePassword>
+    <ldapURL></ldapURL>
+    <ldapType></ldapType>
+
+  </certificateAuthority>
+
+</cryptoConfiguration>
