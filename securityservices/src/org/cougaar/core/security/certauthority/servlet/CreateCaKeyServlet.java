@@ -140,7 +140,7 @@ public class CreateCaKeyServlet
 
     X500Principal p = new X500Principal(caDN);
     agentIdentity = (AgentIdentityService)
-      support.getServiceBroker().getService(new AgentIdentityClientImpl(p),
+      support.getServiceBroker().getService(new CAIdentityClientImpl(p),
 					    AgentIdentityService.class,
 					    null);
     try {
@@ -288,25 +288,4 @@ public class CreateCaKeyServlet
     return("Generate a CA key");
   }
 
-  public class AgentIdentityClientImpl
-    implements AgentIdentityClient {
-
-    private Principal principal;
-
-    public AgentIdentityClientImpl(Principal p) {
-      principal = p;
-    }
-
-    // AgentIdentityClient implementation
-    public void identityRevoked(CrlReason reason) {
-    }
-
-    public String getName() {
-      if (log.isDebugEnabled()) {
-	log.debug("Creating key pair for "
-			   + principal.getName());
-      }
-      return principal.getName();
-    }
-  }
 }
