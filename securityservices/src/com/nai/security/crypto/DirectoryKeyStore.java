@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package com.nai.security.crypto;
@@ -63,7 +63,7 @@ import com.nai.security.crypto.ldap.CertificateRevocationStatus;
 import com.nai.security.util.SecurityPropertiesService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
-public class DirectoryKeyStore 
+public class DirectoryKeyStore
 {
   /** This keystore stores the following keys:
    *  - Keys that have been introduced through the automated key pair
@@ -81,7 +81,7 @@ public class DirectoryKeyStore
   private KeyStore caKeystore = null;
 
   protected  CertDirectoryServiceClient certificateFinder=null;
- 
+
   //private boolean debug = false;
 
   /** A hash map to store the private keys, indexed with common name */
@@ -111,20 +111,20 @@ public class DirectoryKeyStore
   private String defaultSigAlgName = null;
   private DirectoryKeyStoreParameters param = null;
 
-  /* Update OIDMap to include IssuingDistribution Point Extension & 
+  /* Update OIDMap to include IssuingDistribution Point Extension &
    * Certificate Issuer Extension
    */
 
    static {
     try {
-      
+
       OIDMap.addAttribute("com.nai.security.crlextension.x509.extensions.IssuingDistributionPointExtension","2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
       OIDMap.addAttribute("com.nai.security.crlextension.x509.extensions.CertificateIssuerExtension","2.5.29.29","x509.info.extensions.CertificateIssuer");
-      
+
     }
     catch(CertificateException certexp) {
       System.out.println(" Could not add OID Mapping :"+certexp.getMessage());
-     
+
     }
   }
 
@@ -140,7 +140,7 @@ public class DirectoryKeyStore
       // LDAP certificate directory
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	        param.ldapServerType, param.ldapServerUrl);		      
+	        param.ldapServerType, param.ldapServerUrl);
 
       if(certificateFinder==null) {
 	System.out.println("Error !!!!!!!!!  Could  not get certificate finder from factory ");
@@ -174,7 +174,7 @@ public class DirectoryKeyStore
       if (!param.standalone) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
-	String role = secprop.getProperty(secprop.SECURITY_ROLE); 
+	String role = secprop.getProperty(secprop.SECURITY_ROLE);
 	if (role == null && CryptoDebug.debug == true) {
 	  System.out.println("DirectoryKeystore warning: LDAP role not defined");
 	}
@@ -208,7 +208,7 @@ public class DirectoryKeyStore
 
     certCache.printbigIntCache();
   }
-  
+
   public Enumeration getList()
   {
     Enumeration alias;
@@ -220,7 +220,7 @@ public class DirectoryKeyStore
       return null;
     }
     return alias;
-    
+
   }
   public String getCommonName(String alias)
   {
@@ -255,20 +255,20 @@ public class DirectoryKeyStore
 	//m2.put(x.getSubjectDN(), a);
 	System.out.println("  " + a);
       }
-    } 
+    }
     catch(Exception e) {
       System.out.println(e);
       e.printStackTrace();
     }
   }
 
-  public KeyStore getKeyStore() { 
+  public KeyStore getKeyStore() {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("getKeyStore"));
     }
-    return keystore; 
+    return keystore;
   }
 
   public synchronized PrivateKey findPrivateKey(X500Name x500Name) {
@@ -432,7 +432,7 @@ public class DirectoryKeyStore
 
     }
     if(certs==null) {
-      System.out.println("Error !!!!!!  serach for certs is null in  lookupCertInLDAP:"); 
+      System.out.println("Error !!!!!!  serach for certs is null in  lookupCertInLDAP:");
     }
     else {
       if (certs.length == 0) {
@@ -515,7 +515,7 @@ public class DirectoryKeyStore
 	}
       }
 
-    }	
+    }
   }
 
   /** Install a PKCS7 reply received from a certificate authority
@@ -742,7 +742,7 @@ public class DirectoryKeyStore
       throw new CertificateChainException("Failed to establish chain from reply", cause);
     }
   }
-  
+
    private void initCRLCache()
   {
     crlCache=new CRLCache(this);
@@ -855,7 +855,7 @@ public class DirectoryKeyStore
 	    System.out.println(" certificate is revoked for dn ="+((X509Certificate)certificate).getSubjectDN().getName());
 	    certrevoked.printStackTrace();
 	  }
-	  
+
 	}
       }
     }
@@ -870,7 +870,7 @@ public class DirectoryKeyStore
   {
     String s=null;
     X509Certificate certificate=null;
-    String dnname=null; 
+    String dnname=null;
     for(Enumeration enumeration = aKeystore.aliases(); enumeration.hasMoreElements(); ) {
       s = (String)enumeration.nextElement();
       certificate =(X509Certificate) aKeystore.getCertificate(s);
@@ -913,7 +913,7 @@ public class DirectoryKeyStore
 	  PrivateKey key = (PrivateKey) aKeystore.getKey(s, password);
 	  if (key != null) {
 	    certCache.addPrivateKey(key, certstatus);
-	  }	
+	  }
 	}
 	catch (Exception e) {
 	}
@@ -929,7 +929,7 @@ public class DirectoryKeyStore
   {
     java.security.PublicKey publickey = certificate.getPublicKey();
     int i;
-    
+
     for(i = 0; i < certificateReply.length; i++) {
       if(publickey.equals(certificateReply[i].getPublicKey())) {
 	break;
@@ -980,7 +980,7 @@ public class DirectoryKeyStore
    *  On output, vector contains an array of certificates leading to
    *  a trusted Certificate Authority, starting with the certificate itself.
    *  Returns true if we could build a chain.
-   *  If any 
+   *  If any
    */
   private boolean buildChain(X509Certificate x509certificate, Vector vector)
   {
@@ -1253,10 +1253,11 @@ public class DirectoryKeyStore
 	  // Do not create key. There is already one in the keystore.
 	  alias = keyAlias;
 	  if (CryptoDebug.debug) {
-	    System.out.println("Using existing key: " + keyAlias);
+	    System.out.println("Using existing key: " + keyAlias + " for node.");
 	  }
 	  // First, go to the CA to see if the CA has already signed the key.
 	  // In that case, there is no need to send a PKCS10 request.
+          return getNodeCert(nodeName);
 	}
 	else {
 	  if (CryptoDebug.debug) {
@@ -1276,100 +1277,14 @@ public class DirectoryKeyStore
 	}
 	reply = caClient.sendPKCS(request, "PKCS10");
       } else {
-	X509Certificate nodex509 = null;
-	// check if node cert exist
-	if (CryptoDebug.debug) {
-	  System.out.println("Searching node key: " + nodeName);
-	}
-	nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
-	if(nodex509 == null) {
-	  // maybe approved and in LDAP?
-	  nodex509 = findCert(nodeName, LOOKUP_LDAP);
-	  if (nodex509 != null) {
-	    // install the certificate into keystore
-	    
-            String nodeAlias = findAlias(nodeName);
-	    if (nodeAlias != null) {
-	      PrivateKey nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias, param.keystorePassword);
-	      X509Certificate certificate = (X509Certificate) keystore.getCertificate(nodeAlias);
-	      if (certificate == null) {
-		throw new CertificateException(alias + "has no certificate.");
-	      } 
-	      X509Certificate [] certForImport = establishCertChain(certificate, nodex509);
-	      if (nodeprivatekey != null)
-		setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
-	    }
-	  }
-	}
-	if(nodex509 == null) {
-          // Richard -- not in LDAP or local keystore
-          // might be still pending or denied
-          // check with CA, if nothing found then create new key pair
-          // if still pending or denied, return null
-          if (CryptoDebug.debug) {
-            System.out.println("Node certificate not found, checking pending status.");
-          }
-          String nodeAlias = findAlias(nodeName);
-          if (nodeAlias != null) {
-            request =
-              generateSigningCertificateRequest((X509Certificate)
-                                                keystore.getCertificate(nodeAlias),
-                                                nodeAlias);
-            if (CryptoDebug.debug) {
-              System.out.println("Sending PKCS10 request to CA");
-            }
-            reply = caClient.sendPKCS(request, "PKCS10");
-            // check status
-            String strStat = "status=";
-            int statindex = reply.indexOf(strStat);
-            if (statindex >= 0) {
-              // in the pending mode
-              if (CryptoDebug.debug) {
-                System.out.println("Certificate in pending mode.");
-              }
-              statindex += strStat.length();
-              int status = Integer.parseInt(reply.substring(statindex,
-							    statindex + 1));
-              if (CryptoDebug.debug) {
-                System.out.println("pending status is: "
-				   + reply.substring(statindex,
-						     statindex + 1));
-              }
-              if (status == KeyManagement.PENDING_STATUS_PENDING) {
-                System.out.println("Certificate is pending for approval.");
-              }
-              else if (status == KeyManagement.PENDING_STATUS_DENIED) {
-                System.out.println("Certificate is denied by CA.");
-              }
-              // else approved, why not certificate in the LDAP?
+        if (getNodeCert(nodeName) == null)
+          return null;
 
-              return null;
-            }
-            else {
-              // get back the reply right away
-              if (processPkcs7Reply(nodeName, nodeAlias, reply) == null)
-                return null;
-            }
-          }
-          else {
-          
-            //we don't have a node key pair, so make it
-            if (CryptoDebug.debug) {
-              System.out.println("Recursively creating key pair for node: "
-				 + nodeName);
-            }
-            addKeyPair(nodeName, null);
-            if (CryptoDebug.debug) {
-              System.out.println("Node key created: " + nodeName);
-            }
-          }
-	}
-
-	// The Node key should exist now 
+	// The Node key should exist now
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key again: " + nodeName);
 	}
-	nodex509 = (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
+	X509Certificate nodex509 = (X509Certificate) findCert(nodeName, LOOKUP_KEYSTORE);
 	if (CryptoDebug.debug) {
 	  System.out.println("Node key is: " + nodex509);
 	}
@@ -1417,6 +1332,102 @@ public class DirectoryKeyStore
     return privatekey;
   }
 
+  private PrivateKey getNodeCert(String nodeName)
+    throws Exception {
+    PrivateKey nodeprivatekey = null;
+    X509Certificate nodex509 = null;
+    String request = "";
+    String reply = "";
+
+    // check if node cert exist
+    if (CryptoDebug.debug) {
+      System.out.println("Searching node key: " + nodeName);
+    }
+
+    String nodeAlias = findAlias(nodeName);
+    if (nodeAlias != null) {
+      nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
+      if(nodex509 == null) {
+        // maybe approved and in LDAP?
+        nodex509 = findCert(nodeName, LOOKUP_LDAP);
+        if (nodex509 != null) {
+          // install the certificate into keystore
+
+          X509Certificate certificate = (X509Certificate) keystore.getCertificate(nodeAlias);
+          if (certificate == null) {
+            throw new CertificateException(nodeAlias + "has no certificate.");
+          }
+          X509Certificate [] certForImport = establishCertChain(certificate, nodex509);
+          if (nodeprivatekey != null)
+            setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
+        }
+      }
+
+      if(nodex509 == null) {
+        // Richard -- not in LDAP or local keystore
+        // might be still pending or denied
+        // check with CA, if nothing found then create new key pair
+        // if still pending or denied, return null
+        if (CryptoDebug.debug) {
+          System.out.println("Node certificate not found, checking pending status.");
+        }
+
+        request =
+          generateSigningCertificateRequest((X509Certificate)
+                                            keystore.getCertificate(nodeAlias),
+                                            nodeAlias);
+        if (CryptoDebug.debug) {
+          System.out.println("Sending PKCS10 request to CA");
+        }
+        reply = caClient.sendPKCS(request, "PKCS10");
+        // check status
+        String strStat = "status=";
+        int statindex = reply.indexOf(strStat);
+        if (statindex >= 0) {
+          // in the pending mode
+          if (CryptoDebug.debug) {
+            System.out.println("Certificate in pending mode.");
+          }
+          statindex += strStat.length();
+          int status = Integer.parseInt(reply.substring(statindex,
+                                                        statindex + 1));
+          if (CryptoDebug.debug) {
+            System.out.println("pending status is: "
+                               + reply.substring(statindex,
+                                                 statindex + 1));
+          }
+          if (status == KeyManagement.PENDING_STATUS_PENDING) {
+            System.out.println("Certificate is pending for approval.");
+          }
+          else if (status == KeyManagement.PENDING_STATUS_DENIED) {
+            System.out.println("Certificate is denied by CA.");
+          }
+          // else approved, why not certificate in the LDAP?
+
+          return null;
+        }
+        else {
+          // get back the reply right away
+          return processPkcs7Reply(nodeName, nodeAlias, reply);
+        }
+      }
+      nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias, param.keystorePassword);
+    }
+    else {
+
+      //we don't have a node key pair, so make it
+      if (CryptoDebug.debug) {
+        System.out.println("Recursively creating key pair for node: "
+                           + nodeName);
+      }
+      nodeprivatekey = addKeyPair(nodeName, null);
+      if (CryptoDebug.debug) {
+        System.out.println("Node key created: " + nodeName);
+      }
+    }
+    return nodeprivatekey;
+  }
+
   private PrivateKey processPkcs7Reply(String commonName, String alias, String reply) {
     PrivateKey privatekey = null;
     // Richard -- check whether pending
@@ -1452,14 +1463,14 @@ public class DirectoryKeyStore
     return privatekey;
   }
 
-  public String getAlias(X509Certificate clientX509) 
+  public String getAlias(X509Certificate clientX509)
   {
     String alias = null;
     try {
       String alg = "MD5"; // TODO: make this dynamic
       MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
       byte[] digest = md.digest();
-      
+
       String prefix = getCommonName(clientX509);
       alias = prefix + "-" + toHex(digest);
     }
@@ -1566,7 +1577,7 @@ public class DirectoryKeyStore
     md.digest();
     return md;
   }
-    
+
   private String toHex(byte[] data) {
     StringBuffer buff = new StringBuffer();
     for(int i = 0; i < data.length; i++) {
@@ -1613,7 +1624,7 @@ public class DirectoryKeyStore
   }
 
   public String makeKeyPair(String commonName)
-    throws Exception 
+    throws Exception
   {
     //generate key pair.
     if (CryptoDebug.debug) {
@@ -1687,7 +1698,7 @@ public class DirectoryKeyStore
     certCache.addCertificate(certstatus);
     certCache.addPrivateKey(privatekey, certstatus);
   }
-  
+
   public void checkOrMakeCert(String name) {
     if (CryptoDebug.debug) {
       System.out.println("CheckOrMakeCert: " + name);
@@ -1711,7 +1722,7 @@ public class DirectoryKeyStore
     //we'll have to make one
     addKeyPair(name, null);
   }
-  
+
    public void setSleeptime(long sleeptime)
   {
     // Check security permissions
@@ -1722,7 +1733,7 @@ public class DirectoryKeyStore
     crlCache.setSleepTime(sleeptime);
     //sleep_time=sleeptime;
   }
-  
+
   public long  getSleeptime()
   {
     return  crlCache.getSleepTime();
@@ -1750,7 +1761,7 @@ public class DirectoryKeyStore
   /**
    * Extract a private key/certificate pair from the keystore.
    * Sign with node key.
-   * 
+   *
    * =============
    * Process for moving agent A key from node X to node Y:
    * 1) The Cougaar system shuts down agent A.
