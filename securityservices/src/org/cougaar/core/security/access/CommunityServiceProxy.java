@@ -133,6 +133,10 @@ class CommunityServiceProxy extends SecureServiceProxy
   public Collection listParentCommunities(String member, String filter) {
     return _cs.listParentCommunities(member, filter);
   } 
+  public Collection listParentCommunities(String member,
+					  CommunityResponseListener crl) {
+    return _cs.listParentCommunities(member, crl);
+  } 
   public void modifyAttributes(String communityName, String entityName, 
     ModificationItem[] mods, CommunityResponseListener crl) {
     _cs.modifyAttributes(communityName, entityName, mods, createSecureResponse(crl));
