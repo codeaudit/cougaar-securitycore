@@ -55,8 +55,8 @@ public class CertificateUtility {
 
   public static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
   public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
-  public static int CACert=1;
-  public static int EntityCert=2;
+  public static final int CACert=1;
+  public static final int EntityCert=2;
 
   public static Collection parseX509orPKCS7Cert(InputStream inputstream)
     throws CertificateException
