@@ -50,16 +50,18 @@ class NodeConfigUtility
       @arguments =     @node.prog_parameters
       @env =           @node.env_parameters
       @jvm_props =     @node.parameters
+
+      convertToUnix(@jvm_props)
       @commandLine = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
 
       # Save UNIX command line
       saveCommandLine
 
       # Save Windows command line
-      convertToBatch(@java_class)
-      convertToBatch(@arguments)
-      convertToBatch(@env)
-      convertToBatch(@jvm_props)
+      convertToDos(@java_class)
+      convertToDos(@arguments)
+      convertToDos(@env)
+      convertToDos(@jvm_props)
       @commandLineDos = "@java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} 2> %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stderr.log > %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stdout.log"
 
       saveCommandLineDos
@@ -69,8 +71,18 @@ class NodeConfigUtility
     end
   end
 
+  # Build the .sh file for Unix.
+  def convertToUnix(arguments)
+    arguments.each do |arg|
+      if arg.index('Xbootclasspath') != nil || arg.index('java.class.path') != nil
+        # Convert separator
+        arg.gsub!(/\;/, ':') 
+      end
+    end
+  end
+
   # Build the .bat file for Windows. This is hacky but it should work.
-  def convertToBatch(arguments)
+  def convertToDos(arguments)
     arguments.each do |arg|
       arg.gsub!(/\$COUGAAR_INSTALL_PATH/, '%COUGAAR_INSTALL_PATH%')
       arg.gsub!(/\$CIP/, '%COUGAAR_INSTALL_PATH%')
@@ -84,6 +96,14 @@ class NodeConfigUtility
         arg.gsub!(/\//, '\\')
       end
       arg.gsub!(/bootclasspath\\/, 'bootclasspath/')
+      if arg.index('Xbootclasspath') != nil || arg.index('java.class.path') != nil
+        # Convert separator
+        arg.gsub!(/:/, ';') 
+        # However, "bootclasspath/a" and "bootclasspath/p" should be followed by ":"
+        arg.gsub!(/bootclasspath\/a\;/, 'bootclasspath/a:')
+        arg.gsub!(/bootclasspath\/p\;/, 'bootclasspath/p:')
+        arg.gsub!(/bootclasspath\;/, 'bootclasspath:')
+      end
       #puts arg
     end
   end
