@@ -202,6 +202,14 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy todir="${securityservices.staging}/operator">
+          <!-- Also copy keystore to $CIP/operator - ACME OSS does not provide it -->
+            <fileset dir="${securityservices.configs}/sign-jars">
+                <patternset>
+                    <include name="signingCA_keystore"/>
+                </patternset>
+            </fileset>
+        </copy>
         <copy todir="${securityservices.staging}/csmart/scripts/definitions/security">
             <fileset dir="${securityservices.configs}/acme_scripts/moas">
                 <patternset>
