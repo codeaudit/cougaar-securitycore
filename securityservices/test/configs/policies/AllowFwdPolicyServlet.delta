@@ -23,4 +23,9 @@ Policy RequireAuditFwdRear = [
 ]
 
 
+#Policy PolicyServletRearCertificateAuth  = [ 
+#  ServletAuthenticationTemplate
+#  All users must use CertificateSSL
+#  authentication when accessing the servlet named RearPolicyServlet
+#]
        

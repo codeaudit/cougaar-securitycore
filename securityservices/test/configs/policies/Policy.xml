@@ -1,0 +1,59 @@
+<?xml version='1.0'?>
+<society name='MiniPing'
+	 xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	 xsi:noNamespaceSchemaLocation='http://www.cougaar.org/2003/society.xsd'>
+  <host name='BlackHole.local.'>
+    <facet enclave='Rear'/>
+    <node name='RearWorkerNode'>
+     <agent name='testBBPolicyAgent' 
+            class='org.cougaar.core.agent.SimpleAgent'>
+        <component
+          name='org.cougaar.core.security.test.OrgActivityRemoveTest'
+          class='org.cougaar.core.security.test.OrgActivityRemoveTest'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+        <component
+          name='org.cougaar.core.security.test.OrgActivityChangeTest'
+          class='org.cougaar.core.security.test.OrgActivityChangeTest'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+        <component
+          name='org.cougaar.core.security.test.OrgActivityAddTest'
+          class='org.cougaar.core.security.test.OrgActivityAddTest'
+          priority='COMPONENT'
+          insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'/>
+     </agent>
+    </node>
+  </host>
+  <host name='Europa.local.'>
+    <facet enclave='Fwd'/>
+    <node name='FwdWorkerNode'>
+      <agent name='FwdUserAdminAgent'>
+        <component
+           name='org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet,/useradmin)'
+           class='org.cougaar.core.security.certauthority.CaServletComponent'
+           priority='COMPONENT'
+           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+          <argument>
+            org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet
+          </argument>
+          <argument>
+            /useradmin
+          </argument>
+        </component>
+        <component
+           name='org.cougaar.core.security.provider.UserServiceComponent()'
+           class='org.cougaar.core.security.provider.UserServiceComponent'
+           priority='COMPONENT'
+           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
+        <component
+           name='org.cougaar.core.security.acl.user.UserManagerPlugin()'
+           class='org.cougaar.core.security.acl.user.UserManagerPlugin'
+           priority='COMPONENT'
+           insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
+        </component>
+      </agent>
+    </node>
+  </host>
+</society>
