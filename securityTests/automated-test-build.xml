@@ -19,14 +19,14 @@
     <!-- The name of the directory where overlays are downloaded -->
     <property name="overlays.directory.name" value="${base.directory.name}/staging"/>
 
+    <property name="testbed.cip.dir" value="~/nightly-cougaar-test/cougaar"/>
+
     <!-- Load additional properties which are used to upload
          project artifacts to a web server and perform tests.
          Properties stored in that file should be:
          - webdav.url: The URL where to upload the overlay ZIP file.
             For example, webdav.url=http://panther3.va.cougaarsoftware.com:8080/webdav/cougaar
-         - testbed.hostname1: The name of a hostname on the testbed.
-         - testbed.hostname2: The name of a hostname on the testbed.
-         - testbed.hostname3: The name of a hostname on the testbed.
+         - testbed.operator.host: The name of the operator host on the testbed.
     -->
     <property file="${user.home}/anthill.properties"/>
     
