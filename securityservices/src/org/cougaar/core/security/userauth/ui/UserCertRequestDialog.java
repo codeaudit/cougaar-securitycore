@@ -223,7 +223,7 @@ public class UserCertRequestDialog extends JDialog {
   public String getUserDN() {
     String dn = "cn=" + profilePanel.cnameField.getText()
       + ", ou=" + profilePanel.ouField.getText()
-      + ",o=" + profilePanel.cnameField.getText()
+      + ",o=" + profilePanel.oField.getText()
       + ",l=" + profilePanel.lField.getText()
       + ",st=" + profilePanel.stField.getText()
       + ",c=" + profilePanel.cField.getText()
