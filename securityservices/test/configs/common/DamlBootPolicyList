@@ -27,6 +27,7 @@
 #          command to debug and avoid frustration.
 
 Policy DamlBootPolicyAllowCommunication = [ 
+   GenericTemplate
    Priority = 2,
    $Actor.daml#Agent is authorized to perform
    $Action.daml#EncryptedCommunicationAction as long as
@@ -35,6 +36,7 @@ Policy DamlBootPolicyAllowCommunication = [
 ]
 
 Policy DamlBootPolicyEncryptCommunication = [ 
+   GenericTemplate
    Priority = 3,
    $Actor.daml#Agent is not authorized to perform
    $Action.daml#EncryptedCommunicationAction as long as
@@ -45,6 +47,7 @@ Policy DamlBootPolicyEncryptCommunication = [
 
 
 Policy DamlBootPolicyAllowBlackboard = [ 
+   GenericTemplate
    Priority = 2,
    $Ultralog/UltralogActor.daml#UltralogPlugins is authorized to perform
    $Ultralog/UltralogAction.daml#BlackBoardAccess as long as
@@ -54,84 +57,36 @@ Policy DamlBootPolicyAllowBlackboard = [
 ]
 
 Policy DamlBootPolicyOrgActivityAdd = [
-   Priority = 2,
-   $Ultralog/PluginsInRole#OrgActivityAdd
-   is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess
-   as long as
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
-                      and
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessAdd
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessCreate }
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
 ]
 
 Policy DamlBootPolicyOrgActivityChange = [
-   Priority = 2,
-   $Ultralog/PluginsInRole#OrgActivityChange 
-   is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess
-   as long as 
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
-                      and
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessChange
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessWrite }
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityChange can Change, Query objects
+   of type OrgActivity
 ]
 
 Policy DamlBootPolicyOrgActivityQuery = [
-   Priority = 2,
-   $Ultralog/PluginsInRole#OrgActivityQuery 
-   is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess
-   as long as
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
-                      and
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessQuery
-       $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRead }
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityQuery can Query objects of type OrgActivity
 ]
 
 Policy DamlBootPolicyOrgActivityRemove = [
-   Priority = 2,
-   $Ultralog/PluginsInRole#OrgActivityQuery 
-   is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess
-   as long as
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
-                      and
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessMode
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#BlackBoardAccessRemove }
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityRemove can Remove, Query objects 
+   of type OrgActivity
 ]
 
 Policy DamlBootPolicyOrgActivityAll = [
-   Priority = 2,
-   $Ultralog/PluginsInRole#OrgActivityAll 
-   is authorized to perform
-   $Ultralog/UltralogAction.daml#BlackBoardAccess
-   as long as
-    the value of $Ultralog/UltralogAction.daml#blackBoardAccessObject
-    is a subset of the set
-     { $Ultralog/Names/EntityInstances.daml#OrgActivity }   
+   BlackboardTemplate
+   A PlugIn in the role OrgActivityAll can Add, Change, Query, Remove
+   objects of type OrgActivity
 ]
 
 
 Policy DamlBootPolicyUnrestServlet = [ 
+   GenericTemplate
    Priority = 2,
    $Actor.daml#Person is authorized to perform
    $Action.daml#AccessAction as long as
@@ -141,7 +96,18 @@ Policy DamlBootPolicyUnrestServlet = [
                              $Ultralog/Names/EntityInstances.daml#CertReqServlet }
 ]
 
+#
+# The following policy is tricky to read.  But the upshot is that the
+# servlets listed:
+#    OtherServlets
+#    CAReadServlet
+#    CertReqServlet
+#     ...
+# are the only servlets that do not require at least password
+# authentication.  Everything else requires a password or better.
+#
 #Policy DamlBootPolicyServletRestAuth = [ 
+#   GenericTemplate
 #   Priority = 3,
 #   $Actor.daml#Person is not authorized to perform
 #   $Action.daml#AccessAction as long as
@@ -149,7 +115,8 @@ Policy DamlBootPolicyUnrestServlet = [
 #    is a subset of the complement of the set 
 #       { $Ultralog/Names/EntityInstances.daml#OtherServlets
 #         $Ultralog/Names/EntityInstances.daml#CAReadServlet 
-#         $Ultralog/Names/EntityInstances.daml#CertReqServlet }
+#         $Ultralog/Names/EntityInstances.daml#CertReqServlet 
+#       }
 #                       and
 #    the value of $Ultralog/UltralogAction.daml#usedAuthenticationLevel
 #    is a subset of the set
@@ -158,65 +125,80 @@ Policy DamlBootPolicyUnrestServlet = [
 #]
 
 Policy DamlBootPolicyPolicyServletRear  = [ 
+  ServletUserAccessTemplate
   A user in role RearPolicyAdministrator can access a servlet 
   named RearPolicyServlet
 ]
 
 Policy DamlBootPolicyPolicyServletFwd  = [ 
+  ServletUserAccessTemplate
   A user in role FwdPolicyAdministrator can access a servlet 
   named FwdPolicyServlet
 ]
 
 Policy DamlBootPolicyPolicyServletConus  = [ 
+  ServletUserAccessTemplate
   A user in role ConusPolicyAdministrator can access a servlet 
   named ConusPolicyServlet
 ]
 
 Policy DamlBootPolicyPolicyServletTrans  = [ 
+  ServletUserAccessTemplate
   A user in role TransPolicyAdministrator can access a servlet 
   named TransPolicyServlet
 ]
 
 Policy DamlBootPolicySCmrManager  = [ 
+  ServletUserAccessTemplate
   A user in role MonitorManager can access a servlet named SCmrmanagerServlets
 ]
 
 Policy DamlBootPolicyNCAServlet = [
+  ServletUserAccessTemplate
   A user in role Logistician can access a servlet named NCAServlets
 ]
 
 Policy DamlBootPolicyLogisticianAgg = [
+  ServletUserAccessTemplate
   A user in role Logistician can access a servlet named AggegatorServlets
 ]
 
 Policy DamlBootPolicyLogisticianViewAgg = [
+  ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named AggegatorServlets
 ]
 
 Policy DamlBootPolicyUserAdminServlets = [
+  ServletUserAccessTemplate
   A user in role UserManager can access a servlet named UserManagerServlets
 ]
 
 Policy DamlBootPolicyLogisticianInventory = [
+  ServletUserAccessTemplate
   A user in role Logistician can access a servlet named LogInventoryServlet
 ]
 
 Policy DamlBootPolicyLogisticsViewerInventory = [
+  ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named LogInventoryServlet
 ]
 
 Policy DamlBootPolicyLogisticianHierarchy = [
+  ServletUserAccessTemplate
   A user in role Logistician can access a servlet named HierarchyServlet
 ]
 
 Policy DamlBootPolicyLogisticsViewerHierarchy  = [
+  ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named HierarchyServlet
 ]
 
 Policy DamlBootPolicyCertWrite  = [
+  ServletUserAccessTemplate
   A user in role CAAdministrator can access a servlet named CAWriteServlet
 ]
 
 Policy DamlBootPolicySocietyAdmin = [
+  ServletUserAccessTemplate
   A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
 ]

@@ -129,7 +129,7 @@
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityRemoveRole" />
     <ultralogEntity:PlugInRoles rdf:ID="OrgActivityAllRole" />
     
-    <daml:Class rdf:ID="BlackboardObjects">
+    <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackBoardObjects">
        <rdfs:subClassOf 
          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
        <daml:oneOf rdf:parseType="daml:collection">
