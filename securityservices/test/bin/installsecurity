@@ -38,6 +38,7 @@ export COUGAAR_INSTALL_PATH
 # Copy jar files from the real $CIP
 mkdir $COUGAAR_INSTALL_PATH/lib
 mkdir $COUGAAR_INSTALL_PATH/sys
+mkdir $COUGAAR_INSTALL_PATH/Manifest
 cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
 cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
 
@@ -74,9 +75,13 @@ cp test/configs/recipes/rules/parameters/security_param_tic.rule $COUGAAR_INSTAL
 cp test/configs/recipes/rules/parameters/community.rule $COUGAAR_INSTALL_PATH/csmart/config/rules/security/community
 cp test/configs/recipes/rules/parameters/RunSoc.rb.patch $COUGAAR_INSTALL_PATH/csmart/scripts
 
+echo "NAME=AS_csi_secserv" > $COUGAAR_INSTALL_PATH/Manifest/AS_csi_secserv.txt
+echo "ARCHIVE_TIME=`date \"+%m/%d/%Y %I:%M %p\"`" >> $COUGAAR_INSTALL_PATH/Manifest/AS_csi_secserv.txt
+
 echo "Zipping files to AS_csi_secserv.zip"
 cd $COUGAAR_INSTALL_PATH
 zip -qr AS_csi_secserv.zip \
+	Manifest \
 	log/bootstrap \
 	configs/daml \
 	configs/security \
