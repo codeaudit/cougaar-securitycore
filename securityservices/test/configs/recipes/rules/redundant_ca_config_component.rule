@@ -15,7 +15,7 @@ if cahost != nil
     node.each_facet(:role) do |facet|
       if facet[:role] == 'RedundantCertificateAuthority'
          facetval = node.host.get_facet(:enclave)
-         enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+         enclave = facetval[0..0] + facetval[1..facetval.length].downcase + "1"
     
          if enclave != nil
            arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
