@@ -107,7 +107,7 @@ public class DirectoryKeyStore
   public final static String CERT_TITLE_NODE = "node";
   public final static String CERT_TITLE_AGENT = "agent";
   public final static String CERT_TITLE_USER = "user";
-  public final static String CERT_TITLE_WEBSERVER = "webserver";
+  public final static String CERT_TITLE_WEBSERVER = "server";
 
   private static String hostName = null;
 
