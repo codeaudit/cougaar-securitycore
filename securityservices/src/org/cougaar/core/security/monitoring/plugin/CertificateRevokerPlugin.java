@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -26,6 +26,8 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.community.Community;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
@@ -85,10 +87,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
 /**
  * This class queries message failures and will revoke an agent
- * certificate if the number of maximum message failures are exceeded. 
+ * certificate if the number of maximum message failures are exceeded.
  * The value for maximum number of message failures is obtained through
  * the MAX_MESSAGE_FAILURE Operating Modes driven by the adaptivity engine.
  * Add these lines to your agent:
@@ -111,28 +116,28 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
   private String _agentName;
   private KeyRingService _keyRing;
   private ServiceBroker _serviceBroker;
-  
+
   private final static Action[] CERTIFICATE_REVOKED_ACTION = new Action[] {
     new Action(Action.OTHER, IdmefAssessments.CERTIFICATE_REVOKED)
   };
- 
-  private final static Assessment CERTIFICATE_REVOKED_ASSESSMENT = 
+
+  private final static Assessment CERTIFICATE_REVOKED_ASSESSMENT =
     new Assessment(null,
                    CERTIFICATE_REVOKED_ACTION,
                    new Confidence(Confidence.LOW, null));
 
-  private final static Classification MESSAGE_FAILURE = 
-    new Classification(IdmefClassifications.MESSAGE_FAILURE, "", 
+  private final static Classification MESSAGE_FAILURE =
+    new Classification(IdmefClassifications.MESSAGE_FAILURE, "",
                        Classification.VENDOR_SPECIFIC);
-  
-  private final SensorInfo _analyzer = new CRResponder(); 
+
+  private final SensorInfo _analyzer = new CRResponder();
   private boolean _debug = false;
-  
+
   /**
    * The predicate indicating that we should retrieve all new
    * message failures
    */
-  private static final UnaryPredicate MESSAGE_FAILURES_PREDICATE = 
+  private static final UnaryPredicate MESSAGE_FAILURES_PREDICATE =
     new UnaryPredicate() {
       public boolean execute(Object o) {
         if (o instanceof Event) {
@@ -159,7 +164,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         return false;
       }
     };
-    
+
   protected void setupSubscriptions() {
     super.setupSubscriptions();
     _debug = _log.isDebugEnabled();
@@ -174,8 +179,9 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     // register this responder's capabilities
     _agentName = ais.getName();
     registerCapabilities(cs, _agentName);
+    _serviceBroker.releaseService(this, CommunityService.class, cs);
   }
-  
+
   /**
    * method that takes an action against the culprit
    */
@@ -184,7 +190,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     if(_debug) {
       _log.debug("revoking certificate of agent(" + culprit + ")");
     }
-       // get the ca dn and the unique id of the agent's certificate    
+       // get the ca dn and the unique id of the agent's certificate
     if(culprit == null || culprit == "") {
       message = "agent name not specified";
       _log.warn(message);
@@ -205,13 +211,13 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       CertificateStatus status = (CertificateStatus)certs.next();
       X509Certificate cert = status.getCertificate();
       if(_debug) {
-        _log.debug("Found certificate dn = " + cert.getSubjectDN().getName()); 
+        _log.debug("Found certificate dn = " + cert.getSubjectDN().getName());
       }
       X509Certificate []certChain = _keyRing.findCertChain(cert);
       if(certChain != null) {
         // get the CA's dn from the certificate chain
-        caDN = getCADN(certChain); 
-       
+        caDN = getCADN(certChain);
+
         if(caDN != null) {
           if(_debug) {
             _log.debug("CA DN: " + caDN);
@@ -228,23 +234,23 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         }
       }
       else {
-        message = "Can't get certificate chain for cert: " + cert.getSubjectDN().getName();      
+        message = "Can't get certificate chain for cert: " + cert.getSubjectDN().getName();
         _log.warn(message);
-    
+
       }
     }
     if(message != null) {
       throw new CertificateException(message);
     }
   }
-  
+
   protected void publishAssessment(String culprit) {
-    List sources = null; 
+    List sources = null;
     List classifications = new ArrayList(1);
     List data = null;
     Source s = null;
     Agent sAgent = null;
-    
+
     if(_debug) {
       _log.debug("publishing assessment: " + IdmefAssessments.CERTIFICATE_REVOKED);
     }
@@ -258,7 +264,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       sAgent = _idmefFactory.createAgent(culprit, null, null, sAddr, sRefList);
       sources.add(s);
       data = new ArrayList(1);
-      AdditionalData agentData = 
+      AdditionalData agentData =
         _idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent);
       data.add(agentData);
     }
@@ -268,9 +274,9 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                                             sources, null, classifications, data);
     alert.setAssessment(CERTIFICATE_REVOKED_ASSESSMENT);
     NewEvent event = _cmrFactory.newEvent(alert);
-    getBlackboardService().publishAdd(event);   
+    getBlackboardService().publishAdd(event);
   }
-  
+
   /**
    * method to process a specific failure
    */
@@ -283,7 +289,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       if( srcs != null ) {
         AdditionalData data[] = alert.getAdditionalData();
         for (int i = 0; i < srcs.length; i++) {
-          Agent agent = findAgent(srcs[i].getIdent(), data); 
+          Agent agent = findAgent(srcs[i].getIdent(), data);
           if (agent != null) {
             Address addr = agent.getAddress();
             if (addr != null) {
@@ -297,9 +303,9 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         _log.error("No sources associated with the Alert. Sensor is in "
 		   + _agentName + ". Alert is:" + alert);
       }
-    }  
+    }
   }
-  
+
   /**
    * method to obtain the predicate for a specific failure
    */
@@ -310,14 +316,14 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
   private CryptoClientPolicy getCryptoClientPolicy() {
     CryptoClientPolicy cryptoClientPolicy = null;
     try {
-	    ConfigParserService configParser = 
+	    ConfigParserService configParser =
 	      (ConfigParserService)_serviceBroker.getService(this,
 				                                               ConfigParserService.class,
 					                                             null);
 	    SecurityPolicy[] sp =
 	      configParser.getSecurityPolicies(CryptoClientPolicy.class);
 	      cryptoClientPolicy = (CryptoClientPolicy) sp[0];
-    } 
+    }
     catch(Exception e) {
 	    if (_log.isErrorEnabled()) {
 	      _log.error("Can't obtain client crypto policy : " + e.getMessage());
@@ -325,8 +331,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
 	  }
 	  return cryptoClientPolicy;
   }
- 
-  private String sendRevokeCertRequest(String agent, String dn) 
+
+  private String sendRevokeCertRequest(String agent, String dn)
     throws Exception {
     String reply = "";
     String revokeCertServletURL = null;
@@ -336,7 +342,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       _log.error("cryptoClientPolicy is null");
       throw new RuntimeException("cryptoClientPolicy is null");
     }
-    TrustedCaPolicy[] trustedCaPolicy = policy.getTrustedCaPolicy(); 
+    TrustedCaPolicy[] trustedCaPolicy = policy.getTrustedCaPolicy();
     String caURL = trustedCaPolicy[0].caURL;
     // construct the revoke certificate servlet url
     revokeCertServletURL = caURL.substring(0, caURL.lastIndexOf('/')) +
@@ -364,11 +370,11 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       sb.append(URLEncoder.encode(agent, "UTF-8"));
       sb.append("&revoke_type=agent");
       sb.append("&ca_dn=");
-      sb.append(URLEncoder.encode(dn, "UTF-8"));  
+      sb.append(URLEncoder.encode(dn, "UTF-8"));
       out.println(sb.toString());
       out.flush();
       out.close();
-    }  
+    }
     catch(Exception e) {
       _log.warn("Unable to send revoke certificate request to CA: " + e);
       if(_debug) {
@@ -387,14 +393,14 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       }
       in.close();
       reply = URLDecoder.decode(reply, "UTF-8");
-    } 
+    }
     catch(Exception e) {
       _log.warn("Unable to obtain reply: " + e);
       throw e;
     }
     return reply;
   }
-  
+
   private String getCADN(X509Certificate []certChain) {
     int len = certChain.length;
     String title = null;
@@ -409,12 +415,12 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }
     return null;
   }
-  
+
   // find the agent information in the additional data that references ident
   private Agent findAgent(String ident, AdditionalData []data) {
     for(int i = 0; i < data.length; i++) {
       AdditionalData d = data[i];
-      if(d.getMeaning().equals(Agent.SOURCE_MEANING) && 
+      if(d.getMeaning().equals(Agent.SOURCE_MEANING) &&
          d.getType().equals(AdditionalData.XML)) {
         XMLSerializable xmlData = d.getXMLData();
         if(xmlData != null &&
@@ -429,22 +435,22 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         }
       }
     }
-    return null;  
+    return null;
   }
-  
+
   /**
    * register the capabilities of the sensor
    */
-  private void registerCapabilities(CommunityService cs, String agentName){
+  private void registerCapabilities(final CommunityService cs, final String agentName){
     List capabilities = new ArrayList();
-    BlackboardService bbs = getBlackboardService();
-    
-    Classification classification = 
+    final BlackboardService bbs = getBlackboardService();
+
+    Classification classification =
       _idmefFactory.createClassification(IdmefClassifications.MESSAGE_FAILURE, null);
     capabilities.add(classification);
-      
-    RegistrationAlert reg = 
-       _idmefFactory.createRegistrationAlert( _analyzer, 
+
+    RegistrationAlert reg =
+       _idmefFactory.createRegistrationAlert( _analyzer,
                                               null,
                                               null,
                                               capabilities,
@@ -452,7 +458,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                                               _idmefFactory.newregistration,
                                               _idmefFactory.SensorType,
                                               agentName);
-    NewEvent regEvent = _cmrFactory.newEvent(reg);
+    final NewEvent regEvent = _cmrFactory.newEvent(reg);
     // get the list of communities that this agent belongs where
     // CommunityType is Security
 
@@ -472,9 +478,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
 	}
       };
     // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=" +
-      CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
-    Collection communities = 
+    String filter = "(CommunityType=Security)";
+    Collection communities =
       cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
     if (communities == null) {
       try {
@@ -486,15 +491,15 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }
 
     Iterator iter = communities.iterator();
-    
+
     if (communities.size() == 0) {
-      _log.warn("Agent '" + agentName + 
+      _log.warn("Agent '" + agentName +
         "' does not belong to any security community. Message failures won't be reported.");
     }
     else if(communities.size() > 1) {
       _log.warn("Agent '" + agentName + "' belongs to more than one security community.");
     }
-    
+
     while(iter.hasNext()) {
       Community community = (Community)iter.next();
       if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
@@ -503,22 +508,79 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
         if(_debug) {
           _log.debug("Publishing sensor capabilities to local blackboard.");
         }
-        bbs.publishAdd(regEvent); 
+        bbs.publishAdd(regEvent);
       }
       else {
         // send the capability registeration to agents with in this community
         // that has the role specified by _managerRole
-        AttributeBasedAddress messageAddress = 
+        AttributeBasedAddress messageAddress =
           AttributeBasedAddress.getAttributeBasedAddress(community.getName(),
 							 "Role", _managerRole);
         CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
         if(_debug) {
-          _log.debug("Sending sensor capabilities to community '" + 
+          _log.debug("Sending sensor capabilities to community '" +
                       community.getName() + "'" + ", role '" + _managerRole + "'.");
         }
         bbs.publishAdd(relay);
-      }  
+      }
     }
+
+
+    cs.addListener(new CommunityChangeListener() {
+      public String getCommunityName() {
+        return null;
+      }
+
+      public void communityChanged(CommunityChangeEvent event) {
+        Community community = event.getCommunity();
+        try {
+          if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Community changed: " + event);
+            }
+          }
+          // else we don't care
+          else {
+            return;
+          }
+
+          Attributes attrs = community.getAttributes();
+          Attribute attr = attrs.get("CommunityType");
+          if (attr != null) {
+            for (int i = 0; i < attr.size(); i++) {
+              Object type = attr.get(i);
+              if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+                // so community being changed is a security community
+                // we only care about changed to a new one
+                if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
+                  // sensor is located in same agent as the enclave security manager
+                  // therefore we should publish the capabilities to local blackboard
+                  if(_debug) {
+                    _log.debug("Publishing sensor capabilities to local blackboard.");
+                  }
+                  bbs.publishAdd(regEvent);
+                }
+                else {
+                  AttributeBasedAddress messageAddress =
+                    AttributeBasedAddress.getAttributeBasedAddress(community.getName(),
+                                                                   "Role", _managerRole);
+                  CmrRelay relay = _cmrFactory.newCmrRelay(regEvent, messageAddress);
+                  if(_debug) {
+                    _log.debug("Sending sensor capabilities to community '" +
+                                community.getName() + "'" + ", role '" + _managerRole + "'.");
+                  }
+                  bbs.publishAdd(relay);
+                }
+              }
+            }
+          }
+        } catch (NamingException e) {
+          throw new RuntimeException("This should never happen");
+        }
+
+      }
+    });
+
   }
 
   private class Status {
@@ -549,7 +611,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(Role=" + _managerRole + ")";
-    Collection communities = 
+    Collection communities =
       cs.searchCommunity(community, filter, true,
 		       Community.AGENTS_ONLY, crl);
     if (communities == null) {
@@ -562,7 +624,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
 
     Collection agents=(Set)status.value;
     Iterator i = agents.iterator();
-    
+
     while(i.hasNext()) {
       MessageAddress addr = (MessageAddress)i.next();
       if(addr.toString().equals(agentName)) {
@@ -570,8 +632,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       }
     }
     return false;
-  }      
-  
+  }
+
   private class CRResponder implements SensorInfo {
     public String getName() {
       return "CertificateRevokerPlugin";
@@ -587,6 +649,6 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }
     public String getAnalyzerClass(){
       return "Cougaar Security";
-    } 
+    }
   }
 }
