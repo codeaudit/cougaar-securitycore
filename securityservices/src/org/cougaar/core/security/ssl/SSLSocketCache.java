@@ -177,6 +177,9 @@ public class SSLSocketCache
 
   private boolean containsCert(SSLSession session, X509Certificate cert) {
     Certificate[] localCertChain = session.getLocalCertificates();
+    if (localCertChain == null) {
+      return false;
+    }
     for (int i = 0 ; i < localCertChain.length ; i++) {
       if (localCertChain[i].equals(cert)) {
 	return true;
