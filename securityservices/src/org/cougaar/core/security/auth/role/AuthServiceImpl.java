@@ -343,7 +343,7 @@ public class AuthServiceImpl
     }
     ActionPermission ap = (ActionPermission) p;
 
-    int firstPolicyUpdateCounter = KAoSGuard.getPolicyUpdateCounter();
+    int firstPolicyUpdateCounter = _guard.getPolicyUpdateCount();
     if (ec.cachedIsAuthorized(p.getName(),
                               p.getActions(),
                               firstPolicyUpdateCounter)) {
@@ -377,7 +377,7 @@ public class AuthServiceImpl
         return false;
       }
     }
-    int secondPolicyUpdateCounter = KAoSGuard.getPolicyUpdateCounter();
+    int secondPolicyUpdateCounter = _guard.getPolicyUpdateCount();
     if (firstPolicyUpdateCounter == secondPolicyUpdateCounter) {
       ec.updateCachedAuthorization(ap.getName(), 
                                    ap.getActions(),

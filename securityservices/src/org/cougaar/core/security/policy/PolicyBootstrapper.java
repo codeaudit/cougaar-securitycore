@@ -107,7 +107,12 @@ public class PolicyBootstrapper
 
       log.debug(".PolicyBootStrapper: Reading daml policies file "
                 + cf.find(_damlBootPolicies));
-      damlPoliciesFile = cf.open(_damlBootPolicies);
+      try {
+        damlPoliciesFile = cf.open(_damlBootPolicies);
+      } catch (IOException e) {
+        log.fatal("Error opening the daml boot policies file" + _damlBootPolicies, e);
+        throw e;
+      }
       BufferedReader damlReader 
         = new BufferedReader(new InputStreamReader(damlPoliciesFile));
       while ((line = damlReader.readLine()) != null) {
@@ -117,11 +122,21 @@ public class PolicyBootstrapper
         if ((spacePt = line.indexOf(' ')) == -1) { continue; }
         String type = line.substring(0,spacePt);
         String fileName = line.substring(spacePt+1);
-        policyStream = cf.open(fileName);
-	policyFileURL = cf.find(fileName);
-        log.debug(".PolicyBootStrapper: for policy type " + type +
-                  " I am looking in the policy file " + 
-		  policyFileURL);
+        if (log.isDebugEnabled()) {
+          log.debug("working on the file " + fileName);
+        }
+        try {
+          policyStream = cf.open(fileName);
+        } catch (IOException e) {
+          if (log.isWarnEnabled()) {
+            log.warn("policy  file " + fileName + " not loaded");
+          }
+          throw e;
+        }
+        if (log.isDebugEnabled()) {
+          log.debug(".PolicyBootStrapper: for policy type " + type +
+                    " I am looking in the policy file " + fileName);
+        }
 
 	if (policyStream == null) {
           if (log.isErrorEnabled()) {
