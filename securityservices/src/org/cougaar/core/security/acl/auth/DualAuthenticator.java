@@ -136,7 +136,6 @@ public class DualAuthenticator extends ValveBase {
         enforcer.registerEnforcer();
         _log.debug("Done registering ServletNodeEnforcer");
         _enforcer = enforcer;
-        SecureHookServlet.setEnforcer(_enforcer);
       }
       return true;
     } catch (Exception e) {
