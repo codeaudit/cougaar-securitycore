@@ -9,9 +9,10 @@ require 'security/lib/misc.rb'
 
 class  SecurityMop2_4 < AbstractSecurityMop
   include Singleton
-  attr_accessor :numAccessAttempts, :numAccessesCorrect, :logins
-  attr_accessor :numActionsLogged, :numLoggableActions, :actions
-  attr_accessor :numPoliciesLogged, :numLoggablePolicies, :policies
+  attr_accessor :numAccessAttempts,       :numAccessesCorrect,          :logins
+  attr_accessor :numActionsLogged,        :numLoggableActions,          :actions
+  attr_accessor :numPoliciesLogged,       :numLoggablePolicies,         :policies
+  attr_accessor :numtotalAccessAttempts,  :numtotalAccessAttemptCorrect, :totalactions
 
   #def initialize(run)
   #  super(run)
@@ -29,7 +30,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def getStressIds()
-    return ["SecurityMop2.4"]
+    return ["SecurityMop2.4","1A1-1A20","1A2-1A21","1A4-1A23","1A5-1A24","1A51-1A241","1A6-1A25","1A7-1A26","1A8-1A27","1A9-1A28","1A10-1A29"]
   end
 
   def removePemCertificates
@@ -40,9 +41,11 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @numAccessAttempts = @numAccessesCorrect = 0
     @numActionsLogged = @numLoggableActions = 0
     @numPoliciesLogged = @numLoggablePolicies = 0
+    @numtotalAccessAttempts = @numtotalAccessAttemptCorrect=0
     @logins = []
     @actions = []
     @policies = []
+    @totalactions = []
   end
 
   def to_s
@@ -57,7 +60,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     if @numAccessAttempts > 0
       return (@numAccessesCorrect*100.0) / @numAccessAttempts
     else
-      return 100.0
+      return 0.0
     end
   end
   
@@ -81,7 +84,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     if @numLoggableActions > 0
       return (@numActionsLogged*100.0)/@numLoggableActions
     else
-      return 100.0
+      return 0.0
     end
   end
   
@@ -98,7 +101,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     if @numLoggablePolicies > 0
       return (@numPoliciesLogged*100.0)/@numLoggablePolicies
     else
-      return 100.0
+      return 0.0
     end
   end
   
@@ -113,22 +116,24 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def calculate
     begin
       @score = SecurityMop2_4.instance.score4
-      puts " score is #{@score}"
+      #puts " score is #{@score}"
       @raw = SecurityMop2_4.instance.raw4
-      puts " raw is #{@raw}"
+      #puts " raw is #{@raw}"
       @info = SecurityMop2_4.instance.html4
-      puts " info is #{@info}"
+      #puts " info is #{@info}"
       if @numAccessAttempts == 0
       @summary = "There weren't any access attempts."
       else
         @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
       end
-      puts "summary of result : #{@summary}"
+      #puts "summary of result : #{@summary}"
       sucess = false 
+      @summary <<"<BR> Score :#{@score}</BR>\n" 
+      @summary << "#{@info}"
       if (@score == 100.0)
         success = true
       end
-      saveResult(success, 'mop2.4',@summary)
+      saveResult(success, 'SecurityMop2.4',@summary)
       @calculationDone = true
     rescue Exception => e
       puts "error in 2.4 calculate "
@@ -193,7 +198,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         @rearDomain.recreateUsers(rearUsers)
         @transDomain.recreateUsers(transUsers)
         @conusDomain.recreateUsers(conusUsers)
-        saveAssertion("SecurityMop-2.4","creating fwdUsers rearUsers transUsers conusUsers")
+        saveAssertion("SecurityMop2.4","creating fwdUsers rearUsers transUsers conusUsers")
       end 
 
       sleep 15.seconds
@@ -228,7 +233,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           auth = 'EITHER'
           puts "Domain #{domain} Name : #{name}" if $VerboseDebugging
           u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
-          puts "user created is : #{u.to_s}"
+          #puts "user created is : #{u.to_s}"
           puts "calling domain recreateUsers" if $VerboseDebugging
           domain.recreateUsers([u])
         end
@@ -273,16 +278,16 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def perform
     begin
-      saveAssertion("2.4","in Perfom calling ensureDomains")
+      saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
       ensureDomains
       puts " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
       #revokeCertBeforeTest
       #puts "sleeping for 3 minutes"
       sleep 3.minutes
-      saveAssertion("2.4","Calling run test ")
+      saveAssertion("SecurityMop2.4","Calling run test ")
       runTests(@tests)
       runServletPolicyTests
-      puts " CALLING Perform TESTS FOR SECURITY MOP  DONE "
+      puts " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
     rescue Exception => e
       puts "error in perform"
       puts "#{e.class}: #{e.message}"
@@ -299,9 +304,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def runServletPolicyTests
-    puts " CALLING Policy TESTS FOR SECURITY MOP "
+    puts " CALLING Policy TESTS FOR SECURITY MOP " if $VerboseDebugging
     enclave = getOSDGOVAgent.enclave
-    puts "Changing policy for #{enclave} to passwd "
+    puts "Changing policy for #{enclave} to passwd " if $VerboseDebugging
     passwdpol = getPasswordServletPolicy
     deltaPolicy(enclave, passwdpol)
     @tests = getPasswdPolicyTests
@@ -323,9 +328,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
       @fwdDomain = UserDomains.instance['1-ad-divUserDomainComm']
       @rearDomain = UserDomains.instance['RearUserDomainComm']
       @transDomain = UserDomains.instance['1-ad-divsupUserDomainComm']
-      saveAssertion("2.4", "calling get Tests");
+      saveAssertion("SecurityMop2.4", "calling get Tests");
       @tests = getTests
-      saveAssertion("2.4", "get Tests Done");
+      saveAssertion("SecurityMop2.4", "get Tests Done");
     end
   end
 
@@ -333,7 +338,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def runTests(tests)
     puts "Run test called with size :#{tests.size}" if $VerboseDebugging
     #puts "Run test called with size :#{tests.size}"
-    saveAssertion("2.4", "runTests called ");
+    saveAssertion("SecurityMop2.4", "runTests called ");
     tests.each do |domain, testSet|
       #break if Cougaar::Actions::InitiateSecurityMopCollection.halted?
       testSet.each do |test|
@@ -348,15 +353,19 @@ class  SecurityMop2_4 < AbstractSecurityMop
         scope=test[8]
         if scope !=nil
           scopeString =String.new(scope)        
-          if (scopeString.include? "Mop2.4")
+          if (scopeString.include? "SecurityMop2.4")
             mop24=true
           end 
-          if (scopeString.include? "Mop2.6")
+          if (scopeString.include? "SecurityMop2.6")
             mop26=true
+          end
+          if (scopeString.include? "SecurityMop2.5")
+            mop25=true
           end
         else
           mop24=false
           mop26=false
+          mop25=false;
         end
         if $VerboseDebugging
           puts "type --> #{type}"
@@ -372,6 +381,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           pattern = /#{agent.host.name}.*#{servlet}.*#{idmefPattern}/
           searchForLoginFailure(pattern) if scope
           # note: result is true/false
+          @numtotalAccessAttempts +=1
           result, expectedResult, actualResult, successBoolean, msg, body = domain.accessServletMop(test)
           if $VerboseDebugging
             puts "servlet --> #{servlet}"
@@ -382,7 +392,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
             puts "idmefPattern --> #{idmefPattern}"
           end
           if useCase == nil
-            saveAssertion('',msg)
+            saveAssertion('No use Case Specified ',msg)
           else
             saveAssertion(useCase,msg)
           end
@@ -396,24 +406,33 @@ class  SecurityMop2_4 < AbstractSecurityMop
           #end
           if [492,493,494].member?(actualResult) # no web server or timed out 
             msg = "ignored (no web server or timed out):  #{msg}"
+            @totalactions << "Web server Time out : #{body}"
             # @actions << msg if scope =~ /user/
             # @policies << msg if scope =~ /policy/
-            @actions << msg
+            #@actions << msg
             next
           end
-          @numAccessAttempts += 1
+         #@numAccessAttempts += 1
           httpsRedirect = false
           httpsRedirect = true if actualResult == 491 and expectedResult == 491
           @actions << msg if !successBoolean
           if expectedResult==200
             @numLoggableActions += 1
+            @numtotalAccessAttemptCorrect+=1
           end
           if actualResult == 200
             @numActionsLogged += 1
-            @numAccessesCorrect += 1
-            @actions << "logged:  #{msg}"
-            puts  "logged:  #{msg}"
+            if expectedResult == 200
+               @numtotalAccessAttemptCorrect+=1
+              @actions << " Success :  #{msg}"
+            end   
+            puts  "logged:  #{msg}" if $VerboseDebugging
           else
+            if(mop25)
+              if expectedResult == 200
+                @actions << "Failure :  #{msg}"
+            end 
+            end
             waitTime=5
             if httpsRedirect
               suc = true
@@ -421,22 +440,25 @@ class  SecurityMop2_4 < AbstractSecurityMop
               suc = waitForLoginFailure(waitTime)
             end
             if (mop24)   # scope =~ /user/
+              @numAccessAttempts += 1
               if suc
                 @numAccessesCorrect += 1
-                @actions << "logged:  #{msg}"
-                #puts  "logged:  #{msg}"
+                @numtotalAccessAttemptCorrect+=1
+                @logins << " Success :  #{msg}"
+                #puts  "Success :  #{msg}"
               else
-                @actions << "not logged:  #{msg}"
-                puts "not logged:  #{msg}"
+                @logins << "Failure : #{msg}"
+                puts "Failure :  #{msg}"
               end
             end
             if (mop26)   # scope =~ /policy/
               @numLoggablePolicies += 1
               if suc
                 @numPoliciesLogged += 1
-                @policies << "logged:  #{msg}"
+                @numtotalAccessAttemptCorrect+=1
+                @policies << " Success : #{msg}"
               else
-                @policies << "not logged:  #{msg}"
+                @policies << " Failure : #{msg}"
               end
             end
           end # if actualResult == 200
@@ -465,7 +487,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def getPasswdPolicyTests
     
      begin
-       puts "calling getPasswdPolicyTests "
+       #puts "calling getPasswdPolicyTests "
        testCollection = {}
        testCollection[@conusDomain] =getpolicyPasswdTest
        return testCollection
@@ -479,7 +501,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
   
    def getCertPolicyTests
      begin
-       puts "calling getCertPolicyTests "
+       #puts "calling getCertPolicyTests "
        testCollection = {}
        testCollection[@conusDomain] =getpolicyCertTest
        return testCollection
@@ -555,12 +577,11 @@ class  SecurityMop2_4 < AbstractSecurityMop
     policyServlet = '/policyAdmin'
     tests = [
       # auth    agent  user   password   servlet  expectedResponse
-      ['Basic', agent, user,  user,       policyServlet,  200],
-      ['Cert',  agent, user,  true,       policyServlet,  200],
-      ['Basic', agent, user, 'badpasswd', policyServlet,  401,   '1A1-1A20','WRONG_PASSWORD',          'Mop2.4-Mop2.6'],
-      ['Cert',  agent, user,  false,      policyServlet,  403,   '1A2-1A21','INSUFFICIENT_PRIVILEGES', 'Mop2.4-Mop2.6'],
-      ['Basic', agent, user,  user,      policyServlet,  200]
-    ]
+      ['Basic', agent, user,  user,       policyServlet,  200 ,   '1A101',    '',                             'SecurityMop2.5'],
+      ['Cert',  agent, user,  true,       policyServlet,  200 ,   '1A103',    '',                             'SecurityMop2.5'],
+      ['Basic', agent, user, 'badpasswd', policyServlet,  401 ,   '1A1-1A20', 'WRONG_PASSWORD',               'SecurityMop2.4-SecurityMop2.6'],
+      ['Cert',  agent, user,  false,      policyServlet,  403 ,   '1A2-1A21', 'INSUFFICIENT_PRIVILEGES',      'SecurityMop2.4-SecurityMop2.6']
+     ]
     
     if(agent == @fwdAgent)
       tests.push(
@@ -587,7 +608,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     servlet = '/TestUserPolicy'
     cAndPLog = 'CAndPLogistician'
     tests = [
-      ['Cert',    osdgovAgent,    cAndPLog,    true,    servlet,    401,    '1A51-1A241',     'INSUFFICIENT_PRIVILEGES',     'Mop2.4-Mop2.6']
+      ['Cert',    osdgovAgent,    cAndPLog,    true,    servlet,    401,    '1A51-1A241',     'INSUFFICIENT_PRIVILEGES',     'SecurityMop2.4-SecurityMop2.6']
     ]
     return tests
   end
@@ -597,7 +618,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     servlet = '/TestUserPolicy'
     cAndPLog = 'CAndPLogistician'
     tests = [
-      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    491,    '1A5-1A24',   '',    'Mop2.4-Mop2.6']
+      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    491,    '1A5-1A24',   '',    'SecurityMop2.4-SecurityMop2.6']
     ]
     return tests
   end
@@ -631,47 +652,49 @@ class  SecurityMop2_4 < AbstractSecurityMop
       transPolicyAgent = @run.society.agents['TransPolicyDomainManager']
     end
     tests = [
-      ['Basic',    osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    200,    '1A101',     '',                           'Mop2.5'],
-      ['Cert',     osdgovAgent,    cAndPLog,    true,        servlet,    200,    '1A103',     '',                           'Mop2.5'],
+      ['Basic',    osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    200,    '1A101',     '',                           'SecurityMop2.5'],
+      ['Cert',     osdgovAgent,    cAndPLog,    true,        servlet,    200,    '1A103',     '',                           'SecurityMop2.5'],
 
       #1A1 and 1A20
-      ['Basic',    osdgovAgent,    cAndPLog,    badPassword, servlet,    401,    '1A1-1A20',  'WRONG_PASSWORD',             'Mop2.4-Mop2.6'],
+      ['Basic',    osdgovAgent,    cAndPLog,    badPassword, servlet,    401,    '1A1-1A20',  'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'],
 
       #1A2 and 1A21 
-      ['Cert',     osdgovAgent,    cAndPLog,    false,       servlet,    403,    '1A2-1A21',  'INSUFFICIENT_PRIVILEGES',    'Mop2.4-Mop2.6'],
+      ['Cert',     osdgovAgent,    cAndPLog,    false,       servlet,    403,    '1A2-1A21',  'INSUFFICIENT_PRIVILEGES',    'SecurityMop2.4-SecurityMop2.6'],
 
       #1A4 and 1A23 
-      ['Cert',     osdgovAgent,    revokedLog,  true,        servlet,    403,    '1A4-1A23',  'INVALID_USER_CERTIFICATE',   'Mop2.4-Mop2.6'],
-      ['Basic',    osdgovAgent,    revokedLog,  revokedLog,  servlet,    491,    '1A41-1A231','INVALID_USER_CERTIFICATE',   'Mop2.4-Mop2.6'],
+      ['Cert',     osdgovAgent,    revokedLog,  true,        servlet,    403,    '1A4-1A23',  'INVALID_USER_CERTIFICATE',   'SecurityMop2.4-SecurityMop2.6'],
+      #['Basic',    osdgovAgent,    revokedLog,  revokedLog,  servlet,   491,    '1A41-1A231','INVALID_USER_CERTIFICATE',   'SecurityMop2.4-SecurityMop2.6'],
 
       #1A6 and 1A25 
-      ['Basic',    osdgovAgent,    certLog,     certLog,     servlet,    491,    '1A6-1A25',  'WRONG_PASSWORD',             'Mop2.4-Mop2.6'], 
-      ['Cert',     osdgovAgent,    certLog,     true,        servlet,    200,    '1A103'],
-      ['Basic',    osdgovAgent,    passwdLog,   passwdLog,   servlet,    200,    '1A101'], 
-      ['Cert',     osdgovAgent,    passwdLog,   true,        servlet,    200,    '1A103'], 
+      ['Basic',    osdgovAgent,    certLog,     certLog,     servlet,    491,    '1A6-1A25',  'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'], 
+
+      ['Cert',     osdgovAgent,    certLog,     true,        servlet,    200,    '1A103',    '',                            'SecurityMop2.5'],
+      ['Basic',    osdgovAgent,    passwdLog,   passwdLog,   servlet,    200,    '1A101',    '',                            'SecurityMop2.5'], 
+      ['Cert',     osdgovAgent,    passwdLog,   true,        servlet,    200,    '1A103',    '',                            'SecurityMop2.5'], 
       
       #1A7 and 1A26 
-      ['Basic',    osdgovAgent,    deletedLog,  deletedLog,  servlet,    401,    '1A7-1A26',  'USER_DOES_NOT_EXIST',        'Mop2.4-Mop2.6'],
+      ['Basic',    osdgovAgent,    deletedLog,  deletedLog,  servlet,    401,    '1A7-1A26',  'USER_DOES_NOT_EXIST',        'SecurityMop2.4-SecurityMop2.6'],
 
       #1A8 and 1A27 
-      ['Cert',     osdgovAgent,    deletedLog,  true,        servlet,    403,    '1A11-1A28', 'USER_DOES_NOT_EXIST',        'Mop2.4-Mop2.6'],
+      ['Cert',     osdgovAgent,    deletedLog,  true,        servlet,    403,    '1A8-1A27', 'USER_DOES_NOT_EXIST',         'SecurityMop2.4-SecurityMop2.6'],
 
       #1A9 and 1A28 
-      ['Basic',    osdgovAgent,    disabledLog, disabledLog, servlet,    401,    '1A8-1A27',  'DISABLED_ACCOUNT',           'Mop2.4-Mop2.6'],
+      ['Basic',    osdgovAgent,    disabledLog, disabledLog, servlet,    401,    '1A9-1A28',  'DISABLED_ACCOUNT',           'SecurityMop2.4-SecurityMop2.6'],
 
       #1A10 and 1A29 
-      ['Cert',    osdgovAgent,    disabledLog, true,        servlet,     401,    '1A10-1A29', 'DISABLED_ACCOUNT',            'Mop2.4-Mop2.6'],
-      ['Basic',   osdgovAgent,    notALog,     notAUser,    servlet,     401,    '1A11-1A30', 'WRONG_PASSWORD',              'Mop2.4-Mop2.6'],
-      ['Cert',    osdgovAgent,    notALog,     true,        servlet,     401,    '1A12-1A30', 'INSUFFICIENT_PRIVILEGES',     'Mop2.4-Mop2.6'],
+      ['Cert',    osdgovAgent,    disabledLog, true,        servlet,     401,    '1A10-1A29', 'DISABLED_ACCOUNT',           'SecurityMop2.4-SecurityMop2.6'],
+
+      #['Basic',   osdgovAgent,    notALog,     notAUser,    servlet,     401,    '1A11-1A30', 'WRONG_PASSWORD',             'SecurityMop2.4-SecurityMop2.6'],
+      #['Cert',    osdgovAgent,    notALog,     true,        servlet,     401,    '1A12-1A30', 'INSUFFICIENT_PRIVILEGES',    'SecurityMop2.4-SecurityMop2.6'],
     ]   
 =begin 
        #tests = [
-       #  ['Basic', osdgovAgent,    cAndPLog,     cAndPLog,        servlet,          200 ,        '1A101',    ,'' ,             'Mop2.5'],
-       #  ['Cert',  osdgovAgent,    cAndPLog,     true,            servlet,          200,         '1A103'     ,'' ,             'Mop2.5' ],
+       #  ['Basic', osdgovAgent,    cAndPLog,     cAndPLog,        servlet,          200 ,        '1A101',    ,'' ,             'SecurityMop2.5'],
+       #  ['Cert',  osdgovAgent,    cAndPLog,     true,            servlet,          200,         '1A103'     ,'' ,             'SecurityMop2.5' ],
        #  #1A1 and 1A20
-       #  ['Basic', osdgovAgent,    cAndPLog,     badPassword,     servlet,          401,         '1A1/1A20', 'WRONG_PASSWORD', 'Mop2.4/Mop2.6'],
+       #  ['Basic', osdgovAgent,    cAndPLog,     badPassword,     servlet,          401,         '1A1/1A20', 'WRONG_PASSWORD', 'SecurityMop2.4-SecurityMop2.6'],
        #  #1A2 and 1A21
-       #  ['Cert',  osdgovAgent,    cAndPLog,     false,           servlet,          401,         '1A2/1A21', 'WRONG_PASSWORD', 'Mop2.4/Mop2.6'],
+       #  ['Cert',  osdgovAgent,    cAndPLog,     false,           servlet,          401,         '1A2/1A21', 'WRONG_PASSWORD', 'Mop2.4-Mop2.6'],
        #  #
        #  ['Cert',  osdgovAgent,    revokedLog,   true,            servlet,          401,         '12a',      'REVOKED_USER',   'user'],
        #  ['Basic', osdgovAgent,    passwdLog,    passwdLog,        servlet,          200,         '1A101'],

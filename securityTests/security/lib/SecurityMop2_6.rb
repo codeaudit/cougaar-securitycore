@@ -13,13 +13,13 @@ class SecurityMop26 < AbstractSecurityMop
   
   def initialize()
     #super(run)
-    @name = "2.6"
+    @name = "SecurityMop2.6"
 
     @descript = "Percentage of all designated user actions in violation of policy that are recorded as policy violations"
   end
 
   def getStressIds()
-    return ["SecurityMop2.6"]
+    return ["SecurityMop2.6","1A1-1A20","1A2-1A21","1A4-1A23","1A5-1A24","1A51-1A241","1A6-1A25","1A7-1A26","1A8-1A27","1A9-1A28","1A10-1A29"]
   end
 
   def to_s
@@ -46,18 +46,21 @@ class SecurityMop26 < AbstractSecurityMop
         @summary = "There weren't any access attempts."
       else
         @summary = "There weren't any access attempts which needed to be logged."
+        
       end
     else
       # note: these two values are swapped, but are fixed on the analysis side
-      @summary = "There were #{logged} servlet access attempts, #{total} were correct."
+      @summary = "There were #{total} servlet access attempts, #{logged} were correct."
     end
     @raw = SecurityMop2_4.instance.raw6
     @info = SecurityMop2_4.instance.html6
-     success = false
+    @summary <<"<BR> Score :#{@score}</BR>\n" 
+    @summary << "#{@info}"
+    success = false
     if (@score == 100.0)
       success = true
     end
-    saveResult(success, 'mop2.6',@summary)
+    saveResult(success, 'SecurityMop2.6',@summary)
   end
 
   def scoreText
