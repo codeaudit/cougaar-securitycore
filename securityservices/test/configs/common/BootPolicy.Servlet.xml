@@ -77,6 +77,7 @@
         <!-- All users and agents should be allowed to
              request a certificate -->
         <pattern>/CA/CertificateSigningRequest</pattern>
+        <pattern>/CA/BrowserSigningRequest</pattern>
         <role>*</role>
       </rule>
       <rule requireSSL="false">
@@ -86,6 +87,7 @@
         <pattern>/CA/Main</pattern>
         <pattern>/CA/CertificateList</pattern>
         <pattern>/CA/CertificateDetailsServlet</pattern>
+        <pattern>/CA/DownloadCertificateServlet</pattern>
         <pattern>/CA/PendingCertificateServlet</pattern>
         <pattern>/CA/PendingCertDetailsServlet</pattern>
         <pattern>/CA/ListCaKeysServlet</pattern>
