@@ -9,21 +9,18 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cougaar.core.adaptivity.OperatingMode;
+import org.cougaar.core.security.test.*;
 import org.cougaar.util.UnaryPredicate;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import java.lang.reflect.Constructor;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 
 /**
@@ -31,7 +28,7 @@ import java.util.Iterator;
  *
  * @author mabrams
  */
-public class AEChangeModeServlet extends AdvancedSimpleServletComponent {
+public class AEChangeModeServlet extends AbstractServletComponent {
 	/** operating mode change parameter */
     private static final String CHANGE = "change";
     /** operating mode name parameter */

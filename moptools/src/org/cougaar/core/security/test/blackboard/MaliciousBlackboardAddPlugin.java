@@ -108,6 +108,7 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
     //automatically increment success
     OrgActivity orgActivity = (OrgActivity) getPlanningFactory().create(OrgActivity.class);
     orgActivity.setActivityName(MALCICOUS_ADD_ACTIVITY_NAME);
+    getBlackboardService().publishAdd(orgActivity);
     this.successes++;
     this.totalRuns++;
   }

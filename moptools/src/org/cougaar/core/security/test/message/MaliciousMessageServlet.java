@@ -15,6 +15,7 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.glm.ldm.asset.Organization;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.asset.ClusterPG;
@@ -28,8 +29,6 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
-
 
 /**
  * This is a servlet that sends a malicious message to test the security
@@ -37,7 +36,7 @@ import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
  *
  * @author mabrams
  */
-public class MaliciousMessageServlet extends AdvancedSimpleServletComponent {
+public class MaliciousMessageServlet extends AbstractServletComponent {
     /** the malicious verb */
     public String VERB = null;
     private static UnaryPredicate orginizationPredicate = new UnaryPredicate() {

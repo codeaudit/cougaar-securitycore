@@ -9,11 +9,13 @@
 package org.cougaar.core.security.test.message;
 
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.glm.ldm.asset.Organization;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.asset.ClusterPG;
@@ -27,9 +29,6 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 
 /**
  * This is a servlet that sends a legitimate message to test the security
@@ -37,7 +36,7 @@ import java.util.Iterator;
  *
  * @author mabrams
  */
-public class LegitimateMessageServlet extends AdvancedSimpleServletComponent {
+public class LegitimateMessageServlet extends AbstractServletComponent {
     private static UnaryPredicate orginizationPredicate = new UnaryPredicate() {
             public boolean execute(Object o) {
                 if (o instanceof Organization) {

@@ -33,26 +33,23 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.cougaar.planning.ldm.plan.Task;
-import org.cougaar.util.DBConnectionPool;
-import org.cougaar.util.UnaryPredicate;
-
 import java.io.File;
 import java.io.FileWriter;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.cougaar.core.security.test.*;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.util.DBConnectionPool;
+import org.cougaar.util.UnaryPredicate;
 
 
 /**
@@ -60,7 +57,7 @@ import java.util.Iterator;
  *
  * @author ttschampel
  */
-public class AnalyzerServlet extends AdvancedSimpleServletComponent {
+public class AnalyzerServlet extends AbstractServletComponent {
   /** DOCUMENT ME! */
   public static final String DB_USERNAME = "username";
   /** DOCUMENT ME! */

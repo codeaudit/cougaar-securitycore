@@ -33,17 +33,16 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cougaar.core.security.test.*;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
-
-import java.util.Vector;
 
 
 /**
@@ -51,7 +50,7 @@ import java.util.Vector;
  *
  * @author ttschampel
  */
-public class BlackboardTestManagerServlet extends AdvancedSimpleServletComponent {
+public class BlackboardTestManagerServlet extends AbstractServletComponent {
   /** DOCUMENT ME! */
   public static final String DO_PARAM = "do";
   /** DOCUMENT ME! */
