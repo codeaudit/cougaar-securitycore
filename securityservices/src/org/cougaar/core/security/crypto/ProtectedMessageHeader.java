@@ -41,7 +41,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
   /** The encrypted symmetric key used to encrypt an object.
    *  This key is encrypted with the public key of the target.
    */
-  private SealedObject _encryptedSymmetricKey;
+  private byte[] _encryptedSymmetricKey;
 
   /** The encrypted symmetric key used to encrypt an object.
    *  This key is encrypted with the public key of the sender.
@@ -49,7 +49,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
    *  however it is encrypted with the sender. This allows the
    *  sender to recover the object if necessary.
    */
-  private SealedObject _encryptedSymmetricKeySender;
+  private byte[] _encryptedSymmetricKeySender;
 
   /** The certificate used to encrypt the symmetric key.
    */
@@ -68,8 +68,8 @@ public class ProtectedMessageHeader implements java.io.Serializable {
   public ProtectedMessageHeader(X509Certificate sender,
                                 X509Certificate receiver,
                                 SecureMethodParam policy,
-                                SealedObject sKey,
-                                SealedObject sKeySender) {
+                                byte[] sKey,
+                                byte[] sKeySender) {
     _encryptedSymmetricKey = sKey;
     _encryptedSymmetricKeySender = sKeySender;
 
@@ -78,11 +78,11 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     _policy = policy;
   }
 
-  public SealedObject getEncryptedSymmetricKey() {
+  public byte[] getEncryptedSymmetricKey() {
     return _encryptedSymmetricKey;
   }
 
-  public SealedObject getEncryptedSymmetricKeySender() {
+  public byte[] getEncryptedSymmetricKeySender() {
     return _encryptedSymmetricKeySender;
   }
 

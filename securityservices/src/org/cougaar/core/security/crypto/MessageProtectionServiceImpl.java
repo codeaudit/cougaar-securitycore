@@ -712,10 +712,14 @@ public class MessageProtectionServiceImpl
 
     try {
       boolean encryptedSocket = isEncrypted(attrs);
+      String strPrinc = null;
       Principal principal = KeyRingSSLServerFactory.getPrincipal();
+      if (principal != null) {
+        strPrinc = principal.getName();
+      }
       return encryptService.
         protectInputStream(is, source, destination,
-                           encryptedSocket, principal.toString(), cps);
+                           encryptedSocket, strPrinc, cps);
     } catch (GeneralSecurityException e) {
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;
     

@@ -30,6 +30,8 @@ import javax.crypto.*;
 import sun.security.x509.*;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import javax.crypto.spec.SecretKeySpec;
+
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceRevokedListener;
@@ -54,6 +56,8 @@ import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.util.DumpOutputStream;
+import org.cougaar.core.security.util.OnTopCipherOutputStream;
+import org.cougaar.core.security.util.OnTopCipherInputStream;
 import org.cougaar.core.security.util.SignatureOutputStream;
 import org.cougaar.core.security.util.SignatureInputStream;
 import org.cougaar.core.security.util.ErasingMap;
@@ -371,16 +375,41 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private Object asymmDecrypt(PrivateKey key,
-                              SealedObject obj) 
+  public byte[] encryptKey(String name, String spec, byte[] plainKey,
+                           java.security.cert.Certificate cert)
+    throws GeneralSecurityException, IOException {
+    /*encrypt the secret key with receiver's public key*/
+
+    PublicKey key = cert.getPublicKey();
+
+    if (spec==""||spec==null) {
+      spec=key.getAlgorithm();
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypting for " + name + " using " + spec);
+    }
+    /*init the cipher*/
+    Cipher ci = getCipher(spec);
+    try {
+      ci.init(Cipher.ENCRYPT_MODE, key);
+      return ci.doFinal(plainKey);
+//       SealedObject so = new SealedObject(obj,ci);
+//       return so;
+    }
+    finally {
+      if (ci != null) {
+        returnCipher(spec,ci);
+      }
+    }
+  }
+
+  private byte[] decryptKey(PrivateKey key, String spec, byte[] encKey)
     throws GeneralSecurityException, IOException, ClassNotFoundException {
-    String spec = key.getAlgorithm();
     Cipher ci = null;
     try {
       ci=getCipher(spec);
       ci.init(Cipher.DECRYPT_MODE, key);
-      Object o = obj.getObject(ci);
-      return o;
+      return ci.doFinal(encKey);
     } finally {
       if (ci != null) {
         returnCipher(spec, ci);
@@ -1457,6 +1486,7 @@ public class CryptoManagerServiceImpl
     private String                _symmSpec;
     private Object                _link;
     private String                _sender;
+    private OnTopCipherOutputStream _cipherOut;
 
     public ProtectedMessageOutputStream(OutputStream stream,
                                         SecureMethodParam policy,
@@ -1470,8 +1500,8 @@ public class CryptoManagerServiceImpl
       _sender = source.toAddress();
       _link   = link;
       // secret key encrypted by sender or receiver's certificate
-      SealedObject senderSecret   = null;
-      SealedObject receiverSecret = null;
+      byte[] senderSecret   = null;
+      byte[] receiverSecret = null;
 
       Hashtable certTable = keyRing.
         findCertPairFromNS(_sender, target.toAddress());
@@ -1498,16 +1528,20 @@ public class CryptoManagerServiceImpl
         _encrypt = true;
         // first encrypt the secret key with the target's public key
         secret = createSecretKey(policy);
-        
-        senderSecret = asymmEncrypt(_sender, policy.asymmSpec,
-                                    secret, _senderCert);
-        receiverSecret = asymmEncrypt(target.toAddress(), policy.asymmSpec,
-                                      secret, receiverCert);
+        byte[] secretBytes = secret.getEncoded();
+        senderSecret = encryptKey(_sender, policy.asymmSpec,
+                                  secretBytes, _senderCert);
+        receiverSecret = encryptKey(target.toAddress(), policy.asymmSpec,
+                                    secretBytes, receiverCert);
+//         senderSecret = asymmEncrypt(_sender, policy.asymmSpec,
+//                                     secret, _senderCert);
+//         receiverSecret = asymmEncrypt(target.toAddress(), policy.asymmSpec,
+//                                       secret, receiverCert);
       }
 
       ProtectedMessageHeader header = 
         new ProtectedMessageHeader(_senderCert, receiverCert, policy,
-                                   senderSecret, receiverSecret);
+                                   receiverSecret, senderSecret);
       if (log.isDebugEnabled()) {
         log.debug("Sending " + header);
       }
@@ -1520,8 +1554,8 @@ public class CryptoManagerServiceImpl
         _symmSpec = policy.symmSpec;
         _cipher = getCipher(policy.symmSpec);
         _cipher.init(Cipher.ENCRYPT_MODE, secret);
-        this.out = 
-          new CipherOutputStream(this.out, getCipher(policy.symmSpec));
+        _cipherOut = new OnTopCipherOutputStream(this.out, _cipher);
+        this.out = _cipherOut;
       }
       if (policy.secureMethod == policy.SIGNENCRYPT ||
           policy.secureMethod == policy.SIGN) {
@@ -1553,7 +1587,6 @@ public class CryptoManagerServiceImpl
 
     public void finishOutput(MessageAttributes attributes)
       throws java.io.IOException {
-      this.flush();
       if (DUMP_MESSAGES) {
         ((DumpOutputStream) out).stopDumping();
       }
@@ -1561,13 +1594,17 @@ public class CryptoManagerServiceImpl
         _signature.writeSignature();
         setSent(_sender, _link); // verified ok.
       }
+//       this.flush();
       _eom = true;
       if (_encrypt) {
+        _cipherOut.doFinal();
+        this.flush();
         this.out = null;
         returnCipher(_symmSpec, _cipher);
       }
       log.debug("finishOutputStream from " + _sender);
     }
+
   }
 
   private class ProtectedMessageInputStream extends ProtectedInputStream {
@@ -1581,6 +1618,7 @@ public class CryptoManagerServiceImpl
     private String                _symmSpec;
     private Object                _link;
     private String                _sender;
+    private OnTopCipherInputStream _cypherIn;
 
     public ProtectedMessageInputStream(InputStream stream, 
                                        MessageAddress source,
@@ -1649,11 +1687,16 @@ public class CryptoManagerServiceImpl
         } catch (SignatureException e) {
           log.debug("Could not verify signature", e);
           throw new IOException(e.getMessage());
+        } catch (Exception e) {
+          log.debug("Other exception verifying signature", e);
+          throw new IOException(e.getMessage());
         }
+        log.debug("Signature was verified");
         setSent(_sender, _link); // verified ok.
       }
       _eom = true;
       if (_encrypt) {
+        _cypherIn.doFinal();
         returnCipher(_symmSpec, _cipher);
         this.in = null; // so you can't use the Cipher anymore
       }
@@ -1699,24 +1742,26 @@ public class CryptoManagerServiceImpl
       _encrypt = true;
       // first decrypt the secret key with my private key
       X509Certificate receiverCert = header.getReceiver();
-      SealedObject encKey = header.getEncryptedSymmetricKey();
+      byte[] encKey = header.getEncryptedSymmetricKey();
       SecureMethodParam policy = header.getPolicy();
       PrivateKey key = getPrivateKey(targetName, header.getReceiver());
       try {
-        SecretKey secret = (SecretKey) asymmDecrypt(key, encKey);
-//       SecretKey secret = (SecretKey) 
-//         asymmDecrypt(targetName, policy.asymmSpec, encKey);
-        if (secret == null) {
+        byte[] secretBytes = decryptKey(key, policy.asymmSpec, encKey);
+        if (secretBytes == null) {
           throw new DecryptSecretKeyException("Can't find secret key for " +
                                               header.getReceiver());
         }
+        SecretKeySpec skSpec = new SecretKeySpec(secretBytes, policy.symmSpec);
         _symmSpec = policy.symmSpec;
         _cipher = getCipher(policy.symmSpec);
-        _cipher.init(Cipher.DECRYPT_MODE, secret);
-        this.in = new CipherInputStream(this.in, _cipher);
+        _cipher.init(Cipher.DECRYPT_MODE, skSpec);
+        _cypherIn = new OnTopCipherInputStream(this.in, _cipher);
+        this.in = _cypherIn;
       } catch (ClassNotFoundException e) {
         log.error("Couldn't decrypt the header", e);
         throw new IOException(e.getMessage());
+      } catch (Exception e) {
+        log.debug("Ack!", e);
       }
     }
 
