@@ -90,6 +90,7 @@ public class NameMapping {
     // Can have more than one dn with the same cn with multiple CA
     /* Since the common name must currently be unique, it is a configuration
      * error if two distinguished names have the same common name. */
+
       /*
     if (aPrincipal != null &&
 	!aPrincipal.equals(x500Name)) {
@@ -98,14 +99,15 @@ public class NameMapping {
 					 + x500Name + " - "
 					 + aPrincipal.toString() + " excluded");
                                          */
-    if (principals == null) {
-      principals = new Hashtable();
-      cn2dn.put(cn, principals);
+    synchronized(this) {
+      if (principals == null) {
+	principals = new Hashtable();
+	cn2dn.put(cn, principals);
+      }
+      // This is to improve the performance if searching for x500name
+      // if use List X500Name comparison is very time consuming.
+      principals.put(x500Name.getName(), x500Name);
     }
-
-    // This is to improve the performance if searching for x500name
-    // if use List X500Name comparison is very time consuming.
-    principals.put(x500Name.getName(), x500Name);
   }
 
   public List getX500Name(String commonName) {
