@@ -24,8 +24,13 @@
 package org.cougaar.core.security.acl.auth;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import java.security.Principal;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
@@ -40,7 +45,6 @@ import org.apache.catalina.Container;
 import org.apache.catalina.ValveContext;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.authenticator.AuthenticatorBase;
@@ -48,14 +52,20 @@ import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
-import java.security.Principal;
+import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 
 public class DualAuthenticator extends ValveBase {
+  static final int CONST_NONE     = 0x00;
+  static final int CONST_PASSWORD = 0x01;
+  static final int CONST_CERT     = 0x02;
+  static final int CONST_BOTH     = 0x03;
+
   private static ResourceBundle _authenticators = null;
   AuthenticatorBase _primaryAuth;
   AuthenticatorBase _secondaryAuth;
   LoginConfig       _loginConfig = new LoginConfig();
   Context           _context     = null;
+  HashMap           _constraints = new HashMap();
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -78,17 +88,171 @@ public class DualAuthenticator extends ValveBase {
   public void invoke(Request request, Response response,
                      ValveContext context) throws IOException, ServletException {
     setContainer();
-     HttpServletResponse no_err =
-       new NoErrorResponse((HttpServletResponse) response.getResponse());
-     ResponseDummy tmpRes = new ResponseDummy((HttpResponse) response, no_err);
+    // create dummies so that authentication doesn't do anything
+    // we really do want it to do
+    DummyValveContext  dummyValveContext = new DummyValveContext();
+    HttpServletResponse no_err =
+      new NoErrorResponse((HttpServletResponse) response.getResponse());
+    ResponseDummy tmpRes = 
+      new ResponseDummy((HttpResponse) response, no_err);
 
-     _primaryAuth.invoke(request,tmpRes,context);
     HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
-    Principal principal = hreq.getUserPrincipal();
-    if (principal == null) {
-//       System.out.println("Trying secondary authentication....");
-      _secondaryAuth.invoke(request,response,context);
+    HttpServletResponse hres = (HttpServletResponse) request.getResponse();
+//     System.out.println("Auth header: " + hreq.getHeader("Authorization"));
+
+    int userConstraint = CONST_NONE;
+    int pathConstraint = getConstraint(hreq.getRequestURI());
+
+    _primaryAuth.invoke(request,tmpRes, dummyValveContext);
+
+    Principal certPrincipal = hreq.getUserPrincipal();
+    Principal passPrincipal = null;
+
+    if (certPrincipal instanceof CougaarPrincipal) {
+      userConstraint = convertConstraint( ((CougaarPrincipal)certPrincipal).
+                                          getLoginRequirements() );
+      if ( (userConstraint & CONST_PASSWORD) != 0 ) {
+        ((HttpRequest)request).setUserPrincipal(null);
+      }
     }
+
+    int totalConstraint = pathConstraint | userConstraint;
+
+    if ((totalConstraint == CONST_NONE && certPrincipal == null) || 
+        (totalConstraint & CONST_PASSWORD) != 0) {
+//       System.out.println("Trying secondary authentication....");
+      _secondaryAuth.invoke(request, response, dummyValveContext);
+      passPrincipal = hreq.getUserPrincipal();
+      if (certPrincipal == null && 
+          passPrincipal instanceof CougaarPrincipal) {
+        userConstraint = convertConstraint(( (CougaarPrincipal)passPrincipal).
+                                           getLoginRequirements() );
+        totalConstraint = pathConstraint | userConstraint;
+      }
+    }
+
+//     System.out.println("Principal is: " + passPrincipal);
+
+    if (authOk(certPrincipal, passPrincipal, totalConstraint, 
+               dummyValveContext.getInvokeCount(), hres)) {
+//       System.out.println("Going to invoke the next valve");
+      context.invokeNext(request,response);
+    }
+  }
+
+  private static boolean authOk(Principal certPrincipal,
+                                Principal passPrincipal,
+                                int totalConstraint,
+                                int invokeCount,
+                                HttpServletResponse hres) 
+    throws ServletException, IOException {
+    if (certPrincipal != null && passPrincipal != null &&
+        !certPrincipal.getName().equals(passPrincipal.getName())) {
+      // the certificate and password authorization credentials
+      // should be the same!
+      hres.sendError(hres.SC_UNAUTHORIZED,
+                     "You have entered a different user name than " +
+                     "in your certificate.");
+      return false;
+    } else if ( invokeCount > 1 ||
+                ((totalConstraint & CONST_PASSWORD) == 0 &&
+                 invokeCount > 0) ) {
+      // ok, there is no role requirement so no authentication is
+      // necessary.
+      return true;
+    } else if ( (totalConstraint & CONST_PASSWORD) != 0 &&
+                passPrincipal == null) {
+      // needed password authentication. We must have already
+      // sent the bad response
+      return false;
+    } else if ((totalConstraint & CONST_CERT) != 0 && 
+               certPrincipal == null) {
+      // needed certificate authentication. We need to send a response
+      // indicating that:
+      hres.sendError(hres.SC_UNAUTHORIZED,
+                     "You must provide a client certificate in order " +
+                     "to access this URL");
+      return false;
+    } else if (passPrincipal == null && certPrincipal == null) {
+      // authentication is required, but we've already sent the
+      // response
+      return false;
+    } else {
+      // authentication is accepted
+      return true;
+    }
+  }
+        
+  /**
+   * Sets an authentication constraint for the given path. It allows
+   * the specification of whether the path should support authentication
+   * using certificates, password, both, or either. When checking
+   * paths, a combination of the most restrictive constraints is used.
+   * Therefore, if "/*" is given "EITHER" and "/$foo/*" is given
+   * "PASSWORD", then PASSWORD is used as the constraint.<p>
+   *
+   * Setting a constraint for a given path replaces any earlier
+   * constraint set for that path.
+   *
+   * @param path The path to constrain. Simple wildcard (*) is allowed
+   *             to specify any number of characters at the beginning
+   *             or end of a path.
+   * @param type The password mechanism required. Valid values are
+   *             "CERT" for certificate authentication, "PASSWORD" for
+   *             BASIC auth or DIGEST authentication, "BOTH"
+   *             to require both a certificate and proper password, and
+   *             "EITHER" to not have any password requirements beyond
+   *             what is required by the role-based constraints.
+   */
+  public synchronized void setAuthConstraint(String path, String type) {
+    if (path == null) {
+      path = "*";
+    }
+    if (type == null || "EITHER".equals(type)) {
+      _constraints.remove(path);
+    } else {
+      _constraints.put(path,type);
+    }
+  }
+  
+  private static int convertConstraint(String constraint) {
+    if ("BOTH".equals(constraint)) {
+      return CONST_BOTH;
+    } else if ("PASSWORD".equals(constraint)) {
+      return CONST_PASSWORD;
+    } else if ("CERT".equals(constraint)) {
+      return CONST_CERT;
+    }
+    return CONST_NONE;
+  }
+
+  private synchronized int getConstraint(String path) {
+    int constraint = 0;
+    Iterator iter = _constraints.entrySet().iterator();
+//     System.out.println("--------- testing path: " + path);
+    while (iter.hasNext()) {
+      Map.Entry entry = (Map.Entry) iter.next();
+      String wildPath = (String) entry.getKey();
+      boolean match;
+//       System.out.println("-------- path: " + wildPath);
+
+      if (wildPath.startsWith("*")) {
+        match = path.endsWith(wildPath.substring(1));
+      } else if (wildPath.endsWith("*")) {
+        match = path.startsWith(wildPath.substring(0,wildPath.length()-1));
+      } else {
+        match = path.equals(wildPath);
+      }
+      if (match) {
+//         System.out.println("match for " +path + " found: " + wildPath);
+        String type = (String) entry.getValue();
+        constraint |= convertConstraint(type);
+        if ((constraint & CONST_BOTH) == CONST_BOTH) {
+          return constraint;
+        }
+      }
+    }
+    return constraint;
   }
 
   private static AuthenticatorBase getAuthenticator(Class authClass) {
@@ -249,6 +413,21 @@ public class DualAuthenticator extends ValveBase {
     }
     
     public void sendError(int sc, String msg) {
+    }
+  }
+
+  private class DummyValveContext implements ValveContext {
+    int _invoked = 0;
+
+    public String getInfo() { 
+      return "Dummy Valve Context"; 
+    }
+    public void invokeNext(Request request, Response response) {
+      _invoked++;
+    }
+
+    public int getInvokeCount() {
+      return _invoked;
     }
   }
 }

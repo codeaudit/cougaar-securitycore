@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 // Tomcat 4.0 security constraints
+import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.deploy.SecurityCollection;
@@ -45,21 +46,21 @@ import org.cougaar.core.security.services.crypto.ServletPolicyService;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
 import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
 public class ServletPolicyEnforcer 
   extends GuardRegistration
   implements ServletPolicyService, NodeEnforcer {
 
-  public static String AGENT_POLICY    = "agent";
-  public static String NODE_POLICY     = "node";
+  public static String ALLOW_ROLE            = "allow-role";
+  public static String DENY_ROLE             = "deny-role";
+  public static String SET_AUTH_CONSTRAINT   = "auth-constraint";
 
-  public static String ALLOW_ROLE      = "allow-role";
-  public static String DENY_ROLE       = "deny-role";
-  public static String CONSTRAINT_NAME = "auto constraint";
+  private Context           _context = null;
+  private DualAuthenticator _daValve = null;
 
-  private Context _context = null;
-
-  HashMap _roles = new HashMap();
+  HashMap _roles       = new HashMap();
+  HashMap _constraints = new HashMap();
 
   public ServletPolicyEnforcer() {
     super("org.cougaar.core.security.policy.ServletPolicy",
@@ -72,111 +73,119 @@ public class ServletPolicyEnforcer
     }
   }
 
-  public void setContext(Context context) {
+  public synchronized void setContext(Context context) {
     _context = context;
-    ArrayList agents = new ArrayList();
-    ArrayList roles  = new ArrayList();
-
-    synchronized (_roles) {
-      Iterator iter = _roles.entrySet().iterator(); 
-      while (iter.hasNext()) {
-        Map.Entry entry   = (Map.Entry) iter.next();
-        String    agent   = (String)    entry.getKey();
-        HashSet   roleSet = (HashSet)   entry.getValue();
-        synchronized (roleSet) {
-          Iterator rIter = roleSet.iterator();
-          while (rIter.hasNext()) {
-            String role = rIter.next().toString();
-            agents.add(agent);
-            roles.add(role);
-          }
-        }
+    Iterator iter = _roles.entrySet().iterator(); 
+    while (iter.hasNext()) {
+      Map.Entry entry   = (Map.Entry) iter.next();
+      String    path    = (String)    entry.getKey();
+      HashSet   roleSet = (HashSet)   entry.getValue();
+      iter.remove();
+      SecurityConstraint sc = getSecurityConstraint(path);
+      _context.addConstraint(sc);
+      Iterator rIter = roleSet.iterator();
+      while (rIter.hasNext()) {
+        String role = rIter.next().toString();
+        sc.addAuthRole(role);
       }
-    }
-    int len = agents.size();
-    for (int i = 0; i < len; i++) {
-      addRole((String)agents.get(i), (String) roles.get(i));
     }
   }
 
-  private SecurityConstraint getSecurityConstraint(String agent) {
+  public synchronized void setDualAuthenticator(DualAuthenticator da) {
+    _daValve = da;
+    Iterator iter = _constraints.entrySet().iterator(); 
+    while (iter.hasNext()) {
+      Map.Entry entry      = (Map.Entry) iter.next();
+      String    path       = (String) entry.getKey();
+      String    constraint = (String) entry.getValue();
+      iter.remove();
+      _daValve.setAuthConstraint(path,constraint);
+    }
+  }
+  
+  private SecurityConstraint getSecurityConstraint(String path) {
     SecurityConstraint sc = null;
-    synchronized (_context) {
-      SecurityConstraint scArray[] = _context.findConstraints();
-      if (scArray != null) {
-        for (int i = 0; i < scArray.length; i++) {
-          if (agent.equals(scArray[i].getDisplayName())) {
-            sc = scArray[i];
-            break; // found it!
-          }
+
+    SecurityConstraint scArray[] = _context.findConstraints();
+    if (scArray != null) {
+      for (int i = 0; i < scArray.length; i++) {
+        if (path.equals(scArray[i].getDisplayName())) {
+          sc = scArray[i];
+          break; // found it!
         }
       }
-      if (sc == null) {
-        sc = new SecurityConstraint();
-        sc.setDisplayName(agent);
-        SecurityCollection scn = 
-          new SecurityCollection(agent, "Agent '" + agent +
-                                 "' security collection");
-        scn.addPattern("/$" + agent + "/*");
-        sc.addCollection(scn);
-        _context.addConstraint(sc);
       }
+    if (sc == null) {
+      sc = new SecurityConstraint();
+      sc.setDisplayName(path);
+      SecurityCollection scn = 
+        new SecurityCollection(path, "Security constraint for path: " + 
+                               path);
+      scn.addPattern(path);
+      sc.addCollection(scn);
+      _context.addConstraint(sc);
     }
     return sc;
   }
 
-  private HashSet getRoleSet(String agent) {
+  private HashSet getRoleSet(String path) {
     HashSet roleList;
-    synchronized (_roles) {
-      roleList = (HashSet) _roles.get(agent);
-      if (roleList == null) {
-        roleList = new HashSet();
-        _roles.put(agent,roleList);
-      }
+    roleList = (HashSet) _roles.get(path);
+    if (roleList == null) {
+      roleList = new HashSet();
+      _roles.put(path,roleList);
     }
     return roleList;
   }
 
-  public void addRole(String agent, String role) {
-    if (agent == null || role == null) {
+  public synchronized void addRole(String path, String role) {
+    if (path == null || role == null) {
       return;
     }
-//     System.err.println("================================ adding role: " + agent + ", " + role);
+//     System.err.println("================================ adding role: " + path + ", " + role);
 
-    HashSet roleList = getRoleSet(agent);
-    synchronized (roleList) {
-      roleList.add(role);
-    }
-
+    if (_context == null) {
+      HashSet roleList = getRoleSet(path);
+      if (_context == null) {
+        roleList.add(role);
+      }
+    } 
     if (_context != null) {
-      SecurityConstraint sc = getSecurityConstraint(agent);
+      SecurityConstraint sc = getSecurityConstraint(path);
       sc.addAuthRole(role);
       _context.addSecurityRole(role);
     }
   }
 
-  public void removeRole(String agent, String role) {
-    if (agent == null || role == null) {
+  public synchronized void removeRole(String path, String role) {
+    if (path == null || role == null) {
       return;
     }
-
-    HashSet roleList = getRoleSet(agent);
-    synchronized (roleList) {
+    
+    if (_context == null) {
+      HashSet roleList = getRoleSet(path);
       roleList.remove(role);
-    }
-
-    if (_context != null) {
-      SecurityConstraint sc = getSecurityConstraint(agent);
+    } else {
+      SecurityConstraint sc = getSecurityConstraint(path);
       sc.removeAuthRole(role);
     }
   }
 
-  public String[] getRoles(String agent) {
-    SecurityConstraint sc = getSecurityConstraint(agent);
-
-    if (sc == null) {
-      return null;
+  public synchronized void setAuthConstraint(String path, String type) {
+    if (path == null || type == null) {
+      return;
     }
+//     System.err.println("================================ adding constraint: " + path + ", " + type);
+
+    if (_daValve == null) {
+      _constraints.put(path, type);
+    } else {
+      _daValve.setAuthConstraint(path, type);
+    }
+  }
+
+  public synchronized String[] getRoles(String path) {
+    SecurityConstraint sc = getSecurityConstraint(path);
     return sc.findAuthRoles();
   }
 
@@ -208,35 +217,31 @@ public class ServletPolicyEnforcer
       }
     }
     // what is the policy change?
-    if (AGENT_POLICY.equals(policyScope)) {
-      // this is an agent-level policy change
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0; i < param.length; i++) {
-        String name  = param[i].getName();
-        String value = param[i].getValue().toString();
-        if (ALLOW_ROLE.equals(name)) {
-          addRole(policyTargetID,value);
-        } else if (DENY_ROLE.equals(name)) {
-          removeRole(policyTargetID,value);
-        }
-      }
-    } else {
-      // if (NODE_POLICY.equals(policyScope)) {
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0; i < param.length; i++) {
-        if (param[i] instanceof KeyRuleParameter) {
-          KeyRuleParameter krp = (KeyRuleParameter) param[i];
-          String name  = krp.getName();
-          KeyRuleParameterEntry entry[] = krp.getKeys();
-          if (entry != null) {
-            for (int j = 0; j < entry.length; j++) {
-              String agent = entry[j].getKey();
-              String role  = entry[j].getValue();
-              if (ALLOW_ROLE.equals(name)) {
-                addRole(agent,role);
-              } else if (DENY_ROLE.equals(name)) {
-                removeRole(agent,role);
+    RuleParameter[] param = policy.getRuleParameters();
+    for (int i = 0; i < param.length; i++) {
+      if (param[i] instanceof KeyRuleParameter) {
+        KeyRuleParameter krp = (KeyRuleParameter) param[i];
+        String name  = krp.getName();
+        String agent = krp.getValue().toString();
+        KeyRuleParameterEntry entry[] = krp.getKeys();
+        if (entry != null) {
+          for (int j = 0; j < entry.length; j++) {
+            String val = entry[j].getValue();
+            String path = entry[j].getKey();
+            if (agent != null && agent.length() != 0) {
+              if (path.startsWith("/")) {
+                path = "/$" + agent + path;
+              } else {
+                path = "/$" + agent + "/" + path;
               }
+            }
+
+            if (ALLOW_ROLE.equals(name)) {
+              addRole(path,val);
+            } else if (DENY_ROLE.equals(name)) {
+              removeRole(path,val);
+            } else if (SET_AUTH_CONSTRAINT.equals(name)) {
+              setAuthConstraint(path,val);
             }
           }
         }

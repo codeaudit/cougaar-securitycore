@@ -25,9 +25,11 @@ package org.cougaar.core.security.acl.auth;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
+
+import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 
-
+import org.apache.catalina.Valve;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.deploy.SecurityCollection;
 
@@ -37,6 +39,14 @@ public class PolicyEnforcerServletContext
     ServletPolicyServiceProvider.setContext(this);
   }
 
+  public void addValve(Valve valve) {
+    super.addValve(valve);
+    if (valve instanceof DualAuthenticator) {
+      DualAuthenticator da = (DualAuthenticator) valve;
+      ServletPolicyServiceProvider.setDualAuthenticator(da);
+    }
+  }
+  
   /*
   public void addConstraint(SecurityConstraint sc) {
     System.out.println("Adding Security Constraint: ");
