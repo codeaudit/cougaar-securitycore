@@ -6,9 +6,9 @@ plugin = "org.cougaar.core.security.crypto.MessageProtectionAspectImpl"
 
 society.each_node do |node|
   node.add_component do |c|
-      c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
-      c.priority = "INTERNAL"
-      c.classname = plugin
+    c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
+    c.priority = "INTERNAL"
+    c.classname = plugin
+    c.order = 120
   end
 end
-

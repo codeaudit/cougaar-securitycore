@@ -88,21 +88,11 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     if (type == SendQueue.class) {
       _sendQ = new CertificateSendQueueDelegate((SendQueue) paramDelegate);
       delegate = _sendQ;
-    } else if (type == DestinationLink.class) {
-//       delegate =
-//         new ProtectionDestinationLink((DestinationLink) paramDelegate);
+    } else if (type == ReceiveLink.class) {
+      return new RefreshCertRecieveLinkDelegate((ReceiveLink) delegatee);
     }
 
     return delegate;
-  }
-
-  // aspect implementation: reverse linkage (receive side)
-  public Object getReverseDelegate(Object delegate, Class type) {
-    if (type == ReceiveLink.class) {
-      return new RefreshCertRecieveLinkDelegate((ReceiveLink) delegate);
-    } else {
-      return super.getReverseDelegate(delegate, type);
-    }
   }
 
   // Delgate on Deliverer (sees incoming messages)
@@ -144,7 +134,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         }
         MessageAttributes meta = new SimpleMessageAttributes();
         meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
-                          MessageAttributes.DELIVERY_STATUS_DELIVERED);
+                          MessageAttributes.DELIVERY_STATUS_DROPPED);
         return meta;
       }
 
@@ -179,7 +169,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         // now just drop the message
         MessageAttributes meta = new SimpleMessageAttributes();
         meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
-                          MessageAttributes.DELIVERY_STATUS_DELIVERED);
+                          MessageAttributes.DELIVERY_STATUS_DROPPED);
         return meta;
       } else {
         // deliver other messages as normal
