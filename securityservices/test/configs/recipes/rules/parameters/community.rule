@@ -40,6 +40,8 @@ society.each_enclave do |enclave|
             entity.add_role("CrlProvider")
           when "#{enclave.capitalize}EnclavePersistenceManager"
             entity.add_role("PersistenceManager")
+          when "#{enclave.capitalize}RedundantPersistenceManager"
+            entity.add_role("PersistenceManager")
           when "#{enclave.capitalize}EnclaveMnRManager"
             ROOT_COMM_MGRS << agent.name
             entity.add_role("Manager")
