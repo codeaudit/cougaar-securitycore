@@ -3,7 +3,7 @@
 
 society.each_agent do |agent|
   if (agent.name =~ /.*SecurityMnRManager.*/
-      or agent.name == 'AGG-Agent' or agent.name == "SCmrmanager")
+      or agent.name == 'AGG-Agent' or agent.name == "SCmrmanager") then
     agent.add_component do |c|
       c.classname = "org.cougaar.lib.aggagent.plugin.AggregationPlugin"
     end
