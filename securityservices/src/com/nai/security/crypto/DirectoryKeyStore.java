@@ -107,6 +107,10 @@ public class DirectoryKeyStore implements Runnable
 						  "false"))).booleanValue();
 
       standalone = standaloneValue;
+
+      // Load crypto providers
+      CryptoProviders.loadCryptoProviders();
+
       // Open Keystore
       keystorePassword = password;
       keystorePath = storepath;
@@ -699,7 +703,10 @@ public class DirectoryKeyStore implements Runnable
     // Get Signature object for certificate authority
     PrivateKey signerPrivateKey = (PrivateKey) keystore.getKey(signerAlias, keystorePassword);
     X509Certificate cert = (X509Certificate)keystore.getCertificate(signerAlias);
-    Signature signerSignature = Signature.getInstance(signerPrivateKey.getAlgorithm());
+
+    //Signature signerSignature = Signature.getInstance(signerPrivateKey.getAlgorithm());
+    // TODO: find signature algorithm that works with most crypto providers
+    Signature signerSignature = Signature.getInstance("SHA1withRSA");
     signerSignature.initSign(signerPrivateKey);
 
     X500Name signerX500Name = new X500Name(cert.getSubjectDN().toString());

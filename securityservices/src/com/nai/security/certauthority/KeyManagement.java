@@ -629,7 +629,9 @@ public class KeyManagement
 
     // Get Signature object for certificate authority
     PrivateKey caPrivateKey = getPrivateKey(caX500Name.getCommonName());
-    Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
+    //Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
+    // TODO
+    Signature caSignature = Signature.getInstance("SHA1withRSA");
     // caSignature.initSign(caPrivateKey);
 
     X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
