@@ -135,23 +135,16 @@ public class DownloadCertificateServlet extends  HttpServlet
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
     */
-    List l = search.findCertByDistinguishedName(distinguishedName);
-    if (l == null || l.size() == 0) {
-      res.getWriter().println("Error: no such certificate in LDAP ");
-      return;
-    }
-    if (l.size() != 1) {
-    //if (ldapentries.length != 1) {
-      res.getWriter().println("Error: there are multiple certificates with the same UID");
+    CertificateEntry ce = search.findCertByIdentifier(distinguishedName);
+    if (ce == null) {
+      res.getWriter().println("Error: no such certificate found");
       return;
     }
 
-    X509Certificate  certimpl;
+    X509Certificate  certimpl = ce.getCertificate();
     byte[] encoded;
     char[] b64;
     try {
-      //certimpl=ldapentries[0].getCertificate();
-      certimpl=((CertificateEntry)l.get(0)).getCertificate();
       encoded = certimpl.getEncoded();
       b64 = Base64.encode(encoded);
     } catch (Exception exp) {
