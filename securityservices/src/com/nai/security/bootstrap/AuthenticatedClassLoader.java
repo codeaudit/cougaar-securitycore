@@ -224,7 +224,7 @@ public class AuthenticatedClassLoader extends URLClassLoader {
       if (c == null) {   //class has not yet been loaded by this classloader
 	if (!findSuspicious(name)) { 
 	  //declare suspicious right away:
-          saveLocally(null, name);
+          //saveLocally(null, name);
  
 	  /* let this class loader handle the class unless the class belongs
 	     to the list of standard packages */ 
