@@ -59,8 +59,8 @@ public class DataProtectionKeyImpl
   }
 
   public boolean equals(DataProtectionKeyImpl key) {
-    if (!getObject().equals(key.getObject()))
-      return false;
+    //if (!getObject().toString().equals(key.getObject().toString()))
+    //  return false;
     X509Certificate [] certChain = key.getCertificateChain();
     if (certificateChain.length == 0 || certChain.length == 0)
       return false;
