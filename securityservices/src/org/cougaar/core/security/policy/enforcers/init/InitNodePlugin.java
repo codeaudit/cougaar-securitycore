@@ -38,6 +38,7 @@ import org.cougaar.core.security.policy.EnforcerRegistrationException;
 
 public class InitNodePlugin extends ComponentPlugin {
 
+  private ServiceBroker _sb;
   private LoggingService _log;
   private String _hostname;
   private String _hostAddress;
@@ -63,9 +64,10 @@ public class InitNodePlugin extends ComponentPlugin {
   {
     try {
       BindingSite bs = getBindingSite();
-      ServiceBroker sb = bs.getServiceBroker();
 
-      _log = (LoggingService) sb.getService(this,
+      _sb = bs.getServiceBroker();
+
+      _log = (LoggingService) _sb.getService(this,
                                             LoggingService.class,
                                             null);
 
@@ -77,10 +79,10 @@ public class InitNodePlugin extends ComponentPlugin {
       // on the blackboard so we need to temporarily close it.
       getBlackboardService().closeTransactionDontReset();
       try {
-        _servletEnf = new ServletNodeEnforcer(sb);
+        _servletEnf = new ServletNodeEnforcer(_sb);
         _servletEnf.registerEnforcer();
 
-        _msgEnf     = new ULMessageNodeEnforcer(sb,getAgents());
+        _msgEnf     = new ULMessageNodeEnforcer(_sb,getAgents());
         _msgEnf.registerEnforcer();
       } catch (Throwable th) {
         _log.error("InitNodePlugin: Error registering the enforcers", th);
@@ -93,7 +95,7 @@ public class InitNodePlugin extends ComponentPlugin {
       _servletServlet = new TestServletMediationServlet();
 
       servletService = (ServletService)
-        sb.getService(this,
+        _sb.getService(this,
                       ServletService.class,
                       null);
       if (servletService == null) {
@@ -102,7 +104,7 @@ public class InitNodePlugin extends ComponentPlugin {
       servletService.register(_messageServletPath, _messageServlet);
       servletService.register(_servletServletPath, _servletServlet);
 
-      //      getDirService(sb);
+      //      getDirService(_sb);
     } catch (Exception e) {
       _log.error(".InitNodePlugin = problem in Initialization", e);
     }
@@ -150,8 +152,18 @@ public class InitNodePlugin extends ComponentPlugin {
                   "</head>\n" + 
                   "<body>\n" + 
                   "<H1>Message Passing Mediation Check</H1>\n");
-        _msgEnf.testEnforcer(out,
-                             TestStringsFromFile("DamlTestAgents"));
+        List testAgents;
+        try {
+          out.print("<p>Getting agents to test from configuration file: "
+                    + "DamlTestAgents</p>");
+          testAgents = TestStringsFromFile("DamlTestAgents");
+        } catch (Exception e) {
+          out.print("<b> Could not read configuration file - see log</b>");
+          _log.error("Problem obtaining agents for test routine", e);
+          return;
+        }
+
+        _msgEnf.testEnforcer(out, testAgents);
         out.print("</body>\n" +
                   "</html>\n");
       } catch (UnknownConceptException e) {
@@ -176,15 +188,28 @@ public class InitNodePlugin extends ComponentPlugin {
     public void doGet(HttpServletRequest req,
                       HttpServletResponse res) throws IOException 
     {
+      PrintWriter out = res.getWriter();
+      /*      try {
+       * _servletEnf = new ServletNodeEnforcer(_sb);
+       * _servletEnf.registerEnforcer();
+       *
+       *} catch (Exception e) {
+       * IOException ioe = new IOException("Error registering servlet");
+       * ioe.initCause(e);
+       * throw ioe;
+       *}
+       */
       _log.info("TestServletMediation: Doing Get...");
       try {
-        PrintWriter out = res.getWriter();
         out.print("<html>\n" + 
                   "<head>\n" + 
                   "<TITLE>Servlet Mediation Tests</TITLE>\n" + 
                   "</head>\n" + 
                   "<body>\n" + 
                   "<H1>Servlet Medition Check</H1>\n");
+        out.print("<p> Reading configuration files DamlTestUris and " +
+                  "DamlTestRoles to determine what to test</p>");
+
         _servletEnf.testEnforcer(out,
                                  TestStringsFromFile("DamlTestUris"),
                                  TestStringsFromFile("DamlTestRoles"));
@@ -192,11 +217,10 @@ public class InitNodePlugin extends ComponentPlugin {
                   "</body>\n" +
                   "</html>\n");
       } catch (UnknownConceptException e) {
+        out.print("<p>Problem with test - see log</p>");
         _log.error(".TestServletMediationServlet: Problem with Enforcer",
                    e);
-        IOException newe = new IOException("Problem with Enforcer");
-        newe.initCause(e);
-        throw newe;
+        return;
       }
     }
 
@@ -206,16 +230,17 @@ public class InitNodePlugin extends ComponentPlugin {
    * A hack for now until this plugin is removed and replaced with something 
    * more appropriate.
    */ 
-  private Set TestStringsFromFile(String filename)
+  private List TestStringsFromFile(String filename)
     throws IOException
   {
-    Set vars = new HashSet();
+    List vars = new Vector();
     ConfigFinder cf = ConfigFinder.getInstance();
     File file = cf.locateFile(filename);
     Reader reader = new FileReader(file);
     BufferedReader breader = new BufferedReader(reader);
     String line;
     while ((line = breader.readLine()) != null) {
+      if (line.startsWith("#")) { continue; }
       vars.add(line);
     }
     return vars;
