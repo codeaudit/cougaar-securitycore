@@ -28,7 +28,7 @@ end
 def parseEvent(line)
   startuptime = nil
   message = nil
-  line.scan(/^([0-9]*)-([0-9]*)-([0-9]*) ([0-9]*):([0-9]*):([0-9]*),([0-9]*) SHOUT(.*)/) { |x|
+  line.scan(/^([0-9]*)-([0-9]*)-([0-9]*) ([0-9]*):([0-9]*):([0-9]*),([0-9]*).*SHOUT(.*)/) { |x|
     time = x[0]
     #puts x[0] , x[1]
     # Time looks like this:
@@ -156,6 +156,7 @@ $okMessages = [
   [nil, "Starting Time set to"],
   [nil, "Expanding an already disposed task"],
   [nil, "which is before this orgs arrival time"],
+  [nil, "java.io.IOException: Sender should be signing, Probable cause = new ssl credentials or policy mismatch"],
 =begin
   "SocketException",
   "No CertificateEntry in naming",
