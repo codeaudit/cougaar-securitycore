@@ -74,15 +74,6 @@ public interface AgentIdentityService
     throws PendingRequestException,
     IdentityDeniedException;
 
-  /**
-   * Acquire a cryptographic identity for a specific X.500 name.
-   * This method is useful in cases when there are constraints
-   * on the X.500 name.
-   */
-  void acquireX500Identity(Principal p)
-    throws PendingRequestException,
-    IdentityDeniedException;
-
   /** Notifies the cryptographic service that the cryptographic identity
    *  of the requestor is no longer needed.
    *  This does not mean the key should be revoked or deleted.

@@ -26,10 +26,14 @@
 
 package org.cougaar.core.service.identity;
 
+import java.security.Principal;
+
 // Cougaar core infrastructure
 import org.cougaar.core.mts.MessageAddress;
 
-public interface AgentIdentityClient {
+public interface AgentIdentityClient
+  extends Principal
+{
   /** Callback for revocation of an aquired identity.
    *  See RFC 2459, 5.3.1 for a list of possible reasons
    *  why the certificate was revoked.
@@ -38,7 +42,5 @@ public interface AgentIdentityClient {
    */
   void identityRevoked(CrlReason reason);
 
-  /** Name of the agent (or is this implied?)
-   */
-  MessageAddress getName();
+  // Inherits "getName()" from Principle
 }
