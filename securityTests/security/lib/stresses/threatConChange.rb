@@ -145,8 +145,8 @@ def performLoginFailures
   run.society.each_agent do |agent|
     params = ['Basic', agent, user, badPasswd, servlet, 401]
     count = 0
-    if !@enteredHIGH
-      while count < 5
+    while count < 100
+      if !@enteredHIGH
         @userDomain.accessServlet(params)
         count += 1
         totalCount += 1
