@@ -392,7 +392,7 @@ final public class IdmefMessageFactory {
       if( analyzer != null ){
         List refList = new ArrayList();
         refList.add( analyzer.getAnalyzerid() );
-        Agent newAgent = m_agent.cloneAgent();
+        Agent newAgent = ( Agent )m_agent.clone();
         newAgent.setRefIdents( ( String [] )refList.toArray( new String[ 0 ] ) );
         dataList.add( createAdditionalData( AdditionalData.XML, 
 					                                  AGENT_INFO,
@@ -1360,17 +1360,7 @@ final public class IdmefMessageFactory {
     return new Agent( name, description, location,
 		      address, refIdents );                
   }
-    
-  /**
-   * This method clones this factory's agent.
-   * 
-   * @return a new Agent
-   */
-  public Agent createAgent(){
-    Agent newAgent = m_agent.cloneAgent();    
-    return newAgent;
-  }
-    
+        
   /** 
    * Get the Agent object that this message factory belongs to
    *

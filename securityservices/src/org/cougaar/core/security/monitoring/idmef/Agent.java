@@ -78,7 +78,7 @@ import org.w3c.dom.NamedNodeMap;
  * </pre>
  * @since IDMEF Message v1.0
  */
-public class Agent implements XMLSerializable {
+public class Agent implements XMLSerializable, Cloneable {
     
     public static String COUGAAR_NAMESPACE = "idmef+cougaar";
     public static String COUGAAR_NAMESPACE_PREFIX = "Cougaar:";
@@ -228,13 +228,14 @@ public class Agent implements XMLSerializable {
 	    return agentNode;
     }
    
-    public Agent cloneAgent(){
-        Agent newAgent = new Agent( m_name, 
-                                    m_description, 
-                                    m_location, 
-                                    m_address, 
-                                    m_refIdents );
-        return newAgent;
+    public Object clone(){
+      try{
+        return super.clone();
+      }
+      catch (CloneNotSupportedException e) { 
+	      // this shouldn't happen, since we are Cloneable
+	      throw new InternalError();
+	    }
     }
   
     public String toTaggedString(){
