@@ -250,10 +250,10 @@ public class KeyManagement
     String alg = "MD5"; // TODO: make this dynamic
 
     MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
-    String digest = md.toString();
+    byte [] digest = md.digest();
 
     String filePrefix = "x509-";
-    File f = new File(x509DirectoryName + File.separatorChar + filePrefix + digest);
+    File f = new File(x509DirectoryName + File.separatorChar + filePrefix + toHex(digest));
 
     f.createNewFile();
     PrintStream out = new PrintStream(new FileOutputStream(f));
@@ -268,6 +268,7 @@ public class KeyManagement
     MessageDigest md = MessageDigest.getInstance(algorithm);
 
     // Create a digest
+    md.reset();
     md.update(data);
     md.digest();
     return md;
@@ -787,6 +788,16 @@ public class KeyManagement
     X509CertImpl clientCertificate = new X509CertImpl(clientCertInfo);
 
     return clientCertificate;
+  }
+    
+  private String toHex(byte[] data) {
+    StringBuffer buff = new StringBuffer();
+    for(int i = 0; i < data.length; i++) {
+      String digit = Integer.toHexString(data[i] & 0x00ff);
+      if(digit.length() < 2)buff.append("0");
+      buff.append(digit);
+    }
+    return buff.toString();
   }
 
   public static void main(String[] args) {
