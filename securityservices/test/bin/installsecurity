@@ -7,12 +7,6 @@
 
 # This file should be run from the top directory in the securityservices module.
 
-#
-# FIXME - TEMPORARY!
-#
-rm -f ${COUGAAR_INSTALL_PATH}/sys/xerces.jar
-
-
 realCIP=$COUGAAR_INSTALL_PATH
 startupdir=`pwd`
 tmpdir=`mktemp -d /tmp/cip.XXXXXX`
@@ -144,6 +138,11 @@ rm -rf ${tmpdir}
 
 #if [ ${reply} == "y" ]; then
 if [ "$install" == "1" ]; then
+#
+#        FIXME - TEMPORARY!
+#
+        rm -f ${realCIP}/sys/xerces.jar
+
 	echo "Extracting AS_csi_secserv.zip to ${realCIP}"
 	cd ${realCIP}
 	unzip -qo ${startupdir}/AS_csi_secserv.zip
