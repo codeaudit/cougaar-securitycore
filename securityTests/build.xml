@@ -38,6 +38,13 @@ ARCHIVE_TIME=${build.time}
 		<fileset dir="staging"/>
 	</zip>
 </target>
+<target name="install" depends="create_cougaar_overlay">
+        <property environment="env"/>
+	<property name="zip" value="SRI_auto.zip"/>
+        <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
+	<unzip src="${zip}" dest="${cougaar.install.path}">
+	</unzip>
+</target>
 
 </project>
   
