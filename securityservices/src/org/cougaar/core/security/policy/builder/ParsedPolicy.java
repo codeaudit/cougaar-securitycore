@@ -32,7 +32,6 @@ import kaos.ontology.util.JTPStringFormatUtils;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.SpecifiedModalityTypeNotExists;
-import antlr.Token;
 
 public abstract class ParsedPolicy 
 {
@@ -105,46 +104,6 @@ public abstract class ParsedPolicy
     }
     _conditionalMode = mode;
   }
-
-  /**
-   * This is a utility routine that gives me a shorthand which replaces the 
-   * "$" with the string "http://ontology.coginst.uwf.edu/".  I am thinking 
-   * of removing this function.
-   */
-  public static String tokenToURI(Token u)
-    throws PolicyCompilerException
-  {
-    String str = u.getText();
-    try {
-      if (str.startsWith("$")) {
-        str =  str.substring(1, str.length());
-        return "http://ontology.coginst.uwf.edu/" + str;
-      } else {
-        return str.substring(1, str.length());
-      }
-    } catch (IndexOutOfBoundsException e) {
-      PolicyCompilerException pe 
-        = new PolicyCompilerException("Malformed URI: " + str + " on line " +
-                                      u.getLine());
-      throw pe;
-    }
-  }
-
-  public static int tokenToInt(Token u)
-    throws PolicyCompilerException
-  {
-    String str = u.getText();
-    try {
-      return Integer.parseInt(str);
-    } catch (NumberFormatException e) {
-      PolicyCompilerException pe 
-        = new PolicyCompilerException("Coding error: Parsing token " + 
-                                      str + " on line: " + str);
-      throw pe;
-    }
-  }
-
-
 
 
   public abstract DAMLPolicyBuilderImpl
@@ -318,6 +277,6 @@ public abstract class ParsedPolicy
 
   }
 
-  
+
 
 }
