@@ -61,7 +61,7 @@ import java.util.Iterator;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -143,12 +143,16 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
 
     //TODO Is this in the right place 
     //check if exists on blackboard, if not return b/c invalid snap shot
+
+    bbs.openTransaction();
+    
     Collection dpKeyCollection = bbs.query(dataProtectionPredicate(keyImpl));
+    bbs.closeTransaction();
     if (dpKeyCollection.size() == 0) {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
       }
-
+      
       return;
     }
 
