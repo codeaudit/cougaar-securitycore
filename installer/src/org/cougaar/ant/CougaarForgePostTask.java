@@ -231,8 +231,12 @@ public class CougaarForgePostTask
   }
   
   public void uploadFileToExistingRelease() throws IOException {
+    File uploadFile = new File((String)props.get("userfile"));
     if (verbose) {
-      System.out.println("uploadFileToExistingRelease");
+      System.out.println("uploadFileToExistingRelease: " + uploadFile);
+    }
+    if (!uploadFile.exists()) {
+      throw new RuntimeException("File does not exist: " + uploadFile.getCanonicalPath());
     }
     if (getReleaseId() == null) {
       return;
@@ -254,7 +258,7 @@ public class CougaarForgePostTask
     MultiPartFormOutputStream out = 
       new MultiPartFormOutputStream(urlConn.getOutputStream(), boundary);
     out.writeField("step2", "1");
-    out.writeFile("userfile", "text/plain", new File((String)props.get("userfile")));
+    out.writeFile("userfile", "text/plain", uploadFile);
     out.writeField("type_id", (String)props.get("type_id"));
     out.writeField("processor_id", (String)props.get("processor_id"));
     out.writeField("submit", "Add This File");
@@ -289,6 +293,10 @@ public class CougaarForgePostTask
     if (verbose) {
       System.out.println("upload File " + props.get("userfile"));
     }
+    File uploadFile = new File((String)props.get("userfile"));
+    if (!uploadFile.exists()) {
+      throw new RuntimeException("File does not exist: " + uploadFile.getPath());
+    }
     URL u = new URL(getUrl() + UPLOAD_SERVLET + getGroupId());
     //  create a boundary string
     String boundary = MultiPartFormOutputStream.createBoundary();
@@ -315,7 +323,7 @@ public class CougaarForgePostTask
         out.writeField(attr, value);
       }
       else {
-        out.writeFile(attr, "text/plain", new File(value));
+        out.writeFile(attr, "text/plain", uploadFile);
       }
     }
     //System.out.println();
