@@ -173,7 +173,7 @@ class ResultParser
   end
 
   def logPlannedSecurityExperiments()
-    aFile = File.new(@filename, File::APPEND | File::RDWR)
+    aFile = File.new(@filename, File::APPEND | File::RDWR | File::CREAT)
     aFile << "<plannedSecurityExperiments>\n"
     if defined? $configuredSecurityTests
       $configuredSecurityTests.each { |test|
