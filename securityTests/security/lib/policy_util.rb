@@ -51,7 +51,7 @@ def getPolicyManager(enclave)
   host    = nil
   run.society.each_agent_with_component("safe.policyManager.PolicyAdminServletComponent") { |agent|
     #puts("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}")
-    if (agent.enclave == enclave)
+    if (agent.enclave.downcase == enclave.downcase)
       #url = agent.uri
       #re = %r"http://([^:]*):([^/]*)/\$([^/]*)"
       #match = re.match(url)
