@@ -1,7 +1,7 @@
 <project name="sri-automation-overlay" default="create_cougaar_overlay" basedir=".">
 
 <target name="create_cougaar_overlay">
-	<property name="zip" value="Commons_sri_automation_overlay.zip"/>
+	<property name="zip" value="SRI_auto.zip"/>
 	<delete dir="staging"/>			
   <mkdir dir="staging/scripting/lib/cougaar"/>
 	<copy todir="staging/scripting/lib/cougaar">
