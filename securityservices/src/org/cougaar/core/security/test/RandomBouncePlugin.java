@@ -195,9 +195,9 @@ public class RandomBouncePlugin extends ComponentPlugin {
         String thisAgent = _agentId.toString();
         String agent = thisAgent;
         while(agent.equals(thisAgent)) {
-          Set agents = wps.list("");
-          AddressEntry []entries = (AddressEntry [])agents.toArray(new AddressEntry[0]);
-          agent = entries[_random.nextInt(agents.size())].getName();
+          Set agents = wps.list(".");
+          String []entries = (String [])agents.toArray(new String[0]);
+          agent = entries[_random.nextInt(agents.size())];
           if(agent.equals(thisAgent)) {
             Thread.sleep(1000);
           }

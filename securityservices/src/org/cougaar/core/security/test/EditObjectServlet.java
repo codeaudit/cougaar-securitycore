@@ -43,6 +43,8 @@ import org.cougaar.util.*;
 import org.cougaar.planning.servlet.*;
 import org.cougaar.core.service.*;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.wp.AddressEntry;
+import org.cougaar.core.service.wp.WhitePagesService;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xml.serialize.XMLSerializer;
@@ -82,7 +84,7 @@ import org.cougaar.core.security.test.MessageInterceptorAspect.*;
 public class EditObjectServlet extends HttpServlet {
 
   private SecurityServletSupport support;
-
+  
   public EditObjectServlet(SecurityServletSupport support) {
     this.support = support;
   }
@@ -1430,20 +1432,35 @@ public class EditObjectServlet extends HttpServlet {
         "\" value=\"true\">\n"+
         "<select name=\"formAgent\">\n");
       // lookup all known cluster names
-      List names = support.getAllEncodedAgentNames();
-      int sz = names.size();
-      for (int i = 0; i < sz; i++) {
-        String n = (String) names.get(i);
-        out.print("  <option ");
-        if (n.equals(support.getEncodedAgentName())) {
-          out.print("selected ");
-        }
-        out.print("value=\"");
-        out.print(n);
-        out.print("\">");
-        out.print(n);
-        out.print("</option>\n");
+      //List names = support.getAllEncodedAgentNames();
+      ServiceBroker sb = support.getServiceBroker();
+      WhitePagesService wps = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+      Set set = null;
+      try {
+        set = wps.list("");
       }
+      catch(Exception e) {
+        e.printStackTrace(); 
+      }
+      if(set != null) { 
+        TreeSet ts = new TreeSet(set);
+        Iterator entries = ts.iterator();
+        while(entries.hasNext()) {
+          String n = (String)entries.next();
+          String encodedName = support.encodeAgentName(n);
+          out.print("  <option ");
+          if (encodedName.equals(support.getEncodedAgentName())) {
+            out.print("selected ");
+          }
+          out.print("value=\"");
+          out.print(n);
+          out.print("\">");
+          out.print(n);
+          out.print("</option>\n");
+        }
+      }
+      sb.releaseService(this, WhitePagesService.class, wps);
       out.print(
           "</select><br>\n"+
           "<select name=\"formType\">\n"+
@@ -2446,20 +2463,34 @@ public class EditObjectServlet extends HttpServlet {
           "target=\"predResults\" onSubmit=\"return mySubmit()\">\n"+
           "Search cluster <select name=\"formAgent\">\n");
       // lookup all known cluster names
-      List names = support.getAllEncodedAgentNames();
-      int sz = names.size();
-      for (int i = 0; i < sz; i++) {
-        String n = (String) names.get(i);
-        out.print("  <option ");
-        if (n.equals(support.getEncodedAgentName())) {
-          out.print("selected ");
-        }
-        out.print("value=\"");
-        out.print(n);
-        out.print("\">");
-        out.print(n);
-        out.print("</option>\n");
+      ServiceBroker sb = support.getServiceBroker();
+      WhitePagesService wps = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+      Set set = null;
+      try {
+        set = wps.list("");
       }
+      catch(Exception e) {
+        e.printStackTrace(); 
+      }
+      if(set != null) {
+        TreeSet ts = new TreeSet(set);
+        Iterator entries = ts.iterator();
+        while(entries.hasNext()) {
+          String n = (String)entries.next();
+          String encodedName = support.encodeAgentName(n);
+          out.print("  <option ");
+          if (encodedName.equals(support.getEncodedAgentName())) {
+            out.print("selected ");
+          }
+          out.print("value=\"");
+          out.print(n);
+          out.print("\">");
+          out.print(n);
+          out.print("</option>\n");
+        }
+      }
+      sb.releaseService(this, WhitePagesService.class, wps);
       out.print("</select><br>\n");
       if (nTemplatePreds > 0) {
         out.print(

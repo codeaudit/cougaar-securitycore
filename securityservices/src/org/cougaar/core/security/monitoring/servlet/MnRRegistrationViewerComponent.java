@@ -70,7 +70,6 @@ public class MnRRegistrationViewerComponent
   private BlackboardService blackboard;
   private DomainService ds;
   private CommunityService cs;
-  private NamingService ns;
   private LoggingService logging;
   private String path;
 
@@ -101,9 +100,6 @@ public class MnRRegistrationViewerComponent
    public void setCommunityService(CommunityService cs) {
      this.cs=cs;
    }
-  public void setNamingService(NamingService ns) {
-     this.ns=ns;
-  }
   public void setLoggingService(LoggingService ls) {
     this.logging=ls;
   }

@@ -41,7 +41,7 @@ import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.TopologyReaderService;
+//import org.cougaar.core.service.TopologyReaderService;
 import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
@@ -70,9 +70,9 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
-  private Set nodeList = null;
-  private Set agentList = null;
-  private TopologyReaderService toporead = null;
+  //private Set nodeList = null;
+  //private Set agentList = null;
+  //private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
@@ -96,19 +96,20 @@ public class AccessAgentProxy
 			       SecurityPropertiesService.class, null);
 
     //load agent and node name list from topo reader
-    toporead = (TopologyReaderService) 
-      sb.getService(this, TopologyReaderService.class, null);
     
+    //toporead = (TopologyReaderService) 
+      //sb.getService(this, TopologyReaderService.class, null);
+    /*
     if(toporead!=null) {
       Thread t = new updateNodeList();
       t.run();
     }
-    
+    */
     if(log.isDebugEnabled()) {
       log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
     }
   }
-  
+  /*
   private class updateNodeList extends Thread{
     public void run(){
       nodeList = toporead.getAll(TopologyReaderService.NODE); 
@@ -123,7 +124,7 @@ public class AccessAgentProxy
       }
     }
   }
-  
+  */
   // static method used to initialize EventPublisher
   public static synchronized void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
@@ -177,44 +178,29 @@ public class AccessAgentProxy
        *node agents can have binders, so we are making exceptions--no 
        *wrapping with TrustSet--for node agents. Once Bugzilla #2103
        *is addressed remember to take this out.
+       *
+       *REMOVED for 10.2 port - mluu
        */
-      String target = message.getTarget().toString();
-      //only add trust when it's not node agent
-      if(nodeList.contains(target)){
-        //Node agent, no wrapping with trust
-        mts.sendMessage(message);
-        if(log.isDebugEnabled()){
-          log.debug("no wrapping with trust for node agent." + message);
-        }
-        return;
-      }else if(agentList.contains(target)){
-        TrustSet[] ts;
-        ts = checkOutgoing(message);
+          
+      TrustSet[] ts;
+      ts = checkOutgoing(message);
 
-        if(ts==null) {
-	  if(log.isWarnEnabled()) {
-	    log.warn("Rejecting outgoing message: " + 
-		     ((message != null)? message.toString():
-		      "Null Message"));
-	  }
-	  return;		// the message is rejected so we abort here
+      if(ts==null) {
+        if(log.isWarnEnabled()) {
+        log.warn("Rejecting outgoing message: " + 
+      		     ((message != null)? message.toString():
+      		      "Null Message"));
         }
-        MessageWithTrust mwt;
-        mwt = new MessageWithTrust(message, ts);
-        mts.sendMessage(mwt);
-        if(log.isDebugEnabled()) {
+	      return;		// the message is rejected so we abort here
+      }
+      MessageWithTrust mwt;
+      mwt = new MessageWithTrust(message, ts);
+      mts.sendMessage(mwt);
+      if(log.isDebugEnabled()) {
         log.debug("DONE sending Message from Access Agent proxy"
-        +mwt.toString());
-        }
-      }else{
-	//no sure. assume no trust.
-        mts.sendMessage(message);
-        if(log.isDebugEnabled()){
-          log.debug("no wrapping with trust for unsure agent." + message);
-        }
-        return;
-      }//if node agent...else
-    }//if mts
+          +mwt.toString());
+      }
+    }//if(mts!=null)
   }
   
   public void registerClient(MessageTransportClient client) {

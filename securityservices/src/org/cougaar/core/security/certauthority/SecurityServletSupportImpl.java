@@ -34,8 +34,8 @@ import org.cougaar.core.servlet.SimpleServletSupportImpl;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
-import org.cougaar.core.service.NamingService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.NamingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -49,14 +49,16 @@ public class SecurityServletSupportImpl
   private SecurityPropertiesService securityPropertiesService;
   private CertificateManagementService certificateManagementService;
   private ServiceBroker serviceBroker;
-
+  //private NamingService ns;
+  
   public SecurityServletSupportImpl(String path,
 				    MessageAddress agentId,
 				    BlackboardQueryService blackboard,
-				    NamingService ns,
 				    ServiceBroker sb,
-				    LoggingService log) {
-    super(path, agentId, blackboard, ns, log);
+				    LoggingService log,
+				    NamingService ns) {
+    super(path, agentId, blackboard, log);
+    //super(path, agentId, blackboard, ns, log);
     serviceBroker = sb;
   }
 

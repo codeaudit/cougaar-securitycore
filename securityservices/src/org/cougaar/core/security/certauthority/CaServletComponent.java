@@ -40,8 +40,8 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.service.NamingService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.NamingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.*;
@@ -63,7 +63,6 @@ public class CaServletComponent
   // Services
   private BlackboardService blackboardService;
   private BlackboardQueryService blackboardQueryService;
-  private NamingService namingService;
   private CertificateManagementService certificateManagementService;
   private LoggingService log;
 
@@ -170,24 +169,15 @@ public class CaServletComponent
       throw new RuntimeException(
           "Unable to obtain blackboard service");
     }
-
-    // Get the naming service
-    namingService = (NamingService)
-      serviceBroker.getService(
-		    this,
-		    NamingService.class,
-		    null);
-    if (namingService == null) {
-      throw new RuntimeException(
-          "Unable to obtain naming service");
-    }
-
+    
+    NamingService ns = (NamingService)
+      serviceBroker.getService(this, NamingService.class, null);
     support = new SecurityServletSupportImpl(getPath(),
 					     agentId,
 					     blackboardQueryService,
-					     namingService,
 					     serviceBroker,
-					     log);
+					     log, 
+					     ns);
 
     super.load();
   }
@@ -206,11 +196,6 @@ public class CaServletComponent
         this, BlackboardQueryService.class, blackboardQueryService);
     }
 
-    // release the naming service
-    if (namingService != null) {
-      serviceBroker.releaseService(
-        this, NamingService.class, namingService);
-    }
   }
 
   protected String getPath() {

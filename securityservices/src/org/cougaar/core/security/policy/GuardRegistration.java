@@ -51,7 +51,7 @@ import org.cougaar.core.security.util.DOMWriter;
 import org.cougaar.core.security.services.util.*;
 
 public abstract class GuardRegistration
-  implements Enforcer
+  implements Enforcer, PolicyDistributor
 {
   public final String XML_KEY = "XMLContent";
   private SecurityPropertiesService secprop = null;
@@ -144,20 +144,28 @@ public abstract class GuardRegistration
     if (getPolicyType() == null) {
       throw new EnforcerRegistrationException("Policy type not specified!");
     }
+    /*
     SubjectMsg sm = new SubjectMsg(getName(),getName(),"scope");
     Vector v = new Vector();
     v.add(sm);
     EnforcementCapabilityMsg ecm =
       new EnforcementCapabilityMsg(getPolicyType(),v);
-    guard.registerEnforcer(this, ecm);
+    
+     guard.registerEnforcer(this, ecm);
+    */
+    Vector subjects = new Vector();
+    subjects.add(getName());
+    //System.out.println("Registering enforcer for " + getPolicyType());
+    //System.out.println("Registering enforcer subject " + getName());
+    guard.registerEnforcer(this, getPolicyType(), subjects);
     if (log.isDebugEnabled()) {
       log.debug("Registered for " + getPolicyType());
     }
   }
 
   /** Receive a policy change from the guard.
-   *	Enforcer implementation.
-   *    (Enforcer is the interface exposed by enforcers to the guard).
+   *	PolicyDistributor implementation.
+   *    (PolicyDistributor is the interface exposed by enforcers to the guard).
    * @param updateType can be one of SET_POLICIES, ADD_POLICIES,
    *                   CHANGE_POLICIES or REMOVE_POLICIES
    * @param policies a list of kaos.core.util.PolicyMsg objects
@@ -180,6 +188,12 @@ public abstract class GuardRegistration
     }
   }
 
+  public Vector getControlledActionClasses() {
+    Vector v = new Vector();
+    v.add(getPolicyType());
+    return v;    
+  }
+  
   private void processPolicyMessage(kaos.core.util.PolicyMsg aMsg)
   {
     Vector attributes = null;

@@ -105,4 +105,33 @@ public class CommunityServiceUtil {
     // no security manager for this agent or community
     return null;
   }
+  
+  public String getSecurityCommunity(String agent) {
+    String myCommunity = null;
+    Collection communities = _cs.listParentCommunities(agent, "(CommunityType=Security)");
+    if(!communities.isEmpty()) {
+      if(communities.size() == 1) {
+        myCommunity = (String)communities.iterator().next();  
+      }
+      else {
+        _log.debug("multiple security communities for " + agent);  
+        Iterator c = communities.iterator();
+        Collection members = null;
+        while(c.hasNext()) {
+          String community = (String)c.next();
+          Collection roles = _cs.getEntityRoles(community, agent);
+          if(!roles.isEmpty() && roles.contains("Manager")) {
+            myCommunity = community;
+            break;   
+          }
+        }
+      }
+    }
+    else {
+       _log.error(agent + " does not belong to any security community"); 
+    }
+    _log.debug("returning security community '" + myCommunity + "'");
+    return myCommunity;
+  }
+
 }
