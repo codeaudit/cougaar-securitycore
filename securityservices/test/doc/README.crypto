@@ -5,6 +5,15 @@ New in JDK 1.4:
 ===============
 Unlimited strength jurisdiction files must be installed in the JRE
 
+Extracting certificates from JAR files
+======================================
+A signed jar file contains a signature block file (usually META-INF/foo.DSA).
+This file contains a PKCS7-encode signature and certificates.
+The certificates may be extracted by using openssl tools.
+First, extract the DSA file from the jar file.
+On the command line, type:
+   openssl pkcs7 -inform DER -in FOO.DSA -print_certs -out certs.cer 
+
 Keystores containing certificates of trusted CAs
 ================================================
 test/configs/common/keystoreCA			Ultra*Log
