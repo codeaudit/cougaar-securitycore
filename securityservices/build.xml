@@ -62,7 +62,7 @@
         <echo message="Build started at ${currentTime}"/>
     </target>
 
-    <target name="init" depends="install-jars">
+    <target name="init" depends="install-build-jars">
         <mkdir dir="${securityservices.classes}"/>
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
@@ -146,7 +146,7 @@
     
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
-        <echo message="+++++ Installing jar files"/>
+        <echo message="+++++ Installing signed jar files"/>
         <copy file="${securityservices.signed}/bootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.signed}/securebootstrapper.jar" 
@@ -157,25 +157,26 @@
             todir="${cougaar.install.path}/lib"/>
         <copy file="${securityservices.signed}/idmef.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <echo message="+++++ Installed jar files"/>
+        <echo message="+++++ Installed signed jar files"/>
     </target>
     
     <target name="install-unsigned-jars" depends="jar-idmef, jar-securityservices">
         <echo message="+++++ Installing jar files"/>
-        <copy file="${securityservices.signed}/bootstrapper.jar" 
+        <copy file="${securityservices.classes}/bootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.signed}/securebootstrapper.jar" 
+        <copy file="${securityservices.classes}/securebootstrapper.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.signed}/securityservices.jar" 
+        <copy file="${securityservices.classes}/securityservices.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.signed}/CougaarCRLextensions.jar" 
+        <copy file="${securityservices.classes}/CougaarCRLextensions.jar" 
             todir="${cougaar.install.path}/lib"/>
-        <copy file="${securityservices.signed}/idmef.jar" 
+        <copy file="${securityservices.classes}/idmef.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed jar files"/>
     </target>
     
-    <target name="install-jars">
+    <!-- install build depended jars -->
+    <target name="install-build-jars">
         <echo message="+++++ Installing jar files"/>
         <copy todir="${cougaar.install.path}/sys">
             <fileset dir="${securityservices.sys}">
@@ -226,12 +227,19 @@
 
     <target name="compile-jsps">
         <exec>
-        
         </exec>
     </target>
     
-    <!-- The ALL target does not include cvs-update and javadoc -->
-    <target name="all" depends="tstamp, init, install-conf, install-signed-jars, create-log-dirs">
+    <!-- The ALL target only compiles, jar, and sign jars -->
+    <target name="all" depends="tstamp, init, sign-jars">
+        <echo message="Ultra*Log/securityservices Build Complete"/>
+        <echo message="***** Don't forget to run 'ant install' *****"/>
+        <echo message="***** Don't forget to run 'ant confnai' *****"/>
+        <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
+    </target>
+    
+    <!-- The INSTALL target does everything but cvs-update and javadoc -->
+    <target name="install" depends="tstamp, init, install-conf, install-signed-jars, create-log-dirs">
         <echo message="Ultra*Log/securityservices Build Complete"/>
         <echo message="***** Don't forget to run 'ant confnai' *****"/>
         <echo message="***** DO NOT FORGET to modify the alpreg.ini file *****"/>
@@ -242,7 +250,7 @@
       <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
     </target>
     
-    <!-- use 'ant with-update' to update repository before building security services -->
+    <!-- use 'ant with-update' to update repository executing the ALL target -->
     <target name="with-update" depends="cvs-update, all"/>
     
     <!-- create javadocs for security services and JavaIDMEF -->
