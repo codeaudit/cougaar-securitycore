@@ -109,7 +109,11 @@ society.each_host do |host|
     #
     node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
     node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
-    
+   
+    # Interval (in milliseconds) between persistence snapshots
+    #node.override_parameter("-Dorg.cougaar.core.persistence.lazyInterval", "3600000")
+    #
+ 
     # Add the "java-io-patch" to allow Cougaar persistence.
     #
     # If persistence is disabled then this has no effect.  For simplicity
