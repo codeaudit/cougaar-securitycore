@@ -65,7 +65,7 @@ public class AccessAgentBinder extends ServiceFilterBinder {
   }
   
   protected class AccessAgentServiceBroker extends FilteringServiceBroker {
-    
+
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
     }
@@ -96,7 +96,8 @@ public class AccessAgentBinder extends ServiceFilterBinder {
        }
       
 	//System.out.println(" getting service broker :");
-	return new AccessAgentProxy((MessageTransportService)service,client,acps);
+	return new AccessAgentProxy((MessageTransportService)service,client,acps,
+				    serviceBroker);
 	  
       }
       return null;

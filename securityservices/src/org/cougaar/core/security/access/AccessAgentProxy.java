@@ -89,8 +89,8 @@ public class AccessAgentProxy
   }
   
   public void sendMessage(Message message) {
-    if(debug)
-       System.out.println(" Send message of access binder called :"+message.toString());
+    if(log.isDebugEnabled())
+       log.debug(" Send message of access binder called :"+message.toString());
     if(mts!=null) {
        TrustSet[] ts;
       ts = checkOutgoing(message);

@@ -68,9 +68,7 @@ public class NodeInfo
     else {
       nodeName = System.getProperty("org.cougaar.node.name");
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Version: " + major + "." + minor + " - Node name:" + nodeName);
-    }
+    //System.out.println("Version: " + major + "." + minor + " - Node name:" + nodeName);
     return nodeName;
   }
 }

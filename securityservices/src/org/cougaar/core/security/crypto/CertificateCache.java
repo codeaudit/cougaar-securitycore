@@ -102,6 +102,9 @@ public class CertificateCache
   public ArrayList getValidCertificates(X500Name x500Name)
   {
     ArrayList v = getCertificates(x500Name);
+    if (v == null || v.size() == 0) {
+      return null;
+    }
     ArrayList validCerts = new ArrayList();
     ListIterator it = v.listIterator();
 
