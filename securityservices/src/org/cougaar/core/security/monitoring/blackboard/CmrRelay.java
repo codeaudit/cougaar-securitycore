@@ -162,6 +162,10 @@ implements Relay.Source, Relay.Target, XMLizable
     return "("+uid+", "+content+", "+response+")";
   }
 
+  /** Get the target address.
+   * Not part of any interface, but allows the object to be displayed with the target
+   * in the /task servlet.
+   */
   public MessageAddress getTarget() {
     return target;
   }
