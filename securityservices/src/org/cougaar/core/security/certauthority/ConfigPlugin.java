@@ -334,7 +334,7 @@ public class ConfigPlugin
         } catch (Exception ex) {
           if (ex instanceof IOException) {
             if (log.isDebugEnabled()) {
-              log.debug("Waiting to get trusted policy from " + infoURL);
+              log.debug("Waiting to get trusted policy from " + infoURL, ex);
             }
           }
           else {
