@@ -20,9 +20,8 @@
  */
 package org.cougaar.core.security.policy.builder;
 
-import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
-
 import com.hp.hpl.jena.daml.common.DAMLModelImpl;
+import com.hp.hpl.mesa.rdf.jena.model.RDFException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import kaos.core.util.AttributeMsg;
 import kaos.core.util.ConditionalPolicyMsg;
@@ -48,9 +45,13 @@ import kaos.kpat.util.OperatingModeCondition;
 import kaos.policy.information.DAMLPolicyContainer;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
-import org.cougaar.core.security.policy.builder.PolicyParser;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-import com.hp.hpl.mesa.rdf.jena.model.RDFException;
+import org.cougaar.core.security.policy.builder.PolicyParser;
+import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
+
 
 class Main 
 {
@@ -60,8 +61,8 @@ class Main
   static {
     _proxyInstaller = new WebProxyInstaller();
     _proxyInstaller.install();
-    Logger rootlog = Logger.getLogger("");
-    rootlog.setLevel(Level.WARNING);
+    BasicConfigurator.configure();
+    Logger.getRootLogger().setLevel(Level.WARN);
   }
 
 
@@ -233,6 +234,7 @@ class Main
     }
     System.exit(0);
   }
+
 
   /**
    * Builds the policies from the policyFile.
