@@ -64,18 +64,7 @@ jar: build-classes
 	@echo +++++++ Building securityservices.jar
 	cd ${COUGAARCLASSES}; \
 	jar cf ${COUGAARCLASSES}/securityservices.jar \
-		com/nai/security/certauthority \
-		com/nai/security/access \
-	        com/nai/security/crypto/ \
-		com/nai/security/monitoring \
-		com/nai/security/policy \
-		com/nai/security/test \
-		com/nai/security/util \
-		org/cougaar/core/security/policy \
-		org/cougaar/core/security/services \
-		org/cougaar/core/security/monitoring \
-		org/cougaar/core/security/provider \
-		org/cougaar/core/security/crypto 
+		`find org/cougaar/core/security com/nai/security -maxdepth 1 -mindepth 1 -type d -not -path '*/bootstrap'` 
 	@echo +++++++ Done Building securityservices.jar
 	@echo +++++++ Bulding jar for extensions
 	  cd ${COUGAARCLASSES}; \
