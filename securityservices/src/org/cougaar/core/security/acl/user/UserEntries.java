@@ -50,6 +50,8 @@ public class UserEntries implements UniqueObject {
   private UID _uid;
   private HashMap _users = new HashMap();
   private HashMap _roles = new HashMap();
+  private String _domain;
+
   private static final DateFormat DF =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
@@ -610,5 +612,20 @@ public class UserEntries implements UniqueObject {
         throw new UserServiceException("Role does not exist");
       }
     }
+  }
+
+  /**
+   * Sets the user domain.
+   * @param _domain - The user domain
+   */
+  public void setDomain(String domain) {
+    if (_domain != null) {
+      throw new IllegalStateException("User domain has already been set");
+    }
+    _domain = domain;
+  }
+  
+  public String getDomain() {
+    return _domain;
   }
 }

@@ -90,7 +90,7 @@ function saveUsers() {
                    onClick="newUser()">
           </td>
           <td align="center">
-            <input type="submit" name="<%=UserInterface.ACTION_BUTTON_SAVE_USERS%>"
+            <input type="button" value="<%=UserInterface.ACTION_BUTTON_SAVE_USERS%>"
              onClick="saveUsers()">
           </td>
           <td align="right">

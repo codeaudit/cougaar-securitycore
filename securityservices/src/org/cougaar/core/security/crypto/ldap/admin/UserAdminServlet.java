@@ -28,6 +28,7 @@ package org.cougaar.core.security.crypto.ldap.admin;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,10 +44,15 @@ import javax.servlet.jsp.JspFactory;
 
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.security.acl.user.UserEntries;
+import org.cougaar.core.security.acl.user.UserFileParser;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.util.SecurityServletSupport;
+import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 /**
  * This class is for administration of Users and roles. 
@@ -62,6 +68,14 @@ import org.cougaar.core.security.util.SecurityServletSupport;
  * @author George Mount <gmount@nai.com>
  */
 public class UserAdminServlet extends HttpServlet {
+  
+  private static Logger           _log;
+  private SecurityServletSupport  _support;
+  private UserFileParser          _userFileParser;
+  
+  static {
+    _log = LoggerFactory.getInstance().createLogger(UserAdminServlet.class);
+  }
   
   UserService _userService;
   HttpServlet _admin         = new admin();
@@ -87,6 +101,7 @@ public class UserAdminServlet extends HttpServlet {
   public UserAdminServlet(SecurityServletSupport support) {
     _userService = (UserService) support.getServiceBroker().
       getService(this, UserService.class, null);
+    _support = support;
     if (_userService == null) {
       support.getServiceBroker().addServiceListener(new UserServiceListener());
     } else {
@@ -126,6 +141,8 @@ public class UserAdminServlet extends HttpServlet {
         _admin.service(req,resp);
       } else if (pathInfo.equals(UserInterface.PAGE_NEW_USER_JSP)) {
         _user_new.service(req,resp);
+      } else if (pathInfo.equals(UserInterface.PAGE_SAVE_USERS_JSP)) {
+        saveUsersToXml(req,resp);
       } else if (pathInfo.equals(UserInterface.PAGE_NEW_ROLE_JSP)) {
         _role_new.service(req,resp);
       } else if (pathInfo.equals(UserInterface.PAGE_SEARCH_USER)) {
@@ -410,6 +427,33 @@ public class UserAdminServlet extends HttpServlet {
     gotoViewUser(req, resp, uid);
   }
 
+  private synchronized void saveUsersToXml(HttpServletRequest req, HttpServletResponse resp)
+    throws UserServiceException, IOException {
+    if (_userFileParser == null) {
+      Collection c = _support.queryBlackboard(new UnaryPredicate() {
+        public boolean execute(Object o) {
+          if (o instanceof UserEntries) {
+            return true;
+          }
+          return false;
+        }
+      });
+      if (c.size() != 1) {
+        if (_log.isWarnEnabled()) {
+          _log.warn("Unable to retrieve user cache. Got " + c.size()
+              + " objects in the blackboard query");
+        }
+      }
+      else {
+        UserEntries userCache = (UserEntries) c.iterator().next();
+        _userFileParser = new UserFileParser(userCache);
+      }
+    }
+    
+    _userFileParser.saveUsersAndRoles(resp.getOutputStream());
+
+  }
+  
   private void addRole(HttpServletRequest req, HttpServletResponse resp) 
     throws ServletException, IOException, UserServiceException {
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);

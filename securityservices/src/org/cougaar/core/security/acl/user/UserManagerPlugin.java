@@ -26,19 +26,11 @@
 package org.cougaar.core.security.acl.user;
 
 // cougaar core classes
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceAvailableEvent;
@@ -46,7 +38,6 @@ import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.acl.user.CasRelay.CasRequest;
 import org.cougaar.core.security.acl.user.CasRelay.CasResponse;
-import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
@@ -56,14 +47,7 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.UnaryPredicate;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.SAXException;
 
 /**
  * @author srosset
@@ -78,13 +62,12 @@ public class UserManagerPlugin extends ComponentPlugin {
   private LoggingService   _log;
 
   private IncrementalSubscription _relaySub;
-  //private CasRelay         _myRelay;
   private UserEntries      _userCache;
   private String           _domain;
+
   private boolean          _rehydrated = false;
 
   private static final CasResponse RESPONSE_OK = new CasResponse(null);
-  public static final String ROLE_ASSIGNMENT = "role";
   private static final UnaryPredicate USER_ENTRIES = new UnaryPredicate() {
       public boolean execute(Object obj) {
         return (obj instanceof UserEntries);
@@ -135,17 +118,9 @@ public class UserManagerPlugin extends ComponentPlugin {
           }
           csu.releaseServices();
           if (!_rehydrated) {
-            try {
-              InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
-              if (userIs != null) {
-                _log.info("Reading users from " + userIs);
-                readUsers(userIs);
-              } else {
-                _log.info("UserFile.xml does not exist -- no users or role");
-              }
-            } catch (Exception e) {
-              _log.warn("Couldn't load users from file: ", e);
-            }
+            _userCache.setDomain(_domain);
+            UserFileParser ufp = new UserFileParser(_userCache);
+            ufp.readUsers();
           }
         }
       };
@@ -226,110 +201,6 @@ public class UserManagerPlugin extends ComponentPlugin {
     } // end of while (iter.hasNext())
   }
   
-  private void readUsers(InputStream in) {
-    try {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder db = dbf.newDocumentBuilder();
-      Document doc = db.parse(in);
-      Element rootElement = doc.getDocumentElement();
-      NodeList nodes = rootElement.getChildNodes();
-      HashMap userAssigns = new HashMap();
-      HashMap roleAssigns = new HashMap();
-      for (int i = 0; i < nodes.getLength(); i++) {
-        Node item = nodes.item(i);
-        if (item instanceof Element) {
-          Element l = (Element) item;
-          Map map = readMap(l);
-          Set groups = (Set) map.remove(ROLE_ASSIGNMENT);
-          if ("user".equals(l.getNodeName())) {
-            String pwd = (String) map.get(UserEntries.FIELD_PASSWORD);
-            String user = (String) map.get(UserEntries.FIELD_UID);
-            if (user == null) {
-              _log.warn("No id for user entry");
-              continue;
-            }
-            if (pwd != null) {
-              pwd = KeyRingJNDIRealm.encryptPassword(_domain + "\\" + user, 
-                                                     pwd);
-            }
-            map.put(UserEntries.FIELD_PASSWORD,pwd);
-            _userCache.addUser(user, map);
-            if (groups != null) {
-              userAssigns.put(user, groups);
-            }
-          } else if ("role".equals(l.getNodeName())) {
-            String role = (String) map.get(UserEntries.FIELD_RID);
-            if (role == null) {
-              _log.warn("No id for role entry");
-              continue;
-            }
-            _userCache.addRole(role, map);
-            if (groups != null) {
-              roleAssigns.put(role, groups);
-            }
-          }
-        }
-      }
-      Iterator assigns = userAssigns.entrySet().iterator();
-      while (assigns.hasNext()) {
-        Map.Entry entry = (Map.Entry) assigns.next();
-        String user = (String) entry.getKey();
-        Iterator iter = ((Set) entry.getValue()).iterator();
-        while (iter.hasNext()) {
-          String group = (String) iter.next();
-          _userCache.assign(user, group);
-        }
-      }
-      assigns = roleAssigns.entrySet().iterator();
-      while (assigns.hasNext()) {
-        Map.Entry entry = (Map.Entry) assigns.next();
-        String role = (String) entry.getKey();
-        Iterator iter = ((Set) entry.getValue()).iterator();
-        while (iter.hasNext()) {
-          String group = (String) iter.next();
-          _userCache.addRoleToRole(role, group);
-        }
-      }
-    } catch (ParserConfigurationException e) {
-      _log.warn("Cannot parse user file: ", e);
-    } catch (UserServiceException e) {
-      _log.warn("Problem adding user or role from file: ", e);
-    } catch (SAXException e) {
-      _log.warn("Could not parse user file: ", e);
-    } catch (IOException e) {
-      _log.warn("Could not parse user file: ", e);
-    }
-  }
-
-  private Map readMap(Element l) {
-    Map map = new HashMap();
-    NodeList nodes = l.getChildNodes();
-    Set roles = new HashSet();
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node item = nodes.item(i);
-      if (item instanceof Element) {
-        String key = item.getNodeName();
-        StringBuffer value = new StringBuffer();
-        NodeList vals = item.getChildNodes();
-        for (int j = 0; j < vals.getLength(); j++) {
-          Node val = vals.item(j);
-          if (val instanceof Text) {
-            value.append(val.getNodeValue());
-          }
-        }
-        String val = value.toString();
-        if (ROLE_ASSIGNMENT.equals(key)) {
-          roles.add(val);
-        } else {
-          map.put(key, val);
-        }
-      }
-    }
-    if (roles.size() != 0) {
-      map.put(ROLE_ASSIGNMENT, roles);
-    }
-    return map;
-  }
 
   private CasResponse getResponse(CasRequest request) {
     try {
