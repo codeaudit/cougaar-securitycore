@@ -121,10 +121,12 @@ public class ServletPolicyEnforcer
   */
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
-    _daValve = da;
-    _daValve.setAuthConstraints(_authConstraints, _starAuthConstraints);
-    _daValve.setLoginFailureSleepTime(_sleepTime);
-    _daValve.setSessionLife(_sessionLife);
+    if (!USE_DAML) {
+      _daValve = da;
+      _daValve.setAuthConstraints(_authConstraints, _starAuthConstraints);
+      _daValve.setLoginFailureSleepTime(_sleepTime);
+      _daValve.setSessionLife(_sessionLife);
+    }
   }
   
   public synchronized void setAuthConstraints(HashMap constraints, 
@@ -312,6 +314,7 @@ public class ServletPolicyEnforcer
                                      String policyType) {
       if (USE_DAML) {
         log.info("Ignoring XML Servlet Policy -- using DAML");
+        return;
       }
       if (policyIn == null || !(policyIn instanceof ServletPolicy)) {
         return;
