@@ -104,14 +104,18 @@ public class KeyManagement
 	System.out.println("Running as standalone CA");
       }
 
-      /* The following directory structure will be created when running as a standalone CA:
+      /* The following directory structure will be created automatically (except for
+       * the keystore file which must be manually installed) when running as a
+       * standalone CA:
        * top-level directory (org.cougaar.security.CA.certpath)
        * +-+ <CA common name>
        *   +-+ conf
-       *     +-- <keystore file>
+       *     +-- <keystore file>     (this is the CA keystore file.
+       *     |                        it must be manually installed)
        *     +-- <serial number file>
        *     +-- <pkcs10Directory>
-       *     +-- <x509CertDirectory>
+       *     +-+ <x509CertDirectory>
+       *       +-- signed X509 certificates
        */
       String topLevelDirectory = certpath + File.separatorChar + caCommonName;
       confDirectoryName = topLevelDirectory +  File.separatorChar + "conf";
