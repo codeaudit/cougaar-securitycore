@@ -139,6 +139,10 @@ society.each_enclave do |e|
     community.add_attribute("CommunityType", "User")
     if userManagerAgent != nil
       community.add_attribute("CommunityManager", userManagerAgent.name)
+      community.add_agent(userManagerAgent.name) do |entity|
+        entity.add_role("Member")
+        entity.add_role("UserManager")
+      end
     end
     society.each_enclave_node(enclave) do |node|
      # community.add_entity(node.name, "Agent") do |entity|
@@ -147,10 +151,6 @@ society.each_enclave do |e|
       community.add_agent(node.name) do |entity|
         entity.add_role("Member")
       end
-    end
-    community.add_agent(userManagerAgent.name) do |entity|
-      entity.add_role("Member")
-      entity.add_role("UserManager")
     end
   end
   
