@@ -1,78 +1,78 @@
 #!/bin/tcsh -f
 
+echo "Don't forget to modify script before running it."
+echo ""
+
+##################
 set USER=srosset
 
 # ############
-# Copys security services Servlet classes removes tomcat log and restarts tomcat
+# Copy security services Servlet classes removes tomcat log and restarts tomcat
 
 #######################################################
-
 # Provide COUGAAR_install path if one is not defined
-
 setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.6.1pre3
 
 ###################################################
-
-# Provide COUGAARCLASSES path if one is not defined
-
-setenv COUGAARCLASSES /home/u/${USER}/UL/securityservices/classes
-
-###################################################
-
-
 # Provide COUGAAR_SECURITY_SERVICES  if one is not defined
-
-setenv  COUGAAR_SECURITY_SERVICES /home/u/${USER}/UL/securityservices
-
-#####################################################
+setenv  COUGAAR_SECURITY_SERVICES /home/u/${USER}/UL/head/securityservices
 
 ###################################################
-
 # Provide TOMCAT_HOME  if one is not defined
-
-setenv  TOMCAT_HOME /var/tomcat4/
+setenv  TOMCAT_HOME /var/tomcat4
 
 #####################################################
-
-
 setenv JAVA_HOME /usr/java/jdk1.3.1
 
 #####################################################
 # Application subdirectory (below $TOMCAT_HOME/webapps)
-setenv APP_HOME CA
+setenv APP_HOME CAnew
 
 #####################################################
 # Do not modify anything below
 
-echo $COUGAAR_INSTALL_PATH
-echo $COUGAAR_SECURITY_SERVICES
-echo $COUGAARCLASSES
-echo $TOMCAT_HOME
+###################################################
+# Provide COUGAARCLASSES path if one is not defined
+setenv COUGAARCLASSES ${COUGAAR_SECURITY_SERVICES}/classes
+
+echo "COUGAAR_INSTALL_PATH      = " $COUGAAR_INSTALL_PATH
+echo "COUGAAR_SECURITY_SERVICES = " $COUGAAR_SECURITY_SERVICES
+echo "COUGAAR_CLASSES           = " $COUGAARCLASSES
+echo "TOMCAT_HOME               = " $TOMCAT_HOME
+echo "APP_HOME                  = " ${TOMCAT_HOME}/webapps/${APP_HOME}
+echo ""
 
 setenv PATH ${PATH}:${JAVA_HOME}/bin
 
 if(! $?COUGAAR_INSTALL_PATH) then
    echo provide cougaar install path
+   exit
 endif
 
 if(! $?COUGAAR_SECURITY_SERVICES) then
   echo provide cougaar SECURITY_SERVICES path
+  exit
 endif
 
 if(! $?COUGAARCLASSES) then
-echo provide cougaar COUGAARCLASSES path
+  echo provide cougaar COUGAARCLASSES path
+  exit
 endif
 
 if(! $?TOMCAT_HOME) then
-echo provide path to TOMCAT_HOME
+  echo provide path to TOMCAT_HOME
+  exit
 endif
 
 echo everything required is there
 
+#################################
+# Create CA application directory
+mkdir -p ${TOMCAT_HOME}/webapps/${APP_HOME}/WEB-INF/lib
+mkdir -p ${TOMCAT_HOME}/webapps/${APP_HOME}/WEB-INF/classes
 
-
-cd $COUGAAR_SECURITY_SERVICES/test/configs/servlet/
-tar -cvf $TOMCAT_HOME/webapps/servlet.tar --exclude=CVS CA
+cd $COUGAAR_SECURITY_SERVICES/test/configs/servlet
+tar -cvf ${TOMCAT_HOME}/webapps/${APP_HOME}/servlet.tar --exclude=CVS .
 
 # stop tomcat server
 /etc/rc.d/init.d/tomcat4 stop
@@ -80,6 +80,7 @@ wait
 sleep 5
 # delete log files
 rm -rf $TOMCAT_HOME/logs/*
+
 
 cp $COUGAAR_SECURITY_SERVICES/sys/*.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
 cp $COUGAARCLASSES/securityservices.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
@@ -91,9 +92,24 @@ jar -xvf $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/securityservices.jar \
         com/nai/security/certauthority/CertificateDetailsServlet.class \
         com/nai/security/certauthority/RevokeCertificateServlet.class
 
-cd  $TOMCAT_HOME/webapps/
+cd  ${TOMCAT_HOME}/webapps/${APP_HOME}
 tar -xvf servlet.tar
 
+cd  ${TOMCAT_HOME}/webapps/${APP_HOME}/WEB-INF
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep TOMCAT_DIR ${TOMCAT_HOME} web.xml
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep CA_APP_DIR ${APP_HOME} web.xml
+
+cd  ${TOMCAT_HOME}/webapps/${APP_HOME}/WEB-INF/config/servlet
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep TOMCAT_DIR ${TOMCAT_HOME} servletjavaproperties.xml  
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep CA_APP_DIR ${APP_HOME} servletjavaproperties.xml  
+
+cd  ${TOMCAT_HOME}/webapps/${APP_HOME}
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep TOMCAT_DIR ${TOMCAT_HOME} *.html
+${COUGAAR_SECURITY_SERVICES}/test/bin/sarep CA_APP_DIR ${APP_HOME} *.html
+
+#########################
+# Remove temporary files
+rm ${TOMCAT_HOME}/webapps/${APP_HOME}/servlet.tar 
 
 #start tomcat
 /etc/rc.d/init.d/tomcat4 start
