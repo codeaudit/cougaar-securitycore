@@ -48,11 +48,6 @@
     </daml:ObjectProperty>
 
 
-    <daml:ObjectProperty rdf:ID="roleOfPluginAccessingBlackBoard">
-        <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
-        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#PlugInRoles"/> 
-    </daml:ObjectProperty>
-
     <daml:ObjectProperty rdf:ID="blackBoardAccessMode">
         <rdfs:domain rdf:resource="#BlackBoardAccess"/> 
         <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackBoardAccessMode"/> 
@@ -65,8 +60,8 @@
         <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#ResourceAction" />
         <rdfs:subClassOf>
            <daml:Restriction>
-              <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedOn" />
-              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackBoardObjects" />
+              <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
+              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Actor.daml#UltralogPlugIns" />
            </daml:Restriction>
         </rdfs:subClassOf>
      </daml:Class>

@@ -58,6 +58,16 @@
     </daml:Class>
     
     <daml:Class rdf:ID="Agent">
+        <rdfs:subClassOf rdf:resource="#AutomatedActor"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
+             </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="AutomatedActor">
         <rdfs:subClassOf rdf:resource="#Actor"/>
         <rdfs:subClassOf>
             <daml:Restriction>
@@ -79,7 +89,7 @@
 
     <daml:Class rdf:about="#Actor">
         <daml:disjointUnionOf rdf:parseType="daml:collection">
-            <daml:Class rdf:about="#Agent"/> 
+            <daml:Class rdf:about="#AutomatedActor"/> 
             <daml:Class rdf:about="#Person"/> 
         </daml:disjointUnionOf>
     </daml:Class>

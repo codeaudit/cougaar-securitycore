@@ -104,13 +104,14 @@
 
     <ultralogEntity:PlugInRoles rdf:ID="OpPlanPlugInRole" />
 
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessAdd" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessRemove" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessChange" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessQuery" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessRead" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessWrite" />
-    <ultralogEntity:blackBoardAccessMode rdf:ID="BlackBoardAccessCreate" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessAdd" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessRemove" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessChange" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessQuery" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessRead" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessWrite" />
+    <ultralogEntity:BlackBoardAccessModes rdf:ID="BlackBoardAccessCreate" />
 
+    <ultralogEntity:BlackBoardObjects rdf:ID="BlackBoardOpPlanObject" />
 
 </rdf:RDF>
