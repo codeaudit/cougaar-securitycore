@@ -43,7 +43,6 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.HashSet;
-import java.util.Hashtable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

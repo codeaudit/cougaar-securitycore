@@ -180,11 +180,10 @@ public class CryptographicMessage
       + sz_privateKeyAlgorithm;
 
     AlgorithmId signerDigestAlgorithmId = null;
-    AlgorithmId signerCipherAlgorithmId = null;
     AlgorithmId signerSignatureAlgorithmId = null;
     try {
       signerDigestAlgorithmId = AlgorithmId.get(sz_digestAlgorithm);
-      signerCipherAlgorithmId = AlgorithmId.get(sz_privateKeyAlgorithm);
+      AlgorithmId.get(sz_privateKeyAlgorithm);
       signerSignatureAlgorithmId = AlgorithmId.get(sz_signatureAlgorithm);
     }
     catch (java.security.NoSuchAlgorithmException e) {

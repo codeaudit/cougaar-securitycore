@@ -109,7 +109,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   private LoggingService log;
   private CommunityService _communityService;
   private ConfigParserService configParser = null;
-  private NodeConfiguration nodeConfiguration;
   protected String blackboardClientName;
   protected AlarmService alarmService;
   private CertificateSearchService _searchService=null;
@@ -182,7 +181,6 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
 
     String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
-    nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
     cacheService = (CertificateCacheService)
       serviceBroker.getService(this, CertificateCacheService.class, null);
     keyRingService = (KeyRingService)

@@ -27,7 +27,6 @@
 package org.cougaar.core.security.services.acl;
 
 public class UserServiceException extends Exception {
-  private Exception _chained;
 
   public UserServiceException(String message) {
     super(message);

@@ -48,12 +48,9 @@ import org.cougaar.core.security.crypto.crl.blackboard.CrlRegistrationObject;
 import org.cougaar.core.security.crypto.crl.blackboard.CrlRegistrationTable;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.servlet.BaseServletComponent;
 import org.cougaar.util.UnaryPredicate;
-
 
 
 /**
@@ -64,8 +61,6 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
   private AgentIdentificationService ais;
   private MessageAddress agentId;
   private BlackboardService blackboard;
-  private DomainService ds;
-  private CommunityService cs;
   private LoggingService logging;
   private String path;
 
@@ -91,13 +86,6 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     }
   }
 
-  public void setDomainService(DomainService ds) {
-    this.ds = ds;
-  }
-  
-   public void setCommunityService(CommunityService cs) {
-     this.cs=cs;
-   }
   public void setLoggingService(LoggingService ls) {
     this.logging=ls;
   }

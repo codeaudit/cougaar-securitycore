@@ -113,7 +113,6 @@ public class LeaveCommunityPlugin extends BaseServletComponent {
 
       String agent = request.getParameter("agent");
       String community = request.getParameter("community");
-      String manager = request.getParameter("manager");
       if (logging.isDebugEnabled()) {
         logging.debug("received request from " + agent + " to leave " + community);
       }

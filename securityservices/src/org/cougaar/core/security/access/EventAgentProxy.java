@@ -125,6 +125,7 @@ public class EventAgentProxy implements EventService {
 
   }
 
+  /*
   private void startCougaarEventPublisher(ThreadService ts) {
     if(ts!=null) {
       threadService=ts;
@@ -134,9 +135,9 @@ public class EventAgentProxy implements EventService {
         log.debug(" Starting Cougaar Event publisher Thread in EventAgentproxy:");
       }
     }
-    
   }
-
+  */
+  
   private class CougaarEventPublisher implements Runnable {
      
     public void run() {

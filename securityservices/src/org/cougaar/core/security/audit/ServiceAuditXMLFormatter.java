@@ -39,6 +39,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.XMLFormatter;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 
 /**
@@ -48,6 +50,10 @@ import java.util.logging.XMLFormatter;
  * @author ttschampel
  */
 public class ServiceAuditXMLFormatter extends XMLFormatter {
+  private static Logger log;
+  static {
+    log = LoggerFactory.getInstance().createLogger(ServiceAuditXMLFormatter.class);
+  }
     /**
      * Return the header string for a set of XML formatted records.
      *
@@ -71,6 +77,9 @@ public class ServiceAuditXMLFormatter extends XMLFormatter {
         } catch (Exception ex) {
             // We hit problems finding a canonical name.
             // Just use the raw encoding name.
+            if (log.isDebugEnabled()) {
+              log.debug("We hit problems finding a canonical name.");
+            }
         }
 
         sb.append(" encoding=\"");

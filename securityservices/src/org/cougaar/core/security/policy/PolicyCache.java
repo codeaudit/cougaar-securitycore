@@ -29,7 +29,6 @@ package org.cougaar.core.security.policy;
 import java.util.Hashtable;
 
 import kaos.policy.enforcement.Enforcer;
-import kaos.policy.guard.Guard;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.KeyRuleParameter;
@@ -75,9 +74,6 @@ public class PolicyCache
    * Key to use for denoting default policy 
    */
   public static final String DEFAULT = "DEFAULT";
-
-  /** The KAoS guard **/
-  private Guard guard;
 
   /**
    * Constructor registers as KAoS binder and sets default variables based 

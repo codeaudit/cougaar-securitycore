@@ -43,7 +43,6 @@ public class MessageCipherInputStream
    */
   private InputStream inputStream;
   private CipherInputStream cis;
-  private Cipher cipher;
 
   public MessageCipherInputStream(InputStream stream, Cipher c) {
     super(stream);

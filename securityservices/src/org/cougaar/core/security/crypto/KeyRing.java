@@ -95,7 +95,6 @@ final public class KeyRing  implements KeyRingService  {
   private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   private ConfigParserService configParser = null;
-  private NodeConfiguration nodeConfiguration;
   private static Logger log;
   private CertificateCacheService cacheservice=null;
   /*
@@ -170,8 +169,6 @@ final public class KeyRing  implements KeyRingService  {
     if (configParser == null) {
       throw new RuntimeException("unable to get config parser service");
     }
-
-    String installpath = secprop.getProperty(SecurityPropertiesService.COUGAAR_INSTALL_PATH);
 
     role =secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
     if (role == null && log.isInfoEnabled() == true) {
@@ -1078,7 +1075,7 @@ try {
       }
       String commonName = cacheservice.getCommonName(dname);
 
-      List nameList = cacheservice.getX500NameFromNameMapping(commonName);
+      cacheservice.getX500NameFromNameMapping(commonName);
       boolean inNameMapping = cacheservice.presentInNameMapping(dname);
       if (!inNameMapping) {
         if (log.isDebugEnabled()) {

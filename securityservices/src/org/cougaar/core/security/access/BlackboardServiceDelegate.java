@@ -59,9 +59,9 @@ import org.cougaar.util.UnaryPredicate;
  */
 class BlackboardServiceDelegate extends SecureServiceProxy 
   implements BlackboardService {
-  private static Hashtable _subscriptions = new Hashtable();
+  //private static Hashtable _subscriptions = new Hashtable();
   private static Hashtable _watchers = new Hashtable();
-  protected BlackboardService _bs;
+  protected transient BlackboardService _bs;
   
   public BlackboardServiceDelegate(BlackboardService bs, ServiceBroker sb) {
     super(sb);
@@ -151,11 +151,12 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   }
 
   private Object protectObject(Object o, String perm) {
-    if (!EFFICIENT || isProtected(o)) {
+    Object o2 = o;
+    if (!EFFICIENT || isProtected(o2)) {
       // check if the component has permission to add the object
       SecurityManager sm = System.getSecurityManager();
       if(sm != null) {
-        String className = getClassName(o);
+        String className = getClassName(o2);
         if(_log.isDebugEnabled()) {
           _log.debug("checking permission for '" +
                      perm + "' on object " + className);
@@ -163,34 +164,34 @@ class BlackboardServiceDelegate extends SecureServiceProxy
         BlackboardPermission bbp = new BlackboardPermission(className, perm);
         sm.checkPermission(bbp);
       }
-      if (o instanceof SecuredObject) {
-        if (!isValidClass(o)) {
+      if (o2 instanceof SecuredObject) {
+        if (!isValidClass(o2)) {
           throw new SecurityException("You may not publish an object of " +
-                                      "class " + o.getClass().getName());
+                                      "class " + o2.getClass().getName());
         }
-      } else if (EFFICIENT || isProtected(o)) {
-        o = protectObject(o);
+      } else if (EFFICIENT || isProtected(o2)) {
+        o2 = protectObject(o);
       }
     }
-    return o;
+    return o2;
   }
 
   public void publishAdd(Object o) {
-    o = protectObject(o, "add");
-    _bs.publishAdd(o);
+    Object o2 = protectObject(o, "add");
+    _bs.publishAdd(o2);
   }
 
   public void publishRemove(Object o) {
-    o = protectObject(o, "remove");
-    _bs.publishRemove(o);
+    Object o2 = protectObject(o, "remove");
+    _bs.publishRemove(o2);
   }
   public void publishChange(Object o) {
-    o = protectObject(o, "change");
-    _bs.publishChange(o);
+    Object o2 = protectObject(o, "change");
+    _bs.publishChange(o2);
   }
   public void publishChange(Object o, Collection changes) {
-    o = protectObject(o, "change");
-    _bs.publishChange(o,changes);
+    Object o2 = protectObject(o, "change");
+    _bs.publishChange(o2,changes);
   }
   public void openTransaction() {
     _bs.openTransaction();
@@ -241,7 +242,8 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   public Persistence getPersistence() {
     return _bs.getPersistence();
   }
-  
+
+  /*
   private void addSubscription(Subscription subscription, Subscription wrapper) {
     _subscriptions.put(subscription, wrapper);
   }
@@ -249,6 +251,8 @@ class BlackboardServiceDelegate extends SecureServiceProxy
     Subscription wrapper = (Subscription)_subscriptions.remove(subscription);
     return (wrapper != null ? wrapper : subscription);
   }
+  */
+  
   private SubscriptionWatcher addWatcher(SubscriptionWatcher w) {
     SecureSubscriptionWatcher sw = new SecureSubscriptionWatcher(w, _scs.getExecutionContext());
     _watchers.put(w, sw);
@@ -261,8 +265,8 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   
   protected class SecureSubscriptionWatcher 
     extends SubscriptionWatcher {
-    private SubscriptionWatcher _watcher;
-    private ExecutionContext _ec;
+    private transient SubscriptionWatcher _watcher;
+    private transient ExecutionContext _ec;
     SecureSubscriptionWatcher(SubscriptionWatcher watcher, ExecutionContext ec) {
       _watcher = watcher; 
       _ec = ec;

@@ -55,8 +55,6 @@ public class InitNodePlugin extends ComponentPlugin {
 
   private ServiceBroker _sb;
   private LoggingService _log;
-  private String _hostname;
-  private String _hostAddress;
   private ServletNodeEnforcer    _servletEnf;
   private ULMessageNodeEnforcer  _msgEnf;
 

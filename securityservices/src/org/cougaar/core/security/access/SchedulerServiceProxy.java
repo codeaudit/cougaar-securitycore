@@ -51,7 +51,7 @@ import org.cougaar.util.Trigger;
 class SchedulerServiceProxy extends SecureServiceProxy
   implements SchedulerService {
   private SchedulerService _scheduler;
-  private Object _requestor;
+  //private Object _requestor;
   
   // for Trigger to SecureTrigger mapping
   private static Hashtable _triggerTable = new Hashtable();
@@ -59,7 +59,7 @@ class SchedulerServiceProxy extends SecureServiceProxy
   SchedulerServiceProxy(SchedulerService ss, Object requestor, ServiceBroker sb) {
     super(sb);
     _scheduler = ss;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
   public Trigger register(Trigger t) {
     return _scheduler.register(addTrigger(t));

@@ -36,9 +36,7 @@ import java.util.Iterator;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
-
 
 /**
  * Creates the SocietyConfiguration representation for time t0. 
@@ -55,8 +53,6 @@ public class ConfigurationManagerInitPlugin extends ComponentPlugin {
   private static final String PLUGIN_NAME = "ConfigurationManagerInitPlugin";
   /** Logging Service */
   private LoggingService logger = null;
-  /** UIDService */
-  private UIDService uidService = null;
   HashMap agentMap = new HashMap();
   HashMap nodeMap = new HashMap();
   /** Society Configuration Value object */
@@ -76,17 +72,6 @@ public class ConfigurationManagerInitPlugin extends ComponentPlugin {
   public void setLoggingService(LoggingService service) {
     this.logger = service;
   }
-
-
-  /**
-   * Set UIDService
-   *
-   * @param service UIDService
-   */
-  public void setUIDService(UIDService service) {
-    this.uidService = service;
-  }
-
 
   /**
    * Component Load method

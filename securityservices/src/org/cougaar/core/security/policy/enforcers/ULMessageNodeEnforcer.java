@@ -240,6 +240,7 @@ public class ULMessageNodeEnforcer
 
   static boolean bigLoopRunning=false;
 
+  /*
   private void bigloop()
   {
     if (!bigLoopRunning) {
@@ -267,7 +268,8 @@ public class ULMessageNodeEnforcer
         }).start();
     }
   }
-
+  */
+  
   /**
    * This function determines if an action is authorized.  
    *

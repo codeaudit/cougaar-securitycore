@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.CertDirectoryService;
 import org.cougaar.core.security.services.util.CertificateSearchService;
@@ -189,7 +188,6 @@ public class CertificateSearchServiceImpl
     }
     try {
       final String cname = dname.getCommonName();
-      CertificateStatus cs = null;
       //AddressEntry ael = whitePagesService.get(cname,WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
       
       Callback callback = null;

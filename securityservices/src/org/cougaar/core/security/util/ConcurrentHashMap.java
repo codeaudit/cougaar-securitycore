@@ -113,7 +113,6 @@ public class ConcurrentHashMap extends HashMap {
       if (_logger.isDebugEnabled()) {
         _logger.debug("Retrieving object " + keyEntry);
       }
-      Exception ex = null;
       try {
         value = getter.getValue(keyEntry);
         if (_logger.isDebugEnabled()) {
@@ -186,7 +185,7 @@ public class ConcurrentHashMap extends HashMap {
         try {
           Thread.sleep(5 * 1000);
         }
-        catch (InterruptedException e) {};
+        catch (InterruptedException e) {}
         return "myEntry value: " + keyEntry;
       }
     };
@@ -205,7 +204,7 @@ public class ConcurrentHashMap extends HashMap {
         try {
           Thread.sleep(5 * 1000);
         }
-        catch (InterruptedException e) {};
+        catch (InterruptedException e) {}
         return null;
       }
     };
@@ -218,7 +217,7 @@ public class ConcurrentHashMap extends HashMap {
         try {
           Thread.sleep(5 * 1000);
         }
-        catch (InterruptedException e) {};
+        catch (InterruptedException e) {}
         throw new Exception ("Unable to retrieve object");
       }
     };

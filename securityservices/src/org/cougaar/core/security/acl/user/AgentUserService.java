@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cougaar.core.blackboard.BlackboardClient;
-import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
@@ -56,14 +55,12 @@ import org.cougaar.util.UnaryPredicate;
 public class AgentUserService implements UserService, BlackboardClient {
 
   private ServiceBroker _serviceBroker;
-  private CommunityService _communityService;
   private BlackboardService _bbs;
   private LoggingService _log;
   private UIDService     _uidService;
   private MessageAddress _source;
   private Set            _myRelays = new HashSet();
   private Object         _lock = new Object();
-  private IncrementalSubscription _subscription;
   private HashMap        _targets = new HashMap();
   private String         _defaultDomain;
   private CommunityServiceUtil _csu;
@@ -139,7 +136,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("set communityService called ");
       }
-      setCommunityService(cs);
+      setCommunityService();
     }
     if (_bbs != null) {
       startSubscription();
@@ -153,7 +150,7 @@ public class AgentUserService implements UserService, BlackboardClient {
   
   private void startSubscription() {
     _bbs.openTransaction();
-    _subscription = (IncrementalSubscription) _bbs.subscribe(MY_RELAYS);
+    _bbs.subscribe(MY_RELAYS);
     _bbs.registerInterest(WATCHER);
     _bbs.closeTransaction();
     if(_log.isDebugEnabled()){
@@ -161,7 +158,7 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
   }
 
-  private synchronized void setCommunityService(CommunityService cs) {
+  private synchronized void setCommunityService() {
     if (_csu == null) {
       _csu = new CommunityServiceUtil(_serviceBroker);
       CommunityServiceUtilListener listener = 
@@ -684,7 +681,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  if (_log.isDebugEnabled()) {
 	    _log.debug("Got Community service starting community search  for AgentUser service");
 	  }
-          setCommunityService(cs);
+          setCommunityService();
         }
       }
     }  

@@ -51,7 +51,6 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.acl.auth.URIPrincipal;
 import org.cougaar.core.security.acl.auth.UserRoles;
 import org.cougaar.core.security.auth.BlackboardObjectPermission;
 import org.cougaar.core.security.auth.BlackboardPermission;
@@ -508,7 +507,8 @@ public class AuthServiceImpl
     }
     return false;
   }
-  
+
+  /*
   private URIPrincipal getServletURIPrincipal(ProtectionDomain domain)
   {
     // get the principals from the protection domain
@@ -523,7 +523,8 @@ public class AuthServiceImpl
     }
     return up;
   }
-    
+  */
+  
   private class SecurityContextServiceAvailableListener
     implements ServiceAvailableListener
   {

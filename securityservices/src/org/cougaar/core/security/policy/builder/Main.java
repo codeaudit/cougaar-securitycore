@@ -215,45 +215,48 @@ class Main
   public static void usage()
   {
     int counter = 1;
-    System.out.println("The arguments consist of common options");
-    System.out.println("followed by a command");
-    System.out.println("There are two common option at the moment:");
-    System.out.println("{--maxReasoningDepth num}  This controls how much");
-    System.out.println("\tjtp searches for the answer to a question.");
-    System.out.println("{--disableChecking}  This disables consistency checking");
-    System.out.println("\tIt is not recommended unless you are in a hurry");
-    System.out.println("The command then has one of the following forms:");
-    System.out.println("" + (counter++) + ". build {--quiet} {--info} policiesFile");
-    System.out.println("\tTo build policies from a grammar");
-    System.out.println("\tThe --quiet option supresses messages");
-    System.out.println("\tThe --info option builds boot policies only");
-    System.out.println("\tThe --checkDepth option checks that the reasoning");
-    System.out.println("\t\tdepth is sufficient");
-    System.out.println("" + (counter++) + ". commit/setpolicies/addpolicies"
-                       + " {--dm} {--auth username password} ");
-    System.out.println("\t\thost port agent policiesFile");
-    System.out.println("\tTo commit policies using policy servlet");
-    System.out.println("\t--dm = use the Domain Manager to build policies");
-    System.out.println("\t\tBy default policy files are read from disk");
-    System.out.println("\t--auth = supply authentication on the command line");
-    System.out.println("\thost  = host on which the servlet runs");
-    System.out.println("\tport  = port on which the servlet listens");
-    System.out.println("\tagent = agent running the servlet");
-    System.out.println("\tpoliciesFile = policies to commit");
-    System.out.println("" + (counter++) + ". examine policyFile");
-    System.out.println("" + (counter++) + ". get {--auth username password} "
-                          + "host port agent");
-    System.out.println("\tDownloads the policies from the domain manager");
-    System.out.println("" + (counter++) + ". parse policyFile");
-    System.out.println("\tParse only for debugging purposes");
-    System.out.println("");
-    System.out.println("commit and setpolicies are synonymous");
-    System.out.println("They replace the policies on the domain manager" +
-                       "with the polices in policiesFile");
-    System.out.println("addpolicies leaves existing unconditional policies"
-                       + "on the domain manager intact");
-    System.out.println("Conditional policies on the domain manager are " +
-                       "always replaced.");
+    StringBuffer sb = new StringBuffer();
+    
+    sb.append("The arguments consist of common options\n");
+    sb.append("followed by a command\n");
+    sb.append("There are two common option at the moment:\n");
+    sb.append("{--maxReasoningDepth num}  This controls how much\n");
+    sb.append("\tjtp searches for the answer to a question.\n");
+    sb.append("{--disableChecking}  This disables consistency checking\n");
+    sb.append("\tIt is not recommended unless you are in a hurry\n");
+    sb.append("The command then has one of the following forms:\n");
+    sb.append("" + (counter++) + ". build {--quiet} {--info} policiesFile\n");
+    sb.append("\tTo build policies from a grammar\n");
+    sb.append("\tThe --quiet option supresses messages\n");
+    sb.append("\tThe --info option builds boot policies only\n");
+    sb.append("\tThe --checkDepth option checks that the reasoning\n");
+    sb.append("\t\tdepth is sufficient\n");
+    sb.append("" + (counter++) + ". commit/setpolicies/addpolicies\n"
+                       + " {--dm} {--auth username password} \n");
+    sb.append("\t\thost port agent policiesFile\n");
+    sb.append("\tTo commit policies using policy servlet\n");
+    sb.append("\t--dm = use the Domain Manager to build policies\n");
+    sb.append("\t\tBy default policy files are read from disk\n");
+    sb.append("\t--auth = supply authentication on the command line\n");
+    sb.append("\thost  = host on which the servlet runs\n");
+    sb.append("\tport  = port on which the servlet listens\n");
+    sb.append("\tagent = agent running the servlet\n");
+    sb.append("\tpoliciesFile = policies to commit\n");
+    sb.append("" + (counter++) + ". examine policyFile\n");
+    sb.append("" + (counter++) + ". get {--auth username password} "
+                          + "host port agent\n");
+    sb.append("\tDownloads the policies from the domain manager\n");
+    sb.append("" + (counter++) + ". parse policyFile\n");
+    sb.append("\tParse only for debugging purposes\n");
+    sb.append("\n");
+    sb.append("commit and setpolicies are synonymous\n");
+    sb.append("They replace the policies on the domain manager" +
+                       "with the polices in policiesFile\n");
+    sb.append("addpolicies leaves existing unconditional policies"
+                       + "on the domain manager intact\n");
+    sb.append("Conditional policies on the domain manager are " +
+                       "always replaced.\n");
+    System.out.println(sb.toString());
     System.exit(-1);
   }
 

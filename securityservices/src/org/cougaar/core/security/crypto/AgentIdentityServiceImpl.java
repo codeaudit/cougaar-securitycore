@@ -40,7 +40,6 @@ import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
@@ -58,7 +57,6 @@ public class AgentIdentityServiceImpl
 {
   private ServiceBroker serviceBroker;
   private EncryptionService encryptionService;
-  private CryptoPolicyService cps;
   private KeyRingService keyRing;
   private CertValidityService cvs;
   private Object requestor;

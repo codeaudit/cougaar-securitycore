@@ -87,7 +87,7 @@ public class IssuingDistributionPointExtension extends Extension
     throws IOException
   {
 
-    onlyusercert=false;;
+    onlyusercert=false;
     onlycacert=false;
     indirectCRL = false;
 

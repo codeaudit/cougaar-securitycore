@@ -53,7 +53,6 @@ public class CommunityProtectionServiceImpl
   implements CommunityProtectionService, NodeEnforcer
 {
   private ServiceBroker _sb;
-  private String _enforcedActionType;
   private LoggingService _log;
   private EnforcerManagerService _guard;
   private static Vector _controlledActionClasses = null;

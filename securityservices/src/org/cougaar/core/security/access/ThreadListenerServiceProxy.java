@@ -46,13 +46,13 @@ import org.cougaar.core.thread.ThreadListener;
 class ThreadListenerServiceProxy extends SecureServiceProxy 
   implements ThreadListenerService {
   private final ThreadListenerService _tls;
-  private final Object _requestor;
+  //private final Object _requestor;
   private static Hashtable _listeners = new Hashtable();
   
   public ThreadListenerServiceProxy(ThreadListenerService tls, Object requestor, ServiceBroker sb) {
     super(sb);
     _tls = tls;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
   
   public void addListener(ThreadListener listener) {

@@ -42,7 +42,6 @@ import java.security.SignedObject;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,8 +74,6 @@ import sun.security.x509.X500Name;
 public class CryptoManagerServiceImpl
   implements EncryptionService
 {
-  private static final MessageFormat MF = new MessageFormat("{0} -");
-  private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
   private static final char KEY_LEN_DELIM = '#';
   private static final char PROVIDER_DELIM_START = '{';
   private static final char PROVIDER_DELIM_END   = '}';
@@ -1447,7 +1444,6 @@ public class CryptoManagerServiceImpl
     if (cp == null) {
       throw new IllegalArgumentException("Policy not specified");
     }
-    String failureIfOccurred = MessageFailureEvent.UNKNOWN_FAILURE;
 
       /* assembly SecureMethodParam:
        * as CryptoPolicy can contain multiple entries for each parameter,
@@ -1468,7 +1464,6 @@ public class CryptoManagerServiceImpl
           }
         }else if(method.equalsIgnoreCase("sign")){
           smp.secureMethod = SecureMethodParam.SIGN;
-          failureIfOccurred = MessageFailureEvent.VERIFICATION_FAILURE;
           if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
             Iterator iter2 = (cp.getSignSpec(source.toAddress())).iterator();
             while(iter2.hasNext()){
@@ -1480,7 +1475,6 @@ public class CryptoManagerServiceImpl
           }
         }else if(method.equalsIgnoreCase("encrypt")){
           smp.secureMethod = SecureMethodParam.ENCRYPT;
-          failureIfOccurred = MessageFailureEvent.DECRYPT_FAILURE;
           if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
             Iterator iter2 = (cp.getSymmSpec(source.toAddress())).iterator();
             while(iter2.hasNext()){
@@ -1496,7 +1490,6 @@ public class CryptoManagerServiceImpl
           }
         }else if(method.equalsIgnoreCase("signAndEncrypt")){
           smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
-          failureIfOccurred = MessageFailureEvent.DECRYPT_AND_VERIFY_FAILURE;
           if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
             Iterator iter2 = (cp.getSymmSpec(source.toAddress())).iterator();
             while(iter2.hasNext()){
@@ -1522,7 +1515,6 @@ public class CryptoManagerServiceImpl
                + " -> " + target.toAddress()
                + "invalid secure method.");
           }
-          failureIfOccurred = MessageFailureEvent.INVALID_POLICY;
           throw new GeneralSecurityException("invalid secure method.");
         }
       }//while

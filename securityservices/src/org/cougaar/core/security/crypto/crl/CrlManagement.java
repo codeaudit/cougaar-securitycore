@@ -28,7 +28,6 @@ package org.cougaar.core.security.crypto.crl;
 
 
 // Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.crypto.crl.blackboard.CrlRelay;
 import org.cougaar.core.security.services.crypto.CrlManagementService;
@@ -41,8 +40,6 @@ final public class CrlManagement implements CrlManagementService {
   
   protected MessageAddress selfClusterId;
   protected UIDServer myUIDServer;
-  private ServiceBroker serviceBroker;
-
  
   public CrlManagement() { }
   

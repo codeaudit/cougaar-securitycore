@@ -55,7 +55,7 @@ class ServletServiceProxy extends SecureServiceProxy
   
   private ServletService _ss;
   private AuthorizationService _as;
-  private Object _requestor;
+  //private Object _requestor;
   private MessageAddress _agent;
   
   // for servlet to SecureServlet mapping
@@ -66,7 +66,7 @@ class ServletServiceProxy extends SecureServiceProxy
     _ss = ss;
     _as = (AuthorizationService)
       sb.getService(this, AuthorizationService.class, null);
-    _requestor = requestor;  
+    //_requestor = requestor;  
     // get the name of the agent
     AgentIdentificationService ais = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);

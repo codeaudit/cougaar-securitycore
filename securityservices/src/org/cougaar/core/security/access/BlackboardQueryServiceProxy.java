@@ -23,14 +23,6 @@
  * </copyright> 
  */ 
  
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
@@ -44,8 +36,8 @@ import org.cougaar.util.UnaryPredicate;
 // this class is a proxy for the BlackboardQueryService
 class BlackboardQueryServiceProxy extends SecureServiceProxy 
   implements BlackboardQueryService {
-  private BlackboardQueryService _bqs;
-  private final Object _requestor;
+  private transient BlackboardQueryService _bqs;
+  private transient final Object _requestor;
   
   public BlackboardQueryServiceProxy(BlackboardQueryService bqs, 
                                      Object requestor, ServiceBroker sb) {

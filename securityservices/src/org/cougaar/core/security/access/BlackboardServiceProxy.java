@@ -42,10 +42,10 @@ import org.cougaar.util.UnaryPredicate;
 
 // this class is a proxy for the blackboard service 
 class BlackboardServiceProxy extends BlackboardServiceDelegate {
-  private final Object _requestor;
+  //private transient final Object _requestor;
   public BlackboardServiceProxy(BlackboardService bs, Object requestor, ServiceBroker sb) {
     super(bs, sb);
-    _requestor = requestor;
+    //_requestor = requestor;
   }
   public Subscriber getSubscriber() { 
     //System.err.println("Warning: " + _requestor + " is calling BlackboardService.getSubscriber()!");

@@ -50,12 +50,12 @@ import org.cougaar.util.StateModelException;
 class PrototypeRegistryServiceProxy extends SecureServiceProxy 
   implements PrototypeRegistryService {
   private final PrototypeRegistryService _prs;
-  private final Object _requestor;
+  //private final Object _requestor;
   
   public PrototypeRegistryServiceProxy(PrototypeRegistryService prs, Object requestor, ServiceBroker sb) {
     super(sb);
     _prs = prs;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
   
   public void addLatePropertyProvider(LatePropertyProvider lpp) {

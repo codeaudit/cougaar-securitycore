@@ -206,7 +206,7 @@ public class DualAuthenticator extends ValveBase {
     // this is only for DAML (efficiency -- only ask once and use in
     // two calls...)
     AuthSuite authReq = 
-      getAuthRequirements(hsrequest.getRequestURI(), cipher);
+      getAuthRequirements(hsrequest.getRequestURI());
 
     if (_log.isDebugEnabled()) {
       _log.debug("cipher = " + cipher);
@@ -521,7 +521,7 @@ public class DualAuthenticator extends ValveBase {
   }
   */
 
-  private AuthSuite getAuthRequirements(String uri, String cipher) {
+  private AuthSuite getAuthRequirements(String uri) {
     if (USE_DAML && (_enforcer != null)) {
       return _enforcer.whichAuthSuite(uri);
     }

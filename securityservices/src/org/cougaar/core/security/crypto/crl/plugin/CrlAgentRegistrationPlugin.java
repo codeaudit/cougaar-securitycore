@@ -69,7 +69,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   // The domainService acts as a provider of domain factory services
   private DomainService domainService = null;
   private IncrementalSubscription crlagentregistration;
-  private IncrementalSubscription crlregistrationtable;
   private LoggingService loggingService=null;
   private EventService eventService=null;
   private CrlRegistrationTable crlRegistrationTable=null;
@@ -196,7 +195,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 
   protected void execute () {
     Iterator regiterator=null;
-    Iterator regTableiterator=null;
     CrlRegistrationObject regobject=null;
     CrlRelay crlrelay=null;
     CRLAgentRegistration regagentObject=null;
@@ -315,7 +313,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       loggingService.debug("CRL agent registartion Thread  has started : "+time.toString());
       BlackboardService bbs = getBlackboardService();
       
-      Collection regCollection=null;
       CertificateSearchService searchService=(CertificateSearchService)getBindingSite().getServiceBroker()
         .getService(this, CertificateSearchService.class, null);
       if(searchService==null) {
@@ -329,7 +326,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       String key=null;
       boolean modified=false;
       bbs.openTransaction();
-      int counter=0;
       synchronized(crlRegistrationTable){
         Set regset=crlRegistrationTable.keySet();
         Iterator keyiterator=regset.iterator();
@@ -339,7 +335,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           regObject =(CrlRegistrationObject)crlRegistrationTable.get(key);
           loggingService.debug(" Registration Object in CRL registration Table is :"+ regObject.toString());
           String modifiedTimestamp=null;
-          X509CRL crl=null;
           List certList=searchService.findCert(CertificateUtility.getX500Name(regObject.dnName));
           if(certList.size()>0) {
             loggingService.debug(" List size returned after search for :"+regObject.dnName +
@@ -593,7 +588,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       return crlrelay;
     }
 
-    private CertDirectoryServiceClient getDirectoryService(String dnname,String ldapURL,int ldapType) {
+    private CertDirectoryServiceClient getDirectoryService(String ldapURL,int ldapType) {
       // TODO: this should not use the ldap dependent classes anymore here
       CertDirectoryServiceRequestor cdsr =
         new CertDirectoryServiceRequestorImpl(ldapURL,ldapType,

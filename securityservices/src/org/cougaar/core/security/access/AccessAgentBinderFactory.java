@@ -36,9 +36,8 @@ package org.cougaar.core.security.access;
 
 import org.cougaar.core.component.ServiceFilter;
 
-
-
-public class AccessAgentBinderFactory extends ServiceFilter{
+public class AccessAgentBinderFactory extends ServiceFilter
+{
   
   protected Class getBinderClass(Object child) {
     return AccessAgentBinder.class;

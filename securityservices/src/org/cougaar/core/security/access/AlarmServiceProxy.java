@@ -23,14 +23,6 @@
  * </copyright> 
  */ 
  
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
@@ -43,8 +35,8 @@ import org.cougaar.core.service.AlarmService;
 // this class is a proxy for the alarm service 
 class AlarmServiceProxy extends SecureServiceProxy 
   implements AlarmService {
-  private final AlarmService _as;
-  private final Object _requestor;
+  private transient final AlarmService _as;
+  private transient final Object _requestor;
   
   public AlarmServiceProxy(AlarmService as, Object requestor, ServiceBroker sb) {
     super(sb);
@@ -78,8 +70,8 @@ class AlarmServiceProxy extends SecureServiceProxy
   } 
 
   class SecureAlarm implements Alarm {
-    Alarm _alarm;
-    ExecutionContext _ec;
+    private transient Alarm _alarm;
+    transient ExecutionContext _ec;
     SecureAlarm(Alarm alarm, ExecutionContext ec) {
       _alarm = alarm; 
       _ec = ec;
@@ -111,7 +103,7 @@ class AlarmServiceProxy extends SecureServiceProxy
 
   class SecurePeriodicAlarm extends SecureAlarm
     implements PeriodicAlarm {
-    PeriodicAlarm _pAlarm;
+    private transient PeriodicAlarm _pAlarm;
     SecurePeriodicAlarm(PeriodicAlarm pAlarm, ExecutionContext ec) {
       super(pAlarm, ec);
       _pAlarm = pAlarm;

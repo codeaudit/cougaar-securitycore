@@ -37,7 +37,6 @@ import kaos.core.util.PolicyMsg;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
 
@@ -60,7 +59,6 @@ import safe.util.UnexpandedPolicyUpdate;
 public class PolicyExpanderPlugin
   extends ComponentPlugin
 {
-  private SecurityPropertiesService secprop = null;
   private LoggingService log;
 
   private UnaryPredicate _unexCondPolicyPredicate = new UnaryPredicate() {
@@ -75,9 +73,6 @@ public class PolicyExpanderPlugin
     };
 
   protected void setupSubscriptions() {
-    secprop = (SecurityPropertiesService)
-      getBindingSite().getServiceBroker().getService(this,
-						     SecurityPropertiesService.class, null);
 
     log = (LoggingService)
       getBindingSite().getServiceBroker().getService(this,
@@ -98,7 +93,6 @@ public class PolicyExpanderPlugin
 	ConditionalPolicyMsg condPolicyMsg = ucpm.getConditionalPolicyMsg();
 	// get the policies
 	Vector policies = condPolicyMsg.getPolicies();
-	Vector newPolicies = new Vector();
 	// expand each policy
 	for (int i=0; i<policies.size(); i++) {
 	  PolicyMsg policyMsg = (PolicyMsg) policies.elementAt(i);

@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.policy.builder;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -133,7 +132,6 @@ public class BlackboardParsedPolicy extends ParsedAuthenticationPolicy
     throws PolicyCompilerException
   {
     try {
-      Set    jenaAccessModes = new HashSet();
       ontology.verifySubClass(getActor(), 
                               UltralogActorConcepts.UltralogPlugins());
       // The stuff we gave to super is valid...

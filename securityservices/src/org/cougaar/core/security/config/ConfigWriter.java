@@ -616,7 +616,9 @@ public class ConfigWriter
 	parser.setFeature(SCHEMA_VALIDATION_FEATURE_ID, schemaValidation);
       }
       catch (SAXNotRecognizedException e) {
-	// ignore
+         if (_log.isDebugEnabled()) {
+           _log.debug("Exception can be ignored");
+         }
       }
       catch (SAXNotSupportedException e) {
 	_log.warn("warning: Parser does not support feature ("+SCHEMA_VALIDATION_FEATURE_ID+")");
@@ -625,7 +627,9 @@ public class ConfigWriter
 	parser.setFeature(SCHEMA_FULL_CHECKING_FEATURE_ID, schemaFullChecking);
       }
       catch (SAXNotRecognizedException e) {
-	// ignore
+        if (_log.isDebugEnabled()) {
+          _log.debug("Exception can be ignored");
+        }
       }
       catch (SAXNotSupportedException e) {
 	_log.warn("warning: Parser does not support feature ("+SCHEMA_FULL_CHECKING_FEATURE_ID+")");
@@ -650,7 +654,9 @@ public class ConfigWriter
 	parser.setProperty(LEXICAL_HANDLER_PROPERTY_ID, writer);
       }
       catch (SAXException e) {
-	// ignore
+        if (_log.isDebugEnabled()) {
+          _log.debug("Exception can be ignored");
+        }
       }
 
       // parse file
@@ -659,14 +665,18 @@ public class ConfigWriter
 	parser.parse(arg);
       }
       catch (SAXParseException e) {
-	// ignore
+        if (_log.isDebugEnabled()) {
+          _log.debug("Exception can be ignored");
+        }
       }
       catch (Exception e) {
-	_log.warn("error: Parse error occurred - "+e.getMessage());
-	if (e instanceof SAXException) {
-	  e = ((SAXException)e).getException();
-	}
-	e.printStackTrace(System.err);
+        _log.warn("error: Parse error occurred - "+e.getMessage());
+        if (e instanceof SAXException) {
+          e = ((SAXException)e).getException();
+        }
+        if (_log.isWarnEnabled()) {
+          _log.warn("Unable to parse XML file", e);
+        }
       }
     }
 

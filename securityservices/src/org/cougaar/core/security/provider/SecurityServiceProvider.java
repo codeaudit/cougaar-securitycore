@@ -83,9 +83,6 @@ public class SecurityServiceProvider
   private boolean isExecutedWithinNode = true;
   private boolean initDone = false;
 
-  private ServiceBroker _serviceBrokerProxy;
-  private ServiceBroker _rootServiceBrokerProxy;
-  
   private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
   private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
 

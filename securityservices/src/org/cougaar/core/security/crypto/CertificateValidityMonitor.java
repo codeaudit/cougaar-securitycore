@@ -152,7 +152,6 @@ public class CertificateValidityMonitor
         return;
       }
 
-      Vector list = new Vector();
       keyRing.checkExpiry(NodeInfo.getNodeName());
       // node in priority
       // CA cert should not be in validity checking, otherwise CA cert should be

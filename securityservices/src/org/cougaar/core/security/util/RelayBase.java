@@ -95,7 +95,7 @@ public class RelayBase
   }
 
   public void setContent(Object content) {
-    _content = content;;
+    _content = content;
   }
 
   public Relay.TargetFactory getTargetFactory() {

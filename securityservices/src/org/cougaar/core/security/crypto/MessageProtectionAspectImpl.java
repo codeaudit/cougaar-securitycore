@@ -28,20 +28,15 @@ package org.cougaar.core.security.crypto;
 
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.SimpleMessageAttributes;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.mts.base.DestinationLink;
-import org.cougaar.mts.base.DestinationLinkDelegateImplBase;
 import org.cougaar.mts.base.ReceiveLink;
 import org.cougaar.mts.base.ReceiveLinkDelegateImplBase;
 import org.cougaar.mts.base.SendQueue;
-import org.cougaar.mts.base.SendQueueDelegateImplBase;
 import org.cougaar.mts.std.AttributedMessage;
 import org.cougaar.mts.std.MessageProtectionAspect;
 

@@ -26,10 +26,6 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.Provider;
-import java.security.Security;
-import java.util.Enumeration;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,22 +57,6 @@ public class CryptoProviders {
    * BaseBootstrapper 
    **/
   public static void loadCryptoProviders() {
-  }
-
-  public static void printProviderProperties() {
-    Provider[] pv = Security.getProviders();
-    for (int i = 0 ; i < pv.length ; i++) {
-      //System.out.println("Provider[" + i + "]: " + pv[i].getName() + " - Version: " + pv[i].getVersion());
-      //System.out.println(pv[i].getInfo());
-      // List properties
-      Enumeration properties = pv[i].propertyNames();
-      while (properties.hasMoreElements()) {
-	String key, value;
-	key = (String) properties.nextElement();
-	value = pv[i].getProperty(key);
-	//System.out.println("Key: " + key + " - Value: " + value);
-      }
-    }
   }
 
   protected static Element[] findChildElements(Node parent, String childname) {

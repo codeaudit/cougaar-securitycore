@@ -118,6 +118,9 @@ public class ServletPolicyHandler extends BaseConfigHandler {
       _agent = null;
     } else if (localName.equals("root")) {
       // don't need to do anything
+      if (log.isDebugEnabled()) {
+        log.debug("Don't need to do anything");
+      }
     } else if (localName.equals("rule")) {
       if (_patterns.size() == 0 || _roles.size() == 0) {
         log.error("Rules must have at least one pattern and " +

@@ -42,8 +42,8 @@ import org.cougaar.util.UnaryPredicate;
 // this class is a proxy for the BlackboardMetricsService
 class BlackboardMetricsServiceProxy extends SecureServiceProxy 
   implements BlackboardMetricsService {
-  private BlackboardMetricsService _bms;
-  private final Object _requestor;
+  private transient BlackboardMetricsService _bms;
+  private transient final Object _requestor;
   
   public BlackboardMetricsServiceProxy(BlackboardMetricsService bms, 
                                        Object requestor, ServiceBroker sb) {
@@ -64,7 +64,7 @@ class BlackboardMetricsServiceProxy extends SecureServiceProxy
   } 
    
   class ClassPredicate implements UnaryPredicate {
-    Class _cl;
+    private transient Class _cl;
     ClassPredicate(Class cl) {
       _cl = cl;
     }

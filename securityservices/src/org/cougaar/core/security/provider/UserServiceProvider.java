@@ -40,10 +40,8 @@ public class UserServiceProvider implements ServiceProvider
   protected static final boolean AGENT_SERVICE = !Boolean.getBoolean("org.cougaar.core.security.provider.UserService.ldap");
   private UserService       _service;
   private MessageAddress    _agent=null;;
-  private boolean           _listenerAdded =false;
   private static Logger     _log=LoggerFactory.getInstance().createLogger(UserServiceProvider.class);
   private ServiceBroker     _nodeAgentsb=null;
-  private ServiceBroker     _rootsb=null;
 
   public UserServiceProvider(MessageAddress agent) {
     _agent = agent;

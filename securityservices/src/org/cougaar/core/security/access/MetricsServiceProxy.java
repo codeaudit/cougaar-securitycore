@@ -50,13 +50,13 @@ import org.cougaar.core.security.auth.ExecutionContext;
 class MetricsServiceProxy extends SecureServiceProxy 
   implements MetricsService {
   private final MetricsService _ms;
-  private final Object _requestor;
+  //private final Object _requestor;
   private static Hashtable _observers = new Hashtable();
   
   public MetricsServiceProxy(MetricsService ms, Object requestor, ServiceBroker sb) {
     super(sb);
     _ms = ms;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
   
   public Metric getValue(String path) {
@@ -102,12 +102,15 @@ class MetricsServiceProxy extends SecureServiceProxy
     }
     _ms.unsubscribeToValue(subscription);
   }
-  
+
+  /*
   private Observer addObserver(Observer o) {
     Observer so = new SecureObserver(o, _scs.getExecutionContext());
     _observers.put(o, so);
     return so; 
   }
+  */
+  
   private Observer removeObserver(Observer o) {
     return (Observer)_observers.remove(o);
   }

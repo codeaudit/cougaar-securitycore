@@ -52,7 +52,7 @@ public class ConfigReader
       parser = XMLReaderFactory.createXMLReader();
     }
     catch ( Exception e ) {
-      e.printStackTrace();
+      log.warn("Unable to create XML reader", e);
     }
   }
 

@@ -53,15 +53,15 @@ import org.cougaar.core.service.community.FindCommunityCallback;
 // this class is a proxy for the community service 
 class CommunityServiceProxy extends SecureServiceProxy 
   implements CommunityService {
-  private final CommunityService _cs;
-  private final Object _requestor;
+  private transient final CommunityService _cs;
+  //private transient final Object _requestor;
   // community change listeners
   private static Hashtable _listeners = new Hashtable();
   
   public CommunityServiceProxy(CommunityService cs, Object requestor, ServiceBroker sb) {
     super(sb);
     _cs = cs;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
 
   /*

@@ -51,7 +51,6 @@ import org.cougaar.core.security.policy.AccessControlPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.WPEnforcer;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageTransportService;
@@ -62,29 +61,27 @@ import org.cougaar.planning.ldm.plan.Verb;
 public class AccessAgentProxy implements MessageTransportService,
         MessageTransportClient {
 
-    private MessageTransportService mts;
+    private transient MessageTransportService mts;
 
-    private MessageTransportClient mtc;
+    private transient MessageTransportClient mtc;
 
-    private Object object;
+    private transient Object object;
 
-    private SecurityPropertiesService secprop = null;
+    private transient ServiceBroker serviceBroker;
 
-    private ServiceBroker serviceBroker;
+    private transient LoggingService log;
 
-    private LoggingService log;
+    private transient MessageAddress myID = null;
 
-    private MessageAddress myID = null;
-
-    private AccessControlPolicyService acps;
+    private transient AccessControlPolicyService acps;
 
     public static final String DAML_PROPERTY = "org.cougaar.core.security.policy.enforcers.access.useDaml";
 
     public static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
 
-    private ULMessageNodeEnforcer _enforcer = null;
+    private transient ULMessageNodeEnforcer _enforcer = null;
 
-    private WPEnforcer _wpEnforcer = null;
+    private transient WPEnforcer _wpEnforcer = null;
 
     //private Set nodeList = null;
     //private Set agentList = null;
@@ -126,9 +123,6 @@ public class AccessAgentProxy implements MessageTransportService,
         if (object instanceof Agent) {
             myID = ((Agent) object).getAgentIdentifier();
         }
-
-        secprop = (SecurityPropertiesService) serviceBroker.getService(this,
-                SecurityPropertiesService.class, null);
 
         //load agent and node name list from topo reader
 
@@ -381,9 +375,10 @@ public class AccessAgentProxy implements MessageTransportService,
                     }
                 } else if (!incomingAgentAction(contents)) {
                     failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_AGENT_ACTION;
-                    if (log.isWarnEnabled())
+                    if (log.isWarnEnabled()) {
                         log.warn("Rejecting incoming messagewithtrust : "
                                 + m.toString());
+                    }
                 }
 
                 if (failureIfOccurred != null) {
@@ -476,14 +471,13 @@ public class AccessAgentProxy implements MessageTransportService,
         if (msg instanceof WPQuery) {
           // first still need to know whether source and target are allowed to talk
           if (!isMessageDenied(source, target, null, direction)) {
-            return checkWPQueryMessage(source, target, (WPQuery)msg);
+            return checkWPQueryMessage(target, (WPQuery)msg);
           }
         }
         return isMessageDenied(source, target, null, direction);
     }
 
-  private boolean checkWPQueryMessage(String source,
-      String target, WPQuery wpMsg) {
+  private boolean checkWPQueryMessage(String target, WPQuery wpMsg) {
     // get where the agent really is, not from the source
     Map map = wpMsg.getMap();
     // the map contains (name, query)

@@ -32,14 +32,10 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.access.AccessControlPolicyServiceImpl;
 import org.cougaar.core.security.access.AccessPolicyClient;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class AccessControlPolicyServiceProvider 
   extends BaseSecurityServiceProvider
 {
-  private KeyRingService keyRing;
-  private SecurityPropertiesService sps;
   private HashMap agentList = new HashMap();
 
   public AccessControlPolicyServiceProvider(ServiceBroker sb, String community) {

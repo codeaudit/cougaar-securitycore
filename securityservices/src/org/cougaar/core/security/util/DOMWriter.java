@@ -150,7 +150,6 @@ public class DOMWriter {
 
   public DOMWriter(String encoding, boolean canonical)
     throws UnsupportedEncodingException {
-    String  parserName = DEFAULT_PARSER_NAME;
 
     out = new PrintWriter(new OutputStreamWriter(System.out, encoding));
     this.canonical = canonical;

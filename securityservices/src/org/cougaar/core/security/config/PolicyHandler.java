@@ -184,7 +184,9 @@ public class PolicyHandler
                        "UTF8");
     }
     catch (UnsupportedEncodingException e) {
-      System.err.println("error: Unable to set output.");
+      if (log.isWarnEnabled()) {
+        log.warn("error: Unable to set output.");
+      }
     }
     parseXmlFile(xmlTemplateFile, writer);
 
@@ -198,7 +200,9 @@ public class PolicyHandler
       parser = XMLReaderFactory.createXMLReader(DEFAULT_PARSER_NAME);
     }
     catch (Exception e) {
-      System.err.println("error: Unable to instantiate parser ("+DEFAULT_PARSER_NAME+")");
+      if (log.isWarnEnabled()) {
+        log.warn("error: Unable to instantiate parser ("+DEFAULT_PARSER_NAME+")");
+      }
     }
     // set parser
     parser.setContentHandler(writer);
@@ -230,7 +234,9 @@ public class PolicyHandler
       // ignore
     }
     catch (Exception e) {
-      System.err.println("error: Parse error occurred - "+e.getMessage());
+      if (log.isWarnEnabled()) {
+        log.warn("error: Parse error occurred - "+e.getMessage());
+      }
       if (e instanceof SAXException) {
 	e = ((SAXException)e).getException();
       }

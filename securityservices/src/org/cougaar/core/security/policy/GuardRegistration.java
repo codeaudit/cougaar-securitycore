@@ -39,7 +39,6 @@ import kaos.policy.guard.PolicyDistributor;
 import org.apache.xml.serialize.XMLSerializer;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.w3c.dom.Document;
@@ -50,7 +49,6 @@ public abstract class GuardRegistration
   implements Enforcer, PolicyDistributor
 {
   public final String XML_KEY = "XMLContent";
-  private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   protected LoggingService log;
   private ConfigParserService cps = null;
@@ -74,10 +72,6 @@ public abstract class GuardRegistration
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class, null);
 
     cps = (ConfigParserService)
       serviceBroker.getService(this,

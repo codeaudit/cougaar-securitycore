@@ -58,7 +58,6 @@ import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.MessageProtectionService;
@@ -81,7 +80,6 @@ public class MessageProtectionServiceImpl
 
   private KeyRingService keyRing;
   private EncryptionService encryptService;
-  private SecurityPropertiesService secprop;
   private CryptoPolicyService cps = null;
   private WhitePagesService _wps = null;
 
@@ -100,10 +98,6 @@ public class MessageProtectionServiceImpl
     log = (LoggingService)
       serviceBroker.getService(this,
 			       LoggingService.class, null);
-
-    // Retrieve security properties service
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this, SecurityPropertiesService.class, null);
 
     if (log.isDebugEnabled()) {
       log.debug("Initializing MessageProtectionServiceImpl");

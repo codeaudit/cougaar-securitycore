@@ -60,23 +60,23 @@ import safe.enforcer.AgentEnforcer;
 public class AccessControlPolicyServiceImpl
   implements AccessControlPolicyService
 {
-  private SecurityPropertiesService secprop = null;
-  private Logger log;
-  private CommunityService _commu;
-  private ServiceBroker serviceBroker;
-  private ServiceListener _communitySL;
+  private transient SecurityPropertiesService secprop = null;
+  private transient Logger log;
+  private transient CommunityService _commu;
+  private transient ServiceBroker serviceBroker;
+  private transient ServiceListener _communitySL;
 
   //policy for society--usually the default, one-fits-all policy
-  AccessControlPolicy acp_in = null;
-  AccessControlPolicy acp_out = null;
+  private transient AccessControlPolicy acp_in = null;
+  private transient AccessControlPolicy acp_out = null;
   
   //policy for community--common policy for the team
-  AccessControlPolicy commu_in = null;
-  AccessControlPolicy commu_out = null;
+  private transient AccessControlPolicy commu_in = null;
+  private transient AccessControlPolicy commu_out = null;
 
   //policy for agent--the one and only
-  AccessControlPolicy agent_in = null;
-  AccessControlPolicy agent_out = null;
+  private transient AccessControlPolicy agent_in = null;
+  private transient AccessControlPolicy agent_out = null;
 
   /** 
    * Creates new AccessControlPolicyServiceImpl 
@@ -165,7 +165,9 @@ public class AccessControlPolicyServiceImpl
     }
 
     Object obj = acp.getCriticality(source);
-    if (obj==null) return null;
+    if (obj==null) {
+      return null;
+    }
     
     if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
@@ -175,7 +177,9 @@ public class AccessControlPolicyServiceImpl
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
     obj = acp.getIntegrity(source);
-    if (obj==null) return null;
+    if (obj==null) {
+      return null;
+    }
 
     if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
@@ -194,7 +198,9 @@ public class AccessControlPolicyServiceImpl
     }
     
     Object obj = acp.getCriticality(target);
-    if (obj==null) return null;
+    if (obj==null) {
+      return null;
+    }
     
     if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
@@ -205,7 +211,9 @@ public class AccessControlPolicyServiceImpl
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
     obj = acp.getIntegrity(target);
-    if (obj==null) return null;
+    if (obj==null) {
+      return null;
+    }
 
     if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
@@ -292,8 +300,9 @@ public class AccessControlPolicyServiceImpl
     if(log.isDebugEnabled()) {
       log.debug("Msg IN:" + source + "->" + target
          + ". Verbs:");
-      for(int i = 0; i < r.size(); i++)
+      for(int i = 0; i < r.size(); i++) {
         log.debug(r.get(i).toString() + " ");
+      }
     }
     String[] verbs = new String[r.size()];
     try {
@@ -318,9 +327,10 @@ public class AccessControlPolicyServiceImpl
     if(log.isDebugEnabled()) {
       log.debug("Msg OUT:" + source + "->" + target
 		       +". Verbs:");
-      for(int i = 0; i < r.size(); i++)
-      log.debug(r.get(i).toString() + ":"
-			 + r.get(i).getClass().getName() + " ");
+      for(int i = 0; i < r.size(); i++) {
+        log.debug(r.get(i).toString() + ":"
+			   + r.get(i).getClass().getName() + " ");
+      }
     }
     String[] verbs = new String[r.size()];
     try {
@@ -341,13 +351,14 @@ public class AccessControlPolicyServiceImpl
     extends GuardRegistration
     implements AgentEnforcer
   {
-    private String agent;
+    private transient String agent;
     //private boolean debug=this.debug;
     public AccessPolicyProxy(String name, ServiceBroker sb) {
       super("org.cougaar.core.security.policy.AccessControlPolicy", name, sb);
       agent = name;
-      if(log.isDebugEnabled())
-	log.debug("--adding AccessPolicyProxy for:"+ agent);
+      if(log.isDebugEnabled()) {
+	      log.debug("--adding AccessPolicyProxy for:" + agent);
+      }
       try {
       	registerEnforcer();
       }

@@ -214,8 +214,6 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     if (configParser == null) {
       throw new RuntimeException("unable to get config parser service");
     }
-
-    String installpath = secprop.getProperty(SecurityPropertiesService.COUGAAR_INSTALL_PATH);
     
     String role =
       secprop.getProperty(SecurityPropertiesService.SECURITY_ROLE);
@@ -515,7 +513,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       while (alias.hasMoreElements()) {
 	//build up the hashMap
 	String a = (String)alias.nextElement();
-	X509Certificate x=(X509Certificate)ks.getCertificate(a);
+	ks.getCertificate(a);
 	log.debug("  " + a);
       }
     }
@@ -1246,7 +1244,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       return isTrusted;
     }
     try {
-      X509Certificate[] certs = ks.checkCertificateTrust(certificate);
+      ks.checkCertificateTrust(certificate);
       // Could establish a certificate chain. Certificate is trusted.
       // Update Certificate Status.
       if (log.isDebugEnabled()) {

@@ -46,12 +46,12 @@ import org.cougaar.util.UnaryPredicate;
 class ThreadControlServiceProxy extends SecureServiceProxy 
   implements ThreadControlService {
   private final ThreadControlService _tcs;
-  private final Object _requestor;
+  //private final Object _requestor;
   
   public ThreadControlServiceProxy(ThreadControlService tcs, Object requestor, ServiceBroker sb) {
     super(sb);
     _tcs = tcs;
-    _requestor = requestor;
+    //_requestor = requestor;
   }
 
   public void setMaxRunningThreadCount(int count, int lane) {
@@ -134,8 +134,8 @@ class ThreadControlServiceProxy extends SecureServiceProxy
  
 
   class SecureComparator implements Comparator {
-    Comparator _comparator;
-    ExecutionContext _ec;
+    private Comparator _comparator;
+    private ExecutionContext _ec;
     
     SecureComparator(Comparator comparator, ExecutionContext ec) {
       _comparator = comparator;

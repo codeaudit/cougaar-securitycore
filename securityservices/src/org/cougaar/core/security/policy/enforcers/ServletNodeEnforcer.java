@@ -40,7 +40,6 @@ import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
 import kaos.ontology.vocabulary.ActionConcepts;
-import kaos.policy.information.KAoSProperty;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
@@ -65,10 +64,6 @@ public class ServletNodeEnforcer
   private ServiceBroker _sb;
   protected LoggingService _log;
   private final String _enforcedActionType = UltralogActionConcepts.ServletAccess();
-  private final String _authWeak = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "Weak";
-  private final String _authStrong = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "NSAApprovedProtection";
   private List _people;
   private EnforcerManagerService _guard;
   private OwlServletMapping _uriMap;
@@ -537,7 +532,7 @@ public class ServletNodeEnforcer
       new ActionInstanceDescription(_enforcedActionType,
                                     user,  
                                     targets);
-    KAoSProperty userProp = action.getProperty(ActionConcepts.performedBy());
+    action.getProperty(ActionConcepts.performedBy());
     boolean result = false;
     try {
       kaos.policy.guard.ActionPermission kap 

@@ -113,8 +113,6 @@ public class PolicyBootstrapper
     List parsedPolicies;
 
     try {
-      String line;
-
       log.debug(".PolicyBootStrapper: Reading daml policies file "
                 + cf.find(_damlBootPolicies));
       try {

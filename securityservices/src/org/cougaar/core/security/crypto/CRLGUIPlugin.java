@@ -41,7 +41,6 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class CRLGUIPlugin
   extends ComponentPlugin
@@ -60,21 +59,9 @@ public class CRLGUIPlugin
   private String units=new String("Seconds");
 
   private CRLCacheService crlCacheService=null;
-  private KeyRingService keyRing = null;
 
   public CRLGUIPlugin()
   {
-    // Get KeyRingService
-    keyRing = (KeyRingService)
-      getServiceBroker().getService(
-	this,
-	KeyRingService.class, 
-	new ServiceRevokedListener() {
-	    public void serviceRevoked(ServiceRevokedEvent re) {
-	      if (KeyRingService.class.equals(re.getService()))
-		keyRing  = null;
-	    }
-	  });
      crlCacheService = (CRLCacheService)
       getServiceBroker().getService(
 	this,

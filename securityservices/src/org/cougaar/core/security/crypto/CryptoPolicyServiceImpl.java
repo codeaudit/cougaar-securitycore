@@ -36,7 +36,6 @@ import org.cougaar.core.security.policy.DataProtectionPolicy;
 import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.ldm.policy.Policy;
@@ -46,7 +45,6 @@ import safe.enforcer.NodeEnforcer;
 public class CryptoPolicyServiceImpl
   implements CryptoPolicyService
 {
-  private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private CommunityService commu;
@@ -78,18 +76,6 @@ public class CryptoPolicyServiceImpl
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class, null);
-/*
-    commu = (CommunityService)
-      serviceBroker.getService(this, CommunityService.class, null);
-
-
-    if(commu==null && log.isWarnEnabled()){
-      log.warn("can't get community Service.");
-    }
-*/
     // check to see if CommunityService is available
     // if not, add listener
     if(serviceBroker.hasService

@@ -39,8 +39,8 @@ import org.cougaar.util.log.LoggerFactory;
 public class AccessAgentBinder 
   extends ServiceFilterBinder  {
 
-  private ServiceBroker serviceBroker;
-  private Logger log;
+  private transient ServiceBroker serviceBroker;
+  private transient Logger log;
 
   public  AccessAgentBinder (BinderFactory bf,Object child) {
     super(bf,child);
@@ -63,20 +63,20 @@ public class AccessAgentBinder
   protected class AccessAgentServiceBroker
     extends FilteringServiceBroker
     implements AccessPolicyClient  {
-    private MessageAddress _agent;
+    private transient MessageAddress agentAddress;
 
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
       //AgentIdentificationService ais = (AgentIdentificationService)
         //sb.getService(this, AgentIdentificationService.class, null);
-      _agent = MessageAddress.getMessageAddress(getComponentDescription().getName()); 
+      agentAddress = MessageAddress.getMessageAddress(getComponentDescription().getName()); 
     }
    
     /* ******************************************************************************************
      * BEGIN AccessPolicyClient Interface
      * ******************************************************************************************/
     public String getName(){
-      return _agent.toString();
+      return agentAddress.toString();
     }
 
     /* ******************************************************************************************

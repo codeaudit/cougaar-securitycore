@@ -23,22 +23,16 @@
  * </copyright> 
  */ 
 
-
-
 package org.cougaar.core.security.services.wp;
-
 
 import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.Component;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceProvider;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeControlService;
-import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.wp.WhitePagesProtectionService;
 import org.cougaar.util.GenericStateModelAdapter;
-
 
 /**
  * Advertives the <code>WhitePagesProtectionService</code> in the root
@@ -52,8 +46,6 @@ public class WPProtectionComponent extends GenericStateModelAdapter implements C
   private ServiceBroker sb;
   private ServiceBroker rootsb;
   private LoggingService logger;
-  private MessageAddress agentId;
-  private WhitePagesProtectionService proxyWP;
   private ProtectSP protectSP;
 
   /**
@@ -98,11 +90,6 @@ public class WPProtectionComponent extends GenericStateModelAdapter implements C
 
     sb.releaseService(this, NodeControlService.class, ncs);
     rootsb = ncs.getRootServiceBroker();
-
-    // which agent are we in?
-    AgentIdentificationService ais = (AgentIdentificationService) sb.getService(this, AgentIdentificationService.class, null);
-    agentId = ais.getMessageAddress();
-    sb.releaseService(this, AgentIdentificationService.class, ais);
 
     // advertize our service
     protectSP = new ProtectSP();

@@ -122,8 +122,7 @@ public class UserManagerPlugin extends ComponentPlugin {
     public Object value;
   }
 
-  private void setDomain(CommunityService cs, 
-                         AgentIdentificationService ais) {
+  private void setDomain() {
     final CommunityServiceUtil csu = 
       new CommunityServiceUtil(getServiceBroker());
     CommunityServiceUtilListener listener = 
@@ -183,7 +182,7 @@ public class UserManagerPlugin extends ComponentPlugin {
     if (cs == null || ais == null) {
       getServiceBroker().addServiceListener(new MyServiceListener(ais, cs));
     } else {
-      setDomain(cs, ais);
+      setDomain();
       getServiceBroker().releaseService(this, CommunityService.class, cs);
       getServiceBroker().releaseService(this, AgentIdentificationService.class,
                                         ais);
@@ -472,7 +471,7 @@ public class UserManagerPlugin extends ComponentPlugin {
         ae.getServiceBroker().removeServiceListener(this);
         if (!_completed) {
           _completed = true;
-          setDomain(_cs, _ais);
+          setDomain();
           getServiceBroker().releaseService(UserManagerPlugin.this, 
                                             CommunityService.class, _cs);
           getServiceBroker().releaseService(UserManagerPlugin.this, 

@@ -106,11 +106,9 @@ public class CertificateCheckAspect
   private class ProtectedDestinationLink
     extends DestinationLinkDelegateImplBase 
   {
-    private DestinationLink _delegatee;
 
     ProtectedDestinationLink(DestinationLink delegatee) {
       super(delegatee);
-      _delegatee = delegatee;
     }
 
     /**
