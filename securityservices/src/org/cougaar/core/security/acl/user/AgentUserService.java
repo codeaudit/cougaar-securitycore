@@ -166,6 +166,7 @@ public class AgentUserService implements UserService, BlackboardClient {
         }
       }
     }
+    _log.warn("Could not find default 'User' community");
   }
 
   public long currentTimeMillis() {
@@ -212,7 +213,10 @@ public class AgentUserService implements UserService, BlackboardClient {
                 Collection mgr =
                   _communityService.searchByRole(community, MANAGER_ROLE);
                 if (mgr.size() != 1) {
-                  throw new UserServiceException("Could not find user manager for domain '" + community + "'.");
+                  String message = "Could not find user manager for domain '" +
+                    community + "'.";
+                  _log.info(message);
+                  throw new UserServiceException(message);
                 }
                 target = (MessageAddress) mgr.iterator().next();
                 if (_log.isDebugEnabled()) {
@@ -228,7 +232,9 @@ public class AgentUserService implements UserService, BlackboardClient {
         }
       }
     }
-    throw new UserServiceException("Unknown community: " + community + ". Please try again later.");
+    String message = "Unknown community: " + community;
+    _log.info(message);
+    throw new UserServiceException(message);
   }
 
   private String getId(String id) {
