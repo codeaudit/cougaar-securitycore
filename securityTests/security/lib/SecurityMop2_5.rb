@@ -49,15 +49,17 @@ class SecurityMop2_5 < AbstractSecurityMop
       end
     else
       # note: these two values are swapped, but are fixed on the analysis side
-      @summary = "There were #{logged} servlet access attempts, #{total} were correct."
+      @summary = "There were #{total} servlet access attempts,#{logged} were correct.\n"
     end
     @raw = SecurityMop2_4.instance.raw5
     @info = SecurityMop2_4.instance.html5
+    @summary <<"<BR> Score :#{@score}</BR>\n" 
+    @summary << "#{@info}"
     success = false
     if (@score == 100.0)
       success = true
     end
-    saveResult(success, 'mop2.5',@summary)
+    saveResult(success, 'SecurityMop2.5',@summary)
   end
 
   def scoreText
