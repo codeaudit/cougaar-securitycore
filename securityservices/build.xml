@@ -74,7 +74,6 @@
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
         <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
         <!-- KAoS libraries -->
-        <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
     </path>
@@ -208,7 +207,6 @@
         </jar>
     </target>
     
-                      <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
@@ -221,6 +219,7 @@
             includes="org/cougaar/core/security/**/*.class,
 		     org/cougaar/core/security/SecurityComponent.class"
             excludes="org/cougaar/core/security/*bootstrap/**,
+                      org/cougaar/core/security/**/test/**,
                       org/cougaar/core/security/oldmonitoring/**"/>
         <jar jarfile="${securityservices.classes}/CougaarCRLextensions.jar"
             basedir="${securityservices.classes}"
