@@ -394,7 +394,7 @@ public class DataProtectionServiceImpl
       SecureMethodParam policy = dpKey.getSecureMethod();
 
       X500Name pmx500name = new X500Name(pmp.pmDN);
-      String commonName = pmx500name.getCommonName();
+      //String commonName = pmx500name.getCommonName();
       // find cert with common name does not return the certs from
       // peer, it only returns all the cert locally
       List certList = keyRing.findCert(pmx500name,

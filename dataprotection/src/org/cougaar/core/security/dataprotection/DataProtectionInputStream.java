@@ -69,9 +69,6 @@ public class DataProtectionInputStream extends FilterInputStream {
 
   private boolean debug = false;
 
-  // used to publish data failures
-  private EventPublisher eventPublisher;
-
   public DataProtectionInputStream(InputStream is,
                                    DataProtectionKeyEnvelope pke,
                                    String agent,
@@ -184,14 +181,6 @@ public class DataProtectionInputStream extends FilterInputStream {
       policy.symmSpec, dpKey.getCertificateChain()[0]);
   }
 
-  /*
-  public void addPublisher(EventPublisher publisher) {
-    if(eventPublisher == null) {
-      eventPublisher = publisher;
-    }
-  }
-  */
-
   /**
    * publish a data protection failure idmef alert
    */
@@ -200,22 +189,11 @@ public class DataProtectionInputStream extends FilterInputStream {
                                               agent,
                                               reason,
                                               data);
-    /*
-    if(eventPublisher != null) {
-      eventPublisher.publishEvent(event);
-    }
-    else {
-      if(debug) {
-        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
-      }
-    }
-    */
     SecurityEventPublisher.publishEvent(event);
   }
 
   private static class ChunkInputStream extends FilterInputStream {
     boolean _eof = false;
-    private boolean _isClosed = false;
     private boolean _isReset = false;
 
     private byte[] _byteBuf = new byte[40000];

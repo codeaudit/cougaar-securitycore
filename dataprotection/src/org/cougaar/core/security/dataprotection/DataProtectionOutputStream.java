@@ -80,9 +80,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private ByteArrayOutputStream bos = getStream();
   private static ArrayList streams = new ArrayList();
 
-  // used to publish data failures
-  private EventPublisher eventPublisher;
-
   public DataProtectionOutputStream(OutputStream os,
                                     DataProtectionKeyEnvelope pke,
                                     String agent, ServiceBroker sb)
@@ -287,14 +284,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     buffersize = size;
   }
 
-  /*
-  public void addPublisher(EventPublisher publisher) {
-    if(eventPublisher == null) {
-      eventPublisher = publisher;
-    }
-  }
-  */
-
   /**
    * publish a data protection failure idmef alert
    */
@@ -303,16 +292,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
                                               agent,
                                               reason,
                                               data);
-    /*
-    if(eventPublisher != null) {
-      eventPublisher.publishEvent(event);
-    }
-    else {
-      if(debug) {
-        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
-      }
-    }
-    */
     SecurityEventPublisher.publishEvent(event);
   }
 

@@ -91,8 +91,6 @@ public class PersistenceMgrPolicyServiceImpl
   private EventService _eventService;
   // Address of local node
   private MessageAddress _localNode = null;
-  // my community
-  private String _myCommunity;
   // list of persistence manager policies
   private List _policies;
 
@@ -136,7 +134,6 @@ public class PersistenceMgrPolicyServiceImpl
     sb.releaseService(this, NodeIdentificationService.class, nis);
     _threadService = (ThreadService)sb.getService(this, ThreadService.class, null);
 
-    _myCommunity = community;
     _policies = new ArrayList();
     _debug = _log.isDebugEnabled();
 
