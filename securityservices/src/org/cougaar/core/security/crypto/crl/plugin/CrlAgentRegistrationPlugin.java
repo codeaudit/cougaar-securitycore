@@ -63,6 +63,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   private IncrementalSubscription crlagentregistration;
   private IncrementalSubscription crlregistrationtable;
   private LoggingService loggingService=null;
+  private CrlRegistrationTable crlRegistrationTable=null;
   //private boolean completeregistration =true;
 
   /** The number of seconds between crl updates */
@@ -144,12 +145,24 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	loggingService.error(" BlackBoard Rehydrated but there is no crl registration:");
 	return;
       }
+      else {
+        Iterator iter=regcollection.iterator();
+        if(iter.hasNext()) {
+          crlRegistrationTable=(CrlRegistrationTable)iter.next();
+        }
+
+      }
     }
-    CrlRegistrationTable object=new CrlRegistrationTable();
-    getBlackboardService().publishAdd(object);
-    loggingService.debug(" Publishing CRL reg table :");
-    crlregistrationtable=(IncrementalSubscription)getBlackboardService().subscribe
-      (new CRLRegistrationTablePredicate());
+    else {
+      crlRegistrationTable=new CrlRegistrationTable();
+      getBlackboardService().publishAdd(crlRegistrationTable);
+       loggingService.debug(" Publishing CRL reg table :");
+    }
+   
+/*
+  crlregistrationtable=(IncrementalSubscription)getBlackboardService().subscribe
+  (new CRLRegistrationTablePredicate());
+*/
     crlagentregistration=(IncrementalSubscription)getBlackboardService().subscribe
       (new CRLAgentRegistrationPredicate());
 
@@ -161,37 +174,29 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
     ts.schedule(new CRLUpdate(), 0, _pollInterval );
+    loggingService.debug("Set up subscription done:"); 
 
   }
 
   protected void execute () {
     Iterator regiterator=null;
     Iterator regTableiterator=null;
-    CrlRegistrationTable regtable=null;
     CrlRegistrationObject regobject=null;
     CrlRelay crlrelay=null;
     CRLAgentRegistration regagentObject=null;
-    Collection regcolleaction= crlagentregistration.getAddedCollection();
-
-    Collection regtablecolleaction=crlregistrationtable.getCollection();
+    Collection regcollection= crlagentregistration.getAddedCollection();
+     Collection completecollection= crlagentregistration.getCollection();
     loggingService.debug("execute of crl agent registration plugin called ");
+    loggingService.debug("Recived Collection size for new CRL Registration :"+regcollection.size());
+    loggingService.debug("Complete Collection size for CRL Registration :"+completecollection.size());
     boolean modified=false;
-    if(regtablecolleaction.size()>1) {
-      loggingService.error(" More than one crl registartion found:" +regtablecolleaction.size());
-      return;
-    }
-    regTableiterator=regtablecolleaction.iterator();
-    while(regTableiterator.hasNext()) {
-      regtable=(CrlRegistrationTable)regTableiterator.next();
-      break;
-    }
-    if(regtable==null) {
+    if(crlRegistrationTable==null) {
       // completeregistration=false;
-      loggingService.debug("CRL registration table is null ");
+      loggingService.error("CRL registration table is null ");
       return;
     }
-    loggingService.debug("CRL agent registration data received:"+regcolleaction.size());
-    regiterator=regcolleaction.iterator();
+    loggingService.debug("CRL agent registration data received:"+regcollection.size());
+    regiterator=regcollection.iterator();
     while(regiterator.hasNext()) {
       // loggingService.debug("In while of reg iterator :");
       crlrelay=(CrlRelay)regiterator.next();
@@ -200,9 +205,9 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 			   +crlrelay.getSource());
       //Vector listMessageAddress=null;
       // synchronized(regtable) {
-      if(regtable.containsKey(regagentObject.dnName)) {
+      if(crlRegistrationTable.containsKey(regagentObject.dnName)) {
 	loggingService.debug("reg table contains key "+ regagentObject.toString());
-	regobject=(CrlRegistrationObject)regtable.get(regagentObject.dnName);
+	regobject=(CrlRegistrationObject)crlRegistrationTable.get(regagentObject.dnName);
 	try {
 	  loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
 	  regobject.addAgent(crlrelay.getSource());
@@ -244,13 +249,13 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	//regtable.put(regagentObject.dnName,regobject);
       }
       if(modified){
-	regtable.put(regagentObject.dnName,regobject);
+	crlRegistrationTable.put(regagentObject.dnName,regobject);
       }
     }
     //loggingService.debug("Going to Publishing  Crl registration table :");
     if(modified){
-      loggingService.debug("Publishing  Crl registration table :");
-      getBlackboardService().publishChange(regtable);
+      loggingService.debug("Publishing Crl registration table :");
+      getBlackboardService().publishChange(crlRegistrationTable);
     }
   }
 
@@ -265,12 +270,21 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       BlackboardService bbs = getBlackboardService();
       
       Collection regCollection=null;
-      Iterator regTableiterator=null;
-      CrlRegistrationTable regtable=null;
+      // Iterator regTableiterator=null;
+      //CrlRegistrationTable regtable=null;
       CrlRegistrationObject regObject=null;
-      bbs.openTransaction();
+      boolean opentransaction=false;
+      /*
+      opentransaction=bbs.isTransactionOpen();
+      if(!opentransaction) {
+        loggingService.debug(" There is no Open Transaction in CRL agent registartion Thread:");
+        bbs.openTransaction();
+      }
       regCollection=bbs.query(new CRLRegistrationTablePredicate());
-      bbs.closeTransaction();
+      if(!opentransaction) {
+        loggingService.debug(" Closing the open Transaction after Quering the BB inCRL agent registartion Thread:"); 
+        bbs.closeTransaction();
+      }
       if(regCollection.size()>1) {
 	loggingService.error(" More than one crl registartion found:");
 	return;
@@ -280,21 +294,26 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	regtable=(CrlRegistrationTable)regTableiterator.next();
 	break;
       }
+      */
       CertificateSearchService searchService=(CertificateSearchService)getBindingSite().getServiceBroker()
         .getService(this, CertificateSearchService.class, null);
       if(searchService==null) {
         loggingService.warn(" Unable to get CRL as Search Service is NULL:");
         return;
       }
-      Set regset=regtable.keySet();
+      Set regset=crlRegistrationTable.keySet();
       Iterator keyiterator=regset.iterator();
       String key=null;
       boolean modified=false;
-      bbs.openTransaction();
+      opentransaction=bbs.isTransactionOpen();
+      if(!opentransaction) {
+        loggingService.debug(" There is no Open Transaction in CRL agent registartion Thread:");
+        bbs.openTransaction();
+      }
       int counter=0;
       while(keyiterator.hasNext()) {
 	key=(String)keyiterator.next();
-	regObject=(CrlRegistrationObject)regtable.get(key);
+	regObject=(CrlRegistrationObject)crlRegistrationTable.get(key);
 	loggingService.debug(" Registration Object in CRL registration Table is :"+ regObject.toString());
         String modifiedTimestamp=null;
 	X509CRL crl=null;
@@ -372,8 +391,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
                   }
                 }//end of For loop
                 
-                regtable.put(regObject.dnName,regObject);
-                bbs.publishChange(regtable);
+                crlRegistrationTable.put(regObject.dnName,regObject);
+                bbs.publishChange(crlRegistrationTable);
                 loggingService.debug("published crl reg table after modifying timestamp or crl ");
               }//end if (modified)
             }//end if(certEntryObject instanceof CACertifcteEntry)
@@ -391,7 +410,12 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
           
         }
       }
-      bbs.closeTransaction();
+      opentransaction=bbs.isTransactionOpen();
+      if(!opentransaction) {
+         loggingService.debug("Closing the open Transaction after publishing CRL Relay on BB" +
+                              "in CRL agent registartion Thread:"); 
+        bbs.closeTransaction();
+      }
       loggingService.debug("CRL agent registartion Thread  has finished:");
 
     }
@@ -465,7 +489,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	    }
 	  }//end of For loop
 	  regtable.put(regObject.dnName,regObject);
-	  bbs.publishChange(regtable);
+	  bbs.publishChange(crlRegistrationTable);
 	  loggingService.debug("published crl reg table after modifying timestamp or crl ");
 	}//end if (modified)
       }//end of while
