@@ -16,12 +16,20 @@ final public class UltralogActionConcepts
 	}
 
 	// Concepts
+    public static String WPUpdateSelf() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "WPUpdateSelf"); 
+	}
     public static String BlackBoardAccess() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "BlackBoardAccess"); 
 	}
 
 	// Properties
+    public static String wpAccessType() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "wpAccessType"); 
+	}
     public static String usedAuditLevel() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel"); 

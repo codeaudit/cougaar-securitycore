@@ -20,6 +20,10 @@ final public class UltralogEntityConcepts
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "PlugInRoles"); 
 	}
+    public static String WPAccessType() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAccessType"); 
+	}
     public static String BlackBoardAccessMode() 
 	{
 		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardAccessMode"); 
@@ -56,4 +60,16 @@ final public class UltralogEntityConcepts
 	// Properties
 
 	// Instances
+    public static String WPAdd() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd"); 
+	}
+    public static String WPRemove() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove"); 
+	}
+    public static String WPChange() 
+	{
+		return OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange"); 
+	}
 }
