@@ -242,7 +242,7 @@ public class ULMessageNodeEnforcer
   public void testEnforcer(PrintWriter out, Set agents) 
     throws IOException, UnknownConceptException
   {
-    out.print("<p><b>Semantic Matchers Check</b></p>");
+    out.print("<p><b>Message Mediation Check</b></p>");
     for (Iterator agentIt = agents.iterator();
          agentIt.hasNext();) {
       String sender    = (String) agentIt.next();
