@@ -40,7 +40,7 @@ module Cougaar
 		# Not all nodes may be started, so we need to periodically
 		# check for new nodes. Also, some nodes may die.
 		@run.society.each_service_host("acme") { |host|
-		  response = @run.comms.new_message(host).set_body("command[list_java_pids]").request(30)
+		  response = @run.comms.new_message(host).set_body("command[list_java_pids]").request(300)
 		  if (response != nil)
 		    parsePids(response.body).each { |node, pid|
 		      #saveAssertion "processInfo", "getNodePid: #{node}: #{host.name} - #{pid}"
@@ -92,7 +92,7 @@ module Cougaar
 		# -o   output display
 		command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss"
 		#saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
-		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(30)
+		response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
 		parseMemoryUsage(nodeInfo, response.body)
 		logNodeInfo(nodeInfo)
 	      rescue => e
