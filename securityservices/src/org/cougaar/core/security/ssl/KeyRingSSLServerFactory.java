@@ -50,6 +50,12 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static SSLContext _sslcontext;
   private static WeakHashMap _sessionMap = new WeakHashMap();
 
+  private static SSLSocketCache   _socketCache;
+
+  static {
+    _socketCache = new SSLSocketCache();
+  }
+
   SSLServerSocketFactory ssocfac;
 
   boolean needAuth = true;
@@ -176,6 +182,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     else
     // default is want client authentication
       ((SSLServerSocket)soc).setWantClientAuth(true);
+
     return soc;
   }
 
@@ -197,6 +204,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
       if (sock == null) {
         return sock;
       }
+      updateSocketCache(sock);
       return new WrappedSSLSocket(sock);
     }
   }
@@ -213,4 +221,20 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     }
   }
   
+  private static void updateSocketCache(Socket socket) {
+    SSLSession session = null;
+    if (socket instanceof SSLSocket) {
+      session = ((SSLSocket)socket).getSession();
+    }
+    if (session != null) {
+      _socketCache.put(session, socket);
+    }
+  }
+
+  /** Provide the opportunity to invalidate existing or future
+   *  SSL sessions that use a given certificate.
+   */
+  public static void invalidateSession(X509Certificate aCert) {
+    _socketCache.closeSockets(aCert);
+  }
 }
