@@ -1,0 +1,35 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/10-TCBN-HHC"
+
+[Relationship]
+Superior "24-SPTGP-HHC" ""
+Supporting "110-QMCO-POLSPLY" "FuelSupplyProvider"
+Supporting "10-TCBN-HHC" "Level1HealthCareProvider"
+Supporting "147-MEDLOGBN" "MedicalSupplyProvider"
+Supporting "110-QMCO-POLSPLY" "PackagedPOLSupplyProvider"
+Supporting "553-CSB-HHD" "SubsistenceSupplyProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "HHC 10 TC Bn"
+AlternateTypeIdentification String "SRC/55816L000100"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "10-TCBN-HHC"
+
+[OrganizationPG]
+Roles Collection<Role> "Superior, MedicalSupplyProvider, SubsistenceSupplyProvider, FuelSupplyProvider, PackagedPOLSupplyProvider, Level1HealthCareProvider"
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String "WCKYAA"
+Echelon String "5"
+UTC String "UQH33"
+SRC String "55816L000100"
+Hierarchy2525 String "1.X.3.1.3.4.1"
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=HERT, InstallationTypeCode=AIN, CountryStateCode=51, CountryStateName=VIRGINIA, Name=FT_EUSTIS, Latitude=Latitude 37.1500degrees, Longitude=Longitude -76.5833degrees"

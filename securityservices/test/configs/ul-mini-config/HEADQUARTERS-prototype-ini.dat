@@ -1,0 +1,18 @@
+[Prototype]			Organization
+
+[UniqueId]      "UTC/CivilianOrg"
+
+[UIC]           "UIC/HEADQUARTERS"
+
+[Relationship]
+
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "HEADQUARTERS"
+AlternateTypeIdentification String  "SRC/HEADQUARTERS"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "HEADQUARTERS"
+
+[OrganizationPG]
+Roles                Collection<Role>   "Manager"

@@ -1,0 +1,59 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/DLAHQ"
+
+[Relationship]
+Superior "NCA" ""
+Supporting "2BWFuelInvMgr" "FuelSupplyProvider"
+Supporting "AvianoAFBFuelInvMgr" "FuelSupplyProvider"
+Supporting "DFSP" "FuelSupplyProvider"
+Supporting "DhahranAFBFuelInvMgr" "FuelSupplyProvider"
+Supporting "DiegoGarciaAFBFuelInvMgr" "FuelSupplyProvider"
+Supporting "FujairahAFBFuelInvMgr" "FuelSupplyProvider"
+Supporting "HOST-NATION-REFINERY" "FuelSupplyProvider"
+Supporting "PrinceSultanAFBFuelInvMgr" "FuelSupplyProvider"
+Supporting "10-TCBN-HHC" "MedicalSupplyProvider"
+Supporting "DET-1-SUPBN" "MedicalSupplyProvider"
+Supporting "PAKISTAN-REFUGEES" "MedicalSupplyProvider"
+Supporting "10-TCBN-HHC" "PackagedPOLSupplyProvider"
+Supporting "203-FSB" "SparePartsProvider"
+Supporting "26-FSB" "SparePartsProvider"
+Supporting "296-SPTBN" "SparePartsProvider"
+Supporting "2BWSparePartsInvMgr" "SparePartsProvider"
+Supporting "3-FSB" "SparePartsProvider"
+Supporting "602-MAINTCO" "SparePartsProvider"
+Supporting "603-DASB" "SparePartsProvider"
+Supporting "632-MAINTCO" "SparePartsProvider"
+Supporting "AvianoAFBSparePartsInvMgr" "SparePartsProvider"
+Supporting "DET-1-SUPBN" "SparePartsProvider"
+Supporting "DhahranAFBSparePartsInvMgr" "SparePartsProvider"
+Supporting "DiegoGarciaAFBSparePartsInvMgr" "SparePartsProvider"
+Supporting "FujairahAFBSparePartsInvMgr" "SparePartsProvider"
+Supporting "PrinceSultanAFBSparePartsInvMgr" "SparePartsProvider"
+Supporting "10-TCBN-HHC" "SubsistenceSupplyProvider"
+Supporting "DET-1-SUPBN" "SubsistenceSupplyProvider"
+Supporting "PAKISTAN-REFUGEES" "SubsistenceSupplyProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "DLA Headquarters"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "DLAHQ"
+
+[OrganizationPG]
+Roles Collection<Role> "SparePartsProvider, SubsistenceSupplyProvider, FuelSupplyProvider, PackagedPOLSupplyProvider, MedicalSupplyProvider"
+Service Service ""
+Agency Agency "DLA"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String ""
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=BVJS, InstallationTypeCode=AMO, CountryStateCode=21, CountryStateName=KENTUCKY, Name=BLUE_GRASS_DEPOT, Latitude=Latitude 37.7000degrees, Longitude=Longitude -84.2167degrees"

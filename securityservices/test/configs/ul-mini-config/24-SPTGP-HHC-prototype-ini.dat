@@ -1,0 +1,38 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/24-SPTGP-HHC"
+
+[Relationship]
+Superior "3ID-HHC" ""
+Supporting "3-DISCOM-HHC" "DSMaintenanceProvider"
+Supporting "3-DISCOM-HHC" "GSMaintenanceProvider"
+Supporting "24-SPTGP-HHC" "Level1HealthCareProvider"
+Supporting "3-DISCOM-HHC" "SupportForceProvider"
+Supporting "602-MAINTCO" "SupportForceProvider"
+Supporting "632-MAINTCO" "SupportForceProvider"
+Supporting "703-MSB" "SupportForceProvider"
+Supporting "3-DISCOM-HHC" "WaterPoster"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "HHC 24 Spt Group"
+AlternateTypeIdentification String "SRC/63422L000100"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "24-SPTGP-HHC"
+
+[OrganizationPG]
+Roles Collection<Role> "Superior, DSMaintenanceProvider, GSMaintenanceProvider, SupportForceProvider, WaterPoster, Level1HealthCareProvider"
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String "WJEMAA"
+Echelon String "7"
+UTC String "NBF22"
+SRC String "63422L000100"
+Hierarchy2525 String "1.X.3.1.3"
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=HKUZ, InstallationTypeCode=AIN, CountryStateCode=13, CountryStateName=GEORGIA, Name=FT_STEWART, Latitude=Latitude 31.8500degrees, Longitude=Longitude -81.6000degrees"

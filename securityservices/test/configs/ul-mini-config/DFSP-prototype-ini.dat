@@ -1,0 +1,32 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/DFSP"
+
+[Relationship]
+Superior "JTF-HHC" ""
+Supporting "10-TCBN-HHC" "FuelSupplyProvider"
+Supporting "DET-7-ESBN" "FuelSupplyProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "Defense Fuel Supply Point"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "DFSP"
+
+[OrganizationPG]
+Roles Collection<Role> "FuelSupplyProvider"
+Service Service ""
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String ""
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=ZNKY, InstallationTypeCode=JAP, CountryStateCode=ER, CountryStateName=ERITREA, Name=ASMARA, Latitude=Latitude 15.2906degrees, Longitude=Longitude 38.9103degrees"

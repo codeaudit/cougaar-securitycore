@@ -1,0 +1,32 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/APS-3"
+
+[Relationship]
+Superior "JTF-HHC" ""
+Supporting "10-TCBN-HHC" "FuelSupplyProvider"
+Supporting "10-TCBN-HHC" "PackagedPOLSupplyProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "Army Prepositoned Ship 3"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "APS-3"
+
+[OrganizationPG]
+Roles Collection<Role> "Superior, FuelSupplyProvider, PackagedPOLSupplyProvider"
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String ""
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=FGDB, InstallationTypeCode=PRT, CountryStateCode=IO, CountryStateName=DIEGO_GARCIA, Name=DIEGO_GARCIA_EAST, Latitude=Latitude -7.3500degrees, Longitude=Longitude 72.4667degrees"

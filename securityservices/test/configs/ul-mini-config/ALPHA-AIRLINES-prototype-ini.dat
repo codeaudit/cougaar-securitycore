@@ -1,0 +1,15 @@
+[Prototype] Organization
+
+[UIC] "ALPHA-AIRLINES"
+
+[Relationship]
+Superior "TRANSCOM" "TRANSCOM"
+Supporting "TRANSCOM" "TransportationProvider"
+
+[TypeIdentificationPG]
+TypeIdentification		String "UTC/Transport Organization"
+Nomenclature			String "US Transportation Commercial"
+AlternateTypeIdentification	String "Transport"
+
+[OrganizationPG]
+Roles Collection<Role> "TransportationProvider"

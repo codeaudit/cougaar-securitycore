@@ -1,0 +1,21 @@
+[Prototype]		Organization
+
+[UniqueId]      "UTC/CivilianOrg"
+
+[UIC]           "UIC/3rd-BRIGADE"
+
+[Relationship]
+Superior     "HEADQUARTERS"              "3rd-BRIGADE"
+
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "3rd-BRIGADE"
+AlternateTypeIdentification String  "SRC/3rd-BRIGADE"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "3rd-BRIGADE"
+
+[OrganizationPG]
+Roles                Collection<Role>   "Analyzer-POD:TCPSCAN:UDPSCAN:SecurityException"
+
+

@@ -1,0 +1,30 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/NCA"
+
+[Relationship]
+Superior "NCADomainManager" ""
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "National Command Authority"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "NCA"
+
+[OrganizationPG]
+Roles Collection<Role> ""
+Service Service ""
+Agency Agency "NCA"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String ""
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=YVUL, InstallationTypeCode=ADM, CountryStateCode=11, CountryStateName=DI_OF_COLUMBIA, Name=WHITE_HOUSE, Latitude=Latitude 38.9000degrees, Longitude=Longitude -77.0333degrees"
