@@ -55,7 +55,12 @@
 #/$*/hierarchy HierarchyServlet
 /$*/log_inventory LogInventoryServlet
 #
+/$RearPolicyDomainManagerServlet/policyAdmin RearPolicyServlet
+/$FwdPolicyDomainManagerServlet/policyAdmin FwdPolicyServlet
+/$ConusPolicyDomainManagerServlet/policyAdmin ConusPolicyServlet
+/$TransPolicyDomainManager/policyAdmin TransPolicyServlet
 /$*/policyAdmin PolicyServlet
+
 #
 /$*/move SocietyAdminServlet
 /$*/load SocietyAdminServlet
