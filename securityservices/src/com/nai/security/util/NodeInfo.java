@@ -72,7 +72,7 @@ public class NodeInfo
       nodeName = System.getProperty("org.cougaar.core.society.Node.name");
     }
     else {
-      nodeName = System.getProperty("org.cougaar.core.node.name");
+      nodeName = System.getProperty("org.cougaar.node.name");
     }
     if (debug) {
       System.out.println("Version: " + major + "." + minor + " - Node name:" + nodeName);
