@@ -72,13 +72,13 @@
 
     <agent name="caAgent">
       <rule>
-        <!-- all users and agents should be allowed to request a certificate -->
+        <!-- All users and agents should be allowed to
+             request a certificate -->
         <pattern>/CA/CertificateSigningRequest</pattern>
         <role>*</role>
       </rule>
       <rule>
-        <!-- This rule allows access to read-only portions of the CA -->
-        <!-- currently let everyone read the certificate database -->
+        <!-- This rule allows access to read-only portions of the CA. -->
         <pattern>/CA/Index</pattern>
         <pattern>/CA/Browser</pattern>
         <pattern>/CA/Main</pattern>
@@ -88,6 +88,7 @@
         <pattern>/CA/PendingCertDetailsServlet</pattern>
         <pattern>/CA/ListCaKeysServlet</pattern>
         <pattern>/CA/ListSubordCaServlet</pattern>
+        <!-- Currently let everyone read the certificate database. -->
         <role>*</role>
       </rule>
       <rule>
@@ -111,13 +112,27 @@
         <pattern>/TopologyServlet</pattern>
         <role>Topology</role>
       </rule>
-      <!-- use this rule to test the blackboard filter policies -->
+      <!-- For Rovers Managers to control and modify rovers -->
+      <!-- Perhaps this should be moved to a specific agent? -->
+      <rule>
+        <pattern>/Rover/ui</pattern>
+        <role>RoverManager</role>
+      </rule>
+      <!-- Allow only rovers to install code and communicate directly
+           with other rovers -->
+      <rule>
+        <pattern>/Rover/messageChallenge</pattern>
+        <role>Rover</role>
+      </rule>
+
+      <!-- use this rule to test the blackboard filter policies
       <rule>
         <pattern>/tasks</pattern>
         <role>MoveAgent</role>
         <role>CAAdministrator</role>
         <role>UserManager</role>
       </rule>
+       -->
     </agent>
 
     <!-- this is a dummy rule that shows an example
