@@ -134,77 +134,77 @@
 		(object Class_Category "agent"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_agent.cat"
+		    file_name  	"$MYPATH\\org_cougaar_agent.cat"
 		    quid       	"3C9238C80202")
 		(object Class_Category "mts"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_mts.cat"
+		    file_name  	"$MYPATH\\org_cougaar_mts.cat"
 		    quid       	"3C9238C80229")
 		(object Class_Category "component"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_component.cat"
+		    file_name  	"$MYPATH\\org_cougaar_component.cat"
 		    quid       	"3C9238DC0354")
 		(object Class_Category "node"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_node.cat"
+		    file_name  	"$MYPATH\\org_cougaar_node.cat"
 		    quid       	"3C9238EC0375")
 		(object Class_Category "domain"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_domain.cat"
+		    file_name  	"$MYPATH\\org_cougaar_domain.cat"
 		    quid       	"3C9239000143")
 		(object Class_Category "service"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_service.cat"
+		    file_name  	"$MYPATH\\org_cougaar_service.cat"
 		    quid       	"3C9239000229")
 		(object Class_Category "plugin"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_plugin.cat"
+		    file_name  	"$MYPATH\\org_cougaar_plugin.cat"
 		    quid       	"3C92390100E0")
 		(object Class_Category "blackboard"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_blackboard.cat"
+		    file_name  	"$MYPATH\\org_cougaar_blackboard.cat"
 		    quid       	"3C9239010112")
 		(object Class_Category "persist"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_persist.cat"
+		    file_name  	"$MYPATH\\org_cougaar_persist.cat"
 		    quid       	"3C923A1702F3")
 		(object Class_Category "logging"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_logging.cat"
+		    file_name  	"$MYPATH\\org_cougaar_logging.cat"
 		    quid       	"3C923A4A03C8")
 		(object Class_Category "naming"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_naming.cat"
+		    file_name  	"$MYPATH\\org_cougaar_naming.cat"
 		    quid       	"3C923AD5024C")
 		(object Class_Category "util"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_util.cat"
+		    file_name  	"$MYPATH\\org_cougaar_util.cat"
 		    quid       	"3C923AEB00A9")
 		(object Class_Category "qos"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_qos.cat"
+		    file_name  	"$MYPATH\\org_cougaar_qos.cat"
 		    quid       	"3C923B470368")
 		(object Class_Category "security"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_security.cat"
+		    file_name  	"$MYPATH\\org_cougaar_security.cat"
 		    quid       	"3C923B4B0255")
 		(object Class_Category "servlet"
 		    is_unit    	TRUE
 		    is_loaded  	FALSE
-		    file_name  	"C:\\UL\\UML\\org_cougaar_servlet.cat"
+		    file_name  	"$MYPATH\\org_cougaar_servlet.cat"
 		    quid       	"3C923B53009E")
 		(object Class_Category "examples"
 		    quid       	"3C927C980055"
@@ -6880,23 +6880,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C92395703B5"
-				    compartment 	(object Compartment
-					Parent_View 	@5
-					location   	(656, 2316)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					fill_color 	13434879
-					anchor     	2
-					nlines     	12
-					max_width  	621)
 				    width      	626
 				    height     	732
 				    annotation 	8
@@ -7018,6 +7001,23 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C927E2C0074"
+				    compartment 	(object Compartment
+					Parent_View 	@11
+					location   	(3239, 4040)
+					font       	(object Font
+					    size       	10
+					    face       	"Arial"
+					    bold       	FALSE
+					    italics    	FALSE
+					    underline  	FALSE
+					    strike     	FALSE
+					    color      	0
+					    default_color 	TRUE)
+					icon_style 	"Icon"
+					fill_color 	16777215
+					anchor     	2
+					nlines     	3
+					max_width  	0)
 				    width      	548
 				    height     	338
 				    annotation 	8
@@ -7056,23 +7056,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C923B5500AB"
-				    compartment 	(object Compartment
-					Parent_View 	@13
-					location   	(3105, 3058)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					anchor     	2
-					nlines     	8
-					max_width  	826
-					justify    	0)
 				    width      	58
 				    height     	58
 				    annotation 	8
@@ -7249,23 +7232,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C92395701E8"
-				    compartment 	(object Compartment
-					Parent_View 	@21
-					location   	(1451, 2210)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					anchor     	2
-					nlines     	9
-					max_width  	805
-					justify    	0)
 				    width      	58
 				    height     	58
 				    annotation 	8
@@ -7296,23 +7262,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C923B5300A0"
-				    compartment 	(object Compartment
-					Parent_View 	@22
-					location   	(1600, 3340)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					fill_color 	13434879
-					anchor     	2
-					nlines     	8
-					max_width  	510)
 				    width      	530
 				    height     	522
 				    annotation 	8
@@ -7688,23 +7637,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C923B530149"
-				    compartment 	(object Compartment
-					Parent_View 	@45
-					location   	(2545, 2338)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					anchor     	2
-					nlines     	4
-					max_width  	442
-					justify    	0)
 				    width      	58
 				    height     	58
 				    annotation 	8
@@ -7959,23 +7891,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C923B550214"
-				    compartment 	(object Compartment
-					Parent_View 	@58
-					location   	(3221, 2508)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					fill_color 	13434879
-					anchor     	2
-					nlines     	9
-					max_width  	563)
 				    width      	584
 				    height     	584
 				    annotation 	8
@@ -8014,23 +7929,6 @@
 				    line_color 	3342489
 				    fill_color 	13434879
 				    quidu      	"3C923A350057"
-				    compartment 	(object Compartment
-					Parent_View 	@60
-					location   	(1389, 258)
-					font       	(object Font
-					    size       	10
-					    face       	"Arial"
-					    bold       	FALSE
-					    italics    	FALSE
-					    underline  	FALSE
-					    strike     	FALSE
-					    color      	0
-					    default_color 	TRUE)
-					icon_style 	"Icon"
-					anchor     	2
-					nlines     	31
-					max_width  	801
-					justify    	0)
 				    width      	58
 				    height     	58
 				    annotation 	8
@@ -8214,11 +8112,11 @@
 	(object Class_Category "util"
 	    is_unit    	TRUE
 	    is_loaded  	FALSE
-	    file_name  	"C:\\UL\\UML\\org_cougaar_util2.cat"
+	    file_name  	"$MYPATH\\org_cougaar_util2.cat"
 	    quid       	"3C9239070085")
 	(object Class_Category "planning"
 	    is_unit    	TRUE
 	    is_loaded  	FALSE
-	    file_name  	"C:\\UL\\UML\\org_cougaar_planning.cat"
+	    file_name  	"$MYPATH\\org_cougaar_planning.cat"
 	    quid       	"3C923A2200A0"))
     logical_presentations 	(list unit_reference_list))

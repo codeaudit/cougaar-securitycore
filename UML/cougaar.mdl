@@ -60,7 +60,7 @@
 		    (object Class_Category "cougaar"
 			is_unit    	TRUE
 			is_loaded  	FALSE
-			file_name  	"C:\\UL\\UML\\org_cougaar.cat"
+			file_name  	"$MYPATH\\org_cougaar.cat"
 			quid       	"3C923878017A")
 		    (object Class_Category "xml"
 			quid       	"3C923C3D03C6"
@@ -117,7 +117,7 @@
 	    (object Class_Category "java"
 		is_unit    	TRUE
 		is_loaded  	FALSE
-		file_name  	"C:\\UL\\UML\\java_jdk1_4.cat"
+		file_name  	"$MYPATH\\java_jdk1_4.cat"
 		quid       	"3C92389402D8")
 	    (object Class_Category "javax"
 		quid       	"3C923A6A03E2"
@@ -3816,9 +3816,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"org.cougaar.message.transport.secure"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -6706,7 +6706,8 @@
 							result     	"PrivateKey"
 							concurrency 	"Sequential"
 							opExportControl 	"Private"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F900C8")
 						    (object Operation "getPrivateKey"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -6738,7 +6739,8 @@
 							result     	"PrivateKey"
 							concurrency 	"Sequential"
 							opExportControl 	"Private"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F900C8")
 						    (object Operation "createDirectoryStructure"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -7176,7 +7178,8 @@
 							exceptions 	"FileNotFoundException,IOException"
 							concurrency 	"Sequential"
 							opExportControl 	"Private"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC70701C3")
 						    (object Operation "signX509Certificate"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -7840,7 +7843,8 @@
 							result     	"Certificate"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC7120395")
 						    (object Operation "getCertificate"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -7871,11 +7875,13 @@
 								quidu      	"3C92390101B3")
 							    (object Parameter "publicKey"
 								quid       	"3C9BC6E10206"
-								type       	"PublicKey"))
+								type       	"PublicKey"
+								quidu      	"3C9BC71303E7"))
 							result     	"Certificate"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC7120395")
 						    (object Operation "addCertificateToList"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -7910,7 +7916,8 @@
 								quidu      	"3C92390101B3")
 							    (object Parameter "cert"
 								quid       	"3C9BC6E10218"
-								type       	"Certificate"))
+								type       	"Certificate"
+								quidu      	"3C9BC7120395"))
 							result     	"void"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -15624,7 +15631,8 @@
 							result     	"CertificateStatus"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F90122")
 						    (object Operation "getCertificate"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -15656,7 +15664,8 @@
 							result     	"CertificateStatus"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F90122")
 						    (object Operation "getCertificateByCommonName"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -15689,7 +15698,8 @@
 							result     	"CertificateStatus"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F90122")
 						    (object Operation "getValidCertificates"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -15822,7 +15832,8 @@
 							parameters 	(list Parameters
 							    (object Parameter "certificate"
 								quid       	"3C9BC6F9003C"
-								type       	"Certificate"))
+								type       	"Certificate"
+								quidu      	"3C9BC7120395"))
 							result     	"void"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -15853,7 +15864,8 @@
 							parameters 	(list Parameters
 							    (object Parameter "serialno"
 								quid       	"3C9BC6F9003E"
-								type       	"BigInteger")
+								type       	"BigInteger"
+								quidu      	"3C9BC70701C3")
 							    (object Parameter "issuerDN"
 								quid       	"3C9BC6F90046"
 								type       	"String"
@@ -15896,10 +15908,12 @@
 								quidu      	"3C92395B00B8")
 							    (object Parameter "certEntry"
 								quid       	"3C9BC6F90051"
-								type       	"CertificateStatus")
+								type       	"CertificateStatus"
+								quidu      	"3C9BC6F90122")
 							    (object Parameter "privkey"
 								quid       	"3C9BC6F90052"
-								type       	"PrivateKey"))
+								type       	"PrivateKey"
+								quidu      	"3C9BC6F900C8"))
 							result     	"void"
 							exceptions 	"SecurityException"
 							concurrency 	"Sequential"
@@ -15932,7 +15946,8 @@
 							parameters 	(list Parameters
 							    (object Parameter "certEntry"
 								quid       	"3C9BC6F9005B"
-								type       	"CertificateStatus"))
+								type       	"CertificateStatus"
+								quidu      	"3C9BC6F90122"))
 							result     	"void"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -16000,7 +16015,8 @@
 							result     	"PrivateKey"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F900C8")
 						    (object Operation "getPrivateKey"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -16032,7 +16048,8 @@
 							result     	"PrivateKey"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F900C8")
 						    (object Operation "getPrivateKeyByCommonName"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -16065,7 +16082,8 @@
 							result     	"PrivateKey"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC6F900C8")
 						    (object Operation "getPrivateKeys"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -16160,10 +16178,12 @@
 							parameters 	(list Parameters
 							    (object Parameter "privatekey"
 								quid       	"3C9BC6F90085"
-								type       	"PrivateKey")
+								type       	"PrivateKey"
+								quidu      	"3C9BC6F900C8")
 							    (object Parameter "certEntry"
 								quid       	"3C9BC6F9008C"
-								type       	"CertificateStatus"))
+								type       	"CertificateStatus"
+								quidu      	"3C9BC6F90122"))
 							result     	"void"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -16281,7 +16301,8 @@
 							parameters 	(list Parameters
 							    (object Parameter "crlkey"
 								quid       	"3C9BC6F900A0"
-								type       	"CRLKey"))
+								type       	"CRLKey"
+								quidu      	"3C9BC707017C"))
 							result     	"String"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -18256,7 +18277,8 @@
 							result     	"CRLWrapper"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC7070335")
 						    (object Operation "isCertificateInCRL"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -19333,11 +19355,13 @@
 								quidu      	"3C92390101B3")
 							    (object Parameter "policy"
 								quid       	"3C9BC70B029F"
-								type       	"SecureMethodParam"))
+								type       	"SecureMethodParam"
+								quidu      	"3C9BC7750257"))
 							result     	"PublicKeyEnvelope"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0)
+							uid        	0
+							quidu      	"3C9BC773039E")
 						    (object Operation "decryptAndVerify"
 							attributes 	(list Attribute_Set
 							    (object Attribute
@@ -19372,10 +19396,12 @@
 								quidu      	"3C92390101B3")
 							    (object Parameter "envelope"
 								quid       	"3C9BC70B02A8"
-								type       	"PublicKeyEnvelope")
+								type       	"PublicKeyEnvelope"
+								quidu      	"3C9BC773039E")
 							    (object Parameter "policy"
 								quid       	"3C9BC70B02A9"
-								type       	"SecureMethodParam"))
+								type       	"SecureMethodParam"
+								quidu      	"3C9BC7750257"))
 							result     	"Object"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -21256,9 +21282,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"SHA-1"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -21291,9 +21317,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"MD5"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -21326,9 +21352,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"MD2"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -21814,9 +21840,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateOrigin ("ORI_KEYSTORE")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -21852,9 +21878,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateOrigin ("ORI_LDAP")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -21890,9 +21916,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateOrigin ("ORI_PKCS12")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22193,9 +22219,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_UNKNOWN")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22231,9 +22257,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_SELF_SIGNED")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22269,9 +22295,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_CA_SIGNED")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22312,9 +22338,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_NOT_TRUSTED")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22350,9 +22376,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_CA_CERT")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22388,9 +22414,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateTrust ("TRUST_REVOKED_CERT")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22458,9 +22484,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateType ("TYPE_END_ENTITY")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22496,9 +22522,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new CertificateType ("TYPE_CA")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22524,9 +22550,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"-----BEGIN NEW CERTIFICATE REQUEST-----"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22558,9 +22584,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"-----END NEW CERTIFICATE REQUEST-----"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22592,9 +22618,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"-----BEGIN CERTIFICATE-----"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22626,9 +22652,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"-----END CERTIFICATE-----"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22756,9 +22782,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"nodeConfiguration"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22790,9 +22816,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CA_DN"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22824,9 +22850,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CA_URL"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22858,9 +22884,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"ou"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22892,9 +22918,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"o"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22926,9 +22952,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"l"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22960,9 +22986,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"st"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -22994,9 +23020,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"c"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23028,9 +23054,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"keyAlgName"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23062,9 +23088,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"sigAlgName"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23096,9 +23122,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"keysize"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23130,9 +23156,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"validity"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23164,9 +23190,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CA_keystore"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23198,9 +23224,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CA_keystorePassword"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23232,9 +23258,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CertDirectoryURL"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23266,9 +23292,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CertDirectoryType"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23300,9 +23326,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"certificateAuthority"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23334,9 +23360,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"keystoreFile"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23368,9 +23394,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"keystorePassword"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23402,9 +23428,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"caCommonName"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23436,9 +23462,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"ldapURL"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23470,9 +23496,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"ldapType"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23504,9 +23530,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"serialNumberFile"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23538,9 +23564,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"pkcs10Directory"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23572,9 +23598,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"x509CertDirectory"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23606,9 +23632,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CertPendingDirectory"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23640,9 +23666,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"CertDeniedDirectory"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23674,9 +23700,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"clientCertPolicy"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23708,9 +23734,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"certVersion"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23742,9 +23768,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"algorithmId"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23776,9 +23802,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"crlalgorithmId"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23810,9 +23836,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"keysize"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23844,9 +23870,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"certValidity"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -23878,9 +23904,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"requirePending"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -24361,9 +24387,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |new String ("Seconds")
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -25981,7 +26007,8 @@
 								result     	"CertificateRevocationStatus"
 								concurrency 	"Sequential"
 								opExportControl 	"Public"
-								uid        	0))
+								uid        	0
+								quidu      	"3C9BC7220121"))
 							module     	"Component View::com::nai::security::crypto::ldap::CertDirectoryServiceCA"
 							quidu      	"3C9BC6DE000B"
 							language   	"Java")
@@ -26379,7 +26406,8 @@
 								result     	"LdapEntry"
 								concurrency 	"Sequential"
 								opExportControl 	"Public"
-								uid        	0)
+								uid        	0
+								quidu      	"3C9BC7220398")
 							    (object Operation "isInitialized"
 								attributes 	(list Attribute_Set
 								    (object Attribute
@@ -28049,9 +28077,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"uniqueIdentifier"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28083,9 +28111,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"DN"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28117,9 +28145,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"info"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28151,9 +28179,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"cACertificate;binary"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28185,9 +28213,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"userCertificate;binary"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28219,9 +28247,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"certificateRevocationList;binary"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28253,9 +28281,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"authorityRevocationList;binary"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28287,9 +28315,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"certificationAuthority"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28321,9 +28349,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"inetOrgPerson"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28419,9 +28447,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"com.sun.jndi.ldap.LdapCtxFactory"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28496,9 +28524,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |new CertificateRevocationStatus ("UNKNOWN")
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28534,9 +28562,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |new CertificateRevocationStatus ("VALID")
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28572,9 +28600,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |new CertificateRevocationStatus ("REVOKED")
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28728,9 +28756,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"IssuingDistibutionPoint"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -28762,9 +28790,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"3"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -29722,7 +29750,8 @@
 							result     	"PolicyRuleBean"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
-							uid        	0))
+							uid        	0
+							quidu      	"3C9BC74B027F"))
 						module     	"Component View::com::nai::security::policy::PolicyCacheServesProxy"
 						quidu      	"3C9BC74900D7"
 						language   	"Java")
@@ -31558,9 +31587,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"XMLContent"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -32698,9 +32727,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"x509.info.extensions.CertificateIssuer"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32732,9 +32761,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"2.5.29.29"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32765,9 +32794,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"CertificateIssuer"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32799,9 +32828,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"certificateIssuer"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32865,9 +32894,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"x509.info.extensions.issuingDistributionPoint"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32899,9 +32928,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"2.5.29.28"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32932,9 +32961,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"IssuingDistributionPoint"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -32966,9 +32995,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"DISTIBUTION_POINT"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -33000,9 +33029,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"onlyContainsUserCerts"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -33034,9 +33063,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"onlyContainsCACerts"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -33068,9 +33097,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"onlySomeReason"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -33102,9 +33131,9 @@
 									    (object Attribute
 										tool       	"Java"
 										name       	"InitialValue"
-										value      	
+										value      	(value Text 
 |"indirectCRL"
-										)
+										))
 									    (object Attribute
 										tool       	"Java"
 										name       	"Final"
@@ -35020,9 +35049,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Send_Capabilities"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35054,9 +35083,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"UPDATE-YP-CAPABILITIES"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35088,9 +35117,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"QUERY_For_SERVICES"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35122,9 +35151,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"QUERY_From_PSP"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35156,9 +35185,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"RESPONSE_For_QUERY"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35190,9 +35219,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Process_Capabilities"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35224,9 +35253,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"QueryFor"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35258,9 +35287,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"QueryFormPSP"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35292,9 +35321,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"ResponseTo"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35326,9 +35355,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"FromManager"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35360,9 +35389,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"FromOther"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35394,9 +35423,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"FromUIInterface"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35428,9 +35457,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Start_Publishing_ui"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35462,9 +35491,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"FromAnalyzer"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35496,9 +35525,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Reporting_Analyzer"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35530,9 +35559,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Finding_Sensor"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35564,9 +35593,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Start_Publishing"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35598,9 +35627,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"From_Manager_Publish_Cmd"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35632,9 +35661,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Send_Sensor_Data"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35666,9 +35695,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Sensor_Data"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35700,9 +35729,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"From_Sensor"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35734,9 +35763,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Update_router"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -35768,9 +35797,9 @@
 								    (object Attribute
 									tool       	"Java"
 									name       	"InitialValue"
-									value      	
+									value      	(value Text 
 |"Unknown PSP request!"
-									)
+									))
 								    (object Attribute
 									tool       	"Java"
 									name       	"Final"
@@ -39479,7 +39508,8 @@
 								result     	"Agent"
 								concurrency 	"Sequential"
 								opExportControl 	"Private"
-								uid        	0))
+								uid        	0
+								quidu      	"3C9BC75C02D5"))
 							module     	"Component View::com::nai::security::test::jaas::Node"
 							quidu      	"3C9BC75D016C"
 							language   	"Java")
@@ -41094,9 +41124,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"IncomingSecureMethod"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -41128,9 +41158,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"OutgoingSecureMethod"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -41572,7 +41602,8 @@
 							parameters 	(list Parameters
 							    (object Parameter "node"
 								quid       	"3C9BC76503B3"
-								type       	"Node"))
+								type       	"Node"
+								quidu      	"3C9BC75D019E"))
 							result     	"void"
 							concurrency 	"Sequential"
 							opExportControl 	"Public"
@@ -42195,9 +42226,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"org.apache.xerces.parsers.DOMParser"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42231,9 +42262,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"UTF8"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42267,9 +42298,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |{"Default","UTF-8","US-ASCII","ISO-8859-1","ISO-8859-2","ISO-8859-3","ISO-8859-4","ISO-8859-5","ISO-8859-6","ISO-8859-7","ISO-8859-8","ISO-8859-9","ISO-2022-JP","SHIFT_JIS","EUC-JP","GB2312","BIG5","EUC-KR","ISO-2022-KR","KOI8-R","EBCDIC-CP-US","EBCDIC-CP-CA","EBCDIC-CP-NL","EBCDIC-CP-DK","EBCDIC-CP-NO","EBCDIC-CP-FI","EBCDIC-CP-SE","EBCDIC-CP-IT","EBCDIC-CP-ES","EBCDIC-CP-GB","EBCDIC-CP-FR","EBCDIC-CP-AR1","EBCDIC-CP-HE","EBCDIC-CP-CH","EBCDIC-CP-ROECE","EBCDIC-CP-YU","EBCDIC-CP-IS","EBCDIC-CP-AR2","UTF-16"}
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42335,9 +42366,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"y"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42369,9 +42400,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"M"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42403,9 +42434,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"d"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42437,9 +42468,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"h"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42471,9 +42502,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"m"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42505,9 +42536,9 @@
 							    (object Attribute
 								tool       	"Java"
 								name       	"InitialValue"
-								value      	
+								value      	(value Text 
 |"s"
-								)
+								))
 							    (object Attribute
 								tool       	"Java"
 								name       	"Final"
@@ -42573,7 +42604,7 @@
 		zoom       	85
 		max_height 	28350
 		max_width  	21600
-		origin_x   	4014
+		origin_x   	4015
 		origin_y   	338
 		items      	(list diagram_item_list
 		    (object ClassView "Class" "Logical View::org::cougaar::core::mts::MessageTransportClient" @1
@@ -42595,7 +42626,7 @@
 			    location   	(2015, 1996)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1152
+			    max_width  	1155
 			    justify    	0
 			    label      	"MessageTransportClient")
 			icon       	"Interface"
@@ -42626,7 +42657,7 @@
 			    location   	(2607, 1996)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1275
+			    max_width  	1278
 			    justify    	0
 			    label      	"ServiceRevokedListener")
 			icon       	"Interface"
@@ -42659,7 +42690,7 @@
 			    location   	(303, 1564)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1053
+			    max_width  	1056
 			    justify    	0
 			    label      	"BindingSite")
 			icon       	"Interface"
@@ -42690,7 +42721,7 @@
 			    location   	(2015, 1260)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1238
+			    max_width  	1241
 			    justify    	0
 			    label      	"MessageTransportService")
 			icon       	"Interface"
@@ -42967,7 +42998,7 @@
 			    location   	(303, 1036)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1213
+			    max_width  	1216
 			    justify    	0
 			    label      	"AgentManagerBindingSite")
 			icon       	"Interface"
@@ -43092,7 +43123,7 @@
 			    location   	(4783, 780)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	942
+			    max_width  	945
 			    justify    	0
 			    label      	"GenericStateModel")
 			icon       	"Interface"
@@ -43125,7 +43156,7 @@
 			    location   	(5615, 2364)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1062
+			    max_width  	1065
 			    justify    	0
 			    label      	"StateObject")
 			icon       	"Interface"
@@ -43158,7 +43189,7 @@
 			    location   	(4191, 3100)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1136
+			    max_width  	1139
 			    justify    	0
 			    label      	"ContainerBinder")
 			icon       	"Interface"
@@ -43191,7 +43222,7 @@
 			    location   	(5535, 3100)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	982
+			    max_width  	985
 			    justify    	0
 			    label      	"PluginBinder")
 			icon       	"Interface"
@@ -43224,7 +43255,7 @@
 			    location   	(3759, 1196)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1019
+			    max_width  	1022
 			    justify    	0
 			    label      	"Container")
 			icon       	"Interface"
@@ -43257,7 +43288,7 @@
 			    location   	(2015, 892)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	979
+			    max_width  	982
 			    justify    	0
 			    label      	"Service")
 			icon       	"Interface"
@@ -43276,40 +43307,7 @@
 			client     	@4
 			supplier   	@31
 			line_style 	0)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::BinderFactory" @33
-			ShowCompartmentStereotypes 	TRUE
-			SuppressAttribute 	TRUE
-			SuppressOperation 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(3504, 1888)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	FALSE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@33
-			    location   	(3503, 1996)
-			    anchor_loc 	1
-			    nlines     	1
-			    max_width  	1099
-			    justify    	0
-			    label      	"BinderFactory")
-			icon       	"Interface"
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C92395701B6"
-			width      	58
-			height     	58
-			annotation 	8
-			autoResize 	TRUE)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::BinderSupport" @34
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::BinderSupport" @33
 			ShowCompartmentStereotypes 	TRUE
 			SuppressAttribute 	TRUE
 			SuppressOperation 	TRUE
@@ -43326,7 +43324,7 @@
 			    color      	0
 			    default_color 	TRUE)
 			label      	(object ItemLabel
-			    Parent_View 	@34
+			    Parent_View 	@33
 			    location   	(4014, 2027)
 			    fill_color 	13434879
 			    nlines     	1
@@ -43341,7 +43339,7 @@
 			height     	130
 			annotation 	8
 			autoResize 	TRUE)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::Component" @35
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::Component" @34
 			ShowCompartmentStereotypes 	TRUE
 			SuppressAttribute 	TRUE
 			SuppressOperation 	TRUE
@@ -43358,11 +43356,11 @@
 			    color      	0
 			    default_color 	TRUE)
 			label      	(object ItemLabel
-			    Parent_View 	@35
+			    Parent_View 	@34
 			    location   	(4191, 1052)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1053
+			    max_width  	1056
 			    justify    	0
 			    label      	"Component")
 			icon       	"Interface"
@@ -43374,35 +43372,28 @@
 			height     	58
 			annotation 	8
 			autoResize 	TRUE)
-		    (object InheritView "" @36
+		    (object InheritView "" @35
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395803C0"
-			client     	@35
+			client     	@34
 			supplier   	@26
 			line_style 	0)
-		    (object InheritView "" @37
+		    (object InheritView "" @36
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395A0247"
 			client     	@30
-			supplier   	@35
+			supplier   	@34
 			line_style 	0)
-		    (object InheritView "" @38
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C92395702E4"
-			client     	@33
-			supplier   	@35
-			line_style 	0)
-		    (object AssociationViewNew "" @39
+		    (object AssociationViewNew "" @37
 			location   	(4173, 1545)
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C923958012B"
 			roleview_list 	(list RoleViews
-			    (object RoleView "" @40
-				Parent_View 	@39
+			    (object RoleView "" @38
+				Parent_View 	@37
 				location   	(1261, 281)
 				font       	(object Font
 				    size       	10
@@ -43413,8 +43404,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @41
-				    Parent_View 	@40
+				label      	(object SegLabel @39
+				    Parent_View 	@38
 				    location   	(4122, 1919)
 				    font       	(object Font
 					size       	10
@@ -43438,11 +43429,11 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C9239580136"
-				client     	@39
-				supplier   	@34
+				client     	@37
+				supplier   	@33
 				line_style 	0)
-			    (object RoleView "child" @42
-				Parent_View 	@39
+			    (object RoleView "child" @40
+				Parent_View 	@37
 				location   	(1261, 281)
 				font       	(object Font
 				    size       	10
@@ -43453,8 +43444,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @43
-				    Parent_View 	@42
+				label      	(object SegLabel @41
+				    Parent_View 	@40
 				    location   	(4225, 1173)
 				    font       	(object Font
 					size       	10
@@ -43477,10 +43468,82 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C923958012C"
-				client     	@39
-				supplier   	@35
+				client     	@37
+				supplier   	@34
 				line_style 	0)))
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ComponentFactory" @44
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceBrokerSupport" @42
+			ShowCompartmentStereotypes 	TRUE
+			SuppressAttribute 	TRUE
+			SuppressOperation 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(2992, 176)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	FALSE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@42
+			    location   	(2781, 123)
+			    fill_color 	13434879
+			    nlines     	1
+			    max_width  	422
+			    justify    	0
+			    label      	"ServiceBrokerSupport")
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C92395B02D4"
+			width      	440
+			height     	130
+			annotation 	8
+			autoResize 	TRUE)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceListener" @43
+			ShowCompartmentStereotypes 	TRUE
+			SuppressAttribute 	TRUE
+			SuppressOperation 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(2608, 1536)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	FALSE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@43
+			    location   	(2607, 1644)
+			    anchor_loc 	1
+			    nlines     	1
+			    max_width  	1130
+			    justify    	0
+			    label      	"ServiceListener")
+			icon       	"Interface"
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C92395C0037"
+			width      	58
+			height     	58
+			annotation 	8
+			autoResize 	TRUE)
+		    (object InheritView "" @44
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C92395D01E7"
+			client     	@2
+			supplier   	@43
+			line_style 	0)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ComponentFactory" @45
 			ShowCompartmentStereotypes 	TRUE
 			SuppressAttribute 	TRUE
 			SuppressOperation 	TRUE
@@ -43497,7 +43560,7 @@
 			    color      	0
 			    default_color 	TRUE)
 			label      	(object ItemLabel
-			    Parent_View 	@44
+			    Parent_View 	@45
 			    location   	(3992, 347)
 			    fill_color 	13434879
 			    nlines     	1
@@ -43512,14 +43575,14 @@
 			height     	130
 			annotation 	8
 			autoResize 	TRUE)
-		    (object AssociationViewNew "" @45
+		    (object AssociationViewNew "" @46
 			location   	(4322, 625)
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395A0002"
 			roleview_list 	(list RoleViews
-			    (object RoleView "singleton" @46
-				Parent_View 	@45
+			    (object RoleView "singleton" @47
+				Parent_View 	@46
 				location   	(2386, 417)
 				font       	(object Font
 				    size       	10
@@ -43530,8 +43593,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @47
-				    Parent_View 	@46
+				label      	(object SegLabel @48
+				    Parent_View 	@47
 				    location   	(4315, 480)
 				    font       	(object Font
 					size       	10
@@ -43554,15 +43617,15 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395A0003"
-				client     	@45
-				supplier   	@44
+				client     	@46
+				supplier   	@45
 				vertices   	(list Points
 				    (4322, 625)
 				    (4401, 625)
 				    (4241, 465))
 				line_style 	0)
-			    (object RoleView "" @48
-				Parent_View 	@45
+			    (object RoleView "" @49
+				Parent_View 	@46
 				location   	(2386, 417)
 				font       	(object Font
 				    size       	10
@@ -43573,8 +43636,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @49
-				    Parent_View 	@48
+				label      	(object SegLabel @50
+				    Parent_View 	@49
 				    location   	(4135, 527)
 				    font       	(object Font
 					size       	10
@@ -43598,86 +43661,14 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395A0005"
-				client     	@45
-				supplier   	@44
+				client     	@46
+				supplier   	@45
 				vertices   	(list Points
 				    (4322, 625)
 				    (4176, 625)
 				    (4176, 465))
 				line_style 	0)))
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceBrokerSupport" @50
-			ShowCompartmentStereotypes 	TRUE
-			SuppressAttribute 	TRUE
-			SuppressOperation 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(2992, 176)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	FALSE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@50
-			    location   	(2781, 123)
-			    fill_color 	13434879
-			    nlines     	1
-			    max_width  	422
-			    justify    	0
-			    label      	"ServiceBrokerSupport")
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C92395B02D4"
-			width      	440
-			height     	130
-			annotation 	8
-			autoResize 	TRUE)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceListener" @51
-			ShowCompartmentStereotypes 	TRUE
-			SuppressAttribute 	TRUE
-			SuppressOperation 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(2608, 1536)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	FALSE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@51
-			    location   	(2607, 1644)
-			    anchor_loc 	1
-			    nlines     	1
-			    max_width  	1127
-			    justify    	0
-			    label      	"ServiceListener")
-			icon       	"Interface"
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C92395C0037"
-			width      	58
-			height     	58
-			annotation 	8
-			autoResize 	TRUE)
-		    (object InheritView "" @52
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C92395D01E7"
-			client     	@2
-			supplier   	@51
-			line_style 	0)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ContainerSupport" @53
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ContainerSupport" @51
 			ShowCompartmentStereotypes 	TRUE
 			SuppressAttribute 	TRUE
 			SuppressOperation 	TRUE
@@ -43692,7 +43683,7 @@
 			    color      	0
 			    default_color 	TRUE)
 			label      	(object ItemLabel
-			    Parent_View 	@53
+			    Parent_View 	@51
 			    location   	(3334, 811)
 			    fill_color 	13434879
 			    nlines     	1
@@ -43707,28 +43698,28 @@
 			height     	130
 			annotation 	8
 			autoResize 	TRUE)
-		    (object InheritView "" @54
+		    (object InheritView "" @52
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C923AFB03E1"
 			client     	@5
-			supplier   	@53
+			supplier   	@51
 			line_style 	0)
-		    (object InheritView "" @55
+		    (object InheritView "" @53
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C9239F10186"
 			client     	@13
-			supplier   	@53
+			supplier   	@51
 			line_style 	0)
-		    (object AssociationViewNew "" @56
+		    (object AssociationViewNew "" @54
 			location   	(3839, 631)
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395B0068"
 			roleview_list 	(list RoleViews
-			    (object RoleView "" @57
-				Parent_View 	@56
+			    (object RoleView "" @55
+				Parent_View 	@54
 				location   	(1903, 423)
 				font       	(object Font
 				    size       	10
@@ -43739,8 +43730,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @58
-				    Parent_View 	@57
+				label      	(object SegLabel @56
+				    Parent_View 	@55
 				    location   	(3623, 730)
 				    font       	(object Font
 					size       	10
@@ -43764,11 +43755,11 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395B006B"
-				client     	@56
-				supplier   	@53
+				client     	@54
+				supplier   	@51
 				line_style 	0)
-			    (object RoleView "componentFactory" @59
-				Parent_View 	@56
+			    (object RoleView "componentFactory" @57
+				Parent_View 	@54
 				location   	(1903, 423)
 				font       	(object Font
 				    size       	10
@@ -43779,8 +43770,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @60
-				    Parent_View 	@59
+				label      	(object SegLabel @58
+				    Parent_View 	@57
 				    location   	(4009, 465)
 				    font       	(object Font
 					size       	10
@@ -43803,10 +43794,203 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395B0069"
-				client     	@56
-				supplier   	@44
+				client     	@54
+				supplier   	@45
 				line_style 	0)))
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceBroker" @61
+		    (object RealizeView "" @59
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C92395B0053"
+			client     	@51
+			supplier   	@30
+			line_style 	0)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::agent::AgentManagerForBinder" @60
+			ShowCompartmentStereotypes 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(1456, 2560)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	FALSE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@60
+			    location   	(1455, 2668)
+			    anchor_loc 	1
+			    nlines     	2
+			    max_width  	1176
+			    justify    	0
+			    label      	"AgentManagerForBinder")
+			icon       	"Interface"
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C9239F10230"
+			width      	58
+			height     	58
+			annotation 	8
+			autoResize 	TRUE)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::agent::Agent" @61
+			ShowCompartmentStereotypes 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(2256, 384)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	TRUE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@61
+			    location   	(1992, 68)
+			    fill_color 	13434879
+			    nlines     	1
+			    max_width  	528
+			    justify    	0
+			    label      	"Agent")
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C92390000FD"
+			compartment 	(object Compartment
+			    Parent_View 	@61
+			    location   	(1992, 179)
+			    font       	(object Font
+				size       	10
+				face       	"Arial"
+				bold       	FALSE
+				italics    	FALSE
+				underline  	FALSE
+				strike     	FALSE
+				color      	0
+				default_color 	TRUE)
+			    icon_style 	"Icon"
+			    fill_color 	13434879
+			    anchor     	2
+			    nlines     	11
+			    max_width  	556)
+			width      	546
+			height     	656
+			annotation 	8
+			autoResize 	TRUE)
+		    (object InheritView "" @62
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C9239EF0396"
+			client     	@61
+			supplier   	@51
+			line_style 	0)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::Binder" @63
+			ShowCompartmentStereotypes 	TRUE
+			SuppressAttribute 	TRUE
+			SuppressOperation 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(4720, 2416)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	FALSE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@63
+			    location   	(4719, 2524)
+			    anchor_loc 	1
+			    nlines     	1
+			    max_width  	967
+			    justify    	0
+			    label      	"Binder")
+			icon       	"Interface"
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C92395700BC"
+			width      	58
+			height     	58
+			annotation 	8
+			autoResize 	TRUE)
+		    (object InheritView "" @64
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C92395700E4"
+			client     	@63
+			supplier   	@26
+			line_style 	0)
+		    (object InheritView "" @65
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C9239570102"
+			client     	@63
+			supplier   	@27
+			line_style 	0)
+		    (object InheritView "" @66
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C92395A02F1"
+			client     	@28
+			supplier   	@63
+			line_style 	0)
+		    (object InheritView "" @67
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C923B2E02F4"
+			client     	@29
+			supplier   	@63
+			line_style 	0)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::BinderFactory" @68
+			ShowCompartmentStereotypes 	TRUE
+			SuppressAttribute 	TRUE
+			SuppressOperation 	TRUE
+			IncludeAttribute 	TRUE
+			IncludeOperation 	TRUE
+			location   	(3504, 1888)
+			font       	(object Font
+			    size       	10
+			    face       	"Arial"
+			    bold       	FALSE
+			    italics    	FALSE
+			    underline  	FALSE
+			    strike     	FALSE
+			    color      	0
+			    default_color 	TRUE)
+			label      	(object ItemLabel
+			    Parent_View 	@68
+			    location   	(3503, 1996)
+			    anchor_loc 	1
+			    nlines     	1
+			    max_width  	1102
+			    justify    	0
+			    label      	"BinderFactory")
+			icon       	"Interface"
+			icon_style 	"Icon"
+			line_color 	3342489
+			fill_color 	13434879
+			quidu      	"3C92395701B6"
+			width      	58
+			height     	58
+			annotation 	8
+			autoResize 	TRUE)
+		    (object InheritView "" @69
+			stereotype 	TRUE
+			line_color 	3342489
+			quidu      	"3C92395702E4"
+			client     	@68
+			supplier   	@34
+			line_style 	0)
+		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceBroker" @70
 			ShowCompartmentStereotypes 	TRUE
 			SuppressAttribute 	TRUE
 			SuppressOperation 	TRUE
@@ -43823,11 +44007,11 @@
 			    color      	0
 			    default_color 	TRUE)
 			label      	(object ItemLabel
-			    Parent_View 	@61
+			    Parent_View 	@70
 			    location   	(2351, 700)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1096
+			    max_width  	1099
 			    justify    	0
 			    label      	"ServiceBroker")
 			icon       	"Interface"
@@ -43839,14 +44023,14 @@
 			height     	58
 			annotation 	8
 			autoResize 	TRUE)
-		    (object AssociationViewNew "" @62
+		    (object AssociationViewNew "" @71
 			location   	(3114, 771)
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395B00A4"
 			roleview_list 	(list RoleViews
-			    (object RoleView "" @63
-				Parent_View 	@62
+			    (object RoleView "" @72
+				Parent_View 	@71
 				location   	(2826, -1149)
 				font       	(object Font
 				    size       	10
@@ -43857,8 +44041,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @64
-				    Parent_View 	@63
+				label      	(object SegLabel @73
+				    Parent_View 	@72
 				    location   	(3291, 771)
 				    font       	(object Font
 					size       	10
@@ -43882,11 +44066,11 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395B00A7"
-				client     	@62
-				supplier   	@53
+				client     	@71
+				supplier   	@51
 				line_style 	0)
-			    (object RoleView "childServiceBroker" @65
-				Parent_View 	@62
+			    (object RoleView "childServiceBroker" @74
+				Parent_View 	@71
 				location   	(2826, -1149)
 				font       	(object Font
 				    size       	10
@@ -43897,8 +44081,8 @@
 				    strike     	FALSE
 				    color      	0
 				    default_color 	TRUE)
-				label      	(object SegLabel @66
-				    Parent_View 	@65
+				label      	(object SegLabel @75
+				    Parent_View 	@74
 				    location   	(2957, 691)
 				    font       	(object Font
 					size       	10
@@ -43921,168 +44105,15 @@
 				stereotype 	TRUE
 				line_color 	3342489
 				quidu      	"3C92395B00A5"
-				client     	@62
-				supplier   	@61
+				client     	@71
+				supplier   	@70
 				line_style 	0)))
-		    (object RealizeView "" @67
+		    (object RealizeView "" @76
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395C0109"
-			client     	@50
-			supplier   	@61
-			line_style 	0)
-		    (object RealizeView "" @68
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C92395B0053"
-			client     	@53
-			supplier   	@30
-			line_style 	0)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::agent::AgentManagerForBinder" @69
-			ShowCompartmentStereotypes 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(1456, 2560)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	FALSE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@69
-			    location   	(1455, 2668)
-			    anchor_loc 	1
-			    nlines     	2
-			    max_width  	1173
-			    justify    	0
-			    label      	"AgentManagerForBinder")
-			icon       	"Interface"
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C9239F10230"
-			width      	58
-			height     	58
-			annotation 	8
-			autoResize 	TRUE)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::agent::Agent" @70
-			ShowCompartmentStereotypes 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(2256, 384)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	TRUE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@70
-			    location   	(1992, 68)
-			    fill_color 	13434879
-			    nlines     	1
-			    max_width  	528
-			    justify    	0
-			    label      	"Agent")
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C92390000FD"
-			compartment 	(object Compartment
-			    Parent_View 	@70
-			    location   	(1992, 179)
-			    font       	(object Font
-				size       	10
-				face       	"Arial"
-				bold       	FALSE
-				italics    	FALSE
-				underline  	FALSE
-				strike     	FALSE
-				color      	0
-				default_color 	TRUE)
-			    icon_style 	"Icon"
-			    fill_color 	13434879
-			    anchor     	2
-			    nlines     	11
-			    max_width  	556)
-			width      	546
-			height     	656
-			annotation 	8
-			autoResize 	TRUE)
-		    (object InheritView "" @71
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C9239EF0396"
-			client     	@70
-			supplier   	@53
-			line_style 	0)
-		    (object ClassView "Class" "Logical View::org::cougaar::core::component::Binder" @72
-			ShowCompartmentStereotypes 	TRUE
-			SuppressAttribute 	TRUE
-			SuppressOperation 	TRUE
-			IncludeAttribute 	TRUE
-			IncludeOperation 	TRUE
-			location   	(4720, 2416)
-			font       	(object Font
-			    size       	10
-			    face       	"Arial"
-			    bold       	FALSE
-			    italics    	FALSE
-			    underline  	FALSE
-			    strike     	FALSE
-			    color      	0
-			    default_color 	TRUE)
-			label      	(object ItemLabel
-			    Parent_View 	@72
-			    location   	(4719, 2524)
-			    anchor_loc 	1
-			    nlines     	1
-			    max_width  	964
-			    justify    	0
-			    label      	"Binder")
-			icon       	"Interface"
-			icon_style 	"Icon"
-			line_color 	3342489
-			fill_color 	13434879
-			quidu      	"3C92395700BC"
-			width      	58
-			height     	58
-			annotation 	8
-			autoResize 	TRUE)
-		    (object InheritView "" @73
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C92395700E4"
-			client     	@72
-			supplier   	@26
-			line_style 	0)
-		    (object InheritView "" @74
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C9239570102"
-			client     	@72
-			supplier   	@27
-			line_style 	0)
-		    (object InheritView "" @75
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C92395A02F1"
-			client     	@28
-			supplier   	@72
-			line_style 	0)
-		    (object InheritView "" @76
-			stereotype 	TRUE
-			line_color 	3342489
-			quidu      	"3C923B2E02F4"
-			client     	@29
-			supplier   	@72
+			client     	@42
+			supplier   	@70
 			line_style 	0)
 		    (object ClassView "Class" "Logical View::org::cougaar::core::component::BinderBase" @77
 			ShowCompartmentStereotypes 	TRUE
@@ -44199,13 +44230,13 @@
 				line_color 	3342489
 				quidu      	"3C92395701CB"
 				client     	@78
-				supplier   	@33
+				supplier   	@68
 				line_style 	0)))
 		    (object InheritView "" @83
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C92395800E5"
-			client     	@34
+			client     	@33
 			supplier   	@77
 			line_style 	0)
 		    (object AssociationViewNew "" @84
@@ -44291,7 +44322,7 @@
 				line_color 	3342489
 				quidu      	"3C92395701FD"
 				client     	@84
-				supplier   	@61
+				supplier   	@70
 				vertices   	(list Points
 				    (3057, 1253)
 				    (3058, 864)
@@ -44302,7 +44333,7 @@
 			line_color 	3342489
 			quidu      	"3C92395701A2"
 			client     	@77
-			supplier   	@72
+			supplier   	@63
 			line_style 	0)
 		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ServiceFilterBinder" @90
 			ShowCompartmentStereotypes 	TRUE
@@ -44423,7 +44454,7 @@
 				line_color 	3342489
 				quidu      	"3C92395C031D"
 				client     	@91
-				supplier   	@61
+				supplier   	@70
 				line_style 	0)))
 		    (object ClassView "Class" "Logical View::org::cougaar::core::component::ContainerAPI" @96
 			ShowCompartmentStereotypes 	TRUE
@@ -44444,7 +44475,7 @@
 			    location   	(1407, 2108)
 			    anchor_loc 	1
 			    nlines     	1
-			    max_width  	1084
+			    max_width  	1087
 			    justify    	0
 			    label      	"ContainerAPI")
 			icon       	"Interface"
@@ -44478,14 +44509,14 @@
 			supplier   	@3
 			line_style 	0)
 		    (object AssociationViewNew "" @100
-			location   	(2426, 2205)
+			location   	(2427, 2205)
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C923957022E"
 			roleview_list 	(list RoleViews
 			    (object RoleView "" @101
 				Parent_View 	@100
-				location   	(2234, 1037)
+				location   	(2235, 1037)
 				font       	(object Font
 				    size       	10
 				    face       	"Arial"
@@ -44497,7 +44528,7 @@
 				    default_color 	TRUE)
 				label      	(object SegLabel @102
 				    Parent_View 	@101
-				    location   	(2796, 2324)
+				    location   	(2797, 2324)
 				    font       	(object Font
 					size       	10
 					face       	"Arial"
@@ -44525,7 +44556,7 @@
 				line_style 	0)
 			    (object RoleView "parent" @103
 				Parent_View 	@100
-				location   	(2234, 1037)
+				location   	(2235, 1037)
 				font       	(object Font
 				    size       	10
 				    face       	"Arial"
@@ -44537,7 +44568,7 @@
 				    default_color 	TRUE)
 				label      	(object SegLabel @104
 				    Parent_View 	@103
-				    location   	(2040, 2168)
+				    location   	(2041, 2168)
 				    font       	(object Font
 					size       	10
 					face       	"Arial"
@@ -44651,14 +44682,14 @@
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C9239F202BE"
-			client     	@69
+			client     	@60
 			supplier   	@96
 			line_style 	0)
 		    (object RealizeView "" @111
 			stereotype 	TRUE
 			line_color 	3342489
 			quidu      	"3C9239EF03AA"
-			client     	@70
+			client     	@61
 			supplier   	@96
 			line_style 	0)))
 	    (object ClassDiagram "Legend"
