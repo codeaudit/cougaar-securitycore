@@ -1,0 +1,53 @@
+#!/bin/sh
+
+rm -f $CIP/workspace/log4jlogs/ethereal.log
+
+# deal with command-line arguments
+# commandline arguments before the nodename
+preargs=
+# commandline arguments after the nodename
+postargs="org.cougaar.security.mop.ethereal.EtherealHierarchyParser"
+# the nodename is defined to be the first name without a "-" prefix
+nodename=
+
+# anything leftover is postargs
+postargs="${postargs} $*"
+
+if [ x"$nodename" == x ]; then
+    echo "Warning: defaulting Nodename to \"Node\"";
+    nodename="Node"
+fi
+
+if [ -z "$COUGAAR_WORKSPACE" ]; then
+    export COUGAAR_WORKSPACE="$COUGAAR_INSTALL_PATH/workspace";
+    if [ $verbose ]; then echo "Defaulting COUGAAR_WORKSPACE to $COUGAAR_WORKSPACE"; fi
+fi  
+
+cargs="-Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH \
+-Dorg.cougaar.workspace=$COUGAAR_WORKSPACE";
+
+
+cargs="${cargs} -Dorg.cougaar.config.path=\".;${CIP}/configs/security;/mnt/shared/integ/configs/common\""
+cargs="${cargs} -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+cargs="${cargs} -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${CIP}/workspace/log4jlogs/ethereal.log"
+
+# name of the bootstrapper class
+bootclass="org.cougaar.bootstrap.Bootstrapper"
+
+# This is a minimal classpath for booting -
+# usually only bootstrap.jar is required
+jars="$COUGAAR_INSTALL_PATH/lib/bootstrap.jar"
+
+allargs="${bootargs} \
+${vmargs} \
+${eargs} \
+${cargs} \
+${preargs} \
+${nodeargs} \
+${coptions} \
+-classpath $jars \
+${bootclass} ${nodeclass} \
+${postargs}"
+
+echo exec java $allargs
+exec java $allargs

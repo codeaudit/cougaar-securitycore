@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+    Ant build script for UltraLog MOP tools.
+     
+    Usage: ant [-v] <target>
+     
+-->
+
+<project basedir="." default="all" name="UltraLog/MOP tools">
+  
+    <!-- prefix for all environment variables -->
+    <property environment="env"/>
+    <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
+    <property name="moptools.base" value="."/>
+    <property name="moptools.sys" value="${moptools.base}/sys"/>
+    <property name="moptools.lib" value="${moptools.base}/lib"/>
+    <property name="moptools.docdir" value="${moptools.base}/doc"/>
+    <property name="moptools.configs" value="${moptools.base}/test/configs"/> 
+    <!-- The classes directory for output classes and jar files -->
+    <property name="moptools.classes" value="classes"/>
+    <!-- The output directory for signed jar files -->
+    <property name="moptools.signed" value="${moptools.classes}/signed"/>
+    <!-- The base directories where the java source files are located -->
+    <property name="moptools.src" value="${moptools.base}/src"/>
+
+    <path id="moptools.class.path">    
+        <!-- Cougaar 3rd party support packages -->
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/xerces.jar"/>
+        <!-- Cougaar packages -->
+        <pathelement location="${cougaar.install.path}/lib/build.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/core.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/util.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+    </path>
+    
+    <target name="tstamp">
+        <tstamp>
+            <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
+        </tstamp>
+        <echo message="Build started at ${currentTime}"/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${moptools.classes}"/>
+        <mkdir dir="${moptools.signed}"/>
+        <mkdir dir="${moptools.docdir}"/>
+    </target>
+    
+    <!-- Build the moptools library -->
+    <target name="build-moptools" depends="init">
+        <echo message="+++++ Building moptools"/>
+        <javac classpathref="moptools.class.path" debug="true" 
+            deprecation="true" destdir="${moptools.classes}" 
+            includes="org/**" srcdir="${moptools.src}"/>
+        <echo message="+++++ Built moptools"/>
+    </target>
+    
+    <!-- jar moptools -->
+    <target name="jar-moptools" depends="build-moptools">
+        <jar jarfile="${moptools.classes}/moptools.jar">
+            <fileset dir="${moptools.classes}"
+                includes="org/**/*.class"/>
+            <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+              <attribute name="Main-Class"
+                value="org.cougaar.security.mop.ethereal.EtherealHierarchyParser"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <!-- sign moptools -->
+    <target name="sign-jars" depends="jar-moptools">
+        <echo message="+++++ Signing jar files"/>
+        <signjar jar="${moptools.classes}/moptools.jar" alias="privileged" 
+            signedjar="${moptools.signed}/moptools.jar"
+            keystore="${moptools.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <echo message="+++++ Signed jar files"/>
+    </target>
+    
+    <!-- install moptools -->
+    <target name="install-signed-jars" depends="sign-jars">
+        <echo message="+++++ Installing signed jar files"/>
+        <copy file="${moptools.signed}/moptools.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <echo message="+++++ Installed signed jar files"/>
+    </target>
+    
+    <target name="install-unsigned-jars" depends="jar-moptools">
+        <echo message="+++++ Installing jar files"/>
+        <copy file="${moptools.classes}/moptools.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        <echo message="+++++ Installed jar files"/>
+    </target>
+    
+    <!-- The ALL target only compiles, jar, and sign jars -->
+    <target name="all" depends="tstamp, init, sign-jars">
+        <echo message="UltraLog/moptools Build Complete"/>
+    </target>
+    
+    <!-- Updating repository before building -->
+    <target name="cvs-update">
+      <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
+    </target>
+    
+    <!-- use 'ant with-update' to update repository executing the ALL target -->
+    <target name="with-update" depends="cvs-update, all"/>
+    
+    <!-- create javadocs for moptools -->
+    <target name="javadocs" depends="init" description="Generating moptools javadocs">
+        <echo message="Creating JavaDocs for moptools"/>
+        <delete file="${moptools.docdir}/javadoc.tar.gz" verbose="true"/>
+        <javadoc classpathref="moptools.class.path" destdir="${moptools.docdir}"
+            windowtitle="Ultra*Log/moptools API" sourcepath="${moptools.src}" 
+            packagenames="org.cougaar.core.security.*" 
+            author="true" version="true"/>
+        <echo message="Generated JavaDocs for moptools"/>
+    </target>
+	
+	  <!-- tar up javadoc and delete all files -->
+	  <target name="tar-docs" depends="javadocs">
+        <tar tarfile="${moptools.docdir}/javadoc.tar" basedir="${moptools.docdir}"
+            includes="*.html, *.css, org/*" 
+            includesfile="${moptools.docdir}/package-list"/>
+        <gzip zipfile="${moptools.docdir}/javadoc.tar.gz" 
+            src="${moptools.docdir}/javadoc.tar"/>
+        <delete file="${moptools.docdir}/javadoc.tar" verbose="true"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${moptools.docdir}">
+                <patternset>
+                    <include name="**/**"/>
+                    <exclude name="**/*.gz"/>
+                </patternset>
+            </fileset>
+        </delete>
+    </target>
+    
+    <!-- Delete the and org class directories, and jar files -->
+    <target name="clean">
+        <echo message="+++++ Cleaning build environment"/>
+        <delete dir="${moptools.classes}/org" includeEmptyDirs="true" quiet="true"/>
+        <delete dir="${moptools.signed}" includeEmptyDirs="true" quiet="true"/>
+        <delete file="${moptools.classes}/moptools.jar" verbose="true"/>
+        <echo message="+++++ Cleaned build environment"/>
+    </target>
+    
+    <target name="help">
+        <echo message="Ant build script for Ultra*Log moptools."/>
+        <echo message=""/>
+        <echo message="Usage: ant [-v] &lt;target&gt;"/>
+        <echo message=""/>
+        <echo message="Run ant in the current directory.  If no target is specified,"/>
+        <echo message="ant will build moptools, jar and sign the jars.  Include"/>
+        <echo message="'-v' with ant for verbose mode."/>
+        <echo message=""/>
+        <echo message="target:"/>
+        <echo message="    all - build, jar and sign moptools (default)."/>
+        <echo message="    cvs-update - execute 'cvs update -d' in the current directory"/>
+        <echo message="    with-update - execute the cvs-update and all targets"/>
+        <echo message="    install - execute the all target, and install moptools"/>
+        <echo message="              signed jars and configuration files"/>
+        <echo message="    javadocs - create javadocs for moptools"/>
+        <echo message="    tar-docs - tar and zip the javadocs"/>
+        <echo message="    help - print out the usage message"/>
+    </target>
+
+		<target name="create_cougaar_moptools">
+			<mkdir dir="staging/lib"/>
+			<antcall target="all"/>
+			<move file="${moptools.classes}/moptools.jar" toDir="staging/lib"/>
+			<zip zipfile="Security_csi_moptools_moptools.zip" basedir="staging"/>
+			<delete dir="staging"/>
+		</target>
+        
+</project>
+<!-- End Ultra*Log/moptools ant build script -->
