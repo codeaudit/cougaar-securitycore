@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -320,7 +320,8 @@ public abstract class SensorPlugin
     while(c.hasNext()) {
       final String communityName = (String)c.next();
       CommunityResponseListener crl = new CommunityResponseListener() {
-	  public void getResponse(CommunityResponse response) {
+	  public void getResponse(CommunityResponse resp) {
+	    Object response = resp.getContent();
 	    if (!(response instanceof Set)) {
 	      String errorString = "Unexpected community response class:"
 		+ response.getClass().getName() + " - Should be a Set";

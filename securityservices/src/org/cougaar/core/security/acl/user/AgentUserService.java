@@ -135,7 +135,8 @@ public class AgentUserService implements UserService, BlackboardClient {
     _communityService = cs;
 
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Set";
@@ -242,7 +243,8 @@ public class AgentUserService implements UserService, BlackboardClient {
       final Status status = new Status();
       final Semaphore s = new Semaphore(0);
       CommunityResponseListener crl = new CommunityResponseListener() {
-	  public void getResponse(CommunityResponse response) {
+	  public void getResponse(CommunityResponse resp) {
+	    Object response = resp.getContent();
 	    if (!(response instanceof Community)) {
 	      String errorString = "Unexpected community response class:"
 		+ response.getClass().getName() + " - Should be a Community";

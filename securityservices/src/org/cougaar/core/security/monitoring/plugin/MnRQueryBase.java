@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -677,7 +677,8 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Community)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Community";
@@ -727,7 +728,8 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Set";
@@ -775,7 +777,8 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Set";

@@ -331,14 +331,14 @@ public class PluginServiceFilter extends ServiceFilter {
       }
     }
     public Subscriber getSubscriber() {
-      if (_log.isWarnEnabled()) {
-	_log.warn(client+" is calling BlackboardService.getSubscriber()!");
+      if (_log.isDebugEnabled()) {
+	_log.debug(client+" is calling BlackboardService.getSubscriber()!");
       }
       return super.getSubscriber();
     }
     public Subscription subscribe(UnaryPredicate isMember) { 
-      if (_log.isWarnEnabled()) {
-	_log.warn("BlackboardService.subscribe("+isMember+") called by: "+client);
+      if (_log.isDebugEnabled()) {
+	_log.debug("BlackboardService.subscribe("+isMember+") called by: "+client);
       }
       return super.subscribe(isMember); 
     }

@@ -884,13 +884,14 @@ final public class CRLCache
   private void getSecurityCommunity(final GetSecurityCommunityAction postGet) {
     CommunityResponseListener crl = new CommunityResponseListener() {
 	public void getResponse(CommunityResponse response) {
-	  if (!(response instanceof Set)) {
+	  Object resp = response.getContent();
+	  if (!(resp instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
+	      + resp.getClass().getName() + " - Should be a Set";
 	    log.error(errorString);
 	    throw new RuntimeException(errorString);
 	  }
-	  mySecurityCommunities = (Set) response;
+	  mySecurityCommunities = (Set) resp;
 	  if (postGet != null) {
 	    postGet.postExecute();
 	  }

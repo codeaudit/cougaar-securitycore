@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -283,7 +283,8 @@ public class CryptoPolicy extends SecurityPolicy {
       final Status status = new Status();
       final Semaphore s = new Semaphore(0);
       CommunityResponseListener crl = new CommunityResponseListener() {
-	  public void getResponse(CommunityResponse response) {
+	  public void getResponse(CommunityResponse resp) {
+	    Object response = resp.getContent();
 	    if (!(response instanceof Community)) {
 	      String errorString = "Unexpected community response class:"
 		+ response.getClass().getName() + " - Should be a Community";

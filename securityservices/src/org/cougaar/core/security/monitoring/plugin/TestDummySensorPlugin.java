@@ -302,7 +302,8 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
      log.error(" Community Service is null" +myAddress.toString()); 
     }
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Set";

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Network Associates
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -382,7 +382,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
     } // end of if (cs == null)
 
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
 	      + response.getClass().getName() + " - Should be a Set";

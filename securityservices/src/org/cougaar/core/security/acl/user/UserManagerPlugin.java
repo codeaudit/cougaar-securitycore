@@ -146,10 +146,11 @@ public class UserManagerPlugin extends ComponentPlugin {
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
+	public void getResponse(CommunityResponse resp) {
+	  Object response = resp.getContent();
 	  if (!(response instanceof Set)) {
 	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Community";
+	      + response.getClass().getName() + " - Should be a Set";
 	    _log.error(errorString);
 	    throw new RuntimeException(errorString);
 	  }
