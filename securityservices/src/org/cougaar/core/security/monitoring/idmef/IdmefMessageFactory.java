@@ -25,6 +25,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.List;
+
 import org.w3c.dom.Node;
 
 // JavaIDMEF packages
@@ -39,7 +41,7 @@ import org.cougaar.core.node.ArgTableIfc;
 import org.cougaar.core.service.UIDServer;
 
 /********************************************************************* 
- * 
+ * <pre>
  * Factory to create IDMEF messages
  *
  * 
@@ -142,19 +144,20 @@ import org.cougaar.core.service.UIDServer;
  *
  *  Alert is represented in the XML DTD as follows:
  *
- *     <!ELEMENT Alert                         (
+ *     &lt!ELEMENT Alert                         (
  *         Analyzer, CreateTime, DetectTime?, AnalyzerTime?, Source*,
  *         Target*, Classification+, Assessment?, (ToolAlert |
  *         OverflowAlert | CorrelationAlert)?, AdditionalData*
- *       )>
- *     <!ATTLIST Alert
+ *     )&gt
+ *     &lt!ATTLIST Alert
  *         ident               CDATA                   '0'
- *       >
+ *     &gt
  *
  *  The Alert class has one attribute:
  *
  *  ident
  *     Optional.  A unique identifier for the alert, see Section 4.4.9.
+ * </pre>
  *
  ********************************************************************/
 final public class IdmefMessageFactory {
@@ -172,8 +175,8 @@ final public class IdmefMessageFactory {
         Address agentAddress = null;
         
         m_ldm = ldm;
-        osName = System.getProperty( "os.name" );
-        osVersion = System.getProperty( "os.version" ); 
+        m_osName = System.getProperty( "os.name" );
+        m_osVersion = System.getProperty( "os.version" ); 
       
         if( ldm != null ){
             String ip = "localhost";
@@ -276,8 +279,8 @@ final public class IdmefMessageFactory {
         //make an analyzer
         Analyzer testAnalyzer = new Analyzer( testNode, testProcess, "test_id", 
                                               "test_manufacturer", "test_model",
-                                              "test_version", "test_class", osName,
-                                              osVersion );
+                                              "test_version", "test_class", m_osName,
+                                              m_osVersion );
         
         //make a createTime
         //make a detectTime
@@ -342,22 +345,30 @@ final public class IdmefMessageFactory {
      * Factory method to create an IDMEF Alert.
      *
      * @param analyzer the analyzer that originated the alert
-     * @param sources list of sources that are involved in the event
-     * @param targets list of targets that are involved in the event
-     * @param classification list of classification for the event
-     * @param data list of additional data that may be useful
+     * @param detectTime the time the first event was detected
+     * @param sourceList list of sources that are involved in the event
+     * @param targetList list of targets that are involved in the event
+     * @param classificationList list of classification for the event
+     * @param dataList list of additional data that may be useful
      *
      * @return an Alert message
      */
     public Alert createAlert( Analyzer analyzer,
-                              Source []sources,
-                              Target []targets,
-                              Classification []classifications,
-                              AdditionalData []data ){
+                              DetectTime detectTime,
+                              List sourceList,
+                              List targetList,
+                              List classificationList,
+                              List dataList ){
+        // temporary until JavaIDMEF is converted using dynamic lists
+        Source sources[] = ( Source [] )sourceList.toArray();
+        Target targets[] = ( Target [] )targetList.toArray();
+        Classification classifications[] = ( Classification [] )classificationList.toArray();
+        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+                        
         return new Alert( analyzer,
                           new CreateTime(),
-                          new DetectTime(),     // is this needed? if not, null.
-                          new AnalyzerTime(),   // is this needed? if not, null.
+                          detectTime,           // is this needed? if not, null.
+                          null,                 // is this needed? if not, null.
                           sources,
                           targets,
                           classifications,
@@ -370,23 +381,34 @@ final public class IdmefMessageFactory {
      * Factory method to create an IDMEF Alert.
      *
      * @param analyzer the analyzer that originated the alert
-     * @param sources list of sources that are involved in the event
-     * @param targets list of targets that are involved in the event
-     * @param classification list of classification for the event
-     * @param data list of additional data that may be useful
+     * @param detectTime the time the first event was detected
+     * @param sourceList list of sources that are involved in the event
+     * @param targetList list of targets that are involved in the event
+     * @param classificationList list of classification for the event
+     * @param dataList list of additional data that may be useful
      *
      * @return an Alert message
      */
     public Alert createAlert( Object sensor,
-                              Source []sources,
-                              Target []targets,
-                              Classification []classifications,
-                              AdditionalData []data ){
+                              DetectTime detectTime,
+                              List sourceList,
+                              List targetList,
+                              List classificationList,
+                              List dataList ){
+      if( sensor instanceof SensorInfo ){
+         // temporary until JavaIDMEF is converted using dynamic lists
+        Source sources[] = ( Source [] )sourceList.toArray();
+        Target targets[] = ( Target [] )targetList.toArray();
+        Classification classifications[] = ( Classification [] )classificationList.toArray();
+        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
+        
         return createAlert( createAnalyzer( sensor ),
                             sources,
                             targets,
                             classifications,
                             data );  // should we generated unique id for messages?
+      }
+      return new Alert();
     }
     
     public Alert createAlert( Node alertNode ){
@@ -398,62 +420,32 @@ final public class IdmefMessageFactory {
      * Factory method to create a message for sensor capability registration.
      *
      * @param sensor the sensor creating a registration message
-     * @param events a list of events the sensor is capable of tracking
-     * @param events a list of event origins
+     * @param classficationList a list of events the sensor is capable of tracking
+     * @param targetList a list of targets the sensor is monitoring
      *
      * @return a capability Registration message
      */
     public Registration createRegistration( Object sensor, 
-                                            String []events,
-                                            String []origins ){
-        int len = events.length;
-        Classification capabilities[] = new Classification[ len ];
-        Source sources[];
-        Target targets[];
-        //TODO: move string constants to appropriate classes
-        AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
-                                                        "cougaar-alert-type", 
-                                                        "sensor-registration" ) };
-        // create classifications for each capability                                                
-        for( int i = 0; i < len; i++ ) {
-            capabilities[ i ] = createClassification( events[ i ], 
-                                                      null,
-                                                      origins[ i ] );   // not used at this moment
-                                                      
-        }
-        
-        Registration reg = new Registration( createAnalyzer( sensor ), 
-                                             null,
-                                             null, 
-                                             capabilities,
-                                             data ); 
-        return reg;
-    }
-
-    /**
-     * Factory method to create a registration for sensor capabilities.
-     *
-     * @param sensor the sensor that wants to register its capabilities
-     *
-     * @return a capability Registration message
-     */
-    public Registration createRegistration( Object sensor ){
+                                            List classficationList,
+                                            List targetList ){
         // get all the info from the sensor for capability registration
         if( sensor instanceof SensorInfo ){ 
-            SensorInfo sensorInfo = ( SensorInfo )sensor;
-            Source sources[] = null; // get the source info from the sensor
-            Target targets[] = null; // get the target info from the sensor
-            Classification capabilities[] = null;  // get the capabilities from the sensor
-            AdditionalData data[] = { m_agentData, // default agent information
-                                      createAdditionalData( AdditionalData.STRING, 
-                                                            "cougaar-alert-type", 
-                                                            Registration.TYPE ) };
-                                                        
-            return new Registration( createAnalyzer( sensorInfo ),
-                                     sources,
-                                     targets, 
-                                     capabilities,
-                                     data );
+          int len = events.length;
+          // temporary until JavaIDMEF is converted using dynamic lists
+          Classification capabilities[] = ( Classification [] )classficationList.toArray();
+          Target targets[] = ( Target [] )targetList.toArray();
+          
+          //TODO: move string constants to appropriate classes
+          AdditionalData data[] = { createAdditionalData( AdditionalData.STRING, 
+                                                        "cougaar-alert-type", 
+                                                        "sensor-registration" ) };
+        
+          return new Registration( createAnalyzer( sensor ), 
+                                   null, // very difficult to know the sources at this point
+                                   targets,
+                                   capabilities,
+                                   data,
+                                   createUniqueId() ); 
         }
         return new Registration();
     }
@@ -462,17 +454,19 @@ final public class IdmefMessageFactory {
      * Factory method to create a heartbeat.
      *
      * @param analyzer analyzer creating the heartbeat                   
-     * @param additionalData additional data
+     * @param dataList a list of additional data
      *
      * @return a Heartbeat message
      */
     public Heartbeat createHeartBeat( Analyzer analyzer, 
-                                      AdditionalData []data ){
+                                      List dataList ){
+        // temporary until JavaIDMEF is converted using dynamic lists
+        AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
         Heartbeat heartBeat = new Heartbeat( analyzer, 
                                              new CreateTime(), 
-                                             new AnalyzerTime(), 
-                                             data,
-                                             null ); // not used at the moment
+                                             null,   //  analyzer time not used
+                                             data,   
+                                             null ); // ident not used at the moment
         return heartBeat;
     }
     
@@ -480,13 +474,15 @@ final public class IdmefMessageFactory {
      * Factory method to create a heartbeat.
      *
      * @param sensor the sensor that is creating this heartbeat
-     * @param additionalData additional data
+     * @param dataList list of additional data
      *
      * @return a Heartbeat message
      */
     public Heartbeat createHeartBeat( Object sensor,
-                                      AdditionalData []data ){
+                                      List dataList ){
         if( sensor instanceof SensorInfo ){
+            // temporary until JavaIDMEF is converted using dynamic lists
+            AdditionalData data[] = ( AdditionalData [] )dataList.toArray();
             return createHeartBeat( createAnalyzer( sensor ), data );
         }
         return new Heartbeat();
@@ -504,7 +500,7 @@ final public class IdmefMessageFactory {
         
         if( sensor instanceof SensorInfo ){
             SensorInfo sensorInfo = ( SensorInfo )sensor;
-            String analyzerId = sensorInfo.getName() + m_agent.getName();           // get the sensor id
+            String analyzerId = m_agent.getName() + sensorInfo.getName();           // get the sensor id
             String manufacturer = sensorInfo.getManufacturer(); // get the sensor manufacturer
             String model = sensorInfo.getModel();               // get the sensor model
             String version = sensorInfo.getVersion();           // get the sensor version
@@ -520,37 +516,12 @@ final public class IdmefMessageFactory {
                                  model,  // model
                                  version,  // version
                                  analyzerClass,  // class
-                                 osName,
-                                 osVersion );
+                                 m_osName,
+                                 m_osVersion );
         }
-        return createAnalyzer( null, null, null, null, null );
+        return new Analyzer();
     }
                                            
-   /**
-    * Factory method to create an Analyzer
-    *
-    * @param analyzerId unique across all analyzers in the intrusion 
-    *                   detection environment.
-    *
-    * @return an Analyzer object
-    */
-    
-    public Analyzer createAnalyzer( String analyzerId,
-                                    String manufacturer,
-                                    String model,
-                                    String version,
-                                    String analyzerClass ){
-        return new Analyzer( null,  // node 
-                             null,  // process
-                             analyzerId,
-                             manufacturer,  // manufacturer
-                             model,  // model
-                             version,  // version
-                             analyzerClass,  // class
-                             osName,
-                             osVersion );
-    }
-    
    /**
     * Factory method to create an Analyzer
     *
@@ -560,108 +531,51 @@ final public class IdmefMessageFactory {
     *                   combine the agent id where the sensor rides
     *                   with the sensor name.   For example the format
     *                   is of the following (without quotes):
-    *                   "<agent address>/<sensor name>"
-    *
-    * @param node node host or device on which the analyzer resides 
-    * @param process process in which the analyzer is executing
+    *                   "&ltagent address&gt/&ltsensor name&gt"
     *
     * @return an Analyzer object
-    */ 
-    public Analyzer createAnalyzer( String analyzerId, 
-                                    IDMEF_Node node, 
-                                    IDMEF_Process process,
+    */
+    public Analyzer createAnalyzer( String analyzerId,
                                     String manufacturer,
                                     String model,
                                     String version,
                                     String analyzerClass ){
-        return new Analyzer( node,      // node 
-                             process,   // process
+         // this info can be determined at factory initialization
+        IDMEF_Node node = m_node;             // get the node that the sensor resides
+        IDMEF_Process process = m_process;    // get the process that the sensor resides
+        return new Analyzer( node,  // node 
+                             process,  // process
                              analyzerId,
                              manufacturer,  // manufacturer
                              model,  // model
                              version,  // version
                              analyzerClass,  // class
-                             osName,
-                             osVersion );    
+                             m_osName,
+                             m_osVersion );
     }
     
    /**
     * Factory method to create a Source
     *
     * @param node node host or device on which the analyzer resides 
-    * @param spoofed indication of whether the source is, as far as the
-    *                analyzer can determine, a decoy 
-    *                ( Source.YES | Source.NO | Source.UNKNOWN ).
-    *
-    * @return a Source object
-    */ 
-    public Source createSource( IDMEF_Node node, String spoofed ){
-        return new Source( node, 
-                           null, 
-                           null, 
-                           null, 
-                           createUniqueId(), // needed to associate agent information
-                           spoofed, 
-                           null );  // network interface not necessary
-    
-    }
-    
-   /**
-    * Factory method to create a Source
-    *
-    * @param user a user of the system, device, or application 
-    * @param spoofed indication of whether the source is, as far as the
-    *                analyzer can determine, a decoy 
-    *                ( Source.YES | Source.NO | Source.UNKNOWN ).
-    *
-    * @return a Source object
-    */ 
-    public Source createSource( User user, String spoofed ){
-        return new Source( null, 
-                           user, 
-                           null, 
-                           null, 
-                           createUniqueId(), // needed to associate agent information
-                           spoofed, 
-                           null );  // network interface not necessary
-    
-    }
-    
-   /**
-    * Factory method to create a Source
-    *
+    * @param user a user of the system, device, or application
     * @param process describe processes being executed on a sources
-    * @param spoofed indication of whether the source is, as far as the
-    *                analyzer can determine, a decoy 
-    *                ( Source.YES | Source.NO | Source.UNKNOWN ).
-    *
-    * @return a Source object
-    */ 
-    public Source createSource( IDMEF_Process process, String spoofed ){
-        return new Source( null, 
-                           null, 
-                           process, 
-                           null, 
-                           createUniqueId(), // needed to associate agent information
-                           spoofed, 
-                           null );  // network interface not necessary
-    
-    }
-    
-   /**
-    * Factory method to create a Source
-    *
     * @param service network services on source
     * @param spoofed indication of whether the source is, as far as the
-    *                analyzer can determine, a decoy 
-    *                ( Source.YES | Source.NO | Source.UNKNOWN ).
+    *                analyzer can determine, a decoy.  
+    *                <br>Permitted values:<br>
+    *                <code>Source.YES, Source.NO, Source.UNKNOWN</code>
     *
     * @return a Source object
     */ 
-    public Source createSource( Service service, String spoofed ){
-        return new Source( null, 
-                           null, 
-                           null, 
+    public Source createSource( IDMEF_Node node, 
+                                User user,
+                                IDMEF_Process process,
+                                Service service,
+                                String spoofed ){
+        return new Source( node, 
+                           user, 
+                           process, 
                            service, 
                            createUniqueId(), // needed to associate agent information
                            spoofed, 
@@ -673,11 +587,12 @@ final public class IdmefMessageFactory {
     * Factory method to create a Node
     *
     * @param name the name of a node
-    * @param address an array of Address
+    * @param addressList a list of Addresses
     *
     * @return an IDMEF_Node object
     */    
-    public IDMEF_Node createNode( String name, Address[] addresses ){
+    public IDMEF_Node createNode( String name, List addressList ){
+        Address addresses[] = ( Address [] )addressList.toArray();
         return new IDMEF_Node( null,  // location not necessary
                                name, 
                                addresses, 
@@ -691,8 +606,8 @@ final public class IdmefMessageFactory {
      * @param program the name of the program being executed
      * @param pid the process id
      * @param path the full path of the program being executed
-     * @param args the command-line arguments to the program
-     * @param envs the environment string associated with the
+     * @param argList a list of the command-line arguments to the program
+     * @param envList a list the environment string associated with the
      *             process; generally of the format "[VARIABLE=value]".  
      *
      * @return an IDMEF_Process object
@@ -700,8 +615,11 @@ final public class IdmefMessageFactory {
     public IDMEF_Process createProcess( String program, 
                                         Integer pid, 
                                         String path, 
-                                        String []args, 
-                                        String []envs ){
+                                        List argList, 
+                                        List envList ){
+        String args[] = ( String [] )argList.toArray();  
+        String envs[] = ( String [] )envList.toArray();
+        
         return new IDMEF_Process( program, 
                                   pid, 
                                   path, 
@@ -713,11 +631,12 @@ final public class IdmefMessageFactory {
     /**
      * Factory method to create a User
      *
-     * @param userIds the unique ids of the user
+     * @param userIdList a list of unique ids of the user
      *
      * @return a User object
      */
-    public User createUser( UserId []userIds ){
+    public User createUser( List userIdList ){
+        UserId userIds[] = ( UserId [] )userIdList.toArray();
         return new User( userIds, null, null );
     }
    
@@ -806,150 +725,46 @@ final public class IdmefMessageFactory {
      * @param node information about the host or device at which the
      *             event(s) (network address, network name, etc.) is
      *             being directed
-     * @param decoy an indication of whether the target is, as far as the
-     *             analyzer can determine, a decoy.  The permitted values
-     *             for this attribute are shown below.  The default value
-     *             is "unknown".
-     *
-     * Rank   Keyword           Description
-     * ----   -------           -----------
-     *   0    Target.UNKNOWN    Accuracy of target information unknown
-     *   1    Target.YES        Target is believed to be a decoy
-     *   2    Target.NO         Target is believed to be "real"
-     *
-     * @return a Target object
-     */
-    public Target createTarget( IDMEF_Node node, String decoy ){
-        return new Target( node, 
-                           null, 
-                           null, 
-                           null,
-                           null,
-                           createUniqueId(), 
-                           decoy, 
-                           null );
-    }
-
-     /**
-     * Factory method to create a Target 
-     *
      * @param user information about the user at which the event(s) is
      *             being directed
-     * @param decoy an indication of whether the target is, as far as the
-     *             analyzer can determine, a decoy.  The permitted values
-     *             for this attribute are shown below.  The default value
-     *             is "unknown".
-     *
-     * Rank   Keyword           Description
-     * ----   -------           -----------
-     *   0    Target.UNKNOWN    Accuracy of target information unknown
-     *   1    Target.YES        Target is believed to be a decoy
-     *   2    Target.NO         Target is believed to be "real"
-     *
-     * @return a Target object
-     */
-    public Target createTarget( User user, String decoy ){
-        return new Target( null, 
-                           user, 
-                           null, 
-                           null,
-                           null, 
-                           createUniqueId(), 
-                           decoy, 
-                           null );
-    }
-    
-   /**
-     * Factory method to create a Target 
-     *
      * @param process information about the process at which the event(s) is
      *                being directed
-     * @param decoy an indication of whether the target is, as far as the
-     *             analyzer can determine, a decoy.  The permitted values
-     *             for this attribute are shown below.  The default value
-     *             is "unknown".
-     *
-     * Rank   Keyword           Description
-     * ----   -------           -----------
-     *   0    Target.UNKNOWN    Accuracy of target information unknown
-     *   1    Target.YES        Target is believed to be a decoy
-     *   2    Target.NO         Target is believed to be "real"
-     *
-     * @return a Target object
-     */
-    public Target createTarget( IDMEF_Process process, String decoy ){
-        return new Target( null, 
-                           null, 
-                           process, 
-                           null,
-                           null, 
-                           createUniqueId(), 
-                           decoy, 
-                           null );
-    }
-    
-    /**
-     * Factory method to create a Target 
-     *
      * @param service information about the service at which the event(s) is
      *                being directed
-     * @param decoy an indication of whether the target is, as far as the
-     *             analyzer can determine, a decoy.  The permitted values
-     *             for this attribute are shown below.  The default value
-     *             is "unknown".
-     *
-     * Rank   Keyword           Description
-     * ----   -------           -----------
-     *   0    Target.UNKNOWN    Accuracy of target information unknown
-     *   1    Target.YES        Target is believed to be a decoy
-     *   2    Target.NO         Target is believed to be "real"
-     *
-     * @return a Target object
-     */
-    public Target createTarget( Service service, String decoy ){
-        return new Target( null, 
-                           null, 
-                           null, 
-                           service,
-                           null, 
-                           createUniqueId(), 
-                           decoy, 
-                           null );
-    }
-    
-  /**
-     * Factory method to create a Target 
-     *
      * @param fileList information about file(s) involved in the event(s)
      * @param decoy an indication of whether the target is, as far as the
      *             analyzer can determine, a decoy.  The permitted values
      *             for this attribute are shown below.  The default value
      *             is "unknown".
-     *
+     * <pre>
      * Rank   Keyword           Description
      * ----   -------           -----------
      *   0    Target.UNKNOWN    Accuracy of target information unknown
      *   1    Target.YES        Target is believed to be a decoy
      *   2    Target.NO         Target is believed to be "real"
-     *
+     * </pre>
      * @return a Target object
      */
-    public Target createTarget( FileList fileList, String decoy ){
-        return new Target( null, 
-                           null, 
-                           null, 
-                           null,
-                           fileList, 
+    public Target createTarget( IDMEF_Node node, 
+                                User user,
+                                IDMEF_Process process,
+                                Service service,
+                                FileList fileList,
+                                String decoy ){
+        return new Target( node, 
+                           user, 
+                           process, 
+                           service,
+                           fileList,
                            createUniqueId(), 
                            decoy, 
                            null );
-        
     }
     
     /**
      * Factory method to create a Classification
      *
-     * @param name the name of the alert
+     * @param name The name of the alert classification.
      * @param url a URL at which the manager (or the human
      *            operator of the manager) can find additional information about the
      *            alert.  The document pointed to by the URL may include an in-depth
@@ -958,7 +773,7 @@ final public class IdmefMessageFactory {
      * @param type The source from which the name of the alert originates.
      *             The permitted values for this attribute are shown below.  The
      *             default value is "unknown". (Required)
-     *
+     * <pre>
      * Rank   Keyword                           Description
      * ----   -------                           -----------
      *   0    Classification.UNKNOWN            Origin of the name is not known
@@ -970,7 +785,7 @@ final public class IdmefMessageFactory {
      *   3    Classification.VENDOR_SPECIFIC    A vendor-specific name (and hence, URL);
      *                                          this can be used to provide product-
      *                                          specific information
-     *
+     * </pre>
      * @return a Classification object
      */
     public Classification createClassification( String name, 
@@ -984,7 +799,7 @@ final public class IdmefMessageFactory {
     /**
      * Factory method to create a vendor-specific Classification
      *
-     * @param name The name of the alert.
+     * @param name The name of the alert classification.
      * @param url A URL at which the manager (or the human
      *            operator of the manager) can find additional information about the
      *            alert.  The document pointed to by the URL may include an in-depth
@@ -999,19 +814,21 @@ final public class IdmefMessageFactory {
                                      Classification.VENDOR_SPECIFIC );     
     }
 
+    
    /**
      * Factory method to create an Assessment
      *
      * @param impact The analyzer's assessment of the impact of the event
      *               on the target(s).
-     * @param actions The action(s) taken by the analyzer in response to
-     *                the event.
+     * @param actionList A list of action(s) taken by the analyzer in response to
+     *                   the event.
      * @param confidence A measurement of the confidence the analyzer has
      *                   in its evaluation of the event.
      *
      * @return an Assessment object
      */
-    public Assessment createAssessment( Impact impact, Action []actions, Confidence confidence ){
+    public Assessment createAssessment( Impact impact, List actionList, Confidence confidence ){
+        Action actions[] = ( Action [] )actionList.toArray();
         return new Assessment( impact, actions, confidence );
     }
  
@@ -1021,7 +838,7 @@ final public class IdmefMessageFactory {
      * @param type The type of data included in the element content.
      *             The permitted values for this attribute are shown 
      *             below.  The default value is "string".
-     *
+     * <pre>
      * Rank   Keyword                   Description
      * ----   -------                   -----------
      *   0    AdditionalData.BOOLEAN    The element contains a boolean value,
@@ -1037,6 +854,7 @@ final public class IdmefMessageFactory {
      *   7    AdditionalData.REAL       The element content is a real number
      *   8    AdditionalData.STRING     The element content is a string
      *   9    AdditionalData.XML        The element content is XML-tagged data
+     * </pre>
      * @param meaning A string describing the meaning of the element content.
      *                These values will be vendor/implementation dependent; 
      *                the method for ensuring that managers understand the
@@ -1061,8 +879,8 @@ final public class IdmefMessageFactory {
      * Factory method to create an IDMEF File
      * 
      * @param file the file associated with this alert
-     * @param fileAccesses the file access permissions
-     * @param linkages other files that this file references
+     * @param fileAccesseList list of the file access permissions
+     * @param linkageList list of other files that this file references
      * @param inode additional information contained in a Unix file system i-node
      * @param category the context for the information being provided
      * @param fstype the file system type
@@ -1070,17 +888,21 @@ final public class IdmefMessageFactory {
      * @return an IDMEF_File object
      */
     public IDMEF_File createFile( File file, 
-                                  FileAccess []fileAccesses,
-                                  Linkage []linkages, 
+                                  List fileAccesseList,
+                                  List linkageList, 
                                   Inode inode, 
                                   String category,
                                   String fstype ){
+        FileAccess fileAccesses[] = ( FileAccess [] )fileAccessList.toArray();
+        Linkage linkages[] = ( Linkage [] )linkageList.toArray();
+        Long size = new Long( file.length() );
+        Integer dataSize = new Integer( size.intValue() );
         return new IDMEF_File( file.getName(), 
                                file.getPath(), 
                                null, // createTime
                                new Date( file.lastModified() ), 
                                null, // accessTime
-                               null, // data size 
+                               dataSize, // data size 
                                null, // disk size
                                fileAccesses, 
                                linkages, 
@@ -1097,21 +919,22 @@ final public class IdmefMessageFactory {
      *               The value of the "type" attribute must be "user-privs",
      *               "group-privs", or "other-privs" as appropriate.  Other
      *               values for "type" MUST NOT be used in this context.
-     * @param permissions Level of access allowed.  Recommended values are
-     *                    "noAccess", "read", "write", "execute", "delete",
-     *                    "executeAs", "changePermissions", and "takeOwnership".
-     *                    The "changePermissions" and "takeOwnership" strings
-     *                    represent those concepts in Windows.  On Unix, the
-     *                    owner of the file always has "changePermissions"
-     *                    access, even if no other access is allowed for
-     *                    that user.  "Full Control" in Windows is represented
-     *                    by enumerating the permissions it contains.  The
-     *                    "executeAs" string represents the set-user-id and
-     *                    set-group-id features in Unix.
+     * @param permissionList Level of access allowed.  Recommended values are
+     *                       "noAccess", "read", "write", "execute", "delete",
+     *                       "executeAs", "changePermissions", and "takeOwnership".
+     *                       The "changePermissions" and "takeOwnership" strings
+     *                       represent those concepts in Windows.  On Unix, the
+     *                       owner of the file always has "changePermissions"
+     *                       access, even if no other access is allowed for
+     *                       that user.  "Full Control" in Windows is represented
+     *                       by enumerating the permissions it contains.  The
+     *                       "executeAs" string represents the set-user-id and
+     *                       set-group-id features in Unix.
      *
      * @return a FileAccess object
      */    
-    public FileAccess createFileAccess( String userId, String []permissions ){
+    public FileAccess createFileAccess( String userId, List permissionList ){
+        String permissions[] = ( String [] )permissionList.toArray();
         return new FileAccess( createUserId( userId ), permissions );
     }
     
@@ -1122,7 +945,7 @@ final public class IdmefMessageFactory {
      * @param category The type of object that the link describes.  The 
      *                 permitted values are shown below.  There is no
      *                 default value.
-     *
+     * <pre>
      * Rank   Keyword               Description
      * ----   -------               -----------
      *   0    Linkage.HARD_LINK     The <name> element represents another
@@ -1145,6 +968,7 @@ final public class IdmefMessageFactory {
      *                              extension of the main <File>.
      *   5    Linkage.SYMBOLIC_LINK The <name> element represents the file
      *                              to which the link points.
+     * </pre>
      * @return a Linkage object
      */  
     public Linkage createLinkage( File file, String category ){
@@ -1158,7 +982,7 @@ final public class IdmefMessageFactory {
      * @param category The type of object that the link describes.  The 
      *                 permitted values are shown below.  There is no
      *                 default value.
-     *
+     * <pre>
      * Rank   Keyword               Description
      * ----   -------               -----------
      *   0    Linkage.HARD_LINK     The <name> element represents another
@@ -1181,6 +1005,7 @@ final public class IdmefMessageFactory {
      *                              extension of the main <File>.
      *   5    Linkage.SYMBOLIC_LINK The <name> element represents the file
      *                              to which the link points.
+     * </pre>
      * @return a Linkage object
      */  
     public Linkage createLinkage( IDMEF_File file, String category ){
@@ -1242,7 +1067,7 @@ final public class IdmefMessageFactory {
      * @param category The type of address represented.  The permitted values
      *                 for this attribute are shown below.  The default value
      *                 is "unknown".
-     *
+     * <pre>
      * Rank   Keyword               Description
      * ----   -------               -----------
      *   0    Address.UNKNOWN       Address type unknown
@@ -1272,7 +1097,7 @@ final public class IdmefMessageFactory {
      *  14    Address.IPV6_NET_MASK IPv6 network address, slash, network
      *                              mask
      *  99    Address.URL_ADDR      A url
-     *
+     * </pre>
      * @return a Address object
      */  
     public Address createAddress( String address, 
@@ -1296,27 +1121,27 @@ final public class IdmefMessageFactory {
      * @param severity An estimate of the relative severity of the event.  
      *                 The permitted values are shown below.  There is no
      *                 default value.
-     *
+     * <pre>
      * Rank   Keyword            Description
      * ----   -------            -----------
      *   0    Impact.LOW         Low severity
      *   1    Impact.MEDIUM      Medium severity
      *   2    Impact.HIGH        High severity
-     *
+     * </pre>
      * @param completion An indication of whether the analyzer believes the
      *                   attempt that the event describes was successful or not.
      *                   The permitted values are shown below.  There is no
      *                   default value.
-     *
+     * <pre>
      * Rank   Keyword            Description
      * ----   -------            -----------
      *   0    Impact.FAILED      The attempt was not successful
      *   1    Impact.SUCCEEDED   The attempt succeeded
-     *
+     * </pre>
      * @param type The type of attempt represented by this event, in relatively broad
      * categories.  The permitted values are shown below.  The default
      * value is "other."
-     *
+     * <pre>
      * Rank   Keyword            Description
      * ----   -------            -----------
      *   0    Impact.ADMIN       Administrative privileges were
@@ -1331,7 +1156,7 @@ final public class IdmefMessageFactory {
      *                           obtained
      *   5    Impact.OTHER       Anything not in one of the above
      *                           categories
-     *
+     * </pre>
      * @param description a description of the impact.
      *
      * @return a Impact object
@@ -1348,7 +1173,7 @@ final public class IdmefMessageFactory {
      *
      * @param category The type of action taken.  The permitted values are
      *                 shown below.  The default value is "other."
-     *
+     * <pre>
      * Rank   Keyword                   Description
      * ----   -------                   -----------
      *   0    Action.BLOCK_INSTALLED    A block of some sort was installed to
@@ -1365,6 +1190,7 @@ final public class IdmefMessageFactory {
      *                                  down or a user is logged off.
      *   3    Action.OTHER              Anything not in one of the above
      *                                  categories.
+     * </pre>
      * @param description a description of the action
      *
      * @return a Action object
@@ -1377,9 +1203,9 @@ final public class IdmefMessageFactory {
      * Factory method to create a Confidence
      *
      * @param rating The analyzer's rating of its analytical validity.
-     *               Permitted values:
-     *                  Confidence.LOW, Confidence.MEDIUM, 
-     *                  Confidence.HIGH, Confidence.NUMERIC
+     *               <br>Permitted values:<br>
+     *                  <code>Confidence.LOW, Confidence.MEDIUM, 
+     *                  Confidence.HIGH, Confidence.NUMERIC</code>
      * @param numeric if the rating is Confidence.NUMERIC, set numeric to 
      *                a Float object between 0.0 and 1.0., null otherwise.
      *
@@ -1397,28 +1223,25 @@ final public class IdmefMessageFactory {
      * @param description a description of the agent
      * @param location descriptive location of the agent (e.g., Santa Clara, CA)
      * @param address a url Address of this agent
-     * @param refIdents an array listing of analyzer, source, or target identifiers
-     *                  this agent references.
+     * @param refIdentList a list of analyzer, source, or target identifiers
+     *                     this agent references.
      * 
      * @return a new Agent
      */    
     public Agent createAgent( String name, String description, 
-            String location, Address address, String []refIdents ){
+            String location, Address address, List refIdentList ){
+        String refIdents[] = ( String [] )refIdentList.toArray();
         return new Agent( name, description, location,
                           address, refIdents );                
     }
     
     /**
-     * Creates a new Agent that references the identities in refIdents.
-     * This method clones this factory's agent with the refIdents set.
-     * 
-     * @param refIdents an array listing of analyzer, source, or target identifiers
-     *                  this agent references.
+     * This method clones this factory's agent.
      * 
      * @return a new Agent
      */
-    public Agent createAgent( String []refIdents ){
-        Agent newAgent = ( Agent )m_agent.clone( refIdents );    
+    public Agent createAgent(){
+        Agent newAgent = m_agent.clone();    
         return newAgent;
     }
     
@@ -1436,57 +1259,14 @@ final public class IdmefMessageFactory {
      *
      * @return a unique String id
      */      
-    private String createUniqueId(){
+    public String createUniqueId(){
         // delegate to some global unique id generator
         return m_uidServer.nextUID().toString();
     }
     
-    /**
-     * This is a dummy Sensor implementation class for compilation purposes.
-     * The concrete Sensor class MUST implement getters for obtaining
-     * sensor name/id, sources and targets known to the sensor,
-     * and sensor capabilities.  All concrete sensors should extend
-     * from the Sensor interface.
-     *
-     * NOTE: this class should be removed
-     */
-    private class SensorImpl implements SensorInfo {
-        
-        public String getName(){
-            return "<sensor-name>";
-        }
-        public String getManufacturer(){
-            return "<manufacturer>";
-        }
-        public String getModel(){
-            return "<model>";
-        }
-        public String getVersion(){
-            return "<version>";
-        }
-        public String getAnalyzerClass(){
-            return "<class>";
-        }
-        public String getOSName(){
-            return osName;
-        }
-        public String getOSVersion(){
-            return osVersion;
-        }
-        public IDMEF_Node getNode(){
-            return m_node;
-        }
-        public IDMEF_Process getProcess(){
-            return m_process;
-        }
-        
-        private IDMEF_Node m_node;
-        private IDMEF_Process m_process;
-    }
-    
     // Need for Analyzer information as per IDMEF v1.0 draft
-    private String osName;
-    private String osVersion;
+    private String m_osName;
+    private String m_osVersion;
     
     private static String PROCESS_NAME = "org.cougaar.core.node.Node";
     private static String AGENT_INFO = "agent-info";

@@ -45,7 +45,8 @@ public class Registration extends Alert {
                   Source []sources,
                   Target []targets,
                   Classification []capabilities,
-                  AdditionalData []data ){
+                  AdditionalData []data,
+                  String ident ){
         super( analyzer, 
                new CreateTime(), 
                null,  // detection time
@@ -55,7 +56,7 @@ public class Registration extends Alert {
                capabilities,
                null,    // assessment 
                data, 
-               null );  // ident 
+               ident );
     }
     
     /**

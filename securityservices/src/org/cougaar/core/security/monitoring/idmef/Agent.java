@@ -34,10 +34,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
 /**
- *
+ * <pre>
  * Agent class represents a Cougaar Agent.  Agent information is specified in
  * AdditionalData that references a Source or Target of an event.
- *
+ * 
  *            +---------------------+
  *            |        Agent        |
  *            +---------------------+
@@ -57,23 +57,25 @@ import org.w3c.dom.NamedNodeMap;
  *            +---------------------+ 
  *
  *
- *  <!ELEMENT Cougaar:Agent (
+ *  &lt!ELEMENT Cougaar:Agent (
  *   Cougaar:description?, 
  *   Cougaar:location?,
  *   Address?, 
- *   Cougaar:ref-ident+ ) >
+ *   Cougaar:ref-ident+ ) &gt
  *
- *  <!ATTLIST Cougaar:Agent
+ *  &lt!ATTLIST Cougaar:Agent
  *      xmlns                   CDATA                #FIXED
  *          'idmef+cougaar'
  *      xmlns:Cougaar           CDATA                #FIXED
  *          'idmef+cougaar'
- *      Cougaar:name            CDATA                #REQUIRED >
+ *      Cougaar:name            CDATA                #REQUIRED &gt
  *
- *  <!ELEMENT Cougaar:description   (#PCDATA) >
- *  <!ELEMENT Cougaar:location      (#PCDATA) >
- *  <!ELEMENT Cougaar:ref-ident     (#PCDATA) >
+ *  &lt!ELEMENT Cougaar:description   (#PCDATA) &gt
+ *  &lt!ELEMENT Cougaar:location      (#PCDATA) &gt
+ *  &lt!ELEMENT Cougaar:ref-ident     (#PCDATA) &gt
  *
+ * </pre>
+ * @since IDMEF Message v1.0
  */
 public class Agent implements XMLSerializable {
     
@@ -179,18 +181,19 @@ public class Agent implements XMLSerializable {
     }
     
     /**
-     *
+     *   Convert Agent to an XML node.
+     *   <br>
      *   Example Agent node:
-     *
-     *   <Cougaar:Agent Cougaar:name="ViewRecordAgent">
-     *      <Cougaar:description>Agent used to view confidential records</Cougaar:description>
-     *      <Cougaar:location>Santa Clara, CA</Cougaar:location>
-     *      <Address category="url">
-     *          <address>rmi://myhost.com:2121/ViewRecordAgent</address>
-     *      </Address>
-     *      <Cougaar:ref-ident>a1b2c3d4</Cougaar:ref-ident>
-     *   </Cougaar:Agent>
-     *
+     *   <pre>
+     *   &ltCougaar:Agent Cougaar:name="ViewRecordAgent"&gt
+     *      &ltCougaar:description&gtAgent used to view confidential records&lt/Cougaar:description&gt
+     *      &ltCougaar:location>Santa Clara, CA&lt/Cougaar:location&gt
+     *      &ltAddress category="url"&gt
+     *          &ltaddress&gtrmi://myhost.com:2121/ViewRecordAgent&lt/address&gt
+     *      &lt/Address&gt
+     *      &ltCougaar:ref-ident>a1b2c3d4&lt/Cougaar:ref-ident&gt
+     *   &lt/Cougaar:Agent&gt
+     *  </pre>
      */
     public Node convertToXML( Document parent )
     {
@@ -224,12 +227,12 @@ public class Agent implements XMLSerializable {
 	    return agentNode;
     }
    
-    public Agent clone( String []refIdents ){
+    public Agent clone(){
         Agent newAgent = new Agent( m_name, 
                                     m_description, 
                                     m_location, 
                                     m_address, 
-                                    refIdents );
+                                    m_refIdents );
         return newAgent;
     }
 
