@@ -48,39 +48,6 @@
     </RuleParam>
   </Policy>
 
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.ServletPolicy">
-    <RuleParam name="UserAdminAgent">
-      <KeySet value="allow-role">
-        <Key key="/*" value="UserManager" />
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="DomainManager">
-      <KeySet value="allow-role">
-        <Key key="/*" value="PolicyAdministrator" />
-      </KeySet>
-    </RuleParam>
-    <RuleParam name="UMmrmanager">
-      <KeySet value="allow-role">
-        <Key key="/*" value="MonitorManager" />
-      </KeySet>
-    </RuleParam>
-<!--
-    <RuleParam name="caAgent">
-      <KeySet value="allow-role">
-        <Key key="/*" value="CAAdministrator" />
-      </KeySet>
-    </RuleParam>
--->
-  </Policy>
-
-  <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.AuthTypePolicy">
-    <RuleParam name="UserAdminAgent">
-      <KeySet value="auth-constraint">
-        <Key key="/useradmin*" value="PASSWORD" />
-      </KeySet>
-    </RuleParam>
-  </Policy>
-
 <!-- BlackboardService read-only filter
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.BlackboardFiltePolicy">
     <RuleParam name="read-only-rule">

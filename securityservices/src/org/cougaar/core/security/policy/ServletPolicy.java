@@ -26,8 +26,80 @@
 
 package org.cougaar.core.security.policy;
 
-public class ServletPolicy extends TypedPolicy {
-  public ServletPolicy() {
-    super("org.cougaar.core.security.policy.ServletPolicy");
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
+
+public class ServletPolicy extends SecurityPolicy {
+  private List _rules = new ArrayList();
+  private long _failureDelay = 1000;
+
+  public static class ServletPolicyRule implements java.io.Serializable {
+    public String agentName;
+    public List   urls;
+    public String auth;
+    public List   roles;
+    
+    public String toString() {
+      StringBuffer buf = new StringBuffer();
+      buf.append("Rule (").append(agentName).append(",{");
+      Iterator iter = urls.iterator();
+      boolean first = true;
+      while (iter.hasNext()) {
+        if (first) first = false;
+        else buf.append(", ");
+        buf.append(iter.next());
+      }
+
+      buf.append("},").append(auth).append(",[");
+      iter = roles.iterator();
+      first = true;
+      while (iter.hasNext()) {
+        if (first) first = false;
+        else buf.append(", ");
+        buf.append(iter.next());
+      }
+      buf.append("])");
+      return buf.toString();
+    }
+  }
+
+  public void addRule(String agent, List urls, String auth, List roles) {
+    ServletPolicyRule spr = new ServletPolicyRule();
+    spr.agentName = agent;
+    spr.urls = urls;
+    spr.auth = auth;
+    spr.roles = roles;
+    _rules.add(spr);
+  }
+
+  public void addRootRule(List urls, String auth, List roles) {
+    addRule(null, urls, auth, roles);
+  }
+
+  public List getRules() {
+    return _rules;
+  }
+
+  public long getFailureDelay() {
+    return _failureDelay;
+  }
+
+  public void setFailureDelay(long delay) {
+    _failureDelay = delay;
+  }
+
+  public String toString() {
+    StringBuffer buf = new StringBuffer();
+    buf.append("ServletPolicy (");
+    Iterator rules = _rules.iterator();
+    boolean first = true;
+    while (rules.hasNext()) {
+      if (first) first = false;
+      else buf.append(", ");
+      buf.append(rules.next());
+    }
+    buf.append(')');
+    return buf.toString();
   }
 }

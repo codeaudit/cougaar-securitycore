@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
@@ -49,6 +50,8 @@ import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Realm;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.deploy.LoginConfig;
+import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.authenticator.BasicAuthenticator;
@@ -71,6 +74,7 @@ public class DualAuthenticator extends ValveBase {
   Context           _context     = null;
   HashMap           _constraints = new HashMap();
   long              _failSleep   = 1000;
+  HashSet           _agentList   = new HashSet();
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -106,6 +110,10 @@ public class DualAuthenticator extends ValveBase {
 
     HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
     HttpServletResponse hres = (HttpServletResponse) request.getResponse();
+
+    // expand the "*" agent identifier -- can't think of another place
+    // to get all agent names and this works.
+    expandStarConstraint(hreq.getRequestURI());
 
     int userConstraint = CONST_NONE;
     int pathConstraint = getConstraint(hreq.getRequestURI());
@@ -147,6 +155,58 @@ public class DualAuthenticator extends ValveBase {
         Thread.sleep(_failSleep);
       } catch (InterruptedException e) {
         // no sweat
+      }
+    }
+  }
+
+  private void expandStarConstraint(String uri) {
+    if (!uri.startsWith("/$")) {
+      return; // not an agent... screw it
+    }
+
+    int slashIndex = uri.indexOf("/",2);
+    if (slashIndex != -1) {
+      uri = uri.substring(2, slashIndex);
+    } else {
+      uri = uri.substring(2);
+    }
+    synchronized (_agentList) {
+      if (_agentList.contains(uri)) {
+        return; // already there
+      }
+      _agentList.add(uri);
+      SecurityConstraint scs[] = _context.findConstraints();
+      if (scs == null) {
+        return; // no constraints! 
+      }
+
+      for (int i = 0; i < scs.length; i++) {
+        SecurityCollection scn = scs[i].findCollection("*");
+        if (scn != null) {
+          SecurityConstraint scNew = new SecurityConstraint();
+          String roles[] = scs[i].findAuthRoles();
+          for (int j = 0; j < roles.length; j++) {
+            scNew.addAuthRole(roles[j]);
+          }
+          
+          SecurityCollection scnNew = new SecurityCollection("*");
+          String patterns[] = scn.findPatterns();
+          for (int j = 0; j < patterns.length; j++) {
+            if (!patterns[j].startsWith("/$")) {
+              if (patterns[j].startsWith("/")) {
+                                   patterns[j]);
+                scnNew.addPattern("/$" + uri + patterns[j]);
+              } else {
+                                   "/" + patterns[j]);
+                scnNew.addPattern("/$" + uri + "/" + patterns[j]);
+              }
+            }
+            scnNew.addPattern(patterns[j]);
+          }
+          _context.removeConstraint(scs[i]);
+          scNew.addCollection(scnNew);
+          _context.addConstraint(scNew);
+        }
       }
     }
   }
@@ -214,35 +274,26 @@ public class DualAuthenticator extends ValveBase {
   }
         
   /**
-   * Sets an authentication constraint for the given path. It allows
+   * Sets an authentication constraints. It allows
    * the specification of whether the path should support authentication
    * using certificates, password, both, or either. When checking
    * paths, a combination of the most restrictive constraints is used.
    * Therefore, if "/*" is given "EITHER" and "/$foo/*" is given
    * "PASSWORD", then PASSWORD is used as the constraint.<p>
    *
-   * Setting a constraint for a given path replaces any earlier
-   * constraint set for that path.
+   * All constraints are replaced by the argument.
    *
-   * @param path The path to constrain. Simple wildcard (*) is allowed
-   *             to specify any number of characters at the beginning
-   *             or end of a path.
-   * @param type The password mechanism required. Valid values are
-   *             "CERT" for certificate authentication, "PASSWORD" for
-   *             BASIC auth or DIGEST authentication, "BOTH"
-   *             to require both a certificate and proper password, and
-   *             "EITHER" to not have any password requirements beyond
-   *             what is required by the role-based constraints.
+   * @param constraints A map with the pattern as the key and the
+   *                    constraint as the value. The constraint can be
+   *                    "CERT" for certificate authentication, "PASSWORD" for
+   *                    BASIC auth or DIGEST authentication, "BOTH"
+   *                    to require both a certificate and proper password, and
+   *                    "EITHER" to not have any password requirements beyond
+   *                    what is required by the role-based constraints.
    */
-  public synchronized void setAuthConstraint(String path, String type) {
-    if (path == null) {
-      path = "*";
-    }
-    if (type == null || "EITHER".equals(type)) {
-      _constraints.remove(path);
-    } else {
-      _constraints.put(path,type);
-    }
+  public synchronized void setAuthConstraints(Map constraints) {
+    _agentList.clear();
+    _constraints = new HashMap(constraints);
   }
 
   /**

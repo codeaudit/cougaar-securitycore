@@ -38,21 +38,5 @@ public interface ServletPolicyService
    * @param path The path to search for roles.
    */
   public String[] getRoles(String path);
-
-  /**
-   * Adds an allowed role for a given path
-   *
-   * @param path  The path that is allowing access
-   * @param role  The role name to allow
-   */
-  public void     addRole(String path, String role);
-
-  /**
-   * Removes access by a role to a given path added with addRole
-   *
-   * @param path The path to remove access from
-   * @param role The role name to remove
-   */
-  public void     removeRole(String path, String role);
 }
 

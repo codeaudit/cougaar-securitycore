@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policy name="Servlet Policy" type="org.cougaar.core.security.policy.ServletPolicy">
+  <servlet-policy>
+    <!-- set the delay time (milliseconds) when a user fails -->
+    <failure-delay>1000</failure-delay>
+    <!-- define rules for a specific agent -->
+    <agent name="DomainManager">
+      <!-- A rule defines which roles are allowed to access which uri
+           patterns. It may optionally restrict the authentication
+           mechanism for the urls in the rule -->
+      <rule>
+        <!-- a rule must have at least one uri pattern -->
+        <pattern>/*</pattern>
+        <!-- a rule must have at least one role -->
+        <role>PolicyAdministrator</role>
+        <!-- force the user to authenticate by a method. You may
+             use certificate (CERT), password (PASSWORD), or the default
+             of either (EITHER), or both (BOTH). If multiple patterns
+             match a url, a union of the restrictions is made. -->
+        <auth>EITHER</auth>
+      </rule>
+    </agent>
+    <agent name="UMmrmanager">
+      <rule>
+        <pattern>/*</pattern>
+        <role>MonitorManager</role>
+      </rule>
+    </agent>
+    <agent name="*">
+      <rule>
+        <pattern>/useradmin</pattern>
+        <role>UserManager</role>
+      </rule>
+      <rule>
+        <pattern>/MoveServlet</pattern>
+        <role>MoveAgent</role>
+      </rule>
+      <rule>
+        <pattern>/TopologyServlet</pattern>
+        <role>Topology</role>
+      </rule>
+    </agent>
+    <root>
+      <rule>
+        <pattern>*.secure</pattern>
+        <role>God</role>
+      </rule>
+    </root>
+  </ServletPolicy>
+</policy>

@@ -24,6 +24,7 @@
 package org.cougaar.core.security.acl.auth;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,142 +53,53 @@ import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.services.crypto.ServletPolicyService;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
+import org.cougaar.core.security.policy.ServletPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
 
 public class ServletPolicyEnforcer implements ServletPolicyService {
 
   ServiceBroker _serviceBroker;
   ServletGuard  _servletGuard;
-  AuthTypeGuard _authTypeGuard;
-  AuthConfig    _authConfig;
 
   Context           _context = null;
   DualAuthenticator _daValve = null;
 
-  HashMap _roles       = new HashMap();
-  HashMap _constraints = new HashMap();
-  long    _sleepTime   = 1000;
-
-  public  static final String ALLOW_ROLE            = "allow-role";
-  public  static final String DENY_ROLE             = "deny-role";
-  public  static final String SET_AUTH_CONSTRAINT   = "auth-constraint";
-  public  static final String SET_LOGIN_FAILURE_SLEEP_TIME = "login-failure-sleep";
+  HashMap             _authConstraints;
+  SecurityConstraint  _constraints[];
+  HashSet             _roles;
+  long                _sleepTime = 1000;
 
   public ServletPolicyEnforcer(ServiceBroker sb) {
     _serviceBroker = sb;
     _servletGuard  = new ServletGuard();
-    _authTypeGuard = new AuthTypeGuard();
-    _authConfig    = new AuthConfig();
   }
 
   public synchronized void setContext(Context context) {
     _context = context;
-    Iterator iter = _roles.entrySet().iterator(); 
-    while (iter.hasNext()) {
-      Map.Entry entry   = (Map.Entry) iter.next();
-      String    path    = (String)    entry.getKey();
-      HashSet   roleSet = (HashSet)   entry.getValue();
-      iter.remove();
-      SecurityConstraint sc = getSecurityConstraint(path);
-      _context.addConstraint(sc);
-      Iterator rIter = roleSet.iterator();
-      while (rIter.hasNext()) {
-        String role = rIter.next().toString();
-        sc.addAuthRole(role);
+    if (_constraints != null) {
+      for (int i = 0; i < _constraints.length; i++) {
+        _context.addConstraint(_constraints[i]);
+      }
+    }
+    if (_roles != null) {
+      Iterator iter = _roles.iterator();
+      while (iter.hasNext()) {
+        String role = iter.next().toString();
+        _context.addSecurityRole(role);
       }
     }
   }
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
     _daValve = da;
-    Iterator iter = _constraints.entrySet().iterator(); 
-    while (iter.hasNext()) {
-      Map.Entry entry      = (Map.Entry) iter.next();
-      String    path       = (String) entry.getKey();
-      String    constraint = (String) entry.getValue();
-      iter.remove();
-      _daValve.setAuthConstraint(path,constraint);
-    }
-    _daValve.setLoginFailureSleepTime(_sleepTime);
+    _daValve.setAuthConstraints(_authConstraints);
   }
   
-  private SecurityConstraint getSecurityConstraint(String path) {
-    SecurityConstraint sc = null;
-
-    SecurityConstraint scArray[] = _context.findConstraints();
-    if (scArray != null) {
-      for (int i = 0; i < scArray.length; i++) {
-        if (path.equals(scArray[i].getDisplayName())) {
-          sc = scArray[i];
-          break; // found it!
-        }
-      }
-    }
-    if (sc == null) {
-      sc = new SecurityConstraint();
-      sc.setDisplayName(path);
-      SecurityCollection scn = 
-        new SecurityCollection(path, "Security constraint for path: " + 
-                               path);
-      scn.addPattern(path);
-      sc.addCollection(scn);
-      _context.addConstraint(sc);
-    }
-    return sc;
-  }
-
-  private HashSet getRoleSet(String path) {
-    HashSet roleList;
-    roleList = (HashSet) _roles.get(path);
-    if (roleList == null) {
-      roleList = new HashSet();
-      _roles.put(path,roleList);
-    }
-    return roleList;
-  }
-
-  public synchronized void addRole(String path, String role) {
-    if (path == null || role == null) {
-      return;
-    }
-    //     System.err.println("================================ adding role: " + path + ", " + role);
-
-    if (_context == null) {
-      HashSet roleList = getRoleSet(path);
-      if (_context == null) {
-        roleList.add(role);
-      }
-    } 
-    if (_context != null) {
-      SecurityConstraint sc = getSecurityConstraint(path);
-      sc.addAuthRole(role);
-      _context.addSecurityRole(role);
-    }
-  }
-
-  public synchronized void removeRole(String path, String role) {
-    if (path == null || role == null) {
-      return;
-    }
-    
-    if (_context == null) {
-      HashSet roleList = getRoleSet(path);
-      roleList.remove(role);
-    } else {
-      SecurityConstraint sc = getSecurityConstraint(path);
-      sc.removeAuthRole(role);
-    }
-  }
-
-  public synchronized void setAuthConstraint(String path, String type) {
-    if (path == null || type == null) {
-      return;
-    }
-    //     System.err.println("================================ adding constraint: " + path + ", " + type);
-
+  public synchronized void setAuthConstraints(HashMap constraints) {
     if (_daValve == null) {
-      _constraints.put(path, type);
+      _authConstraints = constraints;
     } else {
-      _daValve.setAuthConstraint(path, type);
+      _daValve.setAuthConstraints(constraints);
     }
   }
 
@@ -201,48 +113,68 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
 
   public synchronized String[] getRoles(String path) {
     HashSet roles = new HashSet();
+    SecurityConstraint scs[];
     if (_context == null) {
-      Iterator iter = _constraints.entrySet().iterator();
-      while (iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        String wildPath = (String)entry.getKey();
-        boolean match;
-        if (wildPath.startsWith("*")) {
-          match = path.endsWith(wildPath.substring(1));
-        } else if (wildPath.endsWith("*")) {
-          match = path.startsWith(wildPath.substring(0,wildPath.length()-1));
-        } else {
-          match = path.equals(wildPath);
-        }
-        if (match) {
-          HashSet r = (HashSet) entry.getValue();
-          Iterator rIter = r.iterator();
-          while (rIter.hasNext()) {
-            roles.add(rIter.next());
-          }
-        }
-      }
+      scs = _constraints;
     } else {
-      SecurityConstraint scs[] = _context.findConstraints();
-      for (int i = 0; i < scs.length; i++) {
-        if (scs[i].included(path, "GET")) {
-          String r[] = scs[i].findAuthRoles();
-          for (int j = 0; j < r.length; j++) {
-            roles.add(r[j]);
-          }
+      scs = _context.findConstraints();
+    }
+    for (int i = 0; i < scs.length; i++) {
+      if (scs[i].included(path, "GET")) {
+        String r[] = scs[i].findAuthRoles();
+        for (int j = 0; j < r.length; j++) {
+          roles.add(r[j]);
         }
       }
     }
     return (String[]) roles.toArray(new String[roles.size()]);
   }
 
+  public void setSecurityConstraints(List constraints, HashSet roles) {
+    if (_context == null) {
+      _constraints = (SecurityConstraint[]) 
+        constraints.toArray(new SecurityConstraint[constraints.size()]);
+      _roles = roles;
+    } else {
+      SecurityConstraint scArray[] = _context.findConstraints();
+      
+      // add the new constraints
+      Iterator iter = constraints.iterator();
+      while (iter.hasNext()) {
+        SecurityConstraint constraint = (SecurityConstraint) iter.next();
+        _context.addConstraint(constraint);
+      }
+      
+      // remove the old constraints
+      if (scArray != null) {
+        for (int i = 0 ; i < scArray.length; i++) {
+          _context.removeConstraint(scArray[i]);
+        }
+      }
+
+      // first get a list of roles that currently exist:
+      String oldRoles[] = _context.findSecurityRoles();
+      for (int i = 0; i < oldRoles.length; i++) {
+        if (roles.contains(oldRoles[i])) {
+          roles.remove(oldRoles[i]); // don't need to add it
+        } else {
+          _context.removeSecurityRole(oldRoles[i]); // don't need it any more
+        }
+      }
+      iter = roles.iterator();
+      while (iter.hasNext()) {
+        String role = iter.next().toString();
+        _context.addSecurityRole(role);
+      }
+    }
+  }
 
   private class ServletGuard 
     extends GuardRegistration
     implements NodeEnforcer {
 
     public ServletGuard() {
-      super("org.cougaar.core.security.policy.ServletPolicy",
+      super(ServletPolicy.class.getName(),
             "ServletPolicyService", _serviceBroker);
       try {
         registerEnforcer();
@@ -253,10 +185,9 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
     }
 
     /**
-     * Merges an existing policy with a new policy.
-     * @param policy the new policy to be added
+     * Does nothing
      */
-    public void receivePolicyMessage(Policy policy,
+    public void receivePolicyMessage(Policy policyIn,
                                      String policyID,
                                      String policyName,
                                      String policyDescription,
@@ -266,177 +197,72 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
                                      String policyTargetID,
                                      String policyTargetName,
                                      String policyType) {
-      //     System.err.println("========================== got a role");
-      if (policy == null) {
+      log.warn("This should never be called!");
+    }
+
+    /**
+     * Replaces an existing policy with a new policy.
+     * @param policy the new policy to be added
+     */
+    public void receivePolicyMessage(SecurityPolicy policyIn,
+                                     String policyID,
+                                     String policyName,
+                                     String policyDescription,
+                                     String policyScope,
+                                     String policySubjectID,
+                                     String policySubjectName,
+                                     String policyTargetID,
+                                     String policyTargetName,
+                                     String policyType) {
+      if (policyIn == null || !(policyIn instanceof ServletPolicy)) {
         return;
       }
 
       if (log.isDebugEnabled()) {
         log.debug("ServletPolicyEnforcer: Received policy message");
-        RuleParameter[] param = policy.getRuleParameters();
-        for (int i = 0 ; i < param.length ; i++) {
-          log.debug("Rule: " + param[i].getName() +
-                    " - " + param[i].getValue());
-        }
+        log.debug(policyIn.toString());
       }
-      // what is the policy change?
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0; i < param.length; i++) {
-        String name  = param[i].getName();
-        if (param[i] instanceof LongRuleParameter) {
-          if (SET_LOGIN_FAILURE_SLEEP_TIME.equals(name)) {
-            _sleepTime = (((Long)param[i].getValue()).longValue());
-          }
-        } else if (param[i] instanceof KeyRuleParameter) {
-          KeyRuleParameter krp = (KeyRuleParameter) param[i];
-          KeyRuleParameterEntry entry[] = krp.getKeys();
-          String agent = name;
-          name = krp.getValue().toString();
-          if (entry != null) {
-            for (int j = 0; j < entry.length; j++) {
-              String val = entry[j].getValue();
-              String path = entry[j].getKey();
-              if (agent != null && agent.length() != 0) {
-                if (path.startsWith("/")) {
-                  path = "/$" + agent + path;
-                } else {
-                  path = "/$" + agent + "/" + path;
-                }
-              }
 
-              if (ALLOW_ROLE.equals(name)) {
-                addRole(path,val);
-              } else if (DENY_ROLE.equals(name)) {
-                removeRole(path,val);
-              } 
+      ArrayList constraints = new ArrayList();
+      ServletPolicy policy = (ServletPolicy) policyIn;
+      List rules = policy.getRules();
+      Iterator iter = rules.iterator();
+      HashMap authConstraints = new HashMap();
+      HashSet roles = new HashSet();
+      while (iter.hasNext()) {
+        ServletPolicy.ServletPolicyRule rule = 
+          (ServletPolicy.ServletPolicyRule) iter.next();
+
+        SecurityConstraint constraint = new SecurityConstraint();
+
+        Iterator jter = rule.roles.iterator();
+        while (jter.hasNext()) {
+          String role = jter.next().toString();
+          constraint.addAuthRole(role);
+          roles.add(role);
+        }
+        jter = rule.urls.iterator();
+        SecurityCollection sc = new SecurityCollection(rule.agentName);
+        while (jter.hasNext()) {
+          String pattern = jter.next().toString();
+          if (rule.agentName != null && !rule.agentName.equals("*")) {
+            if (pattern.startsWith("/")) {
+              pattern = "/$" + rule.agentName + pattern;
+            } else {
+              pattern = "/$" + rule.agentName  + "/" + pattern;
             }
           }
-        }
-      }
-    }
-  }
+          sc.addPattern(pattern);
 
-  private class AuthTypeGuard 
-    extends GuardRegistration
-    implements NodeEnforcer {
-
-    public AuthTypeGuard() {
-      super("org.cougaar.core.security.policy.AuthTypePolicy",
-            "ServletPolicyService", _serviceBroker);
-      try {
-        registerEnforcer();
-      } catch (Exception ex) {
-        // FIXME: Shouldn't just let this drop, I think
-        ex.printStackTrace();
-      }
-    }
-
-    /**
-     * Merges an existing policy with a new policy.
-     * @param policy the new policy to be added
-     */
-    public void receivePolicyMessage(Policy policy,
-                                     String policyID,
-                                     String policyName,
-                                     String policyDescription,
-                                     String policyScope,
-                                     String policySubjectID,
-                                     String policySubjectName,
-                                     String policyTargetID,
-                                     String policyTargetName,
-                                     String policyType) {
-      if (policy == null) {
-        return;
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("ServletPolicyEnforcer: Received policy message");
-        RuleParameter[] param = policy.getRuleParameters();
-        for (int i = 0 ; i < param.length ; i++) {
-          log.debug("Rule: " + param[i].getName() +
-                    " - " + param[i].getValue());
-        }
-      }
-      // what is the policy change?
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0; i < param.length; i++) {
-        String name  = param[i].getName();
-        if (param[i] instanceof KeyRuleParameter) {
-          KeyRuleParameter krp = (KeyRuleParameter) param[i];
-          KeyRuleParameterEntry entry[] = krp.getKeys();
-          String agent = name;
-          name = krp.getValue().toString();
-          if (entry != null) {
-            for (int j = 0; j < entry.length; j++) {
-              String val = entry[j].getValue();
-              String path = entry[j].getKey();
-              if (agent != null && agent.length() != 0) {
-                if (path.startsWith("/")) {
-                  path = "/$" + agent + path;
-                } else {
-                  path = "/$" + agent + "/" + path;
-                }
-              }
-
-              setAuthConstraint(path,val);
-            }
+          if (rule.auth != null) {
+            authConstraints.put(pattern,rule.auth);
           }
         }
+        constraint.addCollection(sc);
+        constraints.add(constraint);
       }
-    }
-  }
-
-  private class AuthConfig
-    extends GuardRegistration
-    implements NodeEnforcer {
-
-    public AuthConfig() {
-      super("org.cougaar.core.security.policy.AuthConfigPolicy",
-            "ServletPolicyService", _serviceBroker);
-      try {
-        registerEnforcer();
-      } catch (Exception ex) {
-        // FIXME: Shouldn't just let this drop, I think
-        ex.printStackTrace();
-      }
-    }
-
-    /**
-     * Merges an existing policy with a new policy.
-     * @param policy the new policy to be added
-     */
-    public void receivePolicyMessage(Policy policy,
-                                     String policyID,
-                                     String policyName,
-                                     String policyDescription,
-                                     String policyScope,
-                                     String policySubjectID,
-                                     String policySubjectName,
-                                     String policyTargetID,
-                                     String policyTargetName,
-                                     String policyType) {
-      if (policy == null) {
-        return;
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("ServletPolicyEnforcer: Received policy message");
-        RuleParameter[] param = policy.getRuleParameters();
-        for (int i = 0 ; i < param.length ; i++) {
-          log.debug("Rule: " + param[i].getName() +
-                    " - " + param[i].getValue());
-        }
-      }
-      // what is the policy change?
-      RuleParameter[] param = policy.getRuleParameters();
-      for (int i = 0; i < param.length; i++) {
-        String name  = param[i].getName();
-        if (param[i] instanceof LongRuleParameter) {
-          if (SET_LOGIN_FAILURE_SLEEP_TIME.equals(name)) {
-            _sleepTime = (((Long)param[i].getValue()).longValue());
-          }
-        }
-      }
+      setAuthConstraints(authConstraints);
+      setSecurityConstraints(constraints,roles);
     }
   }
 }
