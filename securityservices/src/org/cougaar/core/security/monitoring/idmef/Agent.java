@@ -234,7 +234,8 @@ public class Agent implements XMLSerializable {
     }
 
     public String toTaggedString(){
-        StringBuffer sb = new StringBuffer();
+        // initialize to 500B
+        StringBuffer sb = new StringBuffer( 500 );
         sb.append( "<" );
         sb.append( ELEMENT_NAME );
         if( m_name != null ){
