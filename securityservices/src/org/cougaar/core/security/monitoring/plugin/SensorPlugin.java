@@ -54,6 +54,7 @@ import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 
 // JavaIDMEF classes
 import edu.jhuapl.idmef.Alert;
@@ -95,11 +96,14 @@ public abstract class SensorPlugin extends ComponentPlugin {
    */ 
   protected abstract String []getClassifications();
   /**
-   * method to determine if the agent the plugin is running is the target
+   * method to determine if the agent, the plugin is running in, is the target
    * of attacks
    */
   protected abstract boolean agentIsTarget();
-  
+   /**
+   * method to determine if the agent, the plugin is running in, is the source
+   * of attacks
+   */
   protected abstract boolean agentIsSource();
   
   public void setDomainService(DomainService aDomainService) {
@@ -156,6 +160,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
     if(m_log == null) {
       m_log = (LoggingService)sb.getService(this, LoggingService.class, null);
     }
+    m_csu = new CommunityServiceUtil(sb);
     // register this sensor's capabilities
     Thread th=new Thread(new RegistrationTask());
     th.start();
@@ -171,7 +176,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
   /**
    * register the capabilities of the sensor
    */
-  private boolean registerCapabilities( String agentName){
+  private boolean registerCapabilities(String agentName){
     List capabilities = new ArrayList();
     List targets = null;
     List sources=null;
@@ -180,14 +185,11 @@ public abstract class SensorPlugin extends ComponentPlugin {
     if(m_cs == null) {
       return true;
     }
-    Collection manager = getEnclaveManager();
-    if(manager == null) {
-      return false;
+    MessageAddress myManager = m_csu.findSecurityManager(agentName); 
+    if(myManager == null) {
+      // manager may not have been initialize yet
+      return true; 
     }
-    else if(manager.size() == 0) {
-      m_log.debug("Enclave Security Manager not yet alive!");
-      return true; // enclave managers not yet alive
-    }  
     // if agent is the target then add the necessary information to the registration
     if(agentIsTarget()) {
       List tRefList = new ArrayList(1);
@@ -250,7 +252,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
                                               agentName);
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
     
-    CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, (MessageAddress)manager.iterator().next());
+    CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, myManager);
     m_blackboard.openTransaction();
     m_blackboard.publishAdd(regRelay);
     m_blackboard.closeTransaction();
@@ -277,26 +279,6 @@ public abstract class SensorPlugin extends ComponentPlugin {
     }
   }
 
-  private Collection getEnclaveManager() {
-    Collection community = m_cs.listParentCommunities(m_agent, "(CommunityType=Security)");
-    if(community.size() > 1) {
-      m_log.error(m_agent + " should belong to only one Security community!");
-      return null;
-    }
-    else if(community.size() == 0) {
-      m_log.debug("Security M&R Manager may not have registered yet!");
-      return community;
-    }
-    printCommunityInfo(m_cs, community);
-      
-    String communityName = community.iterator().next().toString();
-    Collection managers = m_cs.searchByRole(communityName, m_managerRole);          
-    if(managers.size() > 1) {
-      m_log.error("There are " + managers.size() + " Enclave Security Manager in community=" + communityName);
-      return null;
-    }
-    return managers;
-  }  
   /**
    * method used to determine if the plugin is located in the same
    * agent as the enclave security manager
@@ -318,6 +300,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
     int RETRY_TIME = 10 * 1000;
     int retryTime = RETRY_TIME;
     int counter = 1;
+
     public void run() {
       boolean  tryAgain = true;
       try {
@@ -421,6 +404,7 @@ public abstract class SensorPlugin extends ComponentPlugin {
                 r.getAnalyzer().equals(_sensor.getModel()))));
     }
   }
+  private CommunityServiceUtil m_csu;
 
   protected CommunityService m_cs;
   protected BlackboardService m_blackboard;
@@ -429,6 +413,5 @@ public abstract class SensorPlugin extends ComponentPlugin {
   protected CmrFactory m_cmrFactory;
   protected IdmefMessageFactory m_idmefFactory;
   protected String m_agent;
-  protected String m_managerRole = "SecurityMnRManager-Enclave"; // default value
-  
+  protected String m_managerRole = "Manager"; // default value
 }

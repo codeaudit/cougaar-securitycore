@@ -43,6 +43,7 @@ import org.cougaar.core.security.monitoring.idmef.*;
 import org.cougaar.core.mts.MessageAddress;
 
 import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 import edu.jhuapl.idmef.*;
 
 
@@ -57,7 +58,7 @@ class CapabilitiesPredicate implements UnaryPredicate{
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof Registration){
-	return true;
+        return true;
       }
     }
     return ret;
@@ -72,11 +73,11 @@ class CapabilitiesRelayPredicate implements UnaryPredicate{
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
       if(relay.getContent() instanceof Event) {
-	Event event = (Event)relay.getContent();
-	ret = (event.getEvent() instanceof Registration);
+        Event event = (Event)relay.getContent();
+        ret = (event.getEvent() instanceof Registration);
       }
       else {
-	return ret;
+        return ret;
       }
     }
     return ret;
@@ -101,13 +102,13 @@ class CompleteCapabilitiesPredicate implements UnaryPredicate{
  *
  */
 class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
- public boolean execute(Object o) {
+  public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof Event ) {
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof AgentRegistration){
-	return true;
+        return true;
       }
     }
     return ret;
@@ -121,7 +122,7 @@ class NotificationPredicate implements UnaryPredicate {
       return true;
     }
     return ret;
-   }
+  }
 }
 
 
@@ -130,6 +131,7 @@ class NotificationPredicate implements UnaryPredicate {
  **/
 
 public class CapabilitiesProcessingPlugin extends ComponentPlugin {
+  private static String MGR_ROLE = "Manager";
 
   // The domainService acts as a provider of domain factory services
   private DomainService domainService = null;
@@ -143,11 +145,12 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private LoggingService loggingService;
   private MessageAddress myAddress=null;
   private Object param;
-  private String mgrrole=null;
+  
   private MessageAddress mgrAddress;
   private String mySecurityCommunity=null;
-  private String myRole=null;
-
+  
+  private CommunityServiceUtil _csu;
+  
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -171,7 +174,6 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   }
   
   public void setCommunityService(CommunityService cs) {
-    //System.out.println(" set community services Servlet component :");
     this.communityService=cs;
   }
 
@@ -183,37 +185,26 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     loggingService = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
     myAddress = getAgentIdentifier();
+    _csu = new CommunityServiceUtil(getServiceBroker());
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"
-			 + myAddress.toString()); 
-    mySecurityCommunity= getMySecurityCommunity();
+        + myAddress.toString()); 
+    mySecurityCommunity = getMySecurityCommunity();
     loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
     if(mySecurityCommunity==null) {
       loggingService.error("No Info about My  SecurityCommunity in CapabilitiesProcessingPlugin"+
-			   " : Cannot send messaged  !!!!!!"+myAddress.toString());  
+          " : Cannot send messaged  !!!!!!"+myAddress.toString());  
       // return;
     }
-    else {
-      myRole=getMyRole(mySecurityCommunity);
-      loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
-      if((myRole.equalsIgnoreCase("memeber"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
-	if(myRole.equalsIgnoreCase("memeber")) {
-	  loggingService.error("This plugin can only be part of SecurityMnRManager-Enclave/SecurityMnRManager-Society.");
-	  loggingService.error("IF it is is in the right agent then modify community information");
-	}
-	if(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")){
-	  mgrrole="SecurityMnRManager-Society";
-	}
-      }
-    }
-    Collection capabilitiescollection =getBlackboardService().query(new CompleteCapabilitiesPredicate());
+   
+    Collection capabilitiescollection = getBlackboardService().query(new CompleteCapabilitiesPredicate());
     if(capabilitiescollection.isEmpty()){
       if(getBlackboardService().didRehydrate()) {
-	loggingService.error(" BlackBoard Rehydrated but there is no capabilities Object:");
-	return;
+      	loggingService.error(" BlackBoard Rehydrated but there is no capabilities Object:");
+      	return;
       }
       else {
-	CapabilitiesObject object=new CapabilitiesObject();
-	getBlackboardService().publishAdd(object);
+      	CapabilitiesObject object=new CapabilitiesObject();
+      	getBlackboardService().publishAdd(object);
       }
     }
     capabilities= (IncrementalSubscription)getBlackboardService().subscribe
@@ -234,15 +225,10 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
    */
   protected void execute () {
     
-    loggingService.debug(" Execute of Capabilities processing plugin called"+myAddress.toString());
-    if((myRole==null)||(mySecurityCommunity==null)) {
-      loggingService.debug("Error Cannot continue -- as  myRole/mySecurityCommunity is null at "+ myAddress.toString());
-      loggingService.debug("RETURNING from execute method:");
-      return;
-    }
+    loggingService.debug("Execute of Capabilities processing plugin called "+myAddress.toString());
+  
     updateRelayedCapabilities();
 
-    
     Event event=null;
     RegistrationAlert registration=null;
     CapabilitiesObject capabilitiesobject=null;
@@ -252,18 +238,18 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 
     if(( capabilities_col==null)||( capabilities_col.size()==0)){
       if(loggingService.isDebugEnabled()) {
-	loggingService.debug("No capabilities object present in capabilities processing plugin:"+
-			     "RETURNING !"+ myAddress.toString());
+        loggingService.debug("No capabilities object present in capabilities processing plugin:"+
+            "RETURNING !"+ myAddress.toString());
       }
       return;
     }
 
     if( capabilities_col.size()>1) {
       if(loggingService.isDebugEnabled()) {
-	loggingService.debug(" Error Multiple capabilities  object on blackboard"+
-			     "CapabilitiesprocessingPlugin in agent::"
-			     + myAddress.toString());
-	loggingService.debug("CONFUSION ......  CONFUSION!!!!!!!!!!!!! Exiting !!!!!!!!:");
+        loggingService.debug(" Error Multiple capabilities  object on blackboard"+
+            "CapabilitiesprocessingPlugin in agent::"
+            + myAddress.toString());
+        loggingService.debug("CONFUSION ......  CONFUSION!!!!!!!!!!!!! Exiting !!!!!!!!:");
       }
       return;
    
@@ -275,14 +261,14 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     }
     Collection notifications=notification.getAddedCollection();
     if(notifications.size()>0) {
-      loggingService.debug(" received notification to do publish change:");
+      loggingService.debug("received notification to do publish change:");
       getBlackboardService().publishChange(capabilitiesobject);
       /*
-      Iterator notificationiterator =notifications.iterator();
-      while( notificationiterator.hasNext()) {
-	Object obj=notificationiterator.next();
-	getBlackboardService().publishRemove(obj);
-      }
+        Iterator notificationiterator =notifications.iterator();
+        while( notificationiterator.hasNext()) {
+        Object obj=notificationiterator.next();
+        getBlackboardService().publishRemove(obj);
+        }
       */
     }
    
@@ -297,106 +283,74 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     /*
       Process capabilities received from within the agent
     */
-    while(capabilities_enum.hasMoreElements()){
+    while(capabilities_enum.hasMoreElements()) {
       event=( Event)  capabilities_enum.nextElement();
-      if(loggingService.isDebugEnabled())
-	loggingService.debug("Event received is  :"+ event.toString() 
-			     + "\n in agent "+myAddress.toString());
+      if(loggingService.isDebugEnabled()) {
+      	loggingService.debug("Event received is  :"+ event.toString() 
+            + "\n in agent "+myAddress.toString());
+      }
       registration=(RegistrationAlert)event.getEvent();
       analyzer=registration.getAnalyzer();
       analyzer_id=analyzer.getAnalyzerid();
-      if(loggingService.isDebugEnabled())
-	loggingService.debug(" Got analyzer id -->"+ analyzer_id );
-
-      if(capabilitiesobject.containsKey(analyzer_id)) {
-	if(loggingService.isDebugEnabled())
-	  loggingService.debug("Analyzer is registered. Registering Analyzer again in agent :"
-			       +myAddress.toString() 
-			       +" analyzer id" + analyzer_id );
-	RegistrationAlert existingregistartion=(RegistrationAlert)capabilitiesobject.get(analyzer_id);
-	if(registration.getOperation_type()==IdmefMessageFactory.addtoregistration)  {
-	  if(loggingService.isDebugEnabled()) {
-	    loggingService.debug(" registration type is ADD ");
-	    //printConsolidation(existingregistartion.getClassifications(),"!before  adding add reg object"); 
-	    //printConsolidation(registration.getClassifications(),"!!!!!New  add reg object");
-	  }
-	  existingregistartion= addtoRegistartion(existingregistartion,registration);
-	  modified=true;
-	  capabilitiesobject.put(analyzer_id,existingregistartion);
-	  /*if(loggingService.isDebugEnabled())
-	    printConsolidation(existingregistartion.getClassifications(),"After adding add reg object"); 
-	    capabilitiesobject.put(analyzer_id,registration);
-	  */
-	}
-	  if(registration.getOperation_type()==IdmefMessageFactory.removefromregistration)  {
-	  if(loggingService.isDebugEnabled())
-	    loggingService.debug(" registration type is remove");
-	  // printConsolidation(existingregistartion.getClassifications(),"!!!!!before removing  remove reg object"); 
-	  //printConsolidation(registration.getClassifications(),"!!!!!New remove  reg object"); 
-	  existingregistartion= removefromRegistartion(existingregistartion,registration); 
-	  // printConsolidation(existingregistartion.getClassifications(),"After removing remove reg object");
-	  // existingregistartion= removefromRegistartion(existingregistartion,registration); 
-	  }
-	modified=true;
-	capabilitiesobject.put(analyzer_id,existingregistartion);
-      }
-      else {
-	if(loggingService.isDebugEnabled())
-	  loggingService.debug("Analyzer is not yet registered. Registering Analyzer  in agent :"+myAddress.toString() 
-			       +" analyzer id" + analyzer_id );
-	modified=true;
-	//printConsolidation(registration.getClassifications(),"!!!!!Classification before reg first time @@@@"); 
-	capabilitiesobject.put(analyzer_id,registration);
-      }
-
-    }
-    
-    /**
-       Process capabilities received from subordinate agent 
-    */
-    ConsolidatedCapabilities consolidatedcapabilities;
-    while(subordinatecapabilities_enum.hasNext())  {
-      event=( Event)  subordinatecapabilities_enum.next();
-      if(event.getSource().equals(myAddress)) {
-	loggingService.debug(" $$$$$ recived event from my source address :"+myAddress.toString()
-			     +" event is :"+event.toString());
-	continue;
-      }
-      consolidatedcapabilities=(ConsolidatedCapabilities)event.getEvent(); 
-      if(loggingService.isDebugEnabled())
-	loggingService.debug(" got consolidatedcapabilities in agent :>"+myAddress.toString() +
-			     "consolidated capabilities "+ consolidatedcapabilities.toString()+
-			     "Analyzer id is "+ consolidatedcapabilities.getAnalyzer().getAnalyzerid());
-     
-      String agent_id= event.getSource().toAddress();
       
-      /*
-	Consolidating capabilities from subordinate agent 
-      */
-      analyzer_id=consolidatedcapabilities.getAnalyzer().getAnalyzerid();
+      if(loggingService.isDebugEnabled()) {
+	      loggingService.debug(" Got analyzer id -->"+ analyzer_id );
+      }
+      
       if(capabilitiesobject.containsKey(analyzer_id)) {
-	if(loggingService.isDebugEnabled())
-	  loggingService.debug(" Agent is already registered :");
-	RegistrationAlert regalert=getRegistrationAlert(consolidatedcapabilities);
-	capabilitiesobject.put(analyzer_id,regalert);
-	if(loggingService.isDebugEnabled())
-	  loggingService.debug(" Replacing RegistrationAlert for analyzer id :"+ analyzer_id );
-	modified=true;
+      	if(loggingService.isDebugEnabled()) {
+      	  loggingService.debug("Analyzer is registered. Registering Analyzer again in agent :"
+              +myAddress.toString() 
+              +" analyzer id" + analyzer_id );
+        }
+	  
+        RegistrationAlert existingregistartion=(RegistrationAlert)capabilitiesobject.get(analyzer_id);
+        if(registration.getOperation_type()==IdmefMessageFactory.addtoregistration)  {
+          if(loggingService.isDebugEnabled()) {
+            loggingService.debug(" registration type is ADD ");
+            //printConsolidation(existingregistartion.getClassifications(),"!before  adding add reg object"); 
+            //printConsolidation(registration.getClassifications(),"!!!!!New  add reg object");
+          }
+          existingregistartion= addtoRegistartion(existingregistartion,registration);
+          /*if(loggingService.isDebugEnabled())
+            printConsolidation(existingregistartion.getClassifications(),"After adding add reg object"); 
+            capabilitiesobject.put(analyzer_id,registration);
+          */
+        }
+        else if(registration.getOperation_type()==IdmefMessageFactory.removefromregistration)  {
+          if(loggingService.isDebugEnabled()) {
+            loggingService.debug(" registration type is remove");
+          }
+          // printConsolidation(existingregistartion.getClassifications(),"!!!!!before removing  remove reg object"); 
+          //printConsolidation(registration.getClassifications(),"!!!!!New remove  reg object"); 
+          existingregistartion= removefromRegistartion(existingregistartion,registration); 
+          // printConsolidation(existingregistartion.getClassifications(),"After removing remove reg object");
+          // existingregistartion= removefromRegistartion(existingregistartion,registration); 
+        }
+        modified=true;
+        capabilitiesobject.put(analyzer_id,existingregistartion);
       }
       else {
-	capabilitiesobject.put(analyzer_id,getRegistrationAlert(consolidatedcapabilities));
-	loggingService.debug(" Agent is not  registered :" + analyzer_id);
-	modified=true;
+      	if(loggingService.isDebugEnabled()) {
+      	  loggingService.debug("Analyzer is not yet registered. Registering Analyzer  in agent :"+myAddress.toString() 
+              +" analyzer id" + analyzer_id );
+        }
+      	modified=true;
+      	//printConsolidation(registration.getClassifications(),"!!!!!Classification before reg first time @@@@"); 
+      	capabilitiesobject.put(analyzer_id,registration);
       }
     }
-    if(modified) {
+
+    // Process capabilities received from subordinate agent 
+    
+    boolean subModified = processSubCapabilities(subordinatecapabilities_enum,capabilitiesobject);
+ 
+    if(modified || subModified) {
       loggingService.debug(" CAPABILITIES object is modified publishing change from agent :"+ myAddress.toString());
       getBlackboardService().publishChange(capabilitiesobject);
     }
-	
   }
-
-
+  
   public void printConsolidation(Classification[] classifications, String msg) {
     loggingService.debug(msg);
     Classification classification=null;
@@ -485,33 +439,33 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       Classification existingclassification=null;
       Vector modifiedclassification=new Vector();
       for(int i=0;i<newlength;i++) {
-	newclassification=classifications[i];
-	found=false;
-	foundindex=-1;
-	for(int j=0;j<existinglength;j++) {
-	  existingclassification=existingClassifications[j];
-	  if(!existingclassification.equals(newclassification)){
-	    continue;
-	  }
-	  loggingService.debug("Found classification to remove:!" + existingclassification.toString());
-	  found=true;
-	  foundindex=j;
-	  break;
-	}
+        newclassification=classifications[i];
+        found=false;
+        foundindex=-1;
+        for(int j=0;j<existinglength;j++) {
+          existingclassification=existingClassifications[j];
+          if(!existingclassification.equals(newclassification)){
+            continue;
+          }
+          loggingService.debug("Found classification to remove:!" + existingclassification.toString());
+          found=true;
+          foundindex=j;
+          break;
+        }
 		 
-	if((found)&&(foundindex!=-1)) {
-	  loggingService.debug(" Found classification to remove at index  :"+foundindex);
-	  Classification modifiedClassifications[]=new Classification[existinglength-1];
-	  System.arraycopy(existingClassifications,0,modifiedClassifications,0,foundindex);
-	  /* doing an array copy till the index where classification is found and skiping 
-	     the index where classification is found in existing classification. If the index 
-	     is the last one there is no need to copy the last classification */
-	  if((foundindex+1)!=existinglength)
-	    System.arraycopy(existingClassifications,foundindex+1,modifiedClassifications,foundindex,existinglength-1);
-	  // printConsolidation(modifiedClassifications,"After removing :###########");
-	  existinglength=modifiedClassifications.length;
-	  existingClassifications=modifiedClassifications;
-	}	    
+        if((found)&&(foundindex!=-1)) {
+          loggingService.debug(" Found classification to remove at index  :"+foundindex);
+          Classification modifiedClassifications[]=new Classification[existinglength-1];
+          System.arraycopy(existingClassifications,0,modifiedClassifications,0,foundindex);
+          /* doing an array copy till the index where classification is found and skiping 
+             the index where classification is found in existing classification. If the index 
+             is the last one there is no need to copy the last classification */
+          if((foundindex+1)!=existinglength)
+            System.arraycopy(existingClassifications,foundindex+1,modifiedClassifications,foundindex,existinglength-1);
+          // printConsolidation(modifiedClassifications,"After removing :###########");
+          existinglength=modifiedClassifications.length;
+          existingClassifications=modifiedClassifications;
+        }	    
       }
       existingregObject.setClassifications(existingClassifications);
     }
@@ -521,35 +475,35 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       Source existingsource=null;
       Source newsource=null;
       for(int i=0;i<newlength;i++) {
-	newsource=sources[i];
-	found=false;
-	foundindex=-1;
-	for(int j=0;j<existinglength;j++) {
-	  existingsource=existingSources[j];
-	  if(!existingsource.equals(newsource)){
-	    continue;
-	  }
-	  loggingService.debug("Found Source to remove:");
-	  found=true;
-	  foundindex=j;
-	  break;
-	}
+        newsource=sources[i];
+        found=false;
+        foundindex=-1;
+        for(int j=0;j<existinglength;j++) {
+          existingsource=existingSources[j];
+          if(!existingsource.equals(newsource)){
+            continue;
+          }
+          loggingService.debug("Found Source to remove:");
+          found=true;
+          foundindex=j;
+          break;
+        }
 		 
-	if((found)&&(foundindex!=-1)) {
-	  loggingService.debug(" Found Siurce to remove at :"+foundindex);
-	  Source modifiedSources[]=new Source[existinglength-1];
-	  System.arraycopy(existingSources,0,modifiedSources,0,foundindex);
-	  /* doing an array copy till the index where classification is found and skiping 
-	     the index where classification is found in existing classification. If the index 
-	     is the last one there is no need to copy the last classification */
-	  if((foundindex+1)!=existinglength)
-	    System.arraycopy(existingSources,foundindex+1,modifiedSources,foundindex,existinglength-1);
-	  // printConsolidation(modifiedClassifications,"After removing :###########");
-	  existinglength=modifiedSources.length;
-	  existingSources=modifiedSources;
+        if((found)&&(foundindex!=-1)) {
+          loggingService.debug(" Found Siurce to remove at :"+foundindex);
+          Source modifiedSources[]=new Source[existinglength-1];
+          System.arraycopy(existingSources,0,modifiedSources,0,foundindex);
+          /* doing an array copy till the index where classification is found and skiping 
+             the index where classification is found in existing classification. If the index 
+             is the last one there is no need to copy the last classification */
+          if((foundindex+1)!=existinglength)
+            System.arraycopy(existingSources,foundindex+1,modifiedSources,foundindex,existinglength-1);
+          // printConsolidation(modifiedClassifications,"After removing :###########");
+          existinglength=modifiedSources.length;
+          existingSources=modifiedSources;
 		    
 		     
-	}
+        }
       }
       existingregObject.setSources(existingSources);
 	    
@@ -560,33 +514,33 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       Target existingtarget=null;
       Target newtarget=null;
       for(int i=0;i<newlength;i++) {
-	newtarget=targets[i];
-	found=false;
-	foundindex=-1;
-	for(int j=0;j<existinglength;j++) {
-	  existingtarget=existingTargets[j];
-	  if(!existingtarget.equals(newtarget)){
-	    continue;
-	  }
-	  loggingService.debug("Found Target to remove:");
-	  found=true;
-	  foundindex=j;
-	  break;
-	}
+        newtarget=targets[i];
+        found=false;
+        foundindex=-1;
+        for(int j=0;j<existinglength;j++) {
+          existingtarget=existingTargets[j];
+          if(!existingtarget.equals(newtarget)){
+            continue;
+          }
+          loggingService.debug("Found Target to remove:");
+          found=true;
+          foundindex=j;
+          break;
+        }
 		 
-	if((found)&&(foundindex!=-1)) {
-	  loggingService.debug(" Found Target  to remove at :"+foundindex);
-	  Target modifiedTargets[]=new Target[existinglength-1];
-	  System.arraycopy(existingTargets,0,modifiedTargets,0,foundindex);
-	  /* doing an array copy till the index where classification is found and skiping 
-	     the index where classification is found in existing classification. If the index 
-	     is the last one there is no need to copy the last classification */
-	  if((foundindex+1)!=existinglength)
-	    System.arraycopy(existingTargets,foundindex+1,modifiedTargets,foundindex,existinglength-1);
-	  // printConsolidation(modifiedClassifications,"After removing :###########");
-	  existinglength=modifiedTargets.length;
-	  existingTargets=modifiedTargets;
-	}
+        if((found)&&(foundindex!=-1)) {
+          loggingService.debug(" Found Target  to remove at :"+foundindex);
+          Target modifiedTargets[]=new Target[existinglength-1];
+          System.arraycopy(existingTargets,0,modifiedTargets,0,foundindex);
+          /* doing an array copy till the index where classification is found and skiping 
+             the index where classification is found in existing classification. If the index 
+             is the last one there is no need to copy the last classification */
+          if((foundindex+1)!=existinglength)
+            System.arraycopy(existingTargets,foundindex+1,modifiedTargets,foundindex,existinglength-1);
+          // printConsolidation(modifiedClassifications,"After removing :###########");
+          existinglength=modifiedTargets.length;
+          existingTargets=modifiedTargets;
+        }
       }
       existingregObject.setTargets(existingTargets);
     }
@@ -605,39 +559,39 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private void updateRelayedCapabilities() {
     if (capabilitiesRelays.hasChanged()) {
       if (loggingService.isDebugEnabled())
-	loggingService.debug("CapabilitiesRelays has changed in Capabilities Processing Plugin at address  "+ myAddress.toString());
+        loggingService.debug("CapabilitiesRelays has changed in Capabilities Processing Plugin at address  "+ myAddress.toString());
       CmrRelay relay;
       // New relays
       Iterator iter = capabilitiesRelays.getAddedCollection().iterator();
       while (iter.hasNext()) {
-	relay = (CmrRelay)iter.next();
-	if (!relay.getSource().equals(myAddress)) { // make sure it's remote, not local
-	  if (loggingService.isDebugEnabled())
-	    loggingService.debug(" printing received relay which is not LOCAL :==>");
-	  getBlackboardService().publishAdd(relay.getContent());
-	}
+        relay = (CmrRelay)iter.next();
+        if (!relay.getSource().equals(myAddress)) { // make sure it's remote, not local
+          if (loggingService.isDebugEnabled())
+            loggingService.debug(" printing received relay which is not LOCAL :==>");
+          getBlackboardService().publishAdd(relay.getContent());
+        }
       }
            
       // Changed relays
       iter = capabilitiesRelays.getChangedCollection().iterator();
       while (iter.hasNext()) {
-	relay = (CmrRelay)iter.next();
-	if (!relay.getSource().equals(myAddress)) {
-	  Event oldCapabilities = findEventFrom(relay.getSource());
-	  if (oldCapabilities != null)
-	    getBlackboardService().publishRemove(oldCapabilities);
-	  getBlackboardService().publishAdd(relay.getContent());
-	}
+        relay = (CmrRelay)iter.next();
+        if (!relay.getSource().equals(myAddress)) {
+          Event oldCapabilities = findEventFrom(relay.getSource());
+          if (oldCapabilities != null)
+            getBlackboardService().publishRemove(oldCapabilities);
+          getBlackboardService().publishAdd(relay.getContent());
+        }
       }
       // Removed relays
       iter = capabilitiesRelays.getRemovedCollection().iterator();
       while (iter.hasNext()) {
-	relay = (CmrRelay)iter.next();
-	if (!relay.getSource().equals(myAddress)) {
-	  Event oldCapabilities = findEventFrom(relay.getSource());
-	  if (oldCapabilities != null)
-	    getBlackboardService().publishRemove(oldCapabilities);
-	}
+        relay = (CmrRelay)iter.next();
+        if (!relay.getSource().equals(myAddress)) {
+          Event oldCapabilities = findEventFrom(relay.getSource());
+          if (oldCapabilities != null)
+            getBlackboardService().publishRemove(oldCapabilities);
+        }
       }
     }
   }
@@ -650,73 +604,20 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     while (iter.hasNext()) {
       Event event = (Event)iter.next();
       if (event.getSource().equals(source))
-	return event;
+        return event;
     }
     return null;
   }
    
   private String getMySecurityCommunity() {
-    String mySecurityCommunity=null;
-    if(communityService==null) {
-      loggingService.error(" Community Service is null" +myAddress.toString());
-      return null;
-    }
-    String filter="(CommunityType=Security)";
-    Collection securitycom=communityService.listParentCommunities(myAddress.toString(),filter);
-    if(!securitycom.isEmpty()) {
-      if(securitycom.size()>1) {
-	loggingService.warn("Belongs to more than one Security Community " +myAddress.toString());  
-	return mySecurityCommunity;
-      }
-      String [] securitycommunity=new String[1];
-      securitycommunity=(String [])securitycom.toArray(new String[1]);
-      mySecurityCommunity=securitycommunity[0];
-    }
-    else {
-      loggingService.warn("Search  for my Security Community FAILED " +myAddress.toString()); 
-    }
-    
-    return mySecurityCommunity;
-  }
-  
-  private String getMyRole(String mySecurityCommunity) {
-    String myRole=null;
-    boolean enclavemgr=false;
-    boolean societymgr=false;
-    if(communityService==null) {
-      loggingService.error(" Community Service is null" +myAddress.toString()); 
-      return null;
-    }
-    Collection roles =communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
-    Iterator iter=roles.iterator();
-    String role;
-    while(iter.hasNext()) {
-      role=(String)iter.next();
-      if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
-	enclavemgr=true;
-      }
-      if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
-	societymgr=true;
-      }
-    }
-    if(enclavemgr) {
-      myRole="SecurityMnRManager-Enclave"; 
-    }
-    if(societymgr) {
-      myRole="SecurityMnRManager-Society";
-    }
-    if(enclavemgr && societymgr) {
-      myRole="SecurityMnRManager-Society";
-    }
-    return myRole;
-    						      
+    return _csu.getSecurityCommunity(myAddress.toString());
   }
 
   public RegistrationAlert getRegistrationAlert(ConsolidatedCapabilities cons) {
     DomainService service=getDomainService();
     if(service==null) {
       loggingService.debug(" Got service as null in  getRegistrationAlert of Capabilities"+
-			   "ProcessingPlugin  :"+ myAddress.toString());
+          "ProcessingPlugin  :"+ myAddress.toString());
       return null;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -725,8 +626,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     RegistrationAlert ralert= null;
     
     if(cons == null) {
-       loggingService.info("ConsolidatedCapabilities is null!");
-       return null;
+      loggingService.info("ConsolidatedCapabilities is null!");
+      return null;
     } 
     List sources = null;
     List targets = null;
@@ -745,26 +646,65 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       data = Arrays.asList(cons.getAdditionalData());
     }
 
-    if(mgrrole!=null) {
-      ralert=imessage.createRegistrationAlert(cons.getAnalyzer(),
-					      sources,
-					      targets,
-					      classifications,
-					      data,
-					      IdmefMessageFactory.newregistration,
-					      IdmefMessageFactory.EnclaveMgrType,
-					      cons.getAgentName());
-    }
-    else {
-      ralert=imessage.createRegistrationAlert(cons.getAnalyzer(),
-					      sources,
-					      targets,
-					      classifications,
-					      data,
-					      IdmefMessageFactory.newregistration,
-					      IdmefMessageFactory.SocietyMgrType,
-					      cons.getAgentName());
-    }
+    
+    ralert=imessage.createRegistrationAlert(cons.getAnalyzer(),
+          sources,
+          targets,
+          classifications,
+          data,
+          IdmefMessageFactory.newregistration,
+          IdmefMessageFactory.SecurityMgrType,
+          cons.getAgentName());
+    
     return ralert;
+  }
+  
+  /**
+   * Process capabilities received from subordinate agent 
+   */
+  private boolean processSubCapabilities(Iterator subCapablities, CapabilitiesObject capObject) {
+    boolean modified = false;
+    Event event = null;
+    ConsolidatedCapabilities cc = null;
+    Analyzer analyzer = null;
+    String analyzerId = null;
+    
+    while(subCapablities.hasNext())  {
+      event=( Event)  subCapablities.next();
+      if(event.getSource().equals(myAddress)) {
+      	loggingService.debug(" $$$$$ recived event from my source address :"+myAddress.toString()
+            +" event is :"+event.toString());
+      	continue;
+      }
+      cc = (ConsolidatedCapabilities)event.getEvent(); 
+      if(loggingService.isDebugEnabled()) {
+	      loggingService.debug(" got consolidatedcapabilities in agent :>"+myAddress.toString() +
+            "consolidated capabilities "+ cc.toString()+
+            "Analyzer id is "+ cc.getAnalyzer().getAnalyzerid());
+      }
+      
+      /**
+	     * Consolidating capabilities from local sensors or subordinate managers
+       */
+      analyzerId = cc.getAnalyzer().getAnalyzerid();
+      if(capObject.containsKey(analyzerId)) {
+      	if(loggingService.isDebugEnabled()) {
+      	  loggingService.debug(" Agent is already registered :");
+      	}
+      	RegistrationAlert regAlert = getRegistrationAlert(cc);
+      	capObject.put(analyzerId, regAlert);
+      	if(loggingService.isDebugEnabled()) {
+      	  loggingService.debug(" Replacing RegistrationAlert for analyzer id :"+ analyzerId );
+      	}
+      	modified = true;
+      }
+      else {
+      	capObject.put(analyzerId, getRegistrationAlert(cc));
+      	loggingService.debug(" Agent is not  registered :" + analyzerId);
+      	modified = true;
+      }
+    }
+    
+    return modified;
   }
 }
