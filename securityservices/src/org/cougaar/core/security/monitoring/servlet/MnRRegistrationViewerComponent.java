@@ -1,7 +1,7 @@
 
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -110,13 +110,6 @@ public class MnRRegistrationViewerComponent
     // FIXME release the rest!
   }
 
-  public void init(ServletConfig config)
-    throws ServletException {
-    ais = (AgentIdentificationService)
-      serviceBroker.getService(this, AgentIdentificationService.class, null);
-    agentId = ais.getMessageAddress();
-  }
-
   public String getBlackboardClientName() {
     return toString();
   }
@@ -152,6 +145,12 @@ public class MnRRegistrationViewerComponent
     public void doGet(HttpServletRequest request,
 		      HttpServletResponse response)
       throws IOException {
+      if (ais == null) {
+	ais = (AgentIdentificationService)
+	  serviceBroker.getService(this, AgentIdentificationService.class, null);
+	agentId = ais.getMessageAddress();
+      }
+
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
       out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
@@ -161,18 +160,23 @@ public class MnRRegistrationViewerComponent
       out.println("</head>");
       out.println("<body>");
       out.println("<H2>MnRRegistration Viewer</H2><BR>");
-      out.println("<H3> Monitoring and Response Capabilities at agent :"+ agentId.toAddress() +"</H3>");
+      out.println("<H3> Monitoring and Response Capabilities at agent :"
+		  + agentId.toAddress() +"</H3>");
       Collection capabilitiesCollection=null;
       try {
-	out.println("<H3> Query of the Blackboard started  :"+ agentId.toAddress() +"</H3>");
+	out.println("<H3> Query of the Blackboard started  :"
+		    + agentId.toAddress() +"</H3>");
 	out.flush();
 	blackboard.openTransaction();
 	capabilitiesCollection=blackboard.query(new RegistrationPredicate());
-	out.println("<H3> Query of the Blackboard Completed   :"+ agentId.toAddress() +"</H3>");
+	out.println("<H3> Query of the Blackboard Completed   :"
+		    + agentId.toAddress() +"</H3>");
 	out.flush();
       }
       catch(Exception exp) {
-	out.println("<H3> Exception has occured at  :"+ agentId.toAddress()+ "Messgae :"+ exp.getMessage() +"</H3>");
+	out.println("<H3> Exception has occured at  :"
+		    + agentId.toAddress()+ "Messgae :"
+		    + exp.getMessage() +"</H3>");
 	out.flush();
       }
       finally {
@@ -185,8 +189,10 @@ public class MnRRegistrationViewerComponent
 	return;
       }
       if( capabilitiesCollection.size()>1) {
-	logging.error("Multiple Capabilities Object on the blackboard:"+agentId.toAddress());
-	out.println("Multiple Capabilities Object on the blackboard:"+agentId.toAddress());
+	logging.error("Multiple Capabilities Object on the blackboard:"
+		      +agentId.toAddress());
+	out.println("Multiple Capabilities Object on the blackboard:"
+		    +agentId.toAddress());
 	out.flush();
 	out.close();
 	return;

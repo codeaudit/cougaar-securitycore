@@ -106,13 +106,6 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     // FIXME release the rest!
   }
   
-  public void init(ServletConfig config)
-    throws ServletException {
-    ais = (AgentIdentificationService)
-      serviceBroker.getService(this, AgentIdentificationService.class, null);
-    agentId = ais.getMessageAddress();
-  }
-
   public String getBlackboardClientName() {
     return toString();
   }
@@ -148,6 +141,14 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     public void doGet(HttpServletRequest request,
 		      HttpServletResponse response)
       throws IOException {
+
+      if (ais == null) {
+	ais = (AgentIdentificationService)
+	  serviceBroker.getService(this, AgentIdentificationService.class,
+				   null);
+	agentId = ais.getMessageAddress();
+      }
+
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
       out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
@@ -157,18 +158,23 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
       out.println("</head>");
       out.println("<body>");
       out.println("<H2>CRL Registration Viewer</H2><BR>");
-      out.println("<H3>CRL Registration at agent :"+ agentId.toAddress() +"</H3>");
+      out.println("<H3>CRL Registration at agent :"
+		  + agentId.toAddress() +"</H3>");
       Collection registrationCollection=null;
       try {
-	out.println("<H3> Query of the Blackboard started  :"+ agentId.toAddress() +"</H3>");
+	out.println("<H3> Query of the Blackboard started  :"
+		    + agentId.toAddress() +"</H3>");
 	out.flush();
 	blackboard.openTransaction();
 	registrationCollection=blackboard.query(new CRLRegistrationPredicate());
-	out.println("<H3> Query of the Blackboard Completed   :"+ agentId.toAddress() +"</H3>");
+	out.println("<H3> Query of the Blackboard Completed   :"
+		    + agentId.toAddress() +"</H3>");
 	out.flush();
       }
       catch(Exception exp) {
-	out.println("<H3> Exception has occured at  :"+ agentId.toAddress()+ "Messgae :"+ exp.getMessage() +"</H3>");
+	out.println("<H3> Exception has occured at  :"
+		    + agentId.toAddress()+ "Messgae :"
+		    + exp.getMessage() +"</H3>");
 	out.flush();
       }
       finally {
@@ -181,8 +187,10 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
 	return;
       }
       if( registrationCollection.size()>1) {
-	logging.error("Multiple CRL Registration Table on the blackboard:"+agentId.toAddress());
-	out.println("Multiple CRL Registration Table on the blackboard:"+agentId.toAddress());
+	logging.error("Multiple CRL Registration Table on the blackboard:"
+		      +agentId.toAddress());
+	out.println("Multiple CRL Registration Table on the blackboard:"
+		    +agentId.toAddress());
 	out.flush();
 	out.close();
 	return;
