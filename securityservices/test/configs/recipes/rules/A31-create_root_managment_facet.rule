@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 if ! defined? CIP
-  CIP = ENV['CIP']
+  CIP = ENV['COUGAAR_INSTALL_PATH']
 end
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 

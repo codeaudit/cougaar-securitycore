@@ -7,7 +7,7 @@
 # facet is extracted from agents and added to the plugin parameters.
 
 if ! defined? CIP
-  CIP = ENV['CIP']
+  CIP = ENV['COUGAAR_INSTALL_PATH']
 end
 
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
