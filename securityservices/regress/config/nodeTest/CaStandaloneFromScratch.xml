@@ -41,6 +41,7 @@
       <class>test.org.cougaar.core.security.nodetests.CaFromScratchTest</class>
       <method>runCaFromScratchTest</method>
       <argument>caNode</argument>
+      <argument>ldap://pear:389/dc=junittest,dc=cougaar,dc=org</argument>
     </operation>
     <!-- Operations to perform after the node has terminated -->
     <operation type="after">

@@ -29,6 +29,9 @@ package test.org.cougaar.core.security.nodetests;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import javax.naming.*;
+import javax.naming.directory.*;
+
 import junit.framework.*;
 
 public class CaFromScratchTest
@@ -54,8 +57,8 @@ public class CaFromScratchTest
    *  - Start CA.
    *  - End test
    */
-  public void runCaFromScratchTest(String arg) {
-    nodeName = arg;
+  public void runCaFromScratchTest(String nodeName, String ldapURL) {
+    this.nodeName = nodeName;
     String path = System.getProperty("org.cougaar.workspace")
       + File.separator + "security" + File.separator + "keystores"
       + File.separator + nodeName;
@@ -63,6 +66,9 @@ public class CaFromScratchTest
     System.out.println("Removing files under " + path);
 
     removeRecursively(file);
+
+    // Remove LDAP entries from LDAP directory
+    deleteLdapSubtree(ldapURL);    
   }
 
   /** Remove a folder and subfolders
@@ -114,6 +120,8 @@ public class CaFromScratchTest
       while ((i = bis.read()) != -1) {
 	bos.write(i);
       }
+      bis.close();
+      bos.close();
     }
     catch (IOException e) {
       System.out.println("Unable to copy keystore file");
@@ -122,4 +130,57 @@ public class CaFromScratchTest
     }
   }
 
+  protected static String CONTEXT_FACTORY = 
+    "com.sun.jndi.ldap.LdapCtxFactory";
+
+  public void deleteLdapSubtree(String aURL) {
+    try {
+      DirContext context;
+
+      String attr = null;
+      int slash = aURL.lastIndexOf("/");
+      int comma = aURL.indexOf(",");
+      if (slash != -1 && comma != -1) {
+	attr = aURL.substring(slash + 1, comma);
+	aURL = aURL.substring(0,slash + 1) + aURL.substring(comma+1);
+      }
+
+      Hashtable env = new Hashtable();
+      env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
+      env.put(Context.PROVIDER_URL, aURL);
+      
+      context=new InitialDirContext(env);
+      context.addToEnvironment(Context.SECURITY_PRINCIPAL,
+			       "cn=manager, dc=cougaar, dc=org");
+      context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
+
+      NamingEnumeration ne = context.list("dc=junittest");
+      deleteLdapRecursively(context, ne, ", dc=junittest");
+      ne.close();
+    }
+    catch (Exception e) {
+      System.out.println("Unable to set directory service URL: " + e);
+      e.printStackTrace();
+    }
+  }
+
+  private void deleteLdapRecursively(Context context, NamingEnumeration ne, String top)
+    throws Exception {
+    while (ne.hasMore()) {
+      NameClassPair name = (NameClassPair) ne.next();
+      //System.out.println("Class: " + name.getClass().getName() + " - " + name.getName() + " / " + name.getClassName());
+      // Remove entries
+      NamingEnumeration namingEnum = context.list(name.getName() + top);
+      if (namingEnum.hasMore()) {
+	//System.out.println("Deleting recursively");
+	deleteLdapRecursively(context, namingEnum, top);
+      }
+      else {
+	DirContext dc = (DirContext) context.lookup(name.getName() + top);
+	String subname = dc.getNameInNamespace();
+	//System.out.println("Subname: " + subname);
+	context.destroySubcontext(name.getName() + top);
+      }
+    }
+  }
 }

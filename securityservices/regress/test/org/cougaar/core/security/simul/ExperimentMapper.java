@@ -332,7 +332,7 @@ public class ExperimentMapper
 	    currentOp.setMethodName(value);
 	  }
 	  else if (localName.equals("argument")) {
-	    currentOp.setArgument(value);
+	    currentOp.addArgument(value);
 	  }
 	}
       };

@@ -35,7 +35,8 @@ public class OperationConf
 {
   private String className;
   private String methodName;
-  private String argument;
+  /** An array of String. Methods can take a number of strings as their arguments. */
+  private ArrayList arguments;
   private Class testClass;
 
   /** The type of this operation (before or after the test)
@@ -54,6 +55,7 @@ public class OperationConf
     else {
       throw new RuntimeException("Illegal type: " + type);
     }
+    arguments = new ArrayList();
   }
 
   public int getType() {
@@ -67,8 +69,8 @@ public class OperationConf
   public void setMethodName(String name) {
     methodName = name;
   }
-  public void setArgument(String args) {
-    argument = args;
+  public void addArgument(String args) {
+    arguments.add(args);
   }
 
   public Object invokeMethod(Object o)
@@ -78,8 +80,11 @@ public class OperationConf
     if (method == null) {
       return null;
     }
-    Object values[] = new Object[1];
-    values[0] = argument;
+
+    Object values[] = new Object[arguments.size()];
+    for (int i = 0 ; i < arguments.size() ; i++) {
+      values[i] = arguments.get(i);
+    }
     if (o == null) {
       // Create a new class instance
       o = testClass.newInstance();
@@ -98,13 +103,16 @@ public class OperationConf
 
     testClass = Class.forName(className);
     Method ms[] = testClass.getDeclaredMethods();
+    /*
     System.out.println(testClass.getName() + " declared methods:");
     for (int i = 0 ; i < ms.length ; i++) {
       System.out.println(ms[i]);
     }
-
-    Class parameterTypes[] = new Class[1];
-    parameterTypes[0] = String.class;
+    */
+    Class parameterTypes[] = new Class[arguments.size()];
+    for (int i = 0 ; i < arguments.size() ; i++) {
+      parameterTypes[i] = String.class;
+    }
     Method method = testClass.getDeclaredMethod(methodName, parameterTypes);
     return method;
   }
@@ -122,8 +130,10 @@ public class OperationConf
       s = s + "Unknown operation:";
     }
     s = s + " Class name: " + className +
-      " method: " + methodName + " arguments: "
-      + argument;
+      " method: " + methodName + " arguments: ";
+    for (int i = 0 ; i < arguments.size() ; i++) {
+      s = s + arguments.get(i) + " ";
+    }
     return s;
   }
 }
