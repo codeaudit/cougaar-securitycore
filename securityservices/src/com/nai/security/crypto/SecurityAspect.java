@@ -601,13 +601,18 @@ public class SecurityAspect extends StandardAspect
 
       Object[] verbs = acps.getIncomingVerbs(target, source);
 
+      if( verbs[0].toString()=="*" ) {
+        System.out.println("SecurityAspect: got IN * verb, so blocking "+verb+" for " + target);
+        return true;
+      }
+
       if(verb == null || verbs.length == 0) {
 
 	if(debug)System.out.println("SecurityAspect: no incoming verbs for"
 
 				    + target + ", " + source + ", " + verb);
 
-	return true;		// we have no policy so return true
+	return false;		// we have no policy so return true
 
       }
 
@@ -1277,6 +1282,11 @@ public class SecurityAspect extends StandardAspect
     private boolean matchOutVerb(String source, String target, Verb verb) {
 
       Object[] verbs = acps.getOutgoingVerbs(source, target);
+
+      if( verbs[0].toString()=="*" ) {
+        System.out.println("SecurityAspect: got OUT * verb, so blocking "+verb+" for " + source);
+        return true;
+      }
 
       if(verb == null || verbs.length == 0) {
 
