@@ -107,7 +107,7 @@ class PersistantAggQueryRelayPredicate implements  UnaryPredicate{
   public PersistantAggQueryRelayPredicate(MessageAddress myaddress) {
     myAddress = myaddress;
   }
-   public boolean execute(Object o) {
+  public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
@@ -409,21 +409,27 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
         if(publishedUID!=null) {
           alreadyPublished.add(regAlert.getAgentName());
           subQueries.add(new AggQueryResult(publishedUID));
+          if( loggingService.isDebugEnabled()) {
+            loggingService.debug(" Published Agg Query to MnR Manager in  processNewAggQuery to " +key);
+          }
         }
         
       }//end of  if(regAlert.getType().equals(IdmefMessageFactory.SecurityMgrType))
         
-      }// end of while(enumkeys.hasMoreElements())
-      aggQueryMapping=new AggQueryMapping(query.getOriginatorsUID(),queryrelay.getUID(),subQueries);
-      getBlackboardService().publishAdd(aggQueryMapping);
-      MnRAggRateCalculator newratecalculator=new MnRAggRateCalculator(ratecalculator);
-      newratecalculator.setBlackboardService(getBlackboardService());
-      newratecalculator.setLoggingService(loggingService);
-      newratecalculator.setUID(queryrelay.getUID());
-      newratecalculator.setDomainService(getDomainService());
-      newratecalculator.setAddress(myAddress);
-      ts.schedule(newratecalculator,0,(long)newratecalculator._timewindow);
-    
+    }// end of while(enumkeys.hasMoreElements())
+    aggQueryMapping=new AggQueryMapping(query.getOriginatorsUID(),queryrelay.getUID(),subQueries);
+    getBlackboardService().publishAdd(aggQueryMapping);
+    MnRAggRateCalculator newratecalculator=new MnRAggRateCalculator(ratecalculator);
+    newratecalculator.setBlackboardService(getBlackboardService());
+    newratecalculator.setLoggingService(loggingService);
+    newratecalculator.setUID(queryrelay.getUID());
+    newratecalculator.setDomainService(getDomainService());
+    newratecalculator.setAddress(myAddress);
+    if( loggingService.isDebugEnabled()) {
+      loggingService.debug(" Setting rate window to  " +newratecalculator._timewindow);
+    }
+    ts.schedule(newratecalculator,0,(long)newratecalculator._timewindow);
+
   }
   
   public void processNewAggQuery(Collection newAggQuery, CapabilitiesObject capabilitiesTable) {
@@ -465,13 +471,13 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       queryrelay=(CmrRelay)iter.next();
       query=(DrillDownQuery)queryrelay.getContent();
       if(query.getOriginatorsUID()==null) {
-         if( loggingService.isDebugEnabled()) {
-           loggingService.debug("Received Agg Query Relay DIRECTLY FROM SOURCE :"+queryrelay.getSource()); 
-         }
-         query.setOriginatorsUID(queryrelay.getUID());
-         if(loggingService.isDebugEnabled()) {
-           loggingService.debug("Setting originator UID : "+query.getOriginatorsUID() +" Received Relay ID : "+queryrelay.getUID()); 
-         }
+        if( loggingService.isDebugEnabled()) {
+          loggingService.debug("Received Agg Query Relay DIRECTLY FROM SOURCE :"+queryrelay.getSource()); 
+        }
+        query.setOriginatorsUID(queryrelay.getUID());
+        if(loggingService.isDebugEnabled()) {
+          loggingService.debug("Setting originator UID : "+query.getOriginatorsUID() +" Received Relay ID : "+queryrelay.getUID()); 
+        }
       }
       MnRAggRateCalculator ratecalculator=(MnRAggRateCalculator)query.getAggregationType();
       enumKeys=capabilitiesTable.keys();
@@ -533,8 +539,8 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       loggingService.debug("Received DrillQuery from some MnR Manager"+ query.getOriginatorsUID().toString());
     }
     forwardedrelay=factory.newDrillDownQueryRelay(query.getOriginatorsUID(),query.getAggQuery(),
-                                                    query.getAggregationType(),query.wantDetails(), 
-                                                    MessageAddress.getMessageAddress(key));
+                                                  query.getAggregationType(),query.wantDetails(), 
+                                                  MessageAddress.getMessageAddress(key));
     newUID=forwardedrelay.getUID();
     getBlackboardService().publishAdd(forwardedrelay);
     if( loggingService.isDebugEnabled()) {
