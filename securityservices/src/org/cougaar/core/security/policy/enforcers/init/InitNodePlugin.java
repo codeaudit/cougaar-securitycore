@@ -88,14 +88,28 @@ public class InitNodePlugin extends ComponentPlugin {
       // Registering the enforcer may lead to policies getting published
       // on the blackboard so we need to temporarily close it.
       getBlackboardService().closeTransactionDontReset();
+      _servletEnf = new ServletNodeEnforcer(_sb);
       try {
-        _servletEnf = new ServletNodeEnforcer(_sb);
         _servletEnf.registerEnforcer();
+      }
+      catch (Exception e) {
+        _servletEnf = null;
+        if (_log.isWarnEnabled()) {
+          _log.warn("Unable to register enforcer. InitNodePlugin running without policy");
+        }
+      } finally {
+        getBlackboardService().openTransaction();
+      }
 
-        _msgEnf     = new ULMessageNodeEnforcer(_sb,getAgents());
+      getBlackboardService().closeTransactionDontReset();
+      _msgEnf     = new ULMessageNodeEnforcer(_sb,getAgents());
+      try {
         _msgEnf.registerEnforcer();
-      } catch (Throwable th) {
-        _log.error("InitNodePlugin: Error registering the enforcers", th);
+      } catch (Exception e) {
+         _msgEnf = null;
+        if (_log.isWarnEnabled()) {
+          _log.warn("No guard. InitNodePlugin running without policy");
+        }
       } finally {
         getBlackboardService().openTransaction();
       }

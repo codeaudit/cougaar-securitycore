@@ -58,8 +58,15 @@ public class InitAgentPlugin extends ComponentPlugin {
 	// agent enforcer for the agent and making sure that it is
 	// registered.  It may be that this enforcer will play a more
 	// real role later.
-        getBlackboardService().closeTransactionDontReset();        
-	(new SampleAgentEnforcer(sb, agentName)).registerEnforcer();
+        getBlackboardService().closeTransactionDontReset();
+        try {
+	  (new SampleAgentEnforcer(sb, agentName)).registerEnforcer();
+        }
+        catch (Exception e) {
+          if (_log.isWarnEnabled()) {
+            _log.warn("Unable to register enforcer. InitAgentPlugin running without policy");
+          }
+        }
         getBlackboardService().openTransaction();
     } catch (Exception e) {
       _log.fatal(".InitAgentPlugin: Error initializing agent policy plugin",

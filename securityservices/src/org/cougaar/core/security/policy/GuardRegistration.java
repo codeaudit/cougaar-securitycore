@@ -89,22 +89,25 @@ public abstract class GuardRegistration
 		+ " trying to retrieve policy guard");
     }
     if (!serviceBroker.hasService(EnforcerManagerService.class)) {
-      log.fatal("Guard service is not registered");
-      throw new	RuntimeException("Guard service is not registered");
+      if (log.isWarnEnabled()) {
+        log.warn("Guard service is not registered");
+       }
     }
-    guard =
-      (EnforcerManagerService)
-      serviceBroker.getService(this, EnforcerManagerService.class,
-			       null);
-    //guardRetriever = new GuardRetriever();
-    //guard = guardRetriever.getGuard();
-    if (guard == null) {
-      log.fatal("Cannot continue without guard", new Throwable());
-      throw new RuntimeException("Cannot continue without guard");
+    else {
+      guard =
+        (EnforcerManagerService)
+        serviceBroker.getService(this, EnforcerManagerService.class,
+    			       null);
+      //guardRetriever = new GuardRetriever();
+      //guard = guardRetriever.getGuard();
+      if (guard == null) {
+        if (log.isWarnEnabled()) {
+          log.warn("Cannot continue without guard", new Throwable());
+        }
+      }
+      setPolicyType(aPolicyType);
+      setName(enforcerName);	// Setup the enforcer's name (agent or node)
     }
-
-    setPolicyType(aPolicyType);
-    setName(enforcerName);	// Setup the enforcer's name (agent or node)
   }
 
   /** Set the policy type to which this policy enforcer is subscribing **/

@@ -123,7 +123,9 @@ public class SampleAgentEnforcer
   public void registerEnforcer()
   {
     if (!_sb.hasService(EnforcerManagerService.class)) {
-      _log.fatal("Guard service is not registered");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Guard not available. Running SampleAgentEnforcer without policy");
+      }
       throw new SecurityException("Guard service is not registered");
     }
 

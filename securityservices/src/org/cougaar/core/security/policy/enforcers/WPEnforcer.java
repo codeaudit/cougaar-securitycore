@@ -111,7 +111,9 @@ public class WPEnforcer
   public void registerEnforcer() throws RuntimeException
   {
     if (!_sb.hasService(EnforcerManagerService.class)) {
-      _log.fatal("Guard service is not registered");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Guard not registered. WPEnforcer running without policy");
+      }
       throw new RuntimeException("Guard service is not registered");
     }
     _guard = 

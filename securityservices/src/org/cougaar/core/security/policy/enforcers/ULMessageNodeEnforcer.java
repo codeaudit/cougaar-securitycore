@@ -133,7 +133,9 @@ public class ULMessageNodeEnforcer
   public void registerEnforcer() throws RuntimeException
   {
     if (!_sb.hasService(EnforcerManagerService.class)) {
-      _log.fatal("Guard service is not registered");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Guard not available. ULMessageNodeEnforcer running without policy");
+      }
       throw new RuntimeException("Guard service is not registered");
     }
 
@@ -141,12 +143,16 @@ public class ULMessageNodeEnforcer
       (EnforcerManagerService)
       _sb.getService(this, EnforcerManagerService.class, null);
     if (_guard == null) {
-      _log.fatal("Cannot continue without guard", new Throwable());
-      throw new RuntimeException("Cannot continue without guard");
+      if (_log.isWarnEnabled()) {
+        _log.warn("No guard registration. ULMessageNodeEnforcer running without policy");
+      }
+      throw new RuntimeException("No guard registration. ULMessageNodeEnforcer running without policy");
     }
     if (!_guard.registerEnforcer(this, _enforcedActionType, _agents)) {
       _sb.releaseService(this, EnforcerManagerService.class, _guard);
-      _log.fatal("Could not register with the Enforcer Manager Service");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Could not register with the Enforcer Manager Service");
+      }
       throw new RuntimeException("Cannot register with Enforcer Manager Service");
     }
     //    bigloop();
