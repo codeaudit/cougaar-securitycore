@@ -1,0 +1,50 @@
+# give more memory to management nodes
+
+society.each_host do |host|
+  managementNode = nil
+  host.each_node do |node|
+    if node.has_facet?(:"AS-Management")
+      managementNode = node
+    end
+  end
+  if managementNode != nil
+# for management node give it 50% of max memory
+    host_mem = 2048
+    num_nodes = (host.nodes.size).to_i
+
+    if host.has_facet?(:memory)
+      host_mem = host.get_facet(:memory).to_i
+    end
+
+    if (host.nodes.size == 1)
+      xms = host_mem * 0.25
+      xmx = host_mem * 0.75
+    elsif (host.nodes.size > 1)
+      xms = host_mem * 0.125
+      xmx = (host_mem * 0.4) / (num_nodes - 1)
+    else
+      xms = host_mem * 0.125
+      xmx = host_mem * 0.25
+    end   
+    xms = xms.floor
+    xmx = xmx.floor
+    if xmx < xms
+      xms = xmx
+    end
+
+    xmx = 1536 if xmx >= 1536
+
+  host.each_node do |node|
+    if node.has_facet?(:"AS-Management")
+      node_xms = host_mem * 0.4
+      node_xmx = node_mem.floor
+    else
+      node_xms = xms
+      node_xmx = xmx
+    end # if
+      node.replace_parameter(/\-Xms/, "-Xms#{node_xms}m")
+      node.replace_parameter(/\-Xmx/, "-Xmx#{node_xmx}m")
+      
+  end # each
+ end # if
+end
