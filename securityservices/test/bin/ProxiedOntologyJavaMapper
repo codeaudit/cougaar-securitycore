@@ -1,0 +1,34 @@
+#!/bin/sh
+
+CP=${KAOS_ROOT}/lib/ontologyRepInit.jar
+CP=${KAOS_ROOT}/lib/tools.jar:${CP}
+
+CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar:${CP}
+
+CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/iw.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jakarta-oro-2.0.5.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jas.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/mail.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/xerces.jar:${CP}
+
+##
+# The following are needed by any WebProxyInstaller script
+#
+CP=${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
+CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:${CP}
+
+DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
+
+
+java $DEFS -classpath $CP \
+   org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
+   kaos.tools.ontologyJavaMapper.OntologyJavaMapper $1 $2 $3
