@@ -1,0 +1,36 @@
+418-TKCO-POL.ini 
+================
+Add:
+  #added to create proble for Rover to find
+  plugin = org.cougaar.lib.rover.test.taskchain.ChangeTaskPlugIn
+
+89-TKCO-CGO.ini
+===============
+Add:
+  # Will Modify the MaxSpeed of TypeID = NSN/2320010284395 to 0 mph
+  plugin = org.cougaar.lib.rover.test.ChangeSpeedPlugIn
+
+CombatService-node.ini
+======================
+This is a new file, but don't add it to the small-135 society.
+
+COMMAND-NODE.ini 
+================
+No diff
+
+conus_div-node.ini
+==================
+This is a new file, but don't add it to the small-135 society.
+
+IBCT_2BDE-node.INI
+==================
+This is a new file, but don't add it to the small-135 society.
+
+LDMDomains.ini 
+==============
+Add (under configs/common):
+  rover=org.cougaar.lib.rover.messaging.RoverDomain
+
+TRANSCOM-NODE.ini
+======================
+No diff
