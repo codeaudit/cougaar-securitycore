@@ -1,0 +1,28 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<securityProviders>
+  <!--
+  <securityProvider class="com.dstc.security.provider.DSTC">
+  </securityProvider>
+  <securityProvider class="com.dstc.security.keymanage.keystore.DSTC">
+  </securityProvider>
+  <securityProvider class="com.dstc.security.x509.DSTC">
+  </securityProvider>
+  -->
+ 
+  <securityProvider class="com.sun.crypto.provider.SunJCE">
+  </securityProvider>
+
+  <!-- Early access Cryptix provider.
+       JCE compatible -->
+  <securityProvider class="cryptix.jce.provider.CryptixCrypto">
+  </securityProvider> 
+
+
+
+  <!-- Cryptix 3.2.0 non JCE compatible 
+  <securityProvider class="cryptix.provider.Cryptix">
+  </securityProvider>
+  -->
+
+</securityProviders>

@@ -1,0 +1,378 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Inc
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
+ *  
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
+ * 
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * - 
+ */
+
+////////////////////////////////////////////////////////////
+// COUGAAR JAVA POLICY FILE
+
+// TODO: Look for "FIX" in this file and fix security vulnerabilities
+//       in Cougaar source code.
+
+
+////////////////////////////////////////////////////////////
+// Keystore location
+keystore "${org.cougaar.core.security.bootstrap.keystore}";
+
+////////////////////////////////////////////////////////////
+// Standard extensions get all permissions by default
+
+grant codeBase "file:${java.home}/lib/ext/*" {
+	permission java.security.AllPermission;
+};
+
+// SUN JCE cryptographic framework
+grant codeBase "file:${org.cougaar.install.path}/sys/jce1_2_1.jar" {
+	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
+	// documentation for a description of the following permissions.
+	permission java.security.AllPermission;
+};
+
+// SUN JCE cryptographic provider
+grant codeBase "file:${org.cougaar.install.path}/sys/sunjce_provider.jar" {
+	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
+	// documentation for a description of the following permissions.
+	permission java.io.FilePermission "${org.cougaar.install.path}/sys/jce1_2_1.jar", "read";
+	permission java.lang.RuntimePermission "getProtectionDomain";
+	permission java.security.SecurityPermission "putProviderProperty.SunJCE";
+};
+
+//grant codeBase "file:${org.cougaar.install.path}/sys/jaas.jar" {
+//	permission java.security.AllPermission;
+//};
+
+// FIX: do we want to grant all permissions to all the JAR files in the sys path?
+grant codeBase "file:${org.cougaar.install.path}/sys/*" {
+	permission java.security.AllPermission;
+};
+
+////////////////////////////////////////////////////////////
+// Permissions for bootstrapper package.
+grant signedBy "bootstrapper" {
+	// AllPermission grants all permissions in the JDK 1.3,
+	// but not the JAAS permissions. Therefore, JAAS permissions
+	// must be set additionally.
+	permission java.security.AllPermission;
+
+	permission javax.security.auth.AuthPermission "getSubject";
+	permission javax.security.auth.AuthPermission "modifyPrincipals";
+	permission javax.security.auth.AuthPermission "doAs";
+	permission javax.security.auth.AuthPermission "getSubjectFromDomainCombiner";
+	permission javax.security.auth.AuthPermission "setReadOnly";
+	permission javax.security.auth.AuthPermission "getPolicy";
+};
+
+////////////////////////////////////////////////////////////
+// Permissions for core infrastructure package.
+grant signedBy "privileged" {
+	////////////////////////////////////////////////////
+	// "standard" properies that can be read by anyone
+	permission java.util.PropertyPermission "java.version", "read";
+	permission java.util.PropertyPermission "java.vendor", "read";
+	permission java.util.PropertyPermission "java.vendor.url", "read";
+	permission java.util.PropertyPermission "java.class.version", "read";
+	permission java.util.PropertyPermission "os.name", "read";
+	permission java.util.PropertyPermission "os.version", "read";
+	permission java.util.PropertyPermission "os.arch", "read";
+	permission java.util.PropertyPermission "file.separator", "read";
+	permission java.util.PropertyPermission "path.separator", "read";
+	permission java.util.PropertyPermission "line.separator", "read";
+
+	permission java.util.PropertyPermission "java.specification.version", "read";
+	permission java.util.PropertyPermission "java.specification.vendor", "read";
+	permission java.util.PropertyPermission "java.specification.name", "read";
+
+	permission java.util.PropertyPermission "java.vm.specification.version", "read";
+	permission java.util.PropertyPermission "java.vm.specification.vendor", "read";
+	permission java.util.PropertyPermission "java.vm.specification.name", "read";
+	permission java.util.PropertyPermission "java.vm.version", "read";
+	permission java.util.PropertyPermission "java.vm.vendor", "read";
+	permission java.util.PropertyPermission "java.vm.name", "read";
+
+
+	/////////////////////////////////////////////////
+	// The permissions below should only be granted to the core
+	// infrastructure package.
+
+	// Node.java also requests this permission
+	permission java.util.PropertyPermission "java.vm.info", "read";
+	// Swing properties
+	permission java.util.PropertyPermission "swing.*", "read";
+	// FIX: thes properties should be renamed to org.cougaar...
+	permission java.util.PropertyPermission "UTILLdmXMLPlugIn.*", "read";
+	permission java.util.PropertyPermission "alpine.*", "read";
+	permission java.util.PropertyPermission "blackjack_debug_messages", "read";
+	permission java.util.PropertyPermission "glm_debug_messages", "read";
+	permission java.util.PropertyPermission "glm_output_stream", "read";
+	permission java.util.PropertyPermission "glm_log_file", "read";
+
+	permission java.util.PropertyPermission "com.nai.*", "read";
+
+	// FIX: Required for KAoS. That property should really be renamed to org.cougaar....
+	permission java.util.PropertyPermission "domainManagerId", "read";
+	permission java.util.PropertyPermission "domainName", "read";
+
+	// This permission is needed by the AgentManager to associate a JAAS
+	// subject with an agent when it starts an agent.
+	permission javax.security.auth.AuthPermission "modifyPrincipals";
+	permission javax.security.auth.AuthPermission "doAs";
+
+	/////////////////////////////////////////////////
+	// Socket permissions
+	// Allows to listen on un-privileged ports
+	permission java.net.SocketPermission "localhost:1024-", "listen";
+	// Allows to listen on un-privileged ports
+	permission java.net.SocketPermission "*:1024-", "accept";
+	// Allows to establish a connection to any remote host
+	permission java.net.SocketPermission "*:1-", "connect,resolve";
+
+	/////////////////////////////////////////////////
+	// System properties that are not granted by the default Java policy
+	// FIX: Does Cougaar really need this?
+	permission java.util.PropertyPermission "java.home", "read";
+	permission java.util.PropertyPermission "java.specification.version", "read";
+	permission java.util.PropertyPermission "java.specification.vendor", "read";
+	permission java.util.PropertyPermission "java.specification.name", "read";
+	permission java.util.PropertyPermission "java.class.path", "read";
+	permission java.util.PropertyPermission "java.ext.dirs", "read";
+	permission java.util.PropertyPermission "os.name", "read";
+	permission java.util.PropertyPermission "os.arch", "read";
+	permission java.util.PropertyPermission "os.version", "read";
+	permission java.util.PropertyPermission "user.name", "read";
+	permission java.util.PropertyPermission "user.home", "read";
+	permission java.util.PropertyPermission "user.dir", "read";
+
+	////////////////////////////////////////////////////
+	// These properties are set in Node.java
+	permission java.util.PropertyPermission "org.cougaar.core.society.Node.name", "read, write";
+	permission java.util.PropertyPermission "org.cougaar.config", "read, write";
+	permission java.util.PropertyPermission "org.cougaar.config.server", "read, write";
+	permission java.util.PropertyPermission "org.cougaar.name.server", "read, write";
+	permission java.util.PropertyPermission "org.cougaar.name.server.port", "read, write";
+
+	////////////////////////////////////////////////////
+	// The following permission is enabled because system properties are
+	// read at Node.java:79, but Node.java should really be fixed.
+	// FIX - CRITICAL: Cougaar does not need write access to system properties
+	// permission java.util.PropertyPermission "*", "read, write";
+
+	////////////////////////////////////////////////////
+	// Load crypto providers.
+	// The loading of crypto providers should really
+	// be moved in the bootstrapper. We need to fix
+	// this in a future release.
+	permission java.security.SecurityPermission "insertProvider.SunJCE";
+	permission java.security.SecurityPermission "insertProvider.CryptixCrypto";
+	permission java.security.SecurityPermission "insertProvider.Cryptix";
+	permission java.security.SecurityPermission "insertProvider.DSTC";
+	permission java.security.SecurityPermission "insertProvider.DSTC_PKCS12";
+	permission java.security.SecurityPermission "insertProvider.DSTC_X509";
+
+	// The provider properties each specify the name and location of a particular
+	// service implemented by the provider. By granting this permission, you let
+	// code replace the service specification with another one, thereby specifying
+	// a different implementation.
+	permission java.security.SecurityPermission "putProviderProperty.CryptixCrypto";
+
+	///////////////////////////////////////////////////
+	// "Cougaar" properies that can be read
+	permission java.util.PropertyPermission "org.cougaar.*", "read";
+
+	///////////////////////////////////////////////////
+	permission java.lang.RuntimePermission "setFactory";
+
+	// accessDeclaredMembers permission
+	// This grants code permission to query a class for its public, protected,
+	// default (package) access, and private fields and/or methods. Although
+	// the code would have access to the private and protected field and
+	// method names, it would not have access to the private/protected field
+	// data and would not be able to invoke any private methods. Nevertheless,
+	// malicious code may use this information to better aim an attack.
+	// Additionally, it may invoke any public methods and/or access public
+	// fields in the class. This could be dangerous if the code would normally
+	// not be able to invoke those methods and/or access the fields because it
+	// can't cast the object to the class/interface with those methods and fields.
+	// Reason: persistence package requires it.
+	// FIX: is it really necessary for the persistence package? Can we find
+	// another solution?
+	permission java.lang.RuntimePermission "accessDeclaredMembers";
+
+	// exitVM permission
+	// This allows an attacker to mount a denial-of-service attack by
+	// automatically forcing the virtual machine to halt.
+	// Reason: persistence package requires it.
+	// FIX: can we find a more elegant solution in the persistence module?
+	permission java.lang.RuntimePermission "exitVM";
+
+	// Registration and cancellation of virtual-machine shutdown hooks.
+	// This allows an attacker to register a malicious shutdown hook that
+	// interferes with the clean shutdown of the virtual machine.
+	permission java.lang.RuntimePermission "shutdownHooks";
+
+	////////////////////////////////////////////////////
+	// File permissions: java libraries
+	// File permission ending in ${/}  means right to list files and folders
+	// File permission ending in ${/}* means right to read files
+	// File permission ending in ${/}- means right to recursively read files
+
+	// Allow reading from the current directory (the directory where the node
+	// was launched). However, write permissions should not be given to the
+	// current directory. If the node were started from a directory where
+	// some configuration is stored, this would allow a malicious PlugIn
+	// to overwrite the configuration and replace with a different configuration.
+	// FIX: many components write debugging information to the "current"
+	// directory
+	permission java.io.FilePermission "-", "read, write";
+	permission java.io.FilePermission "*", "read, write";
+	permission java.io.FilePermission "", "read, write";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}core${/}-", "read,write";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}plugin${/}-", "read,write";
+	// Note that the boostrapper only can write to the bootstrap subdirectory.
+	// However PlugIns may need to read log files in that directory
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}bootstrap${/}", "read";
+
+	// Reason: persistence package requires it.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}P${/}", "read,write,delete";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}P${/}-", "read,write,delete";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}*", "read";
+	// FIX: Why do we need recursive access to the lib directory?
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}-", "read";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}plugins${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}plugins${/}*", "read";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}*", "read";
+	// FIX: Why do we need recursive access to the sys directory?
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}-", "read";
+
+	// FIX: The following permission is suspiscious and should probably be removed:
+	permission java.io.FilePermission "${/}opt${/}cougaar-jars${/}", "read";
+
+	// Run-Time environment
+	permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
+	permission java.io.FilePermission "${java.home}${/}classes${/}", "read";
+
+	////////////////////////////////////////////////////
+	// File permissions: Configuration files
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read";
+	// FIX: What is .alp?
+	permission java.io.FilePermission "${user.home}${/}.alp", "read";
+	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
+
+	// This is dangerous because malicious code can replace the actual object
+	// with one which has incorrect or malignant data.
+	// Reason: persistence package requires it.
+	// FIX
+	permission java.io.SerializablePermission "enableSubstitution";
+};
+
+////////////////////////////////////////////////////////////
+// Permissions for code outside core (PlugIns, LDMs, etc)
+
+
+////////////////////////////////////////////////////////////
+// Permissions for everybody else
+// No permission: unsigned code should not have access
+// to any system resource.
+grant { 
+	// "standard" properies that can be read by anyone
+
+	permission java.util.PropertyPermission "java.version", "read";
+	permission java.util.PropertyPermission "java.vendor", "read";
+	permission java.util.PropertyPermission "java.vendor.url", "read";
+	permission java.util.PropertyPermission "java.class.version", "read";
+	permission java.util.PropertyPermission "os.name", "read";
+	permission java.util.PropertyPermission "os.version", "read";
+	permission java.util.PropertyPermission "os.arch", "read";
+	permission java.util.PropertyPermission "file.separator", "read";
+	permission java.util.PropertyPermission "path.separator", "read";
+	permission java.util.PropertyPermission "line.separator", "read";
+
+	permission java.util.PropertyPermission "java.specification.version", "read";
+	permission java.util.PropertyPermission "java.specification.vendor", "read";
+	permission java.util.PropertyPermission "java.specification.name", "read";
+
+	permission java.util.PropertyPermission "java.vm.specification.version", "read";
+	permission java.util.PropertyPermission "java.vm.specification.vendor", "read";
+	permission java.util.PropertyPermission "java.vm.specification.name", "read";
+	permission java.util.PropertyPermission "java.vm.version", "read";
+	permission java.util.PropertyPermission "java.vm.vendor", "read";
+	permission java.util.PropertyPermission "java.vm.name", "read";
+
+	// Swing properties
+	permission java.util.PropertyPermission "swing.*", "read";
+
+	/////////////////////////////////////////////////
+	// Socket permissions
+	// Allows to listen on un-privileged ports
+	// PSPs and LDM need socket permissions. A new protection domain
+	// should probably be specifically defined for PSPs and LDMs.
+	permission java.net.SocketPermission "localhost:1024-", "listen";
+	// Allows to listen on un-privileged ports
+	permission java.net.SocketPermission "*:1024-", "accept,connect";
+
+	/////////////////////////////////////////////////
+	// AWT Permissions
+	// Without this warning, an applet may pop up windows without the user knowing
+	// that they belong to an applet. Since users may make security-sensitive
+	// decisions based on whether or not the window belongs to an applet
+	// (entering a username and password into a dialog box, for example),
+	//  disabling this warning banner may allow applets to trick the user into
+	// entering such information.
+	permission java.awt.AWTPermission "showWindowWithoutWarningBanner";
+
+	// This would allow malfeasant code to share potentially sensitive or
+	// confidential information.
+	// FIX: Do we really need access to the clipboard?
+	permission java.awt.AWTPermission "accessClipboard";
+
+	// After retrieving the AWT event queue, malicious code may peek at and even
+	// remove existing events from its event queue, as well as post bogus events
+	// which may purposefully cause the application or applet to misbehave in an
+	// insecure manner.
+	// FIX: Why do we need access to the event queue?
+	permission java.awt.AWTPermission "accessEventQueue";
+
+	////////////////////////////////////////////////////
+	// File permissions: Configuration files
+	// FIX: In the 8.3.0 implementation, PlugIns read directly from the configs
+	// directory, but this gives too many privileges.
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}log/plugin${/}-", "read,write";
+
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}configs${/}-", "read";
+	permission java.io.FilePermission "${user.home}${/}.alprc", "read";
+	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
+
+	// FIX - CRITICAL:
+	// The following permission is enabled because system properties are
+	// read at Node.java:79, but Node.java should really be fixed.
+	// Need to fix core/cluster/ClaimableImpl.java:95
+	// permission java.util.PropertyPermission "*", "read, write";
+};
