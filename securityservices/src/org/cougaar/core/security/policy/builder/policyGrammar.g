@@ -24,6 +24,7 @@ header {
 
     import java.util.*;
     import kaos.ontology.jena.*;
+    import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
 }
 
 class PolicyParser extends Parser;
@@ -45,6 +46,18 @@ throws PolicyCompilerException
     | "Agent" agentName:URI
         { ppf.declareInstance(ParsedPolicy.tokenToURI(agentName),
                               ActorConcepts._Agent_); }
+    | "Servlet" servletName:TOKEN
+        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+                              + servletName.getText(),
+                              UltralogEntityConcepts._Servlet_); }
+    | "PlugInRole" pluginRoleName:TOKEN
+        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+                              + pluginRoleName.getText(),
+                              UltralogEntityConcepts._PlugInRoles_); }
+    | "BlackBoardObject" blackBoardObjectName:TOKEN
+        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+                              + blackBoardObjectName.getText(),
+                              UltralogEntityConcepts._BlackBoardObjects_); }
     ;
 
 policy 
