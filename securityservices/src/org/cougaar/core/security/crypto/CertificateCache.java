@@ -446,7 +446,7 @@ public class CertificateCache
   }
 
   /** Return all the private keys associated with a given distinguished name */
-  private ArrayList getPrivateKeys(X500Name x500Name)
+  public ArrayList getPrivateKeys(X500Name x500Name)
   {
     ArrayList list = (ArrayList) privateKeyCache.get(x500Name);
     return list;
