@@ -114,7 +114,7 @@
 				<include name="web.xml"/>
 			</fileset>
 		</copy>
-		<zip zipfile="Security_csi_securityservices_overlay.zip" basedir="staging"/>
+		<zip zipfile="AS_csi_secserv.zip" basedir="staging"/>
 		<delete dir="staging"/>
 	</target>
 </project>

@@ -197,7 +197,7 @@
 			<mkdir dir="staging/lib"/>
 			<antcall target="all"/>
 			<move file="${overlay.classes}/overlay.jar" toDir="staging/lib"/>
-			<zip zipfile="Security_csi_overlay_overlay.zip" basedir="staging"/>
+			<zip zipfile="AS_csi_overlay.zip" basedir="staging"/>
 			<delete dir="staging"/>
 		</target>
         
