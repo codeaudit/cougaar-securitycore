@@ -49,12 +49,15 @@ public class PendingCertificateServlet extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
+  javax.servlet.ServletContext context=null;
 
   public void init(ServletConfig config) throws ServletException
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-    confParser = new ConfParser();
+    context=config.getServletContext();
+      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      confParser = new ConfParser(confpath);
     caDNs = confParser.getCaDNs();
     roles = confParser.getRoles();
   }
@@ -116,7 +119,10 @@ public class PendingCertificateServlet extends  HttpServlet
       System.out.println("calling create table will role:" + role);
     }
 
-    PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role);
+    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+
+    PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role, certpath, confpath);
     Hashtable certtable = (Hashtable)pendingCache.get(caPolicy.pendingDirectory);
     out.println(createtable(certtable,
                             cadnname, role,

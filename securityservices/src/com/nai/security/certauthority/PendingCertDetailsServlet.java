@@ -46,11 +46,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
 
   protected boolean debug = false;
+  javax.servlet.ServletContext context=null;
 
   public void init(ServletConfig config) throws ServletException
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
+    context=config.getServletContext();
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -88,7 +90,8 @@ public class PendingCertDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      ConfParser confParser = new ConfParser();
+      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      ConfParser confParser = new ConfParser(confpath);
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
@@ -108,25 +111,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
       return;
     }
 
-    /*
-    String filter = "(uniqueIdentifier=" + distinguishedName + ")";
-    LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
-    if(ldapentries==null || ldapentries.length == 0) {
-      out.println("Error: no such certificate in LDAP ");
-      out.flush();
-      out.close();
-      return;
-    }
-    if (ldapentries.length != 1) {
-      out.println("Error: there are multiple certificates with the same UID");
-      out.flush();
-      out.close();
-      return;
-    }
-    */
     X509Certificate  certimpl;
     try {
-      PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role);
+
+      String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+
+      PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role, certpath, confpath);
       certimpl = (X509Certificate)pendingCache.getCertificate(
         caPolicy.pendingDirectory, alias);
     }

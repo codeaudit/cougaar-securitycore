@@ -41,7 +41,6 @@ import java.security.PublicKey;
 
 
 public class PendingCertCache extends Hashtable {
-  private ConfParser confParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private String x509DirectoryName = null;
   protected boolean debug = false;
@@ -52,10 +51,10 @@ public class PendingCertCache extends Hashtable {
   // singleton
   // only started once
   public synchronized static PendingCertCache getPendingCache(
-    String cadnname, String role) {
+    String cadnname, String role, String certpath, String confpath) {
     if (thisCache == null) {
       try {
-        thisCache = new PendingCertCache(cadnname, role);
+        thisCache = new PendingCertCache(cadnname, role, certpath, confpath);
       }
       catch (Exception e) {
         System.out.println("Error creating PendingCertCache: " + e.toString());
@@ -64,27 +63,53 @@ public class PendingCertCache extends Hashtable {
     return thisCache;
   }
 
-  private PendingCertCache(String cadnname, String role)
+  private PendingCertCache(String cadnname, String role, String certpath, String confpath) 
     throws Exception {
-    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
-						"false"))).booleanValue();
-    confParser = new ConfParser();
-    loadRequests(cadnname, role);
-  }
-
-
-  private synchronized void loadRequests(String cadnname, String role)
-    throws Exception {
-    signer = new KeyManagement(cadnname, role);
+    ConfParser confParser = new ConfParser(confpath);
     try {
       caPolicy = confParser.readCaPolicy(cadnname, role);
+      signer = new KeyManagement(cadnname, role, certpath, confpath);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy for DN=" + cadnname + ". Role="
                           + role + " - " + e );
     }
-    x509DirectoryName = signer.getX509DirectoryName();
+    init();
+  }
 
+  public synchronized static PendingCertCache getPendingCache(
+    CaPolicy aCaPolicy, KeyManagement aSigner) {
+    if (thisCache == null) {
+      try {
+        thisCache = new PendingCertCache(aCaPolicy, aSigner);
+      }
+      catch (Exception e) {
+        System.out.println("Error creating PendingCertCache: " + e.toString());
+        e.printStackTrace();
+      }
+    }
+    return thisCache;
+  }
+
+  private PendingCertCache (CaPolicy aCaPolicy, KeyManagement aSigner) 
+    throws Exception {
+    caPolicy = aCaPolicy;
+    signer = aSigner;
+    init();
+  }
+
+  private void init()
+    throws Exception {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+
+    x509DirectoryName = signer.getX509DirectoryName();
+    loadRequests();
+  }
+
+
+  private synchronized void loadRequests()
+    throws Exception {
     // there are 3 directories storing certificates which should be loaded
     // 1. the pending request, which will be used when viewing and approving requests
     put(caPolicy.pendingDirectory,
