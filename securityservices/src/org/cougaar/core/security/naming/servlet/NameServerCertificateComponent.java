@@ -216,7 +216,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           log.debug("node cert generated, next update CA naming server cert");
         }
         if (!getNamingCert(agent)) {
-          log.warn("Fail to update node certificate for " + agent);
+          log.info("Fail to update node certificate for " + agent);
         }
         else {
           _submitList.put(agent, agent);
