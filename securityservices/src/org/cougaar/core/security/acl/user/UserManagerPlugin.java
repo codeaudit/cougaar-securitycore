@@ -70,6 +70,7 @@ public class UserManagerPlugin extends ComponentPlugin {
   //private CasRelay         _myRelay;
   private UserEntries      _userCache;
   private String           _domain;
+  private boolean          _rehydrated = false;
 
   private static final CasResponse RESPONSE_OK = new CasResponse(null);
   public static final String ROLE_ASSIGNMENT = "role";
@@ -123,16 +124,18 @@ public class UserManagerPlugin extends ComponentPlugin {
             _log.debug("Domain for this user manager is " + _domain);
           }
           csu.releaseServices();
-          try {
-            InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
-            if (userIs != null) {
-              _log.info("Reading users from " + userIs);
-              readUsers(userIs);
-            } else {
-              _log.info("UserFile.xml does not exist -- no users or role");
+          if (!_rehydrated) {
+            try {
+              InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
+              if (userIs != null) {
+                _log.info("Reading users from " + userIs);
+                readUsers(userIs);
+              } else {
+                _log.info("UserFile.xml does not exist -- no users or role");
+              }
+            } catch (Exception e) {
+              _log.warn("Couldn't load users from file: ", e);
             }
-          } catch (Exception e) {
-            _log.warn("Couldn't load users from file: ", e);
           }
         }
       };
@@ -164,6 +167,7 @@ public class UserManagerPlugin extends ComponentPlugin {
       _log.info("Rehydrating with " + _userCache.getUserCount() +
                 " users and " + _userCache.getRoleCount() + 
                 " roles");
+      _rehydrated = true;
     } else {
       UIDService uidService = (UIDService)
         getServiceBroker().getService(this, UIDService.class, null);
