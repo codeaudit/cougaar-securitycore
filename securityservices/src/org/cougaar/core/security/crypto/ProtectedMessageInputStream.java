@@ -89,7 +89,10 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private static int randomResendProtectionLevelCounter = 0;
   private static final int resendProtectionCount        = 20;
-  private static Vector sendersWithInvalidCerts         = new Vector();
+
+  private static final int START_SIGNING = 1;
+  private static final int STOP_SIGNING  = 2;
+  private static Hashtable alreadySentPLMsg = new Hashtable();
 
   private static boolean replyProblemWarned = false;
 
@@ -104,6 +107,10 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
     super(null);
     init(sb);
+
+    if (_log.isDebugEnabled()) {
+      _log.debug("Receiving message: " + source + " -> " + target);
+    }
     /*
      * I don't believe isReply should ever be true.  In the RMI MTS,
      * this is called during the deserialization of an
@@ -161,10 +168,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
         if (encryptedSocket && 
             headerPolicy.secureMethod == headerPolicy.PLAIN &&
-            (!sendersWithInvalidCerts.contains(_source) ||
-             resendProtectionLevelAnyway())) {
+            (!alreadyToldToStartSigning() || resendProtectionLevelAnyway())) {
           sendSignatureValid(false); // please send me the signature next time
-          sendersWithInvalidCerts.add(_source);
         }
         throw new IncorrectProtectionException(headerPolicy);
       }
@@ -257,9 +262,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _log.debug("Signature was verified from " + _source +
                    " to " + _target);
       }
-      if (_encryptedSocket && (!_crypto.getReceiveSignatureValid(_source) ||
+      if (_encryptedSocket && (!alreadyToldToStopSigning() ||
                                resendProtectionLevelAnyway())) {
-        sendersWithInvalidCerts.remove(_source);
         _crypto.setReceiveSignatureValid(_source, _senderCert);
         sendSignatureValid(true);
       }
@@ -574,6 +578,30 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     return false;
   }
 
+
+  private boolean alreadyToldToStopSigning()
+  {
+    return alreadyToldProtectionLevel(STOP_SIGNING);
+  }
+
+  private boolean alreadyToldToStartSigning()
+  {
+    return alreadyToldProtectionLevel(START_SIGNING);
+  }
+
+  private boolean alreadyToldProtectionLevel(int val)
+  {
+    synchronized(alreadySentPLMsg) {
+      ConnectionInfo ci = new ConnectionInfo(_source,null,_target);
+      Object previous = alreadySentPLMsg.get(ci);
+      if (previous != null && ((Integer) previous).intValue() == val) {
+        return true;
+      } else {
+        alreadySentPLMsg.put(ci, new Integer(val));
+        return false;
+      }
+    }
+  }
 
   private synchronized boolean resendProtectionLevelAnyway()
   {
