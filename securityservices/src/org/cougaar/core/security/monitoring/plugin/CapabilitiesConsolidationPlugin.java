@@ -183,7 +183,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     */
     if(dest_community!=null)
-      mgrAddress=new AttributeBasedAddress(dest_community,"SecurityMnRManager",mgrrole);
+      mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
      //mgrAddress = new ClusterIdentifier(mgrrole);
 
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate());
