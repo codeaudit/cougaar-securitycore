@@ -110,8 +110,8 @@ class Security3c2 < SecurityStressFramework
     # That way, the revoked agent will succeed sending a message out,
     # and we can test that the receiver is blocking the message.
      uri = nil
-     logInfoMsg "agent1.kind_of: #{agent1.kind_of}"
-     if (agent1.kind_of? Cougaar::Model::Agent)
+     logInfoMsg "agent1.kind_of: #{agent1.type}"
+     if (agent1.instance_of? Cougaar::Model::Agent)
        uri = agent1.node.uri
      else
        uri = agent1.uri
