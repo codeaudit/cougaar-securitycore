@@ -77,6 +77,10 @@ public final class ServerKeyManager
 
     // no valid certificate? Use self signed cert
     if (nodealias != null && privatekey == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("No valid server cert, retrieving self sign host cert.");
+      }
+
       CertificateCacheService cacheservice=(CertificateCacheService)
 	serviceBroker.getService(this,
 				 CertificateCacheService.class,
@@ -89,6 +93,7 @@ public final class ServerKeyManager
         nodex509 = null;
 	if(cacheservice!=null) {
 	  nodex509=cacheservice.getCertificate(nodealias);
+          privatekey=cacheservice.getKey(nodealias);
 	}
         // No need to get private key, it is not required to
         // start server, only cert and trusted chain are.
