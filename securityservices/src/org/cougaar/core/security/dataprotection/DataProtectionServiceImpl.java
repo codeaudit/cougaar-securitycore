@@ -168,9 +168,9 @@ public class DataProtectionServiceImpl
 					}
 				}
 			};
-			serviceBroker.addServiceListener(sal);
-			agentIdSL = sal;
-		}
+		serviceBroker.addServiceListener(sal);
+		agentIdSL = sal;
+	}
 	
 	//Get Blackboard Service
 	bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
@@ -468,6 +468,8 @@ public class DataProtectionServiceImpl
 		if(log.isErrorEnabled()){
 			log.error("One of the required services needed to publish the relay is not present");
 		}
+		
+	}else{
 		MessageAddress source = agentIdService.getMessageAddress();
 		MessageAddress target = MessageAddress.getMessageAddress(commonName);
 		SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
