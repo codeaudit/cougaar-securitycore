@@ -115,10 +115,33 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "p
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
+	permission java.util.PropertyPermission "*", "read, write";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
+        permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "createClassLoader";
+};
+
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}quoSumo.jar" signedBy "privileged" {
+        permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "createClassLoader";
+};
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}qos.jar" signedBy "privileged" {
+        permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "createClassLoader";
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged"  {
         permission javax.security.auth.AuthPermission "getSubject";
+        permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "createClassLoader";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
+	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
+        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
 };
 
 ////////////////////////////////////////////////////////////
@@ -138,30 +161,13 @@ grant signedBy "bootstrapper" {
 	permission javax.security.auth.AuthPermission "getPolicy";
 };
 
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
-	permission java.util.PropertyPermission "*", "read, write";
-};
-
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged" { 
-	permission org.cougaar.core.security.crypto.KeyRingPermission "readPrivateKey";
-	permission org.cougaar.core.security.crypto.KeyRingPermission "installPkcs7Reply";
-};
-
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar" signedBy "privileged" {
-        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
-        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
-};
-
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
-        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLFactory.getDefault";
-        permission org.cougaar.core.security.crypto.KeyRingPermission "KeyRingSSLServerFactory.getDefault";
-};
-
 ////////////////////////////////////////////////////////////
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
 	// Temporary until BUG 1264 is fixed:
 	permission java.util.PropertyPermission "*", "read,write";
+        permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "createClassLoader";
 
 	////////////////////////////////////////////////////
 	// "standard" properies that can be read by anyone
