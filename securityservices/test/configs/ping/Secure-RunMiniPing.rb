@@ -79,7 +79,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
  
   # Build the communities.xml file 
   do_action "TransformSociety", false, 
-    "#{RULES}/security/community" 
+    "#{RULES}/security/communities" 
  
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 

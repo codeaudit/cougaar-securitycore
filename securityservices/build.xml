@@ -457,7 +457,8 @@
             <fileset dir="${securityservices.configs}/ping"/>
         </copy>
 
-        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/community"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/agentrestart"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
 
         <!--
