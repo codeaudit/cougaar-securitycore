@@ -1,0 +1,76 @@
+LDAP-HOWTO
+----------
+
+1. Install the openldap.org LDAP server. You may also want to download the 
+   GQ LDAP browser which is a Gnome application. This tool is handy for viewing
+   the credentials stored in the server. See the following for more info.
+
+http://www.openldap.org
+http://biot.com/gq
+   
+2. Edit the slapd.conf which was installed into /etc/openldap:
+   LDAP server use schema to define the information they can contain. In order
+   for the server function properly at least two schema need to be included:
+
+include		/etc/openldap/schema/core.schema
+include		/etc/openldap/schema/java.schema
+
+   The second schema file allows us to store java objects directly into the 
+   LDAP server. This is very convenient since Ultra*Log is implemented using
+   Java. Next, go to the database section of the slapd.conf file, you should
+   add something similar to the following:
+
+suffix		"dc=cougaar,dc=org"
+rootdn		"cn=manager,dc=cougaar,dc=org"
+rootpw		foo
+
+   The suffix field is automatically appended to any queries performed by the 
+   server. The root distinguished name (rootdn) is the name of the superuser 
+   who is expempted from access control rules. This should only be used by the
+   certificate authority. The root password (rootpw) is the password field for
+   the rootdn account. It i salso helpful to add the following directives:
+
+index	objectClass	eq
+index	cn		eq
+
+   These specify fields for which the server needs to maintain indexes. 
+
+3. Now that the daemon has a basic configuration. It still has an empty 
+   directory context. Each CA can be given a separate directory context. 
+   Each context including the rootdn needs to be added to the server. First,
+   start the openldap daemon, using either the /etc/rc.d/init.d/ldap script
+   or by running the daemon directly as root (since the default port number is 
+   below 1024).
+
+su root
+/usr/libexec/slapd
+
+   OpenLDAP comes with a few command line tools 
+  
+
+
+
+
+
+The LDAP servers are configured using an URI such as ldap://pear:389/dc=cougaar,dc=org which mean the server is 
+
+NOTE: URL's should look like the following without any trailing slashes:
+
+		   ldap://pear:389/dc=cougaar,dc=org 
+		   ldap://pear:389/dc=nai,dc=cougaar,dc=org 
+
+Before running the examples below make sure your $CLASSPATH is set include the ${COUGAAR_INSTALL_PATH}/sys/securityservice.jar (and all other lib and 3rd party jar files).
+
+Listing the contexts of a directory:
+
+java com.nai.security.certauthority.LDAPCert list "ldap://pear:389/dc=cougaar,dc=org"
+
+Removing a certificate from the directory:
+
+java com.nai.security.certauthority.LDAPCert remove "ldap://pear:389/dc=cougaar,dc=org" cn=69fe38e2af8910d646d43e1666901133
+
+Adding certificates to the directory:
+
+java com.nai.security.certauthority.LDAPCert put "ldap://pear:389/dc=cougaar,dc=org" ~/tools/certificates/CaSignedCertificates/SignedReq-ROOT-CA-CONUS-TEST-NODE-NCA.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
+
+java com.nai.security.certauthority.LDAPCert put "ldap://pear:389/dc=cougaar,dc=org" ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
