@@ -135,7 +135,21 @@ public class TrustManager implements X509TrustManager {
     }
 
     // check whether cert is valid, then build the chain
-    checkChainTrust(chain);
+    try {
+      checkChainTrust(chain);
+    } catch (CertificateException e) {
+      String msgType = "ServerTrustManager";
+      if (e instanceof CertificateRevokedException) {
+        event("CertificateRevoked", msgType, chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateExpiredException) {
+        event("CertificateExpired", msgType, chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateChainException) {
+        event("CertificateChainUntrusted", msgType, chain[0].getSubjectDN().getName());
+      }
+      throw e;
+    }
   }
 
   /**
@@ -168,7 +182,21 @@ public class TrustManager implements X509TrustManager {
       throw new CertificateException(s);
     }
 
-    checkChainTrust(chain);
+    try {
+      checkChainTrust(chain);
+    } catch (CertificateException e) {
+      String msgType = "ClientTrustManager";
+      if (e instanceof CertificateRevokedException) {
+        event("CertificateRevoked", msgType, chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateExpiredException) {
+        event("CertificateExpired", msgType, chain[0].getSubjectDN().getName());
+      }
+      else if (e instanceof CertificateChainException) {
+        event("CertificateChainUntrusted", msgType, chain[0].getSubjectDN().getName());
+      }
+      throw e;
+    }
   }
 
   private void checkChainTrust(X509Certificate[] chain)
@@ -219,28 +247,21 @@ public class TrustManager implements X509TrustManager {
 		 + ". Reason: ", e);
       }
 
-      if (e instanceof CertificateRevokedException) {
-        event("CertificateRevoked", chain[0].getSubjectDN().getName());
+      if (e instanceof CertificateException) {
+        throw (CertificateException)e;
       }
-      else if (e instanceof CertificateExpiredException) {
-        event("CertificateExpired", chain[0].getSubjectDN().getName());
-      }
-      else if (e instanceof CertificateChainException) {
-        event("CertificateChainUntrusted", chain[0].getSubjectDN().getName());
-      }
-
       throw new CertificateException("Failed to build chain.");
     }
   }
 
-  void event(String status, String dn) {
+  void event(String status, String mgrType, String dn) {
 
     String cn = dn;
     try {
       cn = new X500Name(dn).getCommonName();
     }
     catch (Exception ex) {}
-    String evt = "[STATUS] TrustManager." + status + "(" + cn + ")";
+    String evt = "[STATUS] " + mgrType + "." + status + "(" + cn + ")";
     cacheservice.event(evt);
   }
 
