@@ -21,7 +21,7 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.security.monitoring.idmef.Sensor;
+import org.cougaar.core.security.monitoring.idmef.SensorInfo;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
@@ -36,7 +36,7 @@ import org.cougaar.core.security.monitoring.idmef.*;
 
 
 
-public class DummySensor extends  ComponentPlugin  implements Sensor {
+public class DummySensor extends  ComponentPlugin  implements SensorInfo {
     private static String OS_TYPE;
     private static String OS_VERSION;
     private IDMEF_Node m_node;
@@ -96,7 +96,7 @@ public class DummySensor extends  ComponentPlugin  implements Sensor {
         public String getAnalyzerClass(){
             return "<class>";
         }
-        public String getOSType(){
+        public String getOSName(){
             return OS_TYPE;
         }
         public String getOSVersion(){
