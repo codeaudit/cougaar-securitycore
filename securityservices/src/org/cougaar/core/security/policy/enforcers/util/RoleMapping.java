@@ -22,6 +22,7 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -35,18 +36,22 @@ import java.util.Set;
  * concepts and the UltraLog concepts.  For now I am using
  * configuration files but some of this will change later...
  */
-public class RoleMapping extends StringPairMapping {
+public class RoleMapping {
 
-  private Map  _componentMap;
-  private Map  _agentMap;
-  private Map  _uriMap;
+  private Map            _componentMap;
+  private Map            _agentMap;
+  private Map            _uriMap;
+  private ServiceBroker  _sb;
+  private LoggingService _log;
 
   public RoleMapping(ServiceBroker sb)
   {
-    super(sb);
+    _sb = sb;
+    _log = (LoggingService) _sb.getService(this, LoggingService.class, null);
     if (_log.isDebugEnabled()) {
       _log.debug("Initializing Role Mapper");
     }
+
     initializeComponent();
     initializeAgent();
     initializeUri();
@@ -56,7 +61,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeComponent() {
     try {
       _log.debug("loading component/role mappings...");
-      _componentMap = buildMap("RoleComponentMap");
+      _componentMap = (new StringPairMapping(_sb, "RoleComponentMap")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading coponent -> role configuration file", e);
     }
@@ -65,7 +70,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeAgent() {
     try {
       _log.debug("loading agent/role mappings...");
-      _agentMap = buildMap("RoleAgentMap");
+      _agentMap = (new StringPairMapping(_sb, "RoleAgentMap")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading agent -> role configuration file", e);
     }
@@ -74,7 +79,7 @@ public class RoleMapping extends StringPairMapping {
   private void initializeUri() {
     try {
       _log.debug("loading uri/role mappings...");
-      _uriMap = buildMap("RoleUriMap");
+      _uriMap = (new StringPairMapping(_sb, "RoleUriMap")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading uri -> role configuration file", e);
     }
