@@ -122,6 +122,7 @@ public class IdmefEventPublisher implements EventPublisher {
    * @param event a failure event
    */
   public void publishEvent(FailureEvent event) {
+    boolean openTransaction=false;
     if(event == null){
       if(m_logger != null) {
         m_logger.warn("no event to publish!");
@@ -132,9 +133,14 @@ public class IdmefEventPublisher implements EventPublisher {
       if(m_logger.isDebugEnabled()) {
         m_logger.debug("publishing message failure:\n" + event);
       }
-      m_blackboard.openTransaction();
+      openTransaction= m_blackboard.isTransactionOpen();
+      if(!openTransaction) {
+        m_blackboard.openTransaction();
+      }
       m_blackboard.publishAdd(createIDMEFAlert(event));
-      m_blackboard.closeTransaction();
+      if(!openTransaction) {
+        m_blackboard.closeTransaction();
+      }
     }
   }
   
