@@ -204,9 +204,6 @@ if ( "$usePersistence" == "true") then
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.lazy=false"
 endif
 
-# the boot policy for NAI:
-set bootpolicy="BootPolicy.ldm.NAI.xml"
-
 # #####################
 # Servlet properties
 switch ( ${USER} )
@@ -237,18 +234,13 @@ case 'mluu':
 case 'asmt':
 	set httpport=8800
 	set httpsport=8888
-        set bootpolicy="BootPolicy.ldm.xml"
 	breaksw
 default:
 	@echo "WARNING: Setting HTTP port to default port number. You should edit SecureNode"
 	set httpport=8800
 	set httpsport=9800
-        set bootpolicy="BootPolicy.ldm.xml"
         breaksw
 endsw
-
-# Set the boot policy based on the user preferences
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.BootPolicy=$COUGAAR_INSTALL_PATH/configs/common/$bootpolicy"
 
 # Comment out following line if you don't want HTTP
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${httpport}"
