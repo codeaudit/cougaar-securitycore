@@ -95,11 +95,19 @@ public class CryptoManagerServiceImpl
     sessionKeys = new Hashtable();
   }
 
-  private PrivateKey getPrivateKey(final String name) 
+  private PrivateKey getPrivateKey(String name) 
+    throws GeneralSecurityException, IOException {
+    return (PrivateKey) getPrivateKeys(name).iterator().next();
+  }
+
+  private List getPrivateKeys(final String name) 
     throws GeneralSecurityException, IOException {
     List pkList = (List)
       AccessController.doPrivileged(new PrivilegedAction() {
           public Object run(){
+            // relieve messages to naming, for local keys
+            // do not need to go to naming
+//             List nameList = keyRing.getX500NameFromNameMapping(name);
             List nameList = keyRing.findDNFromNS(name);
             if (log.isDebugEnabled()) {
               log.debug("List of names for " + name + ": " + nameList);
@@ -107,36 +115,25 @@ public class CryptoManagerServiceImpl
             List keyList = new ArrayList();
             for (int i = 0; i < nameList.size(); i++) {
               X500Name dname = (X500Name)nameList.get(i);
-              keyList.addAll(keyRing.findPrivateKey(dname));
+              List pkCerts = keyRing.findPrivateKey(dname);
+              Iterator iter = pkCerts.iterator();
+              while (iter.hasNext()) {
+                PrivateKeyCert pkc = (PrivateKeyCert) iter.next();
+                keyList.add(pkc.getPrivateKey());
+              }
             }
             return keyList;
           }
         });
-    /*
-    AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run(){
-              // relieve messages to naming, for local keys
-              // do not need to go to naming
-	      //List nameList = keyRing.findDNFromNS(name);
-              List nameList = keyRing.getX500NameFromNameMapping(name);
-              List keyList = new ArrayList();
-              for (int i = 0; i < nameList.size(); i++) {
-                X500Name dname = (X500Name)nameList.get(i);
-                keyList.addAll(keyRing.findPrivateKey(dname));
-              }
-              return keyList;
-	    }
-	  });
-    */
     if (pkList == null || pkList.size() == 0) {
-      String message = "Unable to sign object. Private key of " + 
-        name + " does not exist.";
+      String message = "Unable to get private key of " + 
+        name + " -- does not exist.";
       if (log.isWarnEnabled()) {
         log.warn(message);
       }
       throw new NoValidKeyException("Private key of " + name + " not found");
     }
-    return ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
+    return pkList;
   }
 
   public SignedObject sign(String name,
@@ -336,37 +333,22 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  public Object asymmDecrypt(final String name,
+  public Object asymmDecrypt(String name,
 			     String spec,
-			     SealedObject obj){
-    /*get secretKey*/
-    List keyList = (List)
-      AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run(){
-              // relieve messages to naming, for local keys
-              // do not need to go to naming
-	      //List nameList = keyRing.findDNFromNS(name);
-              List nameList = keyRing.getX500NameFromNameMapping(name);
-              List keyList = new ArrayList();
-              for (int i = 0; i < nameList.size(); i++) {
-                X500Name dname = (X500Name)nameList.get(i);
-                keyList.addAll(keyRing.findPrivateKey(dname));
-              }
-              return keyList;
-	  }
-	});
-    if (keyList == null || keyList.size() == 0) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to decrypt object with public key. Private key of " + name
-	  + " was not found.");
-      }
+			     SealedObject obj) {
+    // get secret keys
+    List keyList;
+    try {
+      keyList = getPrivateKeys(name);
+    } catch (Exception e) {
+      log.warn("Cannot recover message", e);
       return null;
     }
     Iterator it = keyList.iterator();
     PrivateKey key = null;
     Cipher ci = null;
     while (it.hasNext()) {
-      key = ((PrivateKeyCert)it.next()).getPrivateKey();
+      key = (PrivateKey)it.next();
       if(spec==null||spec=="")
 	spec=key.getAlgorithm();
       try {
@@ -374,24 +356,24 @@ public class CryptoManagerServiceImpl
         ci.init(Cipher.DECRYPT_MODE, key);
         Object o = obj.getObject(ci);
         return o;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
 	// That's OK. Maybe there is an old certificate which is not
 	// trusted anymore, but we may have a newer one too.
 	if (log.isInfoEnabled()) {
-	  log.info("Cannot recover message. " + e
-	    + ". Trying with next certificate...");
+          if (it.hasNext()) {
+            log.info("Cannot recover message. " + e +
+                     ". Trying with next certificate...");
+          } else {
+            log.warn("Cannot recover message. No other certificates are available. ",
+                     e);
+          }
 	}
 	continue;
-      }
-      finally {
+      } finally {
         if (ci != null) {
           returnCipher(spec,ci);
         }
       }
-    }
-    if (log.isWarnEnabled()) {
-      log.warn("Cannot recover message. ");
     }
     return null;
   }
