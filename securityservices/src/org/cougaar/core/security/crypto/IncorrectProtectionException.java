@@ -48,7 +48,7 @@ public class IncorrectProtectionException
 
   public String getMessage() {
     if (_policy != null) {
-      return "Could not use protection level: " + _policy;
+      return "Incoming message does not satisfy cryptographic policy: " + _policy;
     }
     if (_cert != null) {
       return "Private key for certificate could not be found: " +
