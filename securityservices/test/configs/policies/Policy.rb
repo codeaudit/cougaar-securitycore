@@ -80,11 +80,12 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   # replace the last parameter with your jabber server's host name  
   do_action "StartJabberCommunications"
   do_action "CleanupSociety"
-#  do_action "VerifyHosts" 
+  do_action "VerifyHosts" 
   do_action "ConnectOperatorService"
-  do_action "ClearPersistenceAndLogs"
+#  do_action "ClearPersistenceAndLogs"
   do_action "GenericAction" do 
-    `rm -rf #{CIP}/workspace`
+#    `rm -rf #{CIP}/workspace/log4jlogs #{CIP}/workspace/P`
+     `rm -rf #{CIP}/workspace`
   end
   do_action "DeployCommunitiesFile" 
  
@@ -102,9 +103,9 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "StartSociety" 
  
   # however long you want to run 
-  do_action "Sleep", 40.minutes 
+#  do_action "Sleep", 40.minutes 
  
-  do_action "StopSociety" 
-  do_action "StopCommunications" 
+#  do_action "StopSociety" 
+#  do_action "StopCommunications" 
 } 
 

@@ -7,9 +7,11 @@
       <facet role="NameServer"/> 
       <facet role="AS-Management"/> 
     </node> 
+  <!--
   </host>
   <host name='Europa.local.'>
     <facet enclave='Rear'/> 
+  -->
     <node name='RearEnclaveCaNode'> 
       <facet role="CertificateAuthority"/>
     </node>
