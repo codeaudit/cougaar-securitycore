@@ -37,6 +37,9 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.w3c.dom.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 /**This class provides a set of utilities for XML*/
 public class XMLUtils{
@@ -196,7 +199,52 @@ public class XMLUtils{
         return null;
     }
 
+    /**Returns the node Integer value specified by node name.
+     * @param start the parent of the node we are looking for.
+     * @param tagName the string name of the child we are looking for.*/
+    public static Integer GetNodeIntegerValueForName( Node start, String tagName ){
+        Integer value = null;
+        try {
+            Node node = GetNodeForName( start, tagName );
+            if( node != null ){
+                value = new Integer( node.getNodeValue() );
+            }
+        }
+        catch( NumberFormatException nfe ){
+            nfe.printStackTrace();
+        }
+        return value;
+    }
+    
+    /**Returns the node String value specified by node name.
+     * @param start the parent of the node we are looking for.
+     * @param tagName the string name of the child we are looking for.*/
+    public static String GetNodeStringValueForName( Node start, String tagName ){
+        String value = null;
+        Node node = GetNodeForName( start, tagName );
+        if( node != null ){
+            value = node.getNodeValue();
+        }
+        return value;
+    }
 
+    /**Returns the node Date value specified by node name.
+     * @param start the parent of the node we are looking for.
+     * @param tagName the string name of the child we are looking for.*/
+    public static Date GetNodeDateValueForName( Node start, String tagName ){
+        Date value = null;
+        try {
+            Node node = GetNodeForName( start, tagName );
+            if( node != null ){
+                DateFormat dateFormat = DateFormat.getDateTimeInstance();
+                value = dateFormat.parse( node.getNodeValue() );
+            }
+        }
+        catch( ParseException pe ){
+            pe.printStackTrace();
+        }
+        return value;
+    }
 
     /**returns the type of document represented
     * @param d document to get the type of

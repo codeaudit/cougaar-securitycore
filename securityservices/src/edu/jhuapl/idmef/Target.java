@@ -57,6 +57,8 @@ public class Target implements XMLSerializable {
 
     protected Service service;
 
+    protected FileList fileList;
+    
     //attributes
 
     protected String ident;
@@ -104,6 +106,13 @@ public class Target implements XMLSerializable {
 	service = inService;
     }
 
+    public FileList getFileList(){
+        return fileList;
+    }
+    public void setFileList( FileList inFileList ){
+        fileList = inFileList;
+    }
+    
     public String getIdent(){
 	return ident;
     }
@@ -128,13 +137,14 @@ public class Target implements XMLSerializable {
     /**Copies arguments into corresponding fields.
       */
     public Target(IDMEF_Node inNode, User inUser, IDMEF_Process inProcess,
-		  Service inService, String inIdent, String inDecoy, 
+		  Service inService, FileList inFileList, String inIdent, String inDecoy, 
 		  String inNetowrkInterface){
 
 	node = inNode;
 	user = inUser;
 	process = inProcess;
 	service = inService;
+	fileList = inFileList;
 	ident = inIdent;
 	decoy = inDecoy;
 	networkInterface = inNetowrkInterface;
@@ -143,7 +153,7 @@ public class Target implements XMLSerializable {
     /**Creates an object with all fields null.
      */
     public Target(){
-	this(null, null, null, null, null, null, null);
+	this(null, null, null, null, null, null, null, null);
     }
     /**Creates an object from the XML Node containing the XML version of this object.
        This method will look for the appropriate tags to fill in the fields. If it cannot find
@@ -167,6 +177,12 @@ public class Target implements XMLSerializable {
 	if (serviceNode == null) service = null;
 	else service = new Service (serviceNode);
 
+    // new in v1.0
+    Node fileListNode = XMLUtils.GetNodeForName( inNode, FileList.ELEMENT_NAME );
+	if(fileListNode != null){
+	    fileList = new FileList( fileListNode );
+    }
+	
 	NamedNodeMap nnm = inNode.getAttributes();
 
 	Node identNode = nnm.getNamedItem("ident");
@@ -213,63 +229,10 @@ public class Target implements XMLSerializable {
 	    targetNode.appendChild(serviceNode);
 	    
 	}
-
+    if( fileList != null ){
+        targetNode.appendChild( fileList.convertToXML( parent ) );
+    }
+    
 	return targetNode;
     }
-
-    //test code
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main (String args[]){
-
-	//make a node
-	Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
-	                          new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
-	IDMEF_Node testNode = new IDMEF_Node("Test Location", 
-					      "Test Name", address_list, 
-					      "Test_Ident", 
-					      IDMEF_Node.DNS);
-	//make a user
-	UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
-
-	User testUser = new User(userId_list, "Test_Ident", User.APPLICATION);
-
-
-	//make a Process
-	String arg_list[] = {"-r", "-b", "12.3.4.5"};
-	String env_list[] = {"HOME=/home/mccubb/", "PATH=/usr/sbin"};
-	IDMEF_Process testProcess = new IDMEF_Process("Test_Name", new Integer(1002), "/usr/sbin/ping",
-					       arg_list, env_list, "Test_Ident");
-
-	//make a service
-	Service testService = new Service("Test_Name", new Integer(23), 
-					"26, 8, 100-1098", "telnet", "test_ident");
-
-	//make a target
-
-	Target target = new Target(testNode, testUser, testProcess, testService, "test_ident", 
-				   Target.YES, "/dev/eth0");
-
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = target.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
-	      
-
-	    Target new_i = new Target(tNode);
-
-
-	} catch (Exception e) {e.printStackTrace();}
-    }
-
 }

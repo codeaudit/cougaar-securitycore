@@ -83,13 +83,12 @@ public class OverflowAlert extends Alert implements XMLSerializable{
     public OverflowAlert(Analyzer inAnalyzer, CreateTime ct, 
 			 DetectTime dt, AnalyzerTime at, Source[] inSources, 
 			 Target[] inTargets, Classification[] inClassifications, 
-			 AdditionalData[] ad, String inIdent, String inImpact,
-
+			 Assessment inAssessment, AdditionalData[] ad, String inIdent,
 			 String inProgram, Integer inSize, String inBuffer){
 
 
 	super(inAnalyzer, ct, dt, at, inSources, inTargets, inClassifications, 
-	      ad, inIdent, inImpact);
+	      inAssessment, ad, inIdent );
         program = inProgram;
 	size = inSize;
 	buffer = inBuffer;
@@ -131,9 +130,7 @@ public class OverflowAlert extends Alert implements XMLSerializable{
 	Element overflowalertNode = parent.createElement("Alert");
 	if(ident != null)
 	    overflowalertNode.setAttribute("ident", ident);
-	if(impact != null)
-	    overflowalertNode.setAttribute("impact", impact);
-
+	
 	if(analyzer != null){
 	    Node analyzerNode = analyzer.convertToXML(parent);
 	    overflowalertNode.appendChild(analyzerNode);
@@ -215,6 +212,7 @@ public class OverflowAlert extends Alert implements XMLSerializable{
     }
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main (String args[]){
 	try{
 	    //make a node
@@ -270,6 +268,15 @@ public class OverflowAlert extends Alert implements XMLSerializable{
 	    //make a Classification list
 	    Classification testClassification[] = {new Classification("Test_Name", 
 							  "http://www.yahoo.com", Classification.CVE)};
+   		//make an Assessment					  
+		Impact impact = new Impact( Impact.HIGH,
+		                            Impact.SUCCEEDED,
+		                            Impact.OTHER,
+		                            "test_impact" );
+		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
+		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f);					  
+	    Assessment testAssessment = new Assessment( impact, actions, confidence );
+
 	    //make an additionalData list
 	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
 						"Chris' Age", "24")};
@@ -278,11 +285,9 @@ public class OverflowAlert extends Alert implements XMLSerializable{
 	    
 
 	    OverflowAlert testAlert = new OverflowAlert(testAnalyzer, c, d, a, source, target, 
-					    testClassification, ad, 
-					    "test_ident", Alert.NOT_SUSPICIOUS, 
-							"/usr/sbin/emacs", new Integer (109),
+					    testClassification, testAssessment, ad, 
+					    "test_ident", "/usr/sbin/emacs", new Integer (109),
 							"1308472348907543876473564956925"
-					    
 					    );
 
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -305,4 +310,5 @@ public class OverflowAlert extends Alert implements XMLSerializable{
 
 	} catch (Exception e) {e.printStackTrace();}
     }
+    */
 }

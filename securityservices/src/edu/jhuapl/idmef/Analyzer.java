@@ -54,8 +54,14 @@ public class Analyzer implements XMLSerializable{
 
 
     //attributes
-
     protected String analyzerid;
+    // new attributes in v1.0
+    protected String manufacturer;
+    protected String model;
+    protected String version;
+    protected String analyzerClass;
+    protected String ostype;
+    protected String osversion;
 
     //getters and setters
 
@@ -79,18 +85,69 @@ public class Analyzer implements XMLSerializable{
     public void setAnalyzerid(String inAnalyzerid){
 	analyzerid = inAnalyzerid;
     }
+    
+    public String getManufacturer(){
+        return manufacturer;
+    }
+    public void setManufacturer( String inManufacturer ){
+        manufacturer = inManufacturer;
+    }
+    
+    public String getModel(){
+        return model;
+    }
+    public void setModel( String inModel ){
+        model = inModel;
+    }
+    
+    public String getVersion(){
+        return version;
+    }
+    public void setVersion( String inVersion ){
+        version = inVersion;
+    }
+    
+    public String getAnalyzerClass(){
+        return analyzerClass;
+    }
+    public void setAnalyzerClass( String inAnalyzerClass ){
+        analyzerClass = inAnalyzerClass;
+    }
+    
+    public String getOSType(){
+        return ostype;
+    }
+    public void setOSType( String inOSType ){
+        ostype = inOSType;
+    }
+    
+    public String getOSVersion(){
+        return osversion;
+    }
+    public void setOSVersion( String inOSVersion ){
+        osversion = inOSVersion;
+    }
+    
     /**Copies arguments into corresponding fields.
       */
     public Analyzer(IDMEF_Node inNode, IDMEF_Process inProcess, 
-		    String inAnalyzerid){
+		    String inAnalyzerid, String inManufacturer, String inModel,
+		    String inVersion, String inAnalyzerClass, String inOSType, 
+		    String inOSVersion){
 	node = inNode;
 	process = inProcess;
 	analyzerid = inAnalyzerid;
+	manufacturer = inManufacturer;
+    model = inModel;
+    version = inVersion;
+    analyzerClass = inAnalyzerClass;
+    ostype = inOSType;
+    osversion = inOSVersion;
     }
     /**Creates an object with all fields null.
      */
     public Analyzer (){
-	this(null, null, null);
+	this(null, null, null, null, null, null, null, null, null);
 
     }
     /**Creates an object from the XML Node containing the XML version of this object.
@@ -109,11 +166,34 @@ public class Analyzer implements XMLSerializable{
 
 	NamedNodeMap nnm = inNode.getAttributes();
 
-	Node analyzeridNode = nnm.getNamedItem("analyzerid");
-	if(analyzeridNode == null) analyzerid=null;
-	else analyzerid = analyzeridNode.getNodeValue();
-
-
+	Node attribute = nnm.getNamedItem("analyzerid");
+	if(attribute != null){
+	    analyzerid = attribute.getNodeValue();
+    }
+    attribute = nnm.getNamedItem("manufacturer");
+    if(attribute != null){
+	    manufacturer = attribute.getNodeValue();
+    }
+    attribute = nnm.getNamedItem("model");
+    if(attribute != null){
+	    model = attribute.getNodeValue();
+    }
+    attribute = nnm.getNamedItem("version");
+    if(attribute != null){
+	    version = attribute.getNodeValue();
+    }
+    attribute = nnm.getNamedItem("class");
+    if(attribute != null){
+	    analyzerClass = attribute.getNodeValue();
+    }
+    attribute = nnm.getNamedItem("ostype");
+    if(attribute != null){
+	    ostype = attribute.getNodeValue();
+    } 
+    attribute = nnm.getNamedItem("osversion");
+    if(attribute != null){
+	    osversion = attribute.getNodeValue();
+    }
     }
 
 
@@ -140,6 +220,7 @@ public class Analyzer implements XMLSerializable{
 
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main (String args[]){
 
 	//make a node
@@ -182,8 +263,5 @@ public class Analyzer implements XMLSerializable{
 
 	} catch (Exception e) {e.printStackTrace();}
     }
-
-
-
-
+    */
 }

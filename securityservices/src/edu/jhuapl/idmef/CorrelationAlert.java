@@ -76,13 +76,12 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
     public CorrelationAlert(Analyzer inAnalyzer, CreateTime ct, 
 		     DetectTime dt, AnalyzerTime at, Source[] inSources, 
 		     Target[] inTargets, Classification[] inClassifications, 
-		     AdditionalData[] ad, String inIdent, String inImpact,
-
+		     Assessment inAssessment, AdditionalData[] ad, String inIdent,
 		     String inName,
 		     Alertident[] inAlertidents){
 
 	super(inAnalyzer, ct, dt, at, inSources, inTargets, inClassifications, 
-	      ad, inIdent, inImpact);
+	      inAssessment, ad, inIdent);
 	name = inName;
 	
 	alertidents = inAlertidents;
@@ -107,10 +106,6 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
 	if (nameNode == null) name = null;
 	else name = XMLUtils.getAssociatedString(nameNode);
 
-
-
-
-
 	NodeList children = caNode.getChildNodes();
 	ArrayList alertidentNodes = new ArrayList();
 
@@ -134,9 +129,7 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
 	Element correlationalertNode = parent.createElement("Alert");
 	if(ident != null)
 	    correlationalertNode.setAttribute("ident", ident);
-	if(impact != null)
-	    correlationalertNode.setAttribute("impact", impact);
-
+	
 	if(analyzer != null){
 	    Node analyzerNode = analyzer.convertToXML(parent);
 	    correlationalertNode.appendChild(analyzerNode);
@@ -209,6 +202,7 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
     }
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main (String args[]){
 	try{
 	    //make a node
@@ -264,6 +258,15 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
 	    //make a Classification list
 	    Classification testClassification[] = {new Classification("Test_Name", 
 							  "http://www.yahoo.com", Classification.CVE)};
+		//make an Assessment					  
+		Impact impact = new Impact( Impact.HIGH,
+		                            Impact.SUCCEEDED,
+		                            Impact.OTHER,
+		                            "test_impact" );
+		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
+		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
+	    Assessment testAssessment = new Assessment( impact, actions, confidence );
+
 	    //make an additionalData list
 	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
 						"Chris' Age", "24")};
@@ -274,9 +277,8 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
 
 
 	    CorrelationAlert testAlert = new CorrelationAlert(testAnalyzer, c, d, a, source, target, 
-					    testClassification, ad, 
-					    "test_ident", Alert.NOT_SUSPICIOUS, 
-					    "Test_Name",
+					    testClassification, testAssessment, ad, 
+					    "test_ident", "Test_Name",
 					    alertidents
 					    );
 
@@ -300,5 +302,5 @@ public class CorrelationAlert extends Alert implements XMLSerializable{
 
 	} catch (Exception e) {e.printStackTrace();}
     }
-
+    */
 }

@@ -54,13 +54,12 @@ public class AdditionalData implements XMLSerializable{
     //attributes
 
     protected String type;
-
     protected String meaning;
 
     //element data
 
     protected String additionalData;
-
+    protected Object data;
 
     //constants
 

@@ -60,7 +60,7 @@ public class UserId implements XMLSerializable{
     protected String type;
 
     //constants
-
+    public static final String ELEMENT_NAME        = "UserId";
     public static final String CURRENT_USER        = "current-user";
     public static final String ORIGINAL_USER       = "original-user";
     public static final String TARGET_USER         = "target-user";

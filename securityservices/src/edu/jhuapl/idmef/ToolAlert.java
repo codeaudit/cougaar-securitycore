@@ -49,7 +49,7 @@ import java.math.*;
     See Section 5.2.2.1 of the IDMEF internet-draft for more info.
 */
 
-public class ToolAlert extends Alert implements XMLSerializable{
+public class ToolAlert extends Alert implements XMLSerializable {
 
 
     protected String name;
@@ -87,13 +87,12 @@ public class ToolAlert extends Alert implements XMLSerializable{
     public ToolAlert(Analyzer inAnalyzer, CreateTime ct, 
 		     DetectTime dt, AnalyzerTime at, Source[] inSources, 
 		     Target[] inTargets, Classification[] inClassifications, 
-		     AdditionalData[] ad, String inIdent, String inImpact,
-
+		     Assessment inAssessment, AdditionalData[] ad, String inIdent,
 		     String inName, String inCommand, 
 		     Alertident[] inAlertidents){
 
 	super(inAnalyzer, ct, dt, at, inSources, inTargets, inClassifications, 
-	      ad, inIdent, inImpact);
+	      inAssessment, ad, inIdent );
 	name = inName;
 	command = inCommand;
 	alertidents = inAlertidents;
@@ -148,8 +147,6 @@ public class ToolAlert extends Alert implements XMLSerializable{
 	Element toolAlertNode = parent.createElement("Alert");
 	if(ident != null)
 	    toolAlertNode.setAttribute("ident", ident);
-	if(impact != null)
-	    toolAlertNode.setAttribute("impact", impact);
 
 	if(analyzer != null){
 	    Node analyzerNode = analyzer.convertToXML(parent);
@@ -229,6 +226,7 @@ public class ToolAlert extends Alert implements XMLSerializable{
     }
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main (String args[]){
 	try{
 	    //make a node
@@ -284,6 +282,15 @@ public class ToolAlert extends Alert implements XMLSerializable{
 	    //make a Classification list
 	    Classification testClassification[] = {new Classification("Test_Name", 
 							  "http://www.yahoo.com", Classification.CVE)};
+ 		//make an Assessment					  
+		Impact impact = new Impact( Impact.HIGH,
+		                            Impact.SUCCEEDED,
+		                            Impact.OTHER,
+		                            "test_impact" );
+		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
+		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
+	    Assessment testAssessment = new Assessment( impact, actions, confidence );
+
 	    //make an additionalData list
 	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
 						"Chris' Age", "24")};
@@ -294,9 +301,8 @@ public class ToolAlert extends Alert implements XMLSerializable{
 
 
 	    ToolAlert testAlert = new ToolAlert(testAnalyzer, c, d, a, source, target, 
-					    testClassification, ad, 
-					    "test_ident", Alert.NOT_SUSPICIOUS, 
-					    "Test_Name", "/usr/bin/emacs",
+					    testClassification, testAssessment, ad, 
+					    "test_ident", "Test_Name", "/usr/bin/emacs",
 					    alertidents
 					    );
 
@@ -320,5 +326,5 @@ public class ToolAlert extends Alert implements XMLSerializable{
 
 	} catch (Exception e) {e.printStackTrace();}
     }
-
+    */
 }

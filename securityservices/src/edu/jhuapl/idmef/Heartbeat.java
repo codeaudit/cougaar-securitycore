@@ -213,6 +213,7 @@ public class Heartbeat extends IDMEF_Message {
 
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
 
     public static void main (String args[]){
 	try{
@@ -285,4 +286,5 @@ public class Heartbeat extends IDMEF_Message {
 
 	} catch (Exception e) {e.printStackTrace();}
     }
+    */
 }

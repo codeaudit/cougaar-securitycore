@@ -51,8 +51,11 @@ import java.math.*;
 
 public abstract class IDMEF_Message implements XMLSerializable{
 
+    public static String ELEMENT_NAME = "IDMEF-Message";
+    public static String ATTRIBUTE_VERSION = "version";
+    
     /**The current implemented version of IDMEF*/
-    protected static String version = "0.3";
+    protected static String version = "1.0";
 
     /**The current location of the idmef DTD File*/
     protected static String dtdFileLocation;
@@ -194,6 +197,7 @@ public abstract class IDMEF_Message implements XMLSerializable{
     }
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main(String args[]){
 	try{
 	    //make a node
@@ -249,13 +253,22 @@ public abstract class IDMEF_Message implements XMLSerializable{
 	    //make a Classification list
 	    Classification testClassification[] = {new Classification("Test_Name", 
 							  "http://www.yahoo.com", Classification.CVE)};
+        //make an Assessment					  
+		Impact impact = new Impact( Impact.HIGH,
+		                            Impact.SUCCEEDED,
+		                            Impact.OTHER,
+		                            "test_impact" );
+		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
+		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
+	    Assessment testAssessment = new Assessment( impact, actions, confidence );
+	    
 	    //make an additionalData list
 	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
 						"Chris' Age", "24")};
 
 
-	    Alert testAlert = new Alert(testAnalyzer, c, d, a, source, target, testClassification, ad, 
-					"test_ident", Alert.NOT_SUSPICIOUS);
+	    Alert testAlert = new Alert(testAnalyzer, c, d, a, source, target, 
+	            testClassification, testAssessment, ad, "test_ident");
 
 	    System.out.println(testAlert.toString());
 	    createMessage(testAlert.toString());
@@ -270,7 +283,7 @@ public abstract class IDMEF_Message implements XMLSerializable{
 	    e.printStackTrace();
 	}
     }
-
+    */
 }
 
 

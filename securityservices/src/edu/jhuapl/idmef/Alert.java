@@ -37,45 +37,38 @@ import java.net.*;
 import java.util.*;
 import java.text.*;
 import java.io.*;
-
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import org.xml.sax.*;
-import org.apache.xml.serialize.*;
 import java.math.*;
+import javax.xml.parsers.*;
+
+import org.apache.xml.serialize.*;
+import org.xml.sax.*;
+import org.w3c.dom.*;
 
 /** This class represents an alert message.
     See Section 5.2.2 of the IDMEF internet-draft for more info.
 */
 
 
-public class Alert extends IDMEF_Message{
+public class Alert extends IDMEF_Message {
 
-    protected Analyzer analyzer;
+    public static String ELEMENT_NAME = "Alert";
     
+    protected Analyzer analyzer; 
     protected CreateTime createTime;
-
     protected DetectTime detectTime;
-
     protected AnalyzerTime analyzerTime;
-
     protected Source sources[];
-    
     protected Target targets[];
-
     protected Classification classifications[];
-    
+    protected Assessment assessment;    // as of v1.0
     protected AdditionalData additionalData[];
-
-
-    //attributes
-
+    
+    // attribute
     protected String ident;
 
-    protected String impact;
-
-    //constants
-
+    // constants
+    // deprecated, not necessary as of v1.0
+    /*
     public static final String UNKNOWN = "unknown";
     public static final String BAD_UNKNOWN = "bad-unknown";
     public static final String NOT_SUSPICIOUS = "not-suspicious";
@@ -89,113 +82,107 @@ public class Alert extends IDMEF_Message{
     public static final String SUCCESSFUL_RECON_LARGESCALE = "successful-recon-largescale";
     public static final String ATTEMPTED_USER = "attempted-user";
     public static final String SUCCESSFUL_USER = "successful-user";
-
+    */
+    
     //getters and setters
-
     public Analyzer getAnalyzer(){
-	return analyzer;
+	    return analyzer;
     }
     public void setAnalyzer(Analyzer inAnalyzer){
-	analyzer = inAnalyzer;
+	    analyzer = inAnalyzer;
     }
-
 
     public CreateTime getCreateTime(){
-	return createTime;
+	    return createTime;
     }
     public void setCreateTime(CreateTime inCreateTime){
-	createTime = inCreateTime;
+	    createTime = inCreateTime;
     }
-
 
     public DetectTime getDetectTime(){
-	return detectTime;
+	    return detectTime;
     }
     public void setDetectTime(DetectTime inDetectTime){
-	detectTime = inDetectTime;
+    	detectTime = inDetectTime;
     }
-
 
     public AnalyzerTime getAnalyzerTime(){
-	return analyzerTime;
+	    return analyzerTime;
     }
     public void setAnalyzerTime(AnalyzerTime inAnalyzerTime){
-	analyzerTime = inAnalyzerTime;
+    	analyzerTime = inAnalyzerTime;
     }
-
 
     public Source[] getSources(){
-	return sources;
+	    return sources;
     }
-     public void setSources(Source[] inSources){
-	sources = inSources;
+    public void setSources(Source[] inSources){
+    	sources = inSources;
     }
 
-   
     public Target[] getTargets(){
-	return targets;
+	    return targets;
     }
     public void setTargets(Target[] inTargets){
-	targets = inTargets;
+	    targets = inTargets;
     }
-
 
     public Classification[] getClassifications(){
-	return classifications;
+	    return classifications;
     }
-     public void setClassifications(Classification[] inClassifications){
-	classifications = inClassifications;
+    public void setClassifications(Classification[] inClassifications){
+    	classifications = inClassifications;
+    }
+    
+    /**
+     * New in IDMEF Message draft v1.0
+     */
+    public Assessment getAssessment() {
+        return assessment;
+    }
+    public void setAssessment( Assessment inAssessment ) {
+        assessment = inAssessment;
     }
 
-   
     public AdditionalData[] getAdditionalData(){
-	return additionalData;
+	    return additionalData;
     }
     public void setAdditionalData(AdditionalData[] inAdditionalData){
-	additionalData = inAdditionalData;
+	    additionalData = inAdditionalData;
     }
-
-
+    
     public String getIdent(){
-	return ident;
+	    return ident;
     }
     public void setIdent(String inIdent){
-	ident = inIdent;
+    	ident = inIdent;
     }
 
-
-    public String getImpact(){
-	return impact;
+    /**
+     * Copies arguments into corresponding fields.
+     */
+    public Alert( Analyzer inAnalyzer, CreateTime ct, 
+		          DetectTime dt, AnalyzerTime at, Source[] inSources, 
+		          Target[] inTargets, Classification[] inClassifications, 
+		          Assessment inAssessment, AdditionalData[] ad, String inIdent ){
+	    analyzer = inAnalyzer;
+	    createTime = ct;
+	    detectTime = dt;
+	    analyzerTime = at;
+	    sources = inSources;
+	    targets = inTargets;
+	    classifications = inClassifications;
+	    assessment = inAssessment;
+	    additionalData = ad;
+	    ident = inIdent;
     }
-    public void setImpact(String inImpact){
-	impact = inImpact;
-    }
-
-
-    /**Copies arguments into corresponding fields.
-      */
-    public Alert(Analyzer inAnalyzer, CreateTime ct, 
-		 DetectTime dt, AnalyzerTime at, Source[] inSources, 
-		 Target[] inTargets, Classification[] inClassifications, 
-		 AdditionalData[] ad, String inIdent, String inImpact){
-	analyzer = inAnalyzer;
-	createTime = ct;
-	detectTime = dt;
-	analyzerTime = at;
-	sources = inSources;
-	targets = inTargets;
-	classifications = inClassifications;
-	additionalData = ad;
-	ident = inIdent;
-	impact = inImpact;
-
-
-    }
-    /**Creates an object with all fields null.
+    
+    /**
+     * Creates an object with all fields null.
      */
     public Alert(){
 	
-	this(null, null, null, null, null, null, null, null, null, null);
+	    this(null, null, null, null, null, null, null, null, null, null);
     }
     /**Creates an object from the XML Node containing the XML version of this object.
        This method will look for the appropriate tags to fill in the fields. If it cannot find
@@ -203,163 +190,153 @@ public class Alert extends IDMEF_Message{
     */
     public Alert(Node inNode){
 
-	//read in the arrays of aggregate classes
+    	//read in the arrays of aggregate classes
 
-	Node analyzerNode =  XMLUtils.GetNodeForName(inNode, "Analyzer");
-	if (analyzerNode == null) analyzer = null;
-	else analyzer = new Analyzer (analyzerNode);
+	    Node analyzerNode =  XMLUtils.GetNodeForName(inNode, "Analyzer");
+	    if (analyzerNode == null) analyzer = null;
+	    else analyzer = new Analyzer (analyzerNode);
 
-	Node createTimeNode =  XMLUtils.GetNodeForName(inNode, "CreateTime");
-	if (createTimeNode == null) createTime = null;
-	else createTime = new CreateTime (createTimeNode);
+	    Node createTimeNode =  XMLUtils.GetNodeForName(inNode, "CreateTime");
+	    if (createTimeNode == null) createTime = null;
+	    else createTime = new CreateTime (createTimeNode);
 
-	Node detectTimeNode =  XMLUtils.GetNodeForName(inNode, "DetectTime");
-	if (detectTimeNode == null) detectTime = null;
-	else detectTime = new DetectTime (detectTimeNode);
+    	Node detectTimeNode =  XMLUtils.GetNodeForName(inNode, "DetectTime");
+    	if (detectTimeNode == null) detectTime = null;
+    	else detectTime = new DetectTime (detectTimeNode);  
 
-	Node analyzerTimeNode =  XMLUtils.GetNodeForName(inNode, "AnalyzerTime");
-	if (analyzerTimeNode == null) analyzerTime = null;
-	else analyzerTime = new AnalyzerTime (analyzerTimeNode);
+    	Node analyzerTimeNode =  XMLUtils.GetNodeForName(inNode, "AnalyzerTime");
+    	if (analyzerTimeNode == null) analyzerTime = null;
+    	else analyzerTime = new AnalyzerTime (analyzerTimeNode);
+    	
+    	Node assessmentNode = XMLUtils.GetNodeForName( inNode, Assessment.ELEMENT_NAME );
+    	if ( assessmentNode != null ){
+    	    assessment = new Assessment( assessmentNode );
+    	}
 
-	NodeList children = inNode.getChildNodes();
-	ArrayList sourceNodes = new ArrayList();
-	ArrayList targetNodes = new ArrayList();
-	ArrayList classificationNodes = new ArrayList();
-	ArrayList additionalDataNodes = new ArrayList();
+    	NodeList children = inNode.getChildNodes();
+    	ArrayList sourceNodes = new ArrayList();
+    	ArrayList targetNodes = new ArrayList();
+    	ArrayList classificationNodes = new ArrayList();
+    	ArrayList additionalDataNodes = new ArrayList();
 
-	for (int i=0; i<children.getLength(); i++){
-	    Node finger = children.item(i);
-	    String nodeName = finger.getNodeName();
-	    if (nodeName.equals("Source")){
-		Source newSource = new Source(finger);
-		sourceNodes.add(newSource);
-	    }
-	    else if (nodeName.equals("Target")){
-		Target newTarget = new Target(finger);
-		targetNodes.add(newTarget);
-	    }
-	    else if (nodeName.equals("Classification")){
-		Classification newClassification=null;
-		
-		newClassification = new Classification(finger);
-		classificationNodes.add(newClassification);
-
-		//Old code...no longer valid.
-		//} catch (MalformedURLException e){
-		//    System.err.println("Warning: bad URL detected in classification");
-		//}
-		
-	    }
-	    else if (nodeName.equals("AdditionalData")){
-		AdditionalData newAdditionalData = new AdditionalData(finger);
-		additionalDataNodes.add(newAdditionalData);
+    	for (int i=0; i<children.getLength(); i++){
+    	    Node finger = children.item(i);
+    	    String nodeName = finger.getNodeName();
+    	    if (nodeName.equals("Source")){
+        		Source newSource = new Source(finger);
+         		sourceNodes.add(newSource);
+	        }
+	        else if (nodeName.equals("Target")){
+		        Target newTarget = new Target(finger);
+        		targetNodes.add(newTarget);
+      	    }
+    	    else if (nodeName.equals("Classification")){
+	        	Classification newClassification = new Classification(finger);
+		        classificationNodes.add(newClassification);
+	        }    
+	        else if (nodeName.equals("AdditionalData")){
+		        AdditionalData newAdditionalData = new AdditionalData(finger);
+        		additionalDataNodes.add(newAdditionalData);
+    	    }
 	    }
 
+    	sources = new Source[sourceNodes.size()];
+    	for (int i=0; i< sourceNodes.size(); i++){
+    	    sources[i] = (Source) sourceNodes.get(i);
+    	}
 
-	}
-
-	sources = new Source[sourceNodes.size()];
-	for (int i=0; i< sourceNodes.size(); i++){
-	    sources[i] = (Source) sourceNodes.get(i);
-	}
-
-	targets = new Target[targetNodes.size()];
-	for (int i=0; i< targetNodes.size(); i++){
-	    targets[i] = (Target) targetNodes.get(i);
-	}
+    	targets = new Target[targetNodes.size()];
+    	for (int i=0; i< targetNodes.size(); i++){
+    	    targets[i] = (Target) targetNodes.get(i);
+    	}
 	
 
-	classifications = new Classification[classificationNodes.size()];
-	for (int i=0; i< classificationNodes.size(); i++){
-	    classifications[i] = (Classification) classificationNodes.get(i);
+    	classifications = new Classification[classificationNodes.size()];
+    	for (int i=0; i< classificationNodes.size(); i++){
+    	    classifications[i] = (Classification) classificationNodes.get(i);
+    	}
+
+    	additionalData = new AdditionalData[additionalDataNodes.size()];
+    	for (int i=0; i< additionalDataNodes.size(); i++){
+    	    additionalData[i] = (AdditionalData) additionalDataNodes.get(i);
+	    }
+
+
+
+    	NamedNodeMap nnm = inNode.getAttributes();
+
+    	Node identNode = nnm.getNamedItem("ident");
+    	if(identNode == null) ident=null;
+    	else ident = identNode.getNodeValue();
 	}
-
-	additionalData = new AdditionalData[additionalDataNodes.size()];
-	for (int i=0; i< additionalDataNodes.size(); i++){
-	    additionalData[i] = (AdditionalData) additionalDataNodes.get(i);
-	}
-
-
-
-	NamedNodeMap nnm = inNode.getAttributes();
-
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
-
-	Node impactNode = nnm.getNamedItem("impact");
-	if (impactNode == null) impact=null;
-	else impact = impactNode.getNodeValue();
-
-	    
-    }
+    
     public Node convertToXML(Document parent){
 
-	Element alertNode = parent.createElement("Alert");
-	if(ident != null)
-	    alertNode.setAttribute("ident", ident);
-	if(impact != null)
-	    alertNode.setAttribute("impact", impact);
-
-	if(analyzer != null){
-	    Node analyzerNode = analyzer.convertToXML(parent);
-	    alertNode.appendChild(analyzerNode);
-	    
-	}
-
-	if(createTime != null){
-	    Node createTimeNode = createTime.convertToXML(parent);
-	    alertNode.appendChild(createTimeNode);
-	    
-	}
-
-	if(detectTime != null){
-	    Node detectTimeNode = detectTime.convertToXML(parent);
-	    alertNode.appendChild(detectTimeNode);
-	    
-	}
-
-	if(analyzerTime != null){
-	    Node analyzerTimeNode = analyzerTime.convertToXML(parent);
-	    alertNode.appendChild(analyzerTimeNode);
-	    
-	}
-
-	if (sources != null){
-	    for (int i=0; i<sources.length; i++){
-		Node currentNode = sources[i].convertToXML(parent);
-		if (currentNode != null) alertNode.appendChild(currentNode);
+	    Element alertNode = parent.createElement("Alert");
+	    if(ident != null)
+	        alertNode.setAttribute("ident", ident);
+	        
+	    if(analyzer != null){
+	        Node analyzerNode = analyzer.convertToXML(parent);
+	        alertNode.appendChild(analyzerNode);    
 	    }
-	}
 
-	if (targets != null){
-	    for (int i=0; i<targets.length; i++){
-		Node currentNode = targets[i].convertToXML(parent);
-		if (currentNode != null) alertNode.appendChild(currentNode);
+    	if(createTime != null){
+    	    Node createTimeNode = createTime.convertToXML(parent);
+    	    alertNode.appendChild(createTimeNode);	    
+    	}
+
+	    if(detectTime != null){
+	        Node detectTimeNode = detectTime.convertToXML(parent);
+	        alertNode.appendChild(detectTimeNode);
 	    }
-	}
 
-	if (classifications != null){
-	    for (int i=0; i<classifications.length; i++){
-		Node currentNode = classifications[i].convertToXML(parent);
-		if (currentNode != null) alertNode.appendChild(currentNode);
+    	if(analyzerTime != null){
+    	    Node analyzerTimeNode = analyzerTime.convertToXML(parent);
+	        alertNode.appendChild(analyzerTimeNode);
+	    
 	    }
-	}
-	if (additionalData != null){
-	    for (int i=0; i<additionalData.length; i++){
-		Node currentNode = additionalData[i].convertToXML(parent);
-		if (currentNode != null) alertNode.appendChild(currentNode);
+
+	    if (sources != null){
+	        for (int i=0; i<sources.length; i++){
+		        Node currentNode = sources[i].convertToXML(parent);
+        		if (currentNode != null) alertNode.appendChild(currentNode);
+    	    }
 	    }
-	}
 
+    	if (targets != null){
+    	    for (int i=0; i<targets.length; i++){
+    		    Node currentNode = targets[i].convertToXML(parent);
+    		    if (currentNode != null) alertNode.appendChild(currentNode);
+            }
+	    }
 
+    	if (classifications != null){
+    	    for (int i=0; i<classifications.length; i++){
+        		Node currentNode = classifications[i].convertToXML(parent);
+	        	if (currentNode != null) alertNode.appendChild(currentNode);
+	        }
+	    }
 
-	return alertNode;
+    	if( assessment != null ) {
+	        Node assessmentNode = assessment.convertToXML( parent );
+	        alertNode.appendChild( assessmentNode );
+	    }
+	
+    	if (additionalData != null){
+	        for (int i=0; i<additionalData.length; i++){
+	        	Node currentNode = additionalData[i].convertToXML(parent);
+		        if (currentNode != null) alertNode.appendChild(currentNode);
+	        }
+	    }
+
+    	return alertNode;
     }
 
 
     /** Method used to test this object...probably should not be called otherwise.
      */
+     /*
     public static void main (String args[]){
 	try{
 	    //make a node
@@ -386,6 +363,7 @@ public class Alert extends IDMEF_Message{
 					      "26, 8, 100-1098", "telnet", "test_ident");
 	    
 	    
+	    FileList testFileList = new FileList();
 
 	    
 
@@ -415,13 +393,23 @@ public class Alert extends IDMEF_Message{
 	    //make a Classification list
 	    Classification testClassification[] = {new Classification("Test_Name", 
 							  "http://www.yahoo.com", Classification.CVE)};
+		
+		//make an Assessment					  
+		Impact impact = new Impact( Impact.HIGH,
+		                            Impact.SUCCEEDED,
+		                            Impact.OTHER,
+		                            "test_impact" );
+		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
+		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
+	    Assessment testAssessment = new Assessment( impact, actions, confidence );
+	    
 	    //make an additionalData list
 	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
 						"Chris' Age", "24")};
 
 
-	    Alert testAlert = new Alert(testAnalyzer, c, d, a, source, target, testClassification, ad, 
-					"test_ident", Alert.NOT_SUSPICIOUS);
+	    Alert testAlert = new Alert( testAnalyzer, c, d, a, source, target, 
+	            testClassification, testAssessment, ad,	"test_ident" );
 
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
@@ -440,8 +428,7 @@ public class Alert extends IDMEF_Message{
 
 	    Alert new_i = new Alert(tNode);
 
-
 	} catch (Exception e) {e.printStackTrace();}
     }
-
+    */
 }
