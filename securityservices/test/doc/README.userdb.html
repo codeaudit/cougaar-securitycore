@@ -1,95 +1,125 @@
-USER LDAP DB HOWTO
-==================
+  <html>
+    <head>
+      <title>User LDAP Database HOWTO</title>
+    </head>
+    <body>
+      <h1>User LDAP Database HOWTO</h1>
+      Note that many of these steps are copied from the README.openldap.html
+      file. You may use the same or different databases for user data
+      and certificate data depending on your security needs.
 
-Note that many of these steps are copied from the README.openldap
-file. You may use the same or different databases for user data
-and certificate data depending on your security needs.
-
-1. Install the OpenLDAP server. You can get it from openldap.org
-   or as a Redhat RPM:
-
+      <ol>
+        <li>
+          Install the OpenLDAP server. You can get it from openldap.org
+          or as a Redhat RPM:
+          <pre>
 http://www.openldap.org
 http://www.rpmfind.net
-
-2. Copy the cougaar schema to the OpenLDAP schema directory:
-
-cp securityservices/test/configs/common/cougaar.schema \
-   /etc/openldap/schema
-
-3. If you are not using ldaps (LDAP over SSL), you may skip this step.
-   You must have a certificate and trust certificate list. First copy
-   and edit the openssl.cnf:
-
+          </pre>
+        </li>
+        <li>
+          Copy the cougaar schema to the OpenLDAP schema directory:
+          <pre>
+cp securityservices/test/configs/common/cougaar.schema /etc/openldap/schema
+          </pre>
+        </li>
+        <li>
+          3. If you are not using ldaps (LDAP over SSL), 
+          you may skip this step.
+          You must have a certificate and trust certificate list. First copy
+          and edit the openssl.cnf:
+          <pre>
 cp /usr/share/ssl/openssl.cnf /tmp/slapdcert.cnf
 vi /tmp/slapdcert.cnf
-
-   Add the following lines into the [ req_distinguished_name ] section:
-
+          </pre>
+          Add the following lines into the
+          <code>[ req_distinguished_name ]</code>
+          section:
+          <pre>
 T                       = Certificate Title (Type)
 T_default               = server
-
-   Create a certificate request using
-   openssl:
-
+          </pre>
+          Create a certificate request using openssl:
+          <pre>
 openssl req  -new -keyout slapdkey.pem -out slapdreq.pem  -days 3653 \
   -config /tmp/slapdcert.cnf -rand choose:five:random:files:here
-
-   You should choose 5 good random files. If you don't have enough, you
-   may create some using /dev/urandom. See the urandom manual page.
-
-   Enter your certificate information. For Common Name, use the complete
-   host name where your ldap server is going to be run. Use your
-   certificate authority to sign the certificate. If you are using
-   NAI's certificate authority, you will have to modify the slapdreq.pem
-   file to read "BEGIN NEW CERTIFICATE REQUEST" instead of
-   "BEGIN CERTIFICATE REQUEST."
-
-   Put the slapdkey.pem, slapdcert.pem (signed certificate), and
-   slapdca.pem (PEM export of the CA's public certificate) in a good
-   certificate directory like /usr/share/ssl/certs. If the CA uses
-   a jks keystore, export the public using:
-
-keytool -export -rfc -file slapdca.pem -keystore ./keystore-CONUS-RSA \
-        -alias conusca-1
-
-   Here's a little trick to make it so that your key doesn't require
-   a password:
-
+          </pre>
+          <p>
+            You should choose 5 good random files.
+            If you don't have enough, you
+            may create some using /dev/urandom. See the urandom manual page.
+          </p>
+          <p>
+            Enter your certificate information. 
+            For Common Name, use the complete
+            host name where your ldap server is going to be run. Use your
+            certificate authority to sign the certificate. 
+          </p>
+          <p>
+            Put the slapdkey.pem, slapdcert.pem (signed certificate), and
+            slapdca.pem (PEM export of the CA's public certificate) in a good
+            certificate directory like
+            <code>/usr/share/ssl/certs</code>. If the CA uses
+            a jks keystore, export the public using:
+          </p>
+          <pre>
+keytool -export -rfc -file slapdca.pem -keystore ./keystore-CONUS-RSA -alias conusca-1
+          </pre>
+          <p>
+            Here's a little trick to make it so that your key doesn't require
+            a password:
+          </p>
+          <pre>
 openssl rsa -in slapdkey.pem -out slapd.key
-
-   Will ask you for your password and write out a key file without a password.
-
-4. Edit the slapd.conf which was installed into /etc/openldap unless
-   you have installed OpenLDAP other than the default location. You must
-   be sure to include the cougaar user schema:
-
+          </pre>
+          <p>
+            Will ask you for your password and write
+            out a key file without a password.
+          </p>
+        </li>
+        <li>
+          Edit the slapd.conf which was installed into /etc/openldap unless
+          you have installed OpenLDAP other than the default location. You must
+          be sure to include the cougaar user schema:
+          <pre>
 include         /etc/openldap/schema/core.schema
 include         /etc/openldap/schema/cosine.schema
 include         /etc/openldap/schema/inetorgperson.schema
 include         /etc/openldap/schema/nis.schema
 include         /etc/openldap/schema/cougaar.schema
-
-   Modify the suffix, rootdn, and rootpw to work with your setup:
-
+          </pre>
+          Modify the suffix, rootdn, and rootpw to work with your setup:
+          <pre>
 suffix		"dc=cougaar,dc=org"
 rootdn		"cn=manager,dc=cougaar,dc=org"
 rootpw		foo
-
-   The suffix field is automatically appended to any queries performed by the 
-   server. The root distinguished name (rootdn) is the name of the superuser 
-   who is expempted from access control rules. This should only be used by the
-   user administration servlet and monitoring and response agents. The root
-   password (rootpw) is the password field for the rootdn account. It is
-   highly recommended that you encrypt the rootpw using slappasswd. 
-
-   It i salso helpful to add the following directives:
-
+          </pre>
+          <p>
+            The suffix field is automatically appended to
+            any queries performed by the 
+            server. The root distinguished name (rootdn) 
+            is the name of the superuser 
+            who is expempted from access control rules. 
+            This should only be used by the
+            user administration servlet and monitoring
+            and response agents. The root
+            password (rootpw) is the password field for
+            the rootdn account. It is
+            highly recommended that you encrypt the rootpw
+            using slappasswd. 
+          </p>
+          <p>
+            It i salso helpful to add the following directives:
+          </p>
+          <pre>
 index   objectClass,uid,uidNumber,gidNumber,memberUid   eq
 index   cn,mail,surname,givenname                       eq,subinitial
 index   roleOccupant                                    eq
-
-   If you want to use SSL, add the following:
-
+          </pre>
+          <p>
+            If you want to use SSL, add the following:
+          </p>
+          <pre>
 TLSCertificateFile    /usr/share/ssl/certs/slapdcert.pem
 TLSCertificateKeyFile /usr/share/ssl/certs/slapdkey.pem
 TLSCACertificateFile  /usr/share/ssl/certs/slapdca.pem
@@ -99,15 +129,17 @@ TLSVerifyClient        1
 
 # Force SSL strength to be 128-bit or better
 security ssf=128
-
-5. Add the root entries to the LDAP server using slapadd. You will need
-   to be root to do this:
-
+          </pre>
+        </li>
+        <li>
+          Add the root entries to the LDAP server using slapadd. You will need
+          to be root to do this:
+          <pre>
 slapadd -l userdb.ldif
-
-   Where userdb.ldif is located in securityservices/test/data/full1AD.
-   You may also create your own, with a minimum ldif file containing:
-
+          </pre>
+          Where userdb.ldif is located in securityservices/test/data/full1AD.
+          You may also create your own, with a minimum ldif file containing:
+          <pre>
 # Base for all user searches
 dn: dc=cougaar, dc=org
 objectClass: dcObject
@@ -123,51 +155,66 @@ objectClass: organization
 dc: roles
 o: UltraLog
 description: Role Database
-
-   Note that the above are configurable, so you can change them to fit
-   your needs.
-
-5. Start the LDAP server. For normal ldap:
-
+          </pre>
+          Note that the above are configurable, so you can change them to fit
+          your needs.
+        </li>
+        <li>
+          Start the LDAP server. For normal ldap:
+          <pre>
 /usr/libexec/slapd -h ldap:///
-
-   Or for LDAPS:
-
+          </pre>
+          Or for LDAPS:
+          <pre>
 /usr/libexec/slapd -h ldaps:///
-
-6. Modify the BootPolicy.ldm.xml to use your new user ldap server. If you
-   have not included any users who belong to the UserManager in step 4,
-   you should ensure that the useradmin servlet isn't blocked by the policy.
-   If you have used the full1AD userdb.ldif file, two users are granted
-   that role: george/george and amarinea/amarinea.
-
-7. Add the user administration servlet to your agent ini file:
-
+          </pre>
+        </li>
+        <li>
+          Modify the BootPolicy.ldm.xml to use your
+          new user ldap server. If you
+          have not included any users who belong to
+          the UserManager in step 4,
+          you should ensure that the useradmin servlet
+          isn't blocked by the policy.
+          If you have used the full1AD userdb.ldif 
+          file, two users are granted
+          that role: george/george and amarinea/amarinea.
+        </li>
+        <li>
+          Add the user administration servlet to your agent ini file:
+          <pre>
 plugin = org.cougaar.core.security.certauthority.CaServletComponent(org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet, /useradmin)
-
-8. Start your Node using SecureNode and point it to your agent's user_admin
-   servlet. You should be able to add roles, add users, and assign roles
-   to those users. Once you have done so, you can assign policy to servlets
-   using your domain manager (or modifying the BootPolicy.ldm.xml) to force
-   users to login to particular agents or URLs.
-
-9. WARNING: LDAPS FOR OPENLDAP DOES NOT SEEM TO BE WORKING WITH JAVA.
-   I have gotten around this problem by using stunnel. Instead of using
-   LDAPS in the slapd.conf file, use stunnel like this:
-
+          </pre>
+        </li>
+        <li>
+          Start your Node using SecureNode and point
+          it to your agent's user_admin
+          servlet. You should be able to add roles,
+          add users, and assign roles
+          to those users. Once you have done so, you
+          can assign policy to servlets
+          using your domain manager (or modifying the
+          BootPolicy.ldm.xml) to force
+          users to login to particular agents or URLs.
+        </li>
+        <li>
+          <strong>WARNING: LDAPS FOR OPENLDAP DOES NOT SEEM TO BE WORKING WITH JAVA.</strong>
+          I have gotten around this problem by using stunnel. Instead of using
+          LDAPS in the slapd.conf file, use stunnel like this:
+          <pre>
 cd /usr/share/ssl/certs/
 cat slapdcert.pem slapdkey.pem > slapd.pem
 stunnel -p /usr/share/ssl/certs/slapd.pem -d 636 -r 389
+          </pre>
+          You should also add this to your <code>/etc/init.d/ldap</code>
+          script so that it is
+          automagically started.
+        </li>
+      </ol>
 
-   You should also add this to your /etc/init.d/ldap script so that it is
-   automagically started.
-
-
-Full 1AD society
-================
-
-Roles
------
+      <h2>Full 1AD society</h2>
+      <h3>Roles</h3>
+      <pre>
 SocietyAdmin        Able to view modify society layout
  Users
    mbarger
@@ -267,9 +314,9 @@ All users
    */CA/PendingCertDetailsServlet
    */CA/ListCaKeysServlet
    */CA/ListSubordCaServlet
-
-Users
------
+      </pre>
+      <h3>Users</h3>
+      <pre>
 rkilmer
 mbarger
 gordon
@@ -283,3 +330,6 @@ inventory
 al-inventory
 datagrabber
 kpat
+      </pre>
+    </body>
+  </html>
