@@ -28,36 +28,46 @@
 package org.cougaar.core.security.services.wp;
 
 
-import org.cougaar.core.component.Service;
+import java.io.Serializable;
 
-import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
+import java.security.SignedObject;
+import java.security.cert.X509Certificate;
 
 
 /**
- * Service for WP servers and clients to user for protecting and verifying  WP
- * requests
+ * A wrapper interface
  *
  * @author mabrams
  */
-public interface WhitePagesProtectionService extends Service {
+public interface Wrapper extends Serializable {
   /**
-   * Signs the request and wraps the request with the certificate chain used
-   * for signing
+   * Gets the certificate chain for the signed object
    *
-   * @param agent - The agent making the request
-   * @param request - the request object
-   *
-   * @return the wraped request object
+   * @return the <code>X509Certificate</code> chain
    */
-  public Wrapper wrap(String name, Object obj) throws CertificateException, GeneralSecurityException;
+  public X509Certificate[] getCertificateChain();
 
 
   /**
-   * Installs and verifies the signing certificate
+   * Sets the <code>X509Certificate</code> chain
    *
-   * @param agent - The agent making the request
-   * @param request - the request object
+   * @param certChain - the certificate chain for the signed object
    */
-  public void unwrap(String name, Wrapper wrap) throws CertificateException;
+  public void setCertificateChain(X509Certificate[] certChain);
+
+
+  /**
+   * Gets the signed object
+   *
+   * @return the <code>SignedObject</code>
+   */
+  public SignedObject getSignedObject();
+
+
+  /**
+   * Sets the signed object for this class
+   *
+   * @param signedObj
+   */
+  public void setSignedObject(SignedObject signedObj);
 }

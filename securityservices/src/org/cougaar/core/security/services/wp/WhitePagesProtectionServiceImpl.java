@@ -39,10 +39,12 @@ import org.cougaar.core.service.wp.Request;
 import org.cougaar.util.log.Logger;
 
 import java.io.IOException;
+
 import java.security.GeneralSecurityException;
 import java.security.SignedObject;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
 import java.util.List;
 
 
@@ -53,8 +55,7 @@ import java.util.List;
  *
  * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService
  */
-public class WhitePagesProtectionServiceImpl
-  implements WhitePagesProtectionService {
+public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionService {
   private static final String NAME = "WhitePagesProtectionServiceImpl";
   private ServiceBroker serviceBroker = null;
   private Logger log = null;
@@ -70,14 +71,10 @@ public class WhitePagesProtectionServiceImpl
    */
   public WhitePagesProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
-    log = (LoggingService) serviceBroker.getService(this, LoggingService.class,
-        null);
-    encryptService = (EncryptionService) serviceBroker.getService(this,
-        EncryptionService.class, null);
-    csrv = (CertificateCacheService) serviceBroker.getService(this,
-        CertificateCacheService.class, null);
-    keyRingService = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+    log = (LoggingService) serviceBroker.getService(this, LoggingService.class, null);
+    encryptService = (EncryptionService) serviceBroker.getService(this, EncryptionService.class, null);
+    csrv = (CertificateCacheService) serviceBroker.getService(this, CertificateCacheService.class, null);
+    keyRingService = (KeyRingService) serviceBroker.getService(this, KeyRingService.class, null);
     policy = new SecureMethodParam();
     if (log.isDebugEnabled()) {
       log.debug(WhitePagesProtectionServiceImpl.NAME + " instantiated");
@@ -88,8 +85,8 @@ public class WhitePagesProtectionServiceImpl
    * Signs the request and wraps the request with the certificate chain used
    * for signing
    *
-   * @param agent - The agent making the request
-   * @param request - the request object
+   * @param name - The agent making the request
+   * @param object - the request object
    *
    * @return the wraped request object
    *
@@ -99,13 +96,10 @@ public class WhitePagesProtectionServiceImpl
    * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#protectMessage(java.lang.String,
    *      java.lang.Object)
    */
-  public ProtectedRequest protectRequest(String agent, Request request)
-    throws CertificateException, GeneralSecurityException {
-    List certList = keyRingService.findCert(agent,
-        KeyRingService.LOOKUP_KEYSTORE);
+  public Wrapper wrap(String name, Object object) throws CertificateException, GeneralSecurityException {
+    List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
     if ((certList == null) || !(certList.size() > 0)) {
-      throw new CertificateException(
-        "No certificate available for encrypting or signing: " + agent);
+      throw new CertificateException("No certificate available for encrypting or signing: " + name);
     }
 
     CertificateStatus cs = (CertificateStatus) certList.get(0);
@@ -115,18 +109,25 @@ public class WhitePagesProtectionServiceImpl
 
     SignedObject signedObj = null;
 
+
     try {
-      signedObj = encryptService.sign(agent, policy.signSpec, request);
+      Request req;
+      if (object instanceof Request) {
+        req = (Request) object;
+        signedObj = encryptService.sign(name, policy.signSpec, req);
+      } else {
+        if (log.isWarnEnabled()) {
+          log.warn(WhitePagesProtectionServiceImpl.NAME + " Object not serialable, cannot be signed");
+        }
+      }
     } catch (GeneralSecurityException e) {
-      throw new GeneralSecurityException(WhitePagesProtectionServiceImpl.NAME
-        + " " + e.getMessage());
+      throw new GeneralSecurityException(WhitePagesProtectionServiceImpl.NAME + " " + e.getMessage());
     } catch (IOException e) {
       if (log.isWarnEnabled()) {
         log.warn(WhitePagesProtectionServiceImpl.NAME + " IOException: " + e);
       }
 
-      throw new GeneralSecurityException(WhitePagesProtectionServiceImpl.NAME
-        + " " + e.getMessage());
+      throw new GeneralSecurityException(WhitePagesProtectionServiceImpl.NAME + " " + e.getMessage());
     }
 
     return new ProtectedRequest(certChain, signedObj);
@@ -136,27 +137,24 @@ public class WhitePagesProtectionServiceImpl
   /**
    * Installs and verifies the signing certificate
    *
-   * @param agent - The agent making the request
-   * @param request - the request object
+   * @param name - The agent making the request
+   * @param wrap - the request object
    *
    * @throws CertificateException DOCUMENT ME!
    *
    * @see org.cougaar.core.security.services.wp.WhitePagesProtectionService#verfifyMessage(java.lang.String,
    *      org.cougaar.core.security.util.ProtectedRequest)
    */
-  public void verifyRequest(String agent, ProtectedRequest request)
-    throws CertificateException {
-    X509Certificate[] certChain = request.getCertificateChain();
+  public void unwrap(String name, Wrapper wrap) throws CertificateException {
+    X509Certificate[] certChain = wrap.getCertificateChain();
     for (int i = certChain.length - 1; i == 0; i--) {
       keyRingService.checkCertificateTrust(certChain[i]);
       csrv.addSSLCertificateToCache(certChain[i]);
     }
 
-    Object signedObj = encryptService.verify(agent, policy.signSpec,
-        request.getSignedObject());
+    Object signedObj = encryptService.verify(name, policy.signSpec, wrap.getSignedObject());
     if (signedObj == null) {
-      throw new CertificateException(
-        "request not signed with trusted agent certificate");
+      throw new CertificateException("request not signed with trusted agent certificate");
     }
   }
 }

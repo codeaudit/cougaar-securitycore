@@ -38,15 +38,15 @@ import java.security.cert.X509Certificate;
  *
  * @author mabrams
  */
-public class ProtectedRequest {
+public class ProtectedRequest implements Wrapper {
   private X509Certificate[] certificateChain = null;
   private SignedObject signedObject = null;
 
   /**
-   * Creates a new <code>ProtectRequest</code> object
+   * Creates a new ProtectedRequest object.
    *
-   * @param chain - the certificate chain
-   * @param signed - the signed object
+   * @param chain the certificate chain
+   * @param signed the signed object
    */
   public ProtectedRequest(X509Certificate[] chain, SignedObject signed) {
     this.certificateChain = chain;
@@ -54,29 +54,7 @@ public class ProtectedRequest {
   }
 
   /**
-   * Gets the certificate chain for the signed object
-   *
-   * @return the <code>X509Certificate</code> chain
-   */
-  public X509Certificate[] getCertificateChain() {
-    return certificateChain;
-  }
-
-
-  /**
-   * Sets the <code>X509Certificate</code> chain
-   *
-   * @param certChain - the certificate chain for the signed object
-   */
-  public void setCertificateChain(X509Certificate[] certChain) {
-    this.certificateChain = certChain;
-  }
-
-
-  /**
-   * Gets the signed object
-   *
-   * @return the <code>SignedObject</code>
+   * @see org.cougaar.core.security.services.wp.Wrapper#getSignedObject()
    */
   public SignedObject getSignedObject() {
     return signedObject;
@@ -84,11 +62,25 @@ public class ProtectedRequest {
 
 
   /**
-   * Sets the signed object for this class
-   *
-   * @param signedObj
+   * @see org.cougaar.core.security.services.wp.Wrapper#setSignedObject()
    */
   public void setSignedObject(SignedObject signedObj) {
     this.signedObject = signedObj;
+  }
+
+
+  /**
+   * @see org.cougaar.core.security.services.wp.Wrapper#getCertificateChain()
+   */
+  public X509Certificate[] getCertificateChain() {
+    return certificateChain;
+  }
+
+
+  /**
+   * @see org.cougaar.core.security.services.wp.Wrapper#setCertificateChain(java.security.cert.X509Certificate[])
+   */
+  public void setCertificateChain(X509Certificate[] certChain) {
+    this.certificateChain = certChain;
   }
 }
