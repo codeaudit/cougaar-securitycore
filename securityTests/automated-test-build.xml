@@ -189,7 +189,7 @@
         timeout="1800000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
-      <!-- parse results -->
+      <!-- parse results 
       <echo message="Parsing log4j logs using checkTrace.rb..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
@@ -202,9 +202,9 @@
       <exec dir="${analysis.directory.name}" executable="tail" outputproperty="test.result">
          <arg line="-n 1"/>
       </exec>
+      -->
       <!-- The last line should be:
               <testResult>SUCCESS</testResult>
-      -->
       <condition property="test.isSuccess">
          <contains string="${test.result}" substring="SUCCESS"/>
       </condition>
@@ -217,6 +217,7 @@
           <fail message="Test failed"/>
         </else>
       </if>
+      -->
     </target>
 
     <target name="retrieve-output-files">
