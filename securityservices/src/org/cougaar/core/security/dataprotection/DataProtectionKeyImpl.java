@@ -28,6 +28,7 @@ package org.cougaar.core.security.dataprotection;
 
 import org.cougaar.core.security.crypto.ProtectedObject;
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.policy.PersistenceManagerPolicy;
 
 import java.security.cert.X509Certificate;
 
@@ -48,6 +49,7 @@ public class DataProtectionKeyImpl
   private X509Certificate[] certificateChain;
 
   private X509Certificate oldSigner;
+  private PersistenceManagerPolicy _policy;
 
   public DataProtectionKeyImpl(byte[] secretKey,
 			       String digestAlg,
@@ -56,6 +58,19 @@ public class DataProtectionKeyImpl
     super(policy, secretKey);
     digestAlgSpec = digestAlg;
     certificateChain = certChain;
+  }
+
+  public DataProtectionKeyImpl(byte[] secretKey,
+			       String digestAlg,
+			       SecureMethodParam policy,
+			       X509Certificate[] certChain,
+                               PersistenceManagerPolicy pmp) {
+    this(secretKey, digestAlg, policy, certChain);
+    _policy = pmp;
+  }
+
+  public PersistenceManagerPolicy getPMPolicy() {
+    return _policy;
   }
 
   public boolean equals(DataProtectionKeyImpl key) {
