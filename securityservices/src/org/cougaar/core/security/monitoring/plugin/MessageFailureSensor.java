@@ -34,6 +34,7 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.multicast.AttributeBasedAddress;
+import org.cougaar.core.mts.MessageAddress;
 
 // overlay class
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -107,7 +108,7 @@ public class MessageFailureSensor extends ComponentPlugin {
     }
     if (l.size() > 0) {
       m_managerRole = l.get(0).toString();
-      if (m_log.isInfoEnabled()) {
+      if (m_log != null && m_log.isInfoEnabled()) {
         m_log.info("Setting M&R Manager role to " + m_managerRole);
       }
     }
@@ -119,7 +120,7 @@ public class MessageFailureSensor extends ComponentPlugin {
    * 
    */
   protected void setupSubscriptions() {
-    SensorInfo sensorInfo = new MFSensorInfo();
+    m_sensorInfo = new MFSensorInfo();
     m_blackboard = getBlackboardService();
     ServiceBroker sb = getBindingSite().getServiceBroker();
     AgentIdentificationService ais    = (AgentIdentificationService)
@@ -136,7 +137,7 @@ public class MessageFailureSensor extends ComponentPlugin {
     registerCapabilities(cs, ais.getName());
     //initialize the IdmefHelper class in the following services
     IdmefHelper idmefHelper = 
-      new IdmefHelper(m_blackboard, m_cmrFactory, logger, sensorInfo);
+      new IdmefHelper(m_blackboard, m_cmrFactory, logger, m_sensorInfo);
     AccessAgentProxy.initIdmefHelper(idmefHelper);
     CryptoManagerServiceImpl.initIdmefHelper(idmefHelper);
     MessageProtectionServiceImpl.initIdmefHelper(idmefHelper);
@@ -158,30 +159,78 @@ public class MessageFailureSensor extends ComponentPlugin {
     capabilities.add(classification);
       
     RegistrationAlert reg = 
-      m_idmefFactory.createRegistrationAlert( this, capabilities,
+      m_idmefFactory.createRegistrationAlert( m_sensorInfo, capabilities,
                                               m_idmefFactory.newregistration ,
                                               m_idmefFactory.SensorType);
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
-    // get the list of communities that this agent belongs
-    Collection communities = cs.listParentCommunities(agentName); 
+    // get the list of communities that this agent belongs where CommunityType is Security
+    Collection communities = cs.listParentCommunities(agentName, "(CommunityType=Security)"); 
     Iterator iter = communities.iterator();
-    if (!iter.hasNext()) {
-      m_log.warn("This agent does not belong to any community. Message Failure won't be reported.");
+    
+    if (communities.size() == 0) {
+      m_log.warn("Agent '" + agentName + 
+        "' does not belong to any security community. Message failures won't be reported.");
     }
+    else if(communities.size() > 1) {
+      m_log.warn("Agent '" + agentName + "' belongs to more than one security community.");
+    }
+    
     while(iter.hasNext()) {
       String community = iter.next().toString();
-      // send the capability registeration to agents with in this community
-      // that has the role specified by m_managerRole
-      AttributeBasedAddress messageAddress = 
-        new AttributeBasedAddress(community, "Role", m_managerRole);
-      CmrRelay relay = m_cmrFactory.newCmrRelay(regEvent, messageAddress);
-      if(m_log.isInfoEnabled()) {
-        m_log.info("Sending sensor capabilities to community '" + 
-                  community + "'" + ", role '" + m_managerRole + "'.");
+      if(isSecurityManagerLocal(cs, community, agentName)) {
+        // sensor is located in same agent as the enclave security manager
+        // therefore we should publish the capabilities to local blackboard
+        if(m_log.isDebugEnabled()) {
+          m_log.debug("Publishing sensor capabilities to local blackboard.");
+        }
+        m_blackboard.publishAdd(regEvent); 
       }
-      m_blackboard.publishAdd(relay);
-    }  
+      else {
+        // send the capability registeration to agents with in this community
+        // that has the role specified by m_managerRole
+        AttributeBasedAddress messageAddress = 
+          new AttributeBasedAddress(community, "Role", m_managerRole);
+        CmrRelay relay = m_cmrFactory.newCmrRelay(regEvent, messageAddress);
+        if(m_log.isDebugEnabled()) {
+          m_log.debug("Sending sensor capabilities to community '" + 
+                      community + "'" + ", role '" + m_managerRole + "'.");
+        }
+        m_blackboard.publishAdd(relay);
+      }  
+    }
   }
+
+  /*  
+  private void printCommunityInfo(CommunityService cs, Collection communities) {
+    Iterator c = communities.iterator();
+    while(c.hasNext()) {
+      String community = (String)c.next();
+      m_log.info("### community = " + community);
+      Collection agents = cs.searchByRole(community, m_managerRole);
+      Iterator i = agents.iterator();
+      while(i.hasNext()) {
+        m_log.info("##### SearchByRole: " + i.next()); 
+      }
+    }
+  }
+  */
+  
+  /**
+   * method used to determine if the message failure plugin is located in the same
+   * agent as the enclave security manager
+   */
+  private boolean isSecurityManagerLocal(CommunityService cs, String community, String agentName) {
+    Collection agents = cs.searchByRole(community, m_managerRole);
+    Iterator i = agents.iterator();
+    
+    while(i.hasNext()) {
+      MessageAddress addr = (MessageAddress)i.next();
+      if(addr.toString().equals(agentName)) {
+        return true;
+      }
+    }
+    return false;
+  }      
   
   private class MFSensorInfo implements SensorInfo {
     /**
@@ -232,6 +281,7 @@ public class MessageFailureSensor extends ComponentPlugin {
   private DomainService m_domainService;
   private LoggingService m_log;
   private CmrFactory m_cmrFactory;
+  private SensorInfo m_sensorInfo;
   private IdmefMessageFactory m_idmefFactory;
   private String m_managerRole = "SecurityMnRManager-Enclave"; // default value
 }
