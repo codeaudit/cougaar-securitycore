@@ -102,6 +102,12 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     if (_log.isDebugEnabled()) {
       _log.debug("Policy = " + policy);
     }
+    if (policy == null) {
+      dropMessage();
+      throw new IOException("This message was denied by policy. " +
+                            "There are no possible encryption algorithms " +
+                            "to send it.");
+    }
     policy = modifyPolicy(policy, encryptedSocket);
 
     if (_log.isDebugEnabled()) {
@@ -197,14 +203,17 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       if (_targetCert == null && _log.isDebugEnabled()) {
         _log.debug("Could not find target certificate for " + _target);
       }
-      
-      DataOutputStream dout = new DataOutputStream(this.out);
-      dout.writeInt(0); // tell receiver there is no header
-      dout.flush();
+      dropMessage();
       throw new NoKeyAvailableException("No valid key pair found for the " +
                                         "2 message address " + 
                                         _source + " -> " + _target);
     }
+  }
+
+  private void dropMessage() throws IOException {
+    DataOutputStream dout = new DataOutputStream(this.out);
+    dout.writeInt(0); // tell receiver there is no header
+    dout.flush();
   }
 
   public void close() throws IOException {

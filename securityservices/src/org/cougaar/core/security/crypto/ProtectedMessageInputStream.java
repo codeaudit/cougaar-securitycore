@@ -44,6 +44,9 @@ import org.cougaar.core.security.util.NullOutputStream;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 
 class ProtectedMessageInputStream extends ProtectedInputStream {
   private boolean                _eom;
@@ -58,6 +61,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private OnTopCipherInputStream _cypherIn;
   private SignatureInputStream   _signature;
+  private EventPublisher         _eventPublisher;
 
   private static LoggingService      _log;
   private static KeyRingService      _keyRing;
@@ -69,12 +73,14 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
                                      MessageAddress source,
                                      MessageAddress target,
                                      boolean encryptedSocket,
-                                     ServiceBroker sb) 
+                                     ServiceBroker sb,
+                                     EventPublisher publisher) 
     throws GeneralSecurityException, IncorrectProtectionException, 
     IOException {
 
     super(null);
     init(sb);
+    _eventPublisher = publisher;
 
     if (_log.isDebugEnabled()) {
       _log.debug(source + " -> " + target + 
@@ -156,6 +162,20 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     }
   }
 
+  private void publishMessageFailure(String source, String target,
+                                     String reason, String data) {
+    FailureEvent event = 
+      new MessageFailureEvent(source, target, reason, data);
+    if (_eventPublisher != null) {
+      _eventPublisher.publishEvent(event); 
+    } else {
+      if (_log.isDebugEnabled()) {
+        _log.debug("EventPublisher uninitialized, " +
+                   "unable to publish event:\n" + event);
+      }
+    }  
+  }
+
   /* **********************************************************************
    * ProtectedOutputStream implementation
    */
@@ -168,8 +188,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _signature.verifySignature();
       } catch (SignatureException e) {
         _log.debug("Could not verify signature", e);
+        publishMessageFailure(_source, _target, "Invalid message signature",
+                              e.getMessage());
         throw new IOException(e.getMessage());
       } catch (Exception e) {
+        publishMessageFailure(_source, _target, 
+                              "Unknown message signature exception",
+                              e.getMessage());
         _log.debug("Other exception verifying signature", e);
         throw new IOException(e.getMessage());
       }

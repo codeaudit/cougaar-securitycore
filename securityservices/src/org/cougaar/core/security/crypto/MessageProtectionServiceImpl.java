@@ -731,7 +731,8 @@ public class MessageProtectionServiceImpl
     boolean encryptedSocket = isEncrypted(attrs);
     try {
       return new ProtectedMessageInputStream(is, source, destination,
-                                             encryptedSocket, serviceBroker);
+                                             encryptedSocket, serviceBroker,
+                                             eventPublisher);
     } catch (IncorrectProtectionException e) {
       // The stream has already reported the error. Just throw
       // an IOException
