@@ -63,3 +63,4 @@
 /$*/useradmin UserManagerServlets
 #
 /$*/* OtherServlets
+/* OtherServlets
