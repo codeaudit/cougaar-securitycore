@@ -52,7 +52,7 @@ public class UserServiceProvider implements ServiceProvider
   public UserServiceProvider(ServiceBroker sb ) {
     _nodeAgentsb=sb;
     if(AGENT_SERVICE){
-      _service=new AgentUserService(sb);
+      _service=new AgentUserService(sb, null);
     }
     else{
       _service = new LdapUserServiceImpl(sb);
@@ -116,7 +116,7 @@ public class UserServiceProvider implements ServiceProvider
 
     if (_service == null) {
       if (AGENT_SERVICE) {
-        _service = new AgentUserService(_nodeAgentsb);
+        _service = new AgentUserService(_nodeAgentsb, null);
       }
       else {
         if(_log.isDebugEnabled()){
