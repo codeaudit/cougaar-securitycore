@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert CertificateCheckAspect
+
+plugin = "org.cougaar.core.security.crypto.CertificateCheckAspect"
+
+society.each_node do |node|
+  node.add_component do |c|
+      c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
+      c.priority = "INTERNAL"
+      c.classname = plugin
+  end
+end
