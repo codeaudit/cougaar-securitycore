@@ -48,7 +48,11 @@ import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.util.UnaryPredicate;
 
+import java.io.PrintWriter;
+
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import java.security.cert.X509Certificate;
 
@@ -394,17 +398,39 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                         String revokeCertServletURL = caURL.substring(0,
                                 caURL.lastIndexOf('/'))
                             + "/RevokeCertificateServlet";
-                        revokeCertServletURL = revokeCertServletURL
-                            + "?revoke_type=agent&agent_name=" + agent
-                            + "&ca_dn=" + caDn;
+                        
                         if (logging.isDebugEnabled()) {
                             logging.debug(revokeCertServletURL);
                         }
 
                         try {
                             URL url = new URL(revokeCertServletURL);
-                            url.openConnection();
+                            HttpURLConnection huc = (HttpURLConnection) url
+                                .openConnection();
 
+                            // Don't follow redirects automatically.
+                            huc.setInstanceFollowRedirects(false);
+                            // Let the system know that we want to do output
+                            huc.setDoOutput(true);
+                            // Let the system know that we want to do input
+                            huc.setDoInput(true);
+                            // No caching, we want the real thing
+                            huc.setUseCaches(false);
+                            // Specify the content type
+                            huc.setRequestProperty("Content-Type",
+                                "application/x-www-form-urlencoded");
+                            huc.setRequestMethod("POST");
+                            PrintWriter out = new PrintWriter(huc
+                                    .getOutputStream());
+                            StringBuffer sb = new StringBuffer();
+                            sb.append("agent_name=");
+                            sb.append(URLEncoder.encode(agent, "UTF-8"));
+                            sb.append("&revoke_type=agent");
+                            sb.append("&ca_dn=");
+							sb.append(URLEncoder.encode(caDn, "UTF-8"));
+                            out.println(sb.toString());
+                            out.flush();
+                            out.close();
                             //complete task
                             PlanningFactory ldm = (PlanningFactory) domainService
                                 .getFactory("planning");
@@ -423,10 +449,10 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                         }
                         /*
                          *  MessageAddress target = MessageAddress
-                                 .getMessageAddress(caAgent);
-                                 SharedDataRelay relay = new SharedDataRelay(uidService
-                                         .nextUID(), source, target, theTask, null);
-                                 getBlackboardService().publishAdd(relay);
+                                   .getMessageAddress(caAgent);
+                                   SharedDataRelay relay = new SharedDataRelay(uidService
+                                           .nextUID(), source, target, theTask, null);
+                                   getBlackboardService().publishAdd(relay);
                          */
                     }
                 }
