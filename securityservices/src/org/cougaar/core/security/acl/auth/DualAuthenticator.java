@@ -115,18 +115,20 @@ public class DualAuthenticator extends ValveBase {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
   }
 
-  private synchronized void initNodeEnforcer() {
+  private boolean initNodeEnforcer() {
     try {
       if (USE_DAML && _enforcer == null && _serviceBroker != null) {
         _log.debug("Creating ServletNodeEnforcer");
         ServletNodeEnforcer enforcer = new ServletNodeEnforcer(_serviceBroker);
-	_log.debug("Registering ServletNodeEnforcer: " + enforcer.getClass().getName());
+        _log.debug("Registering ServletNodeEnforcer");
         enforcer.registerEnforcer();
-	_log.debug("Done registering ServletNodeEnforcer");
+        _log.debug("Done registering ServletNodeEnforcer");
         _enforcer = enforcer;
       }
+      return true;
     } catch (Exception e) {
-      _log.warn("Error registering Servlet Node Enforcer", e);
+      _log.warn("Error registerring Servlet Node Enforcer", e);
+      return false;
     }
   }
 
@@ -139,7 +141,6 @@ public class DualAuthenticator extends ValveBase {
     throws IOException, ServletException {
 
     setContainer();
-    initNodeEnforcer();
 
     _log.debug("Going through Dual Authenticator");
     // If this is not an HTTP request, do nothing
@@ -159,6 +160,13 @@ public class DualAuthenticator extends ValveBase {
     HttpServletRequest  hsrequest  = (HttpServletRequest) request.getRequest();
     HttpServletResponse hsresponse = 
       (HttpServletResponse) request.getResponse();
+
+    if (!initNodeEnforcer()) {
+      // nobody can access any servlet until the node enforcer is ready
+      hsresponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                           "Please wait for Servlet enforcement to become available.");
+      return;
+    }
 
     String cipher = getCipher(hrequest);
 
@@ -440,8 +448,8 @@ public class DualAuthenticator extends ValveBase {
   protected boolean needHttps(HttpServletRequest req, String cipher, 
                               AuthSuite cwa) {
     if (USE_DAML) {
-      if (cwa == null) {
-        return true;
+      if (cwa == null || cwa.getAuth() == cwa.authInvalid) {
+        return false;
       }
       return !(cwa.getSSL().contains("plain"));
       /*
