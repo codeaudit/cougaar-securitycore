@@ -237,6 +237,12 @@ org.cougaar.message.transport.debug=security
 
 #org.cougaar.core.util.ConfigFinder.verbose=true
 
+# Enable the following properties for JSWAT debugging:
+#java.Xdebug
+#java.Xnoagent
+#java.Djava.compiler=NONE
+#java.Xrunjdwp:transport=dt_socket,server=y,address=9999
+
 # END DEBUG properties
 # ########################################################
 
