@@ -14,6 +14,7 @@ class Security4a104Experiment < SecurityStressFramework
 #      sleep 10.minutes 
    def postPublishNextStage
 # 4A104, shut down one node and check recovery
+
       certRevocation = CertRevocation.new
       node = certRevocation.selectNode
 
@@ -24,7 +25,7 @@ class Security4a104Experiment < SecurityStressFramework
       run.do_action "KillNodes", node.name
 
     Thread.fork {
-      run.do_action "Sleep", 30.minutes
+      run.do_action "Sleep", 10.minutes
 
       run.do_action "GenericAction" do |run|
 # 4A106
@@ -42,7 +43,7 @@ class Security4a104Experiment < SecurityStressFramework
 
 
    def checkPersistenceRecovery(nodename, moved_agents)
-puts "checkPersistenceRecovery #{nodename}"
+#puts "checkPersistenceRecovery #{nodename}"
      recReq = true
      recResp = true
 
@@ -63,7 +64,11 @@ puts "checkPersistenceRecovery #{nodename}"
 # request to get persistence status
 #         url = "http://#{host.name}:#{port}/$#{node.name}/PersistenceVerificationServlet"
          url = "#{node.url}/$#{node.name}/PersistenceVerificationServlet"
+       begin
          response = getHtml(url)
+       rescue => ex
+         next
+       end
 # collect all agents that has rehydrated
       requestPattern = /<\/TD><TD>([^<]*)<\/TD><TD>RECOVERY_REQUEST/im
          requestAgents = requestAgents + response.body.scan(requestPattern).collect {|i| i.to_s}
@@ -102,7 +107,7 @@ end
 
 class Security4b104Experiment < Security4a104Experiment
 
-   def postPublishNextStage
+   def postPublishNextStage     
 # 4b104, shut down CA and management node and check recovery
       certRevocation = CertRevocation.new
 
@@ -133,7 +138,7 @@ class Security4b104Experiment < Security4a104Experiment
 
 # kill CA, then management node, then AR manager node
       run.do_action "KillNodes", kill_nodes['CertificateAuthority'].name
-      run.do_action "Sleep", 10.minutes
+      run.do_action "Sleep", 1.minutes
 
       mgmt_node = kill_nodes['AS-Management']
         moved_agents = mgmt_node.agents.collect{|agent| agent.name}
@@ -141,17 +146,17 @@ class Security4b104Experiment < Security4a104Experiment
         summary moved_agents.as_string
 
       run.do_action "KillNodes", mgmt_node.name
-      run.do_action "Sleep", 10.minutes
+      run.do_action "Sleep", 1.minutes
 
       ar_node = kill_nodes['AR-Management']
         ar_agents = ar_node.agents.collect{|agent| agent.name}
         summary "agents on killed node #{ar_node.name}"
         summary ar_agents.as_string
       run.do_action "KillNodes", ar_node.name
-      run.do_action "Sleep", 10.minutes
+      run.do_action "Sleep", 1.minutes
 
     Thread.fork {
-      run.do_action "Sleep", 30.minutes
+      run.do_action "Sleep", 10.minutes
 
       run.do_action "GenericAction" do |run|
 # 4b106
