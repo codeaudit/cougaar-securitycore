@@ -829,7 +829,7 @@ public class CommunityServiceUtil {
       _containsRole  = containsRole;
     }
 
-    public void communityChanged(CommunityChangeEvent event) {
+    synchronized public void communityChanged(CommunityChangeEvent event) {
       if (_log.isDebugEnabled()) {
         _log.debug(" communityChanged is called for agent : "
 		   +_agent +" in GetCommunity CommunityChangeListener" + this);
