@@ -84,11 +84,13 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     // For test purposes
     
     super.setupSubscriptions();
+    /* Fix for nested open transaction
+       openTransaction=true;
+     */
     sensorCondition = new BootstrapEventCondition(numberOfEvents);
     m_blackboard.publishAdd(sensorCondition);
 
     registerforEvents();
-   
   }
   
   protected void execute() {
