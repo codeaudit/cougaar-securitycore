@@ -1564,11 +1564,6 @@ final public class KeyRing  implements KeyRingService  {
                                                      isCACert, trustedCaPolicy);
     if (privatekey != null) {
       String commonname=cacheservice.getCommonName(dname);
-      // only do it for node cert, otherwise will have infinite loop here
-      if (commonname.equals(NodeInfo.getNodeName())) {
-        updateNS(dname);
-        handleRequestedIdentities(trustedCaPolicy);
-      }
 
       // notify validity listener
       CertValidityService validityService = (CertValidityService)
@@ -1577,6 +1572,11 @@ final public class KeyRing  implements KeyRingService  {
                                  null);
       validityService.updateCertificate(commonname);
 
+      // only do it for node cert, otherwise will have infinite loop here
+      if (commonname.equals(NodeInfo.getNodeName())) {
+        updateNS(dname);
+        handleRequestedIdentities(trustedCaPolicy);
+      }
     }
   }
 
