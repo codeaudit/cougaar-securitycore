@@ -171,9 +171,8 @@ final public class IdmefMessageFactory {
   public static final int addtoregistration=2;
   public static final int removefromregistration=3;
   public static final String SensorType="Sensor";
-  public static final String EnclaveMgrType="EnclaveManager";
-  public static final String SocietyMgrType="SocietyManager";
-   public static final String UnknownType="Unknown";
+  public static final String SecurityMgrType="SecurityManager";
+  public static final String UnknownType="Unknown";
   private ServiceBroker serviceBroker;
 
   /**
