@@ -131,13 +131,14 @@ public class CryptoServiceProvider
 
   /** ******************************************************************
    */
-  static private KeyRingService keyRingService;
+  static private KeyRingService keyRingService = null;
+  static private Integer keyRingServiceLock = new Integer(0);
 
   private KeyRingService getKeyRingService()
   {
     /* Create a singleton class for now
      */
-    synchronized (keyRingService) {
+    synchronized (keyRingServiceLock) {
       if (keyRingService == null) {
 	keyRingService = new KeyRing();
       }
@@ -154,7 +155,7 @@ public class CryptoServiceProvider
   {
     /* Create a singleton class for now
      */
-    synchronized (keyRingService) {
+    synchronized(keyRingServiceLock) {
       if (keyRingService == null) {
 	keyRingService = new KeyRing();
       }
