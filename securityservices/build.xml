@@ -312,8 +312,10 @@
     </target>
     
     <target name="confnai">
-        <copy todir="${cougaar.install.path}/configs/small-135"
+        <copy todir="${cougaar.install.path}/configs/common"
             file="${securityservices.configs}/mysql/cougaar.rc"/>
+        <copy todir="${cougaar.install.path}"
+            file="${securityservices.configs}/mysql/tomcatKeystore"/>
     </target>
     
     <!-- create log directories -->
@@ -413,6 +415,12 @@
         </delete>
         <delete verbose="true">
           <fileset  dir="${cougaar.install.path}/configs/small-135" includes="*.log"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${securityservices.regress}" includes="TEST-*"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${securityservices.configs}/tinysociety" includes="*.log"/>
         </delete>
         <echo message="+++++ Cleaned log files"/>
     </target>
