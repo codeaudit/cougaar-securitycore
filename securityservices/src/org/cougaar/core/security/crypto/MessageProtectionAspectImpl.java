@@ -107,7 +107,6 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
 
     public MessageAttributes deliverMessage(AttributedMessage msg) {
       Object sign = msg.getAttribute(SIGNATURE_NEEDED);
-      _log.debug("delivering: " + msg);
       if (sign != null) {
         String source = msg.getOriginator().toAddress();
         String target = msg.getTarget().toAddress();
