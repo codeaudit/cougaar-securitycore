@@ -20,16 +20,15 @@
  * Created on September 12, 2001, 4:01 PM
  */
 
-package org.cougaar.core.security.services.crypto;
+package org.cougaar.core.security.services.acl;
 
 import org.cougaar.core.component.Service;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
-public interface LdapUserService
+public interface UserService
   extends Service
 {
 
@@ -95,11 +94,11 @@ public interface LdapUserService
    * attribute in the LDAP user database.
    *
    * @param uid The unique user identifier of the user to disable
-   * @throw javax.naming.NamingException Whenever the uid does not
+   * @throw javax.naming.UserServiceException Whenever the uid does not
    *        exist or the enable time attribute value is already empty.
    *        Also if there is no write access to the user account specified.
    */
-  public void disableUser(String uid) throws NamingException;
+  public void disableUser(String uid) throws UserServiceException;
 
   /**
    * Disables a user for the given amount of time
@@ -107,64 +106,63 @@ public interface LdapUserService
    * @param uid The unique user identifier of the user to disable
    * @param milliseconds The amount of time to disable the user in
    *        milliseconds.
-   * @throw javax.naming.NamingException Whenever the uid does not
+   * @throw javax.naming.UserServiceException Whenever the uid does not
    *        exist or if there is no write access to the user account specified.
    */
   public void disableUser(String uid, long milliseconds) 
-    throws NamingException;
+    throws UserServiceException;
 
   /**
    * Enables a user who has been disabled
    *
    * @param uid The unique user identifier of the user to enable
-   * @throw javax.naming.NamingException Whenever the uid does not
+   * @throw javax.naming.UserServiceException Whenever the uid does not
    *        exist or if there is no write access to the user account specified.
    */
   public void enableUser(String uid) 
-    throws NamingException;
+    throws UserServiceException;
 
   /**
-   * Returns a <code>NamingEnumeration</code> containing
-   * <code>SearchResult</code>s. You must close the NamingEnumeration
-   * if you don't traverse the entire thing.
+   * Returns a <code>Set</code> of user ids that match the search criteria.
    *
    * @param searchText The text to search for in the field
    * @param field The ldap attribute name to search in
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public NamingEnumeration getUsers(String searchText, String field,
-                                    int maxResults) 
-    throws NamingException ;
+  public Set getUsers(String searchText, String field,
+                             int maxResults) 
+    throws UserServiceException ;
 
   /**
-   * Returns a <code>NamingEnumeration</code> containing
-   * <code>SearchResult</code>s. You must close the NamingEnumeration
-   * if you don't traverse the entire thing.
+   * Returns a <code>Set</code> containing
+   * <code>String</code>s of user ids. 
    *
    * @param filter A complete LDAP search filter.
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public NamingEnumeration getUsers(String filter, int maxResults)
-    throws NamingException ;
+  public Set getUsers(String filter, int maxResults)
+    throws UserServiceException ;
 
   /**
-   * Returns a user's attributes. 
+   * Returns a user's attributes. Null is returned if there is no such user.
    *
    * @param uid The user's unique identifier
    */
-  public Attributes        getUser(String uid) 
-    throws NamingException ;
+  public Map getUser(String uid) 
+    throws UserServiceException ;
 
   /**
    * Modifies a user's attributes
    *
    * @param uid The user's unique identifier
-   * @param mods The modifications to make to specific attributes
+   * @param added Attributes to be added
+   * @param edited Attributes to be modified
+   * @param deleted The attributes whose value should be removed
    */
-  public void              editUser(String uid, ModificationItem[] mods) 
-    throws NamingException ;
+  public void editUser(String uid, Map added, Map edited, Set deleted)
+    throws UserServiceException ;
 
   /**
    * Adds the given user to the LDAP database. The parameter 
@@ -173,63 +171,58 @@ public interface LdapUserService
    * the uid.
    *
    * @param uid The user's unique identifier
-   * @param attrs The user's LDAP attributes.
+   * @param attrs The user's attributes.
    */
-  public void              addUser(String uid, Attributes attrs) 
-    throws NamingException ;
+  public void addUser(String uid, Map attrs) 
+    throws UserServiceException ;
 
   /**
    * Removes the given user from the LDAP database
    *
    * @param uid The user's unique identifier
    */
-  public void              deleteUser(String uid) 
-    throws NamingException ;
+  public void deleteUser(String uid) 
+    throws UserServiceException ;
 
   /**
-   * Returns a <code>NamingEnumeration</code> containing
-   * <code>SearchResult</code>s. You must close the NamingEnumeration
-   * if you don't traverse the entire thing.
+   * Returns a <code>Set</code> of role ids that the user belongs to.
    *
    * @param uid The user's unique identifier who is assigned to
    *            the roles you are searching for.
    */
-  public NamingEnumeration getRoles(String uid) 
-    throws NamingException ;
+  public Set getRoles(String uid) 
+    throws UserServiceException ;
 
   /**
-   * Returns a <code>NamingEnumeration</code> containing
-   * <code>SearchResult</code>s. You must close the NamingEnumeration
-   * if you don't traverse the entire thing.
+   * Returns a <code>Set</code> containing role ids.
    *
    * @param searchText The text to search for in the field
    * @param field The ldap attribute name to search in
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public NamingEnumeration getRoles(String searchText, String field,
+  public Set getRoles(String searchText, String field,
                                     int maxResults) 
-    throws NamingException ;
+    throws UserServiceException ;
 
   /**
-   * Returns a <code>NamingEnumeration</code> containing
-   * <code>SearchResult</code>s. You must close the NamingEnumeration
-   * if you don't traverse the entire thing. This returns all
+   * Returns a <code>Set</code> containing
+   * role ids. This returns all
    * roles up to the maxResults.
    *
    * @param maxResults The maximum number of results to return. Use
    *                   zero (0) to return all results.
    */
-  public NamingEnumeration getRoles(int maxResults) 
-    throws NamingException ;
+  public Set getRoles(int maxResults) 
+    throws UserServiceException ;
 
   /**
    * Returns a role's attributes.
    *
    * @param rid The role's unique identifier
    */
-  public Attributes        getRole(String rid) 
-    throws NamingException ;
+  public Map getRole(String rid) 
+    throws UserServiceException ;
 
   /**
    * Assigns a user to a role
@@ -237,8 +230,8 @@ public interface LdapUserService
    * @param uid The user's unique identifier
    * @param rid The role's unique identifier
    */
-  public void              assign(String uid, String rid) 
-    throws NamingException ;
+  public void assign(String uid, String rid) 
+    throws UserServiceException ;
 
   /**
    * Unassigns a user from a role
@@ -246,8 +239,8 @@ public interface LdapUserService
    * @param uid The user's unique identifier
    * @param rid The role's unique identifier
    */
-  public void              unassign(String uid, String rid) 
-    throws NamingException ;
+  public void unassign(String uid, String rid) 
+    throws UserServiceException ;
 
   /**
    * Creates a role with the given unique identifier and all other attributes
@@ -255,33 +248,86 @@ public interface LdapUserService
    *
    * @param rid The role's unique identifier
    */
-  public void              addRole(String rid) 
-    throws NamingException ;
+  public void addRole(String rid) 
+    throws UserServiceException ;
 
   /**
    * Creates a role with the given unique identifier and attributes as given
    * by attrs.
    *
    * @param rid The role's unique identifier
-   * @param attrs The role's LDAP attributes
+   * @param attrs The role's attributes
    */
-  public void              addRole(String rid, Attributes attrs) 
-    throws NamingException ;
+  public void addRole(String rid, Map attrs) 
+    throws UserServiceException ;
 
   /**
    * Modifies a role's LDAP attributes.
    *
    * @param rid The role's unique identifier
-   * @param mods The modifications to make to the role's attributes
+   * @param added Attributes to be added
+   * @param edited Attributes to be modified
+   * @param deleted The attributes whose value should be removed
    */
-  public void              editRole(String rid, ModificationItem[] mods) 
-    throws NamingException ;
+  public void editRole(String rid, Map added, Map edited, Set deleted) 
+    throws UserServiceException ;
+
+  /**
+   * Creates a hierarchical relationship between two roles. 
+   *
+   * @param container The Container role.
+   * @param containee The role to be contained.
+   * @throws UserServiceException If the subordinate contains the superior,
+   * directly or indirectly or if there is an error communicating with the
+   * database.
+   */
+  public void addRoleToRole(String container, String containee)
+    throws UserServiceException;
+
+  /**
+   * Removes a hierarchical relationship between two roles. 
+   *
+   * @param container The container role.
+   * @param containee The contained role.
+   * @throws UserServiceException If there is an error communicating with the
+   * database.
+   */
+  public void removeRoleFromRole(String container, String containee)
+    throws UserServiceException;
+
+  /**
+   * Expands the role hierarchy for the given set of role ids
+   *
+   * @param rids array of role ids to expand
+   */
+  public Set expandRoles(String[] rids) 
+    throws UserServiceException;
+
+  /**
+   * Returns a list of roles that this role contains.
+   *
+   * @param rid The container role to check
+   * @throws UserServiceException If there is an error communicating with the
+   * database.
+   */
+  public Set getContainedRoles(String rid)
+    throws UserServiceException;
+
+  /**
+   * Returns a list of users that have this role.
+   *
+   * @param rid The role to check
+   * @throws UserServiceException If there is an error communicating with the
+   * database.
+   */
+  public Set getUsersInRole(String rid)
+    throws UserServiceException;
 
   /**
    * Deletes a role from the LDAP database.
    *
    * @param rid The role's unique identifier
    */
-  public void              deleteRole(String rid) 
-    throws NamingException ;
+  public void deleteRole(String rid) 
+    throws UserServiceException ;
 }

@@ -31,6 +31,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.net.URLEncoder;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.HashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -39,21 +43,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
-import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 
@@ -72,7 +67,7 @@ import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
  */
 public class UserAdminServlet extends HttpServlet {
   
-  LdapUserService _userService;
+  UserService _userService;
   HttpServlet _admin         = new admin();
   HttpServlet _user          = new user();
   HttpServlet _search_users  = new search_users();
@@ -94,8 +89,8 @@ public class UserAdminServlet extends HttpServlet {
   };
 
   public UserAdminServlet(SecurityServletSupport support) {
-    _userService = (LdapUserService) support.getServiceBroker().
-      getService(this, LdapUserService.class, null);
+    _userService = (UserService) support.getServiceBroker().
+      getService(this, UserService.class, null);
     if (JspFactory.getDefaultFactory() == null) {
       JspFactory.setDefaultFactory(new org.apache.jasper.runtime.JspFactoryImpl());
     }
@@ -177,7 +172,7 @@ public class UserAdminServlet extends HttpServlet {
           deleteRole(req,resp);
         }
       }
-    } catch (NamingException ex) {
+    } catch (UserServiceException ex) {
       resp.reset();
       req.setAttribute("exception",ex);
       _error.service(req,resp);
@@ -185,7 +180,7 @@ public class UserAdminServlet extends HttpServlet {
   }
     
   private void blank(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException {
     resp.setContentType("text/html");
     java.io.PrintWriter out = resp.getWriter();
     out.println("<html>");
@@ -200,7 +195,7 @@ public class UserAdminServlet extends HttpServlet {
 
   private void search(HttpServletRequest req, HttpServletResponse resp,
                       boolean searchUsers)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String searchTerm = req.getParameter(UserInterface.SEARCH_TERM);
     String searchOn   = req.getParameter(UserInterface.SEARCH_FIELD);
     String maxResults = req.getParameter(UserInterface.SEARCH_MAX_RESULTS);
@@ -219,66 +214,52 @@ public class UserAdminServlet extends HttpServlet {
     } catch (Exception e) {
       max = 100;
     }
-    NamingEnumeration results = null;
+    Set results = null;
     HttpServlet fwdServlet;
-    try {
-      if (searchUsers) {
-        results = _userService.getUsers(searchTerm, searchOn, max);
-        fwdServlet = _search_users;
-      } else {
-        results = _userService.getRoles(searchTerm, searchOn, max);
-        fwdServlet = _search_roles;
-      }
-      req.setAttribute(UserInterface.SEARCH_RESULTS, results);
-      fwdServlet.service(req,resp);
-    } finally {
-      try {
-        if (results != null) results.close();
-      } catch (Exception e) {
-        // ignore the error.
-      }
+    if (searchUsers) {
+      results = _userService.getUsers(searchTerm, searchOn, max);
+      fwdServlet = _search_users;
+    } else {
+      results = _userService.getRoles(searchTerm, searchOn, max);
+      fwdServlet = _search_roles;
     }
+    req.setAttribute(UserInterface.SEARCH_RESULTS, results);
+    fwdServlet.service(req,resp);
   }
 
   private void gotoUserPage(HttpServletRequest req, HttpServletResponse resp,
                             boolean getRoles, boolean getAllRoles, 
                             HttpServlet page)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
-    NamingEnumeration roles = null;
-    NamingEnumeration allRoles = null;
-    try {
-      if (uid != null) {
-        // this is a copied user, put data into the new user page
-        req.setAttribute(UserInterface.USER_RESULTS, 
-                         _userService.getUser(uid));
-        if (getRoles) {
-          roles = _userService.getRoles(uid);
-          req.setAttribute(UserInterface.ROLE_RESULTS, roles);
-        }
-        if (getAllRoles) {
-          roles = _userService.getRoles(0);
-          req.setAttribute(UserInterface.ALL_ROLES, roles);
-        }
+    Set roles = null;
+    Set allRoles = null;
+    if (uid != null) {
+      // this is a copied user, put data into the new user page
+      req.setAttribute(UserInterface.USER_RESULTS, 
+                       _userService.getUser(uid));
+      if (getRoles) {
+        roles = _userService.getRoles(uid);
+        req.setAttribute(UserInterface.ROLE_RESULTS, roles);
       }
-      page.service(req, resp);
-    } finally {
-      try {
-        if (roles != null) roles.close();
-      } catch (Exception e) {
-        // ignore closing errors.
+      if (getAllRoles) {
+        roles = _userService.getRoles(0);
+        req.setAttribute(UserInterface.ALL_ROLES, roles);
       }
     }
+    page.service(req, resp);
   }
 
   private void gotoRolePage(HttpServletRequest req, HttpServletResponse resp,
                             HttpServlet page)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);
     if (rid != null) {
       // this is a copied user, put data into the new user page
       req.setAttribute(UserInterface.ROLE_RESULTS, 
                        _userService.getRole(rid));
+      req.setAttribute(UserInterface.USER_RESULTS,
+                       _userService.getUsersInRole(rid));
     }
     page.service(req, resp);
   }
@@ -314,32 +295,27 @@ public class UserAdminServlet extends HttpServlet {
   }
 
   private void editUser(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
 
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
-    Attributes orig = _userService.getUser(uid);
-    ArrayList mods = new ArrayList();
+    Map orig = _userService.getUser(uid);
+    Map adds = new HashMap();
+    Map edits = new HashMap();
+    Set deletes = new HashSet();
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String field = UserInterface.LDAP_USER_FIELDS[i][0];
       if ( UserInterface.LDAP_USER_UID != field ) {
         String val = req.getParameter(field);
-        Attribute attr = orig.get(field);
-        ModificationItem mod = null;
+        Object attr = orig.get(field);
         if ( attr != null && (val == null || val.length() == 0) ) {
           // the value has been deleted
-          mod = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-                                     new BasicAttribute(field));
+          deletes.add(field);
         } else if ( attr == null && (val != null && val.length() != 0) ) {
           // an attribute has been added
-          mod = new ModificationItem(DirContext.ADD_ATTRIBUTE,
-                                     new BasicAttribute(field,val));
+          adds.put(field, val);
         } else if (attr != null) {
           // the attribute has been changed:
-          mod = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                                     new BasicAttribute(field,val));
-        }
-        if (mod != null) {
-          mods.add(mod);
+          edits.put(field, val);
         }
       }
     }
@@ -347,66 +323,55 @@ public class UserAdminServlet extends HttpServlet {
     // now do the special password field
     String pwd = req.getParameter(UserInterface.LDAP_USER_PASSWORD);
     if (pwd != null && pwd.length() != 0) {
-      int modType;
       if (orig.get(UserInterface.LDAP_USER_PASSWORD) != null) {
         // modify the password
-        modType=DirContext.REPLACE_ATTRIBUTE;
+        edits.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
       } else {
         // add the password
-        modType=DirContext.ADD_ATTRIBUTE;
+        adds.put(UserInterface.LDAP_USER_PASSWORD, pwd.getBytes());
       }
-      pwd = KeyRingJNDIRealm.encryptPassword(uid, pwd);
-      BasicAttribute pwdAttr = new BasicAttribute(UserInterface.LDAP_USER_PASSWORD, 
-                                                  pwd.getBytes());
-                           
-      mods.add(new ModificationItem(modType, pwdAttr));
     }
-    _userService.editUser(uid, (ModificationItem[]) 
-                          mods.toArray(new ModificationItem[mods.size()]));
+    _userService.editUser(uid, adds, edits, deletes);
     gotoViewUser(req, resp, uid);
   }
 
   private void editRole(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
 
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);
-    Attributes orig = _userService.getRole(rid);
-    ArrayList mods = new ArrayList();
+    Map orig = _userService.getRole(rid);
+
+    Map adds = new HashMap();
+    Map edits = new HashMap();
+    Set deletes = new HashSet();
+
     for (int i = 0; i < UserInterface.LDAP_ROLE_FIELDS.length; i++) {
       String field = UserInterface.LDAP_ROLE_FIELDS[i][0];
       if ( UserInterface.LDAP_ROLE_RDN != field ) {
         String val = req.getParameter(field);
-        Attribute attr = orig.get(field);
-        ModificationItem mod = null;
+        Object attr = orig.get(field);
         if ( attr != null && (val == null || val.length() == 0) ) {
           // the value has been deleted
-          mod = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-                                     new BasicAttribute(field));
+          deletes.add(field);
         } else if ( attr == null && (val != null && val.length() != 0) ) {
           // an attribute has been added
-          mod = new ModificationItem(DirContext.ADD_ATTRIBUTE,
-                                     new BasicAttribute(field,val));
+          adds.put(field, val);
         } else if (attr != null) {
           // the attribute has been changed:
-          mod = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                                     new BasicAttribute(field,val));
-        }
-        if (mod != null) {
-          mods.add(mod);
+          edits.put(field, val);
         }
       }
     }
     
-    _userService.editRole(rid, (ModificationItem[]) 
-                          mods.toArray(new ModificationItem[mods.size()]));
+    _userService.editRole(rid, adds, edits, deletes);
     gotoViewRole(req, resp,rid);
   }
 
   private void addUser(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
 
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
-    BasicAttributes attrs = new BasicAttributes();
+    Map attrs = new HashMap();
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String field = UserInterface.LDAP_USER_FIELDS[i][0];
       String val = req.getParameter(field);
@@ -426,9 +391,9 @@ public class UserAdminServlet extends HttpServlet {
   }
 
   private void addRole(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);
-    BasicAttributes attrs = new BasicAttributes();
+    Map attrs = new HashMap();
 //     attrs.put(UserInterface.LDAP_ROLE_USER_RDN, 
 //               UserInterface.LDAP_ROLE_DUMMY);
     for (int i = 0; i < UserInterface.LDAP_ROLE_FIELDS.length; i++) {
@@ -444,7 +409,7 @@ public class UserAdminServlet extends HttpServlet {
   }
 
   private void assignRoles(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
 
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
     if (uid == null) {
@@ -459,13 +424,7 @@ public class UserAdminServlet extends HttpServlet {
         roleSet.add(roles[i]);
       }
     }
-    NamingEnumeration assigned = _userService.getRoles(uid);
-    HashSet assignedSet = new HashSet();
-    while (assigned.hasMore()) {
-      SearchResult role = (SearchResult) assigned.next();
-      assignedSet.add(role.getAttributes().get(UserInterface.LDAP_ROLE_RDN).get().toString());
-    }
-    
+    Set assignedSet = _userService.getRoles(uid);
     HashSet newRoles = (HashSet) roleSet.clone();
     newRoles.removeAll(assignedSet);
     
@@ -487,14 +446,14 @@ public class UserAdminServlet extends HttpServlet {
   }
 
   private void deleteUser(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String uid = req.getParameter(UserInterface.LDAP_USER_UID);
     _userService.deleteUser(uid);
     gotoViewEmptyPage(req, resp,true);
   }
 
   private void deleteRole(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException, IOException, NamingException {
+    throws ServletException, IOException, UserServiceException {
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);
     _userService.deleteRole(rid);
     gotoViewEmptyPage(req, resp,true);

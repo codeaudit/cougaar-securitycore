@@ -102,8 +102,6 @@ class UserInterface {
   };
   public static final int LDAP_USER_AUTH_DEFAULT_VAL     = 3; // either
 
-//   public static final String LDAP_ROLE_DUMMY             = "uid=dummyuser";
-
   public static final String LDAP_SEARCH_FIELDS[][] = {
     { LDAP_USER_UID, LDAP_USER_UID_TITLE },
     { "cn", "Name" },
@@ -118,22 +116,20 @@ class UserInterface {
     { "givenName", "First Name" },
     { "sn", "Last Name" },
     { "cn", "Name" },
-    { "mail", "Email Address" },
+    { "mail", "Email Address" }
 
-    { "title", "Title" },
+//     { "title", "Title" },
 
-    { "street", "Address Line 1" },
-//     { "postalAddress", "Address Line 2" },
-    { "l", "City" },
-    { "st", "State" },
-    { "postalCode", "Zip Code" },
-//     { "c", "Country" },
+//     { "street", "Address Line 1" },
+//     { "l", "City" },
+//     { "st", "State" },
+//     { "postalCode", "Zip Code" },
 
-    {"telephoneNumber", "Work Phone #"},
-    { "homePhone", "Home Phone #" },
-    { "mobile", "Mobile Phone #" },
-    { "pager", "Pager #" },
-    { "facsimileTelephoneNumber", "Fax #" }
+//     {"telephoneNumber", "Work Phone #"},
+//     { "homePhone", "Home Phone #" },
+//     { "mobile", "Mobile Phone #" },
+//     { "pager", "Pager #" },
+//     { "facsimileTelephoneNumber", "Fax #" }
   };
 
   public static final String LDAP_ROLE_SEARCH_FIELDS[][] = {
@@ -143,7 +139,7 @@ class UserInterface {
 
   public static final String LDAP_ROLE_FIELDS[][] = {
     { LDAP_ROLE_RDN, LDAP_ROLE_RDN_TITLE },
-    { "description", "Description" },
-    { LDAP_ROLE_USER_RDN, LDAP_ROLE_USER_RDN_TITLE }
+    { "description", "Description" }
+//     { LDAP_ROLE_USER_RDN, LDAP_ROLE_USER_RDN_TITLE }
   };
 }

@@ -1,4 +1,4 @@
-<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,javax.naming.*,javax.naming.directory.*"%>
+<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,java.util.*"%>
 <%
 /*
  * <copyright>
@@ -40,7 +40,7 @@ function cancelAction() {
   </head>
   <body>
 <%
-  Attributes role = (Attributes) 
+  Map role = (Map) 
     request.getAttribute(UserInterface.ROLE_RESULTS);
   
   if (role != null) {  
@@ -49,7 +49,7 @@ function cancelAction() {
       <input type="hidden" name="<%=UserInterface.PAGE%>" 
              value="<%=UserInterface.PAGE_EDIT_ROLE%>">
       <input type="hidden" name="<%=UserInterface.LDAP_ROLE_RDN%>" 
-             value="<%=role.get(UserInterface.LDAP_ROLE_RDN).get()%>">
+             value="<%=role.get(UserInterface.LDAP_ROLE_RDN)%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_SAVE%>">
       <input type="button" name="<%=UserInterface.ACTION_BUTTON%>" 
@@ -60,13 +60,7 @@ function cancelAction() {
     for (int i = 0; i < UserInterface.LDAP_ROLE_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_ROLE_FIELDS[i][1];
       String field   = UserInterface.LDAP_ROLE_FIELDS[i][0];
-      Attribute attr = role.get(field);
-      Object val     = null;
-      int size = 0;
-      if (attr != null) {
-        val = attr.get();
-        size = attr.size();
-      }
+      Object val = role.get(field);
       if (val == null) val = "";
       if (field != UserInterface.LDAP_ROLE_USER_RDN) {
 %>

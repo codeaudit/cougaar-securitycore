@@ -1,4 +1,4 @@
-<%@page import="javax.naming.*,javax.naming.directory.*"%>
+<%@page import="java.util.*"%>
 <%
 /*
  * <copyright>
@@ -40,8 +40,10 @@ function deleteCheck() {
   </head>
   <body>
 <%
-  Attributes role = (Attributes) 
+   Map role = (Map) 
     request.getAttribute(UserInterface.ROLE_RESULTS);
+   Set users = (Set)
+    request.getAttribute(UserInterface.USER_RESULTS);
   
   if (role != null) {  
 %>
@@ -49,7 +51,7 @@ function deleteCheck() {
      <input type="hidden" name="<%=UserInterface.PAGE%>" 
             value="<%=UserInterface.PAGE_ROLE_RESULT_ACTION%>">
      <input type="hidden" name="<%=UserInterface.LDAP_ROLE_RDN%>" 
-             value="<%=role.get(UserInterface.LDAP_ROLE_RDN).get()%>">
+             value="<%=role.get(UserInterface.LDAP_ROLE_RDN)%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_EDIT%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
@@ -62,13 +64,7 @@ function deleteCheck() {
     for (int i = 0; i < UserInterface.LDAP_ROLE_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_ROLE_FIELDS[i][1];
       String field   = UserInterface.LDAP_ROLE_FIELDS[i][0];
-      Attribute attr = role.get(field);
-      Object val     = null;
-      int size = 0;
-      if (attr != null) {
-        val = attr.get();
-        size = attr.size();
-      }
+      Object val = role.get(field);
 //      if (val == null || val.equals(UserInterface.LDAP_ROLE_DUMMY)) val = "";
       if (val == null) val = "";
 %>
@@ -77,15 +73,14 @@ function deleteCheck() {
           <td><%=val%></td>
         </tr>
 <%
-      for (int j = 1; j < size; j++) {
-//        if (!attr.get(j).equals(UserInterface.LDAP_ROLE_DUMMY)) {
-%>
-        <tr>
-          <td></td>
-          <td><%=attr.get(j)%></td>
-        </tr>
+    }
+    String title = "Users";
+    if (users != null) {
+      Iterator iter = users.iterator();
+      while (iter.hasNext()) {
+%><tr><td><%=title%></td><td><%=iter.next()%></td></tr>
 <%
-//        }
+        title = "";
       }
     }
   }

@@ -1,4 +1,4 @@
-<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,javax.naming.*,javax.naming.directory.*,java.util.*"%>
+<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,java.util.*"%>
 <%
 /*
  * <copyright>
@@ -40,7 +40,7 @@ function cancelAction() {
   </head>
   <body>
 <%
-  Attributes user = (Attributes) 
+  Map user = (Map) 
     request.getAttribute(UserInterface.USER_RESULTS);
   
   if (user != null) {  
@@ -49,7 +49,7 @@ function cancelAction() {
       <input type="hidden" name="<%=UserInterface.PAGE%>" 
              value="<%=UserInterface.PAGE_ASSIGN_ROLES%>">
       <input type="hidden" name="<%=UserInterface.LDAP_USER_UID%>" 
-             value="<%=user.get(UserInterface.LDAP_USER_UID).get()%>">
+             value="<%=user.get(UserInterface.LDAP_USER_UID)%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_ROLE%>">
       <input type="button" name="<%=UserInterface.ACTION_BUTTON%>" 
@@ -59,8 +59,8 @@ function cancelAction() {
 <%
     for (int i = 0; i < UserInterface.LDAP_SEARCH_FIELDS.length; i++) {
       Object val = "";
-      Attribute attr = user.get(UserInterface.LDAP_SEARCH_FIELDS[i][0]);
-      if (attr != null) val = attr.get();
+      Object attr = user.get(UserInterface.LDAP_SEARCH_FIELDS[i][0]);
+      if (attr != null) val = attr;
 %>
         <tr>
           <td><%=UserInterface.LDAP_SEARCH_FIELDS[i][1]%></td>
@@ -72,21 +72,16 @@ function cancelAction() {
           use Ctrl-click to select multiple roles.<br>
       <select name="<%=UserInterface.ROLES%>" multiple>
 <%
-    NamingEnumeration allRoles = (NamingEnumeration) 
+    Set allRoles = (Set) 
       request.getAttribute(UserInterface.ALL_ROLES);
-    NamingEnumeration userRoles = (NamingEnumeration)
+    Set userRoleList = (Set)
       request.getAttribute(UserInterface.ROLE_RESULTS);
-    HashSet userRoleList = new HashSet();
-    while (userRoles.hasMore()) {
-      SearchResult sr = (SearchResult) userRoles.next();
-      userRoleList.add(sr.getAttributes());
-    }
-    while (allRoles.hasMore()) {
-      SearchResult sr = (SearchResult) allRoles.next();
-      Attributes role = sr.getAttributes();
+    Iterator iter = allRoles.iterator();
+    while (iter.hasNext()) {
+      String role = (String) iter.next();
       String selected = (userRoleList.contains(role))?"selected":"";
 %>
-        <option <%=selected%>><%=role.get(UserInterface.LDAP_ROLE_RDN).get()%></option>
+        <option <%=selected%>><%=role%></option>
 <%      
     }
   }

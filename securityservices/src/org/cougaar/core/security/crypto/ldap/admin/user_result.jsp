@@ -1,4 +1,4 @@
-<%@page import="javax.naming.*,javax.naming.directory.*,java.util.*,java.text.*"%>
+<%@page import="java.util.*,java.text.*"%>
 <%
 /*
  * <copyright>
@@ -40,7 +40,7 @@ function deleteCheck() {
   </head>
   <body>
 <%
-  Attributes user = (Attributes) 
+  Map user = (Map) 
     request.getAttribute(UserInterface.USER_RESULTS);
   
   if (user != null) {  
@@ -49,7 +49,7 @@ function deleteCheck() {
       <input type="hidden" name="<%=UserInterface.PAGE%>" 
              value="<%=UserInterface.PAGE_USER_RESULT_ACTION%>">
       <input type="hidden" name="<%=UserInterface.LDAP_USER_UID%>" 
-             value="<%=user.get(UserInterface.LDAP_USER_UID).get()%>">
+             value="<%=user.get(UserInterface.LDAP_USER_UID)%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_EDIT%>">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
@@ -64,13 +64,7 @@ function deleteCheck() {
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_USER_FIELDS[i][1];
       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
-      Attribute attr = user.get(field);
-      Object val     = null;
-      int size = 0;
-      if (attr != null) {
-        val = attr.get();
-        size = attr.size();
-      }
+      Object val     = user.get(field);
       if (val == null) val = "";
       if (field == UserInterface.LDAP_USER_ENABLE) {
         String str = val.toString();
@@ -90,48 +84,30 @@ function deleteCheck() {
           <td><%=val%></td>
         </tr>
 <%
-      for (int j = 1; j < size; j++) {
-%>
-        <tr>
-          <td></td>
-          <td><%=attr.get(j)%></td>
-        </tr>
-<%
-      }
     }
   }
 %>
         <tr>
           <td>Roles</td>
 <%
-  NamingEnumeration roles = null;
+  Set roles = null;
   boolean first = true;
-  try {
-    roles = (NamingEnumeration) request.getAttribute(UserInterface.ROLE_RESULTS);
-    while (roles.hasMore()) {
-      SearchResult sr = (SearchResult) roles.next();
-      Attributes attrs = sr.getAttributes();
-      Attribute attr = attrs.get(UserInterface.LDAP_ROLE_RDN);
-      Object val = "";
-      if (attr != null) {
-        val = attr.get();
-      }
-      if (first) {
-        first = false;
-      } else {
+  roles = (Set) request.getAttribute(UserInterface.ROLE_RESULTS);
+  Iterator iter = roles.iterator();
+  while (iter.hasNext()) {
+    String rid = (String) iter.next();
+    if (first) {
+      first = false;
+    } else {
 %>
         <tr>
           <td></td>
 <%
-      }
+    }
 %>
-          <td><%=val%></td>
+          <td><%=rid%></td>
         </tr>
 <%
-    }
-  } catch (NamingException ne) {
-    ne.printStackTrace();
-    if (roles != null) roles.close();
   }
   if (first) { // no roles assigned to this user
 %>

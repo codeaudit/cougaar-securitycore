@@ -1,4 +1,4 @@
-<%@page import="javax.naming.*,javax.naming.directory.*,java.net.*"%>
+<%@page import="java.net.*,java.util.*"%>
 <%
 /*
  * <copyright>
@@ -37,55 +37,22 @@
         <td colspan="3">Users matching your search:</td>
       </tr>
 <%
-  NamingEnumeration users = null;
-  try {
-    users = (NamingEnumeration) request.getAttribute(UserInterface.SEARCH_RESULTS);
+  Set users = null;
+    users = (Set) request.getAttribute(UserInterface.SEARCH_RESULTS);
+
+    Iterator iter = users.iterator();
+    while (iter.hasNext()) {
+      String uid = (String) iter.next();
 %>
       <tr>
-<%
-    for (int i = 0; i < UserInterface.LDAP_SEARCH_FIELDS.length; i++) {
-%>
-        <td><b><%=UserInterface.LDAP_SEARCH_FIELDS[i][1]%></b></td>
-<%
-    }
-%>
-      </tr>
-<%
-    while (users.hasMore()) {
-%>
-      <tr>
-<%
-      SearchResult user = (SearchResult) users.next();
-      Attributes attrs = user.getAttributes();
-      String uid = attrs.get(UserInterface.LDAP_USER_UID).get().toString();
-      for (int i = 0; i < UserInterface.LDAP_SEARCH_FIELDS.length; i++) {
-        Attribute attr = attrs.get(UserInterface.LDAP_SEARCH_FIELDS[i][0]);
-        String val = "";
-        if (attr != null) val = attr.get().toString();
-%>
         <td>
-<% 
-        if (i == 0) {
-%><a href="<%=request.getRequestURI() + "?" +
+<a href="<%=request.getRequestURI() + "?" +
               UserInterface.PAGE + "=" + UserInterface.PAGE_DISPLAY_USER%>&<%=URLEncoder.encode(UserInterface.LDAP_USER_UID, "UTF-8")%>=<%=URLEncoder.encode(uid, "UTF-8")%>" 
-               target="UserMatchFrame"><%
-        } 
-%><%=val%><%
-        if (i == 1) {
-%></a><%
-        }
-%></td>
-<%
-      }
-%>
+               target="UserMatchFrame"><%=uid%></a>
+        </td>
       </tr>
 <%
     }
-  } catch (NamingException ne) {
-    if (users != null) {
-      users.close();
-    }
-  }
 %>
     </table>
   </body>

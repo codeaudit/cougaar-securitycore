@@ -1,4 +1,4 @@
-<%@page import="javax.naming.*,javax.naming.directory.*"%>
+<%@page import="java.util.*"%>
 <%
 /*
  * <copyright>
@@ -74,7 +74,7 @@ function updateName() {
   </head>
   <body>
 <%
-  Attributes user = (Attributes) 
+  Map user = (Map) 
     request.getAttribute(UserInterface.USER_RESULTS);
 
   if (user != null) {  
@@ -84,7 +84,7 @@ function updateName() {
       <input type="hidden" name="<%=UserInterface.PAGE%>" 
              value="<%=UserInterface.PAGE_EDIT_USER%>">
       <input type="hidden" name="<%=UserInterface.LDAP_USER_UID%>" 
-             value="<%=user.get(UserInterface.LDAP_USER_UID).get()%>">
+             value="<%=user.get(UserInterface.LDAP_USER_UID)%>">
       <input type="hidden" name="cn" value="">
       <input type="submit" name="<%=UserInterface.ACTION_BUTTON%>" 
              value="<%=UserInterface.ACTION_BUTTON_SAVE%>">
@@ -95,7 +95,7 @@ function updateName() {
       <table>
         <tr>
           <td><%=UserInterface.LDAP_USER_UID_TITLE%></td>
-          <td><%=user.get(UserInterface.LDAP_USER_UID).get()%></td>
+          <td><%=user.get(UserInterface.LDAP_USER_UID)%></td>
         </tr>
         <tr>
           <td><span id="password1"><%=UserInterface.LDAP_USER_PASSWORD_TITLE1%></span></td>
@@ -113,10 +113,9 @@ function updateName() {
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_USER_FIELDS[i][1];
       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
-      Attribute attr = user.get(field);
-      Object val     = "";
-      if (attr != null) {
-        val = attr.get();
+      Object val     = user.get(field);
+      if (val == null) {
+        val = "";
       }
       if (field != UserInterface.LDAP_USER_UID && !("cn".equals(field))) {
 %>

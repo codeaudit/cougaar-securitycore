@@ -35,7 +35,7 @@ import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.ConsolidatedCapabilities;
@@ -105,7 +105,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
 
   private long _lockoutTime   = 1000 * 60 * 60 * 24; // 1 day
 
-  private LdapUserService _userService;
+  private UserService _userService;
   private IncrementalSubscription _lockoutDurationSubscription;
 
   private OperatingMode _lockoutDurationOM = null;
@@ -255,8 +255,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
   }
 
   private void setUserService() {
-    _userService = (LdapUserService)
-	getServiceBroker().getService(this, LdapUserService.class, null);
+    _userService = (UserService)
+	getServiceBroker().getService(this, UserService.class, null);
   }
 
   protected void setupSubscriptions() {
@@ -289,7 +289,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _log.debug("locking out user (" + culprit + ")");
     } // end of if (_log.isDebugEnabled())
     if (_userService == null) {
-      _log.info("LDAP User service was not set. Trying to get it");
+      _log.info("User service was not set. Trying to get it");
     }
     else {
       setUserService();

@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.Set;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 
@@ -39,16 +41,6 @@ import java.security.Principal;
 import java.security.MessageDigest;
 import java.security.cert.X509Certificate;
 import java.security.NoSuchAlgorithmException;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchResult;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Valve;
@@ -85,7 +77,8 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.node.NodeIdentifier;
-import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.core.security.services.acl.UserService;
+import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.agent.ClusterIdentifier;
@@ -107,7 +100,7 @@ import org.cougaar.core.security.constants.IdmefClassifications;
  *          certComponent="CN"
  *          debug="-1" /&gt;
  * </pre>
- * <code>KeyRingJNDIRealm</code> uses the <code>LdapUserService</code>
+ * <code>KeyRingJNDIRealm</code> uses the <code>UserService</code>
  * for access to the LDAP database. In order to convert certificate
  * subject DN's to LDAP DN's, the component used to distinguish the
  * user must be pulled from the Certificate. The component to use should be
@@ -128,7 +121,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
   private String                     _certComponent = "CN";
-  private LdapUserService            _userService;
+  private UserService                _userService;
 
   private Hashtable                  _errors = new Hashtable();
 
@@ -165,7 +158,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     "INSUFFICIENT_PRIVILEGES"};
 
   /** 
-   * Default constructor. Uses <code>LdapUserService</code>
+   * Default constructor. Uses <code>UserService</code>
    * given in the setDefaultLdapUserService call.
    */
   public KeyRingJNDIRealm() {
@@ -180,14 +173,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       _nodeServiceBroker.getService(this,
 			       LoggingService.class, null);
     if (_userService == null) {
-      _userService = (LdapUserService) _nodeServiceBroker.
-        getService(this, LdapUserService.class, null);
+      _userService = (UserService) _nodeServiceBroker.
+        getService(this, UserService.class, null);
     }
     return true;
   }
 
   /**
-   * Sets the default LdapUserService using the node service broker
+   * Sets the default UserService using the node service broker
    */
   public static void setNodeServiceBroker(ServiceBroker sb) {
     _nodeServiceBroker = sb;
@@ -265,14 +258,12 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       return null;
     }
     try {
-      Attributes attrs = _userService.getUser(username);
+      Map attrs = _userService.getUser(username);
       if (!passwordOk(username, credentials, attrs)) {
         return null;
       }
       return getPrincipal(attrs);
-    } catch (NameNotFoundException e) {
-      setLoginError(LF_USER_DOESNT_EXIST, username);
-    } catch (NamingException e) {
+    } catch (UserServiceException e) {
       setLoginError(LF_LDAP_ERROR, username);
     }
     return null;
@@ -315,7 +306,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
     try {
 //       log.debug("Getting attributes for user: " + user);
-      Attributes attrs = _userService.getUser(user);
+      Map attrs = _userService.getUser(user);
       if (attrs == null) {
         setLoginError(LF_USER_DOESNT_EXIST, user);
         return null; // user isn't in the database
@@ -325,9 +316,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       } else {
         setLoginError(LF_USER_DISABLED, user);
       }
-    } catch (NameNotFoundException nnfe) {
-      setLoginError(LF_USER_DOESNT_EXIST, user);
-    } catch (NamingException ne) {
+    } catch (UserServiceException ne) {
       setLoginError(LF_LDAP_ERROR, user);
     }
     return null;
@@ -365,14 +354,13 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     */
     if (!init()) return null;
     try {
-      Attributes userAttrs = _userService.getUser(username);
-      Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
-      if (pwdAttr == null || pwdAttr.size() == 0) {
+      Map userAttrs = _userService.getUser(username);
+      Object pwdVal = userAttrs.get(_userService.getPasswordAttribute());
+      if (pwdVal == null) {
         setLoginError(LF_LDAP_PASSWORD_NULL, username);
         return null;
       }
       String md5a1;
-      Object pwdVal = pwdAttr.get();
       if (pwdVal instanceof byte[]) {
         md5a1 = new String((byte[]) pwdVal);
       } else {
@@ -390,9 +378,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         return getPrincipal(userAttrs);
       
       setLoginError(LF_PASSWORD_MISMATCH, username);
-    } catch (NameNotFoundException nnfe) {
-      setLoginError(LF_USER_DOESNT_EXIST, username);
-    } catch (NamingException ne) {
+    } catch (UserServiceException ne) {
       setLoginError(LF_LDAP_ERROR, username);
     }
     return null;
@@ -446,32 +432,22 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * @return A <code>CougaarPrincipal</code> associated with the
    * user, having the roles assigned to that user.
    */
-  protected Principal getPrincipal(Attributes userAttr) {
+  protected Principal getPrincipal(Map userAttr) {
     String username = null;
     String authFields = "EITHER";
     if (_userService == null) return null;
     try {
-      username = userAttr.get(_userService.getUserIDAttribute()).
-        get().toString();
-      Attribute authAttr = userAttr.get(_userService.getAuthFieldsAttribute());
+      username = (String) userAttr.get(_userService.getUserIDAttribute());
+      String authAttr = (String) 
+        userAttr.get(_userService.getAuthFieldsAttribute());
       if (authAttr != null) {
-        Object val = authAttr.get();
-        if (val != null) {
-          authFields = val.toString();
-        }
+        authFields = authAttr;
       }
-      NamingEnumeration ne = _userService.getRoles(username);
+      Set roles = _userService.getRoles(username);
 //       log.debug("Got roles for " + username);
-      ArrayList roles = new ArrayList();
-      while (ne.hasMore()) {
-        SearchResult result = (SearchResult) ne.next();
-        Attributes attrs = result.getAttributes();
-        String role = attrs.get(_userService.getRoleIDAttribute()).get().toString();
-        roles.add(role);
-//         log.debug("  role: " + role);
-      }
-      return new CougaarPrincipal(this, username, roles, authFields);
-    } catch (NamingException e) {
+      return new CougaarPrincipal(this, username, new ArrayList(roles), 
+                                  authFields);
+    } catch (UserServiceException e) {
       if (username != null) {
         return new CougaarPrincipal(this, username, null, authFields);
       }
@@ -494,8 +470,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * Also logs failures to M&R.
    */
   protected boolean passwordOk(String username,  String password, 
-                               Attributes attrs)
-    throws NamingException {
+                               Map attrs)
+    throws UserServiceException {
     boolean match = false;
     if (attrs == null) {
       setLoginError(LF_USER_DOESNT_EXIST, username);
@@ -506,13 +482,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       setLoginError(LF_USER_DISABLED, username);
       return false;
     }
-    Attribute  attr  = attrs.get(_userService.getPasswordAttribute());
-    if (attr == null || attr.size() < 1) {
-      setLoginError(LF_LDAP_PASSWORD_NULL, username);
-      return false;
-    }
-
-    Object     attrVal = attr.get();
+    Object attrVal = attrs.get(_userService.getPasswordAttribute());
 //     log.debug("attrVal = " + attrVal);
     if (attrVal == null) {
       setLoginError(LF_LDAP_PASSWORD_NULL, username);
@@ -546,30 +516,24 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * in the user database is true, then the user is granted access
    * when the certificate is used.
    */
-  private boolean userDisabled(Attributes attrs, boolean isCertAuth)
-    throws NamingException {
+  private boolean userDisabled(Map attrs, boolean isCertAuth)
+    throws UserServiceException {
     if (isCertAuth) {
-      Attribute attr = attrs.get(_userService.getCertOkAttribute());
-      if (attr != null) {
-        Object attrVal = attr.get();
-        if (attrVal != null) {
-          if (Boolean.valueOf(attrVal.toString()).booleanValue()) {
-            return false; // user is granted special certificate access
-          } 
-        } // end of if (attrVal != null)
-      } // end of if (attr != null)
+      Object attrVal = attrs.get(_userService.getCertOkAttribute());
+      if (attrVal != null) {
+        if (Boolean.valueOf(attrVal.toString()).booleanValue()) {
+          return false; // user is granted special certificate access
+        } 
+      } // end of if (attrVal != null)
     } // end of if (isCertAuth)
     
-    Attribute attr = attrs.get(_userService.getEnableTimeAttribute());
-    if (attr != null) {
-      Object attrVal = attr.get();
-      if (attrVal != null) {
-        String val = attrVal.toString();
-        Calendar now = Calendar.getInstance(GMT);
-        String nowStr = LDAP_TIME.format(now.getTime());
-        if (nowStr.compareToIgnoreCase(val) >= 0) {
-          return false;
-        }
+    Object attrVal = attrs.get(_userService.getEnableTimeAttribute());
+    if (attrVal != null) {
+      String val = attrVal.toString();
+      Calendar now = Calendar.getInstance(GMT);
+      String nowStr = LDAP_TIME.format(now.getTime());
+      if (nowStr.compareToIgnoreCase(val) >= 0) {
+        return false;
       }
     }
     return true;

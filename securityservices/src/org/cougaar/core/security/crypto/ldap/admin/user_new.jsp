@@ -1,4 +1,4 @@
-<%@page import="javax.naming.*,javax.naming.directory.*"%>
+<%@page import="java.util.*"%>
 <%
 /*
  * <copyright>
@@ -68,7 +68,7 @@ function updateName() {
   </head>
   <body>
 <%
-  Attributes user = (Attributes) 
+  Map user = (Map) 
     request.getAttribute(UserInterface.USER_RESULTS);
   
 %>
@@ -105,12 +105,8 @@ function updateName() {
     for (int i = 0; i < UserInterface.LDAP_USER_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_USER_FIELDS[i][1];
       String field   = UserInterface.LDAP_USER_FIELDS[i][0];
-      Attribute attr = null;
-      if (user != null) attr = user.get(field);
-      Object val     = "";
-      if (attr != null) {
-        val = attr.get();
-      }
+      Object val = "";
+      if (user != null) val = user.get(field);
       if (field != UserInterface.LDAP_USER_UID && !("cn".equals(field))) {
 %>
         <tr>

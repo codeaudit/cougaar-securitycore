@@ -1,4 +1,4 @@
-<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,javax.naming.*,javax.naming.directory.*"%>
+<%@page import="org.cougaar.core.security.crypto.ldap.admin.UserInterface,java.util.*"%>
 <%
 /*
  * <copyright>
@@ -40,7 +40,7 @@ function cancelAction() {
   </head>
   <body>
 <%
-  Attributes role = (Attributes) 
+  Map role = (Map) 
     request.getAttribute(UserInterface.ROLE_RESULTS);
   
 %>
@@ -57,14 +57,11 @@ function cancelAction() {
     for (int i = 0; i < UserInterface.LDAP_ROLE_FIELDS.length; i++) {
       String title   = UserInterface.LDAP_ROLE_FIELDS[i][1];
       String field   = UserInterface.LDAP_ROLE_FIELDS[i][0];
-      Attribute attr = null;
-      if (role != null) attr = role.get(field);
-      Object val     = "";
-      int size = 0;
-      if (attr != null) {
-        val = attr.get();
-        size = attr.size();
+      Object val = null;
+      if (role != null) {
+        val = role.get(field);
       }
+      if (val == null) val = "";
       if (field == UserInterface.LDAP_ROLE_RDN) {
         val = "";
       }
