@@ -526,8 +526,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
           end
           if actualResult == 200 
             @numActionsLogged += 1
+            @numAccessAttempts += 1 if mop24
             if expectedResult == 200
-               @numtotalAccessAttemptCorrect+=1
+              @numtotalAccessAttemptCorrect+=1
+              @numAccessesCorrect += 1 if mop24
               @actions << " #{msg}"
             end   
             logInfoMsg  "logged:  #{msg}" if $VerboseDebugging
