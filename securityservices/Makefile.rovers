@@ -1,0 +1,26 @@
+
+SHELL = /bin/sh
+
+#----------------------------------------------------------- SETUP
+CLASSPATH = ${COUGAARCLASSES}
+#----------------------------------------------------------- MAKE ALL
+
+#  $@      - Current target
+#  $*      - Current target without extension
+#  $<      - Current dependency
+
+all: installconf
+
+checkout:
+	setenv CVSROOT :ext:${USER}@cvs.ultralog.net:/cvs/honeywell
+	cd ..
+	cvs checkout Caesar
+
+installconf:
+	echo +++++++ Installing configuration files
+	# Copy any additional libraries. This is used to test Rover security
+	cp test/libext/*.jar ${COUGAAR_INSTALL_PATH}/lib
+	cp -r ${COUGAAR_INSTALL_PATH}/configs/small-135 ${COUGAAR_INSTALL_PATH}/configs/rover-small-135
+	cp -r ../Caesar/test/configs/rovers ${COUGAAR_INSTALL_PATH}/configs/.
+	cp -r ../Caesar/test/configs/rover-small-135  ${COUGAAR_INSTALL_PATH}/configs/.
+

@@ -65,7 +65,6 @@ public class Agent
     }
     catch (Exception e) {
       System.out.println("Exception occuring while executing PlugIn: " + e);
-      JaasClient.printPrincipals();
     }
     return plugin;
   }

@@ -44,7 +44,6 @@ public class PlugIn
   public Object execute() {
     // Attempts to read a file for which we should not
     // have access
-    JaasClient.printPrincipals();
     try {
       String fileName = "/etc/passwd";
       FileReader f = new FileReader(fileName);
