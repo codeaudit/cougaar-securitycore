@@ -141,6 +141,7 @@ public class UserManagerPlugin extends ComponentPlugin {
   }
 
   private void setDomain(CommunityService cs, AgentIdentificationService ais) {
+    _log.debug("searching for domain for this manager");
     //String myAddress = ais.getName();
 
     final Status status = new Status();
@@ -160,17 +161,23 @@ public class UserManagerPlugin extends ComponentPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
-    cs.searchCommunity(null, filter, true,
-		       Community.COMMUNITIES_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
-    }
+    Collection communities = cs.searchCommunity(null, filter, true,
+                                                Community.COMMUNITIES_ONLY, 
+                                                crl);
+    if (communities == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
 
-    Collection communities = (Set) status.value;
+      communities = (Set) status.value;
+    }
     if (!communities.isEmpty()) {
       _domain = communities.iterator().next().toString();
+      if (_log.isDebugEnabled()) {
+        _log.debug("Domain for this user manager is " + _domain);
+      }
     }
   }
 
@@ -458,17 +465,19 @@ public class UserManagerPlugin extends ComponentPlugin {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (_cs == null && ae.getService().equals(CommunityService.class)) {
         _cs = (CommunityService) ae.getServiceBroker().
-           getService(this, CommunityService.class, null);
+           getService(UserManagerPlugin.this, CommunityService.class, null);
       } else if (_ais == null &&
                  ae.getService().equals(AgentIdentificationService.class)) {
         _ais = (AgentIdentificationService) ae.getServiceBroker().
-          getService(this, AgentIdentificationService.class, null);
+          getService(UserManagerPlugin.this, AgentIdentificationService.class,
+                     null);
       }
       if (_ais != null && _cs != null) {
         ae.getServiceBroker().removeServiceListener(this);
         setDomain(_cs, _ais);
-        getServiceBroker().releaseService(this, CommunityService.class, _cs);
-        getServiceBroker().releaseService(this, 
+        getServiceBroker().releaseService(UserManagerPlugin.this, 
+                                          CommunityService.class, _cs);
+        getServiceBroker().releaseService(UserManagerPlugin.this, 
                                           AgentIdentificationService.class,
                                           _ais);
       }

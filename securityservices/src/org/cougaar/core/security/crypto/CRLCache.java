@@ -39,6 +39,9 @@ import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 import sun.security.x509.*;
 import sun.security.util.DerValue;
 import sun.security.util.DerInputStream;
@@ -121,34 +124,34 @@ final public class CRLCache
   private CertificateCacheService cacheservice=null;
   private KeyRingService keyRingService=null;
   
-  private Collection mySecurityCommunities=null;
+  private Collection mySecurityCommunities = null;
   private final String CRL_Provider_Role="CrlProvider";
   private MessageAddress myAddress;
- 
+  private boolean _listening = false;
+  private boolean _crlRegistered = false;
+  
   public CRLCache(ServiceBroker sb){
     serviceBroker = sb;
     //bindingSite=bs;
-    log = (LoggingService)serviceBroker.getService(this,
-                                                   LoggingService.class,
-                                                   null);
+    log = (LoggingService)
+      serviceBroker.getService(this, LoggingService.class, null);
     secprop = (SecurityPropertiesService)serviceBroker.getService(this,
                                                                   SecurityPropertiesService.class, 
                                                                   null);
     //this.keystore=dkeystore;
-    if(log.isDebugEnabled()) {
-      log.debug("Crl cache being initialized  ++++++++++");
-    }
+    log.debug("Crl cache being initialized  ++++++++++");
     long poll = 0;
     try {
       poll = (Long.valueOf(secprop.getProperty(secprop.CRL_POLLING_PERIOD))).longValue() * 1000;
+    } catch (Exception e) {
+      // poll will be == 0, so ok.
     }
-    catch (Exception e) {}
-    if (poll != 0) {
+    if (poll > 0) {
       setSleepTime(poll);
     }
-    configParser = (ConfigParserService)serviceBroker.getService(this,
-                                                                 ConfigParserService.class,
-                                                                 null);
+    configParser = (ConfigParserService)
+      serviceBroker.getService(this, ConfigParserService.class, null);
+
     if (secprop == null) {
       throw new RuntimeException("unable to get security properties service");
     }
@@ -159,8 +162,8 @@ final public class CRLCache
     
     CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
     
-    if (cryptoClientPolicy == null
-	|| cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
+    if (cryptoClientPolicy == null || 
+        cryptoClientPolicy.getCertificateAttributesPolicy() == null) {
       // This is OK for standalone applications if they don't plan to use
       // certificates for authentication, but it's not OK for nodes
       boolean exec =
@@ -177,56 +180,40 @@ final public class CRLCache
     String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
     nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
     
-    cacheservice=(CertificateCacheService)serviceBroker.getService(this,
-                                                                   CertificateCacheService.class,
-                                                                   null);
-    keyRingService=(KeyRingService)serviceBroker.getService(this,
-                                                            KeyRingService.class,
-                                                            null);
-    blackboardService = (BlackboardService)serviceBroker.getService(this,
-                                                                    BlackboardService.class,
-                                                                    null);
-    
-    if(blackboardService==null) {
-      log.debug(" adding service listner for blackboard service :");
-      serviceBroker.addServiceListener(new BlackboardServiceAvailableListener());
-    }
-          
+    cacheservice = (CertificateCacheService)
+      serviceBroker.getService(this, CertificateCacheService.class, null);
+    keyRingService = (KeyRingService)
+      serviceBroker.getService(this, KeyRingService.class, null);
+    blackboardService = (BlackboardService)
+      serviceBroker.getService(this, BlackboardService.class, null);
     crlMgmtService=(CrlManagementService)
-      serviceBroker.getService(this, 
-			       CrlManagementService.class, 
-			       null);
-    if(crlMgmtService==null) {
-      log.debug(" adding service listner for CRL Management  service :");
-      serviceBroker.addServiceListener(new CrlManagementServiceAvailableListener());
+      serviceBroker.getService(this, CrlManagementService.class, null);
+    _communityService = (CommunityService)
+      serviceBroker.getService(this,CommunityService.class, null);
+    AgentIdentificationService ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if (ais != null) {
+      myAddress = ais.getMessageAddress();
+      serviceBroker.releaseService(this, AgentIdentificationService.class,
+                                   ais);
     }
-    AgentIdentificationService agentidentificationService=( AgentIdentificationService)
-      serviceBroker.getService(this, 
-                               AgentIdentificationService.class, 
-                               null);
-    
-    if(agentidentificationService!=null) {
-      myAddress=agentidentificationService.getMessageAddress();
-    }
-    else {
-      log.debug(" adding service listner for AgentIdentificationService :");
-      serviceBroker.addServiceListener(new AgentIdentificationServiceAvailableListener());
-      
-    }
-    if(myAddress!=null) {
-      _communityService = (CommunityService)
-	serviceBroker.getService(this,
-				 CommunityService.class, null);
-      if(_communityService !=null) {
-	getSecurityCommunity(null);
-      }
-      else {
-        log.debug(" adding service listner for Community Service :");
-        serviceBroker.addServiceListener(new CommunityServiceAvailableListener());
+
+    setServices();
+
+    if (cacheservice == null || keyRingService == null ||
+        blackboardService == null || crlMgmtService == null ||
+        myAddress == null || _communityService == null) {
+      ServiceAvailableListener listener = new ListenForServices();
+      serviceBroker.addServiceListener(listener);
+      if (log.isDebugEnabled()) {
+        log.debug("adding service listener. cacheservice=" + cacheservice +
+                  ", keyRingService=" + keyRingService + 
+                  ", blackboardService=" + blackboardService +
+                  ", crlMgmtService=" + crlMgmtService +
+                  ", myAddress=" + myAddress +
+                  ", communityService=" + _communityService);
       }
     }
-    
-    
   }
   
   public void startThread() {
@@ -235,19 +222,25 @@ final public class CRLCache
     td.start();
   }
 
-  public void addToCRLCache(String dnname){	
-    log.debug("addToCRLCache  -  "+ dnname );
+  public void addToCRLCache(String dnname) {
+    if (log.isDebugEnabled()) {
+      log.debug("addToCRLCache  -  "+ dnname );
+    }
     CRLWrapper wrapper=null;
-    if(!entryExists(dnname)) {
+
+    if (!entryExists(dnname)) {
       wrapper=new CRLWrapper(dnname);//,certcache);
       crlsCache.put(dnname,wrapper);
-      if((blackboardService!=null) && (crlMgmtService!=null )){
-	blackboardService.openTransaction();
-	CRLAgentRegistration crlagentregistartion=new CRLAgentRegistration (dnname);
-        AttributeBasedAddress aba=null;
-        CrlRelay crlregrelay=null;
-        if((mySecurityCommunities!=null)&&(mySecurityCommunities.size()>0)) {
+      if ((blackboardService != null) && (crlMgmtService != null)) {
+	CRLAgentRegistration crlagentregistartion = 
+          new CRLAgentRegistration(dnname);
+        AttributeBasedAddress aba = null;
+        CrlRelay crlregrelay = null;
+
+        if (mySecurityCommunities != null && 
+            !mySecurityCommunities.isEmpty()) {
 	  Iterator it = mySecurityCommunities.iterator();
+          blackboardService.openTransaction();
 	  while (it.hasNext()) {
 	    Community community = (Community) it.next();
             aba=AttributeBasedAddress.
@@ -256,22 +249,23 @@ final public class CRLCache
 				       CRL_Provider_Role); 
             crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
                                                    aba);
-            log.debug(" CRL relay is being published :"+ crlregrelay.toString());
+            if (log.isDebugEnabled()) {
+              log.debug(" CRL relay is being published :" +
+                        crlregrelay.toString());
+            }
             blackboardService.publishAdd(crlregrelay);
           }
+          blackboardService.closeTransaction();
+        } else {
+          if (log.isDebugEnabled()) {
+            log.debug("No info about my security community " + 
+                      myAddress.toString()); 
+          }
         }
-        else {
-          log.debug("No info about my security community "+ myAddress.toString()); 
-        }
-
-        blackboardService.closeTransaction();
-	  
-      }
-      else {
+      } else {
         log.debug("blackboardService / crlMgmtService is NULL:");
       }
-    }
-    else {
+    } else {
       if(log.isDebugEnabled()) {
 	log.debug("Warning !!! Entry already exists for dnname :" +dnname);
       }
@@ -298,12 +292,10 @@ final public class CRLCache
     Thread td=Thread.currentThread();
     td.setPriority(Thread.MIN_PRIORITY);
     while(true) {
-      if(log.isDebugEnabled())
-	log.debug("CRL CACHE THREAD IS RUNNING +++++++++++++++++++++++++++++++++++++++++");
+      log.debug("CRL CACHE THREAD IS RUNNING +++++++++++++++++++++++++++++++++++++++++");
       try {
 	Thread.sleep(sleep_time);
-      }
-      catch(InterruptedException interruptedexp) {
+      } catch(InterruptedException interruptedexp) {
 	interruptedexp.printStackTrace();
       }
       String dnname=null;
@@ -319,9 +311,7 @@ final public class CRLCache
 	  updateCRLInCertCache(dnname);
 	}
 	else {
-	  if(log.isWarnEnabled()) {
-	    log.warn("Dn name is null in thread of crl cache :");
-	  }
+          log.warn("Dn name is null in thread of crl cache :");
 	}
       }
     }
@@ -697,32 +687,6 @@ final public class CRLCache
     return incrl;
   }
 
-  /*
-  private void initCRLCache(){
-    try {
-      //if(caKeystore != null && caKeystore.size() > 0) {
-      if (log.isDebugEnabled()) {
-        log.debug("++++++ Initializing CRL Cache");
-      }
-      // Build a hash table that indexes keys in the CA keystore by DN
-      //initCRLCacheFromKeystore(caKeystore, param.caKeystorePassword);
-      initCRLCacheFromKeystore();
-      this.startThread();
-      //
-      //  }
-      //  else {
-      // log.debug(" Initializing CRL Cache  caKeystore == null ||  caKeystore.size() > 0");
-      //  }
-    }
-    catch (KeyStoreException e) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to access CA keystore: " + e);
-      }
-    }
-  }
-  */
-
-//  private void initCRLCacheFromKeystore(KeyStore aKeystore, char[] password)
   private void initCRLCacheFromKeystore()
     throws KeyStoreException {
     //String s=null;
@@ -796,24 +760,30 @@ final public class CRLCache
 
   public void publishCrlRegistration() {
 
-    Enumeration enum=crlsCache.keys();
+//     ensureSecurityCommunities();
+
+    Enumeration crlKeys = crlsCache.keys();
     String key=null;
     CRLWrapper wrapper=null;
     CRLAgentRegistration crlagentregistartion=null;
     if(crlsCache.isEmpty()) {
       log.debug("crlsCache is empty :");
     }
-    blackboardService.openTransaction();
     CrlRelay crlregrelay=null;
-    setMySecurityCommunities();
-    while(enum.hasMoreElements()) {
-      key=(String)enum.nextElement();
-      wrapper=(CRLWrapper) crlsCache.get(key);
-      crlagentregistartion=new CRLAgentRegistration (wrapper.getDN(),wrapper.getCertDirectoryURL(),
-						     wrapper.getCertDirectoryType());
+
+    while(crlKeys.hasMoreElements()) {
+      key     = (String)crlKeys.nextElement();
+      wrapper = (CRLWrapper) crlsCache.get(key);
+      crlagentregistartion =
+        new CRLAgentRegistration(wrapper.getDN(),
+                                 wrapper.getCertDirectoryURL(),
+                                 wrapper.getCertDirectoryType());
       AttributeBasedAddress aba=null;
-      if((mySecurityCommunities!=null)&&(mySecurityCommunities.size()>0) ){
+
+      if (mySecurityCommunities != null && !mySecurityCommunities.isEmpty()) {
 	Iterator it = mySecurityCommunities.iterator();
+
+        blackboardService.openTransaction();
 	while (it.hasNext()) {
           Community community = (Community) it.next();
           aba=AttributeBasedAddress.
@@ -825,125 +795,41 @@ final public class CRLCache
                                                  aba);
           log.debug(" CRL relay is being published :"+ crlregrelay.toString());
           blackboardService.publishAdd(crlregrelay);
-          //blackboardService.closeTransaction();
         }
-      }
-    }
-    blackboardService.closeTransaction();
-    
-    
-  }
-
-  public void setMySecurityCommunities() {
-     AgentIdentificationService agentIdentificationService=
-      (AgentIdentificationService) serviceBroker.getService(this,
-							    AgentIdentificationService.class,
-							    null);
-    if(agentIdentificationService!=null) {
-      myAddress=agentIdentificationService.getMessageAddress();
-      if (_communityService == null) {
-	_communityService = (CommunityService)
-	  serviceBroker.getService(this, CommunityService.class, null);
-      }
-      if(_communityService != null) {
-	getSecurityCommunity(null);
-      }
-      if(mySecurityCommunities.size()<1) {
-        log.warn(" Agent is NOT part of ANY SECURITY COMMUNITY:"
-		 +myAddress.toString());
+        blackboardService.closeTransaction();
       }
     }
   }
 
-  public void setmyCommunity() {
-    AgentIdentificationService agentIdentificationService=
-      (AgentIdentificationService)
-      serviceBroker.getService(this,
-			       AgentIdentificationService.class,
-			       null);
-    if(agentIdentificationService!=null) {
-      myAddress=agentIdentificationService.getMessageAddress();
-      if (_communityService == null) {
-	_communityService = (CommunityService)
-	  serviceBroker.getService(this, CommunityService.class, null);
-      }
-      if(_communityService != null) {
-	GetSecurityCommunityAction pg = new GetSecurityCommunityAction() {
-	    public void postExecute() {
-	      finishSetmyCommunity();
-	    }
-	  };
-	getSecurityCommunity(pg);
-      }// end of if(cs!=null)
-    }
-    serviceBroker.releaseService(this,
-                                 AgentIdentificationService.class,
-                                 agentIdentificationService);
-  }
-
-  private void getSecurityCommunity(final GetSecurityCommunityAction postGet) {
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse response) {
-	  Object resp = response.getContent();
-	  if (!(resp instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + resp.getClass().getName() + " - Should be a Set";
-	    log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  mySecurityCommunities = (Set) resp;
-	  if (postGet != null) {
-	    postGet.postExecute();
-	  }
-	}
-      };
-    String filter = "(CommunityType=Security)";
-    _communityService.searchCommunity(null, filter, true,
-				      Community.COMMUNITIES_ONLY, crl);
-  }
-
-  private interface GetSecurityCommunityAction {
-    public void postExecute();
-  }
-
-  private void finishSetmyCommunity() {
-    if((crlMgmtService!=null)&& (blackboardService!=null)
-       && (mySecurityCommunities.size()>0)){
-      log.debug("publishCrlRregistration called :"); 
-      publishCrlRegistration();
-    }// end if((crlMgmtService!=null)&& (blackboardService!=null)
-    else {
-      log.debug("Either crlMgmtService or  blackboardService or mySecurityCommunity is null ");
-      if(crlMgmtService==null) {
-	log.debug("crlMgmtService is NULL ");
-      }
-      if(blackboardService==null){
-	log.debug("blackboardService is NULL ");
+  private synchronized void setSecurityCommunity() {
+    log.debug("Setting Security Communities");
+    CommunityResponseListener listener = new GetCommunities();
+    Collection communities = 
+      _communityService.searchCommunity(null, "(CommunityType=Security)", 
+                                        true, Community.COMMUNITIES_ONLY, 
+                                        listener);
+    if (communities == null) {
+      _listening = true;
+    } else {
+      mySecurityCommunities = communities;
+      if (mySecurityCommunities.isEmpty()) {
+        log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
+                 myAddress);
+      } else if (log.isDebugEnabled()) {
+        log.debug("Agent " + myAddress + " security communities: " +
+                  mySecurityCommunities);
       }
     }
   }
 
-  public void setBlackboardService() {
-    //log.debug(" setBlackboardService called :");
-    blackboardService = (BlackboardService) serviceBroker.getService(this,BlackboardService.class, null);
-
-    /* Aquiring of AgentIdentificationService, SchedulerService &  AlarmService was only 
-       for debug purpose
-    */
-    AgentIdentificationService agentIdentificationService=
-      (AgentIdentificationService) serviceBroker.getService(this,
-							    AgentIdentificationService.class,
-							    null);
-    if(agentIdentificationService!=null){
-      log.debug("agentIdentificationService is NOT NULL in setBlackboardService");
-    }
-														
+  public void startCrlPoll() {
+    log.debug("Starting CRL Poll");
     SchedulerService schedulerService= 
       (SchedulerService) serviceBroker.getService(this,
 						  SchedulerService.class,
 						  null);
     if(schedulerService!=null){
-      log.debug("schedulerService is NOT NULL in setBlackboardService");
+      log.debug("schedulerService is NOT NULL in startCrlPoll");
     } 
     
     AlarmService alarmService= 
@@ -951,61 +837,20 @@ final public class CRLCache
 					      AlarmService.class,
 					      null);
     if(alarmService!=null){
-      log.debug("salarmService is NOT NULL in setBlackboardService");
+      log.debug("salarmService is NOT NULL in startCrlPoll");
     } 
     
     if(blackboardService!=null) {
       crlBlackboardComponent=new CrlCacheBlackboardComponent();
-      //crlBlackboardComponent.setBindingSite(bindingSite);
-      //log.debug(" Service broker from binding site :"+bindingSite.getServiceBroker().toString());
-      //crlBlackboardComponent.setParameters(null);
       crlBlackboardComponent.setSchedulerService(schedulerService );
       crlBlackboardComponent.setBlackboardService(blackboardService);
       crlBlackboardComponent.setAlarmService(alarmService );
-      crlBlackboardComponent.setAgentIdentificationService(agentIdentificationService);
+      crlBlackboardComponent.setAddress(myAddress);
       crlBlackboardComponent.initialize();
       crlBlackboardComponent.load();
       crlBlackboardComponent.start();
     }
     
-    if(crlMgmtService==null) {
-      log.debug("crlMgmtService is null trying to get the service :");
-      if(serviceBroker.hasService(CrlManagementService.class)){
-	crlMgmtService = (CrlManagementService) serviceBroker.getService(this,CrlManagementService.class, null); 
-      }
-      else {
-	log.debug("Cannot get CrlManagementService:");
-      }
-    }
-    if(crlMgmtService==null) {
-      crlMgmtService = (CrlManagementService) serviceBroker.getService(this,CrlManagementService.class, null);
-    }
-    if((mySecurityCommunities==null)||(mySecurityCommunities.size()<1)) {
-      if(myAddress!=null) {
-	if (_communityService == null) {
-	  _communityService = (CommunityService)
-	    serviceBroker.getService(this, CommunityService.class, null);
-	}
-        if(_communityService !=null) {
-	  getSecurityCommunity(null);
-        }
-        else {
-          log.debug(" Community service is null in setBB service");
-        }
-      } 
-    }
-    if((blackboardService!=null) && (crlMgmtService!=null )
-       && mySecurityCommunities != null
-       && (mySecurityCommunities.size()>0)){
-      log.debug("Going ot call publishCrlRregistration in setBlackboardService:");
-      publishCrlRegistration();
-    }
-    else {
-      log.debug("Either blackboardService/ crlMgmtService / mySecurityCommunity is NULL:");
-    }
-    serviceBroker.releaseService(this,
-                                 AgentIdentificationService.class,
-                                 agentIdentificationService);
     serviceBroker.releaseService(this,
                                  SchedulerService.class,
                                  schedulerService);
@@ -1014,81 +859,77 @@ final public class CRLCache
                                  alarmService);
   }
 
-  public void setCrlManagementService(){
-    //log.debug(" setCrlManagementService called ");
-    if(serviceBroker.hasService(org.cougaar.core.service.DomainService.class)){
-      crlMgmtService = (CrlManagementService) serviceBroker.getService(this,CrlManagementService.class, null); 
-      if((crlMgmtService!=null)&& (blackboardService!=null)
-         && (mySecurityCommunities.size()>0)){
-	log.debug("publishCrlRegistration called :"); 
-	publishCrlRegistration();
-      }
+  private synchronized void setServices() {
+    if (_communityService != null &&
+        mySecurityCommunities == null && !_listening) {
+      setSecurityCommunity();
     }
-    else {
-      log.debug("DomainService is not available adding listner  :");
-      serviceBroker.addServiceListener(new DomainServiceAvailableListener());
-            
+    if (!_crlRegistered && 
+        crlMgmtService != null && blackboardService != null &&
+        mySecurityCommunities != null) {
+      publishCrlRegistration();
     }
-  }
-
-
-         
-  private class DomainServiceAvailableListener implements ServiceAvailableListener {
-    public void serviceAvailable(ServiceAvailableEvent ae) {
-      Class sc = ae.getService();
-      if(  org.cougaar.core.service.DomainService.class.isAssignableFrom(sc)) {
-	//blackboardService = (BlackboardService) serviceBroker.getService(this,BlackboardService.class, null);
-	log.debug("Domain Service is available now in CRLCache  going to call set setCrlManagementService ");
-	setCrlManagementService();
-      }
+    if (myAddress != null && blackboardService != null) {
+      startCrlPoll();
     }
-  }
-
-
-  private class BlackboardServiceAvailableListener implements ServiceAvailableListener {
-    public void serviceAvailable(ServiceAvailableEvent ae) {
-      Class sc = ae.getService();
-      if( org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
-	if(blackboardService==null){
-	  log.debug("BB Service is available now in CRLCache  going to call setBlackboardService ");
-	  setBlackboardService();
-	}
-      }
-         
-    }
-  }
-
-
-  private class CrlManagementServiceAvailableListener
-    implements ServiceAvailableListener{
-    public void serviceAvailable(ServiceAvailableEvent ae) {
-      Class sc = ae.getService();
-      if( CrlManagementService.class.isAssignableFrom(sc)) {
-	log.info("crlMgmt Service is available now in CRL Cache going to call setCrlManagementService");
-	setCrlManagementService();	
-      }
-    }
+        
   }
   
-  private class CommunityServiceAvailableListener
-    implements ServiceAvailableListener{
-    public void serviceAvailable(ServiceAvailableEvent ae) {
-      Class sc = ae.getService();
-      if(  CommunityService.class.isAssignableFrom(sc)) {
-	log.info(" CommunityService is available now in CRL Cache going to call setmyCommunity");
-	setmyCommunity();	
+  private class GetCommunities implements CommunityResponseListener {
+    public void getResponse(CommunityResponse response) {
+      Object resp = response.getContent();
+      if (!(resp instanceof Set)) {
+        String errorString = "Unexpected community response class:" +
+          resp.getClass().getName() + " - Should be a Set";
+        log.error(errorString);
+        throw new RuntimeException(errorString);
       }
+
+      mySecurityCommunities = (Set) resp;
+      if (mySecurityCommunities.isEmpty()) {
+        log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
+                 myAddress);
+      } else if (log.isDebugEnabled()) {
+        log.debug("Agent " + myAddress + " security communities: " +
+                  mySecurityCommunities);
+      }
+      _listening = false;
+      setServices(); // try that again...
     }
   }
-  
-  private class AgentIdentificationServiceAvailableListener
-    implements ServiceAvailableListener{
+
+  private class ListenForServices
+    implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
-      if( AgentIdentificationService.class.isAssignableFrom(sc)) {
+      ServiceBroker sb = ae.getServiceBroker();
+      if ( sc == AgentIdentificationService.class ) {
 	log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
-	setmyCommunity();	
+        AgentIdentificationService ais = (AgentIdentificationService)
+          sb.getService(this, AgentIdentificationService.class, null);
+        myAddress = ais.getMessageAddress();
+        sb.releaseService(this, AgentIdentificationService.class, ais);
+      } else if ( sc == CertificateCacheService.class ) {
+        cacheservice = (CertificateCacheService)
+          sb.getService(CRLCache.this, CertificateCacheService.class, null);
+      } else if ( sc == KeyRingService.class ) {
+        keyRingService = (KeyRingService)
+          sb.getService(CRLCache.this, KeyRingService.class, null);
+      } else if ( sc == BlackboardService.class ) {
+        blackboardService = (BlackboardService)
+          sb.getService(CRLCache.this, BlackboardService.class, null);
+      } else if ( sc == CrlManagementService.class ) {
+        crlMgmtService=(CrlManagementService)
+          sb.getService(CRLCache.this, CrlManagementService.class, null);
+      } else if ( sc == CommunityService.class ) {
+        _communityService = (CommunityService)
+          serviceBroker.getService(CRLCache.this, 
+                                   CommunityService.class, null);
+//       } else if ( sc == DomainService.class ) {
+//         _domainService = (DomainService)
+//           serviceBroker.getService(this, DomainService.class, null);
       }
+      setServices(); 
     }
   }
 
@@ -1200,12 +1041,8 @@ final public class CRLCache
     public final void setAlarmService(AlarmService s) {
       alarmService = s;
     }
-    public final void setAgentIdentificationService(AgentIdentificationService ais) {
-      if (ais != null) {
-	agentId = ais.getMessageAddress();
-      } else {
-	// FIXME: Log something?
-      }
+    public final void setAddress(MessageAddress addr) {
+      agentId = addr;
     }
 
     /**

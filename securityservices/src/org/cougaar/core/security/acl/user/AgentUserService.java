@@ -150,8 +150,12 @@ public class AgentUserService implements UserService, BlackboardClient {
 	}
       };
     String filter = "(CommunityType=" + COMMUNITY_TYPE + ")";
-    _communityService.searchCommunity(null, filter, true,
-				      Community.COMMUNITIES_ONLY, crl);
+    Collection communities = 
+      _communityService.searchCommunity(null, filter, true,
+                                        Community.COMMUNITIES_ONLY, crl);
+    if (communities != null) {
+      setupRole(communities);
+    }
   }
 
   private void setupRole(Collection communities) {

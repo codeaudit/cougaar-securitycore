@@ -90,7 +90,11 @@ public class CommunityServiceUtil {
       };
 
     String filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
-    _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+    Collection communities = 
+      _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
+    if (communities != null) {
+      listener.getResponse((Set) communities);
+    }
   }
 
   public Community getSecurityCommunity(String agent) {
@@ -114,14 +118,16 @@ public class CommunityServiceUtil {
       };
     // TODO: do this truly asynchronously.
     String filter = "(CommunityType=Security)";
-    _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+    Collection communities = 
+      _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
 
-    Collection communities = null;
-    try {
-      s.acquire();
-      communities = (Set) status.value;
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
+    if (communities == null) {
+      try {
+        s.acquire();
+        communities = (Set) status.value;
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
     }
 
     if(communities.isEmpty()) {
@@ -191,14 +197,16 @@ public class CommunityServiceUtil {
       };
     // TODO: do this truly asynchronously.
     String filter = "(CommunityType=Security)";
-    _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+    Collection communities = 
+      _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
 
-    Collection communities = null;
-    try {
-      s.acquire();
-      communities = (Set) status.value;
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
+    if (communities == null) {
+      try {
+        s.acquire();
+        communities = (Set) status.value;
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
     }
     return communities;
   } 
