@@ -73,7 +73,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
  
   do_action "StartSociety" 
 
-#  do_action "InitDM"
+  do_action "InitDM"
  
   # however long you want to run 
 #  do_action "Sleep", 40.minutes 
