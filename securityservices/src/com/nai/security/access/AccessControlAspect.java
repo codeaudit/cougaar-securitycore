@@ -584,14 +584,15 @@ public class AccessControlAspect extends StandardAspect
       return true;
     }
 
+    /**
+     */
     private boolean outgoingMessageAction(Message msg, TrustSet trust) {
-      // if(!(msg instanceof DirectiveMessage))
-      //return true;
       String act;
+
       try {
-	act = acps.getOutgoingAction
-	  (msg.getOriginator().toString(),
-	   (String)trust.getAttribute(MissionCriticality.name).getValue());
+	String msgOrigin = msg.getOriginator().toString();
+	String trustValue = (String)trust.getAttribute(MissionCriticality.name).getValue();
+	act = acps.getOutgoingAction(msgOrigin, trustValue);
       }
       catch(Exception ex) {
 	System.out.println("AccessControlAspect: Warning: no access control for message"

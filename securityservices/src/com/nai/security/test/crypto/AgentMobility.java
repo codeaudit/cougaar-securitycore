@@ -113,6 +113,9 @@ public class AgentMobility
     if (CryptoDebug.debug) {
       System.out.println("Encryption parameters: " + alg);
     }
+
+    /*
+     * Disabled. This does not work yet.
     if (CryptoDebug.debug) {
       System.out.println("======== Wrapping agent's key:");
     }
@@ -127,6 +130,7 @@ public class AgentMobility
 	e.printStackTrace();
       }
     }
+    */
 
     if (CryptoDebug.debug) {
       System.out.println("======== Creating PKCS#12 envelope");

@@ -175,6 +175,12 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "blackjack_log_file", "read";
         permission java.util.PropertyPermission "blackjack.database", "read";
         permission java.util.PropertyPermission "blackjack.database.user", "read";
+        permission java.util.PropertyPermission "blackjack.database.password", "read";
+
+	// OPLAN permissions
+	permission java.util.PropertyPermission "oplan.test.database", "read";
+	permission java.util.PropertyPermission "oplan.test.database.user", "read";
+	permission java.util.PropertyPermission "oplan.test.database.password", "read";
 
 	// Vishnu permissions
 	permission java.util.PropertyPermission "UTILPlugInAdapter.showParameters", "read";
@@ -186,6 +192,12 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "vishnu.*", "read";
 	permission java.util.PropertyPermission "glmtrans.plugins.GroundVishnuPlugIn.complainAboutMissingMovabilityPG", "read"; 
 
+	// MYSQL driver
+	permission java.util.PropertyPermission "driver.mysql", "read";
+
+	// Tomcat web server permissions
+	permission java.util.PropertyPermission "tomcat.*", "read, write";
+	permission java.util.PropertyPermission "tc_path_add", "read";
 
 	// CSMART permissions (csmart.jar)
 	permission java.util.PropertyPermission "csmart.log.severity", "read";
@@ -284,6 +296,8 @@ grant signedBy "privileged" {
 	///////////////////////////////////////////////////
 	permission java.lang.RuntimePermission "setFactory";
 
+	permission java.lang.RuntimePermission "setContextClassLoader";
+
 	// accessDeclaredMembers permission
 	// This grants code permission to query a class for its public, protected,
 	// default (package) access, and private fields and/or methods. Although
@@ -342,6 +356,8 @@ grant signedBy "privileged" {
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}webtomcat${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}webtomcat${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}webtomcat${/}data${/}work${/}", "read, write";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}webtomcat${/}data${/}work${/}-", "read, write";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}*", "read";
