@@ -19,6 +19,7 @@ clean:
 	@echo +++++++ Removing jarfiles
 	rm -f ${COUGAARCLASSES}/bootstrapper.jar
 	rm -f ${COUGAARCLASSES}/securityservices.jar
+	rm -f ${COUGAARCLASSES}/CougaarCRLextensions.jar
 
 clean-data:
 	@echo +++++++ Removing configuration data
@@ -90,20 +91,26 @@ signjar: jar build-classes
 	@echo +++++++ Signing bootstrapper.jar and core.jar
 #	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 #		-storepass keystore ${COUGAARCLASSES}/core.jar privileged
+
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/bootstrapper.jar bootstrapper
+
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/securebootstrapper.jar bootstrapper
+
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/securityservices.jar privileged
-	@echo +++++++ Done signing bootstrapper.jar and core.jar
+
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
+		-storepass keystore ${COUGAARCLASSES}/CougaarCRLextensions.jar privileged
+	@echo +++++++ Done signing JAR files
 
 install: installconf
 	@echo +++++++ Installing jar files into ${COUGAAR_INSTALL_PATH}
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securebootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
-	#cp ${COUGAARCLASSES}/CougaarCRLextensions.jar ${JAVA_HOME}/jre/lib/ext
+	cp ${COUGAARCLASSES}/CougaarCRLextensions.jar ${COUGAAR_INSTALL_PATH}/lib
 	
 	@echo +++++++ Creating log directories
 	rm -rf ${COUGAAR_INSTALL_PATH}/log
@@ -113,8 +120,8 @@ install: installconf
 	mkdir ${COUGAAR_INSTALL_PATH}/log/plugin
 	@echo +++++++ Done installing jar files and log directories
 
-	@echo +++++++ Please copy CougaarCRLextensions.jar to JAVA_HOME/jre/lib/ext/ on all machines where node is going to run
-	@echo ################################
+	#@echo +++++++ Please copy CougaarCRLextensions.jar to JAVA_HOME/jre/lib/ext/ on all machines where node is going to run
+	#@echo ################################
 installconf:
 	echo +++++++ Installing configuration files
 	cp -r ./test/configs/common ${COUGAAR_INSTALL_PATH}/configs/
