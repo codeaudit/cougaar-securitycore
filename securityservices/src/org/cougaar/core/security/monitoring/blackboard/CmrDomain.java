@@ -29,16 +29,19 @@ import org.cougaar.core.blackboard.XPlanServesBlackboard;
 import org.cougaar.core.domain.Domain;
 import org.cougaar.core.domain.DomainAdapter;
 import org.cougaar.core.domain.DomainBindingSite;
-
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 /**
  * Create a barebones CmrDomain.  We have our own Factory
  * The property to load this Domain is:<pre>
- *         -Dorg.cougaar.domain.cmr=org.cougaar.core.security.monitoring.blackboard.CmrDomain
+ *   -Dorg.cougaar.domain.cmr=org.cougaar.core.security.monitoring.blackboard.CmrDomain
  * </pre>
  **/
 public class CmrDomain extends DomainAdapter {
   private static final String CMR_NAME = "cmr".intern();
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   public String getDomainName() {
     return CMR_NAME;
@@ -49,7 +52,6 @@ public class CmrDomain extends DomainAdapter {
   // Could initialize constants used in the domain here, for example
   public void initialize() {
     super.initialize();
-    System.out.println("Just to check whether initialize of cmr domain is called: ****************"); 
   }
 
   protected void loadFactory() {
@@ -59,6 +61,13 @@ public class CmrDomain extends DomainAdapter {
       throw new RuntimeException("Binding site for the Cmr domain has not be set.\n" +
                              "Unable to initialize Cmr domain Factory without a binding site.");
     } 
+    serviceBroker = getBindingSite().getServiceBroker();
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+    if (log.isDebugEnabled()) {
+      log.debug("cmr domain is loaded"); 
+    }
 
     setFactory(new CmrFactory(bindingSite.getClusterServesLogicProvider().getLDM()));
   }

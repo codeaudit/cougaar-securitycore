@@ -52,8 +52,6 @@ public class JaasAgentBinder
   /** Creates new JassAgentBinder */
   public JaasAgentBinder(BinderFactory bf, Object child) {
     super(bf,child);
-    System.out.println("Creating JaasAgentBinder");
-
   }
     //child binder
     protected final AgentBinder getAgentBinder() { 

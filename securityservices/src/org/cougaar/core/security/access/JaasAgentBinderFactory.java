@@ -37,7 +37,6 @@ public class JaasAgentBinderFactory
 {
     /** Creates new JaasAgentBinderFactory */
     public JaasAgentBinderFactory() {
-      System.out.println("Creating JaasAgentBinderFactory");
     }
     
     protected Class getBinderClass(Object child) {
