@@ -32,3 +32,4 @@
 /$baz/CertificateSigningRequest
 /$localhost/datagatherer
 /$localhost/foobar
+/thispath
