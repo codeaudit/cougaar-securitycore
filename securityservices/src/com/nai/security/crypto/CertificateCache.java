@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package com.nai.security.crypto;
@@ -285,7 +285,7 @@ public class CertificateCache
 	System.out.println("revoked status in cache:");
 	break;
       }
-       
+
     }
     if(!found){
       System.out.println(" not found cert:");
@@ -319,7 +319,7 @@ public class CertificateCache
       }
       if (CryptoDebug.debug) {
 	String a = certEntry.getCertificateAlias();
-	
+
 	System.out.print((a != null ? "Alias: " + a + "." : "" )
 			 + "Trust:" + certEntry.getCertificateTrust()
 			 + ". Type: " + certEntry.getCertificateType()
@@ -361,12 +361,12 @@ public class CertificateCache
 	      return;
 	    }
 
-	    if (aCertEntry.getCertificateType() != certEntry.getCertificateType()
-		|| aCertEntry.getCertificateOrigin() != certEntry.getCertificateOrigin()) {
+	    if (aCertEntry.getCertificateType() != certEntry.getCertificateType()) {
+		//|| aCertEntry.getCertificateOrigin() != certEntry.getCertificateOrigin()) {
 	      // Error. Certificate type and Certificate Origin cannot change
 	      if (CryptoDebug.debug) {
 		System.out.println("Error. Trying to update immutable fields: ");
-		System.out.println("   " + aCertEntry.getCertificateType() + " ==> " 
+		System.out.println("   " + aCertEntry.getCertificateType() + " ==> "
 				   + certEntry.getCertificateType());
 		System.out.println("   " + aCertEntry.getCertificateOrigin() + " ==> "
 				   + certEntry.getCertificateOrigin());
@@ -376,7 +376,7 @@ public class CertificateCache
 	    if (CryptoDebug.debug) {
 	      System.out.println("\nUpdating certificate status. Old trust:"
 				 + aCertEntry.getCertificateTrust()
-				 + " - new trust:" 
+				 + " - new trust:"
 				 + certEntry.getCertificateTrust());
 	    }
 	    // Update trust.
@@ -455,7 +455,7 @@ public class CertificateCache
 	}
 	if((certEntry.getCertificateTrust()== CertificateTrust.CERT_TRUST_CA_SIGNED) ||           (certEntry.getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_CERT))    {
   updateBigInt2Dn(cert);
-         }	
+         }
          else {
               if(CryptoDebug.debug)
 	        System.out.println("Certificate is not trusted yet:::::");
@@ -466,12 +466,12 @@ public class CertificateCache
 	System.out.println(e.getMessage());
 	return;
       }
-      
+
       ArrayList list = (ArrayList)certsCache.get(principal);
       if (list == null) {
 	list = new ArrayList();
       }
-      
+
       addCertStatus(list, certEntry, null);
       certsCache.put(principal, list);
     }
@@ -482,9 +482,9 @@ public class CertificateCache
     String issuerDN=cert.getIssuerDN().getName();
     BigInteger bigint=cert.getSerialNumber();
     crlkey=new CRLKey(bigint,issuerDN);
-    
+
     if(bigint2dn.contains(crlkey)) {
-      
+
       if(CryptoDebug.debug) {
 	System.out.println(" Warning !!!!!Bigint to dn mapping already contains key ::"+crlkey.toString());
 	System.out.println("Warning !!!! Overriding existing entry :"+bigint2dn.get(crlkey));
@@ -500,7 +500,7 @@ public class CertificateCache
     if(CryptoDebug.debug) {
       printbigIntCache();
     }
-   
+
   }
 
   public PrivateKey getPrivateKey(String distinguishedName)
@@ -584,7 +584,7 @@ public class CertificateCache
 	    // This prevents from sending the request too frequently
 	    if (CryptoDebug.debug) {
 	      System.out.println("Waiting " +
-				 (pkcs10MinInterval - timeDiff) 
+				 (pkcs10MinInterval - timeDiff)
 				 + "s before send PKCS10 request");
 	    }
 	    privkey = null;
@@ -771,14 +771,14 @@ public class CertificateCache
       subjectDN=(String)bigint2dn.get(crlkey);
     }
     return subjectDN;
-    
+
   }
 
   public Enumeration getKeysInCache()
   {
     return certsCache.keys();
   }
-  
+
   private class PrivateKeyCert
   {
     public PrivateKey pk;
