@@ -33,16 +33,21 @@
 package org.cougaar.core.security.test.blackboard;
 
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.test.*;
+import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.util.UnaryPredicate;
 
 
 /**
@@ -88,7 +93,7 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
         + expParam);
     }
 
-    if (doParam != null) {
+    if (doParam != null && !(doParam.equals("isReady"))) {
       blackboardService.openTransaction();
       PlanningFactory pf = (PlanningFactory) domainService.getFactory(
           "planning");
@@ -110,6 +115,32 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
       blackboardService.publishAdd(task);
       blackboardService.closeTransaction();
 
+    }else if(doParam!=null && doParam.equals("isReady")){
+    	if(logging.isDebugEnabled()){
+    		logging.debug("Checking if org activies ready");
+    	}
+    	blackboardService.openTransaction();
+    	Collection c= blackboardService.query(new UnaryPredicate(){
+    		public boolean execute(Object o){
+    			return o instanceof OrgActivity;
+    		}
+    	});
+			PrintWriter out = null;
+			try {
+				out = response.getWriter();
+			} catch (IOException e) {
+				if(logging.isErrorEnabled()){
+					logging.error("Error writing ready result",e);
+				}
+			}
+    	
+    	if(c.size()>0){
+    		out.println("TRUE");	
+    	
+    	}else{
+    		out.println("FALSE");
+    	}
+    	out.close();
     }
   }
 }
