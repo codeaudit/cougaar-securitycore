@@ -103,7 +103,7 @@
          <!-- Add Cougaar SE ZIP files -->
          <fileset dir="${org.cougaar.build.path}">
            <patternset>
-             <include name="*.zip">
+             <include name="*.zip"/>
            </patternset>
          </fileset>
          <!-- Add security services modules -->
