@@ -26,8 +26,17 @@ public class BasicAuthHandler extends AuthenticationHandler {
   {
     PasswordAuthentication pa = null;
     if (_pa.getPassword().length == 0) {
+    /*
       String pwd = JOptionPane.showInputDialog(
         "Please enter the password for user " + username + ".");
+        */
+      UserAliasPwdDialog dialog = new UserAliasPwdDialog();
+      dialog.setAlias(username);
+      dialog.setPrompt("\nPlease enter the password to access the remote site.");
+
+      boolean ok = dialog.showDialog();
+      String pwd = dialog.getPwd();
+
       pa = new PasswordAuthentication(username, pwd.toCharArray());
     }
     else
