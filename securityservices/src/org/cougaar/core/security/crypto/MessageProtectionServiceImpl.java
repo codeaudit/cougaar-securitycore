@@ -500,24 +500,7 @@ public class MessageProtectionServiceImpl
         throw new IOException("Found the wrong type of object in stream: " + e);
       } catch(DecryptSecretKeyException e) {
         // send the new certificate to the server
-        AttributedMessage msg = getCertificateMessage(sourceNode, _localNode);
-        if (msg != null) {
-          SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-          Long inc = MessageProtectionAspectImpl.getIncarnation();
-          if (sendQ != null && inc != null) {
-            msg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
-            sendQ.sendMessage(msg);
-            if (log.isInfoEnabled()) {
-              log.info("Requesting that " + sourceName + " use new certificate");
-            } 
-          } else if (log.isWarnEnabled()) {
-            log.warn("Could not send message to " + sourceName + 
-                     " to use a new certificate. Make sure that " +
-                     "org.cougaar.core.security.crypto.MessagePr" +
-                     "otectionAspectImpl is used.");
-          }
-        }
-      
+        // AttributedMessage msg = getCertificateMessage(sourceNode, _localNode);
         throw new RetryWithNewCertificateException(e.getMessage());
       } catch(GeneralSecurityException e) {
         publishMessageFailure(sourceName, targetName, e);
@@ -693,23 +676,7 @@ public class MessageProtectionServiceImpl
                                          encryptedSocket, criticalPLevelMsg,
                                          serviceBroker);
     } catch (DecryptSecretKeyException e) {
-      AttributedMessage msg = getCertificateMessage(source, destination);
-      if (msg != null) {
-        SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-        Long inc = MessageProtectionAspectImpl.getIncarnation();
-        if (sendQ != null && inc != null) {
-          msg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
-          sendQ.sendMessage(msg);
-          if (log.isInfoEnabled()) {
-            log.info("Requesting that " + source + " use new certificate");
-          } 
-        } else if (log.isWarnEnabled()) {
-          log.warn("Could not send message to " + source + 
-                   " to use a new certificate. Make sure that " +
-                   "org.cougaar.core.security.crypto.MessagePr" +
-                   "otectionAspectImpl is used.");
-        }
-      }
+      // AttributedMessage msg = getCertificateMessage(source, destination);
       throw new RetryWithNewCertificateException(e.getMessage());
     } catch (NoKeyAvailableException e) {
       throw new IOException(e.getMessage());
@@ -805,8 +772,7 @@ public class MessageProtectionServiceImpl
     boolean encryptedSocket = isEncrypted();
     try {
       return new ProtectedMessageInputStream(is, source, destination,
-                                             encryptedSocket, isReply,
-                                             serviceBroker);
+                                             encryptedSocket, isReply);
     } catch (GeneralSecurityException e) {
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;
     

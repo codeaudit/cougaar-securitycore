@@ -26,14 +26,50 @@
  
 package org.cougaar.core.security.crypto;
 
+import java.util.Random;
+
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 
-public class StopSigningMessage extends Message 
+public final class StopSigningMessage extends Message 
 {
-  public StopSigningMessage(MessageAddress source, 
-                            MessageAddress target)
+  private static Random _r = new Random();
+  private MessageAddress _sender;
+  private MessageAddress _receiver;
+  private int _id;
+
+  // This message is a response to a signed message, X, from sender to
+  // receiver. myNode is the node on which the message, X, has been
+  // received.  This message is sent from myNode back to the sender of
+  // X.
+  public StopSigningMessage(MessageAddress myNode,
+                            MessageAddress sender, 
+                            MessageAddress receiver,
+                            boolean        debugFlag)
   {
-    super(source, target);
+    // Send the message from my node to the sender of the message that 
+    // doesn't need signing
+    super(myNode, sender);
+    _sender   = sender;
+    _receiver = receiver;
+    if (debugFlag) {
+      _id       = _r.nextInt();
+    }
+  }
+
+  public MessageAddress getSender()
+  {
+    return _sender;
+  }
+
+  public MessageAddress getReceiver()
+  {
+    return _receiver;
+  }
+
+  public String toString()
+  {
+    return "<StopSigningMessage " + _sender + " --> " + _receiver +
+      " (" + _id + ")";
   }
 }

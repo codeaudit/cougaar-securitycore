@@ -49,6 +49,8 @@ import java.util.HashSet;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
+import org.cougaar.core.agent.service.MessageSwitchService;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.AttributeConstants;
 import org.cougaar.core.mts.MessageAddress;
@@ -63,6 +65,7 @@ import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.NullOutputStream;
 import org.cougaar.core.security.util.OnTopCipherInputStream;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.mts.base.SendQueue;
 import org.cougaar.mts.std.AttributedMessage;
@@ -83,35 +86,50 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   //private EventPublisher         _eventPublisher;
   private X509Certificate        _senderCert;
 
+  private static ServiceBroker       _sb;
+  private static Object              _serviceLock = new Object();
   private static LoggingService      _log;
   private static KeyRingService      _keyRing;
   private static CertificateCacheService _cacheService;
   private static CryptoPolicyService _cps;
   private static EncryptionService   _crypto;
+  private static MessageAddress _myNode        = null;
+  private static MessageSwitchService _mss     = null;
+
+
+
   private static SecureRandom        _random = new SecureRandom();
 
   private static int       _plmsgcounter = 0;
   private static final int _warnCount    = 100;
 
-  private static int randomResendProtectionLevelCounter = 0;
-  private static final int resendProtectionCount        = 20;
+  private static int _randomResendProtectionLevelCounter = 0;
+  private static final int _resendProtectionCount        = 20;
 
   private static final int START_SIGNING = 1;
   private static final int STOP_SIGNING  = 2;
-  private static HashSet toldToSign = new HashSet();
+  private static HashSet _toldToSign = new HashSet();
 
   private static boolean replyProblemWarned = false;
+
+
+
+  protected static void initializeServiceBroker(final ServiceBroker sb)
+  {
+    _sb = sb;
+  }
+
+
 
   public ProtectedMessageInputStream(InputStream stream, 
                                      MessageAddress source,
                                      MessageAddress target,
                                      boolean encryptedSocket,
-                                     boolean isReply,
-                                     ServiceBroker sb)
+                                     boolean isReply)
     throws GeneralSecurityException, IOException
   {
     super(null);
-    init(sb);
+    init();
 
     if (_log.isInfoEnabled()) {
       _log.info("Receiving message: " + source + " -> " + target);
@@ -203,50 +221,75 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private synchronized void init(final ServiceBroker sb) 
+  private void init()
     throws IOException
   {
-    if (!servicesReady()) {
+    final ServiceBroker sb = _sb;
+    synchronized (_serviceLock) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
       AccessController.doPrivileged(new PrivilegedAction() {
-        public Object run() {
-          _keyRing = (KeyRingService) 
-            sb.getService(this, KeyRingService.class, null);
-          _cacheService = (CertificateCacheService) 
-            sb.getService(this, CertificateCacheService.class, null);
-          _crypto = (EncryptionService)
-            sb.getService(this, EncryptionService.class, null);
-          _cps = (CryptoPolicyService)
-            sb.getService(this, CryptoPolicyService.class, null);
-          return null;
-        }
-      });
-    }
-    if (!servicesReady()) {
-      if (_log != null) {
-        if (_keyRing == null) { 
-          _log.warn("No keyring service");
-        }
-        if (_cacheService == null) {
-          _log.warn("No cache service");
-        }
-        if (_crypto == null) {
-          _log.warn("No crypto service");
-        }
-        if (_cps == null) {
-          _log.warn("No Crypto Protection Service");
+          public Object run() {
+            if (_keyRing == null) {
+              _keyRing = (KeyRingService) 
+                sb.getService(this, KeyRingService.class, null);
+            }
+            if (_cacheService == null) {
+              _cacheService = (CertificateCacheService) 
+                sb.getService(this, CertificateCacheService.class, null);
+            }
+            if (_crypto == null) {
+              _crypto = (EncryptionService)
+                sb.getService(this, EncryptionService.class, null);
+            }
+            if (_cps == null) {
+              _cps = (CryptoPolicyService)
+                sb.getService(this, CryptoPolicyService.class, null);
+            }
+            return null;
+          }
+        });
+      if (_mss == null) {
+        _mss = (MessageSwitchService)
+          sb.getService(this, MessageSwitchService.class, null);
+      }
+      if (_myNode == null) {
+        AgentIdentificationService ais = (AgentIdentificationService)
+          sb.getService(this, AgentIdentificationService.class, null);
+        if (ais != null) {
+          _myNode = ais.getMessageAddress();
+          sb.releaseService(this, AgentIdentificationService.class, ais);
         }
       }
-      throw new IOException("Needed services for ProtectedMessageOutputStream not available");
+
+      if (!servicesReady()) {
+        if (_log.isWarnEnabled()) {
+          _log.warn("Service not ready");
+        }
+        throw new IOException("Needed services for ProtectedMessageOutputStream not available");
+      }
+      if (_log.isInfoEnabled() && !optionalServicesReady()) {
+        _log.info("Optional Service not ready");
+      }
     }
-    
   }
 
-  private boolean servicesReady()
+
+  private static boolean servicesReady()
   {
-    return (_log != null && _keyRing != null && _cacheService != null
-                         && _crypto != null && _cps != null);
+    synchronized (_serviceLock) {
+      return (_log != null && _keyRing != null && _cacheService != null
+                   && _crypto != null && _cps != null);
+    }
   }
+
+  private static boolean optionalServicesReady()
+  {
+    synchronized (_serviceLock) {
+      return (_mss != null && _myNode != null);
+    }
+  }
+
+
 
   private void publishMessageFailure(String source, String target,
                                      String reason, String data) {
@@ -313,29 +356,26 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private void sendStopSigningMessage() 
   {
-    MessageAddress source = MessageAddress.getMessageAddress(_target);
-    MessageAddress target = MessageAddress.getMessageAddress(_source);
-    StopSigningMessage msg = new StopSigningMessage(source, target);
-    if (_plmsgcounter++ > _warnCount) {
-      _plmsgcounter = 0;
-      if (_log.isInfoEnabled()) {
-        _log.info("Another " + _warnCount + " ProtectionLevel Messages sent");
-      }
-    }
-    SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-    Long inc = MessageProtectionAspectImpl.getIncarnation();
-    if (sendQ != null && inc != null) {
-      AttributedMessage amsg = new AttributedMessage(msg);
+    MessageAddress source = MessageAddress.getMessageAddress(_source);
+    MessageAddress target = MessageAddress.getMessageAddress(_target);
 
-      amsg.setContentsId(_random.nextInt());
-      amsg.setAttribute(AttributeConstants.INCARNATION_ATTRIBUTE, inc);
-      sendQ.sendMessage(amsg);
-      if (_log.isDebugEnabled()) {
-        _log.debug("Sent message: " + amsg);
+    if (optionalServicesReady()) {
+      StopSigningMessage msg 
+        = new StopSigningMessage(_myNode, source, target, 
+                                 _log.isDebugEnabled());
+      if (_log.isInfoEnabled()) {
+        synchronized (this) {
+          _plmsgcounter += 1;
+          if (_plmsgcounter >= _warnCount) {
+            _plmsgcounter = 0;
+            _log.info("Another " + _warnCount + " ProtectionLevel Messages sent");
+          }
+        }
       }
-    } else if (_log.isWarnEnabled()) {
-      _log.warn("Could not send message to " + _source + 
-                " to stop signing");
+      if (_log.isDebugEnabled()) {
+        _log.debug("Sending " + msg);
+      }
+      _mss.sendMessage(msg);
     }
   }
 
@@ -616,12 +656,12 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private boolean alreadyToldToStopSigning()
   {
-    synchronized(toldToSign) {
+    synchronized(_toldToSign) {
       ConnectionInfo ci = new ConnectionInfo(_source,null,_target);
-      if (toldToSign.contains(ci)) {
+      if (_toldToSign.contains(ci)) {
         return true;
       } else {
-        toldToSign.add(ci);
+        _toldToSign.add(ci);
         return false;
       }
     }
@@ -629,17 +669,17 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private void tellingToSign()
   {
-    synchronized(toldToSign) {
+    synchronized(_toldToSign) {
       ConnectionInfo ci = new ConnectionInfo(_source,null,_target);
-      toldToSign.remove(ci);
+      _toldToSign.remove(ci);
     }
   }
 
 
   private synchronized boolean resendProtectionLevelAnyway()
   {
-    if (randomResendProtectionLevelCounter++ > resendProtectionCount) {
-      randomResendProtectionLevelCounter = 0;
+    if (_randomResendProtectionLevelCounter++ > _resendProtectionCount) {
+      _randomResendProtectionLevelCounter = 0;
       if (_log.isDebugEnabled()) {
         _log.debug("Resending protection level message to make sure he saw the last one");
       }
