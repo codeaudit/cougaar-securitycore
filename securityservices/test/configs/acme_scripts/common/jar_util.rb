@@ -131,10 +131,11 @@ def replaceFileInJar(jarFile, replacementFile)
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
   end
+  `cd #{jarDir} && jar xf #{jarFile} META-INF`
   targetFile = "#{jarDir}/#{targetFile}"
   File.cp(replacementFile, targetFile)
 #  puts "running jar -uMf #{jarFile} -C #{jarDir} ."
-  results = `jar -uMf #{jarFile} -C #{jarDir} .`
+  results = `jar -uf #{jarFile} -m #{jarDir}/META-INF/MANIFEST.MF -C #{jarDir} .`
 #  puts "result from jar: #{results}"
   File.rm_all(jarDir)
 end
