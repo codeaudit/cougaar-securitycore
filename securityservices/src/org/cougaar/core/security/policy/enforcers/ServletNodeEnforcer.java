@@ -291,6 +291,8 @@ public class ServletNodeEnforcer
 		    }
 		    for (int j = i+1; j < roleCount; j++) {
 			String role2 = HardWired.ulRoles[j];
+			roleSet = new HashSet();
+			roleSet.add(role1);
 			roleSet.add(role2);
 			out.print("<p>A user in role " + role1 + " and "
 				  + role2 + " is ");

@@ -128,6 +128,15 @@ public class ULSemanticMatcherFactory
 	public int matchSemantically(String className, Set instances)
 	    throws SemanticMatcherInitializationException
 	{
+	    if (_log.isDebugEnabled()) {
+		_log.debug(".ULSemanticMatcher: Entering with classname "
+			   + className + " and instances: ");
+		for (Iterator instancesIt = instances.iterator();
+		     instancesIt.hasNext();) {
+		    String instance = (String) instancesIt.next();
+		    _log.debug(".ULSemanticMatcher: " + instance);
+		}
+	    }
 	    className = removeHashChar(className);
 	    if (className.startsWith(communityPrefix)) {
 		ensureCommunityServicePresent();

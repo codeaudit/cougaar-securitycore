@@ -99,10 +99,11 @@ public class HardWired {
     public static final Set nsaApprovedWithAuth;
     static {
 	nsaApprovedWithAuth = new HashSet();
-	nsaApproved.add( new CypherSuiteWithAuth("3DES",
-						 "RSA",
-						 "MD5",
-						 CypherSuiteWithAuth.authCertificate));
+	nsaApprovedWithAuth.add( new CypherSuiteWithAuth("3DES",
+							 "RSA",
+							 "MD5",
+							 CypherSuiteWithAuth
+							 .authCertificate));
     }
 
     public static final Set secretCrypto;
