@@ -29,8 +29,13 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 public class RelayBase
   implements Relay.Source, Relay.Target, java.io.Serializable {
+
+  private static Logger _log;
 
   protected UID _uid;
   protected MessageAddress _source;
@@ -39,6 +44,10 @@ public class RelayBase
   protected transient Set _targets;
   private final Relay.TargetFactory FACTORY = 
     new RelayBaseFactory(this.getClass());
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger(RelayBase.class);
+  }
 
   protected RelayBase(UID uid, MessageAddress source, Object content) {
     _uid = uid;
@@ -161,7 +170,10 @@ public class RelayBase
       } catch (Exception e) {
         // shouldn't get here unless the coder has inherited
         // incorrectly from the RelayBase class
-        e.printStackTrace(); 
+	if (_log.isWarnEnabled()) {
+	  _log.warn("Shouldn't get here unless the coder has inherited "
+		    + "incorrectly from the RelayBase class", e);
+	}
         throw new RuntimeException(e.getMessage(), e);
       }
     }

@@ -33,14 +33,18 @@ import java.lang.reflect.*;
 
 import java.security.cert.CertificateException;
 import java.security.cert.CRLException;
-
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 
 public class CrlUtility {
-   public static final String issuingdpointname="IssuingDistibutionPoint";
+  public static final String issuingdpointname="IssuingDistibutionPoint";
+  private static Logger _log;
 
-
+  static {
+    _log = LoggerFactory.getInstance().createLogger(CrlUtility.class);
+  }
 
    public static CRLExtensions getExtensions(X509CRL crl) throws IOException {
     //Vector extension=new Vector();
@@ -191,7 +195,9 @@ public class CrlUtility {
       extensions= getExtensions(caCRL);
     }
     catch ( IOException ioexp) {
-      ioexp.printStackTrace();
+      if (_log.isWarnEnabled()) {
+	_log.warn("Unable to get Certificate extensions", ioexp);
+      }
       throw new IOException(ioexp.getMessage());
     }
 

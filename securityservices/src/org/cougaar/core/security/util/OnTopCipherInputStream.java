@@ -1,5 +1,8 @@
 package org.cougaar.core.security.util;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 import java.io.*;
 import java.security.*;
 import javax.crypto.*;
@@ -8,9 +11,11 @@ public class OnTopCipherInputStream extends FilterInputStream {
   private InputStream _unfiltered;
   private int         _blockSize;
   private ClosingInputStream _closing;
+  private Logger _log;
 
   public OnTopCipherInputStream(InputStream is, Cipher c) {
     super(null);
+    _log = LoggerFactory.getInstance().createLogger(this);
     _unfiltered = is;
     _blockSize = c.getBlockSize();
     if (_blockSize > 0) {
@@ -40,7 +45,9 @@ public class OnTopCipherInputStream extends FilterInputStream {
         }
       }
       } catch (Throwable e) {
-        e.printStackTrace();
+	if (_log.isWarnEnabled()) {
+	  _log.warn("Unable to close cipher", e);
+	}
       }
     }
   }

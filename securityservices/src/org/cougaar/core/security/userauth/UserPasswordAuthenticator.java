@@ -116,7 +116,9 @@ public final class UserPasswordAuthenticator extends Authenticator
           handler.authenticateUser(handler.getUserName());
 	  return _pa;
         } catch (Exception ex) {
-          ex.printStackTrace();
+	  if (log.isWarnEnabled()) {
+	    log.warn("Unable to get requesting protocol", ex);
+	  }
         }
       }
     }

@@ -24,8 +24,17 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
+
 public class SystemUtils {
   
+  private static Logger _log;
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger(SystemUtils.class);
+  }
+
   public static String getNodeName(){
     return System.getProperty( "org.cougaar.node.name" ); 
   }
@@ -65,7 +74,9 @@ public class SystemUtils {
       envVars.add( "HOST=" + host );
     }
     catch( Exception e ) {
-      e.printStackTrace();
+      if (_log.isWarnEnabled()) {
+	_log.warn("Unable to get host name", e);
+      }
     }
     return envVars;
   }

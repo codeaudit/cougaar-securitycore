@@ -426,24 +426,34 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       crl.verify(crlIssuerPublickey);
     }
     catch (NoSuchAlgorithmException  noSuchAlgorithmException) {
-      noSuchAlgorithmException.printStackTrace();
-      return ;
+      if(log.isWarnEnabled()) {
+	log.warn("No such algorithm", noSuchAlgorithmException);
+      }
+      return;
     }
     catch (InvalidKeyException invalidKeyException ) {
-      invalidKeyException.printStackTrace();
-      return ;
+      if(log.isWarnEnabled()) {
+	log.warn("Invalid key", invalidKeyException);
+      }
+      return;
     }
     catch (NoSuchProviderException noSuchProviderException ){
-      noSuchProviderException.printStackTrace();
-      return ;
+      if(log.isWarnEnabled()) {
+	log.warn("No such provider", noSuchProviderException);
+      }
+      return;
     }
     catch (SignatureException  signatureException ) {
-      signatureException.printStackTrace();
-      return ;
+      if(log.isWarnEnabled()) {
+	log.warn("Signature exception", signatureException);
+      }
+      return;
     }
     catch (CRLException cRLException ) {
-      cRLException.printStackTrace();
-      return ;
+      if(log.isWarnEnabled()) {
+	log.warn("CRL exception", cRLException);
+      }
+      return;
     }
     try {
       if(keyRingService!=null) {

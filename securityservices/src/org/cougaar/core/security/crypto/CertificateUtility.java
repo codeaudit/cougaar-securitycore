@@ -41,6 +41,8 @@ import java.security.cert.CertificateEncodingException;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class CertificateUtility {
   //private static boolean debug = false;
@@ -59,7 +61,11 @@ public class CertificateUtility {
   public static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
   public static final int CACert=1;
   public static final int EntityCert=2;
+  private static Logger _log;
 
+  static {
+    _log = LoggerFactory.getInstance().createLogger(CertificateUtility.class);
+  }
   public static Collection parseX509orPKCS7Cert(InputStream inputstream)
     throws CertificateException
     {
@@ -458,7 +464,9 @@ public class CertificateUtility {
       hash = toHex(certDigest.digest());
     }
     catch(Exception ex) {
-      ex.printStackTrace();
+      if (_log.isWarnEnabled()) {
+	_log.warn("Unable to get message digest", ex);
+      }
     }
     return hash;
   }
