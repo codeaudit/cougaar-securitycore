@@ -10,23 +10,22 @@ uri = "NameServerCertificateServlet"
 sslRMILinkProtocol = "org.cougaar.mts.std.SSLRMILinkProtocol"
 protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
 
-# check the node for protocols other than SSLRMILinkProtocol
-use_ssl = false;
-society.each_node do |node|
-  node.each_component do |comp_element|
-    if comp_element.insertionpoint == protocolInsertion
-      if comp_element.classname == sslRMILinkProtocol
-        use_ssl = true
-      else
-        use_ssl = false
-        break # we know that at least one non-SSL protocol exists
-      end
-    end
-  end
-  break # don't need to see more than one node
-end
 
-if !use_ssl
+# It is possible to remove the NameServerCertificateComponent from
+# nodes when their name.server property utilizes the RMI/SSL protocol.
+# 
+# This is because when a node's RMI bootstrap code (in core not mtsstd)
+# goes to the RMI registry it uses an unathenticated SSL port.  A side
+# effect of this process is that trust manager checks and installs
+# the certificate for the rmi registry server.  This certificate
+# enables the node to use MTS to contact the name server and install
+# its entries.
+#
+# I think that it is safer to simply always install the
+# NameServerCertificateComponent as an essential part of the
+# certificate authority.
+
+
 # add NameServerCeritificateComponent to each node
   society.each_node do |node|
     node.add_component do |c|
@@ -37,21 +36,18 @@ if !use_ssl
 
   society.each_agent() do |agent|
     # Is this a CA agent?
-    if (agent.has_facet?($facetRootCaManagerAgent) ||
-          agent.has_facet?($facetRedundantRootCaManagerAgent) ||
-          agent.has_facet?($facetCaManagerAgent) ||
-          agent.has_facet?($facetRedundantCaManagerAgent) )
-      agent.add_component do |c|
-        c.classname = servletComp
-        c.add_argument(servlet)
-        c.add_argument("/CA/" + uri)
+    agent.each_facet do |facet|
+      if (facet[:role] == $facetRootCaManagerAgent ||
+          facet[:role] == $facetRedundantRootCaManagerAgent ||
+          facet[:role] == $facetCaManagerAgent ||
+          facet[:role] == $facetRedundantCaManagerAgent) then
+        agent.add_component do |c|
+          c.classname = servletComp
+          c.add_argument(servlet)
+          c.add_argument("/CA/" + uri)
+        end
       end
     end
   end
-else
-  society.each_node do |node|
-    node.remove_component(plugin)
-  end
-end
 
 
