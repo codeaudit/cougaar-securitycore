@@ -2053,6 +2053,23 @@ public class DirectoryKeyStore
     }
     String commonName = dname.getCommonName();
 
+    // check whether there is self-signed certificate
+    // reuse it
+    // if a cert is deny, expired, revoke, etc, status should not be unknown
+    if (!isCACert) {
+      ArrayList certList = certCache.getCertificates(dname);
+      for (int i = 0; certList != null && i < certList.size(); i++) {
+        CertificateStatus cs = (CertificateStatus)certList.get(i);
+        if (cs.getCertificateTrust() == CertificateTrust.CERT_TRUST_SELF_SIGNED
+          && cs.getCertificateType() == CertificateType.CERT_TYPE_END_ENTITY) {
+          String alias = cs.getCertificateAlias();
+          log.debug("Reusing alias: " + alias);
+          return alias;
+        }
+
+      }
+    }
+
     String alias = getNextAlias(keystore, commonName);
 
     if (log.isDebugEnabled()) {
@@ -2107,7 +2124,7 @@ public class DirectoryKeyStore
 
     CertificateType certificateType = null;
     CertificateTrust certificateTrust = null;
-    if (isCACert) {
+    if (!isCACert) {
       // Add the certificate to the certificate cache. The key cannot be used
       // yet because it has not been signed by the Certificate Authority.
       certificateType = CertificateType.CERT_TYPE_END_ENTITY;
