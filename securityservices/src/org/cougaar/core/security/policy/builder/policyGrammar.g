@@ -425,21 +425,30 @@ oqlSimplePolicy [String pn]
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
 { boolean m;
+  String userSpec = null;
   Set dataSets;
   pp = null; }
     : "Priority" EQ priority:INT COMMA  
-      "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
+      userSpec=oqlUser m=servletUserAccessModality 
         priv:TOKEN "the" "sets" dataSets=tokenList 
         "in" dataSource:TOKEN
         {pp = new OQLParsedPolicy(
                 pn,
                 ParsedPolicyFile.identifierToInt(priority),
                 m,
-                ParsedPolicyFile.tokenToText(r),
+                userSpec,
                 ParsedPolicyFile.tokenToText(priv),
                 dataSets,
                 ParsedPolicyFile.tokenToText(dataSource));
             }
+    ;
+
+oqlUser
+returns [String userSpec]
+{ userSpec = null; }
+    : "Any" "user" 
+    | "A" "user" "in" "role" r:TOKEN 
+        { userSpec = ParsedPolicyFile.tokenToText(r); }
     ;
 
 
