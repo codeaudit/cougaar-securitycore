@@ -27,7 +27,6 @@ import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionCo
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
-import org.cougaar.core.security.policy.enforcers.util.StringPairMapping;
 import org.cougaar.core.security.policy.enforcers.util.RegexpStringMapping;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 import org.cougaar.core.service.LoggingService;
