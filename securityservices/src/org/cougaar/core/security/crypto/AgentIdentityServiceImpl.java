@@ -175,6 +175,10 @@ public class AgentIdentityServiceImpl
   }
 
   public void release() {
+    if (log.isDebugEnabled()) {
+      log.debug("release identity:"
+		+ requestorAddress.toAddress());
+    }
   }
 
   /*

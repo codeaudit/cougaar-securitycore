@@ -103,38 +103,22 @@ public class CaPolicyHandler
     // Names
     if (localName.equals(CA_DN_ELEMENT)) {
       X500Name aDN = null;
-      try {
-	aDN = new X500Name(getContents());
-	if (log.isDebugEnabled()) {
-	  log.debug(" Got aDN is :"+ aDN.toString());
+      if (getContents() != null && !getContents().equals("")) {
+	try {
+	  aDN = new X500Name(getContents());
+	  if (log.isDebugEnabled()) {
+	    log.debug(" Got aDN is :"+ aDN.toString());
+	  }
+	  caPolicy.caDnName = aDN;
+	  caPolicy.caCommonName = aDN.getCommonName();
 	}
-	caPolicy.caDnName = aDN;
-	caPolicy.caCommonName = aDN.getCommonName();
-      }
-      catch (IOException e) {
-	if (log.isErrorEnabled()) {
-	  log.error("Unable to parse DN: " + getContents());
+	catch (IOException e) {
+	  if (log.isErrorEnabled()) {
+	    log.error("Unable to parse DN: " + getContents());
+	  }
 	}
       }
     }
-    // Directories
-    /*
-    if (localName.equals(CA_SERIAL_ELEMENT)) {
-      caPolicy.serialNumberFile = getContents();
-    }
-    if (localName.equals(CA_PKCS10_ELEMENT)) {
-      caPolicy.pkcs10Directory = getContents();
-    }
-    if (localName.equals(CA_X509_ELEMENT  )) {
-      caPolicy.x509CertDirectory = getContents();
-    }
-    if (localName.equals(CA_PENDING_ELEMENT )) {
-      caPolicy.pendingDirectory = getContents();
-    }
-    if (localName.equals(CA_DENIED_ELEMENT )) {
-      caPolicy.deniedDirectory = getContents();
-    }
-    */
 
     // Certificate Directory Service
     if (localName.equals(CA_LDAP_URL_ELEMENT)) {
