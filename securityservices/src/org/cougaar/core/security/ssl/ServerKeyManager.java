@@ -99,8 +99,8 @@ public final class ServerKeyManager
       }
     }
 
-    if (log.isDebugEnabled())
-      log.debug("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
+    if (log.isInfoEnabled())
+      log.info("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
 			 + " and nodex509 is " + nodex509);
   }
 
