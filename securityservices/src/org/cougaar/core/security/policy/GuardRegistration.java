@@ -71,6 +71,9 @@ public abstract class GuardRegistration
 
   public GuardRegistration(String aPolicyType, String enforcerName,
 			   ServiceBroker sb) {
+    if (sb == null) {
+      throw new RuntimeException("Service broker should not be null");
+    }
     serviceBroker = sb;
     log = (LoggingService)
       serviceBroker.getService(this,
