@@ -6,8 +6,9 @@ require 'security/lib/rules'
 
 class Security3c2 < SecurityStressFramework
 
-   def initialize
+   def initialize(run)
       super
+      @run = run
       @useIdmef = true
       @revoked_node = nil
       @revoked_agent = nil
@@ -22,7 +23,8 @@ class Security3c2 < SecurityStressFramework
       @caDomains = CaDomains.instance
       @caDomains.ensureExpectedEntities
 
-      installSendMessageServlet
+      # Send servlet now installed through a rule
+      #installSendMessageServlet
    end
 
    def postStartJabberCommunications
@@ -90,8 +92,8 @@ class Security3c2 < SecurityStressFramework
 puts "thread awakens"
 
       @dest_agent = @certRevocation.selectAgent
-      agent1 = run.society.agents[@revoked_agent]
-      agent2 = run.society.agents[@dest_agent]
+      agent1 = @run.society.agents[@revoked_agent]
+      agent2 = @run.society.agents[@dest_agent]
 
       testMessage(agent1, agent2)      
 
