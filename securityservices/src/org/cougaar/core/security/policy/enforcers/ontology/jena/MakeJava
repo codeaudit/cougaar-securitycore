@@ -1,0 +1,15 @@
+#!/bin/bash
+
+PKG=org.cougaar.core.security.policy.enforcers.ontology.jena
+
+ProxiedOntologyJavaMapper \
+     http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml      . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml  . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml   . ${PKG}
+
+ProxiedOntologyJavaMapper \
+      http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml    . ${PKG}
