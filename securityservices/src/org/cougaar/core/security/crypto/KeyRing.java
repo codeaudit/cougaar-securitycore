@@ -437,6 +437,13 @@ final public class KeyRing
     return directoryKeystore.getCACertDirServiceClient(dname);
   }
 
+  public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc) {
+    if (directoryKeystore == null) {
+      return;
+    }
+    directoryKeystore.checkOrMakeCert(dname, isCACert, tc);
+    return;
+  }
 
 /*
   public void addSSLCertificateToCache(X509Certificate cert) {
