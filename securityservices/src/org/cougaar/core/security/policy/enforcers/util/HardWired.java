@@ -54,24 +54,6 @@ import org.cougaar.util.ConfigFinder;
 public class HardWired {
 
   /**
-   * Ontology name for very weak crypto
-   */
-  public static final String WEAK_CRYPTO = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "WeakProtection";
-
-  /**
-   * Ontology name for secret crypto
-   */
-  public static final String SECRET_CRYPTO = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "SecretProtection";
-
-  /**
-   * Ontology name for strong crypto
-   */
-  public static final String STRONG_CRYPTO = 
-    EntityInstancesConcepts.EntityInstancesOwlURL() + "NSAApprovedProtection";
-
-  /**
    * Ontology name for authorization with no credentials and weak protection
    */
   public static final String NO_AUTH = 
@@ -172,57 +154,6 @@ public class HardWired {
     passwordAuth.getSSL().add("plain");
   }
 
-  public static final CipherSuite nsaApproved;
-  static {
-    nsaApproved = new CipherSuite(STRONG_CRYPTO);
-    nsaApproved.addSymmetric("AES#128");
-    nsaApproved.addSymmetric("RC4#128");
-    nsaApproved.addSymmetric("DESede#128");
-    nsaApproved.addSymmetric("Blowfish#128");
-    nsaApproved.addAsymmetric("RSA/ECB/PKCS1Padding");
-    nsaApproved.addSignature("MD5withRSA");
-  }
-
-  public static final CipherSuite secretCrypto;
-  static {
-    secretCrypto = new CipherSuite(SECRET_CRYPTO);
-    secretCrypto.addSymmetric("DES");
-    secretCrypto.addAsymmetric("RSA/ECB/PKCS1Padding");
-    secretCrypto.addSignature("MD5withRSA");
-    secretCrypto.addSymmetric(CipherSuite.PROTECTED_LAN,  "plain");
-    secretCrypto.addAsymmetric(CipherSuite.PROTECTED_LAN, "none");
-    secretCrypto.addSignature(CipherSuite.PROTECTED_LAN,  "none");
-  }
-
-
-  public static final CipherSuite weakCrypto;
-  static {
-    weakCrypto = new CipherSuite(WEAK_CRYPTO);
-    weakCrypto.addSymmetric("plain");
-    weakCrypto.addAsymmetric("none");
-    weakCrypto.addSignature("none");
-  }
-
-  
-  public final static CipherSuite ulCiphersFromKAoSProtectionLevel(Set ciphers)
-  {
-    CipherSuite cs = new CipherSuite();
-    for(Iterator cipherIt = ciphers.iterator(); cipherIt.hasNext();) {
-      String cipher = (String) cipherIt.next();
-      if (cipher.equals(WEAK_CRYPTO) ) {
-        cs.addAll(weakCrypto);
-      } else if (cipher.equals(STRONG_CRYPTO)) {
-         cs.addAll( nsaApproved);
-      } else if (cipher.equals(SECRET_CRYPTO)) {
-        cs.addAll(secretCrypto);
-      } else {
-        // I guess he is getting less than he wanted...
-        continue;
-      }
-    }
-    return cs;
-  }
-
   public final static AuthSuite ulAuthSuiteFromKAoSAuthLevel(Set ciphers)
   {
     AuthSuite as = new AuthSuite();
@@ -243,16 +174,6 @@ public class HardWired {
     return as;
   }
 
-  /**
-   * This will later be calculated by the directory service.
-   */
-  public final static HashSet usedProtectionLevelValues;
-  static {
-    usedProtectionLevelValues = new HashSet();
-    usedProtectionLevelValues.add(WEAK_CRYPTO);
-    usedProtectionLevelValues.add(SECRET_CRYPTO);
-    usedProtectionLevelValues.add(STRONG_CRYPTO);
-  }
 
 
   /**
