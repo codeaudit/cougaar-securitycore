@@ -48,6 +48,13 @@ public class CompromiseBlackboard implements UniqueObject, Serializable {
   public static final String HOST_COMPROMISE_TYPE = "Host";
   /** constant for classification of IDMEF Event */
   public static final String CLASSIFICATION = "Blackboard has been compromised";
+  /**Constant for revoke session verb*/
+  public static final String REVOKE_SESSION_KEY_VERB="RevokeSessionKey";
+  /**Constant for verb to revoke agent cert*/
+  public static final String REVOKE_AGENT_CERT_VERB="RevokeAgentCert";
+  public static final String CA_DN_PREP ="Agent CA DN List";
+  public static final String FOR_AGENT_PREP = "for agent";
+  public static final String COMPROMISE_TIMESTAMP_PREP="timestamp";
   private UID uid;
   private long timestamp;
   private String compromiseType;

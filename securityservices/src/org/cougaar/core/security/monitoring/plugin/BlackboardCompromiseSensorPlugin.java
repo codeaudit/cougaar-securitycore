@@ -28,12 +28,14 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.node.NodeIdentificationService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
@@ -41,11 +43,11 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
 
-import java.io.Serializable;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
+import edu.jhuapl.idmef.AdditionalData;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
 
 
 /**
@@ -107,7 +109,7 @@ public class BlackboardCompromiseSensorPlugin extends ComponentPlugin {
 	  String compromiseType = cb.getCompromiseType();
       //create IDMEF Event
       createIDMEFEvent(timestamp, pluginName, CompromiseBlackboard.CLASSIFICATION, compromiseType);
-      
+      getBlackboardService().publishRemove(cb);
     }
   }
 
@@ -121,7 +123,7 @@ public class BlackboardCompromiseSensorPlugin extends ComponentPlugin {
    */
   protected void createIDMEFEvent(long timestamp, final String sensorName, String classification, String compromiseType) {
     DetectTime detectTime = new DetectTime();
-    detectTime.setIdmefDate(new java.util.Date());
+    detectTime.setIdmefDate(new java.util.Date(timestamp));
     DomainService domainService = (DomainService) this.getServiceBroker().getService(this, DomainService.class, null);
     CmrFactory cmrFactory = (CmrFactory) domainService.getFactory("cmr");
     ArrayList classifications = new ArrayList();
@@ -152,14 +154,51 @@ public class BlackboardCompromiseSensorPlugin extends ComponentPlugin {
           return pluginName;
         }
       });
-
+      
+  //For now just use agent, host, and node of this agent, but in the future the sensor could be getting notified of a compromise 
+  //from a different agent.
+  
 	ArrayList sources = new ArrayList();
 	sources.add(this.getAgentIdentifier().getAddress());
 	
 	ArrayList dataList = new ArrayList();
-	dataList.add(compromiseType);
+	//add scope of compromise
+	AdditionalData data =new AdditionalData();
+	data.setType("scope");
+	data.setAdditionalData(compromiseType);
+	dataList.add(data);
+	//Add timestamp of compromise
+	AdditionalData timeData = new AdditionalData();
+	timeData.setType("compromise timestamp");
+	timeData.setAdditionalData("" + timestamp);
+	dataList.add(timeData);
+	//Add source Agent
+	AdditionalData agentData = new AdditionalData();
+	agentData.setType("sourceAgent");
+	agentData.setAdditionalData(this.getAgentIdentifier().getAddress());
+	dataList.add(agentData);
+	//Add source Node
+	AdditionalData nodeData = new AdditionalData();
+	nodeData.setType("sourceNode");
+	NodeIdentificationService nodeIdService = (NodeIdentificationService)this.getServiceBroker().getService(this,NodeIdentificationService.class, null);
+	String nodeName = nodeIdService.getMessageAddress().getAddress();
+	nodeData.setAdditionalData(nodeName);
+	dataList.add(nodeData);
+	//Add source host
+	AdditionalData hostData = new AdditionalData();
+	hostData.setType("sourceHost");
+	try{
+	InetAddress inetAddress = InetAddress.getLocalHost();
+	String hostName = inetAddress.getHostName();
+	hostData.setAdditionalData(hostName);
+	dataList.add(hostData);
+	}catch(Exception e){
+		if(logging.isErrorEnabled()){
+			logging.error("Unable to get host information");
+		}
+	}
 	
-    Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a, detectTime, sources, null, classifications, dataList);
+    Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a, detectTime, null, null, classifications, dataList);
     if (logging.isInfoEnabled()) {
       logging.info("*****************************Publishing IDMEF Event");
     }
