@@ -84,7 +84,9 @@ public class InitNodePlugin extends ComponentPlugin {
                                             LoggingService.class,
                                             null);
 
-      _log.info("InitNodePlugin.setupSubscriptions");
+      if (_log.isInfoEnabled()) {
+        _log.info("InitNodePlugin.setupSubscriptions");
+      }
 
       // Construct the Enforcer
 
@@ -152,7 +154,9 @@ public class InitNodePlugin extends ComponentPlugin {
    */
   protected void execute()
   {
-    _log.info("InitNodePlugin.execute");
+    if (_log.isInfoEnabled()) {
+      _log.info("InitNodePlugin.execute");
+    }
   }
 
 
