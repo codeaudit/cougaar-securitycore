@@ -184,6 +184,7 @@ public class ConfigParserServiceImpl
         //not empty line
         if(linedata.length() > 1) setConfigurationFile(linedata);
       }
+      buffreader.close();
     }
     catch(FileNotFoundException fnotfoundexp) {
       if (log.isErrorEnabled()) {
@@ -235,6 +236,16 @@ public class ConfigParserServiceImpl
   private void setConfigurationFile(String defaultFile) {
     InputStream policyIs = findPolicyFile(defaultFile);
     parsePolicy(policyIs);
+    if (policyIs != null) {
+      try {
+	policyIs.close();
+      }
+      catch (IOException e) {
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to close stream: " + defaultFile);
+	}
+      }
+    }
   }
   
   /*
