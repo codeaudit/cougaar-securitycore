@@ -1,8 +1,8 @@
 =begin experiment
 
-name: MOAS-II-Save-Policy-Pre-Stage4
+name: MOAS-II-Save-Restrict-Pre-Stage4
 group: Save
-description: MOAS-II Baseline integrated ur save run with policies
+description: MOAS-II save pre-Stage4 with Restrictive Policies
 script: $CIP/csmart/scripts/definitions/BaselineTemplate-ExtOplan.rb
 parameters:
   - run_count: 1
@@ -12,6 +12,8 @@ parameters:
   
   - rules:
     - $CIP/csmart/config/rules/isat
+#    - $CIP/csmart/config/rules/isat/debug/suicideDump.rule
+#    - $CIP/csmart/config/rules/isat/debug/mts-bigMessage.rule
     - $CIP/csmart/config/rules/yp
     - $CIP/csmart/config/rules/logistics
     - $CIP/csmart/config/rules/logistics-predictors
@@ -26,15 +28,14 @@ parameters:
     - $CIP/csmart/config/rules/coordinator/test
     - $CIP/csmart/config/rules/robustness/uc1/
     - $CIP/csmart/config/rules/robustness/UC3
-    - $CIP/csmart/config/rules/isat/uc3_nosec
+#    - $CIP/csmart/config/rules/isat/uc3_nosec
     - $CIP/csmart/config/rules/robustness/uc8
     - $CIP/csmart/config/rules/robustness/debug_rules/queueViewServlet.rule
-    - $CIP/csmart/config/rules/robustness/debug_rules/incarnation.rule
-# ############################################################
-# Security rules
+############################################################################
+##   SECURITY RULES
     - $CIP/csmart/config/rules/security
-    - $CIP/csmart/config/rules/security/testCollectData/MessageReaderAspect.rule
-    - $CIP/csmart/config/rules/security/testCollectData/ServiceContractPlugin.rule
+#    - $CIP/csmart/config/rules/security/testCollectData/MessageReaderAspect.rule
+#    - $CIP/csmart/config/rules/security/testCollectData/ServiceContractPlugin.rule
 
 #    - $CIP/csmart/config/rules/security/mts/loopback_protocol.rule
 #    - $CIP/csmart/config/rules/security/mts/http_mts.rule
@@ -59,11 +60,13 @@ parameters:
    # ###
    # Redundant CA and persistence managers
 #    - $CIP/csmart/config/rules/security/redundancy
+#    - $CIP/csmart/config/rules/security/robustness
     - $CIP/csmart/config/rules/security/robustness
    # Run with only redundant PM
 #    - $CIP/csmart/config/rules/security/redundancy/add_redundant_pm_facet.rule
 #    - $CIP/csmart/config/rules/security/redundancy/adjust_memory.rule
 #    - $CIP/csmart/config/rules/security/robustness/redundant_persistence_mgrs.rule
+#####################################################################################
  
   - community_rules:
     - $CIP/csmart/config/rules/security/communities
@@ -81,14 +84,8 @@ include_scripts:
   - script: $CIP/csmart/lib/robustness/bbn/scripting.rb
   - script: $CIP/csmart/lib/robustness/bbn/make-rss-files.rb
 
-  - script: $CIP/csmart/lib/isat/save_snapshot.rb
-    parameters:
-      - snapshot_name: $CIP/SAVE-ASMT-PreStage4.tgz
-      - snapshot_location: before_stage_4
-  - script: $CIP/csmart/lib/robustness/mic/freeze.rb
-
-# ############################################################
-# Security scripts
+################################################################
+## SECURITY SCRIPTS
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/build_policies.rb
@@ -101,9 +98,22 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
 
+  - script: $CIP/csmart/lib/security/scripts/ur_initialize_policy.rb
+    parameters:
+      - insertionPoint: society_running
+      - dbUser: society_config
+      - dbHost: cougaar-db
+      - dbPassword: s0c0nfig
+      - db: cougaar104
+      - wait: true
 
-  - script: $CIP/csmart/security/scripts/ur_initialize_policy.rb
+#################################################################
 
+  - script: $CIP/csmart/lib/isat/save_snapshot.rb
+    parameters:
+      - snapshot_name: $CIP/SAVE-Policy-PreStage4.tgz
+      - snapshot_location: before_stage_4
+  - script: $CIP/csmart/lib/robustness/mic/freeze.rb
 
 =end
 
