@@ -171,7 +171,7 @@ Policy AllowBlackboard = [
    $Ultralog/UltralogAction.owl#BlackBoardAccess as long as
     the value of $Ultralog/UltralogAction.owl#blackBoardAccessObject
     is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.owl#OrgActivity }
+     { $Ultralog/BlackboardObject#OrgActivity }
 ]
 
 Policy OrgActivityAdd = [
@@ -452,14 +452,25 @@ Policy SocietyAdminAuth  = [
 ]
 
 
-Policy AllowWhitePagesAccess = [
+Policy AllowWhitePagesUpdate = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is  authorized to perform
   $Ultralog/UltralogAction.owl#WPUpdateSelf
-  as long as the value of 
-  $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
-  $Ultralog/UltralogEntity.owl#WPAccessType
+ ]
+
+Policy AllowWhitePagesLookup = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#WPLookup
+ ]
+
+Policy AllowWhiteForward = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  authorized to perform
+  $Ultralog/UltralogAction.owl#WPForward
  ]
 
 
