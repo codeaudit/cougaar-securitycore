@@ -474,6 +474,11 @@ society.each_node do |node|
      node.override_parameter("-Djava.class.path", "$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}CougaarCRLextensions.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}tracerapi.jar")
    end
 
+   if facet[:role] == 'jprofiler'
+     node.add_parameter("-Xmixed")
+     node.add_parameter("-Xrunjprofiler:port=8849")
+     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}sys#{File::SEPARATOR}agent.jar")
+   end
  end
 end
 

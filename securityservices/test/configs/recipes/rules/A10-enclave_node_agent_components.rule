@@ -17,15 +17,17 @@ society.each_node do |node|
   enclave = facetval[0..0] + facetval[1..facetval.length].downcase
   community = facetval + "-SECURITY-COMM"
 
-  # Add the KAoS guard
-  node.agent.add_component do |c|
-    c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
-    c.classname = "safe.util.SAFESecurityComponent"
-    c.priority = "HIGH"
-    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-    c.add_argument(enclave + "PolicyDomainManager")
-    c.add_argument(enclave + "Domain")
-    c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
+  if !$disableKaosPolicy
+    # Add the KAoS guard
+    node.agent.add_component do |c|
+      c.name = "safe.util.SAFESecurityComponentEnclave" + enclave
+      c.classname = "safe.util.SAFESecurityComponent"
+      c.priority = "HIGH"
+      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+      c.add_argument(enclave + "PolicyDomainManager")
+      c.add_argument(enclave + "Domain")
+      c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
+    end
   end
 
   # Add the security component factory

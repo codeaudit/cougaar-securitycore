@@ -5,8 +5,10 @@
 
 initPlugin = "org.cougaar.core.security.policy.enforcers.init.InitAgentPlugin"
 
-society.each_agent(true) do |agent|
-  agent.add_component do |c|
-    c.classname = initPlugin
+if !$disableKaosPolicy
+  society.each_agent(true) do |agent|
+    agent.add_component do |c|
+      c.classname = initPlugin
+    end
   end
 end

@@ -4,11 +4,13 @@
 
 plugin = "org.cougaar.core.security.policy.webproxy.WebProxySecurityComponent"
 
-society.each_node do |node|
-  node.add_component do |c|
-      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.priority = "HIGH"
-      c.classname = plugin
+if !$disableKaosPolicy
+  society.each_node do |node|
+    node.add_component do |c|
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.priority = "HIGH"
+        c.classname = plugin
+    end
   end
 end
 

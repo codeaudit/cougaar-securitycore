@@ -5,8 +5,10 @@
 
 plugin = "safe.guard.PolicyViewerServletComponent"
 
-society.each_node_agent() do |node_agent|
-   node_agent.add_component do |c|
-      c.classname = plugin
-    end
+if !$disableKaosPolicy
+  society.each_node_agent() do |node_agent|
+     node_agent.add_component do |c|
+        c.classname = plugin
+      end
+   end
 end
