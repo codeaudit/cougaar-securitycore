@@ -1610,6 +1610,8 @@ public class CryptoManagerServiceImpl
         this.flush();
         this.out = null;
         returnCipher(_symmSpec, _cipher);
+        _cipher = null;
+        this.out = null; // so we can't use the cipher anymore
       }
       log.debug("finishOutputStream from " + _sender);
     }
@@ -1707,6 +1709,7 @@ public class CryptoManagerServiceImpl
       if (_encrypt) {
         _cypherIn.doFinal();
         returnCipher(_symmSpec, _cipher);
+        _cipher = null;
         this.in = null; // so you can't use the Cipher anymore
       }
     }
