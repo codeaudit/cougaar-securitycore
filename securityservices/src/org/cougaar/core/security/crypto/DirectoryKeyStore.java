@@ -661,6 +661,14 @@ public class DirectoryKeyStore
      * update SSL certificates if node certificate is created.
      */
     if (NodeInfo.getNodeName().equals(getCommonName(alias))) {
+      // update SSL node cert
+      SSLService sslservice = (SSLService)
+        param.serviceBroker.getService(this,
+                                       SSLService.class,
+                                       null);
+      if (sslservice != null) {
+        sslservice.updateKeystore();
+      }
 
     }
   }
@@ -1533,7 +1541,7 @@ public class DirectoryKeyStore
           if (keyAlias != null)
             alias = keyAlias;
           else
-            alias = makeKeyPair(dname, isCACert);
+            alias = makeKeyPair(dname, true);
 
           // does it need to be submitted to somewhere else to handle?
           // TODO: uncomment this to make the case for non-root CA
@@ -1582,7 +1590,7 @@ public class DirectoryKeyStore
         if (keyAlias != null)
           alias = keyAlias;
         else
-          alias = makeKeyPair(dname, isCACert);
+          alias = makeKeyPair(dname, false);
 
         caDN = configParser.getCaDNs()[0].getName();
         // sign it locally
@@ -1983,7 +1991,7 @@ public class DirectoryKeyStore
    * A keystore cannot have two entries with the same alias. */
   private String getNextAlias(KeyStore keystore, String name)
   {
-    String alias = name + "-";
+    String alias = name.toLowerCase() + "-";
     int nextIndex = 1;
     int ind;
     try {
@@ -2156,28 +2164,17 @@ public class DirectoryKeyStore
     // put agent CA attrib in naming service
     updateNS(dname);
 
-
-      // generate one for webserver
+    // generate one for webserver
+    List hostList = findCert(getHostName());
+    if (hostList == null || hostList.size() == 0) {
+      addKeyPair(getHostName(), null);
       WebserverIdentityService sslwebserver = (WebserverIdentityService)
         param.serviceBroker.getService(this,
-                                       WebserverIdentityService.class,
-                                       null);
-      if (sslwebserver != null) {
-        List hostList = findCert(getHostName());
-        if (hostList == null || hostList.size() == 0) {
-          addKeyPair(getHostName(), null);
-          sslwebserver.updateKeystore();
-        }
-      }
-
-      // update SSL node cert
-      SSLService sslservice = (SSLService)
-        param.serviceBroker.getService(this,
-                                       SSLService.class,
-                                       null);
-      if (sslservice != null) {
-        sslservice.updateKeystore();
-      }
+				     WebserverIdentityService.class,
+				     null);
+      if (sslwebserver != null)
+        sslwebserver.updateKeystore();
+    }
   }
 
    public void setSleeptime(long sleeptime)
