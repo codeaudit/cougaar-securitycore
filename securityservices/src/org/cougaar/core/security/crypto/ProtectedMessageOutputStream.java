@@ -210,7 +210,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private void init(final ServiceBroker sb) {
+  private synchronized void init(final ServiceBroker sb) {
     if (_log == null) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
       AccessController.doPrivileged(new PrivilegedAction() {
