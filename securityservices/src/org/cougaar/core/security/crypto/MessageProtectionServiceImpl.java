@@ -35,6 +35,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
+import java.util.Hashtable; 
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -157,7 +158,13 @@ public class MessageProtectionServiceImpl
     String destAddr = destination.toAddress();
     keyRing.findCert(destAddr, keyRing.LOOKUP_FORCE_LDAP_REFRESH);
     try {
-      X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
+      //X509Certificate certificate = keyRing.findFirstAvailableCert(destAddr);
+      Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), destAddr);
+      X509Certificate certificate = (X509Certificate)certTable.get(destAddr);
+      if (certificate == null) {
+	throw new CertificateException("No target " + destAddr + " cert available.");
+      }
+
       AttributedMessage msg = 
         new AttributedMessage(new FakeRequestMessage(destination, source, null));
       msg.setAttribute(NEW_CERT, certificate);
