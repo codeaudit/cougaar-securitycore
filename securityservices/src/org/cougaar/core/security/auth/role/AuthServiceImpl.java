@@ -231,8 +231,14 @@ public class AuthServiceImpl
       if (_log.isDebugEnabled() && ((++_counter) % 10000 == 0)) {
         _log.debug("\n" + _counter + " blackboard mediations.");
       }
-      _log.debug("Have an execution context calling isAuthorizeUL");
-      return isAuthorizedUL(ec, perm);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Have an execution context calling isAuthorizeUL");
+      }
+      boolean ret = isAuthorizedUL(ec, perm);
+      if (_log.isDebugEnabled()) {
+        _log.debug("implies returning " + ret);
+      }
+      return ret;
     } else {
       if (_log.isWarnEnabled()) {
         _log.warn("No execution context available at mediation time" +
