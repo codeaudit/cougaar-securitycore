@@ -42,7 +42,7 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 	{
 		// check for added UnexpandedConditionalPolicyMsgs
 		Enumeration ucpmEnum = _ucpm.getAddedList();
-		while (ucpmEnum.hasMoreElements()) {
+		while (ucpmEnum.hasMoreElements()) {		
 			UnexpandedConditionalPolicyMsg ucpm = (UnexpandedConditionalPolicyMsg) ucpmEnum.nextElement();
 			// extract the ConditionalPolicyMsg
 			ConditionalPolicyMsg condPolicyMsg = ucpm.getConditionalPolicyMsg();
@@ -76,6 +76,7 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 		// check for added UnexpandedPolicyMsgs
 		Enumeration upmEnum = _upm.getAddedList();
 		while (upmEnum.hasMoreElements()) {
+			System.out.println("PolicyExpanderPlugIn: expanding policy message");
 			UnexpandedPolicyMsg upm = (UnexpandedPolicyMsg) upmEnum.nextElement();
 			PolicyMsg policyMsg = upm.getPolicyMsg();
 			Vector domains = policyMsg.getDomains();  // there will only be one domain, but let's pretend.
@@ -212,6 +213,7 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 				} // hosts
 			} // domains
 			publishRemove (upm);
+			System.out.println("PolicyExpanderPlugIn: publishing ProposedPolicyMessage");
 			publishAdd (new ProposedPolicyMsg(policyMsg));
 		}
 	}
@@ -238,29 +240,26 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 				// remove the xml content from the attribute table
 				Document xmlContent = (Document) attributes.remove(XML_KEY);
 				// create a copy of the original message
-				Msg policy1 = (Msg) policy.clone();
-				// here is where you convert the xml document to your
-				// policy object(s) and binderType string(s)
-				String binderType = null;
-                                // create a copy of the attribute table
-				HashMap attributes1 = (HashMap) attributes.clone();
 
-                                XMLPolicyCreator policyCreator = new XMLPolicyCreator(xmlContent);
-                                Policy[] policies = policyCreator.getPolicies();
-                                for (int i=0; i<policies.length; i++) {
-				  if (policies[i] instanceof TypedPolicy){
-                                    binderType = ((TypedPolicy)policies[i]).getType();
-				    // put the policy object into the attribute table
-				    attributes1.put(POLICY_OBJECT_KEY, policies[i]);
-				    // put the updated table into the cloned message
-				    policy1.addSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL,
-								  attributes1);
-				    // set the binder type of the message
-				    policy1.addSymbol("PolicyType", binderType);
-				    // add the message to the expanded policy messages
-				    expandedPolicies.addElement(policy1);
-                                  }
-                                }
+				XMLPolicyCreator policyCreator = new XMLPolicyCreator(xmlContent);
+				Policy[] policies = policyCreator.getPolicies();
+				for (int i=0; i<policies.length; i++) {
+					if (policies[i] instanceof TypedPolicy){
+						Msg policy1 = (Msg) policy.clone();
+						// create a copy of the attribute table
+						HashMap attributes1 = (HashMap) attributes.clone();						
+						String binderType = ((TypedPolicy)policies[i]).getType();
+						// put the policy object into the attribute table
+						attributes1.put(POLICY_OBJECT_KEY, policies[i]);
+						// put the updated table into the cloned message
+						policy1.addSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL,
+										  attributes1);
+						// set the binder type of the message
+						policy1.addSymbol("PolicyType", binderType);
+						// add the message to the expanded policy messages
+						expandedPolicies.addElement(policy1);
+					}
+				}
 				
 				return expandedPolicies;		
 			}
