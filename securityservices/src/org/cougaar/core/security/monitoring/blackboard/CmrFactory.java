@@ -103,4 +103,17 @@ public class CmrFactory
     return relay;
   }
  
+  /** Creates a new CmrRelay object containing a DrillDownQuery object
+   * @param query    The query set by the user in the security console
+   * @param aggType  The type of aggregation (e.g. how aggregation is performed)
+   * @param wantDetails 
+   * @param dest     The target of the query
+   */
+  public CmrRelay newDrillDownQueryRelay(AggregationQuery query,
+					 AggregationType aggType,
+					 boolean wantDetails,
+					 MessageAddress dest) {
+    CmrRelay relay = null;
+    return relay;
+  }
 }
