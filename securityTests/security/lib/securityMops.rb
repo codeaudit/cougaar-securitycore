@@ -105,7 +105,7 @@ class SecurityMop21 < AbstractSecurityMop
       if (@score == 100.0)
 	success = true
       end
-      saveResult(success, '1d1',@info)
+      saveResult(success, 'mop2.1',@info)
 
     rescue Exception => e
 puts "error, probably in compileResults" if $VerboseDebugging
@@ -196,6 +196,12 @@ class SecurityMop22 < AbstractSecurityMop
     @raw = d.filelist
     @info = d.mopHtml
     @calculationDone = true
+
+    sucess = false
+    if (@score == 100.0)
+      success = true
+    end
+    saveResult(success, 'mop2.2', @info)
   end
 
   def scoreText

@@ -2,7 +2,7 @@
 module Cougaar
   module Actions
 
-    $Dbg_action = true
+    $Dbg_action = false
 
     class Stressors 
       # A hash map indexed by #{className}
@@ -35,7 +35,7 @@ module Cougaar
       end
     end
 
-   class InjectStress < Cougaar:1:Action
+   class InjectStress < Cougaar::Action
 
      def initialize(run, className, methodName)
 	super(run)
