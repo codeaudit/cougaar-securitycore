@@ -1,0 +1,5 @@
+#!/bin/sh -x
+
+echo Signing Single jar...
+
+jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore ${COUGAAR_INSTALL_PATH}/lib/$1 privileged
