@@ -101,7 +101,10 @@
 
       <rule requireSSL="false" auth="EITHER">
 	<!-- Data grabber application -->
+	<!--
+	  Removed datagatherer servlet for the automated tests.
         <pattern>/datagatherer</pattern>
+	-->
 
         <!-- al-inventory standalone application -->
         <pattern>/log_inventory</pattern>
