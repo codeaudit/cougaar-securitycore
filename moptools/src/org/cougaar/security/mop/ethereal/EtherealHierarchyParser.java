@@ -54,15 +54,50 @@ public class EtherealHierarchyParser
   private final static String ANALYSIS_TRAILER =
   "===========================";
 
+  private boolean _displayUI = false;
+  private String _logFileName = null;
+
+  private void parseArguments(String args[]) {
+    for (int i = 0 ; i < args.length ; i++) {
+      if (args[i].equals("-ui")) {
+	_displayUI = true;
+      }
+      else if (args[i].startsWith("-h")) {
+	printUsage();
+	System.exit(0);
+      }
+    }
+    if (args.length == 0) {
+      printUsage();
+      System.exit(0);
+    }
+    _logFileName = args[args.length - 1];
+  }
+
+  private void printUsage() {
+    System.out.println("Usage: "
+      + getClass().getName() + " [-ui] filename");
+    System.out.println("-ui: display a UI with various statistics");
+    System.out.println("     otherwise, dump global results on STDOUT");
+    System.out.println("filename: network capture file parsed with the analyze script");
+  }
+
   public static void main(String args[]) {
     try {
-      EtherealHierarchyParser ep = new EtherealHierarchyParser();
       CryptoConfigParser pp = new CryptoConfigParser();
       pp.parseConfigFile(null);
 
+      EtherealHierarchyParser ep = new EtherealHierarchyParser();
+      ep.parseArguments(args);
       ep.setProtocolPolicy(pp.getProtocolPolicy());
-      ep.parseResults(args);
-      ep.displayProtocolHierarchy();
+      ep.parseResults();
+      if (ep._displayUI) {
+	ep.displayProtocolHierarchy();
+      }
+      else {
+	// display global statistics on stdout
+	System.out.println(ep._statistics.toHtml());
+      }
     }
     catch (Exception e) {
       System.out.println("Exception while processing data: " + e);
@@ -82,18 +117,12 @@ public class EtherealHierarchyParser
     _log = LoggerFactory.getInstance().createLogger(this);
   }
 
-  public void parseResults(String args[]) {
-    if (args.length != 1) {
-      String s = "First argument should be name of a capture file";
-      _log.warn(s);
-      throw new RuntimeException(s);
-    }
-    String filename = args[0];
+  public void parseResults() {
     try {
-      _reader = new BufferedReader(new FileReader(filename));
+      _reader = new BufferedReader(new FileReader(_logFileName));
     }
     catch (IOException e) {
-      _log.warn("Unable to read file:" + filename);
+      _log.warn("Unable to read file:" + _logFileName);
     }
     String line = null;
     boolean skipLines = true;
@@ -196,7 +225,7 @@ public class EtherealHierarchyParser
       _reader.close();
     }
     catch (IOException e) {
-      _log.warn("Unable to read file:" + filename);
+      _log.warn("Unable to read file:" + _logFileName);
     }
 
     Enumeration enum =
