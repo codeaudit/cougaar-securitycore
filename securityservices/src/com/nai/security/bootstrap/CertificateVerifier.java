@@ -34,13 +34,7 @@ import java.util.jar.*;
 import java.util.zip.*;
 import sun.misc.BASE64Encoder;
 
-import com.nai.security.util.SecurityPropertiesService;
-import org.cougaar.core.security.crypto.CryptoServiceProvider;
-
 public class CertificateVerifier { 
-
-  private SecurityPropertiesService secprop = null;
-
   /* max number of certificates in a certificate chain */
   protected static final int MAX_CERTS = 100;
 
@@ -59,12 +53,9 @@ public class CertificateVerifier {
 
 
   public CertificateVerifier() {
-    // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    keyStorePath = System.getProperty("org.cougaar.core.security.bootstrap.keystore", null);
 
-    keyStorePath = secprop.getProperty(secprop.BOOTSTRAP_KEYSTORE, null);
-
-    String p = secprop.getProperty(secprop.BOOTSTRAP_VERIFYKEY);
+    String p = System.getProperty("org.cougaar.core.security.bootstrap.verifyKeyUsage");
     if (p != null  && p.equals("true")) {
         verifyJarSigningCapability = true;
     }
