@@ -96,6 +96,21 @@ throws PolicyCompilerException
         "AgentGroup" agentGroup:TOKEN EQ LCURLY agents =tokenList RCURLY
         {  ppf.declareAgentGroup(ParsedPolicyFile.tokenToText(agentGroup), 
                                  agents); }
+    | "DrrsPrivilege" drrsPriv:TOKEN
+        { ppf.declareInstance(ULOntologyNames.drrsPrivPrefix +
+                ParsedPolicyFile.tokenToText(drrsPriv),
+                UltralogEntityConcepts.DrrsPrivilege());
+            }
+    | "DrrsDataField" drrsDf:TOKEN
+        { ppf.declareInstance(ULOntologyNames.drrsDataFieldPrefix +
+                ParsedPolicyFile.tokenToText(drrsDf),
+                UltralogEntityConcepts.DrrsDataField());
+            }
+    | "DrrsDataSource" drrsDs:TOKEN
+        { ppf.declareInstance(ULOntologyNames.drrsDataSourcePrefix +
+                ParsedPolicyFile.tokenToText(drrsDs),
+                UltralogEntityConcepts.DrrsDataSource());
+            }                
     ;
 
 setprefix[ParsedPolicyFile ppf]
