@@ -651,9 +651,9 @@ public class AccessAgentProxy
     
     try {
       String msgOrigin = msg.getOriginator().toString();
-      String trustValue =
-	(String)trust.getAttribute(MissionCriticality.name).getValue();
-      act = acps.getOutgoingAction(msgOrigin, trustValue);
+      Integer mc = (Integer)trust.getAttribute(MissionCriticality.name).getValue();
+      String level = "Criticality" + mc.toString();
+      act = acps.getOutgoingAction(msgOrigin, level);
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {
@@ -791,9 +791,9 @@ public class AccessAgentProxy
   private boolean incomingMessageAction(Message msg, TrustSet trustSet) {
     String action;
     try {
-      action = acps.getIncomingAction
-	(msg.getTarget().toString(),
-	 (String)trustSet.getAttribute(MissionCriticality.name).getValue());
+      Integer mc = (Integer)trustSet.getAttribute(MissionCriticality.name).getValue();
+      String level = "Criticality" + mc.toString();
+      action = acps.getIncomingAction(msg.getTarget().toString(), level);
     }
     catch(Exception ex) {
       if(log.isWarnEnabled()) {

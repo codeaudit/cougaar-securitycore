@@ -181,6 +181,8 @@ public class MsgAccessPolicyHandler
     }
     if (localName.equals("Integrity")) {
       integrity = getContents();
+      //we are only interested in the last digit.
+      integrity = integrity.substring(integrity.length());
     }
     if (localName.equals("MessageIntegrity")) {
       acp.setIntegrity(msgParty, integrity);
@@ -190,7 +192,9 @@ public class MsgAccessPolicyHandler
       critParty = getContents();
     }
     if (localName.equals("Criticality")) {
+      //we are only interested in the last digit.
       criticality = getContents();
+      criticality = criticality.substring(criticality.length());
     }
     if (localName.equals("MessageCriticality")) {
       acp.setCriticality(critParty, criticality);
