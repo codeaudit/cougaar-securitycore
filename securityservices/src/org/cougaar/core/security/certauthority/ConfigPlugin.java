@@ -307,6 +307,10 @@ public class ConfigPlugin
   }
 
   protected void setCAInfo(CAInfo info, String requestURL) {
+    setCAInfo(info, requestURL, true);
+  }
+
+  protected void setCAInfo(CAInfo info, String requestURL, boolean isCAPolicy) {
     TrustedCaPolicy tc = info.caPolicy;
     X509Certificate [] certChain = info.caCert;
     tc.caURL = requestURL;
@@ -337,10 +341,14 @@ public class ConfigPlugin
       }
       cacheservice.saveCertificateInTrustedKeyStore(c, alias);
     }
-    if (log.isDebugEnabled()) {
-      log.debug("Saving CryptoClientPolicy to file.");
+
+    // there is a TrustedCAConfigPlugin that only installs trusted cert and policy
+    if (isCAPolicy) {
+      if (log.isDebugEnabled()) {
+        log.debug("Saving CryptoClientPolicy to file.");
+      }
+      configParser.updateSecurityPolicy(cryptoClientPolicy);
     }
-    configParser.updateSecurityPolicy(cryptoClientPolicy);
   }
 
   protected synchronized void checkOrMakeIdentity(CAInfo info, String requestURL) {
