@@ -10,17 +10,16 @@
 module Cougaar
         module Actions
          class StartEtherealAnalysis < Cougaar::Action
-                         def initialize(run)
+                    def initialize(run, hostname)
                                 super(run)
-                                print "Enter Hostname: "
-                                $hostname = gets.chomp
+                                @hostname = hostname
                                 @run = run
                      end
                      def perform
                         outputfilename="#{@run.name}_analysis.in"
                         puts "Output of raw network data #{outputfilename}"
                         puts "Removing old file if present"
-                        commandsyntax="ssh #{hostname} ./runTethereal.sh #{outputfilename}"
+                        commandsyntax="ssh #{@hostname} ./runTethereal.sh #{outputfilename}"
                         puts "Executing #{commandsyntax}"
                         $pid = fork{
                                  puts "Executing #{commandsyntax}"
@@ -31,19 +30,20 @@ module Cougaar
                 end
 
                 class StopEtherealAnalysis  < Cougaar::Action
-                         def initialize(run)
+                     def initialize(run, hostname)
                                 super(run)
+                                @hostname = hostname
                                 @run = run
                      end
                      def perform
-                        system "ssh -t #{hostname} ./stopTehtereal"
+                        system "ssh -t #{@hostname} ./stopTehtereal"
                         infile="#{@run.name}_analysis.in"
                         outfile="#{@run.name}_analysis.out"
                         puts "Analyze file: #{infile}"
                         puts "Create file: #{outfile}"
-                        commandsyntax="ssh -t #{hostname} ./readTethreal.sh #{infile} #{outfile}"
+                        commandsyntax="ssh -t #{@hostname} ./readTethreal.sh #{infile} #{outfile}"
                         exec(commandsyntax)
-                        puts "Output written to #{outfile} on #{hostname}"
+                        puts "Output written to #{outfile} on #{@hostname}"
                      end
                 end
         
