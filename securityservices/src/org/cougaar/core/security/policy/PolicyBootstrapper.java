@@ -25,7 +25,6 @@ package org.cougaar.core.security.policy;
 
 import java.util.Properties;
 import java.io.File;
-import com.nai.security.policy.XMLPolicyCreator;
 
 import org.cougaar.domain.planning.ldm.policy.Policy;
 
