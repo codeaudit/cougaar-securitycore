@@ -56,10 +56,13 @@ public class DataProtectionInputStream extends FilterInputStream {
   private SecureMethodParam policy = null;
 
   private InputStream theis = null;
+  private DataProtectionDigestObject dobj = null;
   private static int skiplimit = 2000;
 
   public DataProtectionInputStream(InputStream is,
-    DataProtectionKeyEnvelope keyEnv, String agent, ServiceBroker sb)
+    DataProtectionKeyEnvelope pke,
+    String agent,
+    ServiceBroker sb)
     throws GeneralSecurityException, IOException {
     super(is);
 
@@ -77,10 +80,14 @@ public class DataProtectionInputStream extends FilterInputStream {
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
-    dpKey = (DataProtectionKeyImpl)keyEnv.getDataProtectionKey();
-    policy = dpKey.getSecureMethod();
-
     this.agent = agent;
+    try {
+      dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
+    } catch (Exception ex) {
+    }
+    if (dpKey == null)
+      throw new GeneralSecurityException("No data protection key present.");
+    policy = dpKey.getSecureMethod();
 
     theis = processStream(is);
   }
@@ -205,10 +212,18 @@ public class DataProtectionInputStream extends FilterInputStream {
   private InputStream processStream(InputStream is)
     throws IOException, GeneralSecurityException
   {
+    //verify digest
+    if (dobj != null) {
+      md = ((DigestInputStream)theis).getMessageDigest();
+      if (!MessageDigest.isEqual(dobj.getDigest(), md.digest()))
+        throw new GeneralSecurityException("Digest does not match");
+      if (log.isDebugEnabled())
+        log.debug("Decrypt successful, digest matching.");
+    }
+
     if (is.available() == 0)
       return null;
 
-    initStream();
     byte [] rbytes = new byte[2000];
 
     /*
@@ -216,7 +231,8 @@ public class DataProtectionInputStream extends FilterInputStream {
     System.out.println("Read:" + new String(rbytes, 0, read));
     */
 
-    DataProtectionDigestObject dobj = (DataProtectionDigestObject)getSignedObject(is);
+    dobj = (DataProtectionDigestObject)getSignedObject(is);
+    initStream();
 
     int totalBytes = dobj.getEncryptedSize();
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -252,11 +268,12 @@ public class DataProtectionInputStream extends FilterInputStream {
     try {
       ObjectInputStream ois = new ObjectInputStream(is);
       SealedObject sealedObj = (SealedObject)ois.readObject();
-      //System.out.println("signedObject: " + sealedObj);
       SecretKey skey = getSecretKey();
       SignedObject sobj = (SignedObject)
         encryptionService.symmDecrypt(skey, sealedObj);
-      Object obj = encryptionService.verify(agent, policy.signSpec, sobj);
+      if (sobj == null)
+        throw new GeneralSecurityException("Invalid private key");
+      Object obj = encryptionService.verify(agent, policy.signSpec, sobj, true);
       if (obj == null)
         throw new GeneralSecurityException("Cannot verify signature.");
       return obj;

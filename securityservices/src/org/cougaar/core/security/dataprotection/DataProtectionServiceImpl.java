@@ -100,6 +100,13 @@ public class DataProtectionServiceImpl
       throw new RuntimeException("Requestor is not DataProtectionServiceClient");
     }
     dpsClient = (DataProtectionServiceClient)requestor;
+
+    try {
+      reprotectClient(dpsClient, null);
+    } catch (GeneralSecurityException gsx) {
+      if (log.isDebugEnabled())
+        log.debug("Exception occured while reprotecting keys: " + gsx.toString());
+    }
   }
 
   public OutputStream getOutputStream(DataProtectionKeyEnvelope pke,
@@ -113,7 +120,12 @@ public class DataProtectionServiceImpl
     if (certList == null || certList.size() == 0)
       throw new CertificateException("No certificate available to sign.");
 
-    DataProtectionKey dpKey = pke.getDataProtectionKey();
+    DataProtectionKey dpKey = null;
+    try {
+      dpKey = pke.getDataProtectionKey();
+    }
+    catch (Exception ex) {
+    }
     if (dpKey == null) {
       dpKey = createDataProtectionKey(agent);
       pke.setDataProtectionKey(dpKey);
@@ -142,7 +154,13 @@ public class DataProtectionServiceImpl
     throws GeneralSecurityException
   {
     String agent = dpsClient.getAgentIdentifier().toAddress();
+    if (log.isDebugEnabled())
+      log.debug("reprotecting client:" + agent);
+
     Iterator keys = client.iterator();
+    if (keys == null)
+      return;
+
     while (keys.hasNext()) {
       try {
         DataProtectionKeyEnvelope pke = (DataProtectionKeyEnvelope)
@@ -160,7 +178,7 @@ public class DataProtectionServiceImpl
           keyList.add(oldkey);
         }
         else
-          keyList = keyRing.findPrivateKey(agent);
+          keyList = keyRing.findPrivateKey(agent, false);
         if (keyList == null || keyList.size() == 0)
           throw new GeneralSecurityException("No private key available to decrypt");
 
@@ -169,7 +187,28 @@ public class DataProtectionServiceImpl
 
         SealedObject obj = (SealedObject)dpKey.getObject();
         while (it.hasNext()) {
-          PrivateKey key = ((PrivateKeyCert)it.next()).getPrivateKey();
+          PrivateKeyCert cs = (PrivateKeyCert) it.next();
+          try {
+            X509Certificate [] certList = keyRing.checkCertificateTrust(
+              (X509Certificate)cs.getCertificateStatus().getCertificate());
+            if (certList.length == 0) {
+              if (log.isDebugEnabled())
+                log.debug("Certificate not trusted.");
+              continue;
+            }
+          } catch (CertificateException ex) {
+            if (ex instanceof CertificateExpiredException) {
+              if (log.isDebugEnabled())
+                log.debug("Private key expired.");
+            }
+            else {
+              if (log.isDebugEnabled())
+                log.debug("Private key not trusted.");
+              continue;
+            }
+          }
+
+          PrivateKey key = cs.getPrivateKey();
           if(spec==null||spec=="")
             spec=key.getAlgorithm();
           try {
@@ -184,9 +223,13 @@ public class DataProtectionServiceImpl
 
         if (skey == null) {
           // no key available to decrypt
+          if (log.isWarnEnabled())
+            log.warn("Cannot find a private key to decrypt Data Protection secret");
           continue;
         }
 
+        if (log.isDebugEnabled())
+          log.debug("Re-encrypting Data Protection secret key.");
         obj = encryptionService.asymmEncrypt(agent, spec, skey);
         pke.setDataProtectionKey(
           new DataProtectionKeyImpl(obj, dpKey.getDigestAlg(), dpKey.getSecureMethod()));
@@ -205,11 +248,6 @@ public class DataProtectionServiceImpl
     List certList = keyRing.findCert(agent);
     if (certList == null || certList.size() == 0)
       throw new CertificateException("No certificate available to sign.");
-
-    DataProtectionKey dpKey = pke.getDataProtectionKey();
-    if (dpKey == null) {
-      throw new GeneralSecurityException("No DataProtectionKey found.");
-    }
 
     return new DataProtectionInputStream(is, pke, agent, serviceBroker);
   }
