@@ -29,10 +29,13 @@ import org.cougaar.core.agent.AgentManagerForBinder;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.core.security.services.acl.AccessControlPolicyService;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
 
 public class AccessAgentBinder 
         extends ServiceFilterBinder 
         implements AgentBinder {
+
+  private LoggingService log;
 
   public  AccessAgentBinder (BinderFactory bf,Object child) {
     super(bf,child);
@@ -113,7 +116,11 @@ public class AccessAgentBinder
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
 	  try  {
-	    acps = (AccessControlPolicyService)
+      log = (LoggingService)
+        serviceBroker.getService(this,
+              LoggingService.class, null);
+	    
+      acps = (AccessControlPolicyService)
 	      serviceBroker.getService(this,
 				      AccessControlPolicyService.class, null);
 	    if (acps == null) {
@@ -121,19 +128,14 @@ public class AccessAgentBinder
 	    }
 	  }
 	  catch(Exception e)  {
-	   System.out.println("ACL: Unable to get access control policy service:"
-			      + e);
-	   e.printStackTrace();
 	   throw new RuntimeException("Access Control Aspect:"
 				      +e.toString());
 	  }
        }else{
-	 System.out.println("ACL: Unable to get service broker");
 	 throw new RuntimeException("Access Control Aspect: no service broker");
        }
       
-	//System.out.println(" getting service broker :");
-	return new AccessAgentProxy((MessageTransportService)service,client,acps,
+   return new AccessAgentProxy((MessageTransportService)service,client,acps,
 				    serviceBroker);
 	  
       }
