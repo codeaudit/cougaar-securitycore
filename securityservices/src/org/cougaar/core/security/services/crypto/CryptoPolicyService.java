@@ -22,6 +22,8 @@
 
 package org.cougaar.core.security.services.crypto;
 
+import java.util.Collection;
+
 // Cougaar core services
 import org.cougaar.core.component.Service;
 
@@ -33,11 +35,15 @@ public interface CryptoPolicyService
   extends Service
 {
 
-    public SecureMethodParam getSendPolicy(String source, String target);
-    public SecureMethodParam getReceivePolicy(String source, String target);
-
+  public SecureMethodParam getSendPolicy(String source, String target);
+  public SecureMethodParam getReceivePolicy(String source, String target);
+  
+  public Collection getSendPolicies(String source, String target);
+  public Collection getReceivePolicies(String source, String target);
+  /*
     public CryptoPolicy getIncomingPolicy(String target);
     public CryptoPolicy getOutgoingPolicy(String source);
+  */
     public CryptoPolicy getDataProtectionPolicy(String source);
 }
 

@@ -23,8 +23,7 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import java.io.Serializable;
-import java.io.IOException;
+import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import javax.crypto.*;
@@ -32,16 +31,40 @@ import javax.crypto.*;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.ProtectedOutputStream;
+import org.cougaar.core.mts.ProtectedInputStream;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.ProtectedObject;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 
 /** Service for most common public key cryptographic operations.
  *  Use: cryptographic aspect.
  */
 public interface EncryptionService extends Service {
+
+  /** Protect an OutputStream by signing and/or encrypting the contents
+   */
+  public ProtectedOutputStream protectOutputStream(OutputStream out,
+                                                   SecureMethodParam policy,
+                                                   MessageAddress source,
+                                                   MessageAddress target,
+                                                   boolean encryptedSocket,
+                                                   Object link)
+    throws GeneralSecurityException, IOException;
+
+  /** Read a protected InputStream by checking signature and/or
+   *  encrypting the contents
+   */
+  public ProtectedInputStream protectInputStream(InputStream stream,
+                                                 MessageAddress source,
+                                                 MessageAddress target,
+                                                 boolean encryptedSocket,
+                                                 Object link,
+                                                 CryptoPolicyService cps)
+    throws GeneralSecurityException, IOException;
 
   /** Sign an object.
    *

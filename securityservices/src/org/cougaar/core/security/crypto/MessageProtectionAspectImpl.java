@@ -26,6 +26,9 @@ package org.cougaar.core.security.crypto;
 import org.cougaar.core.service.MessageProtectionService;
 
 import org.cougaar.core.mts.*;
+import java.security.*;
+import java.security.cert.*;
+import javax.security.auth.*;
 import java.io.*;
 import java.util.Iterator;
 import java.util.List;
@@ -36,10 +39,14 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
  * This class adds the necessary
  */
 public class MessageProtectionAspectImpl extends MessageProtectionAspect {
+// public class MessageProtectionAspectImpl extends StandardAspect {
   private static SendQueue _sendQ;
   private KeyRingService _keyRing;
   private LoggingService _log;
-  
+
+  public static final String NODE_LINK_PRINCIPAL = "org.cougaar.core.security.nodeLinkPrincipal";
+  public static final String TARGET_LINK = "org.cougaar.core.security.target.link";
+
   static SendQueue getSendQueue() {
     return _sendQ;
   }
@@ -53,12 +60,21 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
   }
 
   public Object getDelegate(Object delegatee, Class type) {
+    Object delegate = super.getDelegate(delegatee, type);
+    Object paramDelegate = delegate;
+    if (paramDelegate == null) {
+      paramDelegate = delegatee;
+    }
+
     if (type == SendQueue.class) {
-      _sendQ = new CertificateSendQueueDelegate((SendQueue) delegatee);
-      return _sendQ;
-    } 
-    
-    return super.getDelegate(delegatee, type);
+      _sendQ = new CertificateSendQueueDelegate((SendQueue) paramDelegate);
+      delegate = _sendQ;
+    } else if (type == DestinationLink.class) {
+      delegate =
+        new ProtectionDestinationLink((DestinationLink) paramDelegate);
+    }
+
+    return delegate;
   }
 
   // aspect implementation: reverse linkage (receive side)
@@ -78,6 +94,9 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     }
 
     public MessageAttributes deliverMessage(AttributedMessage msg) {
+      Principal p = org.cougaar.core.security.ssl.KeyRingSSLServerFactory.getPrincipal();
+//       System.out.println("delivering message: " + msg + ", " + p);
+      msg.setAttribute(NODE_LINK_PRINCIPAL, p.getName());
       Object cert = msg.getAttribute(MessageProtectionServiceImpl.NEW_CERT);
       if (cert != null) {
         // Just refresh the LDAP, it is easier than modifying the certificate
@@ -124,4 +143,32 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
       super.sendMessage(msg);
     }
   }
+
+  private static class ProtectionDestinationLink
+    extends DestinationLinkDelegateImplBase {
+    public ProtectionDestinationLink(DestinationLink link) {
+      super(link);
+    }
+
+    public void addMessageAttributes(MessageAttributes attrs) {
+      Object remoteRef = getRemoteReference();
+      /*
+      if (remoteRef instanceof MT) {
+        try {
+          MT mt = (MT) remoteRef;
+          System.out.println("remote address = " + mt.getMessageAddress());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      System.out.println("Adding remote reference: " + remoteRef);
+      System.out.println("Destination: " + getDestination());
+      System.out.println("Protocol Class: " + getProtocolClass());
+      */
+      attrs.setAttribute(TARGET_LINK, remoteRef.toString());
+      super.addMessageAttributes(attrs);
+    }
+  }
+
+
 }

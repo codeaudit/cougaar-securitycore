@@ -35,6 +35,7 @@ import org.cougaar.util.*;
 // Cougaar security services
 import org.cougaar.core.security.crypto.KeyRing;
 import org.cougaar.core.security.crypto.CryptoPolicyServiceImpl;
+import org.cougaar.core.security.crypto.DamlCryptoPolicyServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
@@ -42,6 +43,10 @@ import org.cougaar.core.security.services.identity.*;
 public class CryptoPolicyServiceProvider 
   extends BaseSecurityServiceProvider
 {
+  public static final String DAML_PROPERTY = 
+    "org.cougaar.core.security.policy.enforcers.crypto.useDaml";
+  private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
+
   static private CryptoPolicyService cryptoPolicyService;
 
   public CryptoPolicyServiceProvider(ServiceBroker sb, String community){
@@ -59,7 +64,11 @@ public class CryptoPolicyServiceProvider
 						    Object requestor, 
 						    Class serviceClass) {
     if (cryptoPolicyService == null) {
-      cryptoPolicyService = new CryptoPolicyServiceImpl(serviceBroker);
+      if (USE_DAML) {
+        cryptoPolicyService = new DamlCryptoPolicyServiceImpl(serviceBroker);
+      } else {
+        cryptoPolicyService = new CryptoPolicyServiceImpl(serviceBroker);
+      }
     }
     return cryptoPolicyService;
   }

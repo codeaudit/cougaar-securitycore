@@ -22,13 +22,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.Serializable;
-import java.io.IOException;
+import java.io.*;
 import java.security.*;
 import java.util.*;
 import java.security.cert.*;
 import javax.crypto.*;
 import sun.security.x509.*;
+import java.text.MessageFormat;
+import java.text.ParseException;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceRevokedListener;
@@ -38,6 +39,11 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.mts.ProtectedOutputStream;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.crypto.CertificateChainException;
 
 // Cougaar Security Services
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -45,15 +51,32 @@ import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.util.DumpOutputStream;
+import org.cougaar.core.security.util.SignatureOutputStream;
+import org.cougaar.core.security.util.SignatureInputStream;
+import org.cougaar.core.security.util.ErasingMap;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
 {
+  private static final MessageFormat MF = new MessageFormat("{0} -");
+  public final static String DUMP_PROPERTY =
+    "org.cougaar.core.security.crypto.dumpMessages";
+  /** Set to true to dump messages to a file (for debug purposes) */
+  private static final boolean DUMP_MESSAGES = 
+    Boolean.getBoolean(DUMP_PROPERTY);
+  private static final long RANDOM = (new Random()).nextLong();
+  private static int        _fileno = 10000;
+  private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
+
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private Hashtable ciphers = new Hashtable();
+  private Map _sent = new ErasingMap();
 
   /** A hashtable that contains encrypted session keys.
    *  The session keys may be used for multiple messages instead of having to generate and encrypt
@@ -62,7 +85,6 @@ public class CryptoManagerServiceImpl
    *  The hashtable value is a SealedObject (the encrypted session key)
    */
   private Hashtable sessionKeys;
-
 
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
@@ -73,11 +95,24 @@ public class CryptoManagerServiceImpl
     sessionKeys = new Hashtable();
   }
 
-  public SignedObject sign(final String name,
-			   String spec,
-			   Serializable obj)
+  private PrivateKey getPrivateKey(final String name) 
     throws GeneralSecurityException, IOException {
     List pkList = (List)
+      AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run(){
+            List nameList = keyRing.findDNFromNS(name);
+            if (log.isDebugEnabled()) {
+              log.debug("List of names for " + name + ": " + nameList);
+            }
+            List keyList = new ArrayList();
+            for (int i = 0; i < nameList.size(); i++) {
+              X500Name dname = (X500Name)nameList.get(i);
+              keyList.addAll(keyRing.findPrivateKey(dname));
+            }
+            return keyList;
+          }
+        });
+    /*
     AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run(){
               // relieve messages to naming, for local keys
@@ -92,15 +127,23 @@ public class CryptoManagerServiceImpl
               return keyList;
 	    }
 	  });
+    */
     if (pkList == null || pkList.size() == 0) {
-      String message = "Unable to sign object. Private key of " + name
-	      + " does not exist.";
+      String message = "Unable to sign object. Private key of " + 
+        name + " does not exist.";
       if (log.isWarnEnabled()) {
-	      log.warn(message);
+        log.warn(message);
       }
       throw new NoValidKeyException("Private key of " + name + " not found");
     }
-    PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
+    return ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
+  }
+
+  public SignedObject sign(String name,
+			   String spec,
+			   Serializable obj)
+    throws GeneralSecurityException, IOException {
+    PrivateKey pk = getPrivateKey(name);
     Signature se;
     // if(spec==null||spec=="")spec=pk.getAlgorithm();
 
@@ -209,7 +252,7 @@ public class CryptoManagerServiceImpl
                                   + name);
   }
 
-  private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues)
+  private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues) 
     throws CertificateException {
     Iterator it = certList.iterator();
 
@@ -1199,5 +1242,458 @@ public class CryptoManagerServiceImpl
     public SealedObject receiverSecretKey;
     public X509Certificate senderCert;
     public X509Certificate receiverCert;
+  }
+
+  private static synchronized int getNextNum() { return _fileno++; }
+
+  private static SecretKey createSecretKey(SecureMethodParam policy)
+    throws NoSuchAlgorithmException {
+    int i = policy.symmSpec.indexOf("/");
+    String a =  (i > 0) 
+      ? policy.symmSpec.substring(0,i) 
+      : policy.symmSpec;
+    SecureRandom random = new SecureRandom();
+    KeyGenerator kg = KeyGenerator.getInstance(a);
+    kg.init(random);
+    return kg.generateKey();
+  }
+
+  public ProtectedOutputStream protectOutputStream(OutputStream out,
+                                                   SecureMethodParam policy,
+                                                   MessageAddress source,
+                                                   MessageAddress target,
+                                                   boolean encryptedSocket,
+                                                   Object link) 
+    throws GeneralSecurityException, IOException {
+    return new ProtectedMessageOutputStream(out, policy, source, target,
+                                            encryptedSocket, link);
+  }
+
+  public ProtectedInputStream protectInputStream(InputStream stream,
+                                                 MessageAddress source,
+                                                 MessageAddress target,
+                                                 boolean encryptedSocket,
+                                                 Object link,
+                                                 CryptoPolicyService cps)
+    throws GeneralSecurityException, IOException {
+    return new ProtectedMessageInputStream(stream, source, target,
+                                           encryptedSocket, link, cps);
+  }
+    
+  private static String getDumpFilename() {
+    return "msgDump-" + RANDOM + "-" + getNextNum() + ".dmp";
+  }
+
+  private static SecureMethodParam copyPolicy(SecureMethodParam policy) {
+    SecureMethodParam newPolicy = new SecureMethodParam();
+    newPolicy.secureMethod = policy.secureMethod;
+    newPolicy.symmSpec = policy.symmSpec;
+    newPolicy.asymmSpec = policy.asymmSpec;
+    newPolicy.signSpec = policy.signSpec;
+    return newPolicy;
+  }
+
+  private static void removeEncrypt(SecureMethodParam policy) {
+    if (policy.secureMethod == policy.ENCRYPT) {
+      policy.secureMethod = policy.PLAIN;
+    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
+      policy.secureMethod = policy.SIGN;
+    }
+  }
+
+  private static void removeSign(SecureMethodParam policy) {
+    if (policy.secureMethod == policy.SIGN) {
+      policy.secureMethod = policy.PLAIN;
+    } else if (policy.secureMethod == policy.SIGNENCRYPT) {
+      policy.secureMethod = policy.ENCRYPT;
+    }
+  }
+
+  private Set getSentSet(Object obj) {
+    synchronized (_sent) {
+      if (log.isDebugEnabled()) {
+        log.debug("Checking sent set for " + obj + ", class = " + obj.getClass().getName());
+      }
+      Set results = (Set) _sent.get(obj);
+      if (results == null) {
+        results = new HashSet();
+        _sent.put(obj, results);
+      }
+      if (log.isDebugEnabled()) {
+        log.debug("Found " + results);
+      }
+      return results;
+    }
+  }
+
+  private SecureMethodParam modifyPolicy(SecureMethodParam policy,
+                                         boolean encryptedSocket,
+                                         Object link,
+                                         String source,
+                                         String target) {
+    policy = copyPolicy(policy);
+
+    // Hack because you might want to MTS yourself a message...
+    if (source.equals(target)) {
+      policy.secureMethod = policy.PLAIN;
+      return policy;
+    }
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    // The "(MTS)" part is the only ugly part -- GM
+
+    if (encryptedSocket || target.endsWith("(MTS)")) {
+      removeEncrypt(policy); // no need for double-encryption
+    }
+
+    if (source.startsWith("(MTS)")) {
+      // FIXME!! should check the source principal also
+      policy.secureMethod = policy.PLAIN;
+    }
+
+    if (policy.secureMethod == policy.SIGN && encryptedSocket && 
+        link != null) {
+      Set sentSet = getSentSet(link);
+      synchronized (sentSet) {
+        if (sentSet.contains(source)) {
+          policy.secureMethod = policy.PLAIN;
+        }
+      }
+    }
+    return policy;
+  }
+
+  private Collection modifyPolicies(Collection policies,
+                                    boolean encryptedSocket,
+                                    Object link,
+                                    String source,
+                                    String target) {
+    Collection newPolicies = new LinkedList();
+    Iterator iter = policies.iterator();
+    while (iter.hasNext()) {
+      SecureMethodParam policy = 
+        modifyPolicy((SecureMethodParam)iter.next(),
+                     encryptedSocket, link, source, target);
+      newPolicies.add(policy);
+      if (log.isDebugEnabled()) {
+        log.debug("Policy from " + source + " to " + target + " = " + policy);
+      }
+    }
+    return newPolicies;
+  }
+
+  private void setSent(String source, Object link) {
+    if (link != null) {
+      Set sentSet = getSentSet(link);
+      synchronized (sentSet) {
+        sentSet.add(source);
+      }
+    }
+  }
+
+  private class ProtectedMessageOutputStream extends ProtectedOutputStream {
+    private SignatureOutputStream _signature;
+    private boolean               _eom = false;
+    private boolean               _sign;
+    private boolean               _encrypt;
+    private EventPublisher        _eventPublisher;
+    private X509Certificate       _senderCert;
+    private Cipher                _cipher;
+    private String                _symmSpec;
+    private Object                _link;
+    private String                _sender;
+
+    public ProtectedMessageOutputStream(OutputStream stream,
+                                        SecureMethodParam policy,
+                                        MessageAddress source,
+                                        MessageAddress target,
+                                        boolean encryptedSocket,
+                                        Object link) 
+      throws GeneralSecurityException, IOException {
+      super(null);
+
+      _sender = source.toAddress();
+      _link   = link;
+      // secret key encrypted by sender or receiver's certificate
+      SealedObject senderSecret   = null;
+      SealedObject receiverSecret = null;
+
+      Hashtable certTable = keyRing.
+        findCertPairFromNS(_sender, target.toAddress());
+      _senderCert = (X509Certificate) certTable.get(_sender);
+      X509Certificate receiverCert = (X509Certificate) 
+          certTable.get(target.toAddress());
+      SecretKey secret = null;
+      if (log.isDebugEnabled()) {
+        log.debug("ProtectedMessageOutputStream: policy = " + policy);
+      }
+      policy = modifyPolicy(policy, encryptedSocket, link, 
+                            _sender, target.toAddress());
+
+      if (log.isDebugEnabled()) {
+        log.debug("ProtectedMessageOutputStream: modified policy = " + policy);
+      }
+      if (policy.secureMethod == policy.ENCRYPT ||
+          policy.secureMethod == policy.SIGNENCRYPT) {
+        _encrypt = true;
+        // first encrypt the secret key with the target's public key
+        secret = createSecretKey(policy);
+        
+        senderSecret = asymmEncrypt(_sender, policy.asymmSpec,
+                                    secret, _senderCert);
+        receiverSecret = asymmEncrypt(target.toAddress(), policy.asymmSpec,
+                                      secret, receiverCert);
+      }
+
+      ProtectedMessageHeader header = 
+        new ProtectedMessageHeader(_senderCert, receiverCert, policy,
+                                   senderSecret, receiverSecret);
+      if (log.isDebugEnabled()) {
+        log.debug("Sending " + header);
+      }
+      this.out = (stream instanceof ObjectOutputStream) 
+        ? (ObjectOutputStream) stream 
+        : new ObjectOutputStream(stream);
+      ((ObjectOutputStream) this.out).writeObject(header);
+
+      if (_encrypt) {
+        _symmSpec = policy.symmSpec;
+        _cipher = getCipher(policy.symmSpec);
+        _cipher.init(Cipher.ENCRYPT_MODE, secret);
+        this.out = 
+          new CipherOutputStream(this.out, getCipher(policy.symmSpec));
+      }
+      if (policy.secureMethod == policy.SIGNENCRYPT ||
+          policy.secureMethod == policy.SIGN) {
+        _sign = true;
+        PrivateKey priv = getPrivateKey(_sender);
+        _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
+                                                priv);
+        this.out = _signature;
+      }
+      if (DUMP_MESSAGES) {
+        String filename = getDumpFilename();
+        if (log.isDebugEnabled()) {
+          log.debug("Dumping message content to file " + filename);
+        }
+        this.out = new DumpOutputStream(this.out, filename);
+      }
+    }
+
+    public void close() throws IOException {
+      if (!_eom) {
+        throw new IOException("Buffered data cannot be flushed until end of message");
+      }
+      super.close();
+    }
+
+    /* **********************************************************************
+     * ProtectedOutputStream implementation
+     */
+
+    public void finishOutput(MessageAttributes attributes)
+      throws java.io.IOException {
+      this.flush();
+      if (DUMP_MESSAGES) {
+        ((DumpOutputStream) out).stopDumping();
+      }
+      if (_sign) {
+        _signature.writeSignature();
+        setSent(_sender, _link); // verified ok.
+      }
+      _eom = true;
+      if (_encrypt) {
+        this.out = null;
+        returnCipher(_symmSpec, _cipher);
+      }
+    }
+  }
+
+  private class ProtectedMessageInputStream extends ProtectedInputStream {
+    private SignatureInputStream  _signature;
+    private boolean               _eom;
+    private boolean               _sign;
+    private boolean               _encrypt;
+    private EventPublisher        _eventPublisher;
+    private X509Certificate       _senderCert;
+    private Cipher                _cipher;
+    private String                _symmSpec;
+    private Object                _link;
+    private String                _sender;
+
+    public ProtectedMessageInputStream(InputStream stream, 
+                                       MessageAddress source,
+                                       MessageAddress target,
+                                       boolean encryptedSocket,
+                                       Object link,
+                                       CryptoPolicyService cps) 
+      throws GeneralSecurityException, IOException {
+      super(null);
+
+      _link = link;
+
+      // first get the header:
+      ProtectedMessageHeader header = readHeader(stream);
+      String sourceName = header.getSenderName();
+      String targetName = header.getReceiverName();
+      checkAddresses(sourceName, source, targetName, target);
+      _sender = sourceName;
+
+      // check the policy
+      Collection policies = 
+        cps.getReceivePolicies(sourceName, targetName);
+
+      policies = modifyPolicies(policies, encryptedSocket,
+                                link, sourceName, targetName);
+      SecureMethodParam headerPolicy = header.getPolicy();
+
+      checkPolicy(policies, headerPolicy, sourceName, targetName);
+      log.debug("InputStream using policy: " + headerPolicy);
+
+      if (headerPolicy.secureMethod == SecureMethodParam.ENCRYPT ||
+          headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+        decryptStream(header, targetName);
+      }
+
+      if (headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
+          headerPolicy.secureMethod == SecureMethodParam.SIGN) {
+        unsignStream(header);
+      }
+    }
+
+    public void close() throws IOException {
+      if (!_eom) {
+        throw new IOException("Buffered data cannot be flushed until end of message");
+      }
+      super.close();
+    }
+
+    /* **********************************************************************
+     * ProtectedOutputStream implementation
+     */
+
+    public void finishInput(MessageAttributes attributes)
+      throws java.io.IOException {
+      if (_sign) {
+        try {
+          _signature.verifySignature();
+        } catch (SignatureException e) {
+          log.debug("Could not verify signature", e);
+          throw new IOException(e.getMessage());
+        }
+        setSent(_sender, _link); // verified ok.
+      }
+      _eom = true;
+      if (_encrypt) {
+        returnCipher(_symmSpec, _cipher);
+        this.in = null; // so you can't use the Cipher anymore
+      }
+    }
+
+    private ProtectedMessageHeader readHeader(InputStream stream)
+      throws IOException {
+
+      ObjectInputStream ois = (stream instanceof ObjectInputStream) 
+        ? (ObjectInputStream) stream
+        : new ObjectInputStream(stream);
+      this.in = ois;
+
+      try {
+        ProtectedMessageHeader header = 
+          (ProtectedMessageHeader) ois.readObject();
+        if (log.isDebugEnabled()) {
+          log.debug("ProtectedMessageInputStream header = " + header);
+        }
+        return header;
+      } catch (ClassNotFoundException e) {
+        throw new IOException(e.getMessage());
+      }
+    }
+    
+    private void checkAddresses(String sourceName, MessageAddress source,
+                                String targetName, MessageAddress target) 
+      throws GeneralSecurityException {
+      if (!sourceName.equals(source.toAddress()) ||
+          !targetName.equals(target.toAddress())) {
+        String message = "Break-in attempt: got a message supposedly from " +
+          source.toAddress() + " to " + target.toAddress() +
+          ", but certificates said " +
+          sourceName + " to " + targetName;
+        log.warn(message);
+        throw new GeneralSecurityException(message);
+      }
+    }
+
+    private void checkPolicy(Collection policies,
+                             SecureMethodParam headerPolicy,
+                             String source, String target) 
+      throws GeneralSecurityException {
+      Iterator iter = policies.iterator();
+      boolean headSign = 
+        headerPolicy.secureMethod == SecureMethodParam.SIGN ||
+        headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT;
+      boolean headEncrypt = 
+        headerPolicy.secureMethod == SecureMethodParam.ENCRYPT ||
+        headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT;
+
+      while (iter.hasNext()) {
+        SecureMethodParam policy = (SecureMethodParam) iter.next();
+        boolean sign = policy.secureMethod == policy.SIGN ||
+          policy.secureMethod == policy.SIGNENCRYPT;
+        boolean encrypt = policy.secureMethod == policy.ENCRYPT ||
+          policy.secureMethod == policy.SIGNENCRYPT;
+
+        if (sign && !headSign ||
+            encrypt && !headEncrypt) {
+          // encryption/sign requirements differ
+          continue;
+        }
+        if ((sign && !policy.signSpec.equals(headerPolicy.signSpec)) ||
+            (encrypt && 
+             (!policy.asymmSpec.equals(headerPolicy.asymmSpec) ||
+              !policy.symmSpec.equals(headerPolicy.symmSpec)))) {
+          // encryption/signature specs differ
+          continue;
+        }
+        return; // found one
+      }
+      String message = "Policy mismatch. Could not find matching policy for " +
+        "received message policy " + headerPolicy;
+      log.debug(message);
+      throw new GeneralSecurityException(message);
+    }
+    
+    private void decryptStream(ProtectedMessageHeader header, 
+                               String targetName) 
+      throws NoSuchAlgorithmException, InvalidKeyException, 
+      NoSuchPaddingException {
+      _encrypt = true;
+      // first decrypt the secret key with my private key
+      X509Certificate receiverCert = header.getReceiver();
+      SealedObject encKey = header.getEncryptedSymmetricKey();
+      SecureMethodParam policy = header.getPolicy();
+      SecretKey secret = (SecretKey) 
+        asymmDecrypt(targetName, policy.asymmSpec, encKey);
+      _symmSpec = policy.symmSpec;
+      _cipher = getCipher(policy.symmSpec);
+      _cipher.init(Cipher.DECRYPT_MODE, secret);
+      this.in = new CipherInputStream(this.in, _cipher);
+    }
+
+    private void unsignStream(ProtectedMessageHeader header) 
+      throws CertificateChainException, NoSuchAlgorithmException,
+      CertificateExpiredException, InvalidKeyException, 
+      CertificateNotYetValidException, CertificateRevokedException {
+      _sign = true;
+      X509Certificate senderCert = header.getSender();
+      keyRing.checkCertificateTrust(senderCert);
+      PublicKey pub = senderCert.getPublicKey();
+      SecureMethodParam policy = header.getPolicy();
+      _signature = new SignatureInputStream(this.in, policy.signSpec, pub);
+      this.in = _signature;
+    }
+                            
   }
 }

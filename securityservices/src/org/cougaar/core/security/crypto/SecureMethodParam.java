@@ -63,4 +63,9 @@ public final class SecureMethodParam
       return "UNKNOWN";
     }
   }
+
+  public String toString() {
+    return "SecureMethodParam: " + getSecureMethodToString() + ' ' +
+      symmSpec + ' ' + asymmSpec + ' ' + signSpec;
+  }
 }

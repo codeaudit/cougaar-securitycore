@@ -31,11 +31,12 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
+import java.security.Principal;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
-import java.util.Hashtable; 
+import java.util.*; 
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -64,6 +65,7 @@ import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -81,9 +83,6 @@ public class MessageProtectionServiceImpl
   private SecurityPropertiesService secprop;
   private CryptoPolicyService cps = null;
 
-  private MessageOutputStream pos;
-  private MessageInputStream pis;
-
   private LoggingService log;
   private boolean isInitialized = false;
   // event publisher to publish message failure
@@ -92,7 +91,7 @@ public class MessageProtectionServiceImpl
 
   public static final String NEW_CERT = 
     "org.cougaar.core.security.crypto.newcert";
-  
+
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
     log = (LoggingService)
@@ -128,12 +127,6 @@ public class MessageProtectionServiceImpl
   public synchronized void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
       eventPublisher = publisher;
-      if(pos != null) {
-        pos.addPublisher(publisher);
-      }
-      if(pis != null) {
-        pis.addPublisher(publisher);
-      }
     }
   }
   
@@ -206,6 +199,100 @@ public class MessageProtectionServiceImpl
    */
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
+			      MessageAddress target)
+    throws GeneralSecurityException, IOException
+  {
+    return rawData;
+    /*
+    if (!isInitialized) {
+      setPolicyService();
+    }
+
+    String sourceName = source.toAddress();
+    String targetName = target.toAddress();
+    SecureMethodParam policy = cps.getSendPolicy(sourceName, targetName);
+    CryptoPolicy policy =
+       cps.getOutgoingPolicy(source.getAddress());
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (destination.toAddress().endsWith("(MTS)")) {
+	log.info("Outgoing postmaster message. Skipping encryption");
+	return rawData;
+    }
+
+    log.debug("protectHeader 1");
+    if (policy == null) {
+      log.debug("protectHeader 2");
+      if (log.isWarnEnabled()) {
+        log.warn("protectHeader: " + source.toAddress()
+                 + " -> " + destination.toAddress()
+                 + " (No policy). No protection.");
+      }
+
+      GeneralSecurityException gse = 
+        new GeneralSecurityException("Could not find message policy between " +
+                                     source.getAddress() +
+                                     " and " + destination.getAddress());
+      publishMessageFailure(source.toString(), destination.toString(),
+                            MessageFailureEvent.INVALID_POLICY, 
+                            gse.toString());
+
+      IOException ioex = new IOException("Unable to protect header:" +
+					 gse.getMessage());
+      ioex.initCause(gse);
+      // Don't throw a security exception, otherwise the MTS will never
+      // retry to send the message.
+      throw ioex;
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("protectHeader: " + source.toAddress()
+		    + " -> " + destination.toAddress()
+ 		    + " (" + policy.toString() + ")");
+    }
+    ByteArrayOutputStream baos = null;
+    try {
+      log.debug("protectHeader 3: " + rawData + ", " + source + ", " + destination + ", " + policy);
+      ProtectedObject po =
+        encryptService.protectObject(rawData, source, destination, policy);
+      log.debug("protectHeader 3.1");
+      baos = new ByteArrayOutputStream();
+      log.debug("protectHeader 3.2");
+  
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      log.debug("protectHeader 3.3");
+      oos.writeObject(po);
+      log.debug("protectHeader 3.4");
+  
+      if (log.isDebugEnabled()) {
+        log.debug("protectHeader OK: " + source.toAddress()
+  		+ " -> " + destination.toAddress());
+      }
+    } catch(GeneralSecurityException gse) {
+      log.debug("protectHeader 4", gse);
+      publishMessageFailure(source.toString(),
+                            destination.toString(),
+                            gse);
+      log.debug("protectHeader 4.2");
+      IOException ioex = 
+        new IOException("Unable to protect header:" + gse.getMessage());
+      log.debug("protectHeader 4.3");
+      ioex.initCause(gse);
+      // Don't throw a security exception, otherwise the MTS will never
+      // retry to send the message.
+      log.debug("protectHeader 4.4");
+      throw ioex;
+    } catch (Throwable t) {
+      t.printStackTrace();
+    }
+    return baos.toByteArray();
+    */
+  }
+  /*
+  public byte[] protectHeader(byte[] rawData,
+			      MessageAddress source,
 			      MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
@@ -243,7 +330,7 @@ public class MessageProtectionServiceImpl
       // Don't throw a security exception, otherwise the MTS will never
       // retry to send the message.
       throw ioex;
-    }     
+    }
     if (log.isDebugEnabled()) {
       log.debug("protectHeader: " + source.toAddress()
 		    + " -> " + destination.toAddress()
@@ -276,7 +363,7 @@ public class MessageProtectionServiceImpl
     }
     return baos.toByteArray();
   }
-
+  */
   /**
    * Verify the signed and/or encrypted header of an incoming message.
    *
@@ -290,6 +377,8 @@ public class MessageProtectionServiceImpl
 				MessageAddress destination)
     throws GeneralSecurityException, IOException
   {
+    return rawData;
+    /*
     if (!isInitialized) {
       setPolicyService();
     }
@@ -371,6 +460,48 @@ public class MessageProtectionServiceImpl
       throw gse;
     }
     return (byte[])o;
+    */
+  }
+
+  private boolean isEncrypted(MessageAttributes attrs) {
+    Object encObj =
+      attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE);
+    if (encObj == null) {
+      return false;
+    }
+
+    if (encObj instanceof Boolean) {
+      return ((Boolean) encObj).booleanValue();
+    }
+
+    if (encObj instanceof List) {
+      List objs = (List) encObj;
+      Iterator iter = objs.iterator();
+      encObj = null;
+      Boolean altValue = null;
+      while (iter.hasNext()) {
+        encObj = iter.next();
+        // take Boolean values first
+        if (encObj instanceof Boolean) {
+          return ((Boolean) encObj).booleanValue();
+        }
+        if (encObj != null && altValue == null) {
+          String val = encObj.toString();
+          if ("true".equalsIgnoreCase(val)) {
+            altValue = Boolean.TRUE;
+          } else if ("false".equalsIgnoreCase(val)) {
+            altValue = Boolean.FALSE;
+          }
+        }
+      }
+      if (altValue != null) {
+        return altValue.booleanValue();
+      }
+      return false;
+    }
+    log.warn("Unexpected class for ENCRYPTED_SOCKET_ATTRIBUTE: " +
+             encObj.getClass().getName());
+    return false; // not a valid attribute
   }
 
   /** 
@@ -412,25 +543,44 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
-    if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
-      // The message is encrypted using SSL. Do not do double encryption.
-      log.info("Outgoing message encrypted using SSL. Skipping message protection");
-      return new BasicMessageOutputStream(os, source, destination, serviceBroker);
+    try {
+      SecureMethodParam policy = 
+        cps.getSendPolicy(source.getAddress(), destination.getAddress());
+      if (log.isDebugEnabled()) {
+        log.debug("Policy = " + policy);
+      }
+      boolean encryptedSocket = isEncrypted(attrs);
+      Object link = 
+        attrs.getAttribute(MessageProtectionAspectImpl.TARGET_LINK);
+      log.debug("returning encrypted service");
+      return encryptService.
+        protectOutputStream(os, policy, source, destination, encryptedSocket,
+                            link);
+    } catch (GeneralSecurityException e) {
+      log.debug("Got an error when protecting output stream", e);
+      String reason = MessageFailureEvent.UNKNOWN_FAILURE;
+    
+      // need to extract the reason of failure from the exception message
+      try {
+        Object []objs = exceptionFormat.parse(e.getMessage());
+        if(objs.length == 1) {
+          reason = (String)objs[0];
+        }
+      } catch(ParseException pe) {
+        // eat this exception?
+      }
+      FailureEvent event = new MessageFailureEvent(source.toString(),
+                                                   destination.toString(),
+                                                   reason,
+                                                   e.toString());
+      if (eventPublisher != null) {
+        eventPublisher.publishEvent(event);
+      }
+      throw new IOException(reason);
+    } catch (Exception e) {
+      log.debug("Got unexpected exception", e);
+      return null;
     }
-
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (destination.toAddress().endsWith("(MTS)")) {
-      log.info("Outgoing message is a postmaster message. Skipping encryption");
-      return new BasicMessageOutputStream(os, source, destination, serviceBroker);
-    }
-
-    pos =
-      new MessageOutputStream(os, encryptService, cps,
-			      source, destination, serviceBroker);
-	  pos.addPublisher(eventPublisher);
-    return pos;
   }
 
   /** 
@@ -472,25 +622,36 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
-    if (attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE) != null) {
-      // The message is encrypted using SSL. Do not do double encryption.
-      log.info("Incoming message encrypted using SSL. Skipping message protection");
-      return new BasicMessageInputStream(is, source, destination, serviceBroker);
+    try {
+      boolean encryptedSocket = isEncrypted(attrs);
+      Principal principal = KeyRingSSLServerFactory.getPrincipal();
+      return encryptService.
+        protectInputStream(is, source, destination,
+                           encryptedSocket, principal.toString(), cps);
+    } catch (GeneralSecurityException e) {
+      String reason = MessageFailureEvent.UNKNOWN_FAILURE;
+    
+      // need to extract the reason of failure from the exception message
+      try {
+        Object []objs = exceptionFormat.parse(e.getMessage());
+        if(objs.length == 1) {
+          reason = (String)objs[0];
+        }
+      } catch(ParseException pe) {
+        // eat this exception?
+      }
+      FailureEvent event = new MessageFailureEvent(source.toString(),
+                                                   destination.toString(),
+                                                   reason,
+                                                   e.toString());
+      if (eventPublisher != null) {
+        eventPublisher.publishEvent(event);
+      }
+      throw new IOException(reason);
+    } catch (Exception e) {
+      log.warn("Unexpected Exception when reading input stream", e);
+      return null;
     }
-
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (destination.toAddress().endsWith("(MTS)")) {
-      log.info("Incoming message is a postmaster message. Skipping encryption");
-      return new BasicMessageInputStream(is, source, destination, serviceBroker);
-    }
-
-    pis =
-      new MessageInputStream(is, encryptService, cps,
-			     source, destination, serviceBroker);
-	  pis.addPublisher(eventPublisher);
-    return pis;
   }
   
   /**

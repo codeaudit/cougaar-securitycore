@@ -284,7 +284,8 @@ ggggg   * and if not authenticated, call the secondary authentication method.
         roleSet.add(roles[i]);
       }
       return _enforcer.isActionAuthorized(roleSet, 
-                                          uriToPath(req.getRequestURI()),
+//                                           uriToPath(req.getRequestURI()),
+                                          req.getRequestURI(),
                                           c);
                                           
     }
@@ -411,7 +412,7 @@ ggggg   * and if not authenticated, call the secondary authentication method.
       checkAgainst = _starConstraints;
     } while (true);
   }
-
+  /*
   private static String uriToPath(String uri) {
     if (!uri.startsWith("/$")) {
       return uri;
@@ -422,10 +423,11 @@ ggggg   * and if not authenticated, call the secondary authentication method.
     }
     return uri.substring(index);
   }
-
+  */
   private CypherSuiteWithAuth getAuthRequirements(String uri, String cipher) {
     if (USE_DAML) {
-      Set reqs = _enforcer.whichCypherSuiteWithAuth(uriToPath(uri));
+      Set reqs = _enforcer.whichCypherSuiteWithAuth(uri);
+//       Set reqs = _enforcer.whichCypherSuiteWithAuth(uriToPath(uri));
       if (reqs == null) {
         return null;
       }

@@ -23,11 +23,7 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.Vector;
-import java.util.Collection;
+import java.util.*;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -181,6 +177,14 @@ public class CryptoPolicyServiceImpl
       }
       return smp;
     }
+
+  public Collection getSendPolicies(String source, String target) {
+    return Collections.singletonList(getSendPolicy(source, target));
+  }
+
+  public Collection getReceivePolicies(String source, String target) {
+    return Collections.singletonList(getReceivePolicy(source, target));
+  }
 
     public CryptoPolicy getIncomingPolicy(String target) {
       if(log.isDebugEnabled()) {

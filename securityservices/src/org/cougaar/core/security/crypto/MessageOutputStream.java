@@ -178,8 +178,9 @@ public class MessageOutputStream
    */
   private ProtectedObject protectMessage()
     throws IOException {
-     CryptoPolicy policy =
+    CryptoPolicy policy = null;/*
        cps.getOutgoingPolicy(source.toAddress());
+                               */
 
     if (policy == null) {
       if (log.isWarnEnabled()) {

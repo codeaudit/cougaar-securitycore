@@ -334,6 +334,10 @@ public class ULMessageNodeEnforcer
                              String receiver,
                              String verb)
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called isActionAuthorized for " + sender + " to " +
+                 receiver + " with verb " + verb);
+    }
     String kaosVerb = HardWired.kaosVerbFromVerb(verb);
 
     Set targets = new HashSet();
@@ -364,6 +368,10 @@ public class ULMessageNodeEnforcer
    */
   public Set getAllowedCypherSuites(String sender,
                              String receiver) {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Called getAllowedCypherSuites for " + sender + " to " +
+                 receiver);
+    }
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription
                 (ActionConcepts._hasDestination_, 

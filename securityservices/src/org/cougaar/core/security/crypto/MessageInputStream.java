@@ -202,8 +202,9 @@ public class MessageInputStream
       throw new IOException("Unexpected data in the stream:" + e);
     }
 
-    CryptoPolicy policy =
+    CryptoPolicy policy = null; /*
       cps.getIncomingPolicy(target.toAddress());
+                                */
     if (policy == null) {
       if (log.isWarnEnabled()) {
         log.warn("readInputStream NOK: " + source.toAddress()
