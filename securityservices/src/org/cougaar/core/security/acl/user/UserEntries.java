@@ -232,7 +232,7 @@ public class UserEntries implements UniqueObject {
     synchronized (_users) {
       UserData user = (UserData) _users.remove(uid);
       if (user == null) {
-        throw new UserServiceException("user does not exist");
+        throw new UserServiceException("user does not exist: " + uid);
       }
     }
   }
