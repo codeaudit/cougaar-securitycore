@@ -27,7 +27,7 @@ java \
 	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
 	-Dorg.cougaar.security.keystore=keystoreTest \
-	-Dorg.cougaar.node.name=TEST3ID-HHC \
+	-Dorg.cougaar.node.name=TEST-ONE-NODE \
 	-Dorg.cougaar.security.role=srosset \
 \
 	com.nai.security.certauthority.KeyManagement  \
