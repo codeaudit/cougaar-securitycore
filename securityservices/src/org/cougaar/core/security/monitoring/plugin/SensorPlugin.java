@@ -29,9 +29,12 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
+import org.cougaar.core.security.monitoring.blackboard.MnRManager;
+import org.cougaar.core.security.monitoring.blackboard.MnRManagerObject;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.idmef.Agent;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
@@ -75,8 +78,17 @@ import edu.jhuapl.idmef.Target;
  * subclass setupSubscription must call super.setupSubscription inorder
  * for the registration to take place.
  */
-public abstract class SensorPlugin
-extends ComponentPlugin {
+
+class ManagerAgentPredicate implements UnaryPredicate{
+   public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof MnRManager ) {
+      return true;
+    }
+    return ret;
+   }
+}
+public abstract class SensorPlugin extends ComponentPlugin {
 
   private MessageAddress myAddress;
   protected MessageAddress myManagerAddress;
@@ -100,6 +112,8 @@ extends ComponentPlugin {
    * of attacks
    */
   protected abstract boolean agentIsSource();
+
+  private  IncrementalSubscription managerSubscription;
 
   public void setDomainService(DomainService aDomainService) {
     _domainService = aDomainService;
@@ -158,8 +172,10 @@ extends ComponentPlugin {
     _csu = new CommunityServiceUtil(sb);
     // register this sensor's capabilities
     if( !_blackboard.didRehydrate()) {
-       getSecurityManager();
+      getSecurityManager();
     }
+    managerSubscription=(IncrementalSubscription)getBlackboardService().subscribe(new ManagerAgentPredicate());
+    
 
     /*
     Thread td=Thread.currentThread();
@@ -182,6 +198,25 @@ extends ComponentPlugin {
    * doesn't do anything
    */
   protected void execute(){
+    if(!managerSubscription.hasChanged()){
+      return;
+    }
+     Collection  mgrAgentCol=managerSubscription.getAddedCollection();
+     if(!mgrAgentCol.isEmpty()) {
+       Iterator iter=mgrAgentCol.iterator();
+       MnRManagerObject mgrObject=null;
+       while(iter.hasNext()){
+         mgrObject=(MnRManagerObject)iter.next();
+         if(myAddress.equals(mgrObject.getMgrAddress())){
+           myManagerAddress=mgrObject.getMgrAddress();
+           if(_log.isDebugEnabled()){
+             _log.debug("Setting Mgr Address from execute of Sensor plugin:");
+           }
+            _log.info("Setting Mgr Address from execute of Sensor plugin:"+ "myAddress "+ myAddress +" mgrAddress " +myManagerAddress );
+         }
+         registerCapabilities(myManagerAddress); 
+       }
+     }
   }
 
   private void getSecurityManager() {
@@ -211,6 +246,7 @@ extends ComponentPlugin {
                 _log.error("CommunityServiceUtilListener thread is :" + Thread.currentThread().hashCode());
                 _log.debug("Setting Manager for Sensor Plugin -- Manager  : "+ myManagerAddress +" For Agent : " +myAddress);
               }
+              _log.info("Setting Manager for Sensor Plugin -- Manager 2: "+ myManagerAddress +" For Agent : " +myAddress);
               registerCapabilities(addr);
             }
 	  }
@@ -220,7 +256,7 @@ extends ComponentPlugin {
       _log.debug("findSecurityManager from Communityservice util called in Sensor Plugins getSecurityManager:"
                  +myAddress.toString()); 
     }
-    _csu.findSecurityManager(listener);
+    _csu.findMySecurityManager(CommunityServiceUtil.MONITORING_SECURITY_COMMUNITY_TYPE,listener);
   }
 
   /**
@@ -293,58 +329,22 @@ extends ComponentPlugin {
                                                  _idmefFactory.newregistration,
                                                  _idmefFactory.SensorType,
                                                  myAddress.toString());
-        NewEvent regEvent = _cmrFactory.newEvent(reg);
-        
-        CmrRelay regRelay = _cmrFactory.newCmrRelay(regEvent, myManager);
+         NewEvent regEvent = _cmrFactory.newEvent(reg);
         _blackboard.openTransaction();
-        _blackboard.publishAdd(regRelay);
+        if(myAddress.equals(myManager)) {
+          _log.info("Publishing registration to local blackboard:");
+          _blackboard.publishAdd(regEvent);
+        }
+        else{
+          CmrRelay regRelay = _cmrFactory.newCmrRelay(regEvent, myManager);
+          _blackboard.publishAdd(regRelay);
+          _log.info("Publishing registration as relay:");
+        }
         _blackboard.closeTransaction();
         _log.debug("Registered sensor successfully!");
       }
     };
 
-    /*
-    boolean closeTransaction = true;
-    try{
-      _blackboard.openTransaction();
-    }
-    catch (Exception exp) {
-      _log.error("registerCapabilities openTransaction failed!");
-      _log.error("registerCapabilities thread is : " + Thread.currentThread().hashCode());
-      closeTransaction = false;
-    }
-    
-    Collection c =
-      _blackboard.query(new RegistrationPredicate(getSensorInfo(),
-                                                  targets, capabilities,
-                                                  data, myManager.toString()));
-    if(closeTransaction) {
-      _blackboard.closeTransaction();
-    }
-    
-    if (!c.isEmpty()) {
-      _log.info("Rehydrating - no need to publish sensor capabilities");
-      return; // this is rehydrated and we've already registered
-    } // end of if (!c.isEmpty())
-    
-    _log.info("No rehydration - publishing sensor capabilities");
-    RegistrationAlert reg =
-      _idmefFactory.createRegistrationAlert( getSensorInfo(),
-                                             null,
-                                             targets,
-                                             capabilities,
-                                             data,
-                                             _idmefFactory.newregistration,
-                                             _idmefFactory.SensorType,
-                                             myAddress.toString());
-    NewEvent regEvent = _cmrFactory.newEvent(reg);
-    
-    CmrRelay regRelay = _cmrFactory.newCmrRelay(regEvent, myManager);
-    _blackboard.openTransaction();
-    _blackboard.publishAdd(regRelay);
-    _blackboard.closeTransaction();
-    _log.debug("Registered sensor successfully!");
-    */
     ServiceBroker sb =getBindingSite().getServiceBroker();
     ThreadService ts = (ThreadService)
       sb.getService(this, ThreadService.class, null);
