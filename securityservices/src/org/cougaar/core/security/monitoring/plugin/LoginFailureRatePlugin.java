@@ -47,7 +47,9 @@ import org.cougaar.lib.aggagent.query.ResultSetDataAtom;
 import org.cougaar.lib.aggagent.query.ScriptSpec;
 import org.cougaar.lib.aggagent.query.AggregationResultSet;
 
+import org.cougaar.lib.aggagent.session.UpdateDelta;
 import org.cougaar.lib.aggagent.session.SessionManager;
+
 import org.cougaar.lib.aggagent.util.Enum.QueryType;
 import org.cougaar.lib.aggagent.util.Enum.Language;
 import org.cougaar.lib.aggagent.util.Enum.AggType;
@@ -109,12 +111,19 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     "  return getAlert\n";
 
   private static final String FORMAT_SCRIPT =
+//     "from java.lang import System\n" +
     "from org.cougaar.lib.aggagent.query import ResultSetDataAtom\n" +
-    "def encode (x, out):\n" +
+    "def encode (out, x):\n" +
     "  atom = ResultSetDataAtom()\n" +
-    "  atom.addIdentifier('document', x.getUID())\n" +
+    "  atom.addIdentifier('document', 'foo')\n" +
+    "  list = x.getAddedCollection()\n" +
+    "  if list is None:\n" +
+    "    count = 0\n" +
+    "  else:\n" +
+    "    count = list.size()\n" +
+    "  atom.addValue('delta', count)\n" +
 //     "  atom.addValue('date', x.getEvent().getDetectTime().getidmefDate())\n" +
-    "  out.add(atom) \n" +
+    "  out.getAddedList().add(atom)\n" +
     "def instantiate ():\n" +
     "  return encode\n";
 
@@ -245,23 +254,17 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
       if (results.exceptionThrown()) {
         log.error("Exception when executing query: " + results.getExceptionSummary());
         log.debug("XML: " + results.toXml());
-      }
-      
-      /*
-      Iterator atoms = results.getAllAtoms();
-      int count = 0;
-      while (atoms.hasNext()) {
-        ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
-//         String val = d.getValue("date").toString();
-//         if (val != null && backString.compareTo(val) <= 0) {
-          count++;
-//         }
-      }
-      */
-      int count = 1;
-      synchronized (_failures) {
-        _failures[(int)((now - _startTime)/1000) % _failures.length] += count;
-        _totalFailures += count;
+      } else {
+        Iterator atoms = results.getAllAtoms();
+        int count = 0;
+        while (atoms.hasNext()) {
+          ResultSetDataAtom d = (ResultSetDataAtom) atoms.next();
+          count += Integer.parseInt(d.getValue("delta").toString());
+        }
+        synchronized (_failures) {
+          _failures[(int)((now - _startTime)/1000)%_failures.length] += count;
+          _totalFailures += count;
+        }
       }
     }
   }
