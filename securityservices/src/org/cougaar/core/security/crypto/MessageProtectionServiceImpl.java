@@ -44,6 +44,7 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.SendQueue;
 import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.Attributes;
 import org.cougaar.core.mts.AttributedMessage;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
@@ -55,6 +56,11 @@ import org.cougaar.core.node.NodeMessage;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.wp.WhitePagesService;
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.service.wp.AddressEntry;
+import org.cougaar.core.service.wp.Callback;
+import org.cougaar.core.service.wp.Response;
 
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -82,12 +88,17 @@ public class MessageProtectionServiceImpl
   private EncryptionService encryptService;
   private SecurityPropertiesService secprop;
   private CryptoPolicyService cps = null;
+  private WhitePagesService _wps = null;
 
   private LoggingService log;
   private boolean isInitialized = false;
   // event publisher to publish message failure
   private EventPublisher eventPublisher = null;
   private MessageFormat exceptionFormat = new MessageFormat("{0} -");
+  private MessageAddress _localNode = null;
+  private static final String MPA_CLASSNAME = 
+    MessageProtectionAspectImpl.class.getName();
+  private static final String FILTERS_ATTRIBUTE = "Filters";
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -118,6 +129,23 @@ public class MessageProtectionServiceImpl
       log.warn("Unable to get Encryption service");
       throw new RuntimeException("MessageProtectionService. No encryption service");
     }
+
+    // Retrieve Encryption service
+    _wps = (WhitePagesService)
+      serviceBroker.getService(this, WhitePagesService.class, null);
+
+    if (_wps == null) {
+      log.warn("Unable to get WhitePagesService");
+      throw new RuntimeException("MessageProtectionService. No WhitePagesService");
+    }
+
+    NodeIdentificationService nis = (NodeIdentificationService)
+      serviceBroker.getService(this, NodeIdentificationService.class, null);
+    if (nis == null) {
+      log.warn("Unable to getNodeIdentificationService ");
+      throw new RuntimeException("MessageProtectionService. No NodeIdentificationService");
+    }
+    _localNode = nis.getMessageAddress();
   }
 
   // method used to initialize event publisher
@@ -199,8 +227,21 @@ public class MessageProtectionServiceImpl
 			      MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-//      return protectHeader(rawData, null, null, source, target, null);
-     return rawData;
+    // decode the raw data until method changes...
+    ByteArrayInputStream bin = new ByteArrayInputStream(rawData);
+    ObjectInputStream oin = new ObjectInputStream(bin);
+    try {
+      MessageAttributes attributes = (MessageAttributes) oin.readObject();
+      return protectHeader(attributes, source, target);
+    } catch (IOException e) {
+      throw e;
+    } catch (ClassNotFoundException e) {
+      log.error("This shouldn't happen!");
+      return null;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   /**
@@ -221,49 +262,46 @@ public class MessageProtectionServiceImpl
    *    message to the output stream.
    * 7) The encrypted message is actually sent over the network.
    *
-   * @param rawData     The unencrypted header
+   * @param attributes  The attributes to be protected
    * @param source      The source of the message
-   * @param destination The destination of the message
+   * @param target      The destination of the message
    * @return the protected header (sign and/or encrypted)
    */
-  public byte[] protectHeader(byte[] rawData,
-			      MessageAddress sourceAgent,
-			      MessageAddress targetAgent,
-                              MessageAddress sourceNode,
-                              MessageAddress targetNode,
-                              MessageAttributes attrs)
+  public byte[] protectHeader(MessageAttributes attributes,
+			      MessageAddress source,
+			      MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-    if (isEncrypted(attrs)) {
-      return rawData;
+    // first get the target node
+    MessageAddress targetNode = getNodeAddress(target);
+
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    ObjectOutputStream    oout = new ObjectOutputStream(bout);
+
+    boolean encrypted = isEncrypted(attributes);
+    oout.writeBoolean(encrypted);
+//     System.out.println("protecting header -- encrypted = " + encrypted);
+    if (encrypted) {
+      // no need for signature or encryption -- SSL is good!
+      oout.writeObject(attributes);
+      oout.close();
+      return bout.toByteArray();
     }
 
-    String sourceName = sourceNode.toAddress();
+    String sourceName = _localNode.toAddress();
     String targetName = targetNode.toAddress();
-
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (targetName.endsWith("(MTS)")) {
-      targetName = targetName.substring(0, targetName.length() - 5);
-      targetNode = MessageAddress.getMessageAddress(targetName);
-      log.info("Incoming postmaster message. Protecting with node key");
-    }
 
     if (!isInitialized) {
       setPolicyService();
     }
     
     SecureMethodParam policy = cps.getSendPolicy(sourceName, targetName);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
-    oos.writeObject(policy);
 
     if (policy == null) {
       if (log.isWarnEnabled()) {
         log.warn("protectHeader: " + sourceName +
                  " -> " + targetName + 
-                 " for agents " + sourceAgent + " -> " + targetAgent +
+                 " for agents " + source + " -> " + target +
                  " (No policy). No protection.");
       }
 
@@ -283,17 +321,20 @@ public class MessageProtectionServiceImpl
       throw ioex;
     }
 
+    oout.writeObject(policy);
+
     if (log.isDebugEnabled()) {
       log.debug("protectHeader: " + sourceName +
                 " -> " + targetName +
-                " for agents " + sourceAgent + " -> " + targetAgent +
+                " for agents " + source + " -> " + target +
                 " (" + policy + ")");
     }
     try {
       ProtectedObject po =
-        encryptService.protectObject(rawData, sourceNode, targetNode, policy);
+        encryptService.protectObject(attributes, _localNode, targetNode, 
+                                     policy);
   
-      oos.writeObject(po);
+      oout.writeObject(po);
   
       if (log.isDebugEnabled()) {
         log.debug("protectHeader OK: " + sourceName +
@@ -310,7 +351,8 @@ public class MessageProtectionServiceImpl
     } catch (Throwable t) {
       t.printStackTrace();
     }
-    return baos.toByteArray();
+    oout.close();
+    return bout.toByteArray();
   }
 
   /*
@@ -387,6 +429,44 @@ public class MessageProtectionServiceImpl
     return baos.toByteArray();
   }
   */
+
+  private MessageAddress getNodeAddress(MessageAddress agent) 
+    throws IOException {
+    
+    return agent;
+
+    /* There are problems with the following because there is no
+     * way to detect the WhitePagesService agent name without
+     * going through the WhitePagesService. Chicken-and-egg, eh?
+     * Actually, there are some work-arounds, but they aren't
+     * really worth it, so I'm not going to bother...
+     */
+    /*
+    MessageAddress addr;
+    if (agent.equals(_localNode)) {
+      return agent;
+    }
+    
+    try {
+      AddressEntry entry = _wps.get(agent.toAddress(), "topology", -1);
+      if (entry != null) {
+        addr = MessageAddress.getMessageAddress(entry.getName());
+      } else {
+        // try a callback to force a lookup...
+        _wps.get(agent.toAddress(), "topology", LOOKUP_CALLBACK);
+        addr = null;
+      }
+    } catch (Exception e) {
+      addr = null;
+    }
+    if (addr == null) {
+      System.out.println("couldn't find address for " + agent);
+      throw new IOException("Message cannot be accepted until node name can be found");
+    }
+    return addr;
+    */
+  }
+
   /**
    * Verify the signed and/or encrypted header of an incoming message.
    *
@@ -400,8 +480,19 @@ public class MessageProtectionServiceImpl
 				MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-//      return unprotectHeader(rawData, null, null, source, target, null);
-     return rawData;
+    try {
+      MessageAttributes attrs = unprotectHeader2(rawData, source, target);
+      ByteArrayOutputStream bout = new ByteArrayOutputStream();
+      ObjectOutputStream oout = new ObjectOutputStream(bout);
+      oout.writeObject(attrs);
+      oout.close();
+      return bout.toByteArray();
+    } catch (IOException e) {
+      throw e;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   /**
@@ -409,118 +500,164 @@ public class MessageProtectionServiceImpl
    *
    * @param rawData     The signed and/or encrypted header
    * @param source      The source of the message
-   * @param destination The destination of the message
-   * @return the header in the clear
+   * @param target      The destination of the message
+   * @return The message attributes associated with the rawData
    */
-  public byte[] unprotectHeader(byte[] rawData,
-				MessageAddress sourceAgent,
-				MessageAddress targetAgent,
-                                MessageAddress sourceNode,
-                                MessageAddress targetNode,
-                                MessageAttributes attrs)
+  public MessageAttributes unprotectHeader2(byte[] rawData,
+                                            MessageAddress source,
+                                            MessageAddress target)
     throws GeneralSecurityException, IOException
   {
-    if (isEncrypted(attrs)) {
-      return rawData;
+    if (rawData == null) {
+      throw new IOException("Empty header");
     }
-
-    String sourceName = sourceNode.toAddress();
-    String targetName = targetNode.toAddress();
+    ByteArrayInputStream bin = new ByteArrayInputStream(rawData);
+    ObjectInputStream oin = new ObjectInputStream(bin);
     
-    // SR - 10/21/2002. UGLY & TEMPORARY FIX
-    // The advance message clock uses an unsupported address type.
-    // Since this is demo-ware, we are not encrypting those messages.
-    if (targetName.endsWith("(MTS)")) {
-      targetName = targetName.substring(0, targetName.length() - 5);
-      targetNode = MessageAddress.getMessageAddress(targetName);
-      log.info("Incoming postmaster message. Protecting with node key");
-    }
-
-    if (!isInitialized) {
-      setPolicyService();
-    }
-
-    ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
-    ObjectInputStream ois = new ObjectInputStream(bais);
-
-    SecureMethodParam policy;
-    try {
-      policy = (SecureMethodParam) ois.readObject();
-    } catch (Exception e) {
-      if (log.isWarnEnabled()) {
-        log.warn("unprotectHeader " + sourceName +
-                 " -> " + targetName + " could not read policy", e);
-      }
-      throw new GeneralSecurityException("Could read policy for message " +
-                                          "between " +
-                                          sourceName + " and " + targetName +
-                                         ": " + e.getMessage());
-    }
-
-    if (policy == null ||
-        !cps.isReceivePolicyValid(sourceName, targetName, 
-                                 policy, false, false)) {
-      if (log.isWarnEnabled()) {
-        log.warn("unprotectHeader " + sourceName +
-                 " -> " + targetName + " policy " + policy +
-                 " not allowed");
-      }
-      GeneralSecurityException gse = 
-        new GeneralSecurityException("Could not use policy between " +
-                                     sourceName + " and " + targetName);
-      publishMessageFailure(sourceName, targetName,
-                            MessageFailureEvent.INVALID_POLICY, 
-                            gse.toString());
-      throw gse;
-    }     
-
-    if (log.isDebugEnabled()) {
-      log.debug("unprotectHeader: " + sourceName + " -> " + targetName +
-                " (" + policy + ")");
-    }
-
-    ProtectedObject po = null;
-    try {
-      po = (ProtectedObject) ois.readObject();
-    } catch (ClassNotFoundException e) {
-      if (log.isWarnEnabled()) {
-        log.warn("unprotectHeader " + sourceName + " -> " + targetName +
-                 " (Class not found)");
-      }
-      throw new IOException("Can't unprotect header: " + e.getMessage());
-    }
-    try {
-      byte[] b = (byte[])
-        encryptService.unprotectObject(sourceNode, targetNode, po, policy);
-      if (log.isDebugEnabled()) {
-        log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
-      }
-      return b;
-    } catch (ClassCastException e) {
-      throw new IOException("Found the wrong type of object in stream: " + e);
-    } catch(DecryptSecretKeyException e) {
-      // send the new certificate to the server
-      AttributedMessage msg = getCertificateMessage(sourceNode, targetNode);
-      if (msg != null) {
-        SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
-        if (sendQ != null) {
-          sendQ.sendMessage(msg);
-          if (log.isInfoEnabled()) {
-            log.info("Requesting that " + sourceName + " use new certificate");
-          } 
-        } else if (log.isWarnEnabled()) {
-          log.warn("Could not send message to " + sourceName + 
-                   " to use a new certificate. Make sure that " +
-                   "org.cougaar.core.security.crypto.MessagePr" +
-                   "otectionAspectImpl is used.");
+    MessageAttributes attrs;
+    boolean encrypted = oin.readBoolean();
+//     System.out.println("unprotecting header using encrypted channel: " + encrypted);
+    if (encrypted) {
+      // FIXME!! This is a hack! There should be a way to determine
+      // if the thread is an internal route or not other than by
+      // using the thread group name
+      ThreadGroup tg = Thread.currentThread().getThreadGroup();
+      if ((tg != null && !tg.getName().equals("RMI Runtime")) ||
+          KeyRingSSLServerFactory.getPrincipal() != null) {
+        try {
+          attrs = (MessageAttributes) oin.readObject();
+        } catch (Exception e) {
+          if (log.isWarnEnabled()) {
+            log.warn("unprotectHeader (plain) " + source +
+                     " -> " + target + " could not read header", e);
+          }
+          throw new GeneralSecurityException("Could read unprotected message " +
+                                             "between " +
+                                             source + " and " + target +
+                                             ": " + e.getMessage());
         }
+      } else {
+//         System.out.println("Current Thread: " + Thread.currentThread());
+//         System.out.println("Thread group:   '" + tg.getName() + "'");
+//         System.out.println("Principal:      '" + 
+//                            KeyRingSSLServerFactory.getPrincipal() + "'");
+        if (log.isWarnEnabled()) {
+          log.warn("unprotectHeader (plain) " + source +
+                   " -> " + target + " clear channel used");
+          }
+          throw new GeneralSecurityException("Could read unprotected message " +
+                                             "between " +
+                                             source + " and " + target +
+                                             ": clear channel used");
       }
+    } else {
+      MessageAddress sourceNode = getNodeAddress(source);
+      String sourceName = sourceNode.toAddress();
+      String targetName = _localNode.toAddress();
+    
+      if (!isInitialized) {
+        setPolicyService();
+      }
+
+      SecureMethodParam policy;
+      try {
+        policy = (SecureMethodParam) oin.readObject();
+      } catch (Exception e) {
+        if (log.isWarnEnabled()) {
+          log.warn("unprotectHeader " + sourceName +
+                   " -> " + targetName + " could not read policy", e);
+        }
+        throw new GeneralSecurityException("Could read policy for message " +
+                                           "between " +
+                                           sourceName + " and " + targetName +
+                                           ": " + e.getMessage());
+      }
+
+      if (policy == null ||
+          !cps.isReceivePolicyValid(sourceName, targetName, 
+                                    policy, false, false)) {
+        if (log.isWarnEnabled()) {
+          log.warn("unprotectHeader " + sourceName +
+                   " -> " + targetName + " policy " + policy +
+                   " not allowed");
+        }
+        GeneralSecurityException gse = 
+          new GeneralSecurityException("Could not use policy between " +
+                                       sourceName + " and " + targetName);
+        publishMessageFailure(sourceName, targetName,
+                              MessageFailureEvent.INVALID_POLICY, 
+                              gse.toString());
+        throw gse;
+      }     
+
+      if (log.isDebugEnabled()) {
+        log.debug("unprotectHeader: " + sourceName + " -> " + targetName +
+                  " (" + policy + ")");
+      }
+
+      ProtectedObject po = null;
+      try {
+        po = (ProtectedObject) oin.readObject();
+      } catch (ClassNotFoundException e) {
+        if (log.isWarnEnabled()) {
+          log.warn("unprotectHeader " + sourceName + " -> " + targetName +
+                   " (Class not found)");
+        }
+        throw new IOException("Can't unprotect header: " + e.getMessage());
+      }
+      try {
+        attrs = (MessageAttributes)
+          encryptService.unprotectObject(sourceNode, _localNode, po, policy);
+        if (log.isDebugEnabled()) {
+          log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
+        }
+      } catch (ClassCastException e) {
+        throw new IOException("Found the wrong type of object in stream: " + e);
+      } catch(DecryptSecretKeyException e) {
+        // send the new certificate to the server
+        AttributedMessage msg = getCertificateMessage(sourceNode, _localNode);
+        if (msg != null) {
+          SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
+          if (sendQ != null) {
+            sendQ.sendMessage(msg);
+            if (log.isInfoEnabled()) {
+              log.info("Requesting that " + sourceName + " use new certificate");
+            } 
+          } else if (log.isWarnEnabled()) {
+            log.warn("Could not send message to " + sourceName + 
+                     " to use a new certificate. Make sure that " +
+                     "org.cougaar.core.security.crypto.MessagePr" +
+                     "otectionAspectImpl is used.");
+          }
+        }
       
-      throw new RetryWithNewCertificateException(e.getMessage());
-    } catch(GeneralSecurityException e) {
-      publishMessageFailure(sourceName, targetName, e);
-      throw e;
+        throw new RetryWithNewCertificateException(e.getMessage());
+      } catch(GeneralSecurityException e) {
+        publishMessageFailure(sourceName, targetName, e);
+        throw e;
+      }
     }
+    checkAspectChain(attrs);
+//     System.out.println("success!");
+    return attrs;
+  }
+
+  private void checkAspectChain(MessageAttributes attrs) {
+    Collection c = (Collection) attrs.getAttribute("Filters");
+    if (c == null) {
+      c = new ArrayList();
+      attrs.setAttribute(FILTERS_ATTRIBUTE, c);
+    }
+    Iterator iter = c.iterator();
+    while (iter.hasNext()) {
+      Object val = iter.next();
+      if (val.equals(MPA_CLASSNAME)) {
+        return;
+      }
+    }
+    // couldn't find it in the list.. add it!
+    log.debug("Adding " + MPA_CLASSNAME + " to aspect chain");
+    attrs.pushValue(FILTERS_ATTRIBUTE, MPA_CLASSNAME);
   }
 
   private boolean isEncrypted(MessageAttributes attrs) {
@@ -822,4 +959,9 @@ public class MessageProtectionServiceImpl
       super(src, dest);
     } 
   }
+
+  private static final Callback LOOKUP_CALLBACK = new Callback() {
+      public void execute(Response res) {
+      }
+    };
 }

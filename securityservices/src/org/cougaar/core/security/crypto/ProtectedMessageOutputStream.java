@@ -98,7 +98,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     byte[] senderSecret   = null;
     byte[] receiverSecret = null;
 
-    getCertificates();
+    getCertificates(policy);
 
     SecretKey secret = null;
     if (_log.isDebugEnabled()) {
@@ -196,20 +196,26 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
 	}
     }
 
-  private void getCertificates() 
+  private void getCertificates(SecureMethodParam policy) 
     throws NoKeyAvailableException, CertificateException, IOException,
     NoSuchAlgorithmException {
-      Hashtable certTable;
-      synchronized (_certCache) {
-	  String name = _source + ':' + _target;
-	  certTable = (Hashtable) _certCache.get(name);
-	  if (certTable == null) {
-	      certTable = _keyRing.findCertPairFromNS(_source, _target);
-	      if (certTable != null && certTable.size() < 2) {
-		  _certCache.put(name, certTable);
-	      }
-	  }
+    Hashtable certTable;
+
+    if (policy.secureMethod == policy.PLAIN) {
+      return; // don't need any certificates for plain text communication
+    }
+
+    synchronized (_certCache) {
+      String name = _source + ':' + _target;
+      certTable = (Hashtable) _certCache.get(name);
+      if (certTable == null) {
+        certTable = _keyRing.findCertPairFromNS(_source, _target);
+        if (certTable != null && certTable.size() < 2) {
+          _certCache.put(name, certTable);
+        }
       }
+    }
+
     _targetCert = (X509Certificate) certTable.get(_target);
     _sourceCert = (X509Certificate) certTable.get(_source);
     if (_sourceCert == null || _targetCert == null) {

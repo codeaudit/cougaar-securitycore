@@ -98,16 +98,29 @@ public class ProtectedMessageHeader implements java.io.Serializable {
   }
 
   public MessageAddress getReceiverAddress() {
+    if (_receiver == null) {
+      return null;
+    }
     return SimpleMessageAddress.getSimpleMessageAddress(toCN(_receiver));
   }
   public MessageAddress getSenderAddress() {
+    if (_sender == null) {
+      return null;
+    }
     return SimpleMessageAddress.getSimpleMessageAddress(toCN(_sender));
   }
 
   public String getReceiverName() {
+    if (_receiver == null) {
+      return null;
+    }
     return toCN(_receiver);
   }
+
   public String getSenderName() {
+    if (_sender == null) {
+      return null;
+    }
     return toCN(_sender);
   }
 

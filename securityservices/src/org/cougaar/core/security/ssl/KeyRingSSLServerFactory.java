@@ -46,7 +46,7 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
   SSLServerSocketFactory ssocfac;
 
-  boolean needAuth = false;
+  boolean needAuth = true;
 
   public static Principal getPrincipal() {
     synchronized (_sessionMap) {
@@ -55,20 +55,28 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   }
 
   private static void setPrincipal(SSLSocket socket) {
+    java.security.cert.Certificate[] peer = null;
     try {
       SSLSession session = socket.getSession();
       if (session != null) {
-        java.security.cert.Certificate[] peer = session.getPeerCertificates();
+        peer = session.getPeerCertificates();
         if (peer != null && peer.length > 0 &&
             peer[0] instanceof X509Certificate) {
           X509Certificate cert = (X509Certificate) peer[0];
           synchronized (_sessionMap) {
             _sessionMap.put(Thread.currentThread(),cert.getSubjectDN());
           }
+//         } else {
+//           System.out.println("No peer certificate!");
         }
+//       } else {
+//         System.out.println("No SSL Session!");
       }
+//       System.out.println("Setting principal for " + Thread.currentThread());
     } catch (SSLPeerUnverifiedException e) {
       // don't set anything, there is no peer
+//       System.out.println("Problem Setting principal for " + Thread.currentThread() + ", " + e);
+//       System.out.println("peer = " + peer);
     }
   }
 

@@ -94,17 +94,12 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       throw new MessageDumpedException("Message was dropped");
     }
     ProtectedMessageHeader header = bytesToHeader(headerBytes);
-    _source = header.getSenderName();
-    _target = header.getReceiverName();
-    checkAddresses(source, target);
-
-    _keyRing.checkCertificateTrust(header.getSender());
-    _keyRing.checkCertificateTrust(header.getReceiver());
+    setAddresses(header, source, target);
+    SecureMethodParam headerPolicy = header.getPolicy();
 
     // check the policy
     boolean ignoreSignature = 
       ignoreSignature(encryptedSocket);
-    SecureMethodParam headerPolicy = header.getPolicy();
     boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
                                                    headerPolicy,
                                                    encryptedSocket,
@@ -316,17 +311,43 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     }
   }
     
-  private void checkAddresses(MessageAddress source,
-                              MessageAddress target) 
+  private void setAddresses(ProtectedMessageHeader header,
+                            MessageAddress source,
+                            MessageAddress target) 
     throws GeneralSecurityException {
-    if (!_source.equals(source.toAddress()) ||
-        !_target.equals(target.toAddress())) {
-      String message = "Break-in attempt: got a message supposedly from " +
-        source.toAddress() + " to " + target.toAddress() +
-        ", but certificates said " +
-        _source + " to " + _target;
-      _log.warn(message);
-      throw new GeneralSecurityException(message);
+    String sourceName = source.toAddress();
+    String targetName = target.toAddress();
+    SecureMethodParam policy = header.getPolicy();
+    
+    if (policy.secureMethod == SecureMethodParam.PLAIN ||
+        policy.secureMethod == SecureMethodParam.SIGN) {
+      // we don't need the certificate of the receiver in this message
+      _target = target.toAddress();
+    } else {
+      _target = header.getReceiverName();
+      if (_target == null || !_target.equals(targetName)) {
+        String message = "Break-in attempt: got a message from " +
+          sourceName + " to " + targetName +
+          ", but certificate says target is " + _target;
+        _log.warn(message);
+        throw new GeneralSecurityException(message);
+      }
+      _keyRing.checkCertificateTrust(header.getReceiver());
+    }
+
+    if (policy.secureMethod == SecureMethodParam.PLAIN) {
+      // we don't need the certificate of the sender in this message
+      _source = source.toAddress();
+    } else {
+      _source = header.getSenderName();
+      if (_source == null || !_source.equals(sourceName)) {
+        String message = "Break-in attempt: got a message supposedly from " +
+          sourceName + " to " + targetName +
+          ", but certificate says source is " + _source;
+        _log.warn(message);
+        throw new GeneralSecurityException(message);
+      }
+      _keyRing.checkCertificateTrust(header.getSender());
     }
   }
 
