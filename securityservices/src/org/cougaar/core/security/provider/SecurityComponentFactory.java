@@ -28,11 +28,13 @@
 package org.cougaar.core.security.provider;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.StateModelException;
 
 
 public final class SecurityComponentFactory extends SecurityComponent {
  
-
+  private SecurityServiceProvider securityServiceProvider;
+  
   public SecurityComponentFactory() {
   }
 
@@ -40,9 +42,15 @@ public final class SecurityComponentFactory extends SecurityComponent {
     super.load();
     final ServiceBroker sb = bindingSite.getServiceBroker();
     // Create and register security services.
-    new SecurityServiceProvider(sb, mySecurityCommunity);
-    
+    securityServiceProvider = new SecurityServiceProvider(sb, mySecurityCommunity);
   }
 
   
+  /* (non-Javadoc)
+   * @see org.cougaar.util.GenericStateModel#stop()
+   */
+  public synchronized void stop() throws StateModelException {
+    securityServiceProvider.stop();
+    super.stop();
+  }
 }

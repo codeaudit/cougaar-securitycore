@@ -26,7 +26,7 @@
 
 package org.cougaar.core.security.provider;
 
-// Cougaar core services
+//Cougaar core services
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -77,42 +77,42 @@ public class SecurityServiceProvider
   /** True if the application is run with a Cougaar node */
   private boolean isExecutedWithinNode = true;
   private boolean initDone = false;
-
-//  private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
-//  private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
-
+  
+//private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
+//private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
+  
   public SecurityServiceProvider() {
     ServiceBroker sb = new ServiceBrokerSupport();
     init(sb, null);
   }
-
+  
   public SecurityServiceProvider(ServiceBroker sb, String community) {
     init(sb, community);
   }
-
+  
   public ServiceBroker getServiceBroker() {
     return serviceBroker;
   }
-
+  
   /** **********************************************************************
    * Private methods
    */
-
+  
   private void init(ServiceBroker sb, String community) {
     serviceBroker = sb;
     mySecurityCommunity = community;
     registerServices();
   }
-
+  
   private void registerServices() {
-
+    
     // Get root service broker
     nodeControlService = (NodeControlService)
-      serviceBroker.getService(this, NodeControlService.class, null);
+    serviceBroker.getService(this, NodeControlService.class, null);
     if (nodeControlService != null) {
       rootServiceBroker = nodeControlService.getRootServiceBroker();
       if (rootServiceBroker == null) {
-	throw new RuntimeException("Unable to get root service broker");
+        throw new RuntimeException("Unable to get root service broker");
       }
     }
     else {
@@ -120,30 +120,30 @@ public class SecurityServiceProvider
       // No Cougaar services are available.
       isExecutedWithinNode = false;
       rootServiceBroker = serviceBroker;
-
+      
       /* ********************************
        * Logging service
        */
       // NodeAgent has not started the logging service at this point,
       // but we need it.
       // Removed because the Logging service is started early in 9.4
-
+      
       LoggingServiceProvider loggingServiceProvider =
-	      new LoggingServiceProvider();
+        new LoggingServiceProvider();
       rootServiceBroker.addService(LoggingService.class,
-				   loggingServiceProvider);
+          loggingServiceProvider);
       rootServiceBroker.addService(LoggingControlService.class,
-				   loggingServiceProvider);
+          loggingServiceProvider);
     }
-
+    
     System.setProperty("org.cougaar.core.security.isExecutedWithinNode",
-		       String.valueOf(isExecutedWithinNode));
+        String.valueOf(isExecutedWithinNode));
     this.log = (LoggingService)
-      rootServiceBroker.getService(this,
-				   LoggingService.class, null);
-
+    rootServiceBroker.getService(this,
+        LoggingService.class, null);
+    
     services = SecurityServiceTable.getInstance(log);
-
+    
     if (log.isDebugEnabled()) {
       log.debug("Registering security services");
     }
@@ -155,47 +155,47 @@ public class SecurityServiceProvider
         log.error("Un able to get Security community as mySecurityCommunity is Null:");
       }
     }
-
+    
     if (log.isInfoEnabled() && isExecutedWithinNode == false) {
       log.info("Running outside a Cougaar node");
     }
-
+    
     /* ********************************
      * Property service
      */
     ServiceProvider newSP = null;
-
+    
     newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
     services.put(SecurityPropertiesService.class, newSP);
     rootServiceBroker.addService(SecurityPropertiesService.class, newSP);
-
+    
     SecurityPropertiesService secprop = (SecurityPropertiesService)
-      AccessController.doPrivileged(new PrivilegedAction() {
-        public Object run() {
-          return rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
-        }
-      });
-
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        return rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
+      }
+    });
+    
     /*
-    boolean standalone = false;
-    try {
-      standalone = new Boolean(secprop.getProperty(
-        "org.cougaar.core.security.standalone", "false")).booleanValue();
-
-      if (!standalone)
-        new NodeInfo().setNodeName(serviceBroker);
-    } catch (Exception ex) {
-      log.warn("Unable to get value of standalone mode");
-    }
-    */
-
+     boolean standalone = false;
+     try {
+     standalone = new Boolean(secprop.getProperty(
+     "org.cougaar.core.security.standalone", "false")).booleanValue();
+     
+     if (!standalone)
+     new NodeInfo().setNodeName(serviceBroker);
+     } catch (Exception ex) {
+     log.warn("Unable to get value of standalone mode");
+     }
+     */
+    
     /* ********************************
      * Configuration services
      */
     newSP = new ConfigParserServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(ConfigParserService.class, newSP);
     rootServiceBroker.addService(ConfigParserService.class, newSP);
-
+    
     /* ********************************
      * Encryption services
      */
@@ -203,46 +203,46 @@ public class SecurityServiceProvider
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertDirectoryServiceClient.class, newSP);
     rootServiceBroker.addService(CertDirectoryServiceClient.class, newSP);
-
+    
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertDirectoryServiceCA.class, newSP);
     rootServiceBroker.addService(CertDirectoryServiceCA.class, newSP);
-
+    
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CACertDirectoryService.class, newSP);
     rootServiceBroker.addService(CACertDirectoryService.class, newSP);
-
+    
     newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateSearchService.class, newSP);
     rootServiceBroker.addService(CertificateSearchService.class, newSP);
-
+    
     newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CACertDirectoryService.class, newSP);
     rootServiceBroker.addService(CACertDirectoryService.class, newSP);
-
+    
     /* Certificate Management service */
     // move to certauth to be started in its own component
     /*
-    newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(CertificateManagementService.class, newSP);
-    rootServiceBroker.addService(CertificateManagementService.class, newSP);
-    */
-
+     newSP = new CertificateManagementServiceProvider(serviceBroker, mySecurityCommunity);
+     services.put(CertificateManagementService.class, newSP);
+     rootServiceBroker.addService(CertificateManagementService.class, newSP);
+     */
+    
     /* Starting Certificate Cache  service */
-
+    
     newSP = new CertificateCacheServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateCacheService.class, newSP);
     rootServiceBroker.addService(CertificateCacheService.class, newSP);
-
-
-
+    
+    
+    
     /* Key lookup service */
     newSP = new KeyRingServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(KeyRingService.class, newSP);
     rootServiceBroker.addService(KeyRingService.class, newSP);
-
-
-/* Starting CRL Cache  service */
+    
+    
+    /* Starting CRL Cache  service */
     if (log.isDebugEnabled()) {
       log.debug("Service broker passed to CRLCacheServiceProvider is :"+serviceBroker.toString());
     }
@@ -250,87 +250,87 @@ public class SecurityServiceProvider
     services.put(CRLCacheService.class, newSP);
     rootServiceBroker.addService(CRLCacheService.class, newSP);
     /*CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
-                                                      CRLCacheService.class,
-                                                      null);
-    */
-
-
+     CRLCacheService.class,
+     null);
+     */
+    
+    
     /* Certificate validity service */
     newSP = new CertValidityServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertValidityService.class, newSP);
     rootServiceBroker.addService(CertValidityService.class, newSP);
-
+    
     /* Community Protection Service */
     newSP = new CommunityProtectionServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CommunityProtectionService.class, newSP);
     rootServiceBroker.addService(CommunityProtectionService.class, newSP);
-
+    
     if (isExecutedWithinNode) {
       
       /* Persistence Manager Service */
-/*
-//      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-      newSP = null;
-      Class cls = null;
-      try {
-      	cls = Class.forName(PMP_PROVIDER_CLASS);
-      	newSP = (ServiceProvider)cls.newInstance();
-      } catch (Exception ex) {
-      	log.error("Exception while instantiating " + PMP_PROVIDER_CLASS + ": " + ex);
-      }
-//      newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(PMP_PROVIDER_CLASS);
-      
-      if (newSP != null) {
-      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
-        services.put(PersistenceMgrPolicyService.class, newSP);
-        rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
-      }
-      else {
-        log.error("No persistence policy service provider, the module is not installed.");
-      }
-*/
+      /*
+       //      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+        newSP = null;
+        Class cls = null;
+        try {
+        cls = Class.forName(PMP_PROVIDER_CLASS);
+        newSP = (ServiceProvider)cls.newInstance();
+        } catch (Exception ex) {
+        log.error("Exception while instantiating " + PMP_PROVIDER_CLASS + ": " + ex);
+        }
+        //      newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(PMP_PROVIDER_CLASS);
+         
+         if (newSP != null) {
+         ((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
+         services.put(PersistenceMgrPolicyService.class, newSP);
+         rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
+         }
+         else {
+         log.error("No persistence policy service provider, the module is not installed.");
+         }
+         */
       
       /* Encryption Service */
       newSP = new EncryptionServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(EncryptionService.class, newSP);
       rootServiceBroker.addService(EncryptionService.class, newSP);
-
+      
       /* Data protection service */
-/*
-      boolean dataOn =
-	Boolean.valueOf(System.getProperty("org.cougaar.core.security.dataprotection", "true")).booleanValue();
-      if (dataOn) {
-//	newSP = new DataProtectionServiceProvider(serviceBroker, mySecurityCommunity);
+      /*
+       boolean dataOn =
+       Boolean.valueOf(System.getProperty("org.cougaar.core.security.dataprotection", "true")).booleanValue();
+       if (dataOn) {
+       //	newSP = new DataProtectionServiceProvider(serviceBroker, mySecurityCommunity);
         newSP = null;
         cls = null;
         try {
-        	cls = Class.forName(DP_PROVIDER_CLASS);
-        	newSP = (ServiceProvider)cls.newInstance();
+        cls = Class.forName(DP_PROVIDER_CLASS);
+        newSP = (ServiceProvider)cls.newInstance();
         } catch (Exception ex) {
-        	log.error("Exception while instantiating " + DP_PROVIDER_CLASS + ": " + ex);
+        log.error("Exception while instantiating " + DP_PROVIDER_CLASS + ": " + ex);
         }
-//        newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(DP_PROVIDER_CLASS);
-       
-        if (newSP != null) {
-      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
-	services.put(DataProtectionService.class, newSP);
-	rootServiceBroker.addService(DataProtectionService.class, newSP);
-        }
-        else {
-          log.error("No data protection service provider, the module is not installed.");
-        }
-
-      }
-      else {
-	log.warn("Data protection service disabled");
-      }
-*/
-
+        //        newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(DP_PROVIDER_CLASS);
+         
+         if (newSP != null) {
+         ((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
+         services.put(DataProtectionService.class, newSP);
+         rootServiceBroker.addService(DataProtectionService.class, newSP);
+         }
+         else {
+         log.error("No data protection service provider, the module is not installed.");
+         }
+         
+         }
+         else {
+         log.warn("Data protection service disabled");
+         }
+         */
+      
       /* Message protection service */
       newSP = new MessageProtectionServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(MessageProtectionService.class, newSP);
       rootServiceBroker.addService(MessageProtectionService.class, newSP);
-
+      
       /* ********************************
        * Identity services
        */
@@ -338,153 +338,153 @@ public class SecurityServiceProvider
       newSP = new AgentIdentityServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(AgentIdentityService.class, newSP);
       rootServiceBroker.addService(AgentIdentityService.class, newSP);
-
+      
       /* ********************************
        * Access Control services
        */
-
+      
       /* ********************************
        * Policy services
        */
       newSP = new PolicyBootstrapperServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(PolicyBootstrapperService.class, newSP);
       rootServiceBroker.addService(PolicyBootstrapperService.class, newSP);
-/*
-
-      if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {
-	newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-	services.put(AccessControlPolicyService.class, newSP);
-	rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
-      }
-
-  */    newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(CryptoPolicyService.class, newSP);
-      rootServiceBroker.addService(CryptoPolicyService.class, newSP);
-
-      // Request the CryptoPolicyService now. This will create the
-      // singleton instance of the CryptoPolicyService, which means
-      // other requests will not have to instantiate a new
-      // CryptoPolicyService.
-      // The CryptoPolicyService registers itself with the guard,
-      // which in turns sends a Relay message to the Policy Domain
-      // manager.
-      // If we didn't do this, we could have deadlock issues. For example,
-      // a component could try to persist the blackboard, which would
-      // lock the blackboard. The distributor would then invoke
-      // the data protection service to protect the blackboard,
-      // and the data protection service would request the
-      // CryptoPolicyService, which would cause the guard to publish a Relay,
-      // but the blackboard is locked.
-      rootServiceBroker.getService(this, CryptoPolicyService.class, null);
-
-      newSP = new ServletPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(ServletPolicyService.class, newSP);
-      rootServiceBroker.addService(ServletPolicyService.class, newSP);
-
-    /* ********************************
-     * SSL services
-     */
-/*
-      newSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(SSLService.class, newSP);
-      rootServiceBroker.addService(SSLService.class, newSP);
-
-      // SSLService and WebserverIdentityService are self started
-      // they offer static functions to get socket factory
-      // in the functions the permission will be checked.
-      rootServiceBroker.getService(this, SSLService.class, null);
-
-
-      KeyRingService krs =
-        (KeyRingService) rootServiceBroker.getService(this,
-                                                      KeyRingService.class,
-                                                      null);
-
-      javax.net.ssl.HttpsURLConnection.
-        setDefaultSSLSocketFactory(new JaasSSLFactory(krs, rootServiceBroker));
-
-      krs.finishInitialization();
-
-      // configured to use SSL?
-      if (secprop.getProperty(SecurityPropertiesService.WEBSERVER_HTTPS_PORT, null) != null) {
-        if (serviceBroker.hasService(CertificateRequestorService.class)) {
-          registerSSLServices();
-        }
-        else {
-          if (log.isDebugEnabled()) {
+      /*
+       
+       if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {
+       newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+       services.put(AccessControlPolicyService.class, newSP);
+       rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
+       }
+       
+       */    newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+       services.put(CryptoPolicyService.class, newSP);
+       rootServiceBroker.addService(CryptoPolicyService.class, newSP);
+       
+       // Request the CryptoPolicyService now. This will create the
+       // singleton instance of the CryptoPolicyService, which means
+       // other requests will not have to instantiate a new
+       // CryptoPolicyService.
+       // The CryptoPolicyService registers itself with the guard,
+       // which in turns sends a Relay message to the Policy Domain
+       // manager.
+       // If we didn't do this, we could have deadlock issues. For example,
+       // a component could try to persist the blackboard, which would
+       // lock the blackboard. The distributor would then invoke
+       // the data protection service to protect the blackboard,
+       // and the data protection service would request the
+       // CryptoPolicyService, which would cause the guard to publish a Relay,
+       // but the blackboard is locked.
+       rootServiceBroker.getService(this, CryptoPolicyService.class, null);
+       
+       newSP = new ServletPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+       services.put(ServletPolicyService.class, newSP);
+       rootServiceBroker.addService(ServletPolicyService.class, newSP);
+       
+       /* ********************************
+        * SSL services
+        */
+       /*
+        newSP = new SSLServiceProvider(serviceBroker, mySecurityCommunity);
+        services.put(SSLService.class, newSP);
+        rootServiceBroker.addService(SSLService.class, newSP);
+        
+        // SSLService and WebserverIdentityService are self started
+         // they offer static functions to get socket factory
+          // in the functions the permission will be checked.
+           rootServiceBroker.getService(this, SSLService.class, null);
+           
+           
+           KeyRingService krs =
+           (KeyRingService) rootServiceBroker.getService(this,
+           KeyRingService.class,
+           null);
+           
+           javax.net.ssl.HttpsURLConnection.
+           setDefaultSSLSocketFactory(new JaasSSLFactory(krs, rootServiceBroker));
+           
+           krs.finishInitialization();
+           
+           // configured to use SSL?
+            if (secprop.getProperty(SecurityPropertiesService.WEBSERVER_HTTPS_PORT, null) != null) {
+            if (serviceBroker.hasService(CertificateRequestorService.class)) {
+            registerSSLServices();
+            }
+            else {
+            if (log.isDebugEnabled()) {
             log.debug("Registering  CQServiceAvailableListener ");
-          }
-          serviceBroker.addServiceListener(new CRServiceAvailableListener ());
-        }
-      }
-*/
-
-      /* ********************************
-       * LDAP user administration
-       */
-      newSP = new UserServiceProvider(serviceBroker);
-      rootServiceBroker.addService(UserService.class, newSP);
-      //serviceBroker.addService(UserService.class, newSP);
-      if(!UserServiceProvider.AGENT_SERVICE) {
-        UserServiceProvider.setRootServiceBroker(rootServiceBroker);
-      }
-      try {
-        org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.setNodeServiceBroker(serviceBroker);
-      }
-      catch (Exception e) {
-        if (log.isWarnEnabled()) {
-          log.warn("Unable to initialize KeyRingJNDIRealm", e);
-        }
-      }
-      //serviceBroker.getService(this, UserService.class, null);
-
-      /**********************************
-       * Security context service
-       * NOTE: This service should only be accessible by the security services codebase
-       */
-      newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(SecurityContextService.class, newSP);
-      rootServiceBroker.addService(SecurityContextService.class, newSP);
-      
-      /**
-       * Authorization service
-       */
-      newSP = new AuthorizationServiceProvider(serviceBroker, 
-                                               mySecurityCommunity);
-      services.put(AuthorizationService.class, newSP);
-      rootServiceBroker.addService(AuthorizationService.class, newSP);
-
-      /* ********************************
-       * Change the policy to support
-       * DAML
-       */
-      AuthorizationService authServ = (AuthorizationService) rootServiceBroker.
-        getService(this, AuthorizationService.class, null);
-      DynamicPolicy.install(authServ);
+            }
+            serviceBroker.addServiceListener(new CRServiceAvailableListener ());
+            }
+            }
+            */
+       
+       /* ********************************
+        * LDAP user administration
+        */
+       newSP = new UserServiceProvider(serviceBroker);
+       rootServiceBroker.addService(UserService.class, newSP);
+       //serviceBroker.addService(UserService.class, newSP);
+       if(!UserServiceProvider.AGENT_SERVICE) {
+         UserServiceProvider.setRootServiceBroker(rootServiceBroker);
+       }
+       try {
+         org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.setNodeServiceBroker(serviceBroker);
+       }
+       catch (Exception e) {
+         if (log.isWarnEnabled()) {
+           log.warn("Unable to initialize KeyRingJNDIRealm", e);
+         }
+       }
+       //serviceBroker.getService(this, UserService.class, null);
+       
+       /**********************************
+        * Security context service
+        * NOTE: This service should only be accessible by the security services codebase
+        */
+       newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
+       services.put(SecurityContextService.class, newSP);
+       rootServiceBroker.addService(SecurityContextService.class, newSP);
+       
+       /**
+        * Authorization service
+        */
+       newSP = new AuthorizationServiceProvider(serviceBroker, 
+           mySecurityCommunity);
+       services.put(AuthorizationService.class, newSP);
+       rootServiceBroker.addService(AuthorizationService.class, newSP);
+       
+       /* ********************************
+        * Change the policy to support
+        * DAML
+        */
+       AuthorizationService authServ = (AuthorizationService) rootServiceBroker.
+       getService(this, AuthorizationService.class, null);
+       DynamicPolicy.install(authServ);
     }
     else {
       KeyRingService krs =
         (KeyRingService) rootServiceBroker.getService(this,
-                                                      KeyRingService.class,
-                                                      null);
+            KeyRingService.class,
+            null);
       log.info("Running in standalone mode");
       if (krs != null) {
-	newSP = new UserSSLServiceProvider(serviceBroker, mySecurityCommunity);
-	services.put(UserSSLService.class, newSP);
-	rootServiceBroker.addService(UserSSLService.class, newSP);
-	krs.finishInitialization();
+        newSP = new UserSSLServiceProvider(serviceBroker, mySecurityCommunity);
+        services.put(UserSSLService.class, newSP);
+        rootServiceBroker.addService(UserSSLService.class, newSP);
+        krs.finishInitialization();
       }
     }
     LDMService ldms =null;
     if(serviceBroker.hasService
-       (org.cougaar.planning.service.LDMService.class)){
+        (org.cougaar.planning.service.LDMService.class)){
       ldms = (LDMService)	rootServiceBroker.getService(this, LDMService.class, null);
       log.info("LDM Service is available initially in Security Service Provider ");
       if(ldms!=null){
-	LDMServesPlugin ldm=ldms.getLDM();
-	newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
-	services.put(CrlManagementService.class, newSP);
-	rootServiceBroker.addService(CrlManagementService.class, newSP);
+        LDMServesPlugin ldm=ldms.getLDM();
+        newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
+        services.put(CrlManagementService.class, newSP);
+        rootServiceBroker.addService(CrlManagementService.class, newSP);
       }
     }
     else {
@@ -494,66 +494,66 @@ public class SecurityServiceProvider
       serviceBroker.addServiceListener(new LDMServiceAvailableListener ());
     }
     /*
-    if(serviceBroker.hasService(org.cougaar.core.service.BlackboardService.class)){
-       log.debug("Black Board Service is available initially in Security Service Provider ");
+     if(serviceBroker.hasService(org.cougaar.core.service.BlackboardService.class)){
+     log.debug("Black Board Service is available initially in Security Service Provider ");
+     }
+     else {
+     log.debug("Registering Black Board Service Listener ");
+     serviceBroker.addServiceListener(new BBServiceAvailableListener());
+     }
+     */
+    if (log.isDebugEnabled()) {
+      log.debug("Root service broker is :"+rootServiceBroker.toString());
+      log.debug("Service broker is :"+ serviceBroker.toString());
     }
-    else {
-      log.debug("Registering Black Board Service Listener ");
-      serviceBroker.addServiceListener(new BBServiceAvailableListener());
-    }
-    */
-   if (log.isDebugEnabled()) {
-     log.debug("Root service broker is :"+rootServiceBroker.toString());
-     log.debug("Service broker is :"+ serviceBroker.toString());
+  }
+  
+  /*
+   private void registerSSLServices() {
+   ServiceProvider newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
+   services.put(WebserverIdentityService.class, newSP);
+   rootServiceBroker.addService(WebserverIdentityService.class, newSP);
+   rootServiceBroker.getService(this, WebserverIdentityService.class, null);
    }
-  }
-
-/*
-  private void registerSSLServices() {
-    ServiceProvider newSP = new WebserverSSLServiceProvider(serviceBroker, mySecurityCommunity);
-    services.put(WebserverIdentityService.class, newSP);
-    rootServiceBroker.addService(WebserverIdentityService.class, newSP);
-    rootServiceBroker.getService(this, WebserverIdentityService.class, null);
-  }
-
-  private class CRServiceAvailableListener implements ServiceAvailableListener
-  { 
-    public void serviceAvailable(ServiceAvailableEvent ae) {
-      Class sc = ae.getService();
-      if(CertificateRequestorService.class.isAssignableFrom(sc)) {
-        registerSSLServices();
-      }
-    }
-  }
-*/
-
+   
+   private class CRServiceAvailableListener implements ServiceAvailableListener
+   { 
+   public void serviceAvailable(ServiceAvailableEvent ae) {
+   Class sc = ae.getService();
+   if(CertificateRequestorService.class.isAssignableFrom(sc)) {
+   registerSSLServices();
+   }
+   }
+   }
+   */
+  
   private class LDMServiceAvailableListener implements ServiceAvailableListener
   {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       LDMService ldms=null;
-       ServiceProvider newSP = null;
+      ServiceProvider newSP = null;
       Class sc = ae.getService();
       if( org.cougaar.planning.service.LDMService.class.isAssignableFrom(sc)) {
-	ldms = (LDMService) serviceBroker.getService(this, LDMService.class, null);
+        ldms = (LDMService) serviceBroker.getService(this, LDMService.class, null);
         if (log.isInfoEnabled()) {
           log.info("LDM Service is available now in Security Service provider ");
         }
-	if(ldms!=null){
-	  LDMServesPlugin ldm=ldms.getLDM();
-	  newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
-	  services.put(CrlManagementService.class, newSP);
-	  rootServiceBroker.addService(CrlManagementService.class, newSP);
+        if(ldms!=null){
+          LDMServesPlugin ldm=ldms.getLDM();
+          newSP = new CrlManagementServiceProvider(ldm,serviceBroker, mySecurityCommunity);
+          services.put(CrlManagementService.class, newSP);
+          rootServiceBroker.addService(CrlManagementService.class, newSP);
           if (log.isInfoEnabled()) {
-	    log.info("Added  CrlManagementService service  ");
+            log.info("Added  CrlManagementService service  ");
           }
-	}
-	else {
+        }
+        else {
           if (log.isInfoEnabled()) {
             log.info("LDM Service is null in LDMServiceAvailableListener  ");
           }
-	}
+        }
       }
-
+      
     }
   }
   private class BBServiceAvailableListener implements ServiceAvailableListener {
@@ -561,12 +561,18 @@ public class SecurityServiceProvider
       //ServiceProvider newSP = null;
       Class sc = ae.getService();
       if( org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
-	//bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
-	log.debug("Black Board  Service is available now in Security Service provider "+ sc.getName());
-
+        //bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
+        log.debug("Black Board  Service is available now in Security Service provider "+ sc.getName());
+        
       }
-
+      
     }
-   }
+  }
+  
+  /**
+   * 
+   */
+  public void stop() {
+  }
 }
 
