@@ -1,0 +1,12 @@
+#!/bin/tcsh
+# gather up all the files with class names in them
+set rmimeta = `find . -name \*.rmic` 
+# get all the classes named in the gathered files
+set rmifiles = `cat $rmimeta`
+
+echo -n "Found "
+echo -n `cat $rmimeta | wc -w` 
+echo " files to be processed..."
+
+rmic -v1.2 -d ${COUGAARCLASSES} -sourcepath . $rmifiles
+

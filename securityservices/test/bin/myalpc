@@ -1,0 +1,53 @@
+#!/bin/tcsh
+
+# ############
+# Compile Cougaar
+
+#set cougaardir=/home/u/${USER}/UL
+set cougaarsubdir=$COUGAAR_INSTALL_PATH
+
+if ( ! $?CLASSPATH ) then
+	setenv CLASSPATH=""
+endif
+
+# Cougaar 3rd party support packages
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jaas.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jnet.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/log4j.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/toolkit.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xygraf.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jcchart451K.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/omcore.jar
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/fesi.jar
+
+# Cougaar packages
+# build.jar and planserver.jar don't change often, so point to the jar file
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/build.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/glm.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/planserver.jar
+
+# Core & glm package may change, so point to the actual source code
+setenv CLASSPATH ${CLASSPATH}:${COUGAARCLASSES}
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/src/glm/src
+
+# Crypto providers
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jsse.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/cryptix-jce-api.jar
+
+# KAoS
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/KAoS.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/safe.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/servlet.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/mail.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
+
+alpc $*
+
+echo ++++++ Creating RMI stub files
+cd $cougaarsubdir/src/core/src
+rmic -d ${COUGAARCLASSES} org.cougaar.core.mts.MTImpl \
+	org.cougaar.core.naming.NSImpl \
+	org.cougaar.core.society.ExternalNodeControllerImpl
+cd -
+

@@ -1,0 +1,27 @@
+#!/bin/tcsh -f
+#
+# Bootstrap package:  		bootstrap.jar gets signed with bootstrap key
+# Core infrastructure packages: core.jar gets signed with the privileged key
+# 3rd party:			all remaining jar and zip files are signed with
+#				the privileged key for now
+# PlugIns: (TBD)
+#
+#
+foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar`)
+	echo Signing $jar ...
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore -storepass keystore $jar privileged
+end
+# This is not currently necessary but if zip files end up in lib then it will
+# be needed for those archives to be signed.
+foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip`)
+	echo Signing $zip ...
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore -storepass keystore $zip privileged
+end
+foreach jar (`ls ${COUGAAR_INSTALL_PATH}/sys/*.jar`)
+	echo Signing $jar ...
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore -storepass keystore $jar privileged
+end
+foreach zip (`ls ${COUGAAR_INSTALL_PATH}/sys/*.zip`)
+	echo Signing $zip ...
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore -storepass keystore $zip privileged
+end
