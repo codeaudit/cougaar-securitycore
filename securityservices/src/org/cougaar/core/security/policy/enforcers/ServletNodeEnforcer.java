@@ -515,12 +515,16 @@ public class ServletNodeEnforcer
       return false;
     }
     if (!HardWired.addAuthSuiteTarget(targets, sslCipher, authLevel)) {
+      _log.warn("Could not add cipher and authlevel targets for servlet access with roles = " 
+                + roles + " uri = " + uri + " sslCiphter = " + sslCipher + 
+                 " authLevel = " + authLevel);
       return false;
     }
     if (!targets.add(new TargetInstanceDescription
                      (UltralogActionConcepts.accessedServlet(), kaosuri)) ) {
-      _log.debug("Could not make list of targets - " +
-                 "exiting with failure...");
+      _log.warn("Could not add servlet targets for servlet access with roles = " 
+                + roles + " uri = " + uri + " sslCiphter = " + sslCipher + 
+                 " authLevel = " + authLevel);
       return false;
     }
     ActionInstanceDescription action = 
