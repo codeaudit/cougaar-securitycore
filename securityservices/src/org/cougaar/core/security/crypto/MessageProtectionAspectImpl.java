@@ -168,11 +168,32 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
       System.out.println("Protocol Class: " + getProtocolClass());
       */
       if (remoteRef != null) {
-        attrs.setAttribute(TARGET_LINK, remoteRef.toString());
+        attrs.setAttribute(TARGET_LINK, new TargetLinkRef(remoteRef));
       }
       super.addMessageAttributes(attrs);
     }
   }
 
 
+  private static class TargetLinkRef implements java.io.Serializable {
+    private int              _hashCode;
+    private transient Object _ref;
+    public TargetLinkRef(Object obj) {
+      _ref = obj;
+      _hashCode = _ref.toString().hashCode();
+    }
+
+    public String toString() {
+      return _ref.toString();
+    }
+
+    public boolean equals(Object obj) {
+      if (obj instanceof TargetLinkRef) {
+        return ((TargetLinkRef) obj)._ref == _ref;
+      }
+      return false;
+    }
+
+    public int hashCode() { return _hashCode; }
+  }
 }
