@@ -609,6 +609,22 @@ public class MessageProtectionServiceImpl
       setPolicyService();
     }
 
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (source.toAddress().endsWith("(MTS)")) {
+      String name = source.toAddress();
+      name = name.substring(0, name.length() - 5);
+      source = MessageAddress.getMessageAddress(name);
+      log.info("Outgoing source postmaster message. Protecting with node key");
+    }
+    if (destination.toAddress().endsWith("(MTS)")) {
+      String name = destination.toAddress();
+      name = name.substring(0, name.length() - 5);
+      destination = MessageAddress.getMessageAddress(name);
+      log.info("Outgoing target postmaster message. Protecting with node key");
+    }
+
     try {
       SecureMethodParam policy = 
         cps.getSendPolicy(source.getAddress(), destination.getAddress());
@@ -644,6 +660,8 @@ public class MessageProtectionServiceImpl
         }
       }
       throw new RetryWithNewCertificateException(e.getMessage());
+    } catch (NoKeyAvailableException e) {
+      throw new IOException(e.getMessage());
     } catch (GeneralSecurityException e) {
       log.debug("Got an error when protecting output stream", e);
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;
@@ -665,9 +683,6 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       throw new IOException(reason);
-    } catch (Exception e) {
-      log.debug("Got unexpected exception", e);
-      return null;
     }
   }
 
@@ -708,6 +723,22 @@ public class MessageProtectionServiceImpl
 
     if (!isInitialized) {
       setPolicyService();
+    }
+
+    // SR - 10/21/2002. UGLY & TEMPORARY FIX
+    // The advance message clock uses an unsupported address type.
+    // Since this is demo-ware, we are not encrypting those messages.
+    if (source.toAddress().endsWith("(MTS)")) {
+      String name = source.toAddress();
+      name = name.substring(0, name.length() - 5);
+      source = MessageAddress.getMessageAddress(name);
+      log.info("Incoming source postmaster message. Protecting with node key");
+    }
+    if (destination.toAddress().endsWith("(MTS)")) {
+      String name = destination.toAddress();
+      name = name.substring(0, name.length() - 5);
+      destination = MessageAddress.getMessageAddress(name);
+      log.info("Incoming target postmaster message. Protecting with node key");
     }
 
     try {
