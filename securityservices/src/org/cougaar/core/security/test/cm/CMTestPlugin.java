@@ -1,8 +1,6 @@
 package org.cougaar.core.security.test.cm;
 
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -12,19 +10,23 @@ import org.cougaar.core.security.cm.relay.SharedDataRelay;
 import org.cougaar.core.security.cm.service.CMService;
 import org.cougaar.core.security.cm.service.CMServiceProvider;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.UnaryPredicate;
+
 /**
- *Plugin to test the CM. Will just request to add itself to the node passed in as the parameter
+ *Plugin to test the CM. Subscribe to tasks published by the CMTestServlet.
  * 
  * @author ttschampel
  *
  */
 public class CMTestPlugin extends ComponentPlugin{
-	
+	/**Logging Service*/
 	private LoggingService logging;
-	private String moveToNode = null;	
+	/**Subscription to results from CM*/	
 	private IncrementalSubscription subs=null;
+	/**CMService*/
 	private CMService cmService = null;
+	/**Predicate for CMResults*/
 	private UnaryPredicate predicate = new UnaryPredicate(){
 		public boolean execute(Object o){
 			
@@ -32,6 +34,7 @@ public class CMTestPlugin extends ComponentPlugin{
 				SharedDataRelay sd = (SharedDataRelay)o;
 				if(sd.getResponse()!=null
 					&& sd.getResponse() instanceof VerifyResponse
+					&& sd.getContent()!=null
 					&& sd.getContent() instanceof VerifyAgentAddRequest
 					&& ((VerifyAgentAddRequest)sd.getContent()).getAgent().equals(getAgentIdentifier().getAddress())){
 						return true;
@@ -41,22 +44,32 @@ public class CMTestPlugin extends ComponentPlugin{
 			return false;
 		}
 	};
-	
+	/**Subscription to test cm tasks*/
+	private IncrementalSubscription testSubs = null;
+	/**Predicate to test cm tasks*/
+	private UnaryPredicate testCMPredicate = new UnaryPredicate(){
+		public boolean execute(Object o){
+			if(o instanceof Task){
+				Task t = (Task)o;
+				if(t.getVerb()!=null && t.getVerb().toString().equals(CMTestServlet.CM_TEST_VERB))
+				{
+					return true;
+				}
+			}
+			return false;
+		}	
+	};
+	/**
+	 * Set LoggingService
+	 * @param service
+	 */
 	public void setLoggingService(LoggingService service){
 		this.logging = service;
 	}
 	
 	public void load(){
 		super.load();
-		Collection collection = this.getParameters();
-		Iterator iterator = collection.iterator();
-		if(iterator.hasNext()){
-			moveToNode = (String)iterator.next();
-		}else{
-			if(logging.isErrorEnabled()){
-				logging.error("CMTestPlugin has no test node parameter");
-			}
-		}
+		
 		cmService = (CMService)this.getServiceBroker().getService(this, CMService.class, null);
 		if(cmService==null){
 			this.getServiceBroker().addService(CMService.class, new CMServiceProvider(getServiceBroker()));
@@ -68,12 +81,20 @@ public class CMTestPlugin extends ComponentPlugin{
 	
 	public void setupSubscriptions(){
 		this.subs = (IncrementalSubscription)this.getBlackboardService().subscribe(predicate);
-		VerifyAgentAddRequest request = new VerifyAgentAddRequest(moveToNode, this.getAgentIdentifier().getAddress());
-		cmService.sendMessage(request, getBlackboardService());
+		this.testSubs = (IncrementalSubscription)this.getBlackboardService().subscribe(this.testCMPredicate);
+		
 	}
 	
 	
 	public void execute(){
+		Enumeration testEnumeration = testSubs.getAddedList();
+		while(testEnumeration.hasMoreElements()){
+			Task task = (Task)testEnumeration.nextElement();
+			String moveToNode = (String)task.getPrepositionalPhrase(CMTestServlet.DEST_NODE_PREP).getIndirectObject();
+			VerifyAgentAddRequest request = new VerifyAgentAddRequest(moveToNode, this.getAgentIdentifier().getAddress());
+			cmService.sendMessage(request, getBlackboardService());
+		}
+		
 		Enumeration enumeration = subs.getChangedList();
 		while(enumeration.hasMoreElements()){
 			SharedDataRelay  relay = (SharedDataRelay)enumeration.nextElement();
