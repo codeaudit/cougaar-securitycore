@@ -30,6 +30,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class EventHolder extends Observable  {
@@ -38,11 +40,13 @@ public class EventHolder extends Observable  {
   private static EventHolder _instance;
   //private boolean atleastoneObserver=false;
   //private LoggingService log=null; 
-
+  private final long delay  =50;
+  Timer timer=null;
 
   protected EventHolder() {
     //this.log=ls;
-    events =new ArrayList(); 
+    events =new ArrayList();
+    timer=new Timer();
   }
 
   
@@ -70,17 +74,7 @@ public class EventHolder extends Observable  {
     //if(!atleastoneObserver)
     //atleastoneObserver=true;
     if((_instance.countObservers()>0)&&(events.size()>0)){
-       ArrayList eventList=new ArrayList();
-      Iterator iterator=events.iterator();
-      while(iterator.hasNext()) {
-	eventList.add((BootstrapEvent)iterator.next());
-      }
-      //System.out.println("Going to notify observers from register :"+eventList.size() );
-      setChanged();
-      notifyObservers(eventList);
-      events.clear();
-      clearChanged();
-      // System.out.println(" clearing events in register:");
+       timer.schedule(new NotifyTask(),delay);
     }
     else {
       /*
@@ -101,40 +95,40 @@ public class EventHolder extends Observable  {
   
   public void addEvent(BootstrapEvent o) {
     events.add(o);
-    /*
-    if(loggingService!=null) {
-      loggingService.debug("Event are being added :");
+    timer.schedule(new NotifyTask(),delay);
+  }
+  
+  /**
+   * This class is used internally to notify observers when vere there is event in the queue.
+   */
+  class NotifyTask extends TimerTask {
+    
+    public NotifyTask() {
     }
-    */
-    //System.out.println(" event are being added :"+ o.toString());
-    //System.out.println(" event length after event is added is :"+events.size());
-    if(_instance.countObservers()>0)  {
-      
-      ArrayList eventList=new ArrayList();
-      Iterator iterator=_instance.events.iterator();
-      while(iterator.hasNext()) {
-	eventList.add((BootstrapEvent)iterator.next());
+    
+    public void run() {
+      if(_instance.countObservers()>0)  {
+	ArrayList eventList=new ArrayList();
+	Iterator iterator=_instance.events.iterator();
+	while(iterator.hasNext()) {
+	  eventList.add((BootstrapEvent)iterator.next());
+	}
+	_instance.setChanged();
+	//System.out.println("Going to notify observers :");
+	_instance.notifyObservers(eventList);
+	//System.out.println(" clearing events in add event:");
+	events.clear();
       }
-      /*
-      if(loggingService!=null) {
-	loggingService.debug("Notifying Observers  :");
-       }
-      */
-      setChanged();
-      //System.out.println("Going to notify observers :");
-      notifyObservers(eventList);
-      //System.out.println(" clearing events in add event:");
-      events.clear();
-    }
-    else {
-      /*
-       if(loggingService!=null) {
-	loggingService.debug("No  Observers to notify   :");
-       }
-      */
+      else {
+	/*
+	  if(loggingService!=null) {
+	  loggingService.debug("No  Observers to notify   :");
+	  }
+	*/
+	
+      }
       
     }
-    //System.out.println(" No observers to Notify");
   }
 
 }
