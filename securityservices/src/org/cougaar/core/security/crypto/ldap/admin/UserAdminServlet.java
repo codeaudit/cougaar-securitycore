@@ -47,6 +47,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.acl.UserServiceException;
@@ -92,6 +94,9 @@ public class UserAdminServlet extends HttpServlet {
   public UserAdminServlet(SecurityServletSupport support) {
     _userService = (UserService) support.getServiceBroker().
       getService(this, UserService.class, null);
+    if (_userService == null) {
+      support.getServiceBroker().addServiceListener(new UserServiceListener());
+    }
     if (JspFactory.getDefaultFactory() == null) {
       JspFactory.setDefaultFactory(new org.apache.jasper.runtime.JspFactoryImpl());
     }
@@ -459,6 +464,19 @@ public class UserAdminServlet extends HttpServlet {
     String rid = req.getParameter(UserInterface.LDAP_ROLE_RDN);
     _userService.deleteRole(rid);
     gotoViewEmptyPage(req, resp,true);
+  }
+
+  private class UserServiceListener implements ServiceAvailableListener {
+    public final String USER_SERVICE_NAME = UserService.class.getName();
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(USER_SERVICE_NAME)) {
+        _userService = (UserService) ae.getServiceBroker().
+           getService(this, UserService.class, null);
+        if (_userService != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+        }
+      }
+    }
   }
 }
 
