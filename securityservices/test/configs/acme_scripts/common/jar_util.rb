@@ -125,7 +125,7 @@ def replaceFileInJar(jarFile, replacementFile)
     end
   }
   if targetFile != nil
-    `jar xf -C #{jarDir} #{jarFile} #{targetFile}`
+    `jar xf #{jarDir} -C #{jarFile} #{targetFile}`
   else
     targetFile = baseFilename
   end
