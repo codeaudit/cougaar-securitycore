@@ -32,27 +32,51 @@ import java.net.*;
 import java.util.*;
 
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.userauth.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManager {
+public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManager
+  implements CertAuthListener
+{
   // provides the default implementation, but it can be overwritten
-  private UserCertificateUI userUI;
+  private AuthenticationHandler handler;
 
+  /*
   // hash map from domain to alias
   private Hashtable domainTable;
   // hash map from alias to cert
   private Hashtable aliasTable;
+  */
+
+  private PrivateKey privatekey = null;
+  protected X509Certificate userx509 = null;
 
   public UserKeyManager(KeyRingService krs) {
     super(krs);
   }
 
-  public void setUserCertificateUI(UserCertificateUI userUI) {
-    this.userUI = userUI;
+  public void setPasswordAuthentication(PasswordAuthentication pa) {}
+
+  public void setAuthHandler(AuthenticationHandler auth) {
+    this.handler = auth;
+    auth.setAuthListener(this);
+  }
+
+  public void setAlias(String alias) {
+    nodealias = alias;
+  }
+
+  public void setPrivateKey(PrivateKey pkey) {
+    privatekey = pkey;
+  }
+
+  public void setCertificate(X509Certificate cert) {
+    userx509 = cert;
   }
 
   public synchronized void updateKeystore() {
+  /*
     if (domainTable == null) {
       domainTable = new Hashtable();
       aliasTable = new Hashtable();
@@ -65,14 +89,22 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
     try {
       for (Enumeration e = ks.aliases(); e.hasMoreElements(); ) {
         String alias = (String)e.nextElement();
-        aliasTable.put(alias, ks.getCertificate(alias));
+        X509Certificate usrcert = (X509Certificate)
+          ks.getCertificate(alias);
+        String attrib = usrcert.getSubjectDN().getName();
+        if (!CertificateUtility.findAttribute(attrib, "t").equals(
+          DirectoryKeyStore.CERT_TITLE_USER))
+          continue;
+        aliasTable.put(alias, usrcert);
       }
     } catch (KeyStoreException ksex) {
       ksex.printStackTrace();
     }
+    */
   }
 
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+    /*
     // get the domain and check if there is alias specified for access the domain
     synchronized (this) {
       String alias = null;
@@ -80,17 +112,29 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
       if (socket != null) {
         InetAddress inetaddr = (InetAddress)socket.getInetAddress();
         String host = inetaddr.getHostName();
+        if (CryptoDebug.debug)
+          System.out.println("Connecting to host: " + host);
+
         // match with the domain list
         alias = (String)domainTable.get(host);
       }
 
       // if no default alias prompt for user alias
       if (alias == null) {
-        alias = userUI.chooseClientAlias(aliasTable);
+        if (aliasTable.size() > 0)
+          alias = userUI.chooseClientAlias(aliasTable);
 
       }
       return alias;
     }
+    */
+    if (nodealias == null && handler != null) {
+      try {
+        handler.authenticateUser(handler.getUserName());
+      } catch (Exception ex) {}
+    }
+
+    return nodealias;
   }
 
   public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
@@ -102,8 +146,8 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
     if (CryptoDebug.debug)
       System.out.println("getCertificateChain: " + alias);
 
-    X509Certificate userx509 = (X509Certificate)aliasTable.get(alias);
-    if (userx509 != null) {
+    //X509Certificate userx509 = (X509Certificate)aliasTable.get(alias);
+    if (alias.equals(nodealias) && userx509 != null) {
       try {
         return keystore.checkCertificateTrust(userx509);
       } catch (Exception e) {
@@ -128,6 +172,7 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
     if (CryptoDebug.debug)
       System.out.println("getPrivateKey: " + alias);
 
+      /*
     PrivateKey privatekey = null;
 
     // look for it in the
@@ -162,6 +207,7 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
         } catch (KeyStoreException ksex) {}
       }
     }
+    */
     return privatekey;
   }
 
