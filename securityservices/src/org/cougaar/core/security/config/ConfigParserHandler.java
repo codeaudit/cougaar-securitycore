@@ -270,14 +270,8 @@ public class ConfigParserHandler
   
   private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
     throws PolicyUpdateException {
-    String newPolicyFileName = cryptoPolicyFileName + ".new";
-    File newPolicyFile = new File(newPolicyFileName);
     File policyFile = new File(cryptoPolicyFileName);
     try {
-      if(newPolicyFile.exists()) {
-        newPolicyFile.delete();
-        log.debug("removing previous " + newPolicyFileName);
-      }
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder builder = factory.newDocumentBuilder();
       Document updatedPolicy = builder.newDocument(); // the xml file to write
@@ -301,10 +295,9 @@ public class ConfigParserHandler
         root.appendChild(policyNode);
       }
       // end ca policy
-      
       updatedPolicy.appendChild(root);
-   
-      FileOutputStream fos = new FileOutputStream(newPolicyFile);
+      // well just write over the previous cryptoPolicy.xml file
+      FileOutputStream fos = new FileOutputStream(policyFile);
       OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
       // no line wrapping
       of.setLineWidth(0);
@@ -317,17 +310,6 @@ public class ConfigParserHandler
     }
     catch(Exception e) {
       throw new PolicyUpdateException(e);
-    }
-    // the file exist remove the old cryptoPolicy.xml
-    if(policyFile.exists()) {
-      if(!policyFile.delete()) {
-        throw new PolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
-      }
-      log.debug("removed previous " + cryptoPolicyFileName);
-    }
-    // rename the updated temp file to cryptoPolicy.xml
-    if(!newPolicyFile.renameTo(policyFile)) {
-      throw new PolicyUpdateException("Unable to rename " + newPolicyFileName);
     }
     log.debug("Saved crypto client policy " + cryptoPolicyFileName);
   }
