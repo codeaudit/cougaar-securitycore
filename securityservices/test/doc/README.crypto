@@ -1,0 +1,7 @@
+Keystore password:
+------------------
+
+configs/common/keystoreCA             Ultra*Log
+keystore-CONUS                        CONUS-Ultra*Log
+keystore-Support                      Support-Ultra*Log
+keystore-Combat                       Combat-Ultra*Log
