@@ -90,7 +90,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       //loggingService.debug(" Object on BB is :"+ o.toString());
       boolean ret = false;
       if (o instanceof  CrlRelay ) {
-	return true;
+        return true;
       }
       return ret;
     }
@@ -99,7 +99,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     public boolean execute(Object o) {
       boolean ret = false;
       if (o instanceof  CrlRegistrationTable ) {
-	return true;
+        return true;
       }
       return ret;
     }
@@ -162,9 +162,9 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     if(getBlackboardService().didRehydrate()) {
       Collection regcollection =getBlackboardService().query(new CRLRegistrationTablePredicate());
       if(regcollection.isEmpty()){
-	loggingService.debug(" Reg table collection size:"+ regcollection.size());
-	loggingService.error(" BlackBoard Rehydrated but there is no crl registration:");
-	return;
+        loggingService.debug(" Reg table collection size:"+ regcollection.size());
+        loggingService.error(" BlackBoard Rehydrated but there is no crl registration:");
+        return;
       }
       else {
         Iterator iter=regcollection.iterator();
@@ -219,37 +219,49 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       crlrelay=(CrlRelay)regiterator.next();
       regagentObject=(CRLAgentRegistration)crlrelay.getContent();
       loggingService.debug("CRL agent registration data received:"+regagentObject.dnName +"::"
-			   +crlrelay.getSource());
+                           +crlrelay.getSource());
       //Vector listMessageAddress=null;
       synchronized(crlRegistrationTable) {
         if(crlRegistrationTable.containsKey(regagentObject.dnName)) {
           loggingService.debug("reg table contains key "+ regagentObject.toString());
           regobject=(CrlRegistrationObject)crlRegistrationTable.get(regagentObject.dnName);
-          try {
-            loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
-            regobject.addAgent(crlrelay.getSource());
-            event("CrlRegistration", crlrelay.getSource(), regagentObject.dnName);
-          }
-          catch (CRLAgentRegistrationException crlagentexp) {
-            loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource() );
-          }
-          byte[] encodedcrl= null;
-          try{
-            if((regobject.getCRL()!=null)&&(regobject.getModifiedTimeStamp()!=null)){
-              encodedcrl= regobject.getCRL().getEncoded();
+          if(regagentObject.toRegister()){
+            try {
+              loggingService.debug("Adding Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
+              regobject.addAgent(crlrelay.getSource());
+              event("CrlRegistration", crlrelay.getSource(), regagentObject.dnName);
             }
+            catch (CRLAgentRegistrationException crlagentexp) {
+              loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource() );
+            }
+            byte[] encodedcrl= null;
+            try{
+              if((regobject.getCRL()!=null)&&(regobject.getModifiedTimeStamp()!=null)){
+                encodedcrl= regobject.getCRL().getEncoded();
+              }
+            }
+            catch(java.security.cert.CRLException crlexp) {
+              loggingService.error("Unable to encode crl :" + crlexp.getMessage());
+            }
+            if(regobject.getModifiedTimeStamp()!=null) {
+              crlrelay.updateResponse(crlrelay.getSource(),
+                                      new CRLWrapper(regobject.dnName,encodedcrl,regobject.getModifiedTimeStamp()));
+              getBlackboardService().publishChange(crlrelay);
+              loggingService.debug("Updating response after first time registration :"+crlrelay.getSource().toString()); 
+            }
+            modified=true;
           }
-          catch(java.security.cert.CRLException crlexp) {
-            loggingService.error("Unable to encode crl :" + crlexp.getMessage());
+          else {
+            try {
+              loggingService.debug("Removing  Agent :" + crlrelay.getSource() +"for Dn:"+regagentObject.dnName);
+              regobject.removeAgent(crlrelay.getSource().toString());
+              event("CrlUNRegistration", crlrelay.getSource(), regagentObject.dnName);
+            }
+            catch (CRLAgentRegistrationException crlagentexp) {
+              loggingService.debug(" Agent has alredy been registered :"+crlrelay.getSource() );
+            }
+            modified=true;
           }
-          if(regobject.getModifiedTimeStamp()!=null) {
-            crlrelay.updateResponse(crlrelay.getSource(),
-                                    new CRLWrapper(regobject.dnName,encodedcrl,regobject.getModifiedTimeStamp()));
-            getBlackboardService().publishChange(crlrelay);
-            loggingService.debug("Updating response after first time registration :"+crlrelay.getSource().toString()); 
-          }
-	
-          modified=true;
         }
         else {
           loggingService.debug("Adding agent to CRL registration table :"+regagentObject.toString() +"::"
@@ -420,16 +432,16 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
               }
             }//end of  while(certEntryIterator.hasNext()) 
 
-	    // Name was found, so remove it.
-	    _namesNotFound.remove(regObject.dnName);
+            // Name was found, so remove it.
+            _namesNotFound.remove(regObject.dnName);
           }// end of if(certList.size()>0)
           else {
-	    if (!_namesNotFound.containsKey(regObject.dnName)) {
-	      _namesNotFound.put(regObject.dnName, new Date(System.currentTimeMillis()));
-	    }
-	    if (loggingService.isInfoEnabled()) {
-	      loggingService.info("Unable to get Certifificate entry for DN :"+ regObject.dnName);
-	    }
+            if (!_namesNotFound.containsKey(regObject.dnName)) {
+              _namesNotFound.put(regObject.dnName, new Date(System.currentTimeMillis()));
+            }
+            if (loggingService.isInfoEnabled()) {
+              loggingService.info("Unable to get Certifificate entry for DN :"+ regObject.dnName);
+            }
           }
         }//end of  while(keyiterator.hasNext())
       }//end of synchronized(crlRegistrationTable)
@@ -440,13 +452,13 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       Iterator it = _namesNotFound.keySet().iterator();
       long now = System.currentTimeMillis();
       while (it.hasNext()) {
-	String name = (String) it.next();
-	Date firstTime = (Date) _namesNotFound.get(name);
-	if ( (now - firstTime.getTime()) > WARNING_IF_DN_NOT_FOUND) {
-	  if (loggingService.isWarnEnabled()) {
-	    loggingService.warn("Unable to get Certifificate entry for DN :"+ name);
-	  }
-	}
+        String name = (String) it.next();
+        Date firstTime = (Date) _namesNotFound.get(name);
+        if ( (now - firstTime.getTime()) > WARNING_IF_DN_NOT_FOUND) {
+          if (loggingService.isWarnEnabled()) {
+            loggingService.warn("Unable to get Certifificate entry for DN :"+ name);
+          }
+        }
       }
     }
      
@@ -534,28 +546,28 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       Set currentset=null;
       Set oldset=null;
       if(currentcrl!=null) {
-	loggingService.debug("currentcrl is not null:");
-	currentset=currentcrl.getRevokedCertificates();
-	if( currentset!=null) {
-	  loggingService.debug("current set size is :"+currentset.size());
-	}
-	else {
-	  loggingService.debug("currentcrl set is null :");
-	}
+        loggingService.debug("currentcrl is not null:");
+        currentset=currentcrl.getRevokedCertificates();
+        if( currentset!=null) {
+          loggingService.debug("current set size is :"+currentset.size());
+        }
+        else {
+          loggingService.debug("currentcrl set is null :");
+        }
 
       }
       if(oldcrl!=null) {
-	loggingService.debug("old crl is not null:");
-	oldset=oldcrl.getRevokedCertificates();
-	if(oldset!=null) {
-	  loggingService.debug("set size is :"+oldset.size());
-	}
-	else {
-	  loggingService.debug("oldset crl  is null :");
-	}
+        loggingService.debug("old crl is not null:");
+        oldset=oldcrl.getRevokedCertificates();
+        if(oldset!=null) {
+          loggingService.debug("set size is :"+oldset.size());
+        }
+        else {
+          loggingService.debug("oldset crl  is null :");
+        }
       }
       else {
-	loggingService.debug("oldset crl  is null :");
+        loggingService.debug("oldset crl  is null :");
       }
       loggingService.debug("Logging current as well as old crl set  :");
       dumpX509CRL(currentset,oldset);
@@ -569,13 +581,13 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       regrelayCollection=bbs.query(new CRLAgentRegistrationPredicate ());
       Iterator iter=regrelayCollection.iterator();
       while(iter.hasNext()) {
-	crlrelay=(CrlRelay)iter.next();
-	if(crlrelay.getSource().equals(agent)){
-	  agentReg=(CRLAgentRegistration)crlrelay.getContent();
-	  if(agentReg.dnName.equals(dn)) {
+        crlrelay=(CrlRelay)iter.next();
+        if(crlrelay.getSource().equals(agent)){
+          agentReg=(CRLAgentRegistration)crlrelay.getContent();
+          if(agentReg.dnName.equals(dn)) {
       	    return crlrelay;
-	  }
-	}
+          }
+        }
         crlrelay=null;
       }
       return crlrelay;
@@ -584,11 +596,11 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     private CertDirectoryServiceClient getDirectoryService(String dnname,String ldapURL,int ldapType) {
       // TODO: this should not use the ldap dependent classes anymore here
       CertDirectoryServiceRequestor cdsr =
-	new CertDirectoryServiceRequestorImpl(ldapURL,ldapType,
+        new CertDirectoryServiceRequestorImpl(ldapURL,ldapType,
                                               (String)null,(String)null,
-					      getBindingSite().getServiceBroker());
+                                              getBindingSite().getServiceBroker());
       CertDirectoryServiceClient cf = (CertDirectoryServiceClient)
-	getBindingSite().getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
+        getBindingSite().getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
       return cf;
     }
   }
@@ -607,13 +619,13 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     Set oldset=oldcrl.getRevokedCertificates();
     if((currentset!=null)&&(oldset!=null)){
       if(currentset.size()>oldset.size()) {
-	dumpX509CRL(currentset,oldset);
-	equal=false;
+        dumpX509CRL(currentset,oldset);
+        equal=false;
       }
       else{
-	loggingService.debug("Size are equal for old as well as new crl :"+ "old:"+oldset.size()+
-			     "new crl size"+ currentset.size());
-	equal=true;
+        loggingService.debug("Size are equal for old as well as new crl :"+ "old:"+oldset.size()+
+                             "new crl size"+ currentset.size());
+        equal=true;
       }
     }
     return equal;
@@ -627,20 +639,20 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       Iterator iter=current.iterator();
 
       while(iter.hasNext()){
-	crlentry=(X509CRLEntry)iter.next();
-	if(crlentry!=null) {
-	  loggingService.debug(" crl entry is  :"+crlentry.toString());
-	}
+        crlentry=(X509CRLEntry)iter.next();
+        if(crlentry!=null) {
+          loggingService.debug(" crl entry is  :"+crlentry.toString());
+        }
       }
     }
     loggingService.debug(" Old crl set is :");
     if(old!=null) {
       Iterator iter=old.iterator();
       while(iter.hasNext()){
-	crlentry=(X509CRLEntry)iter.next();
-	if(crlentry!=null) {
-	  loggingService.debug(" crl entry is  :"+crlentry.toString());
-	}
+        crlentry=(X509CRLEntry)iter.next();
+        if(crlentry!=null) {
+          loggingService.debug(" crl entry is  :"+crlentry.toString());
+        }
       }
     }
   }
