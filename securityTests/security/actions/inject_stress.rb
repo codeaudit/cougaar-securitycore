@@ -35,7 +35,13 @@ module Cougaar
       def Stressors.getStressInstance(stressorClass, run) 
 	ret =  @@stressMap[stressorClass]
 	if (ret == nil) 
-	  ret = eval("#{stressorClass}.new(run)")
+          begin
+	    ret = eval("#{stressorClass}.new(run)")
+          rescue => ex
+            if ex.message =~ /private method `new' called/
+	      ret = eval("#{stressorClass}.instance(run)")
+            end
+          end
 	  ret.myexperiment = MyExperiment.new(run)
 	  setMyRun(run)
 	  #puts "Run.name: #{run.name} Experiment: #{run.experiment.name}"
