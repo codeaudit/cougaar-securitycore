@@ -73,6 +73,9 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
 
+import org.cougaar.core.security.test.crypto.*;
+import org.cougaar.core.security.dataprotection.*;
+
 public class DirectoryKeyStore
 {
   /** This keystore stores the following keys:
@@ -297,10 +300,14 @@ public class DirectoryKeyStore
     return keystore;
   }
 
+  public synchronized List findPrivateKey(String cougaarName) {
+    return findPrivateKey(cougaarName, true);
+  }
+
   /** Lookup a private key given a Cougaar name.
    *  Currently, the Cougaar name is the common name.
    */
-  public synchronized List findPrivateKey(String cougaarName) {
+  public synchronized List findPrivateKey(String cougaarName, boolean validOnly) {
     X500Name x500Name = nameMapping.getX500Name(cougaarName);
     if (log.isDebugEnabled()) {
       log.debug("DirectoryKeyStore.findPrivateKey("
@@ -312,13 +319,17 @@ public class DirectoryKeyStore
     if (x500Name == null) {
       return null;
     }
-    return findPrivateKey(x500Name);
+    return findPrivateKey(x500Name, validOnly);
   }
 
   /** Returns a list of private keys
    * @return A List of PrivateKeyCert
    */
   public synchronized List findPrivateKey(X500Name x500Name) {
+    return findPrivateKey(x500Name, true);
+  }
+
+  public synchronized List findPrivateKey(X500Name x500Name, boolean validOnly) {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -326,7 +337,11 @@ public class DirectoryKeyStore
     }
 
     // First, try with the hash map (cache)
-    List pkc = certCache.getValidPrivateKeys(x500Name);
+    List pkc = null;
+    if (validOnly)
+      pkc = certCache.getValidPrivateKeys(x500Name);
+    else
+      pkc = certCache.getPrivateKeys(x500Name);
     if (log.isDebugEnabled()) {
       log.debug("Found " +
 		(pkc == null ? 0 : pkc.size()) +
@@ -350,6 +365,12 @@ public class DirectoryKeyStore
   */
   public synchronized List findCert(String commonName,
 				    int lookupType)
+  {
+    return findCert(commonName, lookupType, true);
+  }
+
+  public synchronized List findCert(String commonName,
+				    int lookupType, boolean validOnly)
   {
     ArrayList certificateList = new ArrayList(0);
     X500Name x500name = nameMapping.getX500Name(commonName);
@@ -393,7 +414,11 @@ public class DirectoryKeyStore
     }
 
     // Search in the local hash map.
-    List certList = certCache.getValidCertificates(x500name);
+    List certList = null;
+    if (validOnly)
+      certList = certCache.getValidCertificates(x500name);
+    else
+      certList = certCache.getCertificates(x500name);
     if (log.isDebugEnabled()) {
       log.debug("Search key in local hash table:" + commonName
 		+ " - found " +	(certList == null ? 0 : certList.size())
@@ -410,7 +435,10 @@ public class DirectoryKeyStore
 	if ((lookupType & KeyRingService.LOOKUP_LDAP) != 0) {
 	  String filter = "(cn=" + commonName + ")";
 	  lookupCertInLDAP(filter, certFinder);
-	  certList = certCache.getValidCertificates(x500name);
+          if (validOnly)
+            certList = certCache.getValidCertificates(x500name);
+          else
+            certList = certCache.getCertificates(x500name);
 
 	  // Did we find certificates in LDAP?
 	  if (certList == null || certList.size() == 0) {
@@ -1332,7 +1360,8 @@ public class DirectoryKeyStore
 	if (log.isDebugEnabled()) {
 	  log.debug("Unable to verify signature: "
 			     + exception + " - "
-			     + x509certificate1.getSubjectDN().toString());
+			     + x509certificate1
+                             + " - " + cs.getCertificateAlias());
 	  exception.printStackTrace();
 	}
 	continue;
@@ -2243,6 +2272,20 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled()) {
       log.debug("CheckOrMakeCert: " + dname.toString());
     }
+
+    /*
+    if (!param.isCertAuth) {
+      if (CertificateUtility.findAttribute(dname.getName(), "t").equals(CERT_TITLE_AGENT)) {
+        try {
+          //testDataProtection(dname.getCommonName(), true);
+          testDataProtection(dname.getCommonName(), false);
+          done = true;
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+      }
+    }
+    */
     //check first
     List certificateList = null;
     try{
@@ -2754,4 +2797,47 @@ public class DirectoryKeyStore
       return caDN;
     }
   }
+
+  /*
+  static boolean done = false;
+
+  public void testDataProtection(String agent, boolean testOutput) {
+    if (done)
+      return;
+
+    String filePath = param.keystorePath;
+    int dirIndex = filePath.lastIndexOf(File.separatorChar);
+    filePath = filePath.substring(0, dirIndex);
+    String outPath = filePath + File.separatorChar + "dptest.out";
+    String inPath = filePath + File.separatorChar + "dptest.decrypt";
+    String signPath = filePath + File.separatorChar + "dptest.sign";
+    DataProtectionInputStream.testFileName = signPath;
+    try {
+      DataProtectionTest dptest = new DataProtectionTest(
+        param.serviceBroker, agent);
+      if (testOutput) {
+        DataProtectionKeyEnvelope dpe = dptest.testOutput(null, outPath, "dptest.dat", false);
+        dpe = dptest.testOutput(dpe, outPath, "cryptoPolicy.xml", true);
+
+        dpe = dptest.testOutput(dpe, outPath, "MiniNodeB.ini", true);
+        ObjectOutputStream oos = new ObjectOutputStream(
+          new FileOutputStream(new File(signPath)));
+        oos.writeObject(dpe.getDataProtectionKey());
+        oos.close();
+      }
+      else {
+        ObjectInputStream ois = new ObjectInputStream(
+          new FileInputStream(new File(signPath)));
+        DataProtectionKeyEnvelope dpe = dptest.createEnvelope();
+        DataProtectionKey dpkey = (DataProtectionKeyImpl)ois.readObject();
+        dpe.setDataProtectionKey(dpkey);
+        ois.close();
+        dptest.testInput(dpe, inPath, outPath);
+      }
+    } catch (Exception ex) {
+      //System.out.println("Exception: " + ex.toString());
+      ex.printStackTrace();
+    }
+  }
+  */
 }
