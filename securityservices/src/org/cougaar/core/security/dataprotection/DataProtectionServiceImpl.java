@@ -234,6 +234,7 @@ public class DataProtectionServiceImpl
     // check if there is key and certificate created for the client
     List certList = null;
 
+    /*
     if (certList == null || certList.size() == 0) {
       int totalWait = 240000; // the persistence wait time is 4 minutes, so that we don't block the next persistence
                               // which will also fail anyway
@@ -259,6 +260,8 @@ public class DataProtectionServiceImpl
         catch (Exception ex) {}
       }
     }
+    */
+    certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
       CertificateException cx = new CertificateException("No certificate available to sign.");
       publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
