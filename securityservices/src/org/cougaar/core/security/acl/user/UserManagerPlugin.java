@@ -107,6 +107,9 @@ public class UserManagerPlugin extends ComponentPlugin {
   }
 
   private void setDomain() {
+    if (_log.isDebugEnabled()) {
+      _log.debug("setDomain");
+    }
     final CommunityServiceUtil csu = 
       new CommunityServiceUtil(getServiceBroker());
     CommunityServiceUtilListener listener = 
@@ -136,9 +139,11 @@ public class UserManagerPlugin extends ComponentPlugin {
     Collection entries = bbs.query(USER_ENTRIES);
     if (entries.size() != 0) {
       _userCache = (UserEntries) entries.iterator().next();
-      _log.info("Rehydrating with " + _userCache.getUserCount() +
+      if (_log.isInfoEnabled()) {
+        _log.info("Rehydrating with " + _userCache.getUserCount() +
                 " users and " + _userCache.getRoleCount() + 
                 " roles");
+      }
       _rehydrated = true;
       // also process the relays left on the blackboard
       process(bbs.query(UNANSWERED_CAS_TARGETS));
