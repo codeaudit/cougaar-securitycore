@@ -796,22 +796,7 @@ public class DirectoryKeyStore
       certCache.printCertificateCache();
     }
 
-    if (commonName.equals(getHostName())) {
-      WebserverIdentityService sslwebserver = (WebserverIdentityService)
-        param.serviceBroker.getService(this,
-				     WebserverIdentityService.class,
-				     null);
-      if (sslwebserver != null)
-        sslwebserver.updateKeystore();
-    }
-    if (commonName.equals(NodeInfo.getNodeName())) {
-      SSLService sslservice = (SSLService)
-        param.serviceBroker.getService(this,
-				     SSLService.class,
-				     null);
-      if (sslservice != null)
-        sslservice.updateKeystore();
-    }
+    // TODO: for node, hostname, CA aliases, need to get replacement
   }
 
   public void deleteEntry(String alias)
@@ -2229,7 +2214,7 @@ public class DirectoryKeyStore
       certificateList = findCert(dname.getCommonName(),
 				 KeyRingService.LOOKUP_KEYSTORE);
       if(certificateList != null && certificateList.size() != 0) {
-	checkOrMakeHostKey();
+	//checkOrMakeHostKey();
 	return;
       }
     }
@@ -2251,7 +2236,7 @@ public class DirectoryKeyStore
       dname.toString(), "t").equals(CERT_TITLE_AGENT))
       updateNS(dname);
 
-    checkOrMakeHostKey();
+    //checkOrMakeHostKey();
   }
 
   private void checkOrMakeHostKey() {
@@ -2293,6 +2278,8 @@ public class DirectoryKeyStore
     StringTokenizer parser = new StringTokenizer(aDN, ",=");
     while(parser.hasMoreElements()) {
       String tok1 = parser.nextToken().trim().toLowerCase();
+      if (tok1.equals("t"))
+        tok1 = "title";
       String tok2 = parser.nextToken();
       filter = filter + "(" + tok1 + "=" + tok2 + ")";
     }
