@@ -107,6 +107,10 @@ include_scripts:
       - db: cougaar104
       - wait: false
 
+  - script: $CIP/csmart/lib/security/scripts/install_boot_policies.rb
+    parameters:
+      - insertionPoint: society_running
+
 #################################################################
 
   - script: $CIP/csmart/lib/isat/save_snapshot.rb
