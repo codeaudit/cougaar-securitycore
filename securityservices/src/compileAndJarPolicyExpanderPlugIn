@@ -1,0 +1,31 @@
+#!/bin/tcsh
+
+set SECURITYSERVICES = $HOME/ul/securityservices
+cd ${SECURITYSERVICES}/src
+echo cd into $SECURITYSERVICES/src ...
+
+foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar` `ls ${COUGAAR_INSTALL_PATH}/sys/*.jar`)
+ 	if (! $?CLASSPATH) then
+       		setenv CLASSPATH "$jar"
+ 	else
+        		setenv CLASSPATH "${CLASSPATH}:$jar"
+ 	endif
+end
+
+#foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip` `ls $COUGAAR_INSTALL_PATH/sys/*.zip`)
+#       setenv CLASSPATH ${CLASSPATH}:$zip
+#end
+
+echo compiling com/nai/security/policy/PolicyExpanderPlugIn.java ...
+javac -classpath ${CLASSPATH} com/nai/security/policy/PolicyExpanderPlugIn.java
+
+echo creating nai.jar ...
+jar cvf nai.jar com/nai/security/policy/*.class
+
+set SYS = ${COUGAAR_INSTALL_PATH}/sys
+echo moving nai.jar into ${SYS} directory
+mv nai.jar ${SYS}
+
+set archive = ${COUGAAR_INSTALL_PATH}/sys/nai.jar
+echo signing $archive
+jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/.bootstrap_keystore -storepass keystore $archive privileged
