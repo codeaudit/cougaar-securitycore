@@ -162,31 +162,39 @@ public class CertificateDetailsServlet extends  HttpServlet
     }
     out.println("<input type=\"hidden\" name=\"cadnname\" value=\""+cadnname+"\">");
     out.println("<p>");
-    out.println("<p>");
-    out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getVersion());
+    out.println("<b>Version&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getVersion());
     out.println("<br>");
-    out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSubjectDN().getName());
+    out.println("<b>Subject&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getSubjectDN().getName());
     out.println("<br>");
-    out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSigAlgName()+ ",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
+    out.println("<b>Signature Algorithm &nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getSigAlgName()
+		+",<b>&nbsp;OID&nbsp; :</b>"+certimpl.getSigAlgOID());
     out.println("<br>");
-    out.println("<b>Key&nbsp;&nbsp;&nbsp;:</b>"
-		+ CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()));
+    out.println("<b>Key&nbsp;&nbsp;&nbsp;:</b><PRE>"
+		+CertificateUtility.toHexinHTML(certimpl.getPublicKey().getEncoded()) + "</PRE>");
     out.println("<br>");
     out.println("<b>Validity&nbsp;&nbsp;&nbsp;:</b>");
     out.println("<br>");
-    out.println("<b>&nbsp;&nbsp;&nbsp;From &nbsp;:</b>"+certimpl.getNotBefore().toString());
+    out.println("<b>&nbsp;&nbsp;&nbsp;From &nbsp;:</b>"
+		+certimpl.getNotBefore().toString());
     out.println("<br>");
-    out.println("<b>&nbsp;&nbsp;&nbsp;To &nbsp;:</b>"+certimpl.getNotAfter().toString());
+    out.println("<b>&nbsp;&nbsp;&nbsp;To &nbsp;:</b>"
+		+certimpl.getNotAfter().toString());
     out.println("<br>");
-    out.println("<b>Issuer&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getIssuerDN().getName());
+    out.println("<b>Issuer&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getIssuerDN().getName());
     out.println("<br>");
-    out.println("<b>Serial No &nbsp;&nbsp;&nbsp;:</b>"+certimpl.getSerialNumber());
+    out.println("<b>Serial No &nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getSerialNumber());
     out.println("<br>");
-    out.println("<b>Algorithm&nbsp;&nbsp;&nbsp;:</b>"+certimpl.getPublicKey().getAlgorithm());
+    out.println("<b>Algorithm&nbsp;&nbsp;&nbsp;:</b>"
+		+certimpl.getPublicKey().getAlgorithm());
     out.println("<br>");
-    out.println("<b>Signature &nbsp;&nbsp;&nbsp;:</b>"
-		+ CertificateUtility.toHexinHTML(certimpl.getSignature()));
-    out.println("<br>");
+    out.println("<b>Signature &nbsp;&nbsp;&nbsp;:</b><PRE>"
+		+ CertificateUtility.toHexinHTML(certimpl.getSignature())
+		+ "</PRE>");
     out.println("<br>");
     out.println("<br>");
     out.println("<input type=\"submit\" value=\"Revoke Certificate \">");
