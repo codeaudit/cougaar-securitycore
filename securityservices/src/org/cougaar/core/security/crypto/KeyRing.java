@@ -1248,6 +1248,9 @@ try {
     return null;
   }
 
+  /**
+   * @return a Hashtable mapping String (CNAME) to Certificate
+   */
   public Hashtable findCertPairFromNS(String source, String target)
     throws CertificateException, IOException  {
 
