@@ -18,7 +18,6 @@
   <host name='Europa.local.'>
     <facet enclave='Rear'/> 
     <node name='SecondCANode'>
-      <facet role="CertificateAuthority"/>
       <facet role="RedundantCertificateAuthority"/>
     </node>
     <node name='RearWorkerNode'> 

@@ -1,8 +1,71 @@
 require 'cougaar/society_control'
 require 'security/lib/message_util'
+require 'security/lib/web'
+
+
+$policyTestCount   = 0
+$policyPassedCount = 0
+
+
+def getAnEnclave()
+  run.society.each_enclave do |enclave|
+    return enclave
+  end
+end
+
+def newTest(run, name)
+  run.info_message("***********************#{name}***********************")
+  $policyTestCount += 1
+end
+
 
 module Cougaar
   module Actions
+
+########################################################################
+# Utility Classes
+########################################################################
+
+    class PolicyWaiter
+      def initialize(run, node)
+        @run = run
+        @node = node
+        @found = false
+        @run.info_message("Starting wait for policy commit at #{node}")
+        @thread = 
+          Thread.new() do
+          begin 
+            me = 
+             @run.comms.on_cougaar_event do |event|
+              if (event.data.include?("Guard on node " + node + 
+                                      " received policy update")) then
+                @found = true
+                @run.comms.remove_on_cougaar_event(me)
+              end
+            end
+          rescue => ex
+            @run.info_message("exception in waiter thread = #{ex}")
+            @run.info_message("#{ex.backtrace.join("\n")}")
+          end
+        end
+      end
+
+      def wait(timeout)
+        t = 0
+        while (!@found && timeout > t) do
+          t += 1
+          sleep 1
+        end
+        if (@found) then
+          @run.info_message("waited #{t} seconds for the policy")
+          return true
+        else
+          Thread.kill(@thread)
+          @run.info_message("Policy did not propagate")
+          return false
+        end
+      end      
+    end
 
     class WaitForUserManagerReady < Cougaar::Action
       def initialize(run)
@@ -42,14 +105,25 @@ module Cougaar
       end
     end # InitDM
 
+
+########################################################################
+#   Beginnining of test actions
+########################################################################
+
+
+
+#---------------------------------Test----------------------------------
     class DomainManagerRehydrateReset < Cougaar::Action
       def initialize(run)
         @run = run
+        @deathTimeout  = 60
+        @reviveTimeout = 40
         super(run)
       end
     
       def perform
         begin
+          newTest(@run, "Domain Manager Rehydration")
           enclave = getAnEnclave()
           node    = getNonManagementNode(enclave)
           setPoliciesExperiment(enclave, node)
@@ -72,40 +146,59 @@ module Cougaar
     #
         if !(checkAudit(node)) then
           @run.info_message("No audit? - aborting test")
+          return
         end
     #
     # Kill the node, distribute policies, kill policy node, restart node
     #
         @run.info_message("killing #{node.name}")
-        run['node_controller'].stop_node(node)
-        @run.info_message( "sending relay and installing policies")
+        @run['node_controller'].stop_node(node)
+        sleep(@deathTimeout)
+    # the sleep ensures that the node is really gone
+        pw = PolicyWaiter.new(@run, policyNode.name)
+        @run.info_message( "installing no audit policy")
         deltaPolicy(enclave, <<DONE)
           Delete RequireAudit
 DONE
         persistUri = domainManager.uri+"/persistenceMetrics?submit=PersistNow"
         @run.info_message("uri = #{persistUri}")
         Cougaar::Communications::HTTP.get(persistUri)
-        sleep(30)
     # now audit is turned off and should not happen.      
-        if checkAudit(policyNode)
+        if (!pw.wait(120) || checkAudit(policyNode)) then
           @run.info_message( "Audit?? commit policies failed - aborting")
-          @run.info_message("Rehydration policy aborted")
+          @run.info_message("Rehydration policy test aborted")
+          return
         end
         @run.info_message( "killing policy manager node (#{policyNode.name})")
-        run['node_controller'].stop_node(policyNode)
+        @run['node_controller'].stop_node(policyNode)
+        sleep(@deathTimeout)
+    # the sleep ensures that the node is really gone
         @run.info_message( "restarting node #{node.name}")
-        run['node_controller'].restart_node(self, node)
-        sleep(30)
+        @run['node_controller'].restart_node(self, node)
+        @run.info_message("sleeping #{@reviveTimeout} seconds - magic number")
+        sleep(@reviveTimeout)
+        if !(checkAudit(node)) then
+          @run.info_message("This means that you didn't wait long enough " +
+                            "for #{node.name} to  die?")
+          @run.info_message("Test failed")
+          return
+        end
+
+   # now revive the domain manager
+        pw = PolicyWaiter.new(@run, node.name)
         @run.info_message( "restarting domain manager node (#{policyNode.name})")
-        run['node_controller'].restart_node(self, policyNode)
-        sleep(30)
+        @run['node_controller'].restart_node(self, policyNode)
     # audit should fail here also  - this is the real test
-        if checkAudit(node)
+        if (!pw.wait(120) || checkAudit(node))
           @run.info_message("Rehydration test failed - audit should not occur")
+          return
         else 
+          $policyPassedCount += 1
           @run.info_message( "Rehydration test succeeded")
         end
+        ps = PolicyWaiter.new(@run, node.name)
         @run.info_message( "restoring audit policy")
+        pw = PolicyWaiter.new(@run, policyNode.name)
         deltaPolicy(enclave, <<DONE)
           PolicyPrefix=%RestoredPolicy
           Policy RequireAudit = [
@@ -113,13 +206,20 @@ DONE
              Require audit for all accesses to all servlets
           ]
 DONE
+        pw.wait(240)
       end
     
       def checkAudit(node)
         @run.info_message("checking audit on node #{node.name}")
         url = "#{node.uri}/testAuditServlet"
         result = Cougaar::Communications::HTTP.get(url)
-        return (/TRUE/.match(result.to_s) != nil)
+        ret = (/TRUE/.match(result.to_s) != nil)
+        if ret then
+          @run.info_message("Auditting enabled")
+        else 
+          @run.info_message("Auditting disabled")
+        end
+        return ret
       end
     
       def getPolicyManagerNodeFromEnclave(enclave)
@@ -136,18 +236,181 @@ DONE
         end
       end
     
-      def getAnEnclave()
-        run.society.each_enclave do |enclave|
-          return enclave
-        end
-      end
-    
       def getNonManagementNode(enclave)
         return run.society.nodes["RearWorkerNode"]
       end
+    end # DomainManagerRehydrateReset
+#---------------------------------End Test------------------------------
+
+
+#---------------------------------Test----------------------------------
+    class ServletTest01 < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
+      def test1(web)
+        newTest(@run, "auth servlet test")
+        enclave = getAnEnclave()
+        web.set_auth("mbarger", "badpassword")
+        testAgent = nil
+        @run.society.each_agent(true) do |agent|
+          testAgent = agent
+        end
+        @run.info_message("Trying servlet requiring auth using bad password")
+        @run.info_message("Agent = #{testAgent.name}")
+        @run.info_message("uri = #{testAgent.uri}/move")
+        result = 
+          web.getHtml("#{testAgent.uri}/move", 60, 1, false)
+        @run.info_message("return code = #{result.code}")
+        if (result.code != "401") then
+          @run.info_message("Test failed")
+          return
+        end
+        pw = PolicyWaiter.new(@run, testAgent.node.name)
+        @run.info_message("Removing society admin auth policy")
+        deltaPolicy(enclave, <<DONE)
+          Delete "SocietyAdminAuth"
+DONE
+        pw.wait(60)
+        @run.info_message("Trying again")
+        result = 
+          web.getHtml("#{testAgent.uri}/move", 
+                      60, 1, false)
+        @run.info_message("return code = #{result.code}")
+        if (result.code != "200") then
+          @run.info_message("Test failed")
+          return
+        end
+        $policyPassedCount += 1
+        @run.info_message("test succeeded")
+        pw = PolicyWaiter.new(@run, testAgent.node.name)
+        @run.info_message("Restoring society admin auth policy")
+        deltaPolicy(enclave, <<DONE)
+          Policy RestoredSocietyAdminAuth  = [ 
+            ServletAuthenticationTemplate
+            All users must use Password, PasswordSSL, CertificateSSL
+            authentication when accessing the servlet named SocietyAdminServlet
+          ]
+DONE
+        pw.wait(60)
+      end
+
+      def perform
+        begin 
+          web = SRIWeb.new()
+          test1(web)
+        rescue => ex
+          @run.info_message("Caught exception #{ex}, #{ex.backtrace.join("\n")}")
+        end
+      end
+    end #ServletTest1
+#---------------------------------End Test------------------------------
+
+
+#---------------------------------Test----------------------------------
+
+    class CommunicationTest01
+      def initialize(run)
+        super(run)
+        @run = run
+        @agentName1 = "testBounceOne"
+        @agentName2 = "testBounceTwo"
+        @web = SRIWeb.new()
+      end
+
+      def checkSend
+        sendUri="#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
+        checkUri = "#{agent.uri}/message/list"
+      end
+
+      def perform
+        @agent1 = @run.society.agents[agentName1]
+      end
     end
-    
 
 
-  end
-end
+#---------------------------------End Test------------------------------
+
+#---------------------------------Test----------------------------------
+    class BlackboardTest < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
+      def setbburi()
+        testAgentName = "testBBPolicyAgent"
+        @testAgent     = nil
+        @run.society.each_agent do |agent|
+          if agent.name == testAgentName then
+            @testAgent = agent
+            break
+          end
+        end
+        @bburi = "#{@testAgent.uri}/OrgActivityAdd"
+      end
+
+      def checkBB(web)
+        result = web.getHtml(@bburi)
+        error = result.body.include?("java.lang.SecurityException: access denied")
+        if (error) then
+          @run.info_message("Failed to add OrgActivity object")
+        else
+          @run.info_message("Added OrgActivity object")
+        end
+        return !error
+      end
+
+      def perform
+        newTest(@run, "Blackboard OrgActivity Test")
+        setbburi()
+        enclave = getAnEnclave()
+        web = SRIWeb.new()
+        if (!checkBB(web)) then
+          @run.info_message("Initial policy does not allow add access to OrgActivity objects")
+          @run.info_message("Test failed")
+          return
+        end
+        pw = PolicyWaiter.new(@run, @testAgent.node.name)
+        @run.info_message("Removing policy allowing Add access to OrgActivity objects")
+        deltaPolicy(enclave, <<DONE)
+          Delete OrgActivityAdd
+DONE
+        pw.wait(60)
+        if (checkBB(web)) then
+          @run.info_message("Add access to OrgActivity object still allowed")
+          @run.info_message("Test failed")
+          return
+        end
+        $policyPassedCount += 1
+        @run.info_message("Test succeeded")
+        pw = PolicyWaiter.new(@run, @testAgent.node.name)
+        @run.info_message("Restoring policies")
+        deltaPolicy(enclave, <<DONE)
+          Policy OrgActivityAdd = [
+            BlackboardTemplate
+            A PlugIn in the role OrgActivityAdd can Add objects 
+            of type OrgActivity
+          ]
+DONE
+        pw.wait(60)
+      end
+    end # BlackboardTest
+#---------------------------------End Test------------------------------
+
+    class TestResults < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
+      def perform
+        @run.info_message("#{$policyPassedCount} / #{$policyTestCount} tests passed")
+      end
+    end #Test Results
+
+
+  end  # module Actions
+end  # module Cougaar

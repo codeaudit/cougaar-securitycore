@@ -20,6 +20,8 @@ require 'security/lib/cougaarMods'
 require 'security/actions/configFiles'
 require 'security/actions/cond_policy'
 require 'security/actions/saveEvents'
+require 'security/scripts/setup_scripting'
+require 'security/actions/inject_stress'
 require 'security/lib/misc'
 
 
@@ -61,14 +63,15 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "TransformSociety", false, 
     ".",
     "#{RULES}/isat",
-    "#{RULES}/robustness",
     "#{RULES}/security",
     "#{RULES}/security/communities",
     "#{RULES}/security/mop",
-    "#{RULES}/security/robustness"
+    "#{RULES}/security/robustness",
+    "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
 
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 
+  do_action "SaveCurrentSociety", "mySociety.rb" 
   do_action "SaveCurrentCommunities", "myCommunities.xml" 
 
 
@@ -83,11 +86,16 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "DeployCommunitiesFile" 
 
   do_action "StartSociety" 
+
   do_action "Sleep", 30.seconds 
   do_action "WaitForUserManagerReady"
   
   do_action "InitDM"
+
+#  do_action "BlackboardTest"
+#  do_action "ServletTest01"
   do_action "DomainManagerRehydrateReset"
-  do_action "Sleep", 40.seconds
+
+  do_action "TestResults"
 }
 
