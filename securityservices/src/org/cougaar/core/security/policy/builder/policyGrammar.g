@@ -126,6 +126,7 @@ throws PolicyCompilerException
     : "GenericTemplate"               pp = genericPolicy[pn]
     | "AuditTemplate"                 pp = audit[pn]
     | "BlackboardTemplate"            pp = blackboardPolicy[pn]
+    | "MessageAuthTemplate"           pp=  messageAuthPolicy[pn]
     | "MessageEncryptionTemplate"     pp=  messageEncryptionPolicy[pn]
     | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
     | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
@@ -266,6 +267,34 @@ throws PolicyCompilerException
                                 objectTypes); }
     ;
 
+
+
+messageAuthPolicy[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{  pp = null; 
+   boolean modality         = true;
+   boolean sourceComplement = false;
+   boolean destComplement  =  false;}
+    :  modality = messageAuthModality "messages" "from" "members" 
+        "of" sourceComplement = messageComplemented sourceAgentGroup:URI "to"
+        "members" "of" destComplement = messageComplemented 
+        destAgentGroup:URI
+        { pp = new MessageAuthParsedPolicy(
+                     pn,
+                     modality,
+                     ParsedPolicyFile.identifierToURI(sourceAgentGroup),
+                     sourceComplement,
+                     ParsedPolicyFile.identifierToURI(destAgentGroup),
+                     destComplement); }
+    ;       
+
+messageAuthModality
+returns [boolean modality]
+{   modality = true;  }
+    : "Allow" { modality = true;  }
+    | "Deny"  { modality = false; }
+    ;
 
 /*
  * The message encryption template (Require NSAAprovedProtection on all 

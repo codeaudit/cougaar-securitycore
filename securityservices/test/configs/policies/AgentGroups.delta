@@ -31,26 +31,29 @@ Agent %#EnclaveOnePolicyManager
 Agent %#ca1ADNode
 Agent %#EnclaveOnePolicyManagerNode
 Agent %#EnclaveOneWorkerNode
+Agent %#testBounceOne
+Agent %#testBounceTwo
 
 AgentGroup NodeAgents = { EnclaveOnePolicyManagerNode, 
                           EnclaveOneWorkerNode,
                           ca1ADNode }
 
+AgentGroup Bouncers = { testBounceOne, testBounceTwo }
+
 AgentGroup EnclaveOnePolicyManagerGroup = { EnclaveOnePolicyManager }
 
 Delete EncryptCommunication
 
-Policy EncryptCommunicationOne = [ 
-   GenericTemplate
-   Priority = 3,
-   %EnclaveOnePolicyManager is not authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
-    is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
-                      and
-    the value of $Action.daml#hasDestination
-    is a subset of the complement of the set $AgentsInGroup#NodeAgents
+Policy AllowNonBounce = [
+   MessageAuthTemplate
+   Allow messages from members of the complement of $AgentsInGroup#Bouncers to
+   members of the complement of $AgentsInGroup#Bouncers
+]
+
+Policy DenyBounce = [ 
+   MessageAuthTemplate
+   Deny messages from members of $AgentsInGroup#Bouncers to members of
+   $AgentsInGroup#Bouncers 
 ]
 
 Policy EncryptCommunicationTwo = [
