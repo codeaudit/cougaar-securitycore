@@ -100,7 +100,9 @@ public class KeyGenerator {
     }
     System.setProperty("org.cougaar.security.crypto.config", args[0]);
 
-    Element root = configParser.getConfigDocument().getDocumentElement();
+    // Dead code. 
+    // Element root = configParser.getConfigDocument().getDocumentElement();
+    Element root = null;
     iterateKeyStore(root, action);
 
     System.out.println("Total number of certificates:        " + nbCertificates);

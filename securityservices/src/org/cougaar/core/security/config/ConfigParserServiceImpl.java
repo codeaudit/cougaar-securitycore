@@ -62,7 +62,6 @@ public class ConfigParserServiceImpl
   private SecurityPropertiesService secprop = null;
   private ConfigFinder confFinder;
   private boolean isCertAuthority = false;
-  private Document configDoc = null;
   private String role;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -222,10 +221,8 @@ public class ConfigParserServiceImpl
     try {
       String configPath = null;
       configPath = findPolicyFile(defaultFile).getPath();
-
-      configDoc = confFinder.parseXMLConfigFile(defaultFile);
       FileInputStream fis = new FileInputStream(configPath);
-      parsePolicy(fis);
+      parsePolicy(fis, configPath);
     }
     catch (IOException e) {
       if (log.isErrorEnabled()) {
@@ -235,9 +232,11 @@ public class ConfigParserServiceImpl
     }
   }
 
+  /*
   public Document getConfigDocument() {
     return configDoc;
   }
+  */
 
   public CaPolicy getCaPolicy(String aDN) {
     if (log.isDebugEnabled()) {
@@ -273,9 +272,9 @@ public class ConfigParserServiceImpl
     return null;
   }
 
-  public void parsePolicy(InputStream policy) {
+  public void parsePolicy(InputStream policy, String fileName) {
     if (log.isDebugEnabled()) {
-      log.debug("Reading policy object");
+      log.debug("Reading policy object from " + fileName);
     }
     try {
       // Parse the file...
@@ -288,10 +287,12 @@ public class ConfigParserServiceImpl
     catch (Exception e) {
       // This is OK for standalone applications, but not for nodes.
       if (isNode == true) {
-	log.warn("Unable to parse policy:" + e);
+	log.warn("Unable to parse policy from " + fileName +
+		 ". Reason:" + e);
       }
       else {
-	log.debug("Unable to parse policy:" + e);
+	log.debug("Unable to parse policy from " + fileName +
+		  ". Reason:" + e);
       }
     }
   }
@@ -332,7 +333,13 @@ public class ConfigParserServiceImpl
   {
     HashSet roleSet = new HashSet();
     String[] roles = new String[0];
-
+    Document configDoc = null;
+    try {
+      configDoc = confFinder.parseXMLConfigFile("cryptoPolicy.xml");
+    }
+    catch (Exception e) {
+      log.warn("Unable to get roles from policy file:" + e);
+    }
     addRole(configDoc.getDocumentElement(), roleSet);
     return (String[]) roleSet.toArray(roles);
   }

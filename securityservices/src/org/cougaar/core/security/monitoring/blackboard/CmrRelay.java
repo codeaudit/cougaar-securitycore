@@ -47,7 +47,8 @@ public class CmrRelay implements Relay.Source, Relay.Target, XMLizable
    * @param content initial content
    * @param response initial response
    */
-  public CmrRelay(UID uid, MessageAddress source, MessageAddress target, Object content, Object response) {
+  public CmrRelay(UID uid, MessageAddress source, MessageAddress target,
+		  Object content, Object response) {
     this.uid = uid;
     this.source = source;
     this.target = target;

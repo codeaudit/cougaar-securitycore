@@ -136,6 +136,9 @@ public class UserLockoutPlugin extends ResponderPlugin {
       public boolean execute(Object o) {
         if (o instanceof Event) {
           IDMEF_Message msg = ((Event) o).getEvent();
+	  if (msg instanceof RegistrationAlert) {
+	    return false;
+	  }
           if (msg instanceof Alert) {
             Alert alert = (Alert) msg;
             if (alert.getAssessment() != null) {

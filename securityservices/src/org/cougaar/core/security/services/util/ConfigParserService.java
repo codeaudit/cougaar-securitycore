@@ -49,13 +49,13 @@ public interface ConfigParserService extends Service {
    */
   boolean isCertificateAuthority();
 
-  Document getConfigDocument();
+  //Document getConfigDocument();
 
   /** Get the node crypto policy
    */
   CaPolicy getCaPolicy(String aDN);
 
-  void parsePolicy(InputStream policy);
+  void parsePolicy(InputStream policy, String fileName);
   SecurityPolicy[] getSecurityPolicies();
   SecurityPolicy[] getSecurityPolicies(Class policyClass);
 
