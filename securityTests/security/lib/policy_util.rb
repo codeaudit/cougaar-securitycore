@@ -148,7 +148,7 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
     "-Dorg.cougaar.config.path=#{File.join(CIP,'configs','security')}",
     "-Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder",
     "-Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore",
-    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=/tmp/policyUtil.log",
+    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=/tmp/policyUtil-#{rand(1000000)}.log",
     "-Dlog4j.configuration=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
     "-Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
   ]
