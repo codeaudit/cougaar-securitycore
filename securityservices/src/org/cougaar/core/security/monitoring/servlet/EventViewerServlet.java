@@ -72,7 +72,7 @@ public class EventViewerServlet
   public EventViewerServlet(SimpleServletSupport support) {
     this.support = support;
 
-    confFinder = new ConfigFinder();
+    confFinder = ConfigFinder.getInstance();
   }
 
   public void init(ServletConfig config)

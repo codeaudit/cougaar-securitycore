@@ -392,7 +392,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
       }
 
       Iterator iter = added.iterator();
-      ConfigFinder cf = new ConfigFinder();
+      ConfigFinder cf = ConfigFinder.getInstance();
       IDMEF_Message.setDtdFileLocation(cf.locateFile("idmef-message.dtd").toString());
       while (iter.hasNext()) {
         Event event = (Event) iter.next();

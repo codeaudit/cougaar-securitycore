@@ -71,7 +71,7 @@ public class PolicyBootstrapper
     if (cps == null)
       throw new RuntimeException("PolicyBootstrapper failed to get ConfigParserService.");
 
-    xpc = new XMLPolicyCreator(policyPath, new ConfigFinder(), "PolicyBootstrapper");
+    xpc = new XMLPolicyCreator(policyPath, ConfigFinder.getInstance(), "PolicyBootstrapper");
 
     if (xpc == null && log.isWarnEnabled()) {
       log.warn("Cannot get XML policy creator instance");

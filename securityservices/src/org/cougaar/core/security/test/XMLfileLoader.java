@@ -53,7 +53,7 @@ public class XMLfileLoader {
 
   public XMLfileLoader(String xmlFilename) {
 
-    ConfigFinder configFinder = new ConfigFinder();
+    ConfigFinder configFinder = ConfigFinder.getInstance();
     File f = configFinder.locateFile(xmlFilename);
     if (f == null) {
       return;

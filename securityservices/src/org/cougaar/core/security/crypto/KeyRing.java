@@ -142,7 +142,7 @@ final public class KeyRing
       param.isCertAuth = configParser.isCertificateAuthority();
 
       // CA keystore parameters
-      ConfigFinder configFinder = new ConfigFinder();
+      ConfigFinder configFinder = ConfigFinder.getInstance();
       param.caKeystorePath = nodeConfiguration.getNodeDirectory()
 	+ cryptoClientPolicy.getTrustedCaKeystoreName();
       param.caKeystorePassword =

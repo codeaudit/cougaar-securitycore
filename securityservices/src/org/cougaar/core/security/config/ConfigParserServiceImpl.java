@@ -80,7 +80,7 @@ public class ConfigParserServiceImpl
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class,
 			       null);
-    confFinder = new ConfigFinder();
+    confFinder = ConfigFinder.getInstance();
 
     try {
       // Create SAX 2 parser...

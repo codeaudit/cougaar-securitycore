@@ -77,7 +77,7 @@ public class PolicyHandler
   }
 
   public void addCaPolicy(Hashtable attributeTable) {
-    ConfigFinder confFinder = new ConfigFinder();
+    ConfigFinder confFinder = ConfigFinder.getInstance();
     File file = null;
 
     file = confFinder.locateFile("caPolicyTemplate.xml");

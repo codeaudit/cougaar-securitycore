@@ -58,7 +58,7 @@ public class XMLPolicyCreator {
 
   public static void main (String[] args) {
     XMLPolicyCreator xmlpc =
-      new XMLPolicyCreator( args[0], new ConfigFinder(), "TestOwner");
+      new XMLPolicyCreator( args[0], ConfigFinder.getInstance(), "TestOwner");
     Policy policies[] = xmlpc.getPolicies();
     if (policies != null) {
       System.out.println("there are " + policies.length + " policies");
