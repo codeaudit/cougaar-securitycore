@@ -1120,8 +1120,16 @@ public class DirectoryKeyStore
       log.debug("++++++ Checking certificate trust");
     }
     Enumeration e = certCache.getKeysInCache();
+    X500Name name = null;
     while (e.hasMoreElements()) {
-      X500Name name = (X500Name) e.nextElement();
+      String certdn = (String)e.nextElement();
+      try {
+        name = new X500Name(certdn);
+      } catch (IOException iox) {
+        if (log.isWarnEnabled()) {
+          log.warn("Cannot init X500Name " + certdn + " in initCertCache: " + e);
+        }
+      }
 
       ArrayList list = certCache.getCertificates(name);
       ListIterator it = list.listIterator();
@@ -2877,10 +2885,6 @@ public class DirectoryKeyStore
       return certificateFinder;
     }
 
-    /*
-      InitialDirContext ctx = namingSrv.getRootContext();
-      String key = NameSupport.AGENT_DIR + NS.DirSeparator + cname;
-    */
     try {
       DirContext ctx = ensureCertContext();
       String key = cname.toLowerCase();
