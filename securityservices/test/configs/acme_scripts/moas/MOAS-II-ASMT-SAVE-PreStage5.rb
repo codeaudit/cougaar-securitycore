@@ -65,11 +65,16 @@ include_scripts:
 # ############################################################
 # Security scripts
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
+  # Scripts add listener which look for Added Persistence manager on a Node 
+  # Waits for all Persistence Manager to be ready main persistence Manager and backup Persistence manager  
+  - script: $CIP/csmart/lib/security/scripts/setup_PersistenceManagementReady.rb
+    parameters:
+      - persistence_mgr_watcher_label: wait_for_initialization
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
     parameters:
       - user_mgr_label: wait_for_initialization
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
-  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb
+#  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb

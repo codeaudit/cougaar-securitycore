@@ -17,6 +17,11 @@ include_scripts:
   # Change Ruby load path - This script must be included if any of the other
   # security include scripts are added.
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
+  # Scripts add listener which look for Added Persistence manager on a Node 
+  # Waits for all Persistence Manager to be ready main persistence Manager and backup Persistence manager  
+  - script: $CIP/csmart/lib/security/scripts/setup_PersistenceManagementReady.rb
+    parameters:
+      - persistence_mgr_watcher_label: society_running
   # Insert a "Wait for user manager ready" action. This action must be called
   # before any other action attempts to access servlets.
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
@@ -26,7 +31,7 @@ include_scripts:
   # and store the data under $CIP/workspace/test/node_info.log.
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
   # Logs Message queue details to a log file under $CIP/workspace/test/message_queue_log/nodename.log
-  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb 
+#  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb 
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   # Sanity check: Check every 5 minutes if all agents are registered in the WP.
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
@@ -76,7 +81,7 @@ include_scripts:
   # This script should always be included whenever the society is loaded.
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
     parameters:
-      - cleanup_label: snaphot_restored
+      - cleanup_label: snapshot_restored
 #
 ###########################################
   - script: $CIP/csmart/lib/isat/datagrabber_include.rb
