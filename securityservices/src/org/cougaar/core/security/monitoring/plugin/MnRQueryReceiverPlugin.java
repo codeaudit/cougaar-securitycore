@@ -102,6 +102,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   private Object param;
   private String mgrrole=null;
   private String myRole=null;
+  
   // private ClusterIdentifier destAddress;
 
   /**
@@ -185,12 +186,12 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     if ((capabilitiesobject == null) || (queryRelays == null) || (querymapping == null)) {
       return;
     }
-    loggingService.debug("!!!!!! !!!! Execute of mnRQueryreceiver called :"+  myAddress.toString());
+    loggingService.debug("Execute of mnRQueryreceiver called :"+  myAddress.toString());
     if(queryRelays.hasChanged()) {
       loggingService.debug("queryRelays.hasChanged() :"+  myAddress.toString());
       Collection  capabilitiesobj_col=capabilitiesobject.getChangedCollection();
       if( capabilitiesobj_col.isEmpty()) {
-	loggingService.debug(" %%% Changed collection is empty for capabilities object :@@@@@@ getting complete collection ");
+	loggingService.debug("Changed collection is empty for capabilities object :@@@@@@ getting complete collection ");
 	// look up query relays that require constant updates
 	capabilitiesobj_col=capabilitiesobject.getCollection();
       }
@@ -211,7 +212,9 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	return;
       }
       capabilities=(CapabilitiesObject)list.get(firstobject);
-      relayiterator = queryRelays.getAddedCollection().iterator();
+      Collection coll= queryRelays.getAddedCollection();
+      relayiterator = coll.iterator();
+      loggingService.debug("added collection relay size is:"+coll.size()); 
       
     }
     if(capabilitiesobject.hasChanged()) {
@@ -238,10 +241,10 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	}
 	return;
       }
+      loggingService.debug("Capabilities object has changed so getting all query relays :");
       capabilities=(CapabilitiesObject)list.get(firstobject);
       relayiterator = queryRelays.getCollection().iterator();
     }
-    
     updateRelayedQuery(relayiterator,capabilities,capabilitiesChanged);
   }
   
@@ -261,10 +264,10 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     while (iter.hasNext()) {
       relay = (CmrRelay)iter.next();
       if(capabilitieschanged) {
-	loggingService.debug("%%%%%%% %%%%%% %%%%%  New capabilities have come in and going to iterate through all relay and provide up date :");
+	loggingService.debug("New capabilities have come in and going to iterate through all relay and provide up date :");
 	if(!relay.getSource().equals(myAddress)) {
-	  loggingService.debug("****************** CAPABILITIES CHANGED  RELAY IS NOT FROM ME  ***************************");
-	  loggingService.debug("cONTENTS OF RELAY ARE :"+ relay.toString());
+	  loggingService.debug("CAPABILITIES CHANGED  RELAY IS NOT FROM ME  ***************************");
+	  loggingService.debug("CONTENTS OF RELAY ARE :"+ relay.toString());
 	  if(relay.getContent() instanceof MRAgentLookUp) {
 	    Agentlookupquery=(MRAgentLookUp)relay.getContent();
 	    if(!Agentlookupquery.updates) {
@@ -278,10 +281,6 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	      removeRelay(mapping);
 	      mapping.setQueryList(null);
 	    }
-	    //}
-	    //else { 
-	    //if (!relay.getSource().equals(myAddress)) { 
-	    // make sure it's remote, not local
 	    if (loggingService.isDebugEnabled())
 	      loggingService.debug(" printing receive relay which is not local:=========>"
 				   +Agentlookupquery.toString());
@@ -289,7 +288,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	    if (loggingService.isDebugEnabled()) {
 	      loggingService.debug(" receive Query at agent :"+myAddress.toString()+ 
 				   " Query is "+Agentlookupquery.toString());  
-	      loggingService.debug("!!!!!!!!!!! trying to find if there are any enclave manager :");
+	      loggingService.debug("Trying to find if there are any enclave manager :");
 	    }
 	  }
 	  else {
@@ -486,7 +485,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     String role=query.role;
     String sourceOfAttack=query.source_agent;
     String targetOfAttack=query.target_agent;
-      
+    loggingService.debug("Query receive in  findAgent is :"+ query.toString());
     ArrayList commagents=new ArrayList();
     if((community!=null) && (role!=null)) {
       loggingService.debug(" ########## Searching with community and role combination :");
@@ -546,21 +545,52 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       commonAgents=new ArrayList();
     }
     else {
+      boolean iscomagentset=false;
       if(queryClassification!=null) {
-	commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+	loggingService.debug("Query for classification was not null:");
+	if(!iscomagentset) {
+	  commonAgents=classagents;
+	  iscomagentset=true;
+	}
+	else 
+	  commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
       }
       if(querySource!=null) {
-	commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+	loggingService.debug("Query for Source was not null:");
+	if(!iscomagentset) {
+	  commonAgents=sourceagents;
+	  iscomagentset=true;
+	}
+	else
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
       }
       if(queryTarget!=null){
-	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
+	loggingService.debug("Query for Target  was not null:");
+	if(!iscomagentset) {
+	  commonAgents=targetagents;
+	  iscomagentset=true;
+	}
+	else 
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
       }
       if(sourceOfAttack!=null) {
-	 commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
+	loggingService.debug("Query for SourceOf Attack  was not null:");
+	if(!iscomagentset) {
+	  commonAgents=sourceofAttackAgents;
+	  iscomagentset=true;
+	}
+	else 
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
 	
       }
       if(targetOfAttack!=null) {
-	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
+	loggingService.debug("Query for targetOfAttack was not null:");
+	if(!iscomagentset) {
+	  commonAgents=targetofAttackAgents;
+	  iscomagentset=true;
+	}
+	else 
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
       }
       /*
       if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null) || (sourceOfAttack!=null) ||(targetOfAttack!=null)) {
@@ -1023,8 +1053,8 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   
   public boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
     boolean equal=false;
-    if((existingclassification.getOrigin().trim().equals(newclassification.getOrigin().trim()))
-       &&(existingclassification.getName().trim().equals(newclassification.getName().trim()))) {
+    if((existingclassification.getOrigin().trim().equalsIgnoreCase(newclassification.getOrigin().trim()))
+       &&(existingclassification.getName().trim().equalsIgnoreCase(newclassification.getName().trim()))) {
       // loggingService.debug(" returning true  :");
       return true;
     }   
@@ -1036,7 +1066,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     boolean isclassification=false;
     for(int i=0;i<classificationList.length;i++) {
       currentclassification=classificationList[i];
-      if(areClassificationsEqual(queryclassification,currentclassification)){
+      if(areClassificationsEqual(currentclassification,queryclassification)){
 	isclassification=true;
 	return isclassification;
       }
@@ -1110,14 +1140,17 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       String existingCategory=existingNode.getCategory();
       if(queryname==null) {
 	nameequal=true;
+	loggingService.debug("In Idmef node queryname was null:");	
       }
       if((queryname!=null)&&(existingname!=null)) {
 	if(queryname.trim().equals(existingname.trim())) {
+	  loggingService.debug("In Idmef node queryname are equal:");
 	  nameequal=true;
 	}
       }
       if(queryAddress==null) {
 	addressequal=true;
+	loggingService.debug("In Idmef node queryAddress was null:");
       }
       if((queryAddress!=null)&&(existingAddress!=null)) {
 	if(existingAddress.length>=queryAddress.length) {
@@ -1130,30 +1163,39 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	    }
 	  }
 	  addressequal=true;
+	  loggingService.debug("In Idmef node address are equal :");
 	}
 	
       }
       if(queryCategory==null) {
+	loggingService.debug("In Idmef node queryCategory was null:");
 	categoryequal=true;
       }
       if((queryCategory !=null) && (existingCategory!=null)) {
 	if(queryCategory.trim().equals(existingCategory.trim())) {
+	  loggingService.debug("In Idmef node queryCategory are equal :");
 	  categoryequal=true;
 	}
       }
       if( nameequal &&  addressequal && categoryequal) {
+	 loggingService.debug("In Idmef node are equal :");
 	nodeequal=true;
       }
       
     }
     else if((existingNode==null)&&(queryNode==null)){
       nodeequal=true;
+      loggingService.debug("In Idmef node are equal :");
     }
-    
+    else if(queryNode==null) {
+      nodeequal=true;
+    }
+          
     if((existingUser!=null)&&(queryUser!=null)){
       UserId [] queryUserId=queryUser.getUserIds();
       UserId [] existingUserId=existingUser.getUserIds();
       if(queryUserId==null) {
+	loggingService.debug("In Idmef query User  is null  :");
 	userequal =true;
       }
       if((queryUserId !=null) &&(existingUserId!=null)) {
@@ -1167,11 +1209,16 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	    }
 	  }
 	  userequal=true;
+	  	loggingService.debug("In Idmef query User  is true  :");
 	}
       }
     }
     else if((existingUser==null)&&(queryUser==null)){
+      loggingService.debug("In Idmef query User  is true  :");
       userequal=true;
+    }
+    else if(queryUser==null){
+       userequal=true;
     }
     
     if((existingService!=null)&&(queryService!=null)){
@@ -1222,10 +1269,15 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	
       if( nameequal &&  portequal &&  portlistequal &&  protocolequal) {
 	serviceequal=true;
+	loggingService.debug("In Idmef serviceequal  is true  :");
       }
     }
     else if((existingService==null)&&(queryService==null)){
+      	loggingService.debug("In Idmef serviceequal  is true  :");
       serviceequal=true;
+    }
+    else if(queryService==null) {
+       serviceequal=true;
     }
     
     if((existingProcess!=null)&&(queryProcess!=null)){
@@ -1253,12 +1305,18 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       }
       if(processPathequal && processNameequal) {
 	processequal=true;
+	loggingService.debug("In Idmef processequal  true :");
       }
     }
     else if((existingProcess==null)&&(queryProcess==null)){
+      loggingService.debug("In Idmef processequal  true :");
       processequal=true;
     }
+    else if(queryProcess==null) {
+       processequal=true;
+    }
     if( nodeequal &&  userequal &&  serviceequal &&  processequal) {
+      loggingService.debug("Either source or target is equal  :");
       equal=true;
     }
     return equal;
