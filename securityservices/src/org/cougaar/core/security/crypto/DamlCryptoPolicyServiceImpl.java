@@ -73,30 +73,6 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     return getDamlPolicy(source, target); // no direction
   }
 
-  public CipherSuite getSendPolicies(String source, String target) {
-    if (_log.isDebugEnabled()) {
-      _log.debug("Called getSendPolicies for " + source + " to " + target);
-    }
-    initDaml();
-    //Collection c = new LinkedList();
-    if (_enforcer != null) {    
-      return _enforcer.getAllowedCipherSuites(source, target);
-    }
-    else {
-      return HardWired.nsaApproved;
-    }
-    /*
-    Iterator iter = allowed.iterator();
-    while (iter.hasNext()) {
-      c.add(convertPolicy((CipherSuite) iter.next()));
-    }
-    return c;*/
-  }
-
-  public CipherSuite getReceivePolicies(String source, String target) {
-    return getSendPolicies(source, target);
-  }
-
   public CryptoPolicy getDataProtectionPolicy(String source) {
     return _legacy.getDataProtectionPolicy(source);
   }
@@ -165,7 +141,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
    * it chooses a semi-random cipher and signature algorithm from those
    * available.
    */ 
-  public static SecureMethodParam convertPolicy(CipherSuite cs) {
+  private static SecureMethodParam convertPolicy(CipherSuite cs) {
     if (!cs.isCipherAvailable()) {
       return null;
     }
