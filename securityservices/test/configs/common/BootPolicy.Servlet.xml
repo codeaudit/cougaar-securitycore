@@ -89,10 +89,20 @@
         <role>UserManager</role>
       </rule>
 
-      <rule requireSSL="false">
+      <rule requireSSL="true" auth="CERT">
+	<!-- Data grabber application -->
         <pattern>/datagatherer</pattern>
-        <pattern>/hierarchy</pattern>
+
+        <!-- al-inventory standalone application -->
         <pattern>/log_inventory</pattern>
+
+        <role>Logistician</role>
+        <role>LogisticsViewer</role>
+      </rule>
+
+      <rule requireSSL="true" auth="EITHER">
+	<!-- Used by the data grabber -->
+        <pattern>/hierarchy</pattern>
         <role>Logistician</role>
         <role>LogisticsViewer</role>
       </rule>
