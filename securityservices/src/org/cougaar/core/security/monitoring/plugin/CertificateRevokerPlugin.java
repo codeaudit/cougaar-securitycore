@@ -31,7 +31,7 @@ import org.cougaar.multicast.AttributeBasedAddress;
 
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.DirectoryKeyStore;
+//import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.blackboard.Event;
