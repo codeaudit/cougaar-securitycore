@@ -22,13 +22,14 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.lang.ClassNotFoundException;
 
 // Cougaar core services
-import org.cougaar.core.mts.ProtectedOutputStream;
+import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.MessageAddress;
 
@@ -37,95 +38,135 @@ import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.crypto.ProtectedObject;
 
-public class MessageOutputStream
-  extends ProtectedOutputStream
+public class MessageInputStream
+  extends ProtectedInputStream
 {
   /** ProtectedOutputStream can read old attributes (check to see if it should
    *  write the signature. Note at this point the attributes were already sent)
    */
-  private OutputStream outputStream;
-  private ByteArrayOutputStream dataOut;
+  private InputStream inputStream;
   private boolean isEndOfMessage;
+  private boolean isClosed;
   private EncryptionService enc;
   private CryptoPolicyService cps;
   private MessageAddress source;
   private MessageAddress target;
+  private ByteArrayInputStream plainTextInputStream;
 
-  private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
-
-  public MessageOutputStream(OutputStream stream,
-			     EncryptionService enc,
-			     CryptoPolicyService cps,
-			     MessageAddress source,
-			     MessageAddress target) {
+  public MessageInputStream(InputStream stream,
+			    EncryptionService enc,
+			    CryptoPolicyService cps,
+			    MessageAddress source,
+			    MessageAddress target) {
     super(stream);
-    outputStream = stream;
+    inputStream = stream;
     isEndOfMessage = false;
-    dataOut = new ByteArrayOutputStream(DEFAULT_INIT_BUFFER_SIZE);
+    isClosed = false;
     this.enc = enc;
     this.cps = cps;
     this.source = source;
     this.target = target;
+
   }
 
   /* ***********************************************************************************
-   * FilterOutputStream implementation
+   * FilterInputStream implementation
    */
-
-  public void write(byte[] b)
+  public int read()
     throws IOException {
-    dataOut.write(b);
+    if (!isEndOfMessage) {
+      readInputStream();
+    }
+    return plainTextInputStream.read();
   }
 
-  public void write(byte[] b, int off, int len)
+  public int read(byte[] b)
     throws IOException {
-    dataOut.write(b, off, len);
+    if (!isEndOfMessage) {
+      readInputStream();
+    }
+    return plainTextInputStream.read(b);
   }
 
-  public void write(int b)
+  public int read(byte[] b, int off, int len)
     throws IOException {
-    dataOut.write(b);
+    if (!isEndOfMessage) {
+      readInputStream();
+    }
+    return plainTextInputStream.read(b, off, len);
   }
 
-  public void flush()
+  public long skip(long n)
     throws IOException {
-    throw new IOException("Buffered data cannot be flushed until end of message");
+    if (!isEndOfMessage) {
+      readInputStream();
+    }
+    return plainTextInputStream.skip(n);
+  }
+
+  public int available()
+    throws IOException {
+    if (!isEndOfMessage) {
+      readInputStream();
+    }
+    return plainTextInputStream.available();
   }
 
   public void close()
     throws IOException {
+    isClosed = true;
+    inputStream.close();
+  }
+
+  public void mark(int readlimit) {
+  }
+
+  public void reset()
+    throws IOException {
+    throw new IOException("reset not supported by this stream");
+  }
+
+  public boolean markSupported() {
+    return false;
+  }
+
+
+  /* ***********************************************************************************
+   * ProtectedInputStream implementation
+   */
+  public void finishInput(MessageAttributes attributes)
+    throws java.io.IOException {
     if (!isEndOfMessage) {
-      throw new IOException("Buffered data cannot be flushed until end of message");
+      readInputStream();
     }
   }
 
-  /* ***********************************************************************************
-   * ProtectedOutputStream implementation
-   */
+  private void readInputStream()
+    throws IOException {
+    if (isClosed) {
+      throw new IOException("InputStream is closed");
+    }
+    ObjectInputStream ois = new ObjectInputStream(inputStream);
 
-  public void finishOutput(MessageAttributes attributes)
-    throws java.io.IOException {
-    ProtectedObject pm = protectMessage();
-    isEndOfMessage = true;
+    // The object should be a ProtectedObject
+    ProtectedObject protectedObject = null;
+    try {
+      protectedObject = (ProtectedObject) ois.readObject();
+    }
+    catch (ClassNotFoundException e) {
+    }
 
-    ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-    oos.writeObject(pm);
-  }
-
-  private ProtectedObject protectMessage() {
     SecureMethodParam policy =
-      cps.getSendPolicy(source.toAddress() + ":"
-			  + target.toAddress());
+      cps.getReceivePolicy(source.toAddress() + ":"
+			   + target.toAddress());
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
 	+ source.toAddress() + " and " + target.toAddress());
-    }     
-
-    ProtectedObject protectedMessage =
-      enc.protectObject(dataOut.toByteArray(),
-			source,
-			target,
-			policy);
-    return protectedMessage;
+    }
+    byte[] rawData = (byte[]) enc.unprotectObject(source,
+						 target,
+						 protectedObject, policy);
+    plainTextInputStream = new ByteArrayInputStream(rawData);
+    isEndOfMessage = true;
   }
 }

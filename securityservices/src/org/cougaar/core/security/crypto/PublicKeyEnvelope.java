@@ -33,7 +33,7 @@ import javax.crypto.SealedObject;
 import java.security.cert.X509Certificate;
 
 public class PublicKeyEnvelope
-  implements Serializable
+  extends ProtectedObject
 {
   /** The encrypted symmetric key used to encrypt an object.
    */
@@ -48,18 +48,15 @@ public class PublicKeyEnvelope
    */
   private X509Certificate sender;
 
-  /** The encrypted object
-   */
-  private SealedObject encryptedObject;
-
   public PublicKeyEnvelope(X509Certificate asender,
 			   X509Certificate areceiver,
+			   SecureMethodParam policy,
 			   SealedObject sKey,
-			   SealedObject encObj) {
+			   Object encObj) {
+    super(policy, encObj);
     encryptedSymmetricKey = sKey;
     receiver = areceiver;
     sender = asender;
-    encryptedObject = encObj;
   }
 
   public SealedObject getEncryptedSymmetricKey() {
@@ -72,9 +69,5 @@ public class PublicKeyEnvelope
 
   public X509Certificate getSender() {
     return sender;
-  }
-
-  public SealedObject getEncryptedObject() {
-    return encryptedObject;
   }
 }

@@ -34,6 +34,7 @@ import java.security.cert.X509Certificate;
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
+import org.cougaar.core.mts.MessageAddress;
 
 // Cougaar Security Services
 import org.cougaar.core.security.bootstrap.BaseBootstrapper;
@@ -249,11 +250,11 @@ public class CryptoManagerServiceImpl
       }
     }
 
-  public PublicKeyEnvelope signAndEncrypt(Serializable object,
-					  String source,
-					  String target,
-					  SecureMethodParam policy) {
-    PublicKeyEnvelope envelope = null;
+  public ProtectedObject protectObject(Serializable object,
+				       MessageAddress source,
+				       MessageAddress target,
+				       SecureMethodParam policy) {
+    ProtectedObject po = null;
 
     if (object == null) {
       throw new IllegalArgumentException("Object to protect is null");
@@ -268,6 +269,140 @@ public class CryptoManagerServiceImpl
       throw new IllegalArgumentException("Policy not specified");
     }
 
+    switch(policy.secureMethod) {
+    case SecureMethodParam.PLAIN:
+      po = new ProtectedObject(policy, object);
+      break;
+
+    case SecureMethodParam.SIGN:
+      po = sign(object, source, target, policy);
+      break;
+
+    case SecureMethodParam.ENCRYPT:
+      po = encrypt(object, source, target, policy);
+      break;
+
+    case SecureMethodParam.SIGNENCRYPT:
+      po = signAndEncrypt(object, source, target, policy);
+      break;
+
+    default:
+      break;
+    }
+    return po;
+  }
+
+  public Object unprotectObject(MessageAddress source,
+				MessageAddress target,
+				ProtectedObject protectedObject,
+				SecureMethodParam policy) {
+    Object theObject = null;
+    if (protectedObject == null) {
+      throw new IllegalArgumentException("Object to protect is null");
+    }
+    if (source == null) {
+      throw new IllegalArgumentException("Source not specified");
+    }
+    if (target == null) {
+      throw new IllegalArgumentException("Target not specified");
+    }
+    if (policy == null) {
+      throw new IllegalArgumentException("Policy not specified");
+    }
+
+    // Check the policy.
+    if (policy.secureMethod != protectedObject.getSecureMethod().secureMethod) {
+      // The object does not comply with the policy
+      throw new RuntimeException("Object does not comply with the policy");
+    }
+
+    // Unprotect the message.
+    switch(policy.secureMethod) {
+    case SecureMethodParam.PLAIN:
+      theObject = protectedObject.getObject();
+      break;
+
+    case SecureMethodParam.SIGN:
+      theObject = verify(source, target,
+			 (PublicKeyEnvelope)protectedObject,
+			 policy);
+      break;
+
+    case SecureMethodParam.ENCRYPT:
+      theObject = decrypt(source, target,
+			  (PublicKeyEnvelope)protectedObject,
+			  policy);
+      break;
+
+    case SecureMethodParam.SIGNENCRYPT:
+      theObject = decryptAndVerify(source, target,
+				   (PublicKeyEnvelope)protectedObject,
+				   policy);
+      break;
+
+    default:
+      break;
+    }
+    return theObject;
+  }
+
+  private PublicKeyEnvelope sign(Serializable object,
+				 MessageAddress source,
+				 MessageAddress target,
+				 SecureMethodParam policy) {
+    // Find source certificate
+    List senderList = keyRing.findCert(source.toAddress());
+    if (senderList.size() == 0) {
+      throw new RuntimeException("Unable to find sender certificate: " 
+				 + source.toAddress());
+    }
+    X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
+
+    SignedObject signedObject = sign(source.toAddress(), policy.signSpec, object);
+
+    PublicKeyEnvelope pke =
+      new PublicKeyEnvelope(sender, null, policy, null, signedObject);
+    return pke;
+  }
+
+  private PublicKeyEnvelope encrypt(Serializable object,
+				    MessageAddress source,
+				    MessageAddress target,
+				    SecureMethodParam policy) {
+    PublicKeyEnvelope pke = null;
+
+    /*generate the secret key*/
+    int i = policy.symmSpec.indexOf("/");
+    String a;
+    a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
+    SecureRandom random = new SecureRandom();
+    try {
+      KeyGenerator kg = KeyGenerator.getInstance(a);
+      kg.init(random);
+      SecretKey sk = kg.generateKey();
+      SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
+      SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
+      // Find target certificate
+      List receiverList = keyRing.findCert(target.toAddress());
+      if (receiverList.size() == 0) {
+	throw new RuntimeException("Unable to find target certificate: " 
+				 + target.toAddress());
+      }
+      X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
+
+      pke = new PublicKeyEnvelope(null, receiver, policy, secret, sealedMsg);
+    }
+    catch (Exception e) {
+    }
+    return pke;
+
+  }
+
+  private PublicKeyEnvelope signAndEncrypt(Serializable object,
+					   MessageAddress source,
+					   MessageAddress target,
+					   SecureMethodParam policy) {
+    PublicKeyEnvelope envelope = null;
     /* Generate the secret key */
     int i = policy.symmSpec.indexOf("/");
     String a;
@@ -286,31 +421,32 @@ public class CryptoManagerServiceImpl
       SignedObject signedObject = null;
       
       // Encrypt session key
-      sessionKey = asymmEncrypt(target, policy.asymmSpec, sk);
+      sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
 
       // Sign object
-      signedObject = sign(source, policy.signSpec, object);
+      signedObject = sign(source.toAddress(), policy.signSpec, object);
 
       // Encrypt object
       sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
       
       // Find source certificate
-      List senderList = keyRing.findCert(source);
+      List senderList = keyRing.findCert(source.toAddress());
       if (senderList.size() == 0) {
 	throw new RuntimeException("Unable to find sender certificate: " 
-				   + source);
+				   + source.toAddress());
       }
       X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
 
-      List receiverList = keyRing.findCert(target);
+      // Find target certificate
+      List receiverList = keyRing.findCert(target.toAddress());
       if (receiverList.size() == 0) {
 	throw new RuntimeException("Unable to find target certificate: " 
-				   + target);
+				   + target.toAddress());
       }
       X509Certificate receiver = ((CertificateStatus)receiverList.get(0)).getCertificate();
 
       envelope = 
-	new PublicKeyEnvelope(sender, receiver, sessionKey, sealedObject);
+	new PublicKeyEnvelope(sender, receiver, policy, sessionKey, sealedObject);
     }
     catch (java.security.NoSuchAlgorithmException e) {
       throw new RuntimeException("Unable to protect object: " + e);
@@ -321,14 +457,15 @@ public class CryptoManagerServiceImpl
     return envelope;
   }
 
-  public Object decryptAndVerify(String source,
-				 String target,
-				 PublicKeyEnvelope envelope,
-				 SecureMethodParam policy) {
+  private Object decryptAndVerify(MessageAddress source,
+				  MessageAddress target,
+				  PublicKeyEnvelope envelope,
+				  SecureMethodParam policy) {
+
     // Retrieving the secret key, which was encrypted using the public key
     // of the target.
     SecretKey sk=(SecretKey)
-      asymmDecrypt(target, policy.asymmSpec,
+      asymmDecrypt(target.toAddress(), policy.asymmSpec,
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
       if (debug) {
@@ -339,16 +476,53 @@ public class CryptoManagerServiceImpl
 
     // Decrypt the object
     SignedObject signedObject =
-      (SignedObject)symmDecrypt(sk, envelope.getEncryptedObject());
+      (SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject());
 
     // Verify the signature
     Object o = null;
     try {
-      o = verify(source, policy.signSpec, signedObject);
+      o = verify(source.toAddress(), policy.signSpec, signedObject);
     }
     catch (CertificateException e) {
     }
     return o;
   }
+
+  private Object decrypt(MessageAddress source,
+			 MessageAddress target,
+			 PublicKeyEnvelope envelope,
+			 SecureMethodParam policy) {
+    // Retrieving the secret key, which was encrypted using the public key
+    // of the target.
+    SecretKey sk=(SecretKey)
+      asymmDecrypt(target.toAddress(), policy.asymmSpec,
+		   envelope.getEncryptedSymmetricKey());
+    if (sk == null) {
+      if (debug) {
+	System.out.println("Error: unable to retrieve secret key");
+      }
+      return null;
+    }
+    // Decrypt the object
+    Object o =
+      symmDecrypt(sk, (SealedObject)envelope.getObject());
+    return o;
+  }
+
+  private Object verify(MessageAddress source,
+			MessageAddress target,
+			PublicKeyEnvelope envelope,
+			SecureMethodParam policy) {
+    // Verify the signature
+    Object o = null;
+    try {
+      o = verify(source.toAddress(), policy.signSpec,
+		 (SignedObject)envelope.getObject());
+    }
+    catch (CertificateException e) {
+    }
+    return o;
+  }
+
 }
 

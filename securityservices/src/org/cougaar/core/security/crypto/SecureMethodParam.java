@@ -24,18 +24,23 @@ package org.cougaar.core.security.crypto;
 
 import java.io.Serializable;
 
-public final class SecureMethodParam implements Serializable {
+public final class SecureMethodParam
+  implements Serializable
+{
 
-    public static final int PLAIN = 0,
-      SIGN = 1, ENCRYPT = 2, SIGNENCRYPT = 3, USERDEFINED = 4;
-    public int secureMethod;
-    public String symmSpec;
-    public String asymmSpec;
-    public String signSpec;
-//    public String providerName;
+  public static final int PLAIN = 0,
+    SIGN = 1, ENCRYPT = 2, SIGNENCRYPT = 3, USERDEFINED = 4;
+  public int secureMethod;
+  public String symmSpec;
+  public String asymmSpec;
+  public String signSpec;
+  // public String providerName;
     
-    public SecureMethodParam() {
-        secureMethod = PLAIN;
-    }
+  public SecureMethodParam() {
+    secureMethod = PLAIN;
+  }
+  public SecureMethodParam(int value) {
+    secureMethod = value;
+  }
 
 }

@@ -37,6 +37,9 @@ import java.security.cert.CertificateException;
 
 import java.lang.IllegalArgumentException;
 
+// Cougaar core infrastructure
+import org.cougaar.core.mts.MessageAddress;
+
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -75,13 +78,13 @@ public class KeyWrapping
     KeyIdentity keyIdentity = null;
 
     KeySet keySet = new KeySet(privKey, cert);
-    String sourceAgent = null;
-    String targetAgent = null;
+    MessageAddress sourceAgent = null;
+    MessageAddress targetAgent = null;
     SecureMethodParam policy = null;
 
-    encryptionService.signAndEncrypt(keySet,
-				     sourceAgent, targetAgent,
-				     policy);
+    encryptionService.protectObject(keySet,
+				    sourceAgent, targetAgent,
+				    policy);
     return keyIdentity;
   }
 

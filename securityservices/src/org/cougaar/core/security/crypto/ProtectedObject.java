@@ -26,26 +26,28 @@
 
 package org.cougaar.core.security.crypto;
 
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
 import java.io.Serializable;
 
-import javax.crypto.SealedObject;
-import java.security.cert.X509Certificate;
-
-// Overlay
-import org.cougaar.core.service.identity.TransferableIdentity;
-
-public class KeyIdentity
-  extends PublicKeyEnvelope
-  implements TransferableIdentity
+public class ProtectedObject
+  implements Serializable
 {
+  private SecureMethodParam secureMethod;
 
-  public KeyIdentity(X509Certificate asender,
-		     X509Certificate areceiver,
-		     SecureMethodParam policy,
-		     SealedObject sKey,
-		     Object encObj) {
-    super(asender, areceiver, policy, sKey, encObj);
+  /** The protected object
+   * May be plain-text, SealedObject, SignedObject
+   */
+  private Object theObject;
+
+  public ProtectedObject(SecureMethodParam smp, Object o) {
+    secureMethod = smp;
+    theObject = o;
+  }
+
+  public SecureMethodParam getSecureMethod() {
+    return secureMethod;
+  }
+
+  public Object getObject() {
+    return theObject;
   }
 }

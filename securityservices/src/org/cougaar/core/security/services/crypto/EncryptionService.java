@@ -31,7 +31,10 @@ import javax.crypto.SecretKey;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
-import org.cougaar.core.security.crypto.PublicKeyEnvelope;
+import org.cougaar.core.mts.MessageAddress;
+
+// Cougaar security services
+import org.cougaar.core.security.crypto.ProtectedObject;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 
 /** Service for most common public key cryptographic operations.
@@ -132,14 +135,14 @@ public interface EncryptionService extends Service {
 			    SealedObject sealedObject);
 
 
-  public PublicKeyEnvelope signAndEncrypt(Serializable object,
-					  String sourceAgent,
-					  String targetAgent,
-					  SecureMethodParam policy);
+  public ProtectedObject protectObject(Serializable object,
+				       MessageAddress sourceAgent,
+				       MessageAddress targetAgent,
+				       SecureMethodParam policy);
 
-  public Object decryptAndVerify(String source,
-				 String target,
-				 PublicKeyEnvelope envelope,
-				 SecureMethodParam policy);
+  public Object unprotectObject(MessageAddress source,
+				MessageAddress target,
+				ProtectedObject envelope,
+				SecureMethodParam policy);
 }
 

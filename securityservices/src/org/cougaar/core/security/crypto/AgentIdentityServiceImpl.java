@@ -30,6 +30,7 @@ import java.io.*;
 import java.util.*;
 import java.security.PrivateKey;
 import java.security.NoSuchAlgorithmException;
+import javax.crypto.SealedObject;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -82,7 +83,7 @@ public class AgentIdentityServiceImpl
       requestorAddress = ((NodeAgent)requestor).getAgentIdentifier();
     }
     else if (requestor instanceof AgentIdentityClient) {
-      requestorAddress = ((AgentIdentityClient)requestor).getName();
+      requestorAddress = new MessageAddress(((AgentIdentityClient)requestor).getName());
     }
     else {
       throw new RuntimeException ("Unable to service this requestor. Unsupported client:"
@@ -135,7 +136,7 @@ public class AgentIdentityServiceImpl
       completeTransfer(transferableIdentity);
     }
     else {
-      keyRing.checkOrMakeCert(requestorAddress.getAddress());
+      keyRing.checkOrMakeCert(requestorAddress.toAddress());
     }
   }
 
@@ -173,35 +174,34 @@ public class AgentIdentityServiceImpl
 
     /* Step 1 */
     if (CryptoDebug.debug) {
-      System.out.println("Initiating key transfer of " + requestorAddress.getAddress()
-			 + " from " + thisNodeAddress.getAddress()
-			 + " to " + targetNode.getAddress());
+      System.out.println("Initiating key transfer of " + requestorAddress.toAddress()
+			 + " from " + thisNodeAddress.toAddress()
+			 + " to " + targetNode.toAddress());
     }
-    SecureMethodParam policy;
-
-    policy = cps.getSendPolicy(thisNodeAddress.getAddress() + ":"
-			       + targetNode.getAddress());
+    SecureMethodParam policy =
+      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
+			  + targetNode.toAddress());
     if (policy == null) {
        throw new RuntimeException("Could not find message policy between "
-	+ thisNodeAddress.getAddress() + " and " + targetNode.getAddress());
+	+ thisNodeAddress.toAddress() + " and " + targetNode.toAddress());
     }     
 
     // Retrieve keys of the agent
-    List agentPrivKeyList = keyRing.findPrivateKey(requestorAddress.getAddress());
+    List agentPrivKeyList = keyRing.findPrivateKey(requestorAddress.toAddress());
 
     if (agentPrivKeyList.size() == 0) {
       throw new RuntimeException("Could not find private keys for "
-	+ requestorAddress.getAddress());
+	+ requestorAddress.toAddress());
     }
     PrivateKey[] privKey = new PrivateKey[agentPrivKeyList.size()];
     for (int i = 0 ; i < agentPrivKeyList.size() ; i++) {
       privKey[i] = ((PrivateKeyCert)(agentPrivKeyList.get(i))).getPrivateKey();
     }
 
-    List agentCertList = keyRing.findCert(requestorAddress.getAddress());
+    List agentCertList = keyRing.findCert(requestorAddress.toAddress());
     if (agentCertList.size() == 0) {
       throw new RuntimeException("Could not find certificates for "
-	+ requestorAddress.getAddress());
+	+ requestorAddress.toAddress());
     }
     X509Certificate[] cert = new X509Certificate[agentCertList.size()];
     for (int i = 0 ; i < agentCertList.size() ; i++) {
@@ -210,19 +210,20 @@ public class AgentIdentityServiceImpl
     
     KeySet keySet = new KeySet(privKey, cert);
 
-    PublicKeyEnvelope envelope =
-      encryptionService.signAndEncrypt(keySet,
-				       thisNodeAddress.getAddress(),
-				       targetNode.getAddress(),
-				       policy);
+    PublicKeyEnvelope envelope = (PublicKeyEnvelope)
+      encryptionService.protectObject(keySet,
+				      thisNodeAddress,
+				      targetNode,
+				      policy);
     KeyIdentity keyIdentity =
       new KeyIdentity(envelope.getSender(),
 		      envelope.getReceiver(),
+		      policy,
 		      envelope.getEncryptedSymmetricKey(),
-		      envelope.getEncryptedObject());
+		      envelope.getObject());
 
     /* Step 2 & 3 */
-    keyRing.removeEntry(requestorAddress.getAddress());
+    keyRing.removeEntry(requestorAddress.toAddress());
 
     return keyIdentity;
   }
@@ -267,13 +268,13 @@ public class AgentIdentityServiceImpl
     if (CryptoDebug.debug) {
       System.out.println("Completing key transfer from "
 			 + sender
-			 + " to " + thisNodeAddress.getAddress());
+			 + " to " + thisNodeAddress.toAddress());
     }
 
     SecureMethodParam policy =
       cps.getReceivePolicy(sender
 			   +":"
-			   +thisNodeAddress.getAddress());
+			   +thisNodeAddress.toAddress());
 
     KeySet keySet = null;
 
@@ -281,9 +282,9 @@ public class AgentIdentityServiceImpl
     if (CryptoDebug.debug) {
       System.out.println("Decrypting KeyIdentity");
     }
-    Object o = encryptionService.decryptAndVerify(sender,
-						  thisNodeAddress.getAddress(),
-						  keyIdentity, policy);
+    Object o = encryptionService.unprotectObject(new MessageAddress(sender),
+						 thisNodeAddress,
+						 keyIdentity, policy);
 
     if (CryptoDebug.debug) {
       System.out.println("Decrypted TransferableIdentity is " +

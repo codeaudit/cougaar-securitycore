@@ -24,48 +24,27 @@ package org.cougaar.core.security.crypto;
 
 import java.io.OutputStream;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.mts.MessageAttributes;
-import org.cougaar.core.mts.MessageAddress;
 
-// Cougaar security services
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.crypto.ProtectedObject;
-
-public class MessageOutputStream
+public class MessageCipherOutputStream
   extends ProtectedOutputStream
 {
   /** ProtectedOutputStream can read old attributes (check to see if it should
    *  write the signature. Note at this point the attributes were already sent)
    */
   private OutputStream outputStream;
-  private ByteArrayOutputStream dataOut;
-  private boolean isEndOfMessage;
-  private EncryptionService enc;
-  private CryptoPolicyService cps;
-  private MessageAddress source;
-  private MessageAddress target;
+  private CipherOutputStream cos;
+  private Cipher cipher;
 
-  private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
-
-  public MessageOutputStream(OutputStream stream,
-			     EncryptionService enc,
-			     CryptoPolicyService cps,
-			     MessageAddress source,
-			     MessageAddress target) {
+  public MessageCipherOutputStream(OutputStream stream, Cipher c) {
     super(stream);
     outputStream = stream;
-    isEndOfMessage = false;
-    dataOut = new ByteArrayOutputStream(DEFAULT_INIT_BUFFER_SIZE);
-    this.enc = enc;
-    this.cps = cps;
-    this.source = source;
-    this.target = target;
+    cos = new CipherOutputStream(outputStream, c);
   }
 
   /* ***********************************************************************************
@@ -74,58 +53,34 @@ public class MessageOutputStream
 
   public void write(byte[] b)
     throws IOException {
-    dataOut.write(b);
+    cos.write(b);
   }
 
   public void write(byte[] b, int off, int len)
     throws IOException {
-    dataOut.write(b, off, len);
+    cos.write(b, off, len);
   }
 
   public void write(int b)
     throws IOException {
-    dataOut.write(b);
+    cos.write(b);
   }
 
   public void flush()
     throws IOException {
-    throw new IOException("Buffered data cannot be flushed until end of message");
+    cos.flush();
   }
 
   public void close()
     throws IOException {
-    if (!isEndOfMessage) {
-      throw new IOException("Buffered data cannot be flushed until end of message");
-    }
+    cos.close();
   }
 
   /* ***********************************************************************************
    * ProtectedOutputStream implementation
    */
-
   public void finishOutput(MessageAttributes attributes)
     throws java.io.IOException {
-    ProtectedObject pm = protectMessage();
-    isEndOfMessage = true;
-
-    ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-    oos.writeObject(pm);
   }
 
-  private ProtectedObject protectMessage() {
-    SecureMethodParam policy =
-      cps.getSendPolicy(source.toAddress() + ":"
-			  + target.toAddress());
-    if (policy == null) {
-       throw new RuntimeException("Could not find message policy between "
-	+ source.toAddress() + " and " + target.toAddress());
-    }     
-
-    ProtectedObject protectedMessage =
-      enc.protectObject(dataOut.toByteArray(),
-			source,
-			target,
-			policy);
-    return protectedMessage;
-  }
 }

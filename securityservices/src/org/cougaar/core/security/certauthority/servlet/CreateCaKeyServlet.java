@@ -28,6 +28,7 @@ package org.cougaar.core.security.certauthority.servlet;
 
 import java.io.*;
 import java.util.*;
+import java.security.Principal;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
@@ -55,7 +56,6 @@ import org.cougaar.core.security.config.*;
 
 public class CreateCaKeyServlet
   extends  HttpServlet
-  implements AgentIdentityClient
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
@@ -75,10 +75,6 @@ public class CreateCaKeyServlet
     secprop = support.getSecurityProperties(this);
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-    agentIdentity = (AgentIdentityService)
-      support.getServiceBroker().getService(this,
-					    AgentIdentityService.class,
-					    null);
     keyRingService = (KeyRingService)
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,
@@ -138,8 +134,12 @@ public class CreateCaKeyServlet
     }
 
     X500Principal p = new X500Principal(caDN);
+    agentIdentity = (AgentIdentityService)
+      support.getServiceBroker().getService(new AgentIdentityClientImpl(p),
+					    AgentIdentityService.class,
+					    null);
     try {
-      agentIdentity.acquireX500Identity(p);
+      agentIdentity.acquire(null);
     }
     catch (Exception e) {
       out.println("Unable to generate CA key: " + e);
@@ -282,11 +282,21 @@ public class CreateCaKeyServlet
     return("Generate a CA key");
   }
 
-  // AgentIdentityClient implementation
-  public void identityRevoked(CrlReason reason) {
-  }
+  public class AgentIdentityClientImpl
+    implements AgentIdentityClient {
 
-  public MessageAddress getName() {
-    return support.getAgentIdentifier();
+    private Principal principal;
+
+    public AgentIdentityClientImpl(Principal p) {
+      principal = p;
+    }
+
+    // AgentIdentityClient implementation
+    public void identityRevoked(CrlReason reason) {
+    }
+
+    public String getName() {
+      return principal.getName();
+    }
   }
 }

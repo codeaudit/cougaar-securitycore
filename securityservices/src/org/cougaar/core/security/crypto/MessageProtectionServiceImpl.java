@@ -24,6 +24,12 @@ package org.cougaar.core.security.crypto;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.lang.ClassNotFoundException;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -122,8 +128,26 @@ public class MessageProtectionServiceImpl
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
 			      MessageAddress destination) {
-    byte [] header = null;
-    return header;
+
+    SecureMethodParam policy =
+      cps.getSendPolicy(source.getAddress() + ":"
+			+ destination.getAddress());
+    if (policy == null) {
+       throw new RuntimeException("Could not find message policy between "
+	+ source.getAddress() + " and " + destination.getAddress());
+    }     
+
+    ProtectedObject po =
+      encryptService.protectObject(rawData, source, destination, policy);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(po);
+    }
+    catch (IOException e) {
+    }
+    return baos.toByteArray();
   }
 
   /**
@@ -137,8 +161,30 @@ public class MessageProtectionServiceImpl
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
 				MessageAddress destination) {
-    byte [] header = null;
-    return header;
+    SecureMethodParam policy =
+      cps.getReceivePolicy(source.toAddress()
+			   +":"
+			   +destination.toAddress());
+    if (policy == null) {
+       throw new RuntimeException("Could not find message policy between "
+	+ source.getAddress() + " and " + destination.getAddress());
+    }     
+
+    ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
+    ProtectedObject po = null;
+    try {
+      ObjectInputStream ois = new ObjectInputStream(bais);
+      po = (ProtectedObject) ois.readObject();
+    }
+    catch (IOException e) {
+    }
+    catch (ClassNotFoundException e) {
+    }
+
+    Object o =
+      encryptService.unprotectObject(source, destination, po, policy);
+
+    return (byte[])o;
   }
 
   /** 
@@ -170,7 +216,8 @@ public class MessageProtectionServiceImpl
 					       MessageAddress source,
 					       MessageAddress destination,
 					       MessageAttributes attrs) {
-    ProtectedOutputStream pos = null;
+    MessageOutputStream pos =
+      new MessageOutputStream(os, encryptService, cps, source, destination);
     return pos;
   }
 
@@ -199,11 +246,12 @@ public class MessageProtectionServiceImpl
    * @return A filter intput stream
    */
   public ProtectedInputStream getInputStream(InputStream is,
-					     MessageAddress src,
-					     MessageAddress dst,
+					     MessageAddress source,
+					     MessageAddress destination,
 					     MessageAttributes attrs) {
-    ProtectedInputStream pos = null;
-    return pos;
-  }
 
+    MessageInputStream pis =
+      new MessageInputStream(is, encryptService, cps, source, destination);
+    return pis;
+  }
 }
