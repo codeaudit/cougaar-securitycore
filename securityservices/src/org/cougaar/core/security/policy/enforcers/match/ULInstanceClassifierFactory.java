@@ -211,15 +211,15 @@ public class ULInstanceClassifierFactory
             _log.debug("Taking a look at the RoleExecutionContext - "
                        + "looking at short role name " + shortRoleName);
           }
-          String damlRoleName 
-            = EntityInstancesConcepts.EntityInstancesOwlURL() + shortRoleName 
-            + "Role";
+          String damlRoleName = ULOntologyNames.pluginsInRoleClassPrefix + shortRoleName;
 
           if (_log.isDebugEnabled()) {
             _log.debug("damlRoleName = " + damlRoleName);
           }
           RoleExecutionContext rec = (RoleExecutionContext) instance;
-          return rec.hasComponentRole(damlRoleName);
+          return rec.hasComponentRole(damlRoleName) 
+            || rec.hasAgentRole(damlRoleName)
+            || rec.hasUserRole(damlRoleName);
         } else { 
           if (_log.isDebugEnabled()) {
             _log.debug("But the instance is not a plugin");
