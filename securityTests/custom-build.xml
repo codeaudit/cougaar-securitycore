@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="Cougaar security tests custom build">
+
+    <target name="custom-install-conf" id="custom.install">
+       <copy todir="staging/csmart/lib/security">
+         <fileset dir="security"/>
+       </copy>
+    </target>
+
+    <target name="custom-compile" id="custom.compile">
+      <!-- Do nothing. There is nothing to compile here. -->
+    </target>
+
+    <target name="custom-jar" id="custom.jar">
+      <!-- Do nothing. There is nothing to compile here. -->
+    </target>
+ 
+</project>
+  
