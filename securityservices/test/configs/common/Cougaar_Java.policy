@@ -285,6 +285,7 @@ grant signedBy "privileged" {
         permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.transport";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.io";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.util";
         //permission java.lang.RuntimePermission "getClassLoader";
 	//permission java.lang.RuntimePermission "createClassLoader";
 
