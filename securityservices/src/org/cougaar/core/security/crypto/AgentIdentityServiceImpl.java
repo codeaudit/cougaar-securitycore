@@ -78,15 +78,25 @@ public class AgentIdentityServiceImpl
       clientNameIsPrincipal = false;
       this.requestor = requestor;
 
+      // cougaar 11.2 has changed to use AgentIdentityClient as requestor
+/*
       if (requestor instanceof SimpleAgent) {
         requestorAddress = ((SimpleAgent)requestor).getAgentIdentifier();
       }
       else if (requestor instanceof NodeAgent) {
         requestorAddress = ((NodeAgent)requestor).getAgentIdentifier();
       }
-      else if (requestor instanceof AgentIdentityClient) {
-        requestorAddress = MessageAddress.getMessageAddress(((AgentIdentityClient)requestor).getName());
+      else */if (requestor instanceof AgentIdentityClient) {
+        String identity = ((AgentIdentityClient)requestor).getName();
+        requestorAddress = MessageAddress.getMessageAddress(identity);
+//        requestorAddress = MessageAddress.getMessageAddress(((AgentIdentityClient)requestor).getName());
+        
         clientNameIsPrincipal = true;
+        // check to make sure whether it is X500Name
+        if (identity.indexOf(',') == -1) {
+          clientNameIsPrincipal = false;
+        }
+       
       }
       else {
         throw new RuntimeException ("Unable to service this requestor. Unsupported client:"
