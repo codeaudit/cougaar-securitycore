@@ -55,6 +55,12 @@ import org.apache.catalina.Response;
  * Remember that the primary authentication is always CERT, so don't use that.
  *
  * @author George Mount <gmount@nai.com>
+ *
+ * @property org.cougaar.lib.web.tomcat.auth.class
+ *   classname for authenticator.
+ * @property org.cougaar.lib.web.tomcat.enableAuth
+ *   enable default authenticator class if the classname property
+ *   is not specified.
  */
 public class AuthValve implements Valve, Contained {
 

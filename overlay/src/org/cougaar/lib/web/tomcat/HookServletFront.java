@@ -47,15 +47,22 @@ import javax.servlet.ServletResponse;
  * <p>
  * a privileged action under the principal of the user
  * who has logged in.
+ *
+ * @property org.cougaar.lib.web.tomcat.auth.class
+ *   classname for hook servlet override class.
+ * @property org.cougaar.lib.web.tomcat.enableAuth
+ *   enable default hook class if the classname property
+ *   is not specified.
  */
 public class HookServletFront implements Servlet {
+
   private static final String PROP_ENABLE = 
     "org.cougaar.lib.web.tomcat.enableAuth";
   private static final String PROP_CLASS = 
     "org.cougaar.lib.web.tomcat.hookservlet.class";
-
   private static final String DEFAULT_SECURE =
     "org.cougaar.core.security.acl.auth.SecureHookServlet";
+
   private Servlet _hookServlet = null;
   
   /**
