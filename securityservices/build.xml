@@ -225,7 +225,7 @@
     <target name="jar-java-util" depends="build-java-util">
         <jar jarfile="${securityservices.classes}/javautil.jar">
             <fileset dir="${securityservices.classes}"
-                includes="java/util/**"/>
+                includes="java/util/**/*.class"/>
             <manifest>
               <attribute name="Built-By" value="${user.name}"/>
               <attribute name="Class-Path" value="/"/>
