@@ -65,8 +65,9 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
     if (_default == null) {
       if (_sslcontext == null) {
-        System.out.println("SSLContext is NULL!");
-        return null;
+        //System.out.println("SSLContext is NULL!");
+        //return null;
+        throw new RuntimeException("SSL context is null!");
       }
       _default = new KeyRingSSLServerFactory();
     }

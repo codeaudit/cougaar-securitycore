@@ -67,8 +67,8 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public synchronized static SocketFactory getDefault() {
     if (_default == null) {
       if (_ctx == null) {
-        System.out.println("Context is null!!!!");
-        return null;
+        //System.out.println("Context is null!!!!");
+        throw new RuntimeException("null SSL Context!");
       }
       _default = new KeyRingSSLFactory();
     }
@@ -166,7 +166,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
     if (_ctx == null)
       _ctx = ctx;
     else {
-      System.out.println("SSLContext is already set!");
+      //System.out.println("SSLContext is already set!");
       return;
     }
   }
