@@ -196,7 +196,15 @@ class UserDomain
     else
       allowed = 'denied'
     end
-    msg = "#{success}: Authentication #{allowed} with #{user}, #{password} to servlet #{servlet} (RETCODE=#{code})"
+    if authentication=="Basic"
+      msg = "#{success}: Authentication #{allowed} with #{user}, #{password} to servlet #{servlet} (RETCODE=#{code})"
+    else 
+      if password == false
+        msg = "#{success}: Authentication #{allowed} with invalid Certificate for user #{user} to servlet #{servlet} (RETCODE=#{code})"
+      else
+         msg = "#{success}: Authentication #{allowed} with valid Certificate for user #{user}  to servlet #{servlet} (RETCODE=#{code})"
+      end
+    end
     return successBoolean, code, expectedResult, useCase, msg, body
 
   end
@@ -237,7 +245,7 @@ class UserDomain
     expectedResult = 0
     count.times do |counter|
       successBoolean, actualResult, expectedResult, useCase, msg, body = accessServletAux(test)
-      mop.logins << msg
+      #mop.logins << msg
       next if [492,493,494].member?(actualResult)
       result = false unless successBoolean
       #mop.numAccessAttempts += 1
@@ -337,9 +345,9 @@ class UserDomains
 
   def ensureUserDomains
     # this only needs to be performed once.
-    #puts " ensureUserDomains called from UserDomain"
+    puts " ensureUserDomains called from UserDomain"
     return nil if @userAdminHasBeenSet
-    #puts " ensureUserDomains userAdminHasBeenSet "
+    puts " ensureUserDomains userAdminHasBeenSet "
     @userAdminHasBeenSet = true
     getUserCommunities.each do |community|
       puts " ensureUserDomains looping through each community "
@@ -350,7 +358,7 @@ class UserDomains
       # this walks through the agents/nodes of this community
       community.each do |entity|
         agent = run.society.entity(entity.name)
-        #	 puts "member agent: #{agent}, #{entity.name}"
+       	 puts "member agent: #{agent}, #{entity.name}"
         members << agent
         # check if this is the userAdmin agent for this community
         entity.each_role do |role|
