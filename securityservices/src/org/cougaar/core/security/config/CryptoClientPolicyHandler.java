@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.config;
@@ -47,6 +47,7 @@ public class CryptoClientPolicyHandler
   private CertificateAttributesPolicy currentCertAttr;
 
   private static final String IS_CERT_AUTH_ELEMENT = "isCertificateAuthority";
+  private static final String IS_ROOT_CA_ELEMENT = "isRootCA";
   private static final String CA_KEYSTORE_ELEMENT          = "CA_keystore";
   private static final String CA_KEYSTORE_PASSWORD_ELEMENT = "CA_keystorePassword";
 
@@ -109,7 +110,7 @@ public class CryptoClientPolicyHandler
     }
 
   }
- 
+
   public void endElement( String namespaceURI,
 			  String localName,
 			  String qName )
@@ -173,7 +174,7 @@ public class CryptoClientPolicyHandler
     if (localName.equals(CERT_DIRECTORY_TYPE_ELEMENT)) {
       String type = getContents();
       if (type.equalsIgnoreCase("NetTools")) {
-	currentTrustedCa.certDirectoryType = TrustedCaPolicy.NETTOOLS; 
+	currentTrustedCa.certDirectoryType = TrustedCaPolicy.NETTOOLS;
       }
       else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
 	currentTrustedCa.certDirectoryType = TrustedCaPolicy.COUGAAR_OPENLDAP;
@@ -216,6 +217,24 @@ public class CryptoClientPolicyHandler
 	currentCertAttr.nodeIsSigner = true;
       }
     }
+
+    if (localName.equals(IS_ROOT_CA_ELEMENT)) {
+      String st_value = getContents();
+      boolean value = false;
+      if (st_value.equalsIgnoreCase("true")) {
+	value = true;
+      }
+      if (CryptoDebug.debug) {
+	if (value) {
+	  System.out.println("Running as Root Certificate Authority");
+	}
+	else {
+	  System.out.println("Running as a delegate Certificate Authority");
+	}
+      }
+      cryptoClientPolicy.setIsRootCA(value);
+    }
+
     if (localName.equals(VALIDITY_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
       duration.parse(getContents());
@@ -224,4 +243,4 @@ public class CryptoClientPolicyHandler
   }
 
 }
- 
+
