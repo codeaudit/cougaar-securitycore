@@ -40,11 +40,12 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 
 import com.ibm.security.pkcs12.PKCS12PFX;
+import com.ibm.security.pkcs8.PrivateKeyInfo;
 import com.ibm.security.pkcsutil.PKCSException;
 
 public class PrivateKeyPKCS12
 {
-  private static boolean debug = true;
+  private static boolean debug = false;
   private DirectoryKeyStore directory = null;
 
   public PrivateKeyPKCS12(DirectoryKeyStore aDirectory)
@@ -96,11 +97,35 @@ public class PrivateKeyPKCS12
      /*
       * Add the personal information. Data privacy will be ensured through 
       * public-key protection.  
+      * A piece of private information (represented by an input object)
+      * is added to the PFX. The information will be protected with
+      * public-key privacy.
       */
     try {
+      if (debug) {
+	System.out.println("Adding certificate to the PFX");
+      }
       pfx.addBagWithPubkeyPrivacy(cert, null, rcvrCerts);
+
+      if (debug) {
+	System.out.println("Adding signer certificate to the PFX");
+      }
       pfx.addBagWithPubkeyPrivacy(signerCert, null, rcvrCerts);
-      pfx.addBagWithPubkeyPrivacy(privKey, null, rcvrCerts);
+
+      if (debug) {
+	System.out.println("Adding private key to the PFX");
+      }
+      try {
+	com.ibm.security.x509.AlgorithmId algid =
+	  com.ibm.security.x509.AlgorithmId.get(privKey.getAlgorithm());
+	PrivateKeyInfo pkinfo = new PrivateKeyInfo(algid, privKey.getEncoded(), null);
+	pfx.addBagWithPubkeyPrivacy(pkinfo, null, rcvrCerts);
+      } catch (java.security.NoSuchAlgorithmException ex) {
+	if (debug) {
+	  System.out.println("Error: " + ex);
+	}
+	return null;
+      }
     } catch (PKCSException e) {
       if (debug) {
 	System.out.println("Error adding data to the PFX.");
@@ -118,6 +143,9 @@ public class PrivateKeyPKCS12
      * verify the signature.
      */
     try {
+      if (debug) {
+	System.out.println("Adding clear-text signer certificate to the PFX");
+      }
       pfx.addBag(signerCert, null);
     } catch (PKCSException e) {
       if (debug) {
@@ -133,7 +161,6 @@ public class PrivateKeyPKCS12
       }
       return null;
     }
-
     /* 
      * Ensure data integrity by applying a digital signature to the PFX.  
      * Specify a digest and encryption algorithm for the signature, as well
@@ -203,6 +230,9 @@ public class PrivateKeyPKCS12
      * key mode was used to protect data privacy and ensure data integrity. 
      */
     try {
+      if (debug) {
+	System.out.println("Creating PKCS12 envelope from DER encoded value");
+      }
       pfx = new PKCS12PFX(pfxBytes);
     } catch (IOException e) {
       if (debug) {
@@ -234,6 +264,11 @@ public class PrivateKeyPKCS12
 	return keypairs;
       }
     }
+    if(debug) {
+      System.out.println("The PKCS12 envelope contains "
+			 + ((signerCerts != null) ? signerCerts.length : 0)
+			 + " unprotected certificates");
+    }
     if (signerCerts == null || signerCerts.length != 1) {
       if (debug) {
 	System.out.println("Unable to retrieve signer certificate");
@@ -245,7 +280,8 @@ public class PrivateKeyPKCS12
     /* Check the trust of the signer certificate.
      */
     if (debug) {
-      System.out.println("Checking signer certificate trust");
+      System.out.println("Checking signer certificate trust for "
+			 + signerCert.toString());
     }
     X509Certificate[] signerCertChain = null;
     try {
@@ -254,7 +290,7 @@ public class PrivateKeyPKCS12
     }
     catch (Exception e) {
       if (debug) {
-	System.out.println("Warning: Signer Certificate is not trusted");
+	System.out.println("Warning: Signer Certificate is not trusted" + e);
       }
       return keypairs;
     }
@@ -326,6 +362,10 @@ public class PrivateKeyPKCS12
       } else {
 	if (debug) {
 	  System.out.println("Got " + certs.length + " certificates");
+	  for (int i = 0 ; i < certs.length ; i++) {
+	    System.out.println("Certificate[" + i + "]="
+			       + certs[i]);
+	  }
 	}
       }
     } catch (PKCSException e) {
@@ -376,12 +416,16 @@ public class PrivateKeyPKCS12
       }
       return keypairs;
     }
+
+    /*
     if (keys.length != certs.length) {
       if (debug) {
 	System.out.println("Error: Number of certs does not match number of private keys");
       }
       return keypairs;
     }
+    */
+
     keypairs = new PrivateKeyCert[keys.length];
     for (int i = 0 ; i < keys.length ; i++) {
       /* Check the trust of each certificate.
@@ -414,6 +458,9 @@ public class PrivateKeyPKCS12
 			      CertificateType.CERT_TYPE_END_ENTITY,
 			      CertificateTrust.CERT_TRUST_CA_SIGNED,
 			      null);
+      if (debug) {
+        System.out.println("Private key in PKCS#12 envelope is trusted");
+      }
       keypairs[i] = new PrivateKeyCert(keys[i], cs);
     }
     return keypairs;
@@ -426,68 +473,71 @@ public class PrivateKeyPKCS12
      * args[1] : alias of key to put in PKCS#12
      * args[2] : alias of receiver
      */
-    PrivateKeyPKCS12 m = new PrivateKeyPKCS12(null);
 
     String signerAlias = args[0];
     String pkcs12Alias = args[1];
     String receiverAlias = args[2];
 
     if (debug) {
-      System.out.println("================================= Looking up key for sender node");
+      System.out.println("========= Looking up key for sender node");
     }
     PrivateKey signerPrivKey = KeyRing.findPrivateKey(signerAlias);
     if (debug) {
-      System.out.println("================================= Looking up certificate for sender node");
+      System.out.println("========= Looking up certificate for sender node");
     }
     X509Certificate signerCertificate =
       (X509Certificate)KeyRing.findCert(signerAlias);
 
     if (debug) {
-      System.out.println("================================= Looking up key for agent");
+      System.out.println("======== Looking up agent's key to be wrapped");
     }
     PrivateKey privKey = KeyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
       (X509Certificate)KeyRing.findCert(pkcs12Alias);
 
     if (debug) {
-      System.out.println("================================= Looking up key for receiver node");
+      System.out.println("======== Looking up key for receiver node");
     }
     PrivateKey rcvrPrivKey = KeyRing.findPrivateKey(receiverAlias);
     X509Certificate rcvrCert =
       (X509Certificate)KeyRing.findCert(receiverAlias);
 
-    if (debug) {
-      System.out.println("================================= Encryption parameters:");
+    java.security.PublicKey pubKey = rcvrCert.getPublicKey();
+    String alg = rcvrCert.getPublicKey().getAlgorithm();
 
-      java.security.PublicKey pubKey = rcvrCert.getPublicKey();
-      String alg = rcvrCert.getPublicKey().getAlgorithm();
-      System.out.println(alg);
-      try {
-	javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(alg);
-	cipher.init(1, pubKey);
-	cipher.doFinal(privKey.getEncoded());
-      }
-      catch(Exception e) {
+    if (debug) {
+      System.out.println("Encryption parameters: " + alg);
+    }
+    if (debug) {
+      System.out.println("======== Wrapping agent's key:");
+    }
+    try {
+      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(alg);
+      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, pubKey);
+      cipher.doFinal(privKey.getEncoded());
+    }
+    catch(Exception e) {
+      if (debug) {
 	System.out.println("Key encryption error (" + e.toString() + ")");
 	e.printStackTrace();
       }
     }
 
     if (debug) {
-      System.out.println("================================= Creating PKCS#12 envelope");
+      System.out.println("======== Creating PKCS#12 envelope");
     }
-    byte[] pkcs12 = m.protectPrivateKey(privKey,
-					cert,
-					signerPrivKey,
-					signerCertificate,
-					rcvrCert);
+    byte[] pkcs12 = KeyRing.protectPrivateKey(privKey,
+					      cert,
+					      signerPrivKey,
+					      signerCertificate,
+					      rcvrCert);
 
     if (debug) {
-      System.out.println("================================= Extracting PKCS#12 envelope");
+      System.out.println("======== Extracting PKCS#12 envelope");
     }
-    PrivateKeyCert[] pkey = m.getPfx(pkcs12,
-				     rcvrPrivKey,
-				     rcvrCert);
+    PrivateKeyCert[] pkey = KeyRing.getPfx(pkcs12,
+					   rcvrPrivKey,
+					   rcvrCert);
   }
 
 }
