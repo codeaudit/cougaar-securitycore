@@ -20,6 +20,9 @@ find src test ./Makefile* -exec sarep 'com/nai/security/bootstrap' 'org/cougaar/
 find src test ./Makefile* -exec sarep 'com/nai/security/monitoring' 'org/cougaar/core/security/oldmonitoring' {} \;
 find src test ./Makefile* -exec sarep 'com/nai/security' 'org/cougaar/core/security' {} \;
 
+# update Makefiles
+sarep -m '*/bootstrap' '*/*bootstrap' Makefile*
+
 echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
 # Remove 'CVS' directory under src/com
@@ -28,12 +31,17 @@ find src/org/cougaar/core/security/securebootstrap/ -depth -name CVS -type d -ex
 
 # Move bootstrap directory to securebootstrap
 mv -f src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
+
 # Move monitoring directory to oldmonitoring
 mv -f src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitoring
+
 # Move crypto directory to crypto
-mv -f src/com/nai/security/crypto/* src/org/cougaar/core/security/crypto
+mv src/com/nai/security/crypto/ldap src/org/cougaar/core/security/crypto/ldap
+mv src/com/nai/security/crypto/*.java src/org/cougaar/core/security/crypto
+
 # Move policy directory to policy
-mv -f src/com/nai/security/policy/* src/org/cougaar/core/security/policy
+mv src/com/nai/security/policy/*.java src/org/cougaar/core/security/policy
+
 # Move com directory to org directory
 mv -f src/com/nai/security/* src/org/cougaar/core/security
 
