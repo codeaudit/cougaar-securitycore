@@ -36,6 +36,14 @@ import java.io.IOException;
 
 public interface SSLService extends Service {
   /**
+   * Notify SSLService to update certficates from keystore
+   * Initially Node has no certificate, once Node obtains
+   * certificate should notify SSLService. Otherwise SSL
+   * communication will be disabled.
+   */
+  public void updateKeystore();
+
+  /**
    * The RMISocketFactory subclasses should use the
    * SSL factories instantiated from this service,
    * instead of using the default JSSE implementation.
@@ -47,8 +55,6 @@ public interface SSLService extends Service {
    * instantiated here.
    */
    /*
-	These classes are static
-
   public ServerSocketFactory getServerSocketFactory();
 
   public SocketFactory getSocketFactory();
