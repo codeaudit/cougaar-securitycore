@@ -103,7 +103,7 @@ out.println("</body></html>");
         {
                 StringBuffer sb=new StringBuffer();
                 LdapEntry ldapentry=null;
-                sb.append("<table align=\"center\" boder=\"2\">\n");
+                sb.append("<table align=\"center\" border=\"2\">\n");
                 sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
@@ -121,7 +121,7 @@ out.println("</body></html>");
         {
                 StringBuffer sb=new StringBuffer();
                 LdapEntry ldapentry=null;
-                sb.append("<table align=\"center\" boder=\"2\">\n");
+                sb.append("<table align=\"center\" border=\"2\">\n");
                 sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
