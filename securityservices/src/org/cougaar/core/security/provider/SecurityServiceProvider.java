@@ -37,7 +37,7 @@ import org.cougaar.core.logging.LoggingControlService;
 import org.cougaar.core.logging.LoggingServiceProvider;
 import org.cougaar.core.node.NodeControlService;
 import org.cougaar.core.security.policy.dynamic.DynamicPolicy;
-import org.cougaar.core.security.services.acl.AccessControlPolicyService;
+import org.cougaar.core.security.policy.mediator.XmlPolicyMediator;
 import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
@@ -348,6 +348,7 @@ public class SecurityServiceProvider
       newSP = new PolicyBootstrapperServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(PolicyBootstrapperService.class, newSP);
       rootServiceBroker.addService(PolicyBootstrapperService.class, newSP);
+/*
 
       if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {
 	newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
@@ -355,7 +356,7 @@ public class SecurityServiceProvider
 	rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
       }
 
-      newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+  */    newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(CryptoPolicyService.class, newSP);
       rootServiceBroker.addService(CryptoPolicyService.class, newSP);
 
