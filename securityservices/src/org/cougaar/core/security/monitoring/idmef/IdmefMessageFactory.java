@@ -1419,7 +1419,25 @@ final public class IdmefMessageFactory {
   public Agent getAgentInfo(){
     return m_agent;
   }
-    
+  
+  /** 
+   * Get the Process object that this message factory belongs to
+   *
+   * @return an IDMEF_Process object
+   */
+  public IDMEF_Process getProcessInfo(){
+    return m_process;
+  }
+  
+  /** 
+   * Get the Node object that this message factory belongs to
+   *
+   * @return an IDMEF_Node object
+   */
+  public IDMEF_Node getNodeInfo(){
+    return m_node;
+  }
+  
   /**
    * Factory method to create a unique id from the UIDServer
    *
