@@ -1153,7 +1153,7 @@ try {
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("Search key in local hash table:" + commonName
+      log.debug("Search key in local hash table:" + x500name
 		+ " - found " +	(certList == null ? 0 : certList.size())
 		+ " keys");
     }
@@ -1247,9 +1247,19 @@ try {
   }
 
   /**
-   * @return a Hashtable mapping String (CNAME) to Certificate
+   * @return a Hashtable mapping String (CNAME) to CertificateStatus
    */
   public Hashtable findCertPairFromNS(String source, String target)
+    throws CertificateException, IOException  {
+    Hashtable certTable = findCertStatusPairFromNS(source, target);
+    CertificateStatus srcStatus = (CertificateStatus)certTable.get(source);
+    CertificateStatus tgtStatus = (CertificateStatus)certTable.get(target);
+    certTable.put(source, srcStatus.getCertificate());
+    certTable.put(target, tgtStatus.getCertificate());
+    return certTable;
+  }
+
+  public Hashtable findCertStatusPairFromNS(String source, String target)
     throws CertificateException, IOException  {
 
     // check whether agent has started yet, this fixes the problem where
@@ -1307,18 +1317,18 @@ try {
 
     CertificateStatus cs = findOrRefreshCert(source);
     if (cs != null) {
-      certTable.put(source, cs.getCertificate());
+      certTable.put(source, cs);
     }
 
     // if source and target is the same no need to redo the whole thing
     if (!source.equals(target) || cs == null) {
       cs = findOrRefreshCert(target);
       if (cs != null) {
-        certTable.put(target, cs.getCertificate());
+        certTable.put(target, cs);
       }
     }
     else {
-      certTable.put(target, cs.getCertificate());
+      certTable.put(target, cs);
     }
 
     /*
