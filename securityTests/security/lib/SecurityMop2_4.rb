@@ -164,9 +164,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
           saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
         end
       rescue Exception => e
-        puts "error in 2.4 calculate "
-        puts "#{e.class}: #{e.message}"
-        puts e.backtrace.join("\n")
+        logInfoMsg "error in 2.4 calculate "
+        logInfoMsg "#{e.class}: #{e.message}"
+        logInfoMsg e.backtrace.join("\n")
       end
     }
   end
@@ -357,9 +357,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
       rescue Exception => e
-        puts "error in perform"
-        puts "#{e.class}: #{e.message}"
-        puts e.backtrace.join("\n")
+        logInfoMsg "error in perform"
+        logInfoMsg "#{e.class}: #{e.message}"
+        logInfoMsg e.backtrace.join("\n")
       end
     }
   end
@@ -540,9 +540,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
             logInfoMsg "$                 numAccessesCorrect            #{@numAccessesCorrect}                                                   "
           end
         rescue Exception => e
-          puts "error in runTests"
-          puts "#{e.class}: #{e.message}"
-          puts  e.backtrace.join("\n")
+          logInfoMsg "error in runTests"
+          logInfoMsg "#{e.class}: #{e.message}"
+          logInfoMsg  e.backtrace.join("\n")
         end
       end # testSet.each
     end # tests.each
@@ -575,9 +575,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
        testCollection[@conusDomain] =getpolicyCertTest
        return testCollection
      rescue Exception => e
-       puts "error in SecurityMop2_4.getCertPolicyTests"
-       puts "#{e.class}: #{e.message}"
-       puts e.backtrace.join("\n")
+       logInfoMsg "error in SecurityMop2_4.getCertPolicyTests"
+       logInfoMsg "#{e.class}: #{e.message}"
+       logInfoMsg e.backtrace.join("\n")
      end
        
   end
@@ -626,9 +626,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
         return testCollection
       end 
     rescue Exception => e
-      puts "error in SecurityMop2_4.getTests"
-      puts "#{e.class}: #{e.message}"
-      puts e.backtrace.join("\n")
+      logInfoMsg "error in SecurityMop2_4.getTests"
+      logInfoMsg "#{e.class}: #{e.message}"
+      logInfoMsg e.backtrace.join("\n")
     end
     #return testCollection
   end # def getTests

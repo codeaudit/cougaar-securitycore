@@ -24,9 +24,9 @@ class Security1a < SecurityStressFramework
       setup
 
       # -----------------------------------------------      
-      puts "getting user mbarger"
+      #logInfoMsg "getting user mbarger"
       mbarger = @userDomain.getUser("mbarger")
-      puts mbarger
+      #logInfoMsg mbarger
 
       mbargerRoles = ['PolicyAdministrator', 'Logistician', 'UserManager', 'CAAdministrator', 'SocietyAdmin', 'LogisticsViewer', 'MonitorManager']
       mbargerRoles = mbargerRoles.collect {|r| 'ConusUserDomainComm\\'+r}
@@ -45,7 +45,7 @@ class Security1a < SecurityStressFramework
 
 
       # -----------------------------------------------      
-      puts "recreating users"
+      #logInfoMsg "recreating users"
       userSet = %w(BogusUser BadUser ALogistician CertUser CertAndPassUser DisabledLogistician DeletedLogistician FwdPolicyUser)
 
       unless false  #$WasRunning
@@ -54,13 +54,13 @@ class Security1a < SecurityStressFramework
         @userDomain.deleteUser('DeletedLogistician')
       end
 
-      puts "done recreating users"
+      #logInfoMsg "done recreating users"
       sleep 2.minutes unless $WasRunning
 
       # -----------------------------------------------
       allUsers = @userDomain.users
       allRoles = @userDomain.roles
-puts "allRoles = #{allRoles.inspect}"
+#logInfoMsg "allRoles = #{allRoles.inspect}"
       expectedUsers = userSet - ["DeletedLogistician"] + ["mbarger","george","sally"]
       expectedUsers = expectedUsers.collect {|u| 'ConusUserDomainComm\\'+u}
       missingUsers = expectedUsers - allUsers
@@ -215,13 +215,13 @@ puts "allRoles = #{allRoles.inspect}"
          idmefPattern=test[7]
          idmefUseCase=test[8]
          type=test[0]
-         puts "Accessing #{servlet} at #{agent} with '#{user}/#{password}' - Type: #{type}"
+         #logInfoMsg "Accessing #{servlet} at #{agent} with '#{user}/#{password}' - Type: #{type}"
          pattern = /#{agent.host.name}.*#{servlet}.*#{idmefPattern}/
          searchForLoginFailure(pattern) if idmefPattern
          accessSuccess = @userDomain.accessServlet(test)
          if idmefPattern
            suc = waitForLoginFailure(15)
-           puts "waitsuccess = #{suc}"
+           #logInfoMsg "waitsuccess = #{suc}"
            if suc
              saveResult(suc, idmefUseCase, "IDMEF was sent")
            else

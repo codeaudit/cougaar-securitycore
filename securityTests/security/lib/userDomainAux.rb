@@ -211,8 +211,7 @@ class UserDomain
     rescue Exception => e
       msg = "Error #{e.class}, #{e.message}, while retrieving user #{userName}"
       logInfoMsg msg
-      puts msg
-      puts e.backtrace.join("\n")
+      logInfoMsg e.backtrace.join("\n")
       u = UserClass.premadeUser(userName)
       u= UserClass.new(userName, userName, "EITHER", userName, userName,
                        ['Logistician', 'PolicyAdministration'])
@@ -300,7 +299,7 @@ class UserDomain
         recreateUser(user)
       rescue Exception => e
         logInfoMsg "Error while recreating user #{user}: #{e.class} #{e.message}"
-        puts e.backtrace.join("\n")
+        logInfoMsg e.backtrace.join("\n")
       end
     end
   end
@@ -351,7 +350,7 @@ class UserDomain
   end
 
   def disableUser(user)
-    puts user
+    saveAssertion "SecurityMop2.1", "Disable User: #{user}"
     user = getUser(user) if user.kind_of?(String)
     user.disable
     updateUser(user)

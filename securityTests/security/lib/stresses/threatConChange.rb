@@ -290,7 +290,7 @@ def waitForPolicyUpdate
   if ((totalWaitTime >= maxTime) && (@policyUpdated == false) )
     saveAssertion("Stress1e2", "Timeout Didn't Receive Policy update")
   elsif (@policyUpdated == true)
-    logInfoMsg "Received Policy Update "
+    #logInfoMsg "Received Policy Update "
     saveAssertion("Stress1e2", "Received policy update")
   end
 end 
@@ -299,7 +299,7 @@ end
 
 def waitForHIGH
   # wait for the THREATCON_LEVEL HIGH event
-  logInfoMsg "Waiting for: THREATCON_LEVEL HIGH"
+  saveAssertion("Stress1e1", "Waiting for: THREATCON_LEVEL HIGH")
   count = 0
   while @enteredHIGH == false && count < 10
     sleep(10)

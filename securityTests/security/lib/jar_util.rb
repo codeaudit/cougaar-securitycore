@@ -130,14 +130,14 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
 #  puts "========================"
   if targetFile != nil
 #    puts "found file: #{targetFile}"
-    `cd #{jarDir} && jar xf #{jarFile} #{targetFile}`
+    `cd #{jarDir} && jar xf #{jarFile} #{targetFile} 2&>1`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
   end
   option = "uf"
   if (keepManifest)
-    `cd #{jarDir} && jar xf #{jarFile} META-INF/MANIFEST.MF`
+    `cd #{jarDir} && jar xf #{jarFile} META-INF/MANIFEST.MF 2&>1`
 #    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
     option = "umf #{jarDir}/META-INF/MANIFEST.MF"
   end
