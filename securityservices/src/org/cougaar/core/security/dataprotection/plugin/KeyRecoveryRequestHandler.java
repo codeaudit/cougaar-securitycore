@@ -61,7 +61,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -152,8 +152,8 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
       if (log.isWarnEnabled()) {
         log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
       }
-      
-      return;
+      //TODO : Put this back
+     // return;
     }
 
     X509Certificate[] originalCertChain = keyImpl.getCertificateChain();
