@@ -3,7 +3,7 @@ DATASET=ARGV[0]
 
 sendMap = Hash.new
 
-regexp = /MessageReaderAspect - Interception: message :(.*): -> : (.*): type/
+regexp = /MessageReaderAspect - Interception: message :(.*) : -> : (.*): type/
 
 File.open(File.join(DATASET,"Sending.rb"), "w+") do |sending|
   sending.puts("$messages = []")

@@ -1,4 +1,6 @@
-CIP = ENV['CIP']
+if ! defined? CIP then
+  CIP = ENV['CIP']
+end
 
 $:.unshift File.join(CIP, 'csmart', 'lib')
 
@@ -6,7 +8,6 @@ require 'cougaar/scripting'
 require 'ultralog/scripting'
 require 'security/scripts/setup_scripting'
 require 'security/lib/common_security_rules'
-require "Sending.rb"
 require "mysql.o"
 
 Cougaar::ExperimentMonitor.enable_stdout
@@ -19,10 +20,10 @@ include Cougaar
 class CommPolicy
 
   def initialize(run)
-    @dbUser                = "ultralog"
+    @dbUser                = "society_config"
     @dbHost                = "localhost"
-    @dbPassword            = "Ultra*Log"
-    @db                    = "cougaar11_2"
+    @dbPassword            = "s0c0nfig"
+    @db                    = "cougaar104"
     @mysql                 = Mysql.connect(@dbHost, 
                                            @dbUser,
                                            @dbPassword, 
@@ -214,11 +215,18 @@ class CommPolicy
     end
   end
 
+  def getNodes()
+    nodes = []
+    @run.society.each_node do |node|
+      nodes.push(node.name)
+    end
+    nodes
+  end
 
   def getAgents()
     agents = []
-    @run.society.each_agent do |agent|
-      agents.push(agent)
+    @run.society.each_agent(true) do |agent|
+      agents.push(agent.name)
     end
     agents
   end
@@ -273,10 +281,12 @@ class CommPolicy
       debug "working on community #{community.name}"
       specialMembers = getSpecialCommunityAgentsRecursive(community)
       debug "special members = #{specialMembers.join(", ")}"
-      getCommunityEnclaves(community).each do |enclave|
-        permit(getEnclaveNodes(enclave), specialMembers)
-        permit(specialMembers, getEnclaveNodes(enclave))
-      end
+      permit(getNodes(), specialMembers)
+      permit(specialMembers, getNodes())
+#      getCommunityEnclaves(community).each do |enclave|
+#        permit(getEnclaveNodes(enclave), specialMembers)
+#        permit(specialMembers, getEnclaveNodes(enclave))
+#      end
       members = getMembersRecursive(community)
       debug "members = #{members.join(", ")}"
       permit(members, specialMembers)
@@ -432,6 +442,25 @@ class CommPolicy
   end
 
 #==========================================================================
+# YP servers can talk to each other (the rest is handled by the
+#                                    community stuff?)
+#==========================================================================
+
+  def getYPServers()
+    ypserverplugin = "org.cougaar.yp.YPServer"
+    servers = []
+    @run.society.each_agent do |agent|
+      puts agent.name
+      agent.each_component do |component|
+        if (component.classname == ypserverplugin) then
+          servers.push(agent.name)
+        end        
+      end
+    end
+    servers
+  end
+
+#==========================================================================
 # Everybody should be able to talk to the core security managers
 #==========================================================================
 
@@ -447,21 +476,26 @@ class CommPolicy
 
   def getSecurityAgents(enclave)
     debug "looking for security agents in enclave #{enclave}"
+    securityFacets = [$facetRootCaManagerAgent, 
+                      $facetRedundantRootCaManagerAgent,
+                      $facetCaManagerAgent,
+                      $facetRedundantCaManagerAgent,
+                      $facetCrlManagerAgent,
+                      $facetUserManagerAgent,
+                      $facetRootMonitoringManagerAgent,
+                      $facetMonitoringManagerAgent,
+                      $facetPersistenceManagerAgent,
+                      $facetRedundantPersistenceManagerAgent,
+                      $facetPolicyManagerAgent,
+                      $facetPolicyServletManagerAgent]
+
     agents=[]
-    @run.society.each_enclave_node(enclave) do |node|
-      node.each_facet(:role) do |facet|
-        debug "Found node = #{node.name} with facet = #{facet}"
-        if facet[:role] == $facetManagement ||
-           facet[:role] == 'RootCertificateAuthority' ||
-           facet[:role] == 'RedundantRootCertificateAuthority' ||
-           facet[:role] == 'RedundantPersistenceManager'
-        then
-          debug "Found security node = #{node.name}"
-          node.each_agent do |agent|
-            debug("Adding  agent #{agent.name}")
-            agents.push(agent.name)
-          end
-          agents.push(node.name)
+    @run.society.each_enclave_agent(enclave) do |agent|
+      agent.each_facet(:role) do |facet|
+        debug "Found agent = #{agent.name} with facet = #{facet}"
+        if facet[:role] != nil && securityFacets.include?(facet[:role]) then
+          debug "Found security agent = #{agent.name}"
+          agents.push(agent.name)
         end
       end
     end
@@ -480,13 +514,17 @@ class CommPolicy
   end
 
   def getMnRManagers()
-    managers = ["SocietyMnRManager"]
-    @run.society.each_enclave do |enclave|
-      managers.push(enclave[0..0] +
-                      enclave[1..enclave.length].downcase +
-                      "EnclaveMnRManager")
+    monitors = []
+    monitoringFacets = [$facetRootMonitoringManagerAgent, 
+                        $facetMonitoringManagerAgent]
+    @run.society.each_agent do |agent|
+      agent.each_facet do |facet|
+        if monitoringFacets.include?(facet[:role]) then
+          monitors.push(agent.name)
+        end
+      end
     end
-    managers
+    monitors
   end
 
 
@@ -561,12 +599,12 @@ class CommPolicy
 
   def getRequiresMap()
     debug "entering getRequiresMap"
-    @plugin = 'org.cougaar.servicediscovery.plugin.SDClientPlugin'
+    sdclientplugin = 'org.cougaar.logistics.plugin.servicediscovery.ALDynamicSDClientPlugin'
     requiresMap = Hash.new()
     @run.society.each_agent do |agent|
       debug "examining agent #{agent.name}"
       agent.each_component do |component|
-        if (component.classname == @plugin) then
+        if (component.classname == sdclientplugin) then
           debug "#{agent.name} uses the plugin"
           component.each_argument do |arg|
             providerType = arg.value
@@ -610,7 +648,30 @@ class CommPolicy
         debug "found agent = #{agentSubstring}"
       end
     end
+    providesMap.each_key do |providerType|
+      @run.society.each_agent do |agent|
+        if providesMap[providerType].include?(agent.name) then
+          next
+        end
+        agent.each_facet do |facet|
+          if facet[:role] == providerType then
+            providesMap[providerType].push(agent.name)
+          end
+        end
+      end
+    end
     providesMap
+  end
+
+#==========================================================================
+# Agents can talk to themselves
+#==========================================================================
+
+  def allowTalkToSelf()
+    banner("Allow Agents to mumble")
+    @run.society.each_agent do |agent|
+      permit(agent.name, agent.name)
+    end
   end
 
 
@@ -628,6 +689,8 @@ class CommPolicy
     end
   end
 
+
+
 #==========================================================================
 # Every node should be able to talk to everybody
 #  Avoid
@@ -643,8 +706,9 @@ class CommPolicy
   end
 
 
-
-
+#==========================================================================
+#  END OF POLICIES
+#==========================================================================
 
   def debug(info)
     puts(info) if @debug
