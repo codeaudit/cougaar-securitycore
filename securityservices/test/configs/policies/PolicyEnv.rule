@@ -62,6 +62,15 @@ society.each_node do |node|
   node.override_parameter("-Dorg.cougaar.planning.ldm.lps.ComplainingLP.level",
                           "0")
 
+
+#
+# shouldn't be necessary?
+#
+
+   node.override_parameter("-Dorg.cougaar.domain.mobility",
+                           "org.cougaar.core.mobility.ldm.MobilityDomain")
+
+
 #  End of my overrides.
 #
 #######################################################################
