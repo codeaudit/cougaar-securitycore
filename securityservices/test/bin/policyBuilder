@@ -9,6 +9,7 @@ CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/mail.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/xerces.jar:$CP
 
 #
