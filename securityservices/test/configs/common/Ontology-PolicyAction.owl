@@ -26,7 +26,7 @@
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Policy.owl#Policy"/>
     </owl:ObjectProperty>
 
-    <owl:ObjectProperty rdf:ID="hasAction">
+    <owl:ObjectProperty rdf:ID="onAction">
         <rdfs:subPropertyOf rdf:resource="http://ontology.ihmc.us/Action.owl#performedOn"/>
         <rdfs:domain rdf:resource="#DisclosePolicyAction"/>
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
@@ -42,6 +42,15 @@
 
     <owl:Class rdf:ID="PolicyAction">
         <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#Action"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="PolicyQueryAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#QueryAction"/>
+    </owl:Class>
+
+    <owl:Class rdf:ID="PolicyModificationAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
@@ -59,7 +68,7 @@
     </owl:Class>
 
     <owl:Class rdf:ID="AddPolicyAction">
-        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#PolicyModificationAction"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
@@ -76,7 +85,7 @@
     </owl:Class>
     
     <owl:Class rdf:ID="RemovePolicyAction">
-        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#PolicyModificationAction"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>

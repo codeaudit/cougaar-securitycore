@@ -39,6 +39,12 @@
         <rdfs:range rdf:resource="#Target"/>
     </owl:ObjectProperty>
        
+    <owl:DatatypeProperty rdf:ID="hasBeginTime">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="#Action"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:DatatypeProperty>
+
     <owl:ObjectProperty rdf:ID="carriesMessage">
         <rdfs:subPropertyOf rdf:resource="#performedOn"/>
         <rdfs:domain rdf:resource="#CommunicationAction"/>
