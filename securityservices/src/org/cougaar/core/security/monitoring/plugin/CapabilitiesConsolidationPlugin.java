@@ -77,7 +77,6 @@ class ModifiedCapabilitiesPredicate implements UnaryPredicate{
   }
 }
 
-
 class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
   LoggingService log=null;
   public ConsolidatedCapabilitiesRelayPredicate(LoggingService ls) {
@@ -133,6 +132,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription modifiedcapabilities;
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
+  private IncrementalSubscription notification;
    private String mySecurityCommunity=null;
   private int firstobject=0;
   //private MessageAddress mgrAddress;
@@ -273,6 +273,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     }
     else {
       if(destcluster!=null) {
+	 getBlackboardService().publishAdd(new NotificationObject());
 	return false;
       }
       else {

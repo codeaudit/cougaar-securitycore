@@ -101,7 +101,7 @@ class CompleteCapabilitiesPredicate implements UnaryPredicate{
  *
  */
 class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
-  public boolean execute(Object o) {
+ public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof Event ) {
       Event e=(Event)o;
@@ -113,6 +113,17 @@ class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
     return ret;
   }
 }
+
+class NotificationPredicate implements UnaryPredicate {
+  public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof NotificationObject ) {
+      return true;
+    }
+    return ret;
+   }
+}
+
 
 /**
  *
@@ -127,6 +138,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
   private IncrementalSubscription completecapabilities;
   private IncrementalSubscription subordinatecapabilities;
   private IncrementalSubscription capabilitiesRelays;
+  private IncrementalSubscription notification;
   private int firstobject=0;
   private LoggingService loggingService;
   private MessageAddress myAddress=null;
@@ -212,7 +224,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       (new CompleteCapabilitiesPredicate() );
     subordinatecapabilities=(IncrementalSubscription)getBlackboardService().subscribe
       (new ConsolidatedCapabilitiesPredicate()); 
-    
+    notification=(IncrementalSubscription)getBlackboardService().subscribe
+      (new NotificationPredicate());
   }
 
 
@@ -228,6 +241,8 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       return;
     }
     updateRelayedCapabilities();
+
+    
     Event event=null;
     RegistrationAlert registration=null;
     CapabilitiesObject capabilitiesobject=null;
@@ -258,6 +273,12 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       capabilitiesobject=(CapabilitiesObject )iter.next();
       break;
     }
+    Collection notifications=notification.getAddedCollection();
+    if(notifications.size()>0) {
+      loggingService.debug(" received notification to do publish change:");
+      getBlackboardService().publishChange(capabilitiesobject);
+    }
+   
     //capabilitiesobject=(CapabilitiesObject)list.get(firstobject);
     Enumeration capabilities_enum = capabilities.getAddedList();
     Collection subcol= subordinatecapabilities.getAddedCollection();
@@ -739,5 +760,4 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     }
     return ralert;
   }
-
 }
