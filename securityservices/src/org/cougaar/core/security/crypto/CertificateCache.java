@@ -270,7 +270,8 @@ final public class CertificateCache implements CertificateCacheService
 	param.caKeystorePath = cafile2.getPath();
       }
       else {
-	if (param.isCertAuth) {
+        if (param.isCertAuth ||
+          System.getProperty("org.cougaar.core.autoconfig", "false").equals("true")) {
 	  if (log.isInfoEnabled()) {
 	    log.info(param.caKeystorePath +
 		     " Trusted CA keystore does not exist. Creating...");
@@ -1397,6 +1398,11 @@ final public class CertificateCache implements CertificateCacheService
 	// cannot trust it automatically, need to be in the trust store
 	if (cachecryptoClientPolicy.isRootCA() || caKeystore.getCertificate(alias) != null)
 	  trust = CertificateTrust.CERT_TRUST_CA_CERT;
+        // this is a hack, for unzip & run to install CA certificates
+        // and make them trusted
+        if (key == null) {
+          trust = CertificateTrust.CERT_TRUST_CA_CERT;
+        }
       }
     }
     catch (java.security.KeyStoreException e) {
