@@ -10,6 +10,8 @@ require 'security/lib/common_security_rules'
 require 'tmpdir'
 
 
+
+
 module Cougaar
   module Actions
     class BuildCoordinatorPolicies < Cougaar::Action
@@ -31,6 +33,7 @@ module Cougaar
         @stagingdir = "#{CIP}/workspace/BootPolicies-#{rand(1000000)}"
         @highPolicy = "OwlCoordinatorHighPolicy"
         @lowPolicy  = "OwlCoordinatorLowPolicy"
+        @ontologiesFile="OwlCoordinatorOntologies"
         Dir.mkdir(@stagingdir)
       end
 
@@ -76,8 +79,9 @@ Policy HighEncryptCommunication = [
         end
         File.open(File.join(@stagingdir, @lowPolicy),
                   File::CREAT|File::WRONLY) do |file|
-          file.puts("PolicyPrefix=%Coordinator")
-          file.puts("AgentGroup \"PolicyManagers\" = \{\"#{getPolicyManagers().join("\",\n\t\"")}\"\}")
+          file.puts("PolicyPrefix=%Coordinator\n\n")
+          file.puts("Delete EncryptCommunication\n\n")
+          addCoordinatorOntologies(file)
           file.write <<-EndOfLowPolicies
 Policy LowEncryptCommunication = [ 
   MessageEncryptionTemplate
@@ -93,6 +97,14 @@ Policy LowPolicyManagerEncryptCommunication = [
 ]
           EndOfLowPolicies
         end
+        File.open(File.join(@stagingdir, @ontologiesFile),
+                  File::CREAT|File::WRONLY) do |file|
+          addCoordinatorOntologies(file)
+        end
+      end
+
+      def addCoordinatorOntologies(file)
+        file.puts("AgentGroup \"PolicyManagers\" = \{\"#{getPolicyManagers().join("\",\n\t\"")}\"\}")
       end
 
       def getPolicyManagers()
@@ -106,8 +118,7 @@ Policy LowPolicyManagerEncryptCommunication = [
         end
         pms
       end
-
-
     end # class BuildPolicies
+
   end # module Actions
 end # module Cougaar
