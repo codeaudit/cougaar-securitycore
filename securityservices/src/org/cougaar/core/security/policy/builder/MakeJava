@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -cp .:${COUGAAR_INSTALL_PATH}/sys/antlr.jar antlr.Tool policyGrammar.g

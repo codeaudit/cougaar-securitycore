@@ -1,0 +1,18 @@
+// $ANTLR 2.7.1: policyGrammar.g -> PTokenTypes.txt$
+P    // output token vocab name
+LITERAL_Policy="Policy"=4
+TOKEN=5
+EQ=6
+LBRACK=7
+RBRACK=8
+LITERAL_A="A"=9
+LITERAL_user="user"=10
+LITERAL_in="in"=11
+LITERAL_role="role"=12
+LITERAL_access="access"=13
+LITERAL_a="a"=14
+LITERAL_servlet="servlet"=15
+LITERAL_named="named"=16
+LITERAL_can="can"=17
+LITERAL_cannot="cannot"=18
+WS=19
