@@ -1373,6 +1373,10 @@ public class DirectoryKeyStore
 	  reply = sendPKCS(request, "PKCS10");
 	}
 	else {
+	  // Save the certificate in the trusted CA keystore
+	  saveCertificateInTrustedKeyStore((X509Certificate)
+					   keystore.getCertificate(alias),
+					   alias);
 	}
       }
       else {
@@ -2054,4 +2058,26 @@ public class DirectoryKeyStore
     return baos.toString();
   }
 
+  private void saveCertificateInTrustedKeyStore(X509Certificate aCertificate,
+						String alias) {
+    if (CryptoDebug.debug) {
+      System.out.println("Setting CA keystore certificate entry:" + alias);
+    }
+    try {
+      caKeystore.setCertificateEntry(alias, aCertificate);
+    } catch(Exception e) {
+      System.out.println("Unable to set certificate in the keystore - "
+			 + e.getMessage());
+    }
+    // Store key store in permanent storage.
+    try {
+      FileOutputStream out = new FileOutputStream(param.caKeystorePath);
+      keystore.store(out, param.caKeystorePassword);
+      out.flush();
+      out.close();
+    } catch(Exception e) {
+      System.out.println("Error: can't flush the certificate to the keystore--"
+			 + e.getMessage());
+    }
+  }
 }

@@ -132,4 +132,8 @@ public interface KeyRingService extends Service {
   X509Certificate[] checkCertificateTrust(X509Certificate certificate)
     throws CertificateChainException, CertificateExpiredException,
     CertificateNotYetValidException, CertificateRevokedException;
+
+  public String getCaKeyStorePath();
+  public String getKeyStorePath();
+
 }

@@ -405,5 +405,11 @@ final public class KeyRing
     return keystore.checkCertificateTrust(certificate);
   }
 
+  public String getCaKeyStorePath() {
+    return param.caKeystorePath;
+  }
+  public String getKeyStorePath() {
+    return param.keystorePath;
+  }
 }
 

@@ -43,6 +43,7 @@ import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
+import org.cougaar.core.security.services.crypto.*;
 import com.nai.security.util.CryptoDebug;
 
 public class CreateCaKeyServlet
@@ -50,6 +51,7 @@ public class CreateCaKeyServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
+  private KeyRingService keyRingService= null;
 
   protected boolean debug = false;
 
@@ -69,6 +71,11 @@ public class CreateCaKeyServlet
       support.getServiceBroker().getService(this,
 					    AgentIdentityService.class,
 					    null);
+    keyRingService = (KeyRingService)
+      support.getServiceBroker().getService(this,
+					    KeyRingService.class,
+					    null);
+
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -121,8 +128,10 @@ public class CreateCaKeyServlet
     out.println("</head>");
     out.println("<body>");
     out.println("<H2>CA key generation</H2>");
-    out.println("CA key has been generated");
-    out.println("</body></html>");
+    out.println("CA key has been generated<br>");
+    out.println("CA private key has been stored in " + keyRingService.getKeyStorePath());
+    out.println("<br>CA certificate has been stored in " + keyRingService.getCaKeyStorePath());
+    out.println("<br></body></html>");
     out.flush();
     out.close();
   }
