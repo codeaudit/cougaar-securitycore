@@ -1,9 +1,12 @@
 package org.cougaar.core.security.policy.builder;
 
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
+
+import jtp.ReasoningException;
 
 import kaos.core.service.directory.KAoSDirectoryService;
 import kaos.core.util.AttributeMsg;
@@ -23,6 +26,8 @@ import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
 import org.cougaar.core.security.policy.enforcers.ontology.jena.*;
+import org.cougaar.core.security.policy.PolicyBootstrapper;
+import org.cougaar.util.ConfigFinder;
 
 public class PolicyUtils
 {
@@ -206,11 +211,42 @@ public class PolicyUtils
    * and in the standalone tools to get the right ontologies forthe
    * policies.
    */
+
   public static void autoGenerateGroups(KAoSDirectoryService kds)
     throws Exception
   {
+    ConfigFinder cf = ConfigFinder.getInstance();
+    InputStream damlPoliciesFile = null;
+    damlPoliciesFile = cf.open(PolicyBootstrapper._damlBootPolicies);
+    PolicyLexer lexer = new PolicyLexer(damlPoliciesFile);
+    PolicyParser parser = new PolicyParser(lexer);
+
+    autoGenerateGroups(kds, parser.policyFile().declarations());
+  }
+
+  public static void autoGenerateGroups(KAoSDirectoryService kds, 
+                                        Map                  declarations)
+    throws Exception
+  {
+    loadDeclarations(kds, declarations);
     generateUserActorClasses(kds);
     generateBlackboardActorClasses(kds);
+  }
+
+  public static void loadDeclarations(KAoSDirectoryService kds,
+                                      Map                  declarations)
+    throws ReasoningException
+  {
+    for (Iterator instanceIt = declarations.keySet().iterator(); 
+         instanceIt.hasNext();) {
+      String instanceName = (String) instanceIt.next();
+      String className    = (String) declarations.get(instanceName);
+      if (kds != null) {
+        kds.declareInstance(instanceName, className);
+      } else {
+        _ontology.declareInstance(instanceName, className);
+      }
+    }
   }
 
   /**
