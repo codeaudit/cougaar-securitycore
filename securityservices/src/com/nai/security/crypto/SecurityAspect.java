@@ -78,6 +78,11 @@ public class SecurityAspect extends StandardAspect
   private ServiceBroker sb=null;
 
   public SecurityAspect() {
+    // Do not use this aspect anymore. It is not maintained
+    System.err.println("WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    System.err.println("This security aspect is outdated and not maintained");
+    System.err.println("Use CryptoAspect and AccessControlAspect instead");
+
     String db = System.getProperty("org.cougaar.message.transport.debug");
     if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
 
@@ -278,7 +283,14 @@ public class SecurityAspect extends StandardAspect
 	return msg;
       }else if(param.secureMethod==SecureMethodParam.ENCRYPT){
 	keyName = Target;
-	SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	SecretKey sk = (SecretKey)
+	  cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	if (sk == null) {
+	  if (debug) {
+	    System.out.println("Error: unable to retrieve secret key");
+	  }
+	  return null;
+	}
 	return (Message)cms.symmDecrypt(sk,sealedMsg);
       }else if(param.secureMethod==SecureMethodParam.SIGN){
 	keyName = Origin;
