@@ -4,6 +4,7 @@ module Cougaar
   module Actions
     class BuildCsiHostFile < Cougaar::Action
       @@hosts = nil
+      @@hostsFound = false
 
       # "host-layout-file.xml"
       def initialize(run, hostfilename)
@@ -23,6 +24,10 @@ module Cougaar
         @@hosts
       end
 
+      def hostFileBuilt?
+        @@hostsFound
+      end
+
       def buildHostFile()
         user = ENV["USER"]
         hostsMap = {
@@ -36,8 +41,10 @@ module Cougaar
         }
         if hostsMap[user] != nil
           @@hosts = hostsMap[user]
+          @@hostsFound = true
         else
           @@hosts = hostsMap['default']
+          @@hostsFound = false
         end
         #puts @@hosts
 
