@@ -72,7 +72,7 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
-  private Set agentList = null;
+  private Set nodeList = null;
   private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
@@ -101,12 +101,8 @@ public class AccessAgentProxy
       sb.getService(this, TopologyReaderService.class, null);
     
     if(toporead!=null) {
-      Thread t = new updateAgentList();
+      Thread t = new updateNodeList();
       t.run();
-    }else{
-      if(log.isErrorEnabled()) {
-        log.error("can't find topology service for " + myID.toAddress());
-      }
     }
     
     if(log.isDebugEnabled()) {
@@ -114,12 +110,12 @@ public class AccessAgentProxy
     }
   }
   
-  private class updateAgentList extends Thread{
+  private class updateNodeList extends Thread{
     public void run(){
-      agentList = toporead.getAll(TopologyReaderService.AGENT); 
+      nodeList = toporead.getAll(TopologyReaderService.NODE); 
       if(log.isDebugEnabled()) {
-        log.debug("updated AgentList, now contains: " 
-            + agentList.size() + " agents.");
+        log.debug("updated NodeList, now contains: " 
+            + nodeList.size() + " nodes.");
       }
       try{
         sleep(30000);
@@ -183,35 +179,34 @@ public class AccessAgentProxy
        *is addressed remember to take this out.
        */
       String target = message.getTarget().toString();
-      if(!agentList.contains(target)){
-        //isNode agent, no wrapping with trust
+      if(nodeList.contains(target)){
+        TrustSet[] ts;
+        ts = checkOutgoing(message);
+
+        if(ts==null) {
+    if(log.isWarnEnabled()) {
+      log.warn("Rejecting outgoing message: " + 
+         ((message != null)? message.toString():
+          "Null Message"));
+    }
+    return;		// the message is rejected so we abort here
+        }
+        MessageWithTrust mwt;
+        mwt = new MessageWithTrust(message, ts);
+        mts.sendMessage(mwt);
+        if(log.isDebugEnabled()) {
+        log.debug("DONE sending Message from Access Agent proxy"
+        +mwt.toString());
+        }
+      }else{
+        //assumed to be Node agent, no wrapping with trust
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
           log.debug("no wrapping with trust for node agent." + message);
         }
         return;
-      }
-        
-      
-      TrustSet[] ts;
-      ts = checkOutgoing(message);
-	
-      if(ts==null) {
-	if(log.isWarnEnabled()) {
-	  log.warn("Rejecting outgoing message: " + 
-		   ((message != null)? message.toString():
-		    "Null Message"));
-	}
-	return;		// the message is rejected so we abort here
-      }
-      MessageWithTrust mwt;
-      mwt = new MessageWithTrust(message, ts);
-      mts.sendMessage(mwt);
-      if(log.isDebugEnabled()) {
-    	log.debug("DONE sending Message from Access Agent proxy"
-		  +mwt.toString());
-      }
-    }
+      }//if node agent...else
+    }//if mts
   }
   
   public void registerClient(MessageTransportClient client) {
@@ -284,8 +279,8 @@ public class AccessAgentProxy
   
   public void receiveMessage(Message m)  {
     if(mtc == null) {
-      log.warn("Message Transport Client is null when receiving: " 
-          + m + " on the agent:" + myID);
+      log.warn("Message Transport Client is null for: " 
+        + m + " on the agent:" + myID);
       return;
     }
     if(log.isInfoEnabled()) {
