@@ -67,9 +67,13 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.util.DOMWriter;
 
 // DAML stuff
-import com.hp.hpl.mesa.rdf.jena.model.Model;
-import com.hp.hpl.jena.daml.DAMLModel;
+
+import com.hp.hpl.jena.daml.*;
 import com.hp.hpl.jena.daml.common.DAMLModelImpl;
+import com.hp.hpl.mesa.rdf.jena.mem.ModelMem;
+import com.hp.hpl.mesa.rdf.jena.model.*;
+import com.hp.hpl.mesa.rdf.jena.vocabulary.*;
+import com.hp.hpl.mesa.rdf.jena.model.Model;
 import kaos.ontology.util.DAMLModelUtils;
 
 /**
@@ -122,6 +126,7 @@ public class DamlExpander  extends SimplePlugin {
     if (l.size() > 2) {
       _lastExpansion = Boolean.valueOf((String) l.get(2)).booleanValue();
     } 
+    System.out.println("Parameters set" + _expanderFile);
   }
 
   /**
@@ -132,7 +137,8 @@ public class DamlExpander  extends SimplePlugin {
       message = "Expecting a pair of quoted triple file names";
     } // end of if (message == null)
     
-    _log.warn("Error on line: " + lineNum + " of " + f + ": " + message);
+    _log.warn("Expansion #" + _expansionNum + 
+	      ": Error on line: " + lineNum + " of " + f + ": " + message);
   }
 
   /**
@@ -153,6 +159,8 @@ public class DamlExpander  extends SimplePlugin {
       String line;
       int lineNum = 0;
       while ((line = fileIn.readLine()) != null) {
+	debuglog("Reading line from file: " + line);
+
         // read a line
         lineNum++;
         line = line.trim();
@@ -166,7 +174,8 @@ public class DamlExpander  extends SimplePlugin {
         } // end of if (expansion != null)
       } // end of while ((line = fileIn.readLine()) != null)
     } catch (Exception e) {
-      _log.error("Couldn't load the expander file", e);
+      _log.error("Expansion #" + _expansionNum + 
+		 ": Couldn't load the expander file", e);
     } // end of try-catch
   }
 
@@ -184,37 +193,40 @@ public class DamlExpander  extends SimplePlugin {
       File file = cf.locateFile(fname);
 
       if (file == null) {
-        logFileError(lineNum, f, "Could not find file " + fname + 
-                     " in config path.");
-        return null;
+	  logFileError(lineNum, f, "Could not find file " + fname + 
+		       " in config path.");
+	  return null;
       } // end of if (file == null)
 
       try {
         // try policy expansion
-        Document xmlDoc = db.parse(file);
-        Element l = xmlDoc.getDocumentElement();
-        String type = l.getAttribute("type");
-        String name = l.getAttribute("name");
-        if (type == null || name == null) {
-          logFileError(lineNum, f, "XML policy from " + file + 
-                       " must have a name and type attribute");
-          return null;
-        } // end of if (type == null || name == null)
-        expansion.add(xmlDoc);
-      } catch (Exception e2) {
-        try {
-          // not an XML document, try DAML triples
-          DAMLModel policy = new DAMLModelImpl();
-          policy.read(file.toURL().toString(), "N-TRIPLE");
-          expansion.add(Forgetful.copy(policy));
+	  debuglog("Trying policy expansion on " + file.getName());
+	  if (file.getName().endsWith(".daml")) {
+	      debuglog("Trying daml policy Expansion");
+	      // try DAML triples
+	      DAMLModel policy = new DAMLModelImpl();
+	      policy.read(new FileReader(file), "", "RDF/XML");
+	      debuglog("Found daml policy"); 
+	      debuglogModel(policy);
+	      expansion.add(Forgetful.copy(policy));
+	  } else {
+	      debuglog("Trying xml policy expansion");
+	      Document xmlDoc = db.parse(file);
+	      Element l = xmlDoc.getDocumentElement();
+	      String type = l.getAttribute("type");
+	      String name = l.getAttribute("name");
+	      if (type == null || name == null) {
+		  logFileError(lineNum, f, "XML policy from " + file + 
+			       " must have a name and type attribute");
+		  return null;
+	      } // end of if (type == null || name == null)
+	      expansion.add(xmlDoc);
+	  } // end of if (file.getName().endsWith(".daml"))
         } catch (Throwable e) {
           logFileError(lineNum, f, "File " + file + 
                        " is not a valid DAML or XML policy");
           return null;
         } // end of try-catch
-        
-      } // end of try-catch
-
       if (!tok.hasMoreTokens()) {
         break;
       } // end of if (!tok.hasMoreTokens())
@@ -227,6 +239,7 @@ public class DamlExpander  extends SimplePlugin {
         logFileError(lineNum, f, "The first file name must refer to a DAML triples file");
       } else {
         // all is good
+	  debuglog("At end of parseExpansion:");
         return expansion.toArray();
       } 
     } 
@@ -248,46 +261,61 @@ public class DamlExpander  extends SimplePlugin {
     } 
 
     if (_log.isInfoEnabled()) {
-      _log.info("Expansion #" + _expansionNum + ", using file name " +
+      _log.info("Expansion #" + _expansionNum + 
+		": , using file name " +
                 _expanderFile + 
                 (_lastExpansion 
                  ? ", is last" 
                  : ", will pass on to next expander"));
     } // end of if (_log.isInfoEnabled())
 
-    if (_expanderFile != null) {
-      loadExpanderFile(_expanderFile);
-    } // end of if (_expanderFile != null)
   }
     
   public void execute() {
-    _log.debug("DamlExpander::execute()");
+    if (_expanderFile != null) {
+      debuglog("(Re)loading Expander initialization file");
+      loadExpanderFile(_expanderFile);
+      debuglog("Finished loading Expander initialization file");
+    } // end of if (_expanderFile != null)
+    debuglog("DamlExpander::execute()");
 
+    //    checkRemovedList();
     // check for added UnexpandedPolicyUpdates
     Enumeration upuEnum = _upu.getAddedList();
     List expandedPolicies = new ArrayList();
     while (upuEnum.hasMoreElements()) {
+      debuglog("In upu Enum loop");
+
       UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
       List policies = upu.getPolicies();
       Iterator policyIt = policies.iterator();
 
       while (policyIt.hasNext()) {
+	debuglog("In Policy Iterator loop");
+
         PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
-        try {
-          PolicyMsg[] newMessages = expandPolicy(policyMsg);
-          if (newMessages != null) {
-            // replace the newMessage
-            for (int i = 0; i < newMessages.length; i++) {
-              _log.debug("writing out policy: " + newMessages[i]);
-              expandedPolicies.add(newMessages[i]);
-            } // end of for (int i = 0; i < newMessages.length; i++)
-          } // end of if (newMessages != null)
-        } catch (Exception xcp) {
-          _log.error("Error expanding policy:\n" + policyMsg,
-                     xcp);
-        }
+	if (policyMsg.isInForce()) {
+	    debuglog("Policy is in Force");
+	} else {
+	    debuglog("Policy should not be in Force");
+	}
+
+	try {
+	    PolicyMsg[] newMessages = expandPolicy(policyMsg);
+	    if (newMessages != null) {
+		// replace the newMessage
+		for (int i = 0; i < newMessages.length; i++) {
+		    debuglog("writing out policy: " + newMessages[i]);
+		    expandedPolicies.add(newMessages[i]);
+		} // end of for (int i = 0; i < newMessages.length; i++)
+	    }  // end of if (newMessages != null)
+	} catch (Exception xcp) {
+	    _log.error("Expansion #" + _expansionNum + 
+		       ": Error expanding policy:\n" + policyMsg,
+		       xcp);
+	}
       }
-      publishRemove (upu);
+      publishRemove(upu);
       
       Object newPolicy;
       if (_lastExpansion) {
@@ -321,66 +349,106 @@ public class DamlExpander  extends SimplePlugin {
   private PolicyMsg[] expandPolicy (PolicyMsg policyMsg) {
     // get the attributes of the policy
     Vector attributes = policyMsg.getAttributes();
-
-    // find the DAMLContent
-    Model    damlContent = null;
-    for (int i=0; i < attributes.size() && damlContent == null ; i++) {
-      AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
-      if (attrMsg.getName().equals(AttributeMsg.DAML_CONTENT)) {
-        Object val = attrMsg.getValue();
-        if (val instanceof Model) {
-          damlContent = (Model) val;
-        } else if (val instanceof String) {
-          String damlString = (String) val;
-          try {
-            damlContent = DAMLModelUtils.constructDAMLModel(damlString);
-            damlContent = Forgetful.copy(damlContent);
-          } catch (Exception e) {
-            _log.warn("Can't expand the DAML Policy", e);
-            return null;
-          } // end of try-catch
-        } 
-      }
-    }
+    Model damlContent=getDamlContentFromAttributes(attributes);
 
     if (damlContent == null) {
       return new PolicyMsg[] { policyMsg }; // no expansion
     } // end of if (damlContent == null)
-    
-    if (_log.isDebugEnabled()) {
-      _log.debug("DAML recieved: " + getDamlString(damlContent));
-    } // end of if (_log.isDebugEnabled())
     
       // expand the DAML 
     Iterator iter = _damlMap.iterator();
 
     // try to find a matching DAML:
     while (iter.hasNext()) {
-      Object map[] = (Object []) iter.next();
+      debuglog("Looping through the possible matches");
 
-      Model daml = (Model) map[0];
-      if (_log.isDebugEnabled()) {
-        _log.debug("Comparing against: " + getDamlString(daml));
-      } // end of if (_log.isDebugEnabled())
-              
-      if (daml.equals(damlContent)) {
-        // found a match for the daml content
-        ArrayList pm = new ArrayList();
-        for (int i = 1; i < map.length; i++) {
-          PolicyMsg newPolicy;
-          if (map[i] instanceof Model) {
-            newPolicy = policyFromModel(policyMsg, (Model) map[i]);
-          } else {
-            // XML content
-            newPolicy = policyFromXML(policyMsg, (Document) map[i]);
-          } 
-          pm.add(newPolicy);
-        }
-        return (PolicyMsg[]) pm.toArray(new PolicyMsg[pm.size()]);
-      } // end of while (iter.hasNext())
+      Object map[] = (Object []) iter.next();
+      Model daml   = (Model) map[0];
+
+      debuglog("Comparing against: ");
+      debuglogModel(daml);
+
+      // Why do I need a forgetful copy here ????!
+      // It may have something to do with casts from Model to DAMLModel???
+      try {
+	  if (Forgetful.copy(daml).equals(Forgetful.copy(damlContent))) {
+	      debuglog("Got a match.");
+
+	      // found a match for the daml content
+	      ArrayList pm = new ArrayList();
+
+	      debuglog("map.length = " + map.length);
+	      for (int i = 1; i < map.length; i++) {
+		  PolicyMsg newPolicy;
+		  if (map[i] instanceof Model) {
+		      newPolicy = policyFromModel(policyMsg, (Model) map[i]);
+		  } else {
+		      // XML content
+		      newPolicy = policyFromXML(policyMsg, (Document) map[i]);
+		  } 
+		  pm.add(newPolicy);
+	      }
+	      return (PolicyMsg[]) pm.toArray(new PolicyMsg[pm.size()]);
+	  }
+      } catch (Exception e) {
+	  _log.error("Expansion #" + _expansionNum + 
+		     ": Exception while comparing policies for a match", e);
+      }
+    } // end of while (iter.hasNext())
+    _log.warn("--------------------------------------------------------");
+    _log.warn("Expansion #" + _expansionNum + 
+	      ": Could not find match for DAML policy");
+    _log.warn("Expansion #" + _expansionNum + 
+	      ": DAML Policy in question has the form: ");
+    try {
+	_log.warn(Forgetful.beautify(damlContent));
+	_log.warn("--------------------------------------------------------");
+    } catch (Exception e) {
+	_log.error("Expansion #" + _expansionNum + 
+		   "Exception occured while trying to display unmatched policy", e);
     }
-    _log.warn("Could not find match for DAML policy");
+
     return new PolicyMsg[] { policyMsg };
+  }
+
+  private Model getDamlContentFromAttributes(Vector attributes) {
+      // find the DAMLContent
+      Model    damlContent = null;
+      for (int i=0; i < attributes.size() && damlContent == null ; i++) {
+	  debuglog("In attributes loop i = " + i);
+
+	  AttributeMsg attrMsg = (AttributeMsg) attributes.elementAt(i);
+	  if (attrMsg.getName().equals(AttributeMsg.DAML_CONTENT)) {
+	      debuglog("Thinks attribute is DAML Content");
+
+	      Object val = attrMsg.getValue();
+	      if (val instanceof Model) {
+		  debuglog("Policy from message is already a daml model:");
+		  damlContent = (Model) val;	
+	      } else if (val instanceof String) {
+		  debuglog("It is believed to be a string representing a daml policy");
+		  debuglog("Here is the string: " + (String) val);
+
+		  String damlString = (String) val;
+		  try {
+		      damlContent = new DAMLModelImpl();
+		      ((DAMLModel) damlContent).getLoader().setLoadImportedOntologies(false);
+		      damlContent.read(new StringReader(damlString),"");
+		      debuglog("After reading the model from a string: ");
+		      damlContent = Forgetful.copy(damlContent);
+		  } catch (Exception e) {
+		      _log.warn("Expansion #" + _expansionNum + 
+				": Can't expand the DAML Policy", e);
+		      return null;
+		  } // end of try-catch
+	      }
+	  }
+      }
+      if (damlContent != null) {
+	  debuglog("here is the policy coming from the attributes");
+	  debuglogModel(damlContent);
+      }
+      return damlContent;
   }
 
   private static PolicyMsg policyFromXML(PolicyMsg policyMsg,
@@ -416,16 +484,66 @@ public class DamlExpander  extends SimplePlugin {
     return pm;
   }
 
-  private static String getDamlString(Model model) {
-    try {
-      StringWriter strw = new StringWriter();
-      PrintWriter  pw   = new PrintWriter(strw);
-      model.write(pw);
-      pw.close();
-      return strw.toString();
-    } catch (Exception e) {
-      return "Couldn't get daml string: " + e.toString();
-    } // end of try-catch
+  private void checkRemovedList() {
+    // check for added UnexpandedPolicyUpdates
+    Enumeration upuEnumRemoved = _upu.getRemovedList();
+    while (upuEnumRemoved.hasMoreElements()) {
+      debuglog("In upu Enum loop");
+
+      UnexpandedPolicyUpdate upu = 
+	  (UnexpandedPolicyUpdate) upuEnumRemoved.nextElement();
+      List policies = upu.getPolicies();
+      Iterator policyIt = policies.iterator();
+
+      while (policyIt.hasNext()) {
+	debuglog("In Policy Iterator loop");
+
+        PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
+	if (policyMsg.isInForce()) {
+	    debuglog("Policy is in Force");
+	} else {
+	    debuglog("Policy should not be in Force");
+	}
+
+	try {
+	    PolicyMsg[] newMessages = expandPolicy(policyMsg);
+	    if (newMessages != null) {
+		// replace the newMessage
+		for (int i = 0; i < newMessages.length; i++) {
+		    debuglog("xxxx" + newMessages[i]);
+
+		} // end of for (int i = 0; i < newMessages.length; i++)
+	    }  // end of if (newMessages != null)
+	} catch (Exception xcp) {
+	    debuglog("Error looking through removed list");
+	}
+      }
+    }
   }
+
+  private void debuglog(String msg) {
+      if (_log.isDebugEnabled()) {
+	  _log.debug("Expansion #" + _expansionNum + ": " + msg);
+      } // end of if (_log.isDebugEnabled())      
+  }
+
+  private void debuglogModel(Model model) {
+      if (_log.isDebugEnabled()) {
+	  try {
+	      StringWriter output = new StringWriter();
+	      _log.debug("Expansion #" + _expansionNum + 
+			 ": Bad Version: ");
+	      model.write((Writer) output, "RDF/XML-ABBREV");
+	      _log.debug(output.toString());
+
+	      _log.debug("Expansion #" + _expansionNum + 
+			 ": Readable (Hopefully) Version of Policy: ");
+	      _log.debug(Forgetful.beautify(model));
+	  } catch (Exception e) {
+	      _log.error("Expansion #" + _expansionNum + 
+			 ": Couldn't print model", e);
+	  }
+      } // end of if (_log.isDebugEnabled())      
+    }
 }
 
