@@ -85,11 +85,12 @@ import edu.jhuapl.idmef.IDMEF_Message;
  * </pre>
  */
 public class EventQueryPlugin extends ComponentPlugin {
-
   private LoggingService  _log;
 
   /** the current agent's name */
   private String _agentName;
+
+  private String _community;
 
 
   /** format script for the aggregation query */
@@ -146,6 +147,8 @@ public class EventQueryPlugin extends ComponentPlugin {
   private DocumentBuilderFactory _parserFactory = 
     DocumentBuilderFactory.newInstance();
 
+  private UIDService _uidService = null;
+
   /**
    * Sensor update predicate
    */
@@ -200,6 +203,13 @@ public class EventQueryPlugin extends ComponentPlugin {
   private EventQueryData _persistData;
 
   /**
+   * Set the UID Service for use internally
+   */
+  public void setUIDService(UIDService uidService) {
+    _uidService = uidService;
+  }
+
+  /**
    * Used by the binding utility through reflection to set my DomainService
    */
   public void setDomainService(DomainService aDomainService) {
@@ -223,7 +233,7 @@ public class EventQueryPlugin extends ComponentPlugin {
     aq.setUpdateMethod(UpdateMethod.PUSH);
     aq.setPredicateSpec(_predSpec);
     aq.setFormatSpec(FORMAT_SPEC);
-    QueryResultAdapter qra = new QueryResultAdapter(aq);
+    QueryResultAdapter qra = new QueryResultAdapter(aq, _uidService.nextUID());
     qra.setResultSet(new EQAggregationResultSet());
     return qra;
   }
@@ -253,11 +263,15 @@ public class EventQueryPlugin extends ComponentPlugin {
     if (_log != null) {
       _log.info("Setting security manager agent name to " + _societySecurityManager);
     }
+    _community = (String) arr[1];
+    if (_community != null && _community.length() == 0) {
+      _community = null;
+    }
     QueryClassificationProvider qcp = null;
     String up = null;
     String className = "<not found>";
     try {
-      for (int i = 1; i < arr.length; i++) {
+      for (int i = 2; i < arr.length; i++) {
         className = (String) arr[i];
         Class c = Class.forName(className);
         if (QueryClassificationProvider.class.isAssignableFrom(c)) {
@@ -349,8 +363,9 @@ public class EventQueryPlugin extends ComponentPlugin {
         // need to create a lookup for this classification
         Classification classification = 
           imessage.createClassification(_classifications[i], null);
-        MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                                  classification, null, null, true );
+        MRAgentLookUp lookup = new MRAgentLookUp( _community, null, null, null,
+                                                  classification, null, null, 
+                                                  true );
         MessageAddress destination = 
           MessageAddress.getMessageAddress(_societySecurityManager);
         CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
