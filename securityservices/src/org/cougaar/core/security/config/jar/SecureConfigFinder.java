@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software Inc
+ *  Copyright 1997-2003 Cougaar Software, Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -30,11 +30,19 @@ import java.security.GeneralSecurityException;
 import java.io.IOException;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.net.URL;
 import java.net.JarURLConnection;
 import java.util.Map;
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.Logging;
@@ -64,6 +72,14 @@ public class SecureConfigFinder
    */
   private CertificateVerifier _certificateVerifier;
 
+  private static final String EXCEPTION_LIST_FILE_NAME = "secureConfig.dat";
+
+  /** A list of regular expressions. If a URL matches one of the
+   * regular expression, the configuration file with that URL
+   * can be loaded.
+   */
+  private List _exceptionListRegularExpressions;
+
   public SecureConfigFinder() {
     super();
     initialize();
@@ -88,19 +104,91 @@ public class SecureConfigFinder
   private void initialize() {
     _certificateVerifier = CertificateVerifierImpl.getInstance();
     _securelog = SecurityLogImpl.getInstance();
+    _exceptionListRegularExpressions = new ArrayList();
   }
   
+  private void readExceptionList() {
+    InputStream is = null;
+    try {
+      is = open(EXCEPTION_LIST_FILE_NAME);
+    }
+    catch (IOException e) {
+      if (_logger.isInfoEnabled()) {
+	_logger.info("No regular expression file was found (exception list)");
+      }
+      return;
+    }
+    if (is == null) {
+      return;
+    }
+    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    String line = null;
+    try {
+      while ((line = br.readLine()) != null) {
+	if (line.startsWith("#")) {
+	  continue;
+	}
+	try {
+	  Pattern p = Pattern.compile(line);
+	  _exceptionListRegularExpressions.add(p);
+	}
+	catch (PatternSyntaxException e) {
+	  if (_logger.isWarnEnabled()) {
+	    _logger.warn("Unable to parse regular expression: " + line);
+	  }
+	}
+      }
+    }
+    catch (IOException e) {
+      if (_logger.isWarnEnabled()) {
+	_logger.warn("Unable to read regular expression file");
+      }
+    }
+  }
+
   /**
    * Check the integrity of a jar file. Do nothing in the base
    * implementation.
    */
   protected void verifyJarFile(JarFile aJarFile)
     throws GeneralSecurityException {
-    if (!acceptUnsignedFiles()) {
+    if (!acceptUnsignedJarFiles()) {
       //do certificate verification, throw an exception
       //and exclude from urls if not trusted
       _certificateVerifier.verify(aJarFile);
     }
+  }
+
+  /**
+   * Determines whether a simple configuration file may be loaded
+   * without being signed.
+   * This method tries to match the provided URL against a list
+   * of regular expressions. This allows specific configuration files
+   * to be loaded even if they are not signed.
+   *
+   * @param aURL The URL of a simple (unsigned) configuration file.
+   */
+  protected boolean isValidUrl(URL aURL) {
+    if (aURL == null) {
+      return false;
+    }
+    String url = aURL.toString();
+    Iterator it = _exceptionListRegularExpressions.iterator();
+    while (it.hasNext()) {
+      Pattern pattern = (Pattern) it.next();
+      Matcher matcher = pattern.matcher(url);
+      boolean result = matcher.find();
+      if (result) {
+	if (_logger.isDebugEnabled()) {
+	  _logger.debug(url + " may be loaded without signature");
+	}
+	return true;
+      }
+    }
+    if (_logger.isDebugEnabled()) {
+      _logger.debug(url + " cannot be loaded without signature");
+    }
+    return false;
   }
 
   /**
@@ -130,6 +218,13 @@ public class SecureConfigFinder
     }
   }
 
+  private boolean acceptUnsignedJarFiles() {
+    return false;
+  }
+
+  /**
+   * @deprecated
+   */
   protected boolean acceptUnsignedFiles() {
     return false;
   }
