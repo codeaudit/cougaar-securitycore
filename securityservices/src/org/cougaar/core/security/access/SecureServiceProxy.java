@@ -108,7 +108,7 @@ class SecureServiceProxy {
         if(AUTH_DEBUG) {
           if(up != null) {
             if(up.execute(o)) {
-              _log.warn("QUERY DENIED: [" + comp + ", " + object + "]");
+              _log.warn("QUERY DENIED: [" + comp + ", " + object + ", " + up + "]");
             }
           }
         }
