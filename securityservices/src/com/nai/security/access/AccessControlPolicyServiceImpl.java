@@ -93,100 +93,135 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
       }
     }
 
-    //if we need to add proxy, there is a good chance we need a new certificate too
-    //so check for it
+    // If we need to add proxy, there is a good chance we need
+    // a new certificate too so check for it.
     if(dbg) System.out.println("checking certs for agent " + agent);
     KeyRing.checkOrMakeCert(agent);
 
     return;
   }
-  public synchronized TrustSet getIncomingTrust(String agent, String key) {
-    checkOrMakeProxy(agent);
-    HashMap h = (HashMap)crits.get(agent);
-    if(h==null) h = (HashMap)crits.get("DEFAULT");
-    if(h==null) return null;
-    Object obj = h.get(key+":");
-    if(obj==null) obj = h.get("DEFAULT:");
-    if(obj==null) return null;
-    if(dbg) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
+
+  public synchronized TrustSet getIncomingTrust(String source, String target)
+  {
+    checkOrMakeProxy(target);
+    HashMap h = (HashMap)crits.get(target);
+    if(h==null) {
+      h = (HashMap)crits.get("DEFAULT");
+    }
+    if(h==null) {
+      return null;
+    }
+
+    Object obj = h.get(source + ":");
+    if(obj==null) {
+      obj = h.get("DEFAULT:");
+    }
+    if(obj==null) {
+      return null;
+    }
+    if(dbg) {
+      System.out.println("Msg IN:" + source + "->" + target
+			 + ". Criticality:" + obj);
+    }
 
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
-    h = (HashMap)integs.get(agent);
+    h = (HashMap)integs.get(target);
     if(h==null) h = (HashMap)integs.get("DEFAULT");
     if(h==null) return ts;
-    obj = h.get(key+":");
+    obj = h.get(source + ":");
     if(obj==null) obj = h.get("DEFAULT:");
     if(obj==null) return ts;
-    if(dbg) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
+
+    if(dbg) {
+      System.out.println("Msg IN:" + source + "->" + target
+			 +". Integrity:"+obj);
+    }
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
   }
 
-  public synchronized TrustSet getOutgoingTrust(String agent, String key) {
-    checkOrMakeProxy(agent);
-    HashMap h = (HashMap)crits.get(agent);
+  public synchronized TrustSet getOutgoingTrust(String source, String target) {
+    checkOrMakeProxy(source);
+    HashMap h = (HashMap)crits.get(source);
     if(h==null) h = (HashMap)crits.get("DEFAULT");
     if(h==null) return null;
-    Object obj = h.get(":"+key);
+
+    Object obj = h.get(":"+target);
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return null;
-    if(dbg) System.out.println("Agent:"+agent+" got criticality:"+obj+" for "+key);
+    if(dbg) {
+      System.out.println("Msg OUT:" + source + "->" + target
+			 + ". Criticality:"+obj);
+    }
 
     TrustSet ts = new TrustSet();
     ts.addAttribute(new TrustAttribute(MissionCriticality.name, obj));
 
-    h = (HashMap)integs.get(agent);
+    h = (HashMap)integs.get(source);
     if(h==null) h = (HashMap)integs.get("DEFAULT");
     if(h==null) return ts;
-    obj = h.get(":"+key);
+    obj = h.get(":" + target);
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return ts;
-    if(dbg) System.out.println("Agent:"+agent+" got integrity:"+obj+" for "+key);
+    if(dbg) {
+      System.out.println("Msg OUT:" + source + "->" + target
+			 + ". Integrity:" + obj);
+    }
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
 
     return ts;
   }
 
-  public synchronized String getIncomingAction(String agent, String level){
-    checkOrMakeProxy(agent);
-    HashMap h = (HashMap)actions.get(agent);
+  public synchronized String getIncomingAction(String target, String level){
+    checkOrMakeProxy(target);
+    HashMap h = (HashMap)actions.get(target);
     if(h==null) h = (HashMap)actions.get("DEFAULT");
     if(h==null) return null;
     String r = (String)h.get("Criticality"+level+":");
-    if(dbg) System.out.println("Agent:"+agent+" got incoming action:"
-				 + r + " for level " + level);
+    if(dbg) {
+      System.out.println("Msg IN: ->" + target 
+			 +". Action:" + r + " for level " + level);
+    }
     return r;
   }
 
-  public synchronized String getOutgoingAction(String agent, String level){
-    checkOrMakeProxy(agent);
-    HashMap h = (HashMap)actions.get(agent);
+  public synchronized String getOutgoingAction(String source, String level){
+    checkOrMakeProxy(source);
+    HashMap h = (HashMap)actions.get(source);
     if(h==null) h = (HashMap)actions.get("DEFAULT");
     if(h==null) return null;
     String r = (String)h.get(":"+"Criticality"+level);
     if(dbg) {
-      String s = "Agent:"+agent+" got outgoing action:" +
+      String s = "Msg OUT:" + source + "-> . Action:" +
 	(r == null ? "No policy" : r) + " for level " + level;
       System.out.println(s);
     }
     return r;
   }
 
-  public synchronized String getIncomingAgentAction(String target,
-						    String source) {
+  public synchronized String getIncomingAgentAction(String source,
+						    String target) {
     checkOrMakeProxy(target);
     HashMap h = (HashMap)agentActions.get(target);
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
-      if(dbg)System.out.println("No inAgentAction found for " + target);
+      if(dbg) {
+	System.out.println("Msg IN: " + source + "->" + target
+			   + "No AgentAction");
+      }
       return null;
     }
-    String r = (String)h.get("In:" + target);
-    if(r == null)r = (String)h.get("In:DEFAULT");
-    if(dbg) System.out.println("Agent:"+ target + " got incoming agent action:"+ r +" for "+ source);
+    String r = (String)h.get("In:" + source);
+    if(r == null) {
+      r = (String)h.get("In:DEFAULT");
+    }
+    if(dbg) {
+      System.out.println("Msg IN:" + source + "->" + target +
+			 ". Agent action:" + r);
+    }
     return r;
 
   }
@@ -197,40 +232,45 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     HashMap h = (HashMap)agentActions.get(source);
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
-      if(dbg)System.out.println("No outAgentAction found for " + source);
+      if(dbg)System.out.println("Msg OUT: " + source + "->" + target
+				+ "No AgentAction");
       return null;
     }
-    if(false) {
-      Iterator keys = h.keySet().iterator();
-      System.out.print("Keys for agent " + source + ": ");
-      while(keys.hasNext())
-	System.out.print(" " + keys.next().toString());
-      System.out.println("[" + target + "]");
-    }
     String r = (String)h.get("Out:" + target);
-    if(r == null)r = (String)h.get("Out:DEFAULT");
-    if(dbg) System.out.println("Agent:"+ target +" got outgoing agent action:" + r +" for "+
-				 source);
+    if(r == null) {
+      r = (String)h.get("Out:DEFAULT");
+    }
+    if(dbg) {
+      System.out.println("Msg OUT: " + source + "->" + target
+			 +". Outgoing agent action:" + r);
+    }
     return r;
   }
 
 
-  public synchronized Object[] getIncomingVerbs(String target, String source) {
+  public synchronized Object[] getIncomingVerbs(String source, String target)
+  {
     checkOrMakeProxy(target);
     try{
       HashMap h = (HashMap)verbs.get(target);
-      if(h == null)h = (HashMap)verbs.get("DEFAULT");
       if(h == null) {
-	if(dbg)System.out.println("No IN AgentAction found for " + target);
+	h = (HashMap)verbs.get("DEFAULT");
+      }
+      if(h == null) {
+	if(dbg)System.out.println("Msg IN: " + source + "->" + target
+				  + ". No verb");
 	return null;
       }
-      Vector r = (Vector)h.get("In:" + target);
-      if(r == null)r = (Vector)h.get("In:DEFAULT");
+      Vector r = (Vector)h.get("In:" + source);
+      if(r == null) {
+	r = (Vector)h.get("In:DEFAULT");
+      }
       if(dbg) {
-	System.out.print("Agent:"+ target +" got outgoing verbs ( ");
+	System.out.print("Msg IN:" + source + "->" + target
+			 + ". Verbs:");
 	for(int i = 0; i < r.size(); i++)
 	  System.out.print(r.get(i).toString() + " ");
-	System.out.println(")  for " + source);
+	System.out.println("");
       }
       return r.toArray();
     }
@@ -248,24 +288,29 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     HashMap h = (HashMap)verbs.get(source);
     if(h == null)h = (HashMap)verbs.get("DEFAULT");
     if(h == null) {
-      if(dbg)System.out.println("No OUT AgentAction found for " + source);
+      if(dbg)System.out.println("Msg OUT: " + source + "->" + target
+				+ ". No verb");
       return null;
     }
+
     if(dbg) {
       Iterator keys = h.keySet().iterator();
-      System.out.print("Keys for agent " + source + ": ");
+      System.out.print("Msg OUT: " + source + "->" + target + ". Verbs:");
       while(keys.hasNext())
 	System.out.print(" " + keys.next().toString());
-      System.out.println("[" + target + "]");
+      System.out.println("");
     }
     Vector r = (Vector)h.get("Out:" + target);
-    if(r == null)r = (Vector)h.get("Out:DEFAULT");
+    if(r == null) {
+      r = (Vector)h.get("Out:DEFAULT");
+    }
     if(dbg) {
-      System.out.print("Agent:"+ target +" got outgoing verbs ( ");
+      System.out.print("Msg OUT:" + source + "->" + target
+		       +". Verbs:");
       for(int i = 0; i < r.size(); i++)
 	System.out.print(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
-      System.out.println(")  for " + source);
+      System.out.println("");
     }
     Verb[] verbs = new Verb[0];
     try {
@@ -285,7 +330,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     trustTable.put((Object)uid, (Object)trust);
   }
 
-  /** ***************************************************************************
+  /** ********************************************************************
    *  AccessPolicyProxy
    */
   private class AccessPolicyProxy extends GuardRegistration implements AgentEnforcer{
@@ -350,7 +395,8 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" ) {
 		if(debug)
-		  System.out.println("--default out verbs specified for:"+ agent);
+		  System.out.println("--default out verbs specified for:"
+				     + agent);
 		updateVerb("Out:DEFAULT",value);
 	      }
 
@@ -361,7 +407,10 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	    }
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" ) {
-		if(debug) System.out.println("--default agentAction specified for:"+ agent);
+		if(debug) {
+		  System.out.println("--default agentAction specified for:"
+				     + agent);
+		}
 		updateVerb("In:DEFAULT", value);
 	      }
 	      for(int i = 0; i < entry.length; i++) {
@@ -372,8 +421,10 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	  if(name.endsWith("AgentAction")){
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" ) {
-		if(debug)
-		  System.out.println("--default agentAction specified for:"+ agent);
+		if(debug) {
+		  System.out.println("--default agentAction specified for:"
+				     + agent);
+		}
 		updateAgentAction("Out:DEFAULT",value);
 	      }
 
@@ -384,25 +435,35 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	    }
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" ) {
-		if(debug) System.out.println("--default agentAction specified for:"+ agent);
+		if(debug) {
+		  System.out.println("--default agentAction specified for:"
+				     + agent);
+		}
 		updateAgentAction("In:DEFAULT", value);
 	      }
 	      for(int i = 0; i < entry.length; i++) {
-		updateAgentAction("In:" + entry[i].getKey(), entry[i].getValue());
+		updateAgentAction("In:" + entry[i].getKey(),
+				  entry[i].getValue());
 	      }
 	    }
 	  }
 	  if(name.endsWith("MessageAction")){
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" )
-		if(debug) System.out.println("--default messageAction specified for:"+ agent);
+		if(debug) {
+		  System.out.println("--default messageAction specified for:"
+				     + agent);
+		}
 	      for(int i = 0; i < entry.length; i++) {
 		updateAction(":"+entry[i].getKey(), entry[i].getValue());
 	      }
 	    }
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" )
-		if(debug) System.out.println("--default messageAction specified for:"+ agent);
+		if(debug) {
+		  System.out.println("--default messageAction specified for:"
+				     + agent);
+		}
 	      for(int i = 0; i < entry.length; i++) {
 		updateAction(entry[i].getKey()+":", entry[i].getValue());
 	      }
@@ -410,13 +471,17 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	  }
 	  if(name.endsWith("MessageCriticality")){
 	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) updateCriticality(":"+"DEFAULT",value);
+	      if(value!=null && value !="" ) {
+		updateCriticality(":"+"DEFAULT",value);
+	      }
 	      for(int i = 0; i < entry.length; i++) {
 		updateCriticality(":"+entry[i].getKey(), entry[i].getValue());
 	      }
 	    }
 	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) updateCriticality("DEFAULT"+":",value);
+	      if(value!=null && value !="" ) {
+		updateCriticality("DEFAULT"+":",value);
+	      }
 	      for(int i = 0; i < entry.length; i++) {
 		updateCriticality(entry[i].getKey()+":", entry[i].getValue());
 	      }
@@ -424,19 +489,22 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 	  }
 	  if(name.endsWith("MessageIntegrity")){
 	    if(name.startsWith("Outgoing")) {
-	      if(value!=null && value !="" ) updateIntegrity(":"+"DEFAULT",value);
+	      if(value!=null && value !="" ) {
+		updateIntegrity(":"+"DEFAULT",value);
+	      }
 	      for(int i = 0; i < entry.length; i++) {
 		updateIntegrity(":"+entry[i].getKey(), entry[i].getValue());
 	      }
 	    }
 	    if(name.startsWith("Incoming")) {
-	      if(value!=null && value !="" ) updateIntegrity("DEFAULT"+":",value);
+	      if(value!=null && value !="" ) {
+		updateIntegrity("DEFAULT"+":",value);
+	      }
 	      for(int i = 0; i < entry.length; i++) {
 		updateIntegrity(entry[i].getKey()+":", entry[i].getValue());
 	      }
 	    }
 	  }
-
         }
     }
 
@@ -505,7 +573,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
       }else{
 	h = new HashMap();
 	h.put(key,value);
-	crits.put(agent,h);
+	crits.put(agent, h);
       }
     }
 
