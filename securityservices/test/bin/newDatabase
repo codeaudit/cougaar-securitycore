@@ -79,7 +79,7 @@ user_privileges() {
 
 	echo "Access privileges for user ultralog on ${db_1ad}:"
 	#mysqlaccess \* ${db_user} ${db_1ad} --brief -U ${db_superuser} -P ${db_spassword}
-	#mysqlaccess \* ${db_user} ${db_csmart} --brief -U ${db_superuser} -P ${db_spassword}
+	mysqlaccess \* ${db_user} ${db_csmart} --brief -U ${db_superuser} -P ${db_spassword}
 }
 
 load_csmart_database() {
@@ -120,19 +120,23 @@ echo
 echo "What do you want to do?"
 echo "1: Load communities from"
 echo "       ${community_file_attr}"
+echo "2: Set user privileges"
 echo "2: Load security recipes from"
 echo "       ${recipes_dir}"
-echo '3: Everything (drop and recreate db, set user privileges,'
+echo '4: Everything (drop and recreate db, set user privileges,'
 echo '       load csmart and domain database, load communities,'
 echo '       load security services recipes)'
+echo "5: Load domain database"
 echo -n "Please enter your choice: "
 read reply
 
 if [ ${reply} == "1" ]; then
 	load_communities
 elif [ ${reply} == "2" ]; then
-	load_sec_recipes
+	user_privileges
 elif [ ${reply} == "3" ]; then
+	load_sec_recipes
+elif [ ${reply} == "4" ]; then
 	drop_database
 	create_database
 	user_privileges
@@ -140,7 +144,7 @@ elif [ ${reply} == "3" ]; then
 	load_communities
 	load_domain_database
 	load_sec_recipes
-elif [ ${reply} == "4" ]; then
+elif [ ${reply} == "5" ]; then
 	load_domain_database
 else
 	echo "Nothing to do"
