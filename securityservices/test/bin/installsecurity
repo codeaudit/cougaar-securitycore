@@ -53,6 +53,11 @@ else
   ant=`which ant`
 fi
 
+if [ $ant == "/usr/bin/ant" ]; then
+  # Probably not the right version, try with this
+  ant=/mnt/software/ANT/jakarta-ant-1.5/bin/ant
+fi
+
 $ant install
 
 echo "Zipping files to AS_csi_secserv.zip"
