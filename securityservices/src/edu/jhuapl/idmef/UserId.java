@@ -181,7 +181,7 @@ public class UserId implements XMLSerializable{
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
+	    Element root = document.createElement("Test_IDMEF_Message"); 
 	    document.appendChild (root);
 	    Node node = userid.convertToXML(document);
 	    root.appendChild(node);
@@ -191,11 +191,7 @@ public class UserId implements XMLSerializable{
 	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
 	    sezr.serialize(document);
 	    System.out.println(buf.getBuffer());
-	      
-
-	    UserId testId = new UserId(node);
-
-
+	    
 	} catch (Exception e) {e.printStackTrace();}
     }
 

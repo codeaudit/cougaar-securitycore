@@ -189,7 +189,7 @@ public abstract class IDMEF_Message implements XMLSerializable{
 	DocumentBuilder builder = factory.newDocumentBuilder();
 	Document document = builder.newDocument(); 
 	// Element root = (Element) document.createElementNS("idmef", "IDMEF-Message"); 
-	Element root = (Element) document.createElement("IDMEF-Message"); 
+	Element root = document.createElement("IDMEF-Message"); 
 	document.appendChild (root);
 	if(version != null)
 	{
@@ -206,95 +206,6 @@ public abstract class IDMEF_Message implements XMLSerializable{
 	root.appendChild(messageNode);
 	return document;
     }
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-     /*
-    public static void main(String args[]){
-	try{
-	    //make a node
-	    Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
-				      new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
-	    IDMEF_Node testNode = new IDMEF_Node("Test Location", 
-						 "Test Name", address_list, 
-						 "Test_Ident", 
-						 IDMEF_Node.DNS);
-	    //make a user
-	    UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
-	    
-	    User testUser = new User(userId_list, "Test_Ident", User.APPLICATION);
-	    
-	    
-	    //make a Process
-	    String arg_list[] = {"-r", "-b", "12.3.4.5"};
-	    String env_list[] = {"HOME=/home/mccubb/", "PATH=/usr/sbin"};
-	    IDMEF_Process testProcess = new IDMEF_Process("Test_Name", new Integer(1002), "/usr/sbin/ping",
-							  arg_list, env_list, "Test_Ident");
-	    
-	    //make a service
-	    Service testService = new Service("Test_Name", new Integer(23), 
-					      "26, 8, 100-1098", "telnet", "test_ident");
-	    
-	    
-
-	    
-
-
-	    //make an analyzer
-	    
-	    Analyzer testAnalyzer = new Analyzer(testNode, testProcess, "test_id");
-	    
-	    //make a createTime
-	    //make a detectTime
-	    //make a AnalyzerTime
-	    
-	    DetectTime d = new DetectTime ();
-	    CreateTime c = new CreateTime();
-	    AnalyzerTime a = new AnalyzerTime();
-
-	    //make a target list
-
-	    Target target[] = {new Target(testNode, testUser, testProcess, testService, "test_ident", 
-					  Target.YES, "/dev/eth0")};
-
-	    //make a source list
-	
-	    Source source[] = {new Source(testNode, testUser, testProcess, testService, "test_ident", 
-				      Source.YES, "/dev/eth0")};
-
-	    //make a Classification list
-	    Classification testClassification[] = {new Classification("Test_Name", 
-							  "http://www.yahoo.com", Classification.CVE)};
-        //make an Assessment					  
-		Impact impact = new Impact( Impact.HIGH,
-		                            Impact.SUCCEEDED,
-		                            Impact.OTHER,
-		                            "test_impact" );
-		Action actions[] = { new Action( Action.OTHER, "test_action" ) };
-		Confidence confidence = new Confidence( Confidence.NUMERIC, 0.5f );					  
-	    Assessment testAssessment = new Assessment( impact, actions, confidence );
-	    
-	    //make an additionalData list
-	    AdditionalData ad[] = {new AdditionalData (AdditionalData.INTEGER, 
-						"Chris' Age", "24")};
-
-
-	    Alert testAlert = new Alert(testAnalyzer, c, d, a, source, target, 
-	            testClassification, testAssessment, ad, "test_ident");
-
-	    System.out.println(testAlert.toString());
-	    createMessage(testAlert.toString());
-
-	    String testString = FileUtils.readWholeFile("example01.xml");
-	    System.out.println(testString);
-	    IDMEF_Message testMsg = createMessage(testString);
-	    System.out.println(testMsg.toString());
-	    PrintStream ps = new PrintStream(new FileOutputStream("ex01.xml"));
-	    ps.println(testMsg.toString());
-	}catch(Exception e){
-	    e.printStackTrace();
-	}
-    }
-    */
 }
 
 

@@ -133,7 +133,7 @@ public class AdditionalData implements XMLSerializable{
        a tag for a particular field, it will remain null.
     */
     public AdditionalData (Node inNode){
-	//additionalData = XMLUtils.getAssociatedString(inNode);
+	
 
 	NamedNodeMap nnm = inNode.getAttributes();
 
@@ -150,7 +150,6 @@ public class AdditionalData implements XMLSerializable{
         Node attr = null;
         String className = null;
         Node node = inNode.getFirstChild();
-        String nodeName = node.getNodeName();
         NamedNodeMap attributes = node.getAttributes();
         int size = attributes.getLength();
         for( int i = 0; i < size; i++ ){
@@ -229,7 +228,7 @@ public class AdditionalData implements XMLSerializable{
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
+	    Element root = document.createElement("Test_IDMEF_Message"); 
 	    document.appendChild (root);
 	    Node tNode = ad.convertToXML(document);
 	    root.appendChild(tNode);
@@ -239,9 +238,6 @@ public class AdditionalData implements XMLSerializable{
 	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
 	    sezr.serialize(document);
 	    System.out.println(buf.getBuffer());
-	      
-
-	    AdditionalData new_i = new AdditionalData(tNode);
 
 
 	} catch (Exception e) {e.printStackTrace();}

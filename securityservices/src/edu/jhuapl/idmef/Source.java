@@ -249,7 +249,7 @@ public class Source implements XMLSerializable{
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
+	    Element root = document.createElement("Test_IDMEF_Message"); 
 	    document.appendChild (root);
 	    Node tNode = source.convertToXML(document);
 	    root.appendChild(tNode);
@@ -259,9 +259,6 @@ public class Source implements XMLSerializable{
 	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
 	    sezr.serialize(document);
 	    System.out.println(buf.getBuffer());
-	      
-
-	    Source new_i = new Source(tNode);
 
 
 	} catch (Exception e) {e.printStackTrace();}

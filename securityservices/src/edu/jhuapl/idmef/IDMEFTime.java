@@ -149,7 +149,7 @@ public class IDMEFTime implements XMLSerializable{
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    Document document = builder.newDocument(); 
-	    Element root = (Element) document.createElement("Test_IDMEF_Message"); 
+	    Element root = document.createElement("Test_IDMEF_Message"); 
 	    document.appendChild (root);
 	    Node tNode = t.convertToXML(document);
 	    root.appendChild(tNode);

@@ -307,7 +307,6 @@ public class XMLUtils{
        
             case Node.ELEMENT_NODE:
               System.out.println("Element Node");
-              NamedNodeMap attributes = node.getAttributes();
               break;
       
             case Node.TEXT_NODE:
@@ -329,6 +328,8 @@ public class XMLUtils{
             case Node.DOCUMENT_TYPE_NODE:
               System.out.println("Document Node");
               break;
+              
+            default:
         }
 
         for (int j = 0; j<2 *ident; j++) 
@@ -358,7 +359,6 @@ public class XMLUtils{
        
             case Node.ELEMENT_NODE:
                 System.out.println("Element Node");
-                NamedNodeMap attributes = node.getAttributes();
                 for (int j = 0; j<2 *ident; j++)
                     System.out.print(" ");
                 System.out.println("It has the following Children");
@@ -393,6 +393,8 @@ public class XMLUtils{
             case Node.DOCUMENT_TYPE_NODE:
                 System.out.println("Document Node");
                 break;
+                
+            default:
             }
     }
 }
