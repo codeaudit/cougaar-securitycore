@@ -62,7 +62,7 @@ import org.cougaar.core.security.policy.ServletPolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 
 public class ServletPolicyEnforcer 
-  implements ServletPolicyService, PropertyChangeListener {
+  implements ServletPolicyService/*, PropertyChangeListener*/ {
 
   ServiceBroker _serviceBroker;
   ServletGuard  _servletGuard;
@@ -105,9 +105,10 @@ public class ServletPolicyEnforcer
       } // end of while (iter.hasNext())
     }
     
-    _context.addPropertyChangeListener(this);
+//     _context.addPropertyChangeListener(this);
   }
 
+  /*  
   public void propertyChange(PropertyChangeEvent evt) {
     String name = evt.getPropertyName();
     if (name.equals("manager")) {
@@ -115,10 +116,13 @@ public class ServletPolicyEnforcer
       _context.setManager(new LimitSessionManager((Manager)evt.getNewValue()));
     } // end of if (name.equals("manager"))
   }
+  */
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
     _daValve = da;
     _daValve.setAuthConstraints(_authConstraints, _starAuthConstraints);
+    _daValve.setLoginFailureSleepTime(_sleepTime);
+    _daValve.setSessionLife(_sessionLife);
   }
   
   public synchronized void setAuthConstraints(HashMap constraints, 
@@ -136,6 +140,13 @@ public class ServletPolicyEnforcer
       _sleepTime = sleepTime;
     } else {
       _daValve.setLoginFailureSleepTime(sleepTime);
+    }
+  }
+
+  public synchronized void setSessionLife(long sessionLife) {
+    _sessionLife = sessionLife;
+    if (_daValve != null) {
+      _daValve.setSessionLife(sessionLife);
     }
   }
 
@@ -315,7 +326,7 @@ public class ServletPolicyEnforcer
       HashSet roles = new HashSet();
 
       setLoginSleepTime(policy.getFailureDelay());
-      _sessionLife = policy.getSessionLife();
+      setSessionLife(policy.getSessionLife());
       while (iter.hasNext()) {
         ServletPolicy.ServletPolicyRule rule = 
           (ServletPolicy.ServletPolicyRule) iter.next();

@@ -123,12 +123,11 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   private String                     _certComponent = "CN";
   private UserService                _userService;
 
-  private Hashtable                  _errors = new Hashtable();
-
   private static BlackboardService   _blackboardService;
   private static IdmefMessageFactory _idmefFactory;
   private static CmrFactory          _cmrFactory;
   private static SensorInfo          _sensor;
+  private Hashtable                  _servers = new Hashtable();
 
   public static final int    LF_USER_DOESNT_EXIST       = 0;
   public static final int    LF_LDAP_ERROR              = 1;
@@ -137,9 +136,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final int    LF_USER_DISABLED           = 4;
   public static final int    LF_LDAP_PASSWORD_NULL      = 5;
   public static final int    LF_PASSWORD_MISMATCH       = 6;
-  public static final int    LF_USER_MISMATCH           = 7;
-  public static final int    LF_REQUIRES_CERT           = 8;
-  public static final int    LF_REQUIRES_ROLE           = 9;
+  public static final int    LF_REQUIRES_CERT           = 7;
+  public static final int    LF_REQUIRES_ROLE           = 8;
 
   public static final String FAILURE_REASON = "LOGIN_FAILURE_REASON";
   public static final Classification LOGINFAILURE = 
@@ -153,7 +151,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     "DISABLED_ACCOUNT",
     "NULL_DB_PASSWORD",
     "WRONG_PASSWORD",
-    "CONFLICTING_PRINCIPALS",
     "CERTIFICATE_REQUIRED",
     "INSUFFICIENT_PRIVILEGES"};
 
@@ -381,6 +378,20 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       setLoginError(LF_LDAP_ERROR, username, ne);
     }
     return null;
+  }
+
+  public Principal updateUser(Principal principal) {
+    if (!init()) return null;
+    try {
+      if (!(principal instanceof CougaarPrincipal)) {
+        return null; // I don't believe you!
+      }
+      Map attrs = _userService.getUser(principal.getName());
+      return getPrincipal(attrs);
+    } catch (UserServiceException e) {
+      setLoginError(LF_LDAP_ERROR, principal.getName(), e);
+      return null;
+    }
   }
 
   /**
@@ -630,7 +641,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   private List createTargets(String url, int serverPort, String protocol,
-                             String userName1, String userName2) {
+                             String userName) {
     IDMEF_Node node = _idmefFactory.getNodeInfo();
     List addrs = new ArrayList();
     if (node.getAddresses() != null) {
@@ -651,11 +662,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       
     User user = null;
     List uids = new ArrayList();
-    if (userName1 != null) {
-      uids.add(_idmefFactory.createUserId( userName1 ));
-    }
-    if (userName2 != null) {
-      uids.add(_idmefFactory.createUserId( userName2 ));
+    if (userName != null) {
+      uids.add(_idmefFactory.createUserId( userName ));
     }
     if (uids.size() > 0) {
       user = _idmefFactory.createUser( uids );
@@ -697,22 +705,21 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     return addData;
   }
 
-  public void alertLoginFailure(int failureType, String userName1, 
-                                String userName2, Exception ex,
+  public void alertLoginFailure(int failureType, String userName, 
+                                Exception ex,
                                 String remoteAddr,
                                 int serverPort, String protocol,
                                 String url) {
     if (!isAlertInitialized()) {
       log.debug("Couldn't alert about " + 
                          FAILURE_REASONS[failureType] +
-                         ", userName1: " + userName1 + ", userName2: " +
-                         userName2);
+                         ", userName: " + userName);
       return; // can't alert without IDMEF factory
     }
 
     List sources = createSources(remoteAddr);
     List targets = createTargets(url, serverPort, protocol,
-                                 userName1, userName2);
+                                 userName);
     List classifications = createClassifications();
     String targetIdent = ((Target) targets.get(0)).getIdent();
     List additionalData = createAdditionalData(failureType, targetIdent, ex);
@@ -744,12 +751,31 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private void setLoginError(int err, String userName, Exception e) {
     log.info("Login failed for " + userName + " . Reason:" + FAILURE_REASONS[err]);
-    _errors.put(Thread.currentThread(), 
-                new Object[] { new Integer(err), userName, e} );
+    ServerInfo info = (ServerInfo) _servers.get(Thread.currentThread());
+
+    alertLoginFailure(err, userName, e, info.remoteAddr, info.serverPort,
+                      info.protocol, info.url);
   }
 
-  public Object[] getLoginError() {
-    return (Object[]) _errors.remove(Thread.currentThread());
+  public void setServer(String remoteAddr, int serverPort, String protocol,
+                        String url) {
+    ServerInfo si = new ServerInfo();
+    si.remoteAddr = remoteAddr;
+    si.serverPort = serverPort;
+    si.protocol = protocol;
+    si.url = url;
+    _servers.put(Thread.currentThread(), si);
+  }
+
+  public void clearServer() {
+    _servers.remove(Thread.currentThread());
+  }
+
+  static class ServerInfo {
+    public String remoteAddr;
+    public int serverPort;
+    public String protocol;
+    public String url;
   }
 
   static {

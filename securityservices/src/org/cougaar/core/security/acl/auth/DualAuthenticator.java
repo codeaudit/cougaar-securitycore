@@ -23,23 +23,22 @@
 
 package org.cougaar.core.security.acl.auth;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
+import java.io.*;
+import java.util.*;
 import java.security.Principal;
+import java.net.*;
+import java.lang.reflect.*;
+import javax.net.ssl.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.ServletOutputStream;
 
+import org.apache.catalina.Session;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Context;
@@ -48,12 +47,14 @@ import org.apache.catalina.ValveContext;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Realm;
+import org.apache.catalina.Manager;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.SSLAuthenticator;
+import org.apache.catalina.authenticator.DigestAuthenticator;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
@@ -63,10 +64,9 @@ import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 
 public class DualAuthenticator extends ValveBase {
-  static final int CONST_NONE     = 0x00;
-  static final int CONST_PASSWORD = 0x01;
-  static final int CONST_CERT     = 0x02;
-  static final int CONST_BOTH     = 0x03;
+  static final byte AUTH_NONE     = 0x00;
+  static final byte AUTH_PASSWORD = 0x01;
+  static final byte AUTH_CERT     = 0x02;
 
   private static ResourceBundle _authenticators = null;
   AuthenticatorBase _primaryAuth;
@@ -76,6 +76,7 @@ public class DualAuthenticator extends ValveBase {
   HashMap           _constraints = new HashMap();
   HashMap           _starConstraints = new HashMap();
   long              _failSleep   = 1000;
+  long              _sessionLife = 60000;
 
   public DualAuthenticator() {
     this(new SSLAuthenticator(), new BasicAuthenticator());
@@ -96,6 +97,387 @@ public class DualAuthenticator extends ValveBase {
    * Valve callback. First check the primary authentication method
    * and if not authenticated, call the secondary authentication method.
    */
+  public void invoke(Request request, Response response,
+                     ValveContext context) 
+    throws IOException, ServletException {
+    setContainer();
+//     System.out.println("Going through Dual Authenticator");
+    // If this is not an HTTP request, do nothing
+    if (!(request instanceof HttpRequest) ||
+        !(response instanceof HttpResponse)) {
+      context.invokeNext(request, response);
+      return;
+    }
+    if (!(request.getRequest() instanceof HttpServletRequest) ||
+        !(response.getResponse() instanceof HttpServletResponse)) {
+      context.invokeNext(request, response);
+      return;
+    }
+
+    HttpRequest hrequest = (HttpRequest) request;
+    HttpResponse hresponse = (HttpResponse) response;
+    HttpServletRequest  hsrequest  = (HttpServletRequest) request.getRequest();
+    HttpServletResponse hsresponse = 
+      (HttpServletResponse) request.getResponse();
+
+    String cipher = getCipher(hrequest);
+
+//     System.out.println("cipher = " + cipher);
+    // determine if we need to redirect to HTTPS
+    if (!hsrequest.isSecure() && needHttps(hsrequest, cipher)) {
+//       System.out.println("moving over to https");
+      redirectToHttps(hrequest, hresponse, hsrequest, hsresponse);
+      return;
+    }
+
+    // determine the authentication requirement for this URI
+    byte uriAuthLevel = 
+      getURIAuthRequirement(hsrequest.getRequestURI(), cipher);
+    byte userAuthLevel;
+
+//     System.out.println("URI requires " + uriAuthLevel);
+    if (uriAuthLevel == AUTH_NONE) {
+      // no authentication requirement
+//       System.out.println("no authorization.. invoking servlet");
+      context.invokeNext(request, response);
+      return;
+    }
+    
+    // determine if the principal is already cached
+    Principal principal =  getCachedPrincipal(hrequest, hsrequest);
+    userAuthLevel = getAuthLevel(hsrequest.getAuthType());
+
+//     System.out.println("User auth level: " + userAuthLevel);
+    if (principal == null || userAuthLevel < uriAuthLevel) {
+      // The authentication level is not enough. 
+//       System.out.println("Authenticate the user");
+      principal = authenticate(hrequest, hresponse, 
+                               hsrequest, hsresponse, uriAuthLevel);
+//       System.out.println("Authenticated the user: " + principal);
+      if (principal == null) {
+        failSleep();
+        return; // couldn't authenticate
+      }
+      userAuthLevel = getAuthLevel(hsrequest.getAuthType());
+    }
+//     System.out.println("User auth level: " + userAuthLevel);
+    // we're authenticate, now check the roles
+    if (rolesOk(cipher, userAuthLevel, 
+                (CougaarPrincipal) principal, hsrequest)) {
+//       System.out.println("roles are good... invoking servlet");
+      // authorization is ok
+      context.invokeNext(request, response);
+    } else {
+      failSleep();
+//       System.out.println("roles are bad... returning error");
+      hsresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+                           hsrequest.getRequestURI());
+    }
+  }
+
+  private static String getCipher(HttpRequest req) {
+    Socket sock = req.getSocket();
+    if (!(sock instanceof SSLSocket)) {
+      return "plain";
+    }
+
+    SSLSocket ssl = (SSLSocket) sock;
+    return ssl.getSession().getCipherSuite();
+  }
+
+  protected boolean authenticate(AuthenticatorBase auth,
+                                 HttpRequest req, HttpResponse resp) 
+    throws IOException {
+    if (auth instanceof SSLAuthenticator) {
+      return ((SSLAuthenticator) auth).authenticate(req, resp, _loginConfig);
+    } 
+    if (auth instanceof BasicAuthenticator) {
+      return ((BasicAuthenticator) auth).authenticate(req, resp, _loginConfig);
+    } 
+    if (auth instanceof DigestAuthenticator) {
+      return ((DigestAuthenticator) auth).authenticate(req, resp, _loginConfig);
+    } 
+    try {
+      Method method =  auth.getClass().getMethod("authenticate", new Class[] { 
+        HttpRequest.class, HttpResponse.class, LoginConfig.class });
+      return ((Boolean) method.invoke(auth, new Object[] { 
+        req, resp, _loginConfig })).booleanValue();
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  protected boolean rolesOk(String cipher, byte userAuthLevel,
+                            CougaarPrincipal principal,
+                            HttpServletRequest req) {
+    SecurityConstraint constraint = findConstraint(req.getRequestURI());
+    if (constraint == null) {
+      return true;
+    }
+
+    if (constraint.getAllRoles()) {
+      return true;
+    }
+
+    Realm realm = getRealm();
+    String roles[] = constraint.findAuthRoles();
+    if (roles != null) {
+      for (int i = 0; i < roles.length; i++) {
+        if (realm.hasRole(principal, roles[i])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  protected byte getAuthLevel(String auth) {
+    if (auth == HttpServletRequest.BASIC_AUTH ||
+        auth == HttpServletRequest.DIGEST_AUTH ||
+        auth == HttpServletRequest.FORM_AUTH) {
+      return AUTH_PASSWORD;
+    }
+    if (auth == HttpServletRequest.CLIENT_CERT_AUTH) {
+      return AUTH_CERT;
+    }
+    if (auth == null) {
+      return AUTH_NONE;
+    }
+
+    // EITHER and BOTH are legacy terms
+    if ("PASSWORD".equals(auth) || "EITHER".equals(auth)) {
+      return AUTH_PASSWORD;
+    } else if ("CERT".equals(auth) || "BOTH".equals(auth)) {
+      return AUTH_CERT;
+    } else if ("NONE".equals(auth)) {
+      return AUTH_NONE;
+    }
+
+    if (auth.equals(HttpServletRequest.BASIC_AUTH) ||
+        auth.equals(HttpServletRequest.DIGEST_AUTH) ||
+        auth.equals(HttpServletRequest.FORM_AUTH)) {
+      return AUTH_PASSWORD;
+    }
+    if (auth.equals(HttpServletRequest.CLIENT_CERT_AUTH)) {
+      return AUTH_CERT;
+    }
+    return AUTH_NONE;
+  }
+
+  protected SecurityConstraint findConstraint(String uri) {
+      
+    // Are there any defined security constraints?
+    SecurityConstraint constraints[] = _context.findConstraints();
+    if ((constraints == null) || (constraints.length == 0)) {
+      return null;
+    }
+
+    try {
+      uri = URLDecoder.decode(uri, "UTF-8"); // Before checking constraints
+    } catch (UnsupportedEncodingException e) {
+      // leave the uri as is and pray
+    }
+    for (int i = 0; i < constraints.length; i++) {
+      if (constraints[i].included(uri, "GET"))
+        return constraints[i];
+    }
+    return null;
+  }
+
+  protected byte getURIAuthRequirement(String path, String cipher) {
+    byte constraint = 0;
+    HashMap checkAgainst = _constraints;
+    do {
+      Iterator iter = checkAgainst.entrySet().iterator(); 
+      while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        String wildPath = (String) entry.getKey();
+//         System.out.println("Checking " + path + " against " + wildPath);
+        boolean match = checkMatch(path, wildPath);
+        
+        if (match) {
+          String type = (String) entry.getValue();
+          constraint = getAuthLevel(type);
+//           System.out.println("constraint = " + constraint + " from " + type);
+          if (constraint == AUTH_CERT) {
+            return constraint;
+          }
+        }
+      }
+      
+      if (checkAgainst == _starConstraints) {
+        return constraint; // only go through twice
+      }
+
+      int index = 0;
+      if (!path.startsWith("/$") || (index = path.indexOf("/", 2)) == -1) {
+        return constraint;
+      }
+      path = path.substring(index);
+      checkAgainst = _starConstraints;
+    } while (true);
+  }
+
+  protected boolean needHttps(HttpServletRequest req, String cipher) {
+    SecurityConstraint constraint = findConstraint(req.getRequestURI());
+    if (constraint == null) {
+      return false;
+    }
+    String userConstraint = constraint.getUserConstraint();
+    if (userConstraint == null) {
+      return false;
+    }
+    if (userConstraint.equals(org.apache.catalina.authenticator.Constants.NONE_TRANSPORT)) {
+      return false;
+    }
+    if (req.isSecure()) {
+      return false;
+    }
+    return true;
+  }
+
+  protected void redirectToHttps(HttpRequest req, HttpResponse resp,
+                                 HttpServletRequest hrequest, 
+                                 HttpServletResponse hresponse)
+    throws IOException {
+    int redirectPort = req.getConnector().getRedirectPort();
+    if (redirectPort <= 0) {
+      hresponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+                          hrequest.getRequestURI());
+      return;
+    }
+
+    // Redirect to the corresponding SSL port
+    String protocol = "https";
+    String host = hrequest.getServerName();
+    StringBuffer file = new StringBuffer(hrequest.getRequestURI());
+    String requestedSessionId = hrequest.getRequestedSessionId();
+    if ((requestedSessionId != null) &&
+        hrequest.isRequestedSessionIdFromURL()) {
+      file.append(";jsessionid=");
+      file.append(requestedSessionId);
+    }
+    String queryString = hrequest.getQueryString();
+    if (queryString != null) {
+      file.append('?');
+      file.append(queryString);
+    }
+
+    URL url = null;
+    try {
+      url = new URL(protocol, host, redirectPort, file.toString());
+      hresponse.sendRedirect(url.toString());
+    } catch (MalformedURLException e) {
+      hresponse.sendError
+        (HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+         hrequest.getRequestURI());
+    }
+  }
+
+  protected void failSleep() {
+    try {
+      Thread.sleep(_failSleep);
+    } catch (Exception e) {
+    }
+  }
+
+  protected KeyRingJNDIRealm getRealm() {
+    Realm rlm = _context.getRealm();
+    if (rlm instanceof SecureRealm) {
+      SecureRealm srealm = (SecureRealm) _context.getRealm();
+      return (KeyRingJNDIRealm) srealm.getRealm();
+    }
+    return (KeyRingJNDIRealm) rlm;
+  }
+
+  protected Principal authenticate(HttpRequest req, HttpResponse resp,
+                                   HttpServletRequest hreq, 
+                                   HttpServletResponse hresp,
+                                   byte uriAuthLevel) throws IOException {
+    KeyRingJNDIRealm realm = getRealm();
+    try {
+      realm.setServer(hreq.getRemoteAddr(), hreq.getServerPort(),
+                      hreq.isSecure() ? "https" : "http", 
+                      hreq.getRequestURL().toString());
+
+      HttpResponse sslResponse = resp;
+      if (uriAuthLevel == AUTH_PASSWORD) {
+        sslResponse = new ResponseDummy(resp, new NoErrorResponse(hresp));
+      }
+
+      // first try SSL authentication
+      boolean authed = authenticate(_primaryAuth,req, sslResponse);
+      if (!authed) {
+        // not CERT authed
+        if (uriAuthLevel == AUTH_CERT) {
+          return null; // returned error already
+        }
+
+        // try password
+        authed = authenticate(_secondaryAuth, req, resp);
+        if (authed) {
+          // check the user requirements
+          CougaarPrincipal principal = 
+            (CougaarPrincipal) hreq.getUserPrincipal();
+          byte userAuthRequirements = 
+            getAuthLevel(principal.getLoginRequirements());
+
+          if (userAuthRequirements == AUTH_CERT) {
+            if (hreq.isSecure()) {
+              // I know it will return an error
+              authenticate(_primaryAuth, req, resp);
+              return null;
+            }
+            // redirect to Https
+            redirectToHttps(req, resp, hreq, hresp);
+          }
+        }
+      }
+      return hreq.getUserPrincipal();
+    } finally {
+      realm.clearServer();
+    }
+  }
+
+  protected Principal getCachedPrincipal(HttpRequest hreq,
+                                         HttpServletRequest req) {
+    Principal principal = req.getUserPrincipal();
+    HttpSession session = req.getSession(false);
+    Session sn = null;
+    if (session != null) {
+      Manager manager = _context.getManager();
+      if (manager != null) {
+        try {
+          sn = manager.findSession(session.getId());
+          if (sn != null && principal == null) {
+            principal = sn.getPrincipal();
+            hreq.setAuthType(sn.getAuthType());
+            hreq.setUserPrincipal(principal);
+          }
+        } catch (IOException e) {
+          // just return null
+        }
+      }
+    }
+    if (session != null && principal != null) {
+      long now = System.currentTimeMillis();
+      if (now - session.getCreationTime() > _sessionLife) {
+        principal = getRealm().updateUser(principal);
+        if (principal == null) {
+          hreq.setUserPrincipal(null);
+          hreq.setAuthType(null);
+        }
+      }
+      return principal;
+    }
+    return null;
+  }
+
+  /**
+   * Valve callback. First check the primary authentication method
+   * and if not authenticated, call the secondary authentication method.
+   */
+  /*
   public void invoke(Request request, Response response,
                      ValveContext context) throws IOException, ServletException {
     // ensure that authentication containers are set
@@ -307,6 +689,8 @@ public class DualAuthenticator extends ValveBase {
                                serverPort, protocol, url);
     }    
   }
+  */
+
   /**
    * Sets an authentication constraints. It allows
    * the specification of whether the path should support authentication
@@ -337,16 +721,13 @@ public class DualAuthenticator extends ValveBase {
   public synchronized void setLoginFailureSleepTime(long sleepTime) {
     _failSleep = sleepTime;
   }
-  
-  private static int convertConstraint(String constraint) {
-    if ("BOTH".equals(constraint)) {
-      return CONST_BOTH;
-    } else if ("PASSWORD".equals(constraint)) {
-      return CONST_PASSWORD;
-    } else if ("CERT".equals(constraint)) {
-      return CONST_CERT;
-    }
-    return CONST_NONE;
+
+  /**
+   * Sets the maximum cached session life time (milliseconds) before
+   * rechecking the user database.
+   */
+  public synchronized void setSessionLife(long sessionLife) {
+    _sessionLife = sessionLife;
   }
 
   private static boolean checkMatch(String path, String wildPath) {
@@ -357,38 +738,6 @@ public class DualAuthenticator extends ValveBase {
     } else {
       return path.equals(wildPath);
     }
-  }
-
-  private synchronized int getConstraint(String path) {
-    int constraint = 0;
-    HashMap checkAgainst = _constraints;
-    do {
-      Iterator iter = checkAgainst.entrySet().iterator(); 
-      while (iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        String wildPath = (String) entry.getKey();
-        boolean match = checkMatch(path,wildPath);
-        
-        if (match) {
-          String type = (String) entry.getValue();
-          constraint |= convertConstraint(type);
-          if ((constraint & CONST_BOTH) == CONST_BOTH) {
-            return constraint;
-          }
-        }
-      }
-      
-      if (checkAgainst == _starConstraints) {
-        return constraint; // only go through twice
-      }
-
-      int index = 0;
-      if (!path.startsWith("/$") || (index = path.indexOf("/", 2)) == -1) {
-        return constraint;
-      }
-      path = path.substring(index);
-      checkAgainst = _starConstraints;
-    } while (true);
   }
 
   private static AuthenticatorBase getAuthenticator(Class authClass) {
@@ -429,12 +778,10 @@ public class DualAuthenticator extends ValveBase {
 
   public void setPrimaryAuthenticator(AuthenticatorBase primaryAuth) {
     _primaryAuth = primaryAuth;
-//     _primaryAuth.setDebug(100);
   }
 
   public void setSecondaryAuthenticator(AuthenticatorBase secondaryAuth) {
     _secondaryAuth = secondaryAuth;
-//     _secondaryAuth.setDebug(100);
   }
 
   public void setPrimaryAuthenticatorName(String primaryAuth) {
@@ -552,7 +899,7 @@ public class DualAuthenticator extends ValveBase {
     public void sendError(int sc, String msg) {
     }
   }
-
+  /*
   private class DummyValveContext implements ValveContext {
     int _invoked = 0;
 
@@ -570,4 +917,5 @@ public class DualAuthenticator extends ValveBase {
       return _invoked;
     }
   }
+  */
 }

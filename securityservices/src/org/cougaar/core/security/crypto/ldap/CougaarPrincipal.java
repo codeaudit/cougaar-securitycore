@@ -52,4 +52,17 @@ public class CougaarPrincipal extends GenericPrincipal {
   public String getLoginRequirements() {
     return _loginRequirements;
   }
+
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+
+    if (!(obj instanceof CougaarPrincipal)) {
+      return false;
+    }
+
+    CougaarPrincipal p = (CougaarPrincipal) obj;
+    return super.equals(p) && p._loginRequirements.equals(_loginRequirements);
+  }
 }
