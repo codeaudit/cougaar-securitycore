@@ -221,9 +221,9 @@ public class CryptoClientPolicyHandler
 
     if (localName.equals(IS_ROOT_CA_ELEMENT)) {
       String st_value = getContents();
-      boolean value = false;
-      if (st_value.equalsIgnoreCase("true")) {
-	value = true;
+      boolean value = true;
+      if (st_value.equalsIgnoreCase("false")) {
+	value = false;
       }
       if (CryptoDebug.debug) {
 	if (value) {
