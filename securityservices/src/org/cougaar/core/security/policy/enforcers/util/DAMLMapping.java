@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+import java.util.Vector;
 
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
@@ -26,7 +27,7 @@ public class DAMLMapping {
   private boolean _initialized = false;
   private LoggingService _log;
   private ConfigFinder _cf;
-  private Map _uriMap;
+  private List _uriMap;
 
   public DAMLMapping(ServiceBroker sb)
   {
@@ -56,9 +57,11 @@ public class DAMLMapping {
     try {
       _log.debug("Converting " + uri + " to KAoS uri");
       AgentUri agUri = new AgentUri(uri);
-      for (Iterator uriIt = _uriMap.keySet().iterator();
+      for (Iterator uriIt = _uriMap.iterator();
            uriIt.hasNext();) {
-        String pattern = (String) uriIt.next();
+        StringPair pair = (StringPair) uriIt.next();
+        String pattern = pair._first;
+        String kaosUri = pair._second;
         _log.debug("Matching against pattern " + pattern);
         AgentUri agUriPattern = new AgentUri(pattern);
         if (agUri.match(agUriPattern)) {
@@ -66,7 +69,7 @@ public class DAMLMapping {
           String ret = 
             org.cougaar.core.security.policy.enforcers.ontology
             .EntityInstancesConcepts.EntityInstancesDamlURL
-            + (String) (_uriMap.get((Object) pattern));
+            + (String) (kaosUri);
           _log.debug("Returning " + ret);
           return ret;
         }
@@ -85,12 +88,12 @@ public class DAMLMapping {
    * We assume that the mapping is functional.
    */
 
-  public Map mappingFromFile(String filename)
+  public List mappingFromFile(String filename)
     throws IOException
   {
     _log.debug("Initilizing DAML mapping using " + filename);
 
-    Map mapping = new HashMap();
+    List mapping = new Vector();
     File mappingFile = _cf.locateFile(filename);
     File policyFile = null;
     String line;
@@ -113,7 +116,7 @@ public class DAMLMapping {
       if (mappingOut == null)
         continue;
 
-      mapping.put(mappingIn, mappingOut);
+      mapping.add(new StringPair(mappingIn, mappingOut));
     }
     damlReader.close();
     _log.debug(".DAMLMapping: Finished Reading daml policies file " 
@@ -195,6 +198,18 @@ public class DAMLMapping {
       return false;
     }
 
+  }
+
+  public static class StringPair
+  {
+    public String _first;
+    public String _second;
+
+    public StringPair(String first, String second)
+    {
+      _first  = first;
+      _second = second;
+    }
   }
 
 }
