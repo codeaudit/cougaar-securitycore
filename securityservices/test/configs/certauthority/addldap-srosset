@@ -1,0 +1,3 @@
+
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f srosset.ldif \
+	-w secret -h pear
