@@ -12,7 +12,7 @@ servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
 include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
 
-society.each_host do |host|
+society.each_node do |node|
   node.override_parameter("-Dorg.cougaar.core.security.auth.debug", "false")
 end
 
