@@ -315,7 +315,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def ensureDomains
     puts "ensureDomains of SecurityMop 2_4 called " if $VerboseDebugging
-    puts "ensureDomains of SecurityMop 2_4 called "
+    #puts "ensureDomains of SecurityMop 2_4 called "
     unless defined?(@conusDomain) and @conusDomain.kind_of?(UserDomain)
       UserDomains.instance.ensureUserDomains
       CaDomains.instance.ensureExpectedEntities
@@ -332,7 +332,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
   def runTests(tests)
     puts "Run test called with size :#{tests.size}" if $VerboseDebugging
-    puts "Run test called with size :#{tests.size}"
+    #puts "Run test called with size :#{tests.size}"
     saveAssertion("2.4", "runTests called ");
     tests.each do |domain, testSet|
       #break if Cougaar::Actions::InitiateSecurityMopCollection.halted?
@@ -374,19 +374,26 @@ class  SecurityMop2_4 < AbstractSecurityMop
           # note: result is true/false
           result, expectedResult, actualResult, successBoolean, msg, body = domain.accessServletMop(test)
           if $VerboseDebugging
+            puts "servlet --> #{servlet}"
+            puts "useCase --> #{useCase}"
             puts " expectedResult -----> #{expectedResult}"
             puts " actualResult -----> #{actualResult}"
             puts " successBoolean----->#{successBoolean}"
+            puts "idmefPattern --> #{idmefPattern}"
           end
-          saveAssertion(useCase,msg)
+          if useCase == nil
+            saveAssertion('',msg)
+          else
+            saveAssertion(useCase,msg)
+          end
           if !successBoolean
             saveAssertion(useCase,
                           " FAILED TEST :  expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}")
 
           end
-          if $VerboseDebugging
+          #if $VerboseDebugging
             puts " expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} idmefPattern:#{idmefPattern} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}"
-          end
+          #end
           if [492,493,494].member?(actualResult) # no web server or timed out 
             msg = "ignored (no web server or timed out):  #{msg}"
             # @actions << msg if scope =~ /user/
@@ -590,7 +597,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     servlet = '/TestUserPolicy'
     cAndPLog = 'CAndPLogistician'
     tests = [
-      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    401,    '1A5-1A24',   'INSUFFICIENT_PRIVILEGES',    'Mop2.4-Mop2.6']
+      ['Basic',   osdgovAgent,    cAndPLog,    cAndPLog,    servlet,    491,    '1A5-1A24',   '',    'Mop2.4-Mop2.6']
     ]
     return tests
   end
@@ -729,7 +736,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
 
   def getPasswordServletPolicy
-    passwdpolicy= "Policy PasswordPolicyServletAuth  = [ 
+    passwdpolicy= "Delete CertPolicyServletAuth
+   Policy PasswordPolicyServletAuth  = [ 
       ServletAuthenticationTemplate
   All users must use Password  authentication when accessing the servlet named TestUserPolicyServlet
 ]"
@@ -738,9 +746,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def getCertServletPolicy
-    certpolicy= "Policy CertPolicyServletAuth  = [ 
-      ServletAuthenticationTemplate
-      All users must use CertificateSSL  authentication when accessing the servlet named TestUserPolicyServlet
+    certpolicy= "Delete PasswordPolicyServletAuth
+       Policy CertPolicyServletAuth  = [ 
+       ServletAuthenticationTemplate
+       All users must use CertificateSSL  authentication when accessing the servlet named TestUserPolicyServlet
 ]"
 
     return certpolicy
