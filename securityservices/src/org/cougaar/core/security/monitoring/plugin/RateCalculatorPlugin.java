@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2004 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -141,6 +141,11 @@ public class RateCalculatorPlugin extends ComponentPlugin {
   private RateCalculatorInfo _persistRate;
 
   /**
+   * Has the condition been published already?
+   */
+  private boolean _conditionPublished;
+
+  /**
    * The predicate for the rate information from a restored session.
    */
   private final UnaryPredicate RATEINFO_PREDICATE = 
@@ -258,6 +263,11 @@ public class RateCalculatorPlugin extends ComponentPlugin {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
 
+    if (_log.isDebugEnabled()) {
+      _log.debug("Poll interval: " + _pollInterval
+		 + " Rate condition: " + _conditionName
+		 + " IDMEF classification: " + _classification) ;
+    }
     BlackboardService bbs = getBlackboardService();
     _subscription = (IncrementalSubscription)
       bbs.subscribe(SUBSCRIPTION_PREDICATE);
@@ -291,7 +301,9 @@ public class RateCalculatorPlugin extends ComponentPlugin {
 
       Collection added = _subscription.getAddedCollection();
       int count = added.size();
-
+      if (_log.isDebugEnabled()) {
+	_log.debug("Received " + count + " events for " + _classification);
+      }
       synchronized (_messages) {
         _messages[(int)((now - _startTime)/1000)%_messages.length] += count;
         _totalMessages += count;
@@ -329,8 +341,8 @@ public class RateCalculatorPlugin extends ComponentPlugin {
       return _rate;
     }
 
-    public void setRate(int rate) {
-      _rate = new Double((double) rate);
+    public void setRate(double rate) {
+      _rate = new Double(rate);
     }
 
     public String toString() {
@@ -400,8 +412,10 @@ public class RateCalculatorPlugin extends ComponentPlugin {
           _lastCleared = (_lastCleared + 1) % _messages.length;
         }
       }
-
-      if (report) {
+      if (_log.isDebugEnabled()) {
+	_log.debug(_conditionName + " - Total messages: " + _totalMessages);
+      }
+      if (report || !_conditionPublished) {
         reportRate(_prevTotal);
       }
     }
@@ -411,7 +425,7 @@ public class RateCalculatorPlugin extends ComponentPlugin {
      * blackboard.
      */
     private void reportRate(int messageCount) {
-      int rate = (int) (messageCount * SECONDSPERDAY / _window);
+      double rate = (messageCount * SECONDSPERDAY / _window);
       if (_log.isDebugEnabled()) {
         _log.debug(_conditionName + " = " + rate +
                    " " + _classification + "/day");
@@ -434,6 +448,7 @@ public class RateCalculatorPlugin extends ComponentPlugin {
       } else {
         getBlackboardService().publishChange(_rate);
       }
+      _conditionPublished = true;
       getBlackboardService().closeTransaction();
     }
   }
@@ -450,6 +465,8 @@ public class RateCalculatorPlugin extends ComponentPlugin {
         _log.info("No rehydration for " + _conditionName);
       } // end of if (_log.isInfoEnabled())
       
+      _conditionPublished = false;
+
       UIDService uids = 
         (UIDService) getServiceBroker().getService(this,
                                                    UIDService.class,
@@ -465,6 +482,7 @@ public class RateCalculatorPlugin extends ComponentPlugin {
                                   _startTime,_conditionName, uid);
       getBlackboardService().publishAdd(ri);
     } else {
+      _conditionPublished = true ;
       ri = (RateCalculatorInfo) rateInfo.iterator().next();
       if (_log.isInfoEnabled()) {
         _log.info("Rehydrating " + _conditionName);

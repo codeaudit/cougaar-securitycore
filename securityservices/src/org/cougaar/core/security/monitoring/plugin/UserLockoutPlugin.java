@@ -406,7 +406,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
                 _userService.disableUser(localculprit);
               }
               catch(UserServiceException use) {
-                _log.warn("cannot idable user ",use);
+                _log.warn("cannot disable user ",use);
               }
             }
           },"UserLockoutThread");
