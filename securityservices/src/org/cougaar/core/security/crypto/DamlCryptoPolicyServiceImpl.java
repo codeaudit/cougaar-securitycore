@@ -36,16 +36,16 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.security.policy.CryptoPolicy;
-import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuiteMapping;
+import org.cougaar.core.security.policy.mediator.OwlMessagePolicyMediator;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.network.NetworkConfigurationService;
 import org.cougaar.core.service.LoggingService;
 
 public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
-  private ULMessageNodeEnforcer        _enforcer;
+  private OwlMessagePolicyMediator        _enforcer;
   private LoggingService               _log;
   private CryptoPolicyServiceImpl      _legacy;
   private ServiceBroker                _serviceBroker;
@@ -83,7 +83,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
 
   private synchronized void initDaml() {
     if (_enforcer == null) {
-      _enforcer = new ULMessageNodeEnforcer(_serviceBroker, new LinkedList());
+      _enforcer = new OwlMessagePolicyMediator(_serviceBroker, new LinkedList());
       try {
         _enforcer.registerEnforcer();
       }
