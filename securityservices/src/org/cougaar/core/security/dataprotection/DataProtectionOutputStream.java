@@ -143,10 +143,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       log.debug("Closing output stream " + agent + " : " + new Date());
     }
 
-    flushToOutput(true);
+    if (theos != null) {
+      flushToOutput(true);
+    }
 
-    if (ci != null)
+    if (ci != null) {
       encryptionService.returnCipher(policy.symmSpec, ci);
+      ci = null;
+      theos = null;
+    }
     super.close();
   }
 
