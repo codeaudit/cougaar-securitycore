@@ -1002,25 +1002,20 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
   private List getPrivateKeys(String distinguishedName)  {
 
     List list = (List) privateKeyCache.get(distinguishedName);
-    if(list==null) {
-      if(log.isDebugEnabled()) {
+    if(log.isDebugEnabled()) {
+      if(list==null) {
         log.debug(" Error in getting certificate for dn :"+distinguishedName);
-      }
-      Set x=privateKeyCache.keySet();
-      if(x!=null) {
-        Iterator iter=x.iterator();
-        while(iter.hasNext()){
-          if(log.isDebugEnabled()) {
-            log.debug(" Key in private Key cache is :"+(String)iter.next());
+        Set x=privateKeyCache.keySet();
+        if(x!=null) {
+          Iterator iter=x.iterator();
+          while(iter.hasNext()){
+            String sx = (String) iter.next();
+            log.debug(" Key in private Key cache is :"+ sx);
           }
-        }
-      }
-      else { 
-        if(log.isDebugEnabled()) {
+        } else { 
           log.debug("Set in getPrivateKeysis null:");
         }
       }
-	
     }
     return list;
   }
