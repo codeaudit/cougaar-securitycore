@@ -370,10 +370,14 @@ public class DataProtectionServiceImpl
                           (SealedObject)dpKey.getObject());
 
 
-	List certlist = keyRing.findCert(agent);
+	List certlist = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
+
 	CertificateStatus cs = (CertificateStatus)certlist.get(0);
 	X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
+        if (agentCert == null) {
+	  throw new Exception("Cannot find a certificate from keystore to reprotect secret key.");
+        }
         if (skey == null) {
           if (keyCollection.size() == 1) {
             log.error("Cannot recover key for; " + dpsClient.getAgentIdentifier()
@@ -399,31 +403,52 @@ public class DataProtectionServiceImpl
             String pmName = pmkey.getCertificateChain()[0].getSubjectDN().getName();
             try {
               pmNames.put(new X500Name(pmName).getCommonName(), pmName);
+              if (log.isDebugEnabled()) {
+                log.debug("secret key is encrypted with " + pmName);
+              }
             } catch (IOException iox) {
               log.warn("Invalid PM encrypted: " + pmName);
             }
           }
 
           //PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
-          while (skey == null) {
+          // wait for 20 minutes
+          int wait_time = 1200000;
+          try {
+            int configwait = Integer.parseInt(System.getProperty("org.cougaar.core.security.recoverytime", new Integer(wait_time).toString()));
+            wait_time = configwait;
+          } catch (Exception tex) {}
+ 
+          int sleep_time = 10000;
+          while (skey == null && wait_time > 0) {
             PersistenceManagerPolicy [] pmp = pps.getPolicies();
             for (int i = 0; i < pmp.length; i++) {
               // did we use the pm cert to encrypt the secret key at all?
+/*
               try {
                 X500Name pmx500 = new X500Name(pmp[i].pmDN);
                 if (pmNames.get(pmx500.getCommonName()) != null) {
+*/
                   skey = requestPersistenceRecovery(req, pmp[i], agent);
+/*
                 }
               } catch (IOException iox) {
                 log.warn("Invalid pm: " + pmp[i].pmDN);
                 continue;
               }
+*/
 
               if (skey != null) {
                 break;
               }
             }
-            Thread.currentThread().sleep(10000);
+            Thread.currentThread().sleep(sleep_time);
+            wait_time -= sleep_time;
+          }
+
+          // need to give up if still no key
+          if (skey == null) {
+            throw new Exception("Cannot recover secret key for " + agent);
           }
 
             if (log.isDebugEnabled()) {
