@@ -243,6 +243,9 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 
 				XMLPolicyCreator policyCreator = new XMLPolicyCreator(xmlContent);
 				Policy[] policies = policyCreator.getPolicies();
+                                if (policies == null) {
+                                  return expandedPolicies;
+                                }
 				for (int i=0; i<policies.length; i++) {
 					if (policies[i] instanceof TypedPolicy){
 						Msg policy1 = (Msg) policy.clone();
