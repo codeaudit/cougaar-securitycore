@@ -101,40 +101,40 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 
-
-
 /**
- * This class queries for LOGIN_FAILURE IDMEF messages and keeps
- * an updated list of Senors with the capability. All query results
- * are placed on the blackboard. Use this plugin with the
- * LoginFailureRatePlugin and UserLockoutPlugin. Use the following
- * in your .ini file:
+ * This class queries for IDMEF messages and keeps
+ * an updated list of Sensors with the capability. All events
+ * are copied the blackboard. You must provide the name of the
+ * Society Security Manager, a UnaryPredicate class that
+ * selects the IDMEF messages and a class name that supports the
+ * QueryClassificationProvicer interface. A single class may support
+ * both.<p>
+ * For example, if you want to suppor login
+ * failure rate calculation and user lockout, you would have the
+ * following in your configuration:
  * <pre>
- * plugin = org.cougaar.core.security.monitoring.plugin.LoginFailureQueryPlugin(SocietySecurityManager)
+ * plugin = org.cougaar.core.security.monitorin.plugin.RateCalculatorPlugin(20,60,org.cougaar.core.security.monitoring.LOGIN_FAILURE,org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE)
+ * plugin = org.cougaar.core.security.monitoring.plugin.UserLockoutPlugin(600,86400)
+ * plugin = org.cougaar.core.security.monitoring.plugin.EventQueryPlugin(SocietySecurityManager,org.cougaar.core.security.monitoring.plugin.AllLoginFailures)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
  * </pre>
- * SocietySecurityManager is the name of the Society Security Manager agent.
  */
-public class LoginFailureQueryPlugin extends ComponentPlugin {
+public class EventQueryPlugin extends ComponentPlugin {
 
   private LoggingService  _log;
 
   /** the current agent's name */
   private String _agentName;
 
-  /** predicate script for the aggregation query */
-  private static final ScriptSpec PRED_SPEC =
-    new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, 
-                   AllLoginFailuresPredicate.class.getName());
 
   /** format script for the aggregation query */
   private static final ScriptSpec FORMAT_SPEC =
     new ScriptSpec(Language.JAVA, XmlFormat.INCREMENT, 
-                   FormatLoginFailure.class.getName());
+                   FormatEvent.class.getName());
 
   /** Aggregation query subscription */
-  protected IncrementalSubscription _loginFailureQuery;
+  protected IncrementalSubscription _eventQuery;
 
   /** Sensor list update subscription */
   protected IncrementalSubscription _sensors;
@@ -146,7 +146,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   protected HashSet         _queryAdapters = new HashSet();
 
   /**
-   * A set of agents that have Login Failure sensor capabilities.
+   * A set of agents that have the required sensor capabilities.
    */
   protected HashSet         _agents = new HashSet();
 
@@ -154,6 +154,16 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
    * for set/get DomainService
    */
   protected DomainService  _domainService;
+
+  /**
+   * List of classifications to query
+   */
+  protected String         _classifications[];
+
+  /**
+   * The predicate script for selecting which events to copy
+   */
+  protected ScriptSpec     _predSpec;
 
   /**
    * Society security manager agent. Default to "SocietySecurityManager".
@@ -187,7 +197,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   /**
    * Used for determining if the query results have been updated.
    */
-  private UnaryPredicate _loginFailurePredicate =
+  private UnaryPredicate _eventPredicate =
     new UnaryPredicate() {
       public boolean execute(Object o) {
         synchronized (_queryAdapters) {
@@ -211,18 +221,18 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   }
 
   /**
-   * creates the AggregationQuery for use in searching for login failure
+   * creates the AggregationQuery for use in searching for
    * IDMEF messages
    */
   protected QueryResultAdapter createQuery() {
     AggregationQuery aq = new AggregationQuery(QueryType.PERSISTENT);
-    aq.setName("Login Failure Rate Query");
+    aq.setName("Event Query");
     aq.setUpdateMethod(UpdateMethod.PUSH);
-    aq.setPredicateSpec(PRED_SPEC);
+    aq.setPredicateSpec(_predSpec);
     aq.setFormatSpec(FORMAT_SPEC);
     return new QueryResultAdapter(aq);
   }
-  
+
   public void setParameter(Object o) {
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
@@ -234,27 +244,89 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
 
     List l = (List) o;
 
-    if (l.size() >= 1) {
-      _societySecurityManager = (String) l.get(0);
-      if (_log == null && getServiceBroker() != null) {
-        _log = (LoggingService)
-          getServiceBroker().getService(this, LoggingService.class, null);
-      }
-      if (_log != null) {
-        _log.info("Setting security manager agent name to " + _societySecurityManager);
-      }
+    if (l.size() <= 1) {
+      throw new IllegalArgumentException("You must provide the Society Security Manager name, and class names for the Unary Predicate and QueryClassificationProvider");
     }
+
+    _societySecurityManager = (String) l.remove(0);
+    if (_log == null && getServiceBroker() != null) {
+      _log = (LoggingService)
+        getServiceBroker().getService(this, LoggingService.class, null);
+    }
+    if (_log != null) {
+      _log.info("Setting security manager agent name to " + _societySecurityManager);
+    }
+    QueryClassificationProvider qcp = null;
+    String up = null;
+    String className = "<not found>";
+    try {
+      while (l.size() > 0) {
+        className = (String) l.remove(0);
+        Class c = Class.forName(className);
+        if (QueryClassificationProvider.class.isAssignableFrom(c)) {
+          if (qcp != null) {
+            if (!c.isInstance(qcp)) {
+              throw new IllegalArgumentException("You may have only one " +
+                                                 "QueryClasssificationProvider" +
+                                                 " class in the " +
+                                                 "EventQueryPlugin arguments");
+            } // end of if (!c.isInstance(qcp))
+          } else {
+            qcp = (QueryClassificationProvider) c.newInstance();
+          }
+        }
+        if (UnaryPredicate.class.isAssignableFrom(c)) {
+          if (up != null) {
+            if (!className.equals(up)) {
+              throw new IllegalArgumentException("You may have only one " +
+                                                 "UnaryPredicate" +
+                                                 " class in the " +
+                                                 "EventQueryPlugin arguments");
+            } // end of if (!c.isInstance(up))
+          } else {
+            up = className;
+          } // end of else
+        } // end of if (UnaryPredicate.class.isAssignableFrom(c))
+      } // end of while (l.size() > 0)
+    } catch (IllegalAccessException e) {
+      throw new IllegalArgumentException("The class name you provided: " +
+                                         className + 
+                                         " could not be instantiated.");
+    } catch (InstantiationException e) {
+      throw new IllegalArgumentException("The class name you provided: " +
+                                         className + 
+                                         " could not be instantiated.");
+    } catch (ClassNotFoundException e) {
+      throw new IllegalArgumentException("The class name you provided: " +
+                                         className + " could not be found.");
+    } // end of try-catch
+    
+    
+    if (up == null) {
+      throw new IllegalArgumentException("You must provide a class name that"
+                                          + " implements the UnaryPredicate " +
+                                          "interface");
+    } // end of if (up == null)
+    if (qcp == null) {
+      throw new IllegalArgumentException("You must provide a class name" +
+                                         "that implements the " + 
+                                         "QueryClassificationProvider " +
+                                         "interface");
+    } // end of if (qcp == null)
+    
+    _predSpec = new ScriptSpec(ScriptType.UNARY_PREDICATE, Language.JAVA, up);
+    _classifications = qcp.getClassifications();
   }
 
   /**
-   * Sets up the AggregationQuery and login failure subscriptions.
+   * Sets up the AggregationQuery and event subscriptions.
    */
   protected void setupSubscriptions() {
     _log = (LoggingService)
 	getServiceBroker().getService(this, LoggingService.class, null);
     
-    _loginFailureQuery = (IncrementalSubscription)
-      getBlackboardService().subscribe(_loginFailurePredicate);
+    _eventQuery = (IncrementalSubscription)
+      getBlackboardService().subscribe(_eventPredicate);
 
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
     DomainService        ds           = getDomainService(); 
@@ -263,29 +335,31 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
     _agentName = ((AgentIdentificationService)
                   sb.getService(this, AgentIdentificationService.class, null)).getName();
 
-    Classification classification = 
-      imessage.createClassification(IdmefClassifications.LOGIN_FAILURE, null);
-    MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
-                                              classification, null, null, true );
-    ClusterIdentifier destination = 
-      new ClusterIdentifier(_societySecurityManager);
-    CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
-
     _sensors = (IncrementalSubscription) 
       getBlackboardService().subscribe(SENSORS_PREDICATE);
 
-    getBlackboardService().publishAdd(relay);
+    for (int i = 0 ; i < _classifications.length; i++) {
+      Classification classification = 
+        imessage.createClassification(_classifications[i], null);
+      MRAgentLookUp lookup = new MRAgentLookUp( null, null, null, null, 
+                                                classification, null, null, true );
+      ClusterIdentifier destination = 
+        new ClusterIdentifier(_societySecurityManager);
+      CmrRelay relay = cmrFactory.newCmrRelay(lookup, destination);
+      getBlackboardService().publishAdd(relay);
+    } // end of for (int i = 0 ; i < classifications.length; i++)
+    
   }
 
   /**
    * Called whenever there is an update in the AggregationQuery results
    * or there is a change to the sensors.
-   * Updates the count of login failures for the bucket associated with
+   * Updates the count of events for the bucket associated with
    * the current second. 
    */
   public void execute() {
-    if (_loginFailureQuery.hasChanged()) {
-      processLoginFailure();
+    if (_eventQuery.hasChanged()) {
+      processEvents();
     }
     if (_sensors.hasChanged()) {
       updateSensors();
@@ -293,10 +367,10 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
   }
 
   /**
-   * Copy the login failure to the blackboard
+   * Copy the event to the blackboard
    */
-  protected void processLoginFailure() {
-    Enumeration queryResults = _loginFailureQuery.getChangedList();
+  protected void processEvents() {
+    Enumeration queryResults = _eventQuery.getChangedList();
     while (queryResults.hasMoreElements()) {
       QueryResultAdapter queryResult = 
         (QueryResultAdapter) queryResults.nextElement();
@@ -367,23 +441,7 @@ public class LoginFailureQueryPlugin extends ComponentPlugin {
     getBlackboardService().publishAdd(qra);
   }
 
-  /**
-   * This class is used internally for the Aggregation Query predicate.
-   * Much easier than using Jython when the queries
-   * are static.
-   */
-  public static class AllLoginFailuresPredicate implements UnaryPredicate {
-
-    /**
-     * UnaryPredicate API requires this. Selects the
-     * objects that we're interested in on the remote Blackboard.
-     */
-    public boolean execute(Object obj) {
-      return (obj instanceof Event);
-    }
-  }
-
-  public static class FormatLoginFailure implements IncrementFormat {
+  public static class FormatEvent implements IncrementFormat {
     // IncrementFormat API
     public void encode(UpdateDelta out, SubscriptionAccess sacc) {
       Collection addTo = out.getAddedList();
