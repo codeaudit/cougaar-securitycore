@@ -36,4 +36,8 @@ public class CertificateChainException extends CertificateException {
     message = aMsg;
     cause = aCause;
   }
+
+  public String getMessage() {
+    return message + " - " + cause;
+  }
 }
