@@ -479,11 +479,6 @@
                     <include name="*.rule"/>
                 </patternset>
             </fileset>
-            <fileset dir="${securityservices.configs}/recipes/rules/parameters">
-                <patternset>
-                    <include name="security_param_tic.rule"/>
-                </patternset>
-            </fileset>
         </copy>
         <copy todir="${cougaar.install.path}/csmart/config/rules/security/community">
             <fileset dir="${securityservices.configs}/recipes/rules/parameters">
