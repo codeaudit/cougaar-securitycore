@@ -34,7 +34,7 @@
           <CA_URL>http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="srosset">http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="ychen">http://pear:5558/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="gmount">http://tea:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="gmount">http://pear:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="sri">http://fir:5553/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="mluu">http://pear:5559/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
