@@ -116,6 +116,7 @@
              <fileset dir="${securityservices.classes}">
                 <include name="junitTests.jar" />
                 <include name="securityservices.jar" />
+                <include name="securebootstrapper.jar" />
                 <include name="securityservices_config.jar"/>
              </fileset>
              <fileset dir="${cougaar.install.path}/sys">
