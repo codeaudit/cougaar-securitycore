@@ -17,6 +17,9 @@ include Cougaar
 
 class CommPolicies
 
+  @@allEnclaves           = "AllEnclaves"
+
+
   def initialize(run)
     @dbUser                = "society_config"
     @dbHost                = "localhost"
@@ -36,6 +39,8 @@ class CommPolicies
     @policies              = []
     @setDefinitions        = Hash.new
     @mumbleFlag            = false
+
+    @migrateSuffix         = "Migrate"
     @debug                 = false
   end
 
@@ -123,34 +128,39 @@ class CommPolicies
   def writePolicies(filename)
     @run.society.each_enclave do |enclave|
       debug "writing to enclave #{enclave}"
-      File.open("#{filename}-#{enclave}", "w+") do |file|
-        debug "writing file #{file}"
-        file.write("PolicyPrefix=%URPolicy\n\n")
-        @setDefinitions.keys.each do |name|
-          debug "Inserting group definition #{name}"
-          file.write("AgentGroup \"#{name}\" = {")
-          if (!translateSet(name).empty?) then
-            file.write("\"#{translateSet(name).join("\",\n\t\"")}\"")
-          end
-          file.write("}\n\n")
+      writeEnclavePolicies(filename, enclave)
+    end
+    writeEnclavePolicies(filename, @@allEnclaves)
+  end
+
+  def writeEnclavePolicies(filename, enclave)
+    File.open("#{filename}-#{enclave}", "w+") do |file|
+      debug "writing file #{file}"
+      file.write("PolicyPrefix=%URPolicy\n\n")
+      @setDefinitions.keys.each do |name|
+        debug "Inserting group definition #{name}"
+        file.write("AgentGroup \"#{name}\" = {")
+        if (!translateSet(name).empty?) then
+          file.write("\"#{translateSet(name).join("\",\n\t\"")}\"")
         end
-        file.write("Delete AllowCommunication\n")
-        @policies.each do |policy|
-          if policyEnclaves(policy).include?(enclave) then
-            debug "Writing policy #{policyName(policy)}"
-            file.write("Policy \"#{policyName(policy)}\" = [\n" +
-                       "\tMessageAuthTemplate\n" +
-                       "\tAllow messages from members of " +
-                       "$AgentsInGroup##{policy[0]}" +
-                       " to members of " +
-                       "$AgentsInGroup##{policy[1]}\n" +
-                       "]\n\n")
-          end
+        file.write("}\n\n")
+      end
+      file.write("Delete AllowCommunication\n")
+      @policies.each do |policy|
+        if enclave == @@allEnclaves || 
+           policyEnclaves(policy).include?(enclave) then
+          debug "Writing policy #{policyName(policy)}"
+          file.write("Policy \"#{policyName(policy)}\" = [\n" +
+                     "\tMessageAuthTemplate\n" +
+                    "\tAllow messages from members of " +
+                     "$AgentsInGroup##{policy[0]}" +
+                     " to members of " +
+                     "$AgentsInGroup##{policy[1]}\n" +
+                     "]\n\n")
         end
       end
     end
   end
-
 
   def density()
     @run.society.each_enclave do |enclave|
@@ -295,6 +305,35 @@ class CommPolicies
       declareSet(enclaveNodesName(enclave), getEnclaveNodes(enclave))
       declareSet(enclaveAgentsName(enclave), getEnclaveAgents(enclave))
     end
+  end
+
+  def encalveAgentsNameMigrate(enclave)
+    enclaveAgentsName(enclave) + @migrateSuffix
+  end
+
+  def enclaveNodesNameMigrate(enclave)
+    enclaveNodesName(enclave) + @migrateSuffix
+  end
+
+  def commonDeclsMigrate(node, enclave)
+    agents = []
+    @run.society.each_agent do |agent|
+      if agent.node.name == node then
+        agents.push(agent)
+      end
+    end
+    translateSet(enclaveAgentsName(enclave)).each do |agent|
+      if !agents.include?(agent) then
+        agents.pushd(agent)
+      end
+    end
+    declareSet(enclaveAgentsNameMigrate(enclave), agents)
+
+    nodes = translateSet(enclaveNodesName(enclave))
+    if nodes.include?(node) then
+      nodes.push(node)
+    end
+    declareSet(enclaveNodesNameMigrate(enclave), nodes)
   end
 
 
@@ -517,6 +556,33 @@ class CommPolicies
   end
 
 #==========================================================================
+# Migration of the communities policies
+#==========================================================================
+
+  def allowSpecialCommunityMigration(agents, communityName)
+    @run.society.communities.each do |community|
+      if community.name == communityName then
+        membersName = "MembersOf#{community.name}"
+        communityAgents = translateSet(membersName)
+        specialSetName = "Special#{community.name}Members"
+        agents.each do |agent|
+          if !communityAgents.include?(agent) then
+            communityAgents.push(agent)
+          end
+        end
+        declareSet(membersName + @migrateSuffix, commmunityAgents)
+        permit(membersName, specialSetName, 
+               "#{community.name}Policy-I",
+               getCommunityEnclaves(community))
+        permit(specialSetName, membersName,
+               "#{community.name}Policy-II",
+               getCommunityEnclaves(community))
+      end
+    end
+  end
+
+
+#==========================================================================
 # YP servers can talk to each other (the rest is handled by the
 #                                    community stuff?)
 #==========================================================================
@@ -584,6 +650,19 @@ class CommPolicies
     agents
   end
 
+#==========================================================================
+# Migrate the security management
+#==========================================================================
+
+  def allowSecurityManagementMigrate(enclave)
+    permit(enclaveAgentsName(enclave) + @migrateSuffix, securityAgentsName,
+           "AllowSecurityManagement-I",
+             [ enclave ])
+    permit(securityAgentsName, enclaveAgentsName(enclave) + @migrateSuffix
+             "AllowSecurityManagement-II",
+             [ enclave ])
+
+  end
 
 #==========================================================================
 # MnR managers can talk among themselves
@@ -852,4 +931,97 @@ select distinct role from org_relation;
     puts(info) if @debug
   end
 
+end
+
+
+class CommPolicy
+  def initialize(name, enclaves)
+    @name = name
+    @enclaves = enclaves
+  end
+
+  def policyEnclaves()
+    @enclaves
+  end
+
+  def policyName
+    name
+  end
+
+  def viewPolicy
+    raise "Abstract class!"
+  end
+
+  def isMsgAllowed(sender, receiver)
+    raise "Abstract class!"
+  end
+
+  def writePolicy(file)
+    raise "Abstract class!"
+  end
+
+  def allowedList(agents)
+    raise "Abstract class!"
+  end
+end
+
+class CommunicationPolicy < CommPolicy
+  def initialize(policies, senderSet, receiverSet, name, enclaves)
+    super(name, enclaves)
+    @policies = policies
+    @senderSet = senderSet
+    @receiverSet = receiverSet
+    @name = name
+    @enclaves = enclaves
+  end
+
+  def policySenders()
+    policies.translateSet(@senderSet)
+  end
+
+  def policyReceivers()
+    policies.translateSet(@receiverSet)
+  end
+
+  def viewPolicy
+    puts "Policy #{policyName}"
+    puts "Members of #{policySenders} can talk to " + 
+           "members of #{policyReceivers}"
+    puts "Destined for enclaves [#{policyEnclaves.join(", ")}]"
+    puts "#{@senderSet} = #{policySenders}"
+    puts "#{@receiverSet} = #{policyReceivers}"
+  end
+
+  def isMsgAllowed(sender, receiver)
+    policySenders.include?(sender) && policyReceivers.include?(receiver)
+  end
+
+  def writePolicy(file)
+    file.write("Policy \"#{policyName}\" = [\n" +
+                "\tMessageAuthTemplate\n" +
+                "\tAllow messages from members of " +
+                "$AgentsInGroup##{@senderSet}" +
+                " to members of " +
+                "$AgentsInGroup##{@receiverSet}\n" +
+                "]\n\n")
+  end
+end
+
+class MumblePolicy < CommPolicy
+  def initialize(enclaves)
+    super("Mumble", enclaves)
+    @enclaves = enclaves
+  end
+
+  def policyEnclaves
+    @enclaves
+  end
+
+  def viewPolicy
+    puts "Agents can talk to themselves"
+  end
+
+  def isMsgAllowed(sender, receiver)
+    sender == receiver
+  end
 end
