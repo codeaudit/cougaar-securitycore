@@ -165,7 +165,7 @@ public class ConfigPlugin
       cryptoClientPolicy.setIsCertificateAuthority(true);
     }
     if (upperCA != null) {
-      addTrustedPolicy(upperCA);
+      addTrustedPolicy(upperCA, true);
     }
     else {
       cryptoClientPolicy.setIsRootCA(true);
@@ -213,8 +213,8 @@ public class ConfigPlugin
     }
   }
 
-  protected void addTrustedPolicy(String param) {
-    CARequestThread t = new CARequestThread(param);
+  protected void addTrustedPolicy(String param, boolean primaryCA) {
+    CARequestThread t = new CARequestThread(param, primaryCA);
     t.start();
   }
 
@@ -223,8 +223,12 @@ public class ConfigPlugin
     String infoURL;
     String requestURL;
     int waittime = 5000;
+    boolean isPrimaryCA = true;
+    int delayRequest = 1800000;
 
-    public CARequestThread(String param) {
+    public CARequestThread(String param, boolean primaryCA) {
+      isPrimaryCA = primaryCA;
+
       String cahost = param.substring(0, param.indexOf(':'));
       int agentindex = param.indexOf(':');
       String caagent = param.substring(agentindex+1, param.length());
@@ -260,9 +264,29 @@ public class ConfigPlugin
           log.warn("Unable to parse configpoll property: " + ex.toString());
         }
       }
+
+      if (!isPrimaryCA) {
+        try {
+          String waitPoll = System.getProperty("org.cougaar.core.security.robustness.delaypoll", "1800000");
+          delayRequest = Integer.parseInt(waitPoll);
+        } catch (Exception ex) {
+          if (log.isWarnEnabled()) {
+            log.warn("Unable to parse delaypoll property: " + ex.toString());
+          }
+        }
+      }
     }
 
     public void run() {
+      if (!isPrimaryCA) {
+        try {
+          Thread.currentThread().sleep(delayRequest);
+        } catch (Exception ex) {} 
+        if (log.isInfoEnabled()) {
+          log.info("Start to request certificates from backup CA: " + infoURL);
+        }
+      }
+
       while (true) {
 
         try {
