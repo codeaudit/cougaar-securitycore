@@ -27,124 +27,80 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.ArrayList;
+import org.cougaar.planning.ldm.plan.*;
+import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
 import edu.jhuapl.idmef.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 
 
-/** A dummy sensor used to show how to register capabilities and
- *  publish IDMEF events.
- *
- *  The cmr domain should be added to the node. This can be done by
- *  adding the following line in the LDMDomains.ini file:
- *     cmr=org.cougaar.core.security.monitoring.blackboard.CmrDomain
- */
-public class DummySensor
-  extends  ComponentPlugin
-  implements SensorInfo
-{
-  private DomainService domainService = null;
-  /**
-   * Used by the binding utility through reflection to set my DomainService
-   */
-  public void setDomainService(DomainService aDomainService) {
-    domainService = aDomainService;
-  }
 
-  /**
-   * Used by the binding utility through reflection to get my DomainService
-   */
-  public DomainService getDomainService() {
-    return domainService;
-  }
+public class DummySensor extends  ComponentPlugin  implements SensorInfo {
+     private DomainService domainService = null;
+     /**
+     * Used by the binding utility through reflection to set my DomainService
+     */
+    public void setDomainService(DomainService aDomainService) {
+	domainService = aDomainService;
+    }
+
+    /**
+     * Used by the binding utility through reflection to get my DomainService
+     */
+    public DomainService getDomainService() {
+	return domainService;
+    }
     
-  protected void setupSubscriptions() {
-    System.out.println("setupSubscriptions of dummy sensor called :"); 
+    protected void setupSubscriptions() {
+	System.out.println("setupSubscriptions of dummy sensor called :"); 
     DomainService service=getDomainService();
-    if(service==null) {
-      System.out.println(" Got service as null in CapabilitiesConsolidationPlugin :");
-      return;
+	if(service==null) {
+	    System.out.println(" Got service as null in CapabilitiesConsolidationPlugin :");
+	    return;
+	}
+	CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
+	IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
+	DummySensor sensor=new DummySensor();
+	
+	// create list of capabilities
+	List capabilities = new ArrayList();
+	capabilities.add( imessage.createClassification( "POD", null  ) );
+	capabilities.add( imessage.createClassification( "TCPSCAN", null  ) );
+	capabilities.add( imessage.createClassification( "LOGINFAILURE", null  ) );
+	// no need to specify targets since we may not know of the targets
+	Registration reg=imessage.createRegistration(new DummySensor(),capabilities,null);
+	// System.out.println(" Registration object is :"+reg);
+	System.out.println("factory is :"+factory.toString());
+	NewEvent event=factory.newEvent(reg);
+	System.out.println(" going to publish capabilities :");
+	getBlackboardService().publishAdd(event);
+	System.out.println("Success in publishing  capabilities :");
     }
-    CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
-    if (factory == null) {
-      System.out.println("Error: Unable to get Monitoring Factory");
-      return;
-    }
-    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
-    DummySensor sensor=new DummySensor();
-    String [] events={"POD","TCPSCAN","LOGINFAILURE"};
-    String [] origins={" Classification.VENDOR_SPECIFIC",
-		       " Classification.VENDOR_SPECIFIC",
-		       " Classification.VENDOR_SPECIFIC"};
-    Registration reg=imessage.createRegistration(new DummySensor(),events,origins);
-    // System.out.println(" Registration object is :"+reg);
-    System.out.println("factory is :"+factory.toString());
-    NewEvent event=factory.newEvent(reg);
-    System.out.println(" going to publish capabilities :");
-    getBlackboardService().publishAdd(event);
-    System.out.println("Success in publishing  capabilities :");
-
-    /* ---------------------------------------------------------------- */
-    System.out.println("Publishing sensor Event :");
-    Address source_address_list[] =
-    {new Address("10.1.1.1", null, null, null, null, null),
-     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
-		 null, null)};
-    IDMEF_Node source_node = new IDMEF_Node("locationA",
-					    "attackerA",
-					    source_address_list, 
-					    "id01", 
-					    IDMEF_Node.DNS);
-    Source source = imessage.createSource(source_node, Source.YES);
-    Source []sources = new Source[1];
-    sources[0] = source;
-
-    Address target_address_list[] =
-    {new Address("10.1.1.1", null, null, null, null, null),
-     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
-		 null, null)};
-    IDMEF_Node target_node = new IDMEF_Node("locationB",
-					    "victimB",
-					    target_address_list, 
-					    "id02", 
-					    IDMEF_Node.DNS);
-    Target target = imessage.createTarget(target_node, Source.NO);
-    Target []targets = new Target[1];
-    targets[0] = target;
-
-    Classification classification =
-      imessage.createClassification("cougaar_signature_exception",
-				    "http://www.cougaar.org",
-				    Classification.VENDOR_SPECIFIC);
-    Classification []classifications = new Classification[1];
-    classifications[0] = classification;
-    AdditionalData []data = null;
-    Alert alert = imessage.createAlert(this, sources, targets, classifications, data);
-    Event e = factory.newEvent(alert);
-    getBlackboardService().publishAdd(e);
-  }
-
-  /* ***********************************************************************
-   * SensorInfo implementation
-   */
   public String getName(){
-    return "DummySensor";
-  }
-  public String getManufacturer(){
-    return "NAI Labs";
-  }
-  public String getModel(){
-    return "Cougaar";
-  }
-  public String getVersion(){
-    return "01";
-  }
-  public String getAnalyzerClass(){
-    return "Security Analyzer";
-  }
+            return "<sensor-name>";
+        }
+        public String getManufacturer(){
+            return "<manufacturer>";
+        }
+        public String getModel(){
+            return "<model>";
+        }
+        public String getVersion(){
+            return "<version>";
+        }
+        public String getAnalyzerClass(){
+            return "<class>";
+        }
+        
        
-  protected void execute () {
-    // process unallocated tasks
-  }
+ protected void execute () {
+	// process unallocated tasks
+	
+
+    }
+
+
 }
