@@ -78,7 +78,7 @@ public class SecurityAspect extends StandardAspect
   public SecurityAspect() {
     String db = System.getProperty("org.cougaar.message.transport.debug");
     if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
-    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info"))).intValue();
+    infoLevel = (Integer.valueOf(System.getProperty("org.cougaar.security.info","0"))).intValue();
 
     //add crypto related services:
     sb = new ServiceBrokerSupport();
