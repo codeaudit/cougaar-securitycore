@@ -90,10 +90,25 @@ public class BrowserSigningRequest
     }
   }
 
-  private X500Name getUserName(String userid, String caDN) throws IOException {
+  private X500Name getUserName(String userid,
+			       String emailAddress,
+			       String caDN)
+    throws IOException {
     X500Name caName = new X500Name(caDN);
     StringBuffer userDN = new StringBuffer();
-    userDN.append("cn=").append(userid);
+    if (log.isDebugEnabled()) {
+      log.debug("User info:" + userid + " - " + emailAddress);
+    }
+    if (userid != null) {
+      userDN.append("cn=").append(userid);
+    }
+    if (emailAddress != null) {
+      if (userid != null) {
+	userDN.append(", ");
+      }
+      // E-mail address OID is 1.2.840.113549.1.9.1
+      userDN.append("1.2.840.113549.1.9.1=").append(emailAddress);
+    }
     String attrs[][] = new String[][] {
       { caName.getOrganizationalUnit(), "ou" },
       { caName.getOrganization(), "o" },
@@ -107,10 +122,14 @@ public class BrowserSigningRequest
       } // end of if (attrs[i][0] != null)
     } // end of for (int i = 0; i < attrs.length; i++)
     X500Name userName = new X500Name(userDN.toString());
+    if (log.isDebugEnabled()) {
+      log.debug(userName.toString());
+    }
     return userName;
   }
 
-  private PKCS10 getCertReq(String userid, //String emailAddress, 
+  private PKCS10 getCertReq(String userid,
+			    String emailAddress, 
                             String b64PubKey, String caDN) 
     throws IOException, NoSuchAlgorithmException,CertificateEncodingException {
     byte[] derEnc = Base64.decode(b64PubKey.toCharArray());
@@ -127,7 +146,7 @@ public class BrowserSigningRequest
     // FIXME: I should verify the signature, but I'm a little lazy right now
 //     String challenge = spki.data.getIA5String();
 
-    X500Name user = getUserName(userid, caDN);
+    X500Name user = getUserName(userid, emailAddress, caDN);
     return new MyPKCS10(pubKey, user);
   }
 
@@ -211,12 +230,24 @@ public class BrowserSigningRequest
     }
     String base64PubKey = req.getParameter("SPKAC");
     String userId = req.getParameter("userid");
+    String email = req.getParameter("email");
     String caDN = req.getParameter("dnname");
+
+    if (log.isDebugEnabled()) {
+      log.debug("userid: " + userId + " - email:" + email);
+    }
+
     try {
       PKCS10 certReq;
       if (base64PubKey != null) {
-        certReq = getCertReq(userId, base64PubKey, caDN);
+	if (log.isDebugEnabled()) {
+	  log.debug("Creating request using certificate");
+	}
+        certReq = getCertReq(userId, email, base64PubKey, caDN);
       } else {
+	if (log.isDebugEnabled()) {
+	  log.debug("Creating request using PKCS data");
+	}
         certReq = MyPKCS10.createPKCS10(req.getParameter("pkcsdata"));
       } // end of else
       
@@ -312,6 +343,7 @@ public class BrowserSigningRequest
 
     out.println("</td></tr>");
     out.println("<tr><td align=right>User Id</td><td align=left><input type=text name=userid></td></tr>");
+    out.println("<tr><td align=right>E-mail</td><td align=left><input type=text name=email></td></tr>");
     out.println("<tr><td align=right>");
     long challenge = (long)(Math.random() * Long.MAX_VALUE);
     if (isIE) {
@@ -432,6 +464,9 @@ public class BrowserSigningRequest
               "    Dim val, name, value, eq, com, c, i\n" +
               "    ChangeDN = True\n" +
               "    DN = \"CN=\" & Form.userid.value\n" +
+	      "    If Form.email.value <> Empty Then\n" + 
+	      "      DN = DN & \",1.2.840.113549.1.9.1=\" + Form.email.value\n" +
+	      "    End If \n" +
               "    val = Form.dnname.value\n" +
               "    com = 0\n" +
               "    For i = 1 to Len(val)\n" +
