@@ -77,11 +77,8 @@ public abstract class AbstractServletComponent extends BaseServletComponent
   * @param request ServletRequest
   * @param response ServletResponse
   */
-  protected abstract void executeGet(HttpServletRequest request,
+  protected abstract void execute(HttpServletRequest request,
     HttpServletResponse response);
-  protected abstract void executePost(HttpServletRequest request,
-    HttpServletResponse response);
-
 
   /**
    * Method implementation for blackboard clietn
@@ -171,12 +168,12 @@ public abstract class AbstractServletComponent extends BaseServletComponent
 
   private class MyServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
-      executeGet(request, response);
+      execute(request, response);
     }
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
-      executePost(request, response);
+      execute(request, response);
     }
   }
 }
