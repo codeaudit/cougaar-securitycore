@@ -45,11 +45,7 @@ public class CertificateManagementServiceProvider
 			   Object requestor, 
 			   Class serviceClass) {
     KeyManagement km = null;
-    try {
-      km =new KeyManagement(sb);
-    }
-    catch (Exception e) {
-    }
+    km = new KeyManagement(sb);
     return km;
   }
 

@@ -51,7 +51,7 @@ public class SecurityServiceProvider
   implements ContainerAPI, ServiceProvider, StateObject
 {
   private ServiceBroker serviceBroker;
-  private Hashtable services;
+  private SecurityServiceTable services;
   private boolean initDone = false;
 
   public SecurityServiceProvider() {
@@ -168,7 +168,7 @@ public class SecurityServiceProvider
   }
 
   private void registerServices() {
-    services = new Hashtable();
+    services = new SecurityServiceTable();
 
     if (CryptoDebug.debug) {
       System.out.println("Registering security services");

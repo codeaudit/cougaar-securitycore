@@ -90,15 +90,6 @@ public class BlackboardAccessControlAdaptor
     service.closeTransaction();
   } 
  
-  /** Close a transaction opened by openTransaction() or a 
-   * successful tryOpenTransaction().
-   * @param resetSubscriptions IFF true, all subscriptions will have
-   * their resetChanges() method called to clear any delta lists, etc.
-   * @exception SubscriberException IFF we did not own the transaction
-   * lock.
-   * @deprecated Use {@link #closeTransactionDontReset closeTransactionDontReset}
-   * This method becomes private after deprecation period expires.
-   */
   public void closeTransaction(boolean resetp) {
     // Method is deprecated.
     service.closeTransactionDontReset();

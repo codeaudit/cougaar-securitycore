@@ -29,6 +29,7 @@ package org.cougaar.core.security.certauthority;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.List;
+import java.util.Iterator;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -117,6 +118,14 @@ public class CaServletComponent
 
     if (this.agentId == null) {
       throw new RuntimeException("Unable to obtain agent identifier");
+    }
+
+    if (CryptoDebug.debug) {
+      System.out.println("Currently available services:");
+      Iterator it = serviceBroker.getCurrentServiceClasses();
+      while (it.hasNext()) {
+	System.out.println(it.next().toString());
+      }
     }
 
     // get the blackboard service
