@@ -3,6 +3,9 @@
 # enclave_security_mnr_mgrs.rule
 # Adds EnclaveMnRManagers complete agent recipe
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 society.each_node do |node|

@@ -6,6 +6,9 @@
 # plugin parameters.  Also the "cm_role"
 # facet is extracted from agents and added to the plugin parameters.
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 #agent role list

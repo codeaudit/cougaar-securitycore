@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
 # enclave_sub_security_managers.rule
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 society.each_node do |node|

@@ -3,6 +3,9 @@
 # ihmc_policy_domain_mgr_agents.rule
 # Adds PolicyDomainManagers 
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 society.each_node do |node|

@@ -3,6 +3,9 @@
 # Adds UserAdminAgents
 #
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 caServlet = "org.cougaar.core.security.certauthority.CaServletComponent"

@@ -2,6 +2,9 @@
 ####################################################
 # enclave_persistence_mgrs.rule
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
+
 require 'framework/common_security_rules'
 
 society.each_node do |node|
