@@ -100,7 +100,7 @@ public class StringPairMapping {
       if (mappingOut == null)
         continue;
 
-      mapping.add(new StringPair(mappingIn, mappingOut));
+      mapping.add(new StringPair(mappingIn, mappingOut.trim()));
     }
     damlReader.close();
     _log.debug(".loadPairs: Finished Reading daml policies file " 
