@@ -1,0 +1,8 @@
+#!/bin/tcsh
+set top=${COUGAAR_INSTALL_PATH}/workspace/security/keystores
+foreach dir (`ls ${top}`)
+  echo $dir
+  echo "keytool -list -storepass keystorePassword -keystore ${top}/${dir}/keystore-${dir}"
+  keytool -list -storepass keystorePassword -keystore ${top}/${dir}/keystore-${dir}
+  #keytool -list -keystore ${top}/${dir}/keystore-${dir}
+end
