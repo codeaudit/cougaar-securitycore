@@ -292,9 +292,11 @@ public class SecurityServiceProvider
       services.put(PolicyBootstrapperService.class, newSP);
       rootServiceBroker.addService(PolicyBootstrapperService.class, newSP);
 
-      newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(AccessControlPolicyService.class, newSP);
-      rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
+      if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {
+	newSP = new AccessControlPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+	services.put(AccessControlPolicyService.class, newSP);
+	rootServiceBroker.addService(AccessControlPolicyService.class, newSP);
+      }
 
       newSP = new CryptoPolicyServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(CryptoPolicyService.class, newSP);

@@ -92,7 +92,7 @@ public class AccessAgentBinder
 	if (serviceBroker != null)  {
 	  acps = (AccessControlPolicyService)
 	    serviceBroker.getService(this,AccessControlPolicyService.class, null);
-	  if (acps == null) {
+	  if (acps == null && !AccessAgentProxy.USE_DAML) {
 	    throw new RuntimeException("Message Access Crl Binder. No policy service");
 	  }
 	} else {

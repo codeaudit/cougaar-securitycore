@@ -74,7 +74,7 @@ public class AccessAgentProxy
   private AccessControlPolicyService acps;
   public static final String DAML_PROPERTY =
     "org.cougaar.core.security.policy.enforcers.access.useDaml";
-  private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
+  public static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
   private ULMessageNodeEnforcer _enforcer = null;
   //private Set nodeList = null;
   //private Set agentList = null;

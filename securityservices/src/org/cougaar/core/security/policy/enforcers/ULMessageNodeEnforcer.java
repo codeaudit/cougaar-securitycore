@@ -151,10 +151,31 @@ public class ULMessageNodeEnforcer
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new RuntimeException("Cannot continue without guard");
     }
-    if (!_enfMgr.registerEnforcer(this, _enforcedActionType, _agents)) {
-      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
-      _log.fatal("Could not register with the Enforcer Manager Service");
-      throw new RuntimeException("Cannot register with Enforcer Manager Service");
+    int retries = 0;
+    boolean registered = false;
+    while (!registered) {
+      // try this 3 times...
+      try {
+	if (!_enfMgr.registerEnforcer(this, _enforcedActionType, _agents)) {
+	  _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
+	  _log.fatal("Could not register with the Enforcer Manager Service");
+	  throw new RuntimeException("Cannot register with Enforcer Manager Service");
+	}
+	registered = true;
+      } catch (RuntimeException e) {
+	retries++;
+	if (retries > 3) {
+	  _log.error("Tried " + retries +
+		     " times to register enforcer. quitting...");
+	  throw e;
+	}
+	_log.warn("Caught exception when attempting to register the enforcer" +
+		  ". Will retry.", e);
+	try {
+	  Thread.sleep(1000);
+	} catch (InterruptedException ie) {
+	}
+      }
     }
     if (_enfMgr instanceof NodeGuard) {
       _guard = (NodeGuard) _enfMgr;
