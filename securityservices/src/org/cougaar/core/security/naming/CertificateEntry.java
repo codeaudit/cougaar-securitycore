@@ -58,12 +58,6 @@ public class CertificateEntry
       authority */
   private CertificateType _certificateType=null;
 
-  /** The trust status of this certificate.
-   * When a key pair has been generated but not submitted to a CA yet,
-   * the certificate cannot be used because other parties will not trust
-   * the certificate. */
-  private CertificateTrust _certificateTrust;
-
   public CertificateEntry(X509Certificate cert,
 			  CertificateRevocationStatus status,
 			  CertificateType certtype)
