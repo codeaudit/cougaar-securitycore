@@ -30,7 +30,7 @@ module Cougaar
            if !testPassed
              processID = Process.pid
              puts "Test failed - Killing society. PID=#{processID}"
-             `echo "kill -9 #{processID}`
+             `kill -9 #{processID}`
            end
          end
         }
