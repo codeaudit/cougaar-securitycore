@@ -432,16 +432,13 @@
         <!--
             Do not copy files individually. Files are now stored in JAR files
         -->
+        <!-- logging.conf files are loaded directly from the
+             filesystem.  Maybe we can get this fixed in cougaar core?
+             -->
         <copy todir="${securityservices.staging}/configs/security">
             <fileset dir="${securityservices.configs}/common">
                 <patternset>
                     <include name="cmdlineLoggingConfig.conf"/>
-                    <!-- These files are needed by the rules, but it would be better
-                         to put them in a staging directory. Ideally, $CIP/configs/security
-                         should contain signed config jar files only. -->
-                    <include name="OwlBootPolicyList"/>
-                    <include name="*.owl"/>
-                    <include name="Owl*"/>
                 </patternset>
             </fileset>
         </copy>
