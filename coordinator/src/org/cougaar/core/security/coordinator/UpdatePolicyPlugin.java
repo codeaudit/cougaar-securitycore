@@ -38,7 +38,6 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.coordinator.ThreatConActionInfo;
-import org.cougaar.core.security.provider.SecurityComponent;
 import org.cougaar.core.security.policy.builder.KAoSAgentOntologyConnection;
 import org.cougaar.core.security.policy.builder.Main;
 import org.cougaar.core.service.AgentIdentificationService;
