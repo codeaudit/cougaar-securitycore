@@ -118,15 +118,18 @@ final public class KeyRing
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
-    
+
     param = new DirectoryKeyStoreParameters();
     param.serviceBroker = serviceBroker;
 
     // LDAP certificate directory
-    param.isCertAuth = configParser.isCertificateAuthority();
+    //param.isCertAuth = configParser.isCertificateAuthority();
 
     TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
-    
+
+    // ldap info and isCertAuth are moved out of param
+    // the information can be set at a later time than initialization
+    /*
     if (trustedCaPolicy.length > 0) {
       if (log.isDebugEnabled()) {
 	 log.debug(" TrustedCaPolicy is  :"+ trustedCaPolicy[0].toString());
@@ -138,13 +141,14 @@ final public class KeyRing
        if (log.isDebugEnabled()) {
 	 log.debug(" TrustedCaPolicy is Empty !!!!!!!!!!!!!!!!!!!!!!!! ");
        }
-      
+
     }
+    /*
     if(param.isCertAuth) {
        if (log.isDebugEnabled()) {
 	 log.debug(" is Cert  Authority ----------------------------------------:");
        }
-      
+
       X500Name [] caDNs=configParser.getCaDNs();
       if (caDNs.length > 0) {
         String caDN=caDNs[0].getName();
@@ -158,14 +162,16 @@ final public class KeyRing
       }
     }
     if (log.isDebugEnabled()) {
-      log.debug(" Ladap type is :"+ param.ldapServerType); 
+      log.debug(" Ladap type is :"+ param.ldapServerType);
      }
+    */
 
 
     directoryKeystore = new DirectoryKeyStore(param);
     pkcs12 = new PrivateKeyPKCS12(directoryKeystore, serviceBroker);
 
-    if (directoryKeystore == null || pkcs12 == null && param.isCertAuth == false) {
+    // remove isCertAuth, CA should not be moved so no need to check
+    if (directoryKeystore == null || pkcs12 == null/* && param.isCertAuth == false*/) {
       // Cannot proceed without keystore
       boolean exec =
 	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
@@ -178,7 +184,7 @@ final public class KeyRing
       throw new RuntimeException("No cryptographic keystores");
     }
   }
-  
+
   /*
   public KeyStore getKeyStore() {
     if (directoryKeystore == null) {
@@ -328,6 +334,14 @@ final public class KeyRing
     return;
   }
 
+  public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc) {
+    if (directoryKeystore == null) {
+      return;
+    }
+    directoryKeystore.checkOrMakeCert(dname, isCACert, tc);
+    return;
+  }
+
   /** @param privKey        The private keys to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer
@@ -396,15 +410,15 @@ final public class KeyRing
   public X509Certificate[] buildCertificateChain(X509Certificate certificate) {
     return directoryKeystore.buildCertificateChain(certificate);
   }
-  
+
   public boolean checkCertificate(CertificateStatus cs,
 				  boolean buildChain, boolean changeStatus) {
     if(directoryKeystore!=null) {
       return directoryKeystore.checkCertificate(cs,buildChain,changeStatus);
     }
     return false;
-					       
-    
+
+
   }
   public  List getValidCertificates(X500Name x500Name) {
      if(directoryKeystore!=null) {
@@ -416,7 +430,7 @@ final public class KeyRing
   public String getCaKeyStorePath() {
     return param.caKeystorePath;
   }
-  
+
   public String getKeyStorePath() {
     return param.keystorePath;
   }
@@ -437,22 +451,16 @@ final public class KeyRing
     return directoryKeystore.getCACertDirServiceClient(dname);
   }
 
-  public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy tc) {
-    if (directoryKeystore == null) {
-      return;
-    }
-    directoryKeystore.checkOrMakeCert(dname, isCACert, tc);
-    return;
-  }
 
 /*
   public void addSSLCertificateToCache(X509Certificate cert) {
     directoryKeystore.addSSLCertificateToCache(cert);
   }
-  
+
   public void removeEntryFromCache(String commonName) {
     directoryKeystore.removeEntryFromCache(commonName);
   }
 */
+
 }
 
