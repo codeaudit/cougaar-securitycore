@@ -126,6 +126,20 @@
        </rdfs:subClassOf>
     </daml:Class>
 
+
+    <daml:Class rdf:ID="BlackboardObjects">
+       <rdfs:subClassOf 
+         rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
+       <daml:oneOf rdf:parseType="daml:collection">
+          <ultralogEntity:BlackBoardObjects rdf:ID="BlackboardOpPlanObject" />
+          <ultralogEntity:BlackBoardObjects rdf:ID="SafeRelay" />
+
+          <!-- this last one should not appear in DamlBlackboardObjectMap -->
+          <ultralogEntity:BlackBoardObjects rdf:ID="otherBlackboardObjects" />
+       </daml:oneOf>
+    </daml:Class>
+
+    <!--
     <daml:Class rdf:ID="OtherBlackBoardObjects">
        <rdfs:subClassOf 
          rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
@@ -143,7 +157,7 @@
           <daml:class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects"/>
        </daml:intersectionOf>
     </daml:Class>
-
+    -->
 
 
 
