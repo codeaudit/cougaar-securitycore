@@ -191,6 +191,8 @@ END
     scriptName = "#{@society_config_dir}/#{@node_name}.bat"
     file = File.open(scriptName ,"w") { |file|
        file.write <<END
+@mkdir %COUGAAR_INSTALL_PATH%\\workspace
+@mkdir %COUGAAR_INSTALL_PATH%\\workspace\\log4jlogs
 @mkdir %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs
 #{@commandLineDos}
 END
