@@ -25,6 +25,9 @@ if ($user eq 'ychen') {
 } elsif ($user eq 'mluu') {
   $httpport=5555;
   $httpsport=6555;
+} elsif ($user eq 'sri') {
+  $httpport=5553;
+  $httpsport=6553;
 } elsif ($user eq 'asmt') {
   $httpport=8800;
   $httpsport=8888;
@@ -67,14 +70,15 @@ $propFile = findPropertiesFile();
 push @commandLine, ("org.cougaar.core.node.Node", "-n", $node, "-c");
 push @commandLine, @ARGV;
 
-#print "@commandLine\n";
-
 if ( ! -d "$cip/workspace/log4jlogs" ) {
   mkdir "$cip/workspace", 0777;
   mkdir "$cip/workspace/log4jlogs", 0777;
 } elsif ( -f "$cip/workspace/log4jlogs/$node.log" ) {
   unlink "$cip/workspace/log4jlogs/$node.log";
 }
+
+#print "@commandLine\n";
+
 system(@commandLine);
 # Subroutines
 
