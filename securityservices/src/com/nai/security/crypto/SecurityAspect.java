@@ -370,11 +370,11 @@ public class SecurityAspect extends StandardAspect
     }
 	
     private boolean incomingMessageAction(Message msg, TrustSet t) {
-      if(!(msg instanceof DirectiveMessage))
-	return true;
+      //if(!(msg instanceof DirectiveMessage))
+	//return true;
       String action;
 	try {
-            if(debug) System.out.println("incoming:"+msg);
+            System.out.println("C-incoming:"+msg);
             action = acps.getIncomingAction
 		    (msg.getTarget().toString(), (String)t.getAttribute(MissionCriticality.name).getValue());
 	}
@@ -638,11 +638,11 @@ public class SecurityAspect extends StandardAspect
     }
 
     private boolean outgoingMessageAction(Message msg, TrustSet trust) {
-      if(!(msg instanceof DirectiveMessage))
-	return true;
+     // if(!(msg instanceof DirectiveMessage))
+	//return true;
       String act;
 	try {
-		if(debug) System.out.println("outgoing:" + msg);
+		System.out.println("C-outgoing:" + msg);
                 act = acps.getOutgoingAction
 		    (msg.getOriginator().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
 	}
