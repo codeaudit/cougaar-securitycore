@@ -21,8 +21,10 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.security.monitoring.idmef.SensorInfo;
 import edu.jhuapl.idmef.*;
+
+// Cougaar security services
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 
 public class TestDummySensor implements SensorInfo {
    

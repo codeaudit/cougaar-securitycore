@@ -21,18 +21,23 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
-import org.cougaar.core.security.monitoring.idmef.SensorInfo;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.ArrayList;
+
+import edu.jhuapl.idmef.*;
+
+// Cougaar core services
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.ArrayList;
 import org.cougaar.core.service.*;
-import edu.jhuapl.idmef.*;
+
+// Cougaar security services
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 
 /** A dummy sensor used to show how to register capabilities and
  *  publish IDMEF events.

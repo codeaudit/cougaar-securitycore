@@ -41,6 +41,9 @@ import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.core.node.ArgTableIfc;
 import org.cougaar.core.service.UIDServer;
 
+// Cougaar security services
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+
 /********************************************************************* 
  * <pre>
  * Factory to create IDMEF messages

@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2002 Network Associates
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- *
+ * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- *
+ * 
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -18,11 +18,46 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-package org.cougaar.core.security.monitoring.idmef;
-/*
- *  This is just a marker interface for Registration Event  
- *
- */
+package org.cougaar.core.security.monitoring.plugin;
 
-public interface Registration {
+/**
+ * All Cougaar sensors should implement this interface to provide
+ * basic information about the sensor.
+ */
+public interface SensorInfo { 
+
+  /**
+   * Get the name of the sensor/anaylzer.
+   *
+   * @return the name of the sensor
+   */
+  public String getName();
+
+  /**
+   * Get the sensor manufacturer.
+   *
+   * @return the sensor manufacturer
+   */
+  public String getManufacturer();
+    
+  /**
+   * Get the sensor model.
+   *
+   * @return the sensor model
+   */
+  public String getModel();
+    
+  /**
+   * Get the sensor version.
+   *
+   * @return the sensor version
+   */
+  public String getVersion();
+    
+  /**
+   * Get the class of analyzer software and/or hardware.
+   *
+   * @return the sensor class
+   */
+  public String getAnalyzerClass();
 }
