@@ -29,7 +29,7 @@
     </target>
 
     <!-- Build the Junit test package -->
-    <target name="build-junit-tests">
+    <target name="build-junit-tests" depends="install-junit-jars">
         <echo message="+++++ Building Junit tests"/>
         <javac classpathref="securityservices.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
@@ -56,6 +56,17 @@
               <attribute name="Class-Path" value="/"/>
             </manifest>
         </jar>
+    </target>
+
+    <!-- install build depended jars -->
+    <target name="install-junit-jars">
+        <echo message="+++++ Installing jar files"/>
+        <copy todir="${cougaar.install.path}/sys" overwrite="true">
+            <fileset dir="${securityservices.regress}/sys">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed jar files"/>        
     </target>
 
     <!-- sign jar file -->
