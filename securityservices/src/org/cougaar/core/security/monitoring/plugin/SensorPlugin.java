@@ -154,77 +154,77 @@ public abstract class SensorPlugin extends ComponentPlugin {
       m_log = (LoggingService)sb.getService(this, LoggingService.class, null);
     }
     // register this sensor's capabilities
-    Thread th=new Thread(new RegistrationTask());
-    th.start();
-   //registerCapabilities(cs, m_agent);
-  }  
-  
-  /**
-   * doesn't do anything
-   */
-  protected void execute(){
-  }
-  
-  /**
-   * register the capabilities of the sensor
-   */
-  private boolean registerCapabilities( String agentName){
-    List capabilities = new ArrayList();
-    List targets = null;
-    List sources=null;
-    List data = null;
-    
-    if(m_cs == null) {
-      return true;
-    }
-    Collection manager = getEnclaveManager();
-    if(manager == null) {
-	return false;
-    }
-    else if(manager.size() == 0) {
-	m_log.warn("Enclave Security Manager not yet alive!");
-	return true; // enclave managers not yet alive
+      Thread th=new Thread(new RegistrationTask());
+      th.start();
+     //registerCapabilities(cs, m_agent);
     }  
-    // if agent is the target then add the necessary information to the registration
-    if(agentIsTarget()) {
-      List tRefList = new ArrayList(1);
-      targets = new ArrayList(1);
-      data = new ArrayList(1);
-      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
-      Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
-      // add the target ident to the reference ident list
-      tRefList.add(t.getIdent());
-      targets.add(t);
-      // since there isn't a data model for cougaar Agents, the Agent object is
-      // added to the AdditionalData of an IDMEF message
-      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
-      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+  
+    /**
+    * doesn't do anything
+    */
+    protected void execute(){
     }
-    if(agentIsSource()) {
-      List tRefList = new ArrayList(1);
-      sources = new ArrayList(1);
-      if(data==null) {
-	data = new ArrayList(1);
+  
+   /**
+    * register the capabilities of the sensor
+    */
+    private boolean registerCapabilities( String agentName){
+      List capabilities = new ArrayList();
+      List targets = null;
+      List sources=null;
+      List data = null;
+   
+      if(m_cs == null) {
+        return true;
       }
-      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
-      Source s = m_idmefFactory.createSource(null, null, null, null, null);
-      // add the target ident to the reference ident list
-      tRefList.add(s.getIdent());
-      sources.add(s);
-      // since there isn't a data model for cougaar Agents, the Agent object is
-      // added to the AdditionalData of an IDMEF message
-      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
-      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
-    }
+      Collection manager = getEnclaveManager();
+      if(manager == null) {
+  	return false;
+      }
+      else if(manager.size() == 0) {
+ 	m_log.warn("Enclave Security Manager not yet alive!");
+  	return true; // enclave managers not yet alive
+      }  
+      // if agent is the target then add the necessary information to the registration
+      if(agentIsTarget()) {
+        List tRefList = new ArrayList(1);
+	targets = new ArrayList(1);
+	data = new ArrayList(1);
+        Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+        Target t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+       // add the target ident to the reference ident list
+        tRefList.add(t.getIdent());
+        targets.add(t);
+        // since there isn't a data model for cougaar Agents, the Agent object is
+        // added to the AdditionalData of an IDMEF message
+        Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+        data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+      }
+      if(agentIsSource()) {
+	List tRefList = new ArrayList(1);
+        sources = new ArrayList(1);
+	if(data==null) {
+	  data = new ArrayList(1);
+	}
+	Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+	Source s = m_idmefFactory.createSource(null, null, null, null, null);
+	// add the target ident to the reference ident list
+	tRefList.add(s.getIdent());
+	sources.add(s);
+	// since there isn't a data model for cougaar Agents, the Agent object is
+	// added to the AdditionalData of an IDMEF message
+	Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+	data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+      }
     
-    String []classifications = getClassifications();
-    for(int i = 0; i < classifications.length; i++) {
-      Classification classification = 
-        m_idmefFactory.createClassification(classifications[i], null);
-      capabilities.add(classification);
-    }  
-    RegistrationAlert reg = 
-      m_idmefFactory.createRegistrationAlert( getSensorInfo(), 
+      String []classifications = getClassifications();
+      for(int i = 0; i < classifications.length; i++) {
+	Classification classification = 
+	  m_idmefFactory.createClassification(classifications[i], null);
+	capabilities.add(classification);
+      }  
+      RegistrationAlert reg = 
+	m_idmefFactory.createRegistrationAlert( getSensorInfo(), 
                                               null,
                                               targets,
                                               capabilities,
