@@ -95,8 +95,13 @@ public class IdmefEventPublisherPlugin
     if (_eventService.isEventEnabled()) {
       while(eventiterator.hasNext()) {
 	event=(Object)eventiterator.next();
-	String s = "[STATUS] " + event.toString();
-	_eventService.event(s);
+	if (event.toString() == null) {
+	  _log.warn("Unable to publish Cougaar event");
+	}
+	else {
+	  String s = "[STATUS] " + event.toString();
+	  _eventService.event(s);
+	}
       }
     }
   }
