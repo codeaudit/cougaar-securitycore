@@ -65,8 +65,11 @@ public class CryptoProviders {
   }
 
   /**  Dynamically load Crypto providers */
+ /** This function is commented as Crypto Providers are loaded from 
+  * BaseBootstrapper 
+ **/
   public static void loadCryptoProviders() {
-    String cryptoProvidersProperty =
+    /*String cryptoProvidersProperty =
       System.getProperty("org.cougaar.core.security.crypto.cryptoProvidersFile",
 			 "cryptoProviders.xml");
     ConfigFinder configFinder = new ConfigFinder();
@@ -114,7 +117,7 @@ public class CryptoProviders {
     }
     if (debug) {
       printProviderProperties();
-    }
+      }*/
   }
 
   public static void printProviderProperties() {
