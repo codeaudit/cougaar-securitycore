@@ -9,10 +9,20 @@
 
 realCIP=$COUGAAR_INSTALL_PATH
 startupdir=`pwd`
-tmpdir=mktemp -d /tmp/$0.XXXXXX || exit 1
-
-export COUGAAR_INSTALL_PATH=${tmpdir}
-#ant install
+tmpdir=`mktemp -d /tmp/cip.XXXXXX`
+if [ $? != 0 ]; then
+  echo "$0: Can't create temp file, exiting..."
+  exit 1
+fi
+set COUGAAR_INSTALL_PATH=${tmpdir}
+export COUGAAR_INSTALL_PATH
+which ant >& /dev/null
+if [ $? != 0 ]; then
+  echo "$0: Can't find ant. Add it to your path. Exiting..."
+  rm -rf ${tmpdir}
+  exit 1
+fi
+ant install
 cd $COUGAAR_INSTALL_PATH
 tar cvf security.tar \
 	log/bootstrap \
@@ -40,8 +50,7 @@ tar cvf security.tar \
 	sys/iw.jar \
 	sys/jdom.jar
 
-cp security.tar ${startupdir}
-cd ${realCIP}
-tar xvf ${startupdir}/security.tar
+#cp security.tar ${startupdir}
+#cd ${realCIP}
+#tar xvf ${startupdir}/security.tar
 rm -rf ${tmpdir}
-export COUGAAR_INSTALL_PATH=${realCIP}
