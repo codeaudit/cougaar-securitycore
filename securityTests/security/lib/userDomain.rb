@@ -179,7 +179,7 @@ class UserDomain
 
     successBoolean = false
     if [492,493,494].member?(code)
-      msg = "ignored: Web server not up with #{user}, #{password} to servlet #{servlet} (retcode=#{code})"
+      msg = "ignored: Web server not up with #{user}, #{password} to servlet #{servlet} (retcode=#{code}) Server message ( #{body})"
       return successBoolean, code, expectedResult, useCase, msg, body
     end
 
