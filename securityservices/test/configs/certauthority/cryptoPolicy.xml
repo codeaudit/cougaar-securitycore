@@ -17,13 +17,13 @@
           <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
 
           <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
-          <CA_URL role="srosset">http://rose:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="ychen">http://pear:5558/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="gmount">http://pear:5557/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="mluu">http://pear:5555/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="rliao1">http://yew:5556/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="rtripath">http://pear:5560/CA/CertificateSigningRequest</CA_URL>
-          <CA_URL role="isat">http://u041e:8080/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset">http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="ychen">http://pear:5558/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="gmount">http://pear:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="mluu">http://pear:5555/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="rtripath">http://pear:5560/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="isat">http://u041e:8080/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
           <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
