@@ -135,9 +135,7 @@ public class RoleMapping extends StringPairMapping {
     }
     index = uri.length();
     while (index != -1) {
-      if (first) {
-        first = false;
-      } else {
+      if (!first) {
         uri = uri.substring(0, index + 1) + "*";
       }
       Set s;
@@ -153,7 +151,12 @@ public class RoleMapping extends StringPairMapping {
       if (s != null) {
         return new HashSet(s); // copy the set
       }
-      index = uri.lastIndexOf('/');
+      if (first) {
+        first = false;
+        index = uri.lastIndexOf('/', uri.length() - 2); 
+      } else {
+        index = uri.lastIndexOf('/', uri.length() - 3);
+      }
     }
     return new HashSet(); // no roles;
   }
