@@ -178,7 +178,9 @@ public class KAoSAgentOntologyConnection extends OntologyConnection
   public  void setConditionalPolicies(Vector condPols)
     throws Exception
   {
-    throw new UnsupportedOperationException();
+    if (!condPols.isEmpty()) {
+      throw new UnsupportedOperationException();
+    }
   }
 
 
