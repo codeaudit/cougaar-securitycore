@@ -68,8 +68,18 @@ throws PolicyCompilerException
                               + ParsedPolicyFile.tokenToText(servletName),
                               UltralogEntityConcepts._Servlet_); }
     | "PlugInRole" pluginRoleName:TOKEN
-        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
-                              + ParsedPolicyFile.tokenToText(pluginRoleName),
+        {   String pluginRoleText
+                       = ParsedPolicyFile.tokenToText(pluginRoleName);
+            /* for backwards compatibility - delete else case soon */
+            if (!pluginRoleText.endsWith("Role")) {
+                pluginRoleText += "Role";
+            } else {
+                System.out.println("Deprecated usage - use PluginRole "
+                                   + pluginRoleText
+                                      .substring(0,pluginRoleText.length() -4));
+            }
+            ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
+                              + pluginRoleText,
                               UltralogEntityConcepts._PlugInRoles_); }
     | "BlackBoardObject" blackBoardObjectName:TOKEN
         { ppf.declareInstance(
