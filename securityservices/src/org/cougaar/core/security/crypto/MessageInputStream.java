@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
-import java.util.Iterator;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedInputStream;
@@ -189,97 +188,31 @@ public class MessageInputStream
       throw new IOException("Unexpected data in the stream:" + e);
     }
 
-    SecureMethodParam smp = new SecureMethodParam();
-    CryptoPolicy cp = cps.getOutgoingPolicy(source.toAddress());
-    byte[] rawData = null;
-    
-    if (cp == null) {
+    CryptoPolicy policy =
+      cps.getIncomingPolicy(target.toAddress());
+    if (policy == null) {
       if (log.isWarnEnabled()) {
-        log.warn("readInputStream NOK: " + source.toAddress()
-           + " -> " + target.toAddress()
-           + " - No policy");
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + " - No policy");
       }
       throw new IOException("Could not find message policy between "
 			    + source.toAddress()
 			    + " and " + target.toAddress());
     }
-
-    /* assembly SecureMethodParam:
-     * as CryptoPolicy can contain multiple entries for each parameter,
-     * every meaningful combinations needs to be checked before declare
-     * a failure, i.e. throwing IOException
-     */
-    String method = "";
-    Iterator iter = (cp.getSecuMethod(target.toAddress())).iterator();
-    while(iter.hasNext()){
-      method = (String)iter.next();
-      if(method.equalsIgnoreCase("plain")){
-        smp.secureMethod = SecureMethodParam.PLAIN;
-        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
-          rawData = getRawData(protectedObject, smp, iter.hasNext());
-          if(rawData!=null) break;
-        }
-      }else if(method.equalsIgnoreCase("sign")){ 
-        smp.secureMethod = SecureMethodParam.SIGN;
-        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
-          Iterator iter2 = (cp.getSignSpec(target.toAddress())).iterator();
-          while(iter2.hasNext()){
-            smp.signSpec = (String)iter2.next();
-            rawData = getRawData(protectedObject, smp, 
-                        iter.hasNext() && iter2.hasNext());
-            if(rawData!=null) break;
-          }
-          if(rawData!=null) break;
-        }
-      }else if(method.equalsIgnoreCase("encrypt")){ 
-        smp.secureMethod = SecureMethodParam.ENCRYPT;
-        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
-          Iterator iter2 = (cp.getSymmSpec(target.toAddress())).iterator();
-          while(iter2.hasNext()){
-            smp.symmSpec = (String)iter2.next();
-            Iterator iter3 = (cp.getAsymmSpec(target.toAddress())).iterator();
-            while(iter3.hasNext()){
-              smp.asymmSpec = (String)iter3.next();
-              rawData = getRawData(protectedObject, smp, 
-                iter.hasNext() && iter2.hasNext() && iter3.hasNext());
-              if(rawData!=null) break;
-            }
-            if(rawData!=null) break;
-          }
-          if(rawData!=null) break;
-        }
-      }else if(method.equalsIgnoreCase("signAndEncrypt")){ 
-        smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
-        if (smp.secureMethod == protectedObject.getSecureMethod().secureMethod){
-          Iterator iter2 = (cp.getSymmSpec(target.toAddress())).iterator();
-          while(iter2.hasNext()){
-            smp.symmSpec = (String)iter2.next();
-            Iterator iter3 = (cp.getAsymmSpec(target.toAddress())).iterator();
-            while(iter3.hasNext()){
-              smp.asymmSpec = (String)iter3.next();
-              Iterator iter4 = (cp.getSignSpec(target.toAddress())).iterator();
-              while(iter4.hasNext()){
-                smp.signSpec = (String)iter4.next();
-                rawData = getRawData(protectedObject, smp, 
-                  iter.hasNext() && iter2.hasNext() 
-                    && iter3.hasNext() && iter4.hasNext());
-                if(rawData!=null) break;
-              }
-              if(rawData!=null) break;
-            }
-            if(rawData!=null) break;
-          }
-          if(rawData!=null) break;
-        }
-      }else{
-        smp.secureMethod = SecureMethodParam.INVALID;
-        if (log.isErrorEnabled()) {
-          log.error("readInputStream NOK: " + source.toAddress()
-             + " -> " + target.toAddress()
-             + "invalid secure method.");
-        }
-        throw new IOException("invalid secure method.");
+    byte[] rawData = null;
+    try {
+      rawData = (byte[]) enc.unprotectObject(source,
+					     target,
+					     protectedObject, policy);
+    }
+    catch (GeneralSecurityException e) {
+      if (log.isWarnEnabled()) {
+	log.warn("readInputStream NOK: " + source.toAddress()
+		 + " -> " + target.toAddress()
+		 + e);
       }
+      throw new IOException(e.toString());
     }
 
     if (log.isDebugEnabled()) {
@@ -289,25 +222,5 @@ public class MessageInputStream
 
     plainTextInputStream = new ByteArrayInputStream(rawData);
     isEndOfMessage = true;
-  }
-  
-  private byte[] getRawData(ProtectedObject obj, 
-              SecureMethodParam policy, boolean goOn)
-              throws IOException
-  {
-    try {
-      return (byte[]) enc.unprotectObject(source,
-               target,
-               obj, policy);
-    }
-    catch (GeneralSecurityException e) {
-      if(goOn) return null;
-      if (log.isWarnEnabled()) {
-        log.warn("readInputStream NOK: " + source.toAddress()
-           + " -> " + target.toAddress()
-           + e);
-      }
-      throw new IOException(e.toString());
-    }
   }
 }
