@@ -470,6 +470,13 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       loggingService.debug("Capabilities was null returning:");
       return  new ArrayList();
     }
+    loggingService.debug("*************************************************************************************************");
+    if(sensors){
+      loggingService.debug("Looking for Local Sensors ");
+    }
+    else {
+      loggingService.debug("Looking for Managers  ");
+    }
     
     Enumeration keys=caps.keys();
     Classification queryClassification=query.classification;
@@ -477,6 +484,9 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     Target queryTarget=query.target;
     String community=query.community;
     String role=query.role;
+    String sourceOfAttack=query.source_agent;
+    String targetOfAttack=query.target_agent;
+      
     ArrayList commagents=new ArrayList();
     if((community!=null) && (role!=null)) {
       loggingService.debug(" ########## Searching with community and role combination :");
@@ -498,30 +508,70 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     ArrayList classagents;
     ArrayList sourceagents;
     ArrayList targetagents;
+    ArrayList sourceofAttackAgents;
+    ArrayList targetofAttackAgents;
     ArrayList commonAgents=null;
     classagents=(ArrayList)searchByClassification(queryClassification,caps,sensors);
-    loggingService.debug("Printing result of query with classification  @@@@@@@@@@@@@@@@@@:" + sensors);
+    loggingService.debug("Size of result with classification is " +classagents.size() );
+    
+    /*
     for(int i=0;i<classagents.size();i++) {
-      loggingService.debug("classification result at i:"+i +" agent is :"+(String)classagents.get(i));  
+      loggingService.debug(" classification result at i:"+i +" agent is :"+(String)classagents.get(i));  
     }
+    */
     sourceagents=(ArrayList)searchBySource(querySource,caps,sensors);
-    loggingService.debug("Printing result of query with source  @@@@@@@@@@@@@@@@@@:" + sensors);
-    for(int i=0;i<sourceagents.size();i++) {
+    loggingService.debug("Size of result with source  is :" +sourceagents.size() );
+    /*for(int i=0;i<sourceagents.size();i++) {
       loggingService.debug("source  result at i:"+i +" agent is :"+(String)classagents.get(i));  
     }
+    */
     targetagents=(ArrayList)searchByTarget(queryTarget,caps,sensors);
+    loggingService.debug("Size of result with target is :" +targetagents.size() );
+    for(int i=0;i<targetagents.size();i++) {
+      loggingService.debug("Target result at i:"+i +" agent is :"+(String)targetagents.get(i));  
+    }
+    //loggingService.debug("Size of result with target is :" +targetagents.size() );
+    sourceofAttackAgents=(ArrayList)searchBySourceOfAttack(sourceOfAttack,caps,sensors);
+    loggingService.debug("Size of result with source of ATTACK  is :" +sourceofAttackAgents.size() );
+    for(int i=0;i<sourceofAttackAgents.size();i++) {
+      loggingService.debug("sourceofAttackAgents result at i:"+i +" agent is :"+(String)sourceofAttackAgents.get(i));  
+    }
+    targetofAttackAgents=(ArrayList)searchByTargetOfAttack(targetOfAttack,caps,sensors);
+    loggingService.debug("Size of result with target of ATTACK  is :" +targetofAttackAgents.size() );
+    for(int i=0;i<targetofAttackAgents.size();i++) {
+      loggingService.debug("targetofAttackAgents result at i:"+i +" agent is :"+(String)targetofAttackAgents.get(i));  
+    }
     if(((community!=null) || (role!=null))&& (commagents.isEmpty())) {
       loggingService.debug(" Community Rol combination is empty :");
       commonAgents=new ArrayList();
     }
     else {
-      if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null)) {
+      if(queryClassification!=null) {
+	commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+      }
+      if(querySource!=null) {
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+      }
+      if(queryTarget!=null){
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
+      }
+      if(sourceOfAttack!=null) {
+	 commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
+	
+      }
+      if(targetOfAttack!=null) {
+	commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
+      }
+      /*
+      if((queryClassification!=null) || (querySource!=null) || (queryTarget!=null) || (sourceOfAttack!=null) ||(targetOfAttack!=null)) {
 	loggingService.debug("Either queryClassification querySource queryTarget is not null");
-	if(!classagents.isEmpty()|| !sourceagents.isEmpty()||!targetagents.isEmpty()) {
+	if(!classagents.isEmpty()|| !sourceagents.isEmpty()||!targetagents.isEmpty() || !sourceofAttackAgents.isEmpty() || !targetofAttackAgents.isEmpty()) {
 	  loggingService.debug("Either queryClassification querySource queryTarget is notresult is not Empty");
 	  commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
 	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
 	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);	
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
+	  commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
 	}
 	else {
 	   loggingService.debug("Either queryClassification querySource queryTarget is notresult is EMPTY  Empty");
@@ -532,6 +582,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
 	 loggingService.debug("Either queryClassification querySource queryTarget is NULL");
 	commonAgents=commagents;
       }
+      */
     }
     loggingService.debug("Printing result of query @@@@@@@@@@@@@@@@@@:" + sensors);
     for(int i=0;i<commonAgents.size();i++) {
@@ -544,12 +595,14 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
   
   public List findCommanAgents(List list1,List list2) {
     ArrayList commonList=new ArrayList();
+    /*
     if(list1.isEmpty()) {
       return list2;
     }
     if(list2.isEmpty()){
       return list1;
     }
+    */
     Iterator iter=list1.iterator();
     String agentname;
     while(iter.hasNext()) {
@@ -577,13 +630,13 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       key=(String)keys.nextElement();
       reg= (RegistrationAlert)caps.get(key);
       if (loggingService.isDebugEnabled())
-	loggingService.debug(" in capabilities object : Key is "+ key +" Object is :"+ reg.toString() );
+	loggingService.debug(" in capabilities object : Key is "+ key  );
       Classification [] classifications=reg.getClassifications();
       if(classifications==null) {
 	return agentlist;
       }
       if(isClassificationPresent(searchClassification,classifications)) {
-	loggingService.debug(" Got calssification equal:" + reg.getType());
+	loggingService.debug(" Got calssification equal:" + key);
 	if(sensors) {
 	  loggingService.debug(" !!!!!! Looking for sensors agents :");
 	  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
@@ -620,7 +673,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       key=(String)keys.nextElement();
       reg= (RegistrationAlert)caps.get(key);
       if (loggingService.isDebugEnabled())
-	loggingService.debug(" in capabilities object : Key is "+ key +" Object is :"+ reg.toString() );
+	loggingService.debug(" in capabilities object : Key is "+ key );
       sources=reg.getSources();
       if(sources==null) {
 	 return agentlist;
@@ -664,7 +717,7 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       key=(String)keys.nextElement();
       reg= (RegistrationAlert)caps.get(key);
       if (loggingService.isDebugEnabled())
-	loggingService.debug(" in capabilities object : Key is "+ key +" Object is :"+ reg.toString() );
+	loggingService.debug(" in capabilities object : Key is "+ key );
       targets=reg.getTargets();
       if(targets==null) {
 	 return agentlist;
@@ -692,14 +745,159 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     return agentlist;
   }
   
-  private List searchBySourceOfAttack() {
-    
-    return new ArrayList();
+  private List searchBySourceOfAttack(String agentname,CapabilitiesObject caps, boolean sensors) {
+    String key=null;
+    Enumeration keys=caps.keys();
+    RegistrationAlert reg;
+    Source []sources =null;
+    AdditionalData [] additionaldatas=null;
+    AdditionalData data=null;
+    ArrayList agentlist=new ArrayList();
+    if(agentname==null) {
+      return agentlist;
+    }
+    if (loggingService.isDebugEnabled())
+      loggingService.debug(" in  searchBySourcesofattack  FUNCTION  query is :"+agentname);
+    while(keys.hasMoreElements()) {
+      key=(String)keys.nextElement();
+      reg= (RegistrationAlert)caps.get(key);
+      if (loggingService.isDebugEnabled())
+	loggingService.debug(" in capabilities object : Key is "+ key );
+      sources=reg.getSources();
+      additionaldatas=reg.getAdditionalData();
+      if(sources==null) {
+	 return agentlist;
+      }
+      if(additionaldatas==null) {
+	return agentlist;
+      }
+      for(int i=0;i<additionaldatas.length;i++) {
+	data=additionaldatas[i];
+	org.cougaar.core.security.monitoring.idmef.Agent agentinfo=null;
+	if((data.getType().equalsIgnoreCase("xml"))&&(data.getXMLData()!=null)) {
+	  if(data.getXMLData() instanceof org.cougaar.core.security.monitoring.idmef.Agent){ 
+	    agentinfo=( org.cougaar.core.security.monitoring.idmef.Agent)data.getXMLData();
+	  }
+	}
+	if(agentinfo!=null) {
+	  if(agentname.trim().equals(agentinfo.getName())) {
+	    String [] ref=agentinfo.getRefIdents();
+	    if(ref!=null) {
+	      String refstring=null;
+	      boolean found=true;
+	      for(int x=0;x<ref.length;x++) {
+		refstring=ref[x];
+		for(int z=0;z<sources.length;z++) {
+		  if(refstring.trim().equals(sources[z].getIdent().trim())) {
+		    found=true;
+		    break;
+		  }
+		}
+		if(found)
+		  break;
+	      }
+	      if(found) {
+		if(sensors) {
+		  loggingService.debug(" !!!!!! Looking for sensors agents :");
+		  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+		    loggingService.debug(" adding sensor key :"+key);
+		    agentlist.add(reg.getAgentName());
+		  }
+		}
+		else {
+		  loggingService.debug(" !!!!! looking for Security  manager :");
+		  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+		     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+		    loggingService.debug(" adding security manager  key :"+key);
+		    agentlist.add(key);
+		  }
+	  	}
+		
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    return agentlist;
   }
   
-  private List searchByTargetOfAttack() {
-    
-     return new ArrayList();
+  private List searchByTargetOfAttack(String agentname,CapabilitiesObject caps, boolean sensors) {
+    String key=null;
+    Enumeration keys=caps.keys();
+    RegistrationAlert reg;
+    Target [] targets =null;
+    AdditionalData [] additionaldatas=null;
+    AdditionalData data=null;
+    ArrayList agentlist=new ArrayList();
+    if(agentname==null) {
+      return agentlist;
+    }
+    if (loggingService.isDebugEnabled())
+      loggingService.debug(" in  searchByTargetofattack  FUNCTION  query is :"+agentname);
+    while(keys.hasMoreElements()) {
+      key=(String)keys.nextElement();
+      reg= (RegistrationAlert)caps.get(key);
+      if (loggingService.isDebugEnabled())
+	loggingService.debug(" in capabilities object : Key is "+ key );
+      targets=reg.getTargets();
+      additionaldatas=reg.getAdditionalData();
+      if(targets==null) {
+	 return agentlist;
+      }
+      if(additionaldatas==null) {
+	return agentlist;
+      }
+      for(int i=0;i<additionaldatas.length;i++) {
+	data=additionaldatas[i];
+	org.cougaar.core.security.monitoring.idmef.Agent agentinfo=null;
+	if((data.getType().equalsIgnoreCase("xml"))&&(data.getXMLData()!=null)) {
+	  if(data.getXMLData() instanceof org.cougaar.core.security.monitoring.idmef.Agent){ 
+	    agentinfo=( org.cougaar.core.security.monitoring.idmef.Agent)data.getXMLData();
+	  }
+	}
+	if(agentinfo!=null) {
+	  if(agentname.trim().equals(agentinfo.getName())) {
+	    String [] ref=agentinfo.getRefIdents();
+	    if(ref!=null) {
+	      String refstring=null;
+	      boolean found=true;
+	      for(int x=0;x<ref.length;x++) {
+		refstring=ref[x];
+		for(int z=0;z<targets.length;z++) {
+		  if(refstring.trim().equals(targets[z].getIdent().trim())) {
+		    found=true;
+		    break;
+		  }
+		}
+		if(found)
+		  break;
+	      }
+	      if(found) {
+		if(sensors) {
+		  loggingService.debug(" !!!!!! Looking for sensors agents :");
+		  if((reg.getType().equals(IdmefMessageFactory.SensorType))){
+		    loggingService.debug(" adding sensor key :"+key);
+		    agentlist.add(reg.getAgentName());
+		  }
+		}
+		else {
+		  loggingService.debug(" !!!!! looking for Security  manager :");
+		  if((reg.getType().equals( IdmefMessageFactory.EnclaveMgrType))||
+		     (reg.getType().equals( IdmefMessageFactory.SocietyMgrType))) {
+		    loggingService.debug(" adding security manager  key :"+key);
+		    agentlist.add(key);
+		  }
+	  	}
+		
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    return agentlist;
+    // return new ArrayList();
   }
   
   private String getMySecurityCommunity() {
@@ -740,15 +938,18 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
 	enclavemgr=true;
       }
-      else if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
+      if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
 	societymgr=true;
       }
     }
     if(enclavemgr) {
       myRole="SecurityMnRManager-Enclave"; 
     }
-    else if(societymgr) {
+    if(societymgr ) {
       myRole="SecurityMnRManager-Society";
+    }
+    if(enclavemgr && societymgr) {
+       myRole="SecurityMnRManager-Society"; 
     }
     return myRole;
     						      
@@ -898,17 +1099,75 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
       
     } 
     if((existingNode!=null)&&(queryNode!=null)){
-      if(existingNode.equals(queryNode)) {
+      boolean nameequal=false;
+      boolean addressequal=false;
+      boolean categoryequal=false;
+      String queryname=queryNode.getName();
+      String existingname=existingNode.getName();
+      Address queryAddress []=queryNode.getAddresses();
+      Address existingAddress[]=existingNode.getAddresses();
+      String queryCategory=queryNode.getCategory();
+      String existingCategory=existingNode.getCategory();
+      if(queryname==null) {
+	nameequal=true;
+      }
+      if((queryname!=null)&&(existingname!=null)) {
+	if(queryname.trim().equals(existingname.trim())) {
+	  nameequal=true;
+	}
+      }
+      if(queryAddress==null) {
+	addressequal=true;
+      }
+      if((queryAddress!=null)&&(existingAddress!=null)) {
+	if(existingAddress.length>=queryAddress.length) {
+	  Address inqueryAddress=null;
+	  for(int i=0;i<queryAddress.length;i++) {
+	    inqueryAddress=queryAddress[i];
+	    if(!containsAddress(inqueryAddress,existingAddress)) {
+	      addressequal=false;
+	      break;
+	    }
+	  }
+	  addressequal=true;
+	}
+	
+      }
+      if(queryCategory==null) {
+	categoryequal=true;
+      }
+      if((queryCategory !=null) && (existingCategory!=null)) {
+	if(queryCategory.trim().equals(existingCategory.trim())) {
+	  categoryequal=true;
+	}
+      }
+      if( nameequal &&  addressequal && categoryequal) {
 	nodeequal=true;
       }
+      
     }
     else if((existingNode==null)&&(queryNode==null)){
       nodeequal=true;
     }
     
     if((existingUser!=null)&&(queryUser!=null)){
-      if(existingUser.equals(queryUser)) {
+      UserId [] queryUserId=queryUser.getUserIds();
+      UserId [] existingUserId=existingUser.getUserIds();
+      if(queryUserId==null) {
 	userequal =true;
+      }
+      if((queryUserId !=null) &&(existingUserId!=null)) {
+	if(existingUserId.length>=queryUserId.length) {
+	  UserId userid=null;
+	  for(int i=0;i<queryUserId.length;i++) {
+	    userid=queryUserId[i];
+	    if(!containsUserId(userid,queryUserId)) {
+	      userequal=false;
+	      break;
+	    }
+	  }
+	  userequal=true;
+	}
       }
     }
     else if((existingUser==null)&&(queryUser==null)){
@@ -916,7 +1175,52 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     }
     
     if((existingService!=null)&&(queryService!=null)){
-      if(existingService.equals(queryService)) {
+      String existingServiceName=existingService.getName();
+      String queryServiceName=queryService.getName();
+      Integer existingPort=existingService.getPort();
+      Integer queryPort=queryService.getPort();
+      String existingPortList=existingService.getPortlist();
+      String queryPortList=queryService.getPortlist();
+      String existingProtocol=existingService.getProtocol();
+      String queryprotocol=queryService.getProtocol();
+      boolean nameequal=false;
+      boolean portequal=false;
+      boolean portlistequal=false;
+      boolean protocolequal=false;
+      if(queryServiceName==null) {
+	nameequal=true;
+      }
+      if((existingServiceName!=null) && (queryServiceName!=null)) {
+	if(existingServiceName.trim().equals(queryServiceName.trim())) {
+	  nameequal=true;
+	}
+      }
+      if(queryPort==null) {
+	portequal=true;
+      }
+      if((existingPort!=null) &&(queryPort!=null)) {
+	if(existingPort.intValue()==queryPort.intValue()) {
+	  portequal=true;
+	}
+      }
+      if(queryPortList==null) {
+	portlistequal =true;
+      }
+      if((existingPortList!=null)&&(queryPortList!=null)) {
+	if(existingPortList.trim().equals(queryPortList.trim())) {
+	  portlistequal=true;
+	}
+      }
+      if(queryprotocol==null) {
+	protocolequal=true;
+      }
+      if((existingProtocol!=null) &&(queryprotocol!=null)) {
+	if(existingProtocol.trim().equals(queryprotocol.trim())) {
+	  protocolequal=true;
+	}
+      }
+	
+      if( nameequal &&  portequal &&  portlistequal &&  protocolequal) {
 	serviceequal=true;
       }
     }
@@ -925,7 +1229,29 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     }
     
     if((existingProcess!=null)&&(queryProcess!=null)){
-      if(existingProcess.equals(queryProcess)) {
+      String existingPath=existingProcess.getPath();
+      String queryPath=queryProcess.getPath();
+      String existingName=existingProcess.getName();
+      String queryName=queryProcess.getName();
+      boolean processNameequal=false;
+      boolean processPathequal=false;
+      if(queryPath==null) {
+	processPathequal=true;
+      }
+      if((existingPath!=null) &&(queryPath!=null)) {
+	if(existingPath.trim().equals(queryPath.trim())) {
+	  processPathequal=true;
+	}
+      }
+      if(queryName==null) {
+	processNameequal=true;
+      }
+       if((existingName!=null) &&(queryName!=null)) {
+	if(existingName.trim().equals(queryName.trim())) {
+	  processNameequal=true;
+	}
+      }
+      if(processPathequal && processNameequal) {
 	processequal=true;
       }
     }
@@ -937,6 +1263,76 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     }
     return equal;
      
+  }
+ 
+    public boolean containsUserId(UserId inUserId, UserId [] arrayUserId) {
+      boolean contains=false;
+      UserId userid;
+      if(inUserId==null) {
+	return contains;
+      }
+      boolean nameequal=false;
+      boolean numberequal=false;
+      if(arrayUserId!=null) {
+	for(int i=0;i<arrayUserId.length;i++) {
+	  userid=arrayUserId[i];
+	  String inName=inUserId.getName();
+	  String name=userid.getName();
+	  Integer innumber=inUserId.getNumber();
+	  Integer number=userid.getNumber();
+	  if((inName!=null)&& (name!=null)) {
+	    if(inName.trim().equals(name.trim())) {
+	      nameequal=true;
+	    }
+	  }
+	  if((innumber!=null)&&(number!=null)) {
+	    if(innumber.intValue()==number.intValue()) {
+	      numberequal=true;
+	    }
+	  }
+	  if(nameequal && numberequal) {
+	    contains=true;
+	    return contains;
+	  }
+	    
+	}
+      }
+      return contains;
+    }
+    
+   public boolean containsAddress(Address anAddress, Address [] arrayAddress) {
+    boolean contains=false;
+    Address address;
+    if(anAddress==null) {
+      return contains;
+    }
+    if(arrayAddress!=null) {
+      //myAddresses=this.getAddresses();
+      for(int i=0;i<arrayAddress.length;i++) {
+	address=arrayAddress[i];
+	String stringaddress=address.getAddress();
+	String inaddress=anAddress.getAddress();
+	String category=address.getCategory();
+	String incategory=anAddress.getCategory();
+	boolean addressequal=false;
+	boolean categoryequal=false;
+	if((stringaddress!=null)&& (inaddress!=null)) {
+	  if(stringaddress.trim().equals(inaddress.trim())) {
+	    addressequal=true;
+	  }
+	}
+	if((category!=null)&&(incategory!=null))  {
+	  if(category.trim().equals(incategory.trim())) {
+	    categoryequal=true;
+	  }
+	}
+	if(addressequal && categoryequal) {
+	  contains=true;
+	  return contains;
+	}
+      }
+    }
+    return contains;
   }
   
   public QueryMapping findQueryMappingFromBB(UID givenUID, Collection queryMappingCol ) {
