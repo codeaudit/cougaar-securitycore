@@ -37,12 +37,24 @@ public class PolicyUtils
     _ontology = ontology;
   }
 
+
+  /**
+   * Turns a DAMLPolicyBuilderImpl into a PolicyInformation object.
+   * Uses the utility provided by the PolicyInformationManager class.
+   */
   public static  
     PolicyInformation getPolicyInformation(DAMLPolicyBuilderImpl policy)
   {
     return LocalPolicyInformationManager.readPolicyFromBuilder(policy);
   }
 
+
+  /*
+   * A policy message has several items in common regardless of
+   * whether it is a policy information message or a daml policy
+   * message.  This routine builds the common part based on a
+   * DAMLPolicyBuilderImpl object.
+   */
   private static PolicyMsg startPolicyMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
@@ -73,6 +85,11 @@ public class PolicyUtils
     return policyMsg;
   }
 
+
+  /**
+   * This routine makes a PolicyMsg (with a PolicyInformation object
+   * inside) from a DAMLPolicyBuilderImpl object.
+   */
   public static PolicyMsg getPolicyInformationMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
@@ -84,6 +101,10 @@ public class PolicyUtils
   }
 
 
+  /**
+   * This routine makes a PolicyMsg (with a DAML object
+   * inside) from a DAMLPolicyBuilderImpl object.
+   */
   public static PolicyMsg getPolicyMsg(DAMLPolicyBuilderImpl policy)
     throws ValueNotSet, PolicyBuildingNotCompleted, RangeIsBasedOnInstances
   {
@@ -95,6 +116,12 @@ public class PolicyUtils
     return policyMsg;
   }
 
+
+  /**
+   * This routine writes a PolicyMsg (with a DAML object
+   * inside) from a DAMLPolicyBuilderImpl object.  It chooses the name
+   * of the file to write from the name of the policy.
+   */
   public static void writePolicyMsg(DAMLPolicyBuilderImpl policy)
     throws IOException
   {
@@ -117,6 +144,12 @@ public class PolicyUtils
     writeObject(filename, pm);
   }
 
+
+  /**
+   * This routine writes a PolicyMsg (with a PolicyInformation object
+   * inside) from a DAMLPolicyBuilderImpl object.  It chooses the name
+   * of the file to write from the name of the policy.
+   */
   public static void writePolicyInfo(DAMLPolicyBuilderImpl policy)
     throws IOException
   {
@@ -139,6 +172,9 @@ public class PolicyUtils
     writeObject(filename, pm);
   }
 
+  /*
+   * Utility routine to write a single object
+   */
   private static void writeObject(String filename, Object o)
     throws IOException
   {
@@ -151,6 +187,17 @@ public class PolicyUtils
     }
   }
 
+  /**
+   * This routine automatically generates actor classes from their
+   * instances.  This significantly simplifies the changes that people
+   * will make to ontologies to support system specific data;
+   * administrators do not have to construct the actor classes
+   * themselves they are automatically generated.
+   *
+   * This routine is called by the domain manager in a running society
+   * and in the standalone tools to get the right ontologies forthe
+   * policies.
+   */
   public static void autoGenerateGroups(KAoSDirectoryService kds)
     throws Exception
   {
