@@ -26,9 +26,10 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/log4j.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/build.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/glm.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/planserver.jar
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/core.jar
 
 # Core & glm package may change, so point to the actual source code
-setenv CLASSPATH ${CLASSPATH}:${COUGAARCLASSES}
+#setenv CLASSPATH ${CLASSPATH}:${COUGAARCLASSES}
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/src/glm/src
 
 # Crypto providers
