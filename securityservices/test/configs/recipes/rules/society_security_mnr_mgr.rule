@@ -1,11 +1,11 @@
 ####################################################
 # society_security_mnr_mgr.rule
-# Adds SocietySecurityMnRManager complete agent recipe
+# Adds SocietyMnRManager complete agent recipe
 
 society.each_node do |node|
   agentname = ""
   if node.name == "CONUS-MGMT-NODE"
-    agentname = "SocietySecurityMnRManager"
+    agentname = "SocietyMnRManager"
   end
   if agentname != ""
     node.add_agent(agentname) do |agent|

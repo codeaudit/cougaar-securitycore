@@ -30,7 +30,7 @@ if cahost != nil
         c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
         c.add_argument(arg)
         c.add_argument("")
-        c.add_argument(cahost + ":RootCA:8800:9800")
+        c.add_argument(cahost + ":RootCaManager:8800:9800")
       end
     end
   end

@@ -5,10 +5,10 @@
 plugin = "org.cougaar.core.security.monitoring.plugin.EventQueryPlugin"
 
 society.each_agent() do |agent|
-  if agent.name == "SocietySecurityMnRManager"
+  if agent.name == "SocietyMnRManager"
     agent.add_component do |c|
       c.classname = plugin
-      c.add_argument("SocietySecurityMnRManager")
+      c.add_argument("SocietyMnRManager")
       c.add_argument("org.cougaar.core.security.monitoring.plugin.AllLoginFailures")
     end
   end

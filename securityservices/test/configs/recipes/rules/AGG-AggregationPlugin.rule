@@ -2,7 +2,7 @@
 # AGG-AggregationPlugin.rule
 
 society.each_agent do |agent|
-  if agent.name =~ /.*SecurityMnRManager.*/ \
+  if agent.name =~ /.*MnRManager.*/ \
       or agent.name == 'AGG-Agent' or agent.name == "SCmrmanager"
     agent.add_component do |c|
       c.classname = "org.cougaar.lib.aggagent.plugin.AggregationPlugin"

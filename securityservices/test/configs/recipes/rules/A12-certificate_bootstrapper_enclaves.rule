@@ -28,26 +28,26 @@ society.each_node do |node|
   if (node.name =~ /.*REAR.*/) \
 	and node.name != 'REAR-CA-NODE'
     # node agents in REAR enclave
-    arg = rearCaHost + ":RearEnclaveCA"
+    arg = rearCaHost + ":RearEnclaveCaManager"
 
   elsif (node.name =~ /.*FWD.*/) \
 	and node.name != 'FWD-CA-NODE'
     # node agents in FWD enclave
-    arg = fwdCaHost + ":FwdEnclaveCA"
+    arg = fwdCaHost + ":FwdEnclaveCaManager"
 
   elsif (node.name == "NCA-NODE" \
 	 or node.name == "CONUS-NODE" \
 	 or node.name == "CONUS-MGMT-NODE") \
 	and node.name != 'CONUS-CA-NODE'
     # node agents in CONUS enclave
-    arg = conusCaHost + ":ConusEnclaveCA"
+    arg = conusCaHost + ":ConusEnclaveCaManager"
 
   elsif (node.name =~ /.*TRANS.*/ \
 	 or node.name == "AIR-NODE" \
 	 or node.name == "SEA-NODE") \
 	and node.name != 'TRANS-CA-NODE'
     # node agents in TRANS enclave
-    arg = transCaHost + ":TransEnclaveCA"
+    arg = transCaHost + ":TransEnclaveCaManager"
   end
 
   if arg != nil

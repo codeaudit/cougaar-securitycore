@@ -14,7 +14,7 @@ society.each_node do |node|
     enclave = "Trans"
   end
   if enclave != ""
-    agentname = enclave + "EnclaveCrlProvider"
+    agentname = enclave + "EnclaveCrlManager"
   end
 
   if agentname != ""
