@@ -1,0 +1,31 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/3-69-ARBN"
+
+[Relationship]
+Superior "2-BDE-3ID-HHC" ""
+Supporting "3-69-ARBN" "Level1HealthCareProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "3/69 Tnk Bn"
+AlternateTypeIdentification String "SRC/17375L000100"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "3-69-ARBN"
+
+[OrganizationPG]
+Roles Collection<Role> "Combat, Level1HealthCareProvider"
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String "WAQ1AA"
+Echelon String "5"
+UTC String "2JTTT"
+SRC String "17375L000100"
+Hierarchy2525 String "1.X.3.1.1.2"
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=HKUZ, InstallationTypeCode=AIN, CountryStateCode=13, CountryStateName=GEORGIA, Name=FT_STEWART, Latitude=Latitude 31.8500degrees, Longitude=Longitude -81.6000degrees"

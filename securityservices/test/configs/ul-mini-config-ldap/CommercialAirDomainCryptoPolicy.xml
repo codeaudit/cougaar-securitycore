@@ -1,0 +1,89 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!-- Default Commercial Air Domain Crypto Policy -->
+
+<Policies>
+
+ <!-- Note: cryptographic policies contain parameters that control how incoming
+      and outgoing messsages and processed. Outgoing parameters control what
+      cryptographic functions must be applied to outgoing messages. Incoming
+      parameters control what cryptographic functions must be applied to 
+      incoming messages.
+      For each outgoing message, only one cryptographic function can be applied.
+      For instance, a message is either signed or in plain text, but it cannot
+      be both at the same time. Likewise, only one particular algorithm can
+      be applied.
+      For each incoming message, multiple cryptographic functions may be
+      acceptable. Therefore, the incoming policy may include multiple values.
+  -->
+ <Policy name="CommercialAirDomainPolicy" type="org.cougaar.core.security.policy.CryptoPolicy">
+
+   <RuleParam name="incomingSecureMethod">
+     <!-- Accept message that are either:
+          * Signed only
+          * Signed and encrypted -->
+     <KeySet value="sign:signAndEncrypt">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="outgoingSecureMethod">
+     <!-- Sign outgoing message -->
+     <KeySet value="sign">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="incomingSymmetricAlgorithm">
+     <!-- When incoming message is encrypted, accept the following algorithms:
+          * DES
+     -->
+     <KeySet value="DES">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="outgoingSymmetricAlgorithm">
+     <!-- This is not relevant because outgoing message are not encrypted. -->
+     <KeySet value="DES">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="incomingAsymmetricAlgorithm">
+     <!-- This parameter is used to encrypt session keys with a public key.
+          Therefore, it applies to encrypted messages only.
+          When receiving a message, accept the following algorithms:
+          * RSA/ECB/PKCS#1
+     -->
+     <KeySet value="RSA/ECB/PKCS#1">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="outgoingAsymmetricAlgorithm">
+     <!-- This parameter is used to encrypt session keys with a public key.
+          Therefore, it applies to encrypted messages only.
+          Since outgoing messages are signed only, this parameter is not
+          applicable.
+          When sending a message, use the following algorithm:
+          * RSA/ECB/PKCS#1
+     -->
+     <KeySet value="RSA/ECB/PKCS#1">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="incomingSigningAlgorithm">
+     <!-- This parameter defines which signing algorithms are acceptable
+          when verifying incoming message signatures.
+     -->
+     <KeySet value="MD5withRSA:SHAwithRSA">
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="outgoingSigningAlgorithm">
+     <!-- This parameter defines which signing algorithm is used to sign
+          outgoing messages.
+     -->
+     <KeySet value="MD5withRSA">
+     </KeySet>
+   </RuleParam>
+
+ </Policy>
+
+</Policies>

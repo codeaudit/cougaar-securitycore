@@ -1,0 +1,270 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<Policies>
+ <Policy name="TEN-TCBN-HHCAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="10-TCBN-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <Integer min="0" max="5" value="5" />
+    </RuleParam>
+    <RuleParam name="OutgoingMessageIntegrity">
+      <Integer min="0" max="5" value="5" />
+    </RuleParam>
+ </Policy>
+
+
+
+ <Policy name="TWENTYFOUR-SPTGP-HHCAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="24-SPTGP-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+        <KeyValue key="10-TCBN-HHC" value="3" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+        <KeyValue key="10-TCBN-HHC" value="3" />
+      </KeySet>
+    </RuleParam>
+
+ </Policy>
+
+
+ <Policy name="TWO-SEVEN-INFBNAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="2-7-INFBN"> </String>
+   </RuleParam>
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <Integer min="0" max="5" value="3" />
+    </RuleParam>
+    <RuleParam name="OutgoingMessageIntegrity">
+      <Integer min="0" max="5" value="3" />
+    </RuleParam>
+ </Policy>
+
+
+ <Policy name="TWO-BDE-3ID-HHCAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="2-BDE-3ID-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+
+ <Policy name="THREE-69-ARBNAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="3-69-ARBN"> </String>
+   </RuleParam>
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <Integer min="0" max="5" value="4" />
+    </RuleParam>
+    <RuleParam name="OutgoingMessageIntegrity">
+      <Integer min="0" max="5" value="4" />
+    </RuleParam>
+ </Policy>
+
+
+ <Policy name="THREE-BDE-2IDHHCAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="3-BDE-2ID-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+      </KeySet>
+    </RuleParam>
+
+ </Policy>
+
+
+ <Policy name="THREEID-HHCAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="3ID-HHC"> </String>
+   </RuleParam>
+
+    <!--RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality1" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality2" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality3" value="AcceptMessage" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="SetAside" />
+	      <KeyValue key="Criticality1" value="SetAside" />
+	      <KeyValue key="Criticality2" value="SetAside" />
+	      <KeyValue key="Criticality3" value="SetAside" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam-->
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="OutgoingMessageIntegrity">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+
+ <Policy name="TRANSCOMAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="TRANSCOM"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality1" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality2" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality3" value="AcceptMessage" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="SetAside" />
+	      <KeyValue key="Criticality1" value="SetAside" />
+	      <KeyValue key="Criticality2" value="SetAside" />
+	      <KeyValue key="Criticality3" value="SetAside" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+       <!-- <KeyValue key="3ID-HHC" value="4" />-->
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>

@@ -1,0 +1,48 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<!-- Policies for 3ID-HHC -->
+
+<Policies>
+
+ <Policy name="TWO-BDE-3ID-HHCAccessControlPolicy" type="org.cougaar.core.security.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="2-BDE-3ID-HHC"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>

@@ -1,0 +1,38 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/TRANSCOM"
+
+[Relationship]
+Superior "NCA" ""
+Supporting "1-MEB" "StrategicTransportationProvider"
+Supporting "3ID-HHC" "StrategicTransportationProvider"
+Supporting "FuelVendor" "StrategicTransportationProvider"
+Supporting "INDUSTRIAL-BASE" "StrategicTransportationProvider"
+Supporting "IOC" "StrategicTransportationProvider"
+Supporting "MedicalVendor" "StrategicTransportationProvider"
+Supporting "SparePartsVendor" "StrategicTransportationProvider"
+Supporting "SubsistenceVendor" "StrategicTransportationProvider"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "US Transportation Command"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "TRANSCOM"
+
+[OrganizationPG]
+Roles Collection<Role> "StrategicTransportationProvider"
+Service Service ""
+Agency Agency "TRANSCOM"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String "1.X.3.1.3"
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=VDYD, InstallationTypeCode=MAP, CountryStateCode=17, CountryStateName=ILLINOIS, Name=SCOTT_AFB, Latitude=Latitude 38.5433degrees, Longitude=Longitude -89.8519degrees"

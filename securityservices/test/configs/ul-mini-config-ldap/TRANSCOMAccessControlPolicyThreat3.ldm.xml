@@ -1,0 +1,36 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<Policies>
+
+ <Policy name="TRANSCOMAccessControlPolicyThreat3" type="org.cougaar.core.security.policy.AccessControlPolicy">
+    <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="SetAside" />
+	      <KeyValue key="Criticality1" value="SetAside" />
+	      <KeyValue key="Criticality2" value="SetAside" />
+	      <KeyValue key="Criticality3" value="SetAside" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+       <!-- <KeyValue key="3ID-HHC" value="4" />-->
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>

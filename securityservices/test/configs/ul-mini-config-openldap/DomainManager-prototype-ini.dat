@@ -1,0 +1,34 @@
+[Prototype]     CombatOrganization
+        
+[UniqueId]      "UTC/CombatOrg"
+
+[UIC]           "UIC/DomainManager"
+
+[Relationship]
+Superior "NCA" ""
+        
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "Society Domain Manager"
+AlternateTypeIdentification String  "SDM/1000"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "DomainManager"
+
+[OrganizationPG]
+Roles                Collection<Role>   "StrategicTransportationProvider"
+
+[MilitaryOrgPG]
+UIC                   String   "DomainManagerUIC"
+Echelon               String   "08"
+UTC                   String   ""
+SRC                   String   "87004L200"
+# the following two lines are examples of syntax only - someone should
+# put the correct values here.
+IsReserve		boolean	"true"
+HomeLocation	GeolocLocation "GeolocCode=BBNV, IcaoCode=String KBOS"
+
+# What values should we put here?
+[CSSCapabilityPG]
+Capabilities	Collection<CSSCapability> "MOS/36E Count=20units Duration=1days, Transportation Mass=100tons Duration=1weeks"
+

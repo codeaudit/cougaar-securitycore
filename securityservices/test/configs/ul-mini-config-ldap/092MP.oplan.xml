@@ -1,0 +1,2714 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE oplan SYSTEM "oplan.dtd" [
+
+]>
+
+<oplan
+  oplanID = "092MP"
+  operationName = "Mountain Patrol"
+  priority = "HIGH"
+  cDay = "08/15/2005">
+
+  <organization
+    OrgId = "10-ENGBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "324-SCBN-TRITAC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+11" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "703-MSB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "603-DASB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "180-TCBN-HHD">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "396-TCCO-PLS">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "147-MEDLOGBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "296-SPTBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+10"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+10" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "123-SIGBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "343-QMCO-SPLY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ADI-UGRI-ER" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "203-FSB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-7-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-DASB" lat = "14.52" long = "38.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-DASB" lat = "14.52" long = "38.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-DASB" lat = "14.52" long = "38.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "157-QMCO-FSVC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "512-QMCO-WTRSPLY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "126-MEDTM-FSURG">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+6"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+6" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "24-CSB-HHD">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "21-MED-CSHOSP">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "2-BDE-3ID-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "96-TCCO-HET">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "334-SIGCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+7"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+7" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "2-69-ARBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "52-INF-CCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+6"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+6" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-30-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "553-CSB-HHD">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "416-TKCO-POL">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "119-TCCO-CGO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "418-TKCO-POL">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-23-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+6"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+6" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "HAYKOTA-ER" lat = "15.2" long = "37.12"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "HAYKOTA-ER" lat = "15.2" long = "37.12"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "HAYKOTA-ER" lat = "15.2" long = "37.12"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "2-3-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+8"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+8" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "JCT-1-1-DASB" lat = "14.65" long = "37.73"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-1-1-DASB" lat = "14.65" long = "37.73"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "JCT-1-1-DASB" lat = "14.65" long = "37.73"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "571-MEDDET-AMBL">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "12-FABTRY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3ID-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-3-ADABN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "24-ODCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "61-ASMEDBN-MEDCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "103-MIBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "24-SPTGP-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+11" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "18-QMPLT">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "259-QMCO-FSVC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ADI-UGRI-ER" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-3-AVNBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "4-64-ARBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-3-FSB" lat = "14.55" long = "39.31"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-3-FSB" lat = "14.55" long = "39.31"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-3-FSB" lat = "14.55" long = "39.31"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "PAKISTAN-REFUGEES">
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+71"/>
+      <geoloc name = "TAALoc" code = "LYSY" lat = "24.8667" long = "67.0833"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "18-ENGCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+10"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+10" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "226-QMCO-SPLY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "632-MAINTCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ADI-UGRI-ER" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-15-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "36-MEDEVACBN-GAMBCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-15-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-2-2-FSB" lat = "14.72" long = "38.25"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-2-2-FSB" lat = "14.72" long = "38.25"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-2-2-FSB" lat = "14.72" long = "38.25"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "39-FABTRY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-41-FABN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-FSB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ADI-KEYIH-ER" lat = "14.88" long = "39.32"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "10-TCBN-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "209-MICO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+7"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+7" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-37-FABN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+7"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+7" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-BDE-3ID-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "406-TCDET-TPT">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "317-ENGBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "2-7-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-2-FSB" lat = "14.78" long = "39.05"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-2-FSB" lat = "14.78" long = "39.05"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-2-FSB" lat = "14.78" long = "39.05"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-DISCOM-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-BDE-3ID-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-69-ARBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-DASB" lat = "14.65" long = "39.51"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-DASB" lat = "14.65" long = "39.51"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-DASB" lat = "14.65" long = "39.51"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "ENGBDE-3ID-HHD">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-MPCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-BDE-2ID-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+6"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+6" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "DIVARTY-3ID-HHB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+16" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "2-3-AVNBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-AVNBDE-HHC">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+31"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+31" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "26-FSB">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-FSB" lat = "14.97" long = "38.48"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-FSB" lat = "14.97" long = "38.48"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-2-1-FSB" lat = "14.97" long = "38.48"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "3-7-CAVSQDN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "202-WTRPURDET">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "89-TKCO-CGO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+11"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+11" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "PLDR" lat = "15.6167" long = "39.4667"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "110-QMCO-POLSPLY">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "ADI-UGRI-ER" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "11-ENGBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "5-20-INFBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+6"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+6" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "JCT-1-2-FSB" lat = "14.85" long = "37.42"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-1-2-FSB" lat = "14.85" long = "37.42"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "JCT-1-2-FSB" lat = "14.85" long = "37.42"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-10-FABN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+60" thruTime = "C+91"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+91" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-9-FABN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-3-1-FSB" lat = "14.92" long = "38.76"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-14-CAVSQDN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+9"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Defensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+9" thruTime = "C+21"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+21" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+106"/>
+      <geoloc name = "TAALoc" code = "BARENTU-ER" lat = "15.15" long = "37.6"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+106" thruTime = "C+135"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "602-MAINTCO">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "186-WTRPURDET">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+26"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "High">
+      <timespan startTime = "C+26" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-CSS"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+
+  <organization
+    OrgId = "1-64-ARBN">
+    <orgactivity
+      ActivityType = "Deployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+0" thruTime = "C+16"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "High">
+      <timespan startTime = "C+16" thruTime = "C+36"/>
+      <geoloc name = "TAALoc" code = "JCT-2-3-FSB" lat = "14.68" long = "38.83"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Employment-Offensive"
+      OpTempo = "Medium">
+      <timespan startTime = "C+36" thruTime = "C+46"/>
+      <geoloc name = "TAALoc" code = "JCT-2-3-FSB" lat = "14.68" long = "38.83"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Stand-Down"
+      OpTempo = "Low">
+      <timespan startTime = "C+46" thruTime = "C+181"/>
+      <geoloc name = "TAALoc" code = "JCT-2-3-FSB" lat = "14.68" long = "38.83"/>
+    </orgactivity>
+    <orgactivity
+      ActivityType = "Redeployment"
+      OpTempo = "Low">
+      <timespan startTime = "C+181" thruTime = "C+225"/>
+      <geoloc name = "TAALoc" code = "ZNKY" lat = "15.2906" long = "38.9103"/>
+    </orgactivity>
+  </organization>
+</oplan>

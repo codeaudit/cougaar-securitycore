@@ -1,0 +1,30 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/JTF-HHC"
+
+[Relationship]
+Superior "CENTCOM-HHC" ""
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "Joint Task Force Headquarters"
+AlternateTypeIdentification String "SRC/"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "JTF-HHC"
+
+[OrganizationPG]
+Roles Collection<Role> ""
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String ""
+Echelon String ""
+UTC String ""
+SRC String ""
+Hierarchy2525 String ""
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=ZNKY, InstallationTypeCode=JAP, CountryStateCode=ER, CountryStateName=ERITREA, Name=ASMARA, Latitude=Latitude 15.2906degrees, Longitude=Longitude 38.9103degrees"

@@ -1,0 +1,43 @@
+[Prototype] MilitaryOrganization
+
+[UniqueId] "UTC/CombatOrg"
+
+[UIC] "UIC/3-DISCOM-HHC"
+
+[Relationship]
+Superior "3ID-HHC" ""
+Supporting "3-DISCOM-HHC" "Level1HealthCareProvider"
+Supporting "203-FSB" "SupportForceProvider"
+Supporting "26-FSB" "SupportForceProvider"
+Supporting "296-SPTBN" "SupportForceProvider"
+Supporting "3-FSB" "SupportForceProvider"
+Supporting "603-DASB" "SupportForceProvider"
+Supporting "703-MSB" "SupportForceProvider"
+Supporting "203-FSB" "WaterSupplier"
+Supporting "26-FSB" "WaterSupplier"
+Supporting "296-SPTBN" "WaterSupplier"
+Supporting "3-FSB" "WaterSupplier"
+Supporting "603-DASB" "WaterSupplier"
+Supporting "703-MSB" "WaterSupplier"
+
+[TypeIdentificationPG]
+TypeIdentification String "UTC/RTOrg"
+Nomenclature String "HHC 3 DISCOM"
+AlternateTypeIdentification String "SRC/63002L000100"
+
+[ClusterPG]
+ClusterIdentifier ClusterIdentifier "3-DISCOM-HHC"
+
+[OrganizationPG]
+Roles Collection<Role> "DSMaintenanceProvider, GSMaintenanceProvider, SupportForceProvider, WaterSupplier, FoodProvider, Level1HealthCareProvider"
+Service Service "Army"
+Agency Agency "FORSCOM"
+
+[MilitaryOrgPG]
+UIC String "WAQSAA"
+Echelon String "7"
+UTC String "NBTTT"
+SRC String "63002L000100"
+Hierarchy2525 String "1.X.3.1.3"
+IsReserve boolean false
+HomeLocation GeolocLocation "GeolocCode=HKUZ, InstallationTypeCode=AIN, CountryStateCode=13, CountryStateName=GEORGIA, Name=FT_STEWART, Latitude=Latitude 31.8500degrees, Longitude=Longitude -81.6000degrees"

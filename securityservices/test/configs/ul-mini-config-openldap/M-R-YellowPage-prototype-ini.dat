@@ -1,0 +1,20 @@
+[Prototype]			Organization
+
+[UniqueId]      "UTC/CivilianOrg"
+
+[UIC]           "UIC/YellowPage"
+
+[Relationship]
+Supporting		"HEADQUARTERS"		"YellowPageService"
+
+
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "M-R-YellowPage"
+AlternateTypeIdentification String  "SRC/M-R-YellowPage"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "M-R-YellowPage"
+
+[OrganizationPG]
+Roles                Collection<Role>   "YellowPageService"

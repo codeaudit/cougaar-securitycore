@@ -1,0 +1,17 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<Policies>
+
+ <Policy name="2-7-INFBNAccessControlPolicy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+    <RuleParam name="OutgoingMessageCriticality">
+      <Integer min="0" max="5" value="3" />
+    </RuleParam>
+    <RuleParam name="OutgoingMessageIntegrity">
+      <Integer min="0" max="5" value="3" />
+    </RuleParam>
+ </Policy>
+
+</Policies>

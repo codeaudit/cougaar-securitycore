@@ -1,0 +1,31 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<Policies>
+
+ <Policy name="TWO-BDE-3ID-HHCAccessControlPolicyThreat3" type="org.cougaar.core.security.policy.AccessControlPolicy">
+
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="AcceptMessage">
+    	    </KeySet>
+  	  </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="4">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="5" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+
+</Policies>

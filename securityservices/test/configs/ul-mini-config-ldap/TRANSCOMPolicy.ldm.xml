@@ -1,0 +1,115 @@
+<?xml version="1.0"  encoding="US-ASCII"?>
+
+<!DOCTYPE Policy SYSTEM "Policy.ldm.dtd" []>
+
+<!-- Policies for TRANSCOM -->
+
+<Policies>
+
+ <Policy name="TRANSCOMCryptoPolicy" type="org.cougaar.core.security.CryptoPolicy">
+
+   <!-- the following rule parameters will be used for the July demo -->
+
+   <RuleParam name="secureMethod">
+     <KeySet value="sign">
+       <KeyValue key="NCA" value="signAndEncrypt" />
+       <KeyValue key="3ID-HHC" value="Encrypt" />
+       <KeyValue key="ALPHA-AIRLINES" value="Encrypt" />
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="symmetricAlgorithm">
+     <KeySet value="">
+       <KeyValue key="NCA" value="DESede" />
+       <KeyValue key="3ID-HHC" value="DESede" />
+       <KeyValue key="ALPHA-AIRLINES" value="DES" />
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="asymmetricAlgorithm">
+     <KeySet value="">
+       <KeyValue key="NCA" value="RSA/ECB/PKCS#1" />
+       <KeyValue key="3ID-HHC" value="RSA/ECB/PKCS#1" />
+       <KeyValue key="ALPHA-AIRLINES" value="RSA/ECB/PKCS#1" />
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="signingAlgorithm">
+     <KeySet value="MD5withRSA">
+       <KeyValue key="NCA" value="MD5withRSA" />
+       <KeyValue key="3ID-HHC" value="MD5withRSA" />
+       <KeyValue key="ALPHA-AIRLINES" value="MD2withRSA" />
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="messageSecurityManager">
+     <KeySet value="org.cougaar.core.society.PublicKeyMessageSecurityManager">
+       <KeyValue key="NCA" value="org.cougaar.core.society.PublicKeyMessageSecurityManager" />
+       <KeyValue key="3ID-HHC" value="org.cougaar.core.society.PublicKeyMessageSecurityManager" />
+       <KeyValue key="ALPHA-AIRLINES" value="org.cougaar.core.society.PublicKeyMessageSecurityManager" />
+     </KeySet>
+   </RuleParam>
+
+   <RuleParam name="providerName">
+     <KeySet value="">
+       <KeyValue key="NCA" value="" />
+       <KeyValue key="3ID-HHC" value="" />
+       <KeyValue key="ALPHA-AIRLINES" value="" />
+     </KeySet>
+   </RuleParam>
+
+ </Policy>
+
+ <Policy name="TRANSCOMAccessControlPolicy" type="org.cougaar.core.security.AccessControlPolicy">
+
+   <RuleParam name="agentName">
+     <String value="TRANSCOM"> </String>
+   </RuleParam>
+
+    <RuleParam name="ThreatConLevel">
+      <RangeSet value="">
+        <RangeValue min="2" max="2">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality1" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality2" value="ForwardTo:ALPHA-AIRLINES" />
+	      <KeyValue key="Criticality3" value="AcceptMessage" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+        <RangeValue min="3" max="3">
+	  <RuleParam name="IncomingMessageAction">
+      	    <KeySet value="">
+	      <KeyValue key="Criticality0" value="SetAside" />
+	      <KeyValue key="Criticality1" value="SetAside" />
+	      <KeyValue key="Criticality2" value="SetAside" />
+	      <KeyValue key="Criticality3" value="SetAside" />
+	      <KeyValue key="Criticality4" value="AcceptMessage" />
+	      <KeyValue key="Criticality5" value="AcceptMessage" />
+    	    </KeySet>
+  	  </RuleParam>
+	</RangeValue>
+      </RangeSet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageCriticality">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+       <!-- <KeyValue key="3ID-HHC" value="4" />-->
+      </KeySet>
+    </RuleParam>
+
+    <RuleParam name="IncomingMessageIntegrity">
+      <KeySet value="2">
+        <KeyValue key="2-7-INFBN" value="3" />
+        <KeyValue key="3-69-ARBN" value="4" />
+      </KeySet>
+    </RuleParam>
+
+</Policy>
+
+</Policies>

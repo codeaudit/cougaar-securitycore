@@ -8,13 +8,14 @@ if ( $# > 0 )  then
 endif
 
 set CURDIR=`pwd`
+set defaultconf=ul-mini-config-ldap.conf
 
 if ( ! $?configurationFile ) then
-    set configurationFile=ul-mini-config.conf
+    set configurationFile=${defaultconf}
 endif
 if ( "$configurationFile" == "true" || "$configurationFile" == "false" ) then
     set use_ssh_agent=$configurationFile
-    set configurationFile=ul-mini-config.conf
+    set configurationFile=${defaultconf}
 endif
 echo "Using configuration File: " $configurationFile
 
@@ -32,12 +33,12 @@ if ( "$use_ssh_agent" == "true" ) then
   ssh-add
 endif
 
-awk -f launchNode.awk $configurationFile curdir=sdfjks
+awk -f launchNode.awk $configurationFile
 
 echo "Type [ENTER] to terminate the society"
 echo $<
 
-awk -f killNodes.awk $configurationFile curdir=${CURDIR}
+awk -f killNodes.awk $configurationFile
 
 #netscape http://fir:5555/alpine/demo/TASKS.PSP &
 

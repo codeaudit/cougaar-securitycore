@@ -1,0 +1,24 @@
+# core database
+org.cougaar.database=//joshua/ultralog
+org.cougaar.database.user=ultralog
+org.cougaar.database.password=Ultra*Log
+
+# oplan test database
+oplan.test.database=//joshua/ultralog
+oplan.test.database.user=ultralog
+oplan.test.database.password=Ultra*Log
+
+# blackjack
+blackjack.database=//joshua/ultralog
+blackjack.database.user=ultralog
+blackjack.database.password=Ultra*Log
+
+# blackjack8
+blackjack8.database=//joshua/ultralog
+blackjack8.database.user=ultralog
+blackjack8.database.password=Ultra*Log
+
+# icis
+icis.database=//joshua/ultralog
+icis.database.user=ultralog
+icis.database.password=Ultra*Log

@@ -4,5 +4,7 @@ rm -rf ${COUGAAR_INSTALL_PATH}/P
 rm -rf ${COUGAAR_INSTALL_PATH}/log/bootstrap/*
 rm -rf ${COUGAAR_SECURITY_SERVICES}/test/configs/demo/*.log
 rm -rf ${COUGAAR_SECURITY_SERVICES}/test/configs/ul-mini-config/*.log
+rm -rf ${COUGAAR_SECURITY_SERVICES}/test/configs/ul-mini-config-ldap/*.log
+
 
 ./launch-society
