@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.Date;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Calendar;
 import java.util.Date;
@@ -150,13 +151,15 @@ public class IdmefArchivalPlugin extends ComponentPlugin {
     File file=createArchiveFile();
     int noItems = _cache.size()- _cacheSize;
     Object event=null;
+    List archivelist= new ArrayList();
     for (int i=0;i<noItems;i++) {
       event= _cache.removeFirst();
+      archivelist.add(event);
       getBlackboardService().publishRemove(event);
     }
     if(file!=null){
       ObjectOutputStream  output=new ObjectOutputStream(new FileOutputStream(file));
-      output.writeObject(_cache);
+      output.writeObject(archivelist);
       output.flush();
       output.close();
     }
