@@ -1,0 +1,62 @@
+#!/bin/tcsh
+
+#set COUGAAR_INSTALL_PATH="${user}/UL/kaos/cougaar"
+set node="kaos"
+
+##########################################
+set LIBPATHS="${COUGAAR_INSTALL_PATH}/lib/overlay.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/core.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/util.jar"
+
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securebootstrapper.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/idmef.jar"
+
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xml4j.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/log4j.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/xmlparserv2.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/ibmpkcs.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/jce1_2_1.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/servlet.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar"
+
+# KAos policy jar files
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/kaos.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/safe.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/jas.jar"
+set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/sys/mail.jar"
+
+set MYDOMAINS=""
+if (! $?COUGAAR3RDPARTY) then
+    setenv COUGAAR3RDPARTY /opt/cougaar-jars
+endif
+
+set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_INSTALL_PATH/workspace"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+
+# Logger
+rm -f kpat.log
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=kpat.log"
+
+set MYMEMORY=""
+
+set javaargs="$MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
+
+set execclass="kaos.kpat.applet.KPATAppletMain"
+# set args=""
+#remember to change following URL to match your local configuration
+set args='http://fig:5558/$NCADomainManager/policyAdmin true'
+
+exec java $javaargs \
+	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
+	${execclass} $args |& tee runKPAT.log
+
