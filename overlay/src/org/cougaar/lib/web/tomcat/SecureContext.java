@@ -21,7 +21,7 @@
  * Created on September 12, 2001, 10:55 AM
  */
 
-package org.cougaar.core.security.coreservices.tomcat;
+package org.cougaar.lib.web.tomcat;
 
 import java.lang.reflect.Method;
 
@@ -33,13 +33,13 @@ import org.apache.catalina.core.StandardContext;
  * A Tomcat Context which will inform the security services
  * of its creation if the security services exist and the
  * System property
- * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * <code>org.cougaar.lib.web.tomcat.enableAuth</code> 
  * is "true".
  */
 public class SecureContext extends StandardContext {
 
   private static final String PROP_ENABLE =
-    "org.cougaar.core.security.coreservices.tomcat.enableAuth";
+    "org.cougaar.lib.web.tomcat.enableAuth";
   private static final String SPP_CLASS  = 
     "org.cougaar.core.security.provider.ServletPolicyServiceProvider";
 
@@ -52,7 +52,7 @@ public class SecureContext extends StandardContext {
         Method m = c.getMethod("setContext", new Class[] { Context.class });
         m.invoke(null, new Object[] { this });
       } catch (ClassNotFoundException e) {
-        System.out.println("Error: Couldn't find " + SPP_CLASS);
+        System.err.println("Error: Couldn't find " + SPP_CLASS);
         // don't worry about it
       } catch (Exception e) {
         e.printStackTrace();

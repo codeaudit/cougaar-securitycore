@@ -23,7 +23,7 @@
  * CHANGE RECORD
  * - 
  */
-package org.cougaar.core.security.coreservices.tomcat;
+package org.cougaar.lib.web.tomcat;
 
 import java.lang.reflect.Method;
 import java.io.IOException;
@@ -41,12 +41,12 @@ import org.apache.catalina.Response;
  * A Valve for Tomcat 4.0 that will use
  * org.cougaar.core.security.acl.auth.DualAuthenticator if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * <code>org.cougaar.lib.web.tomcat.enableAuth</code> 
  * is "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Context&gt; section:
  * <pre>
- *   &lt;Valve className="org.cougaar.core.security.coreservices.tomcat.AuthValve" realmName="Cougaar" authMethod="DIGEST"/&gt;
+ *   &lt;Valve className="org.cougaar.lib.web.tomcat.AuthValve" realmName="Cougaar" authMethod="DIGEST"/&gt;
  * </pre>
  * <p>
  * Where realmName is the realm to use for authenticating users and
@@ -58,8 +58,13 @@ import org.apache.catalina.Response;
  */
 public class AuthValve implements Valve, Contained {
 
-  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
-  private String _authClass  = "org.cougaar.core.security.acl.auth.DualAuthenticator";
+  private static final String PROP_ENABLE =
+    "org.cougaar.lib.web.tomcat.enableAuth";
+  private static final String PROP_CLASS =
+    "org.cougaar.lib.web.tomcat.auth.class";
+  private static final String DEFAULT_SECURE = 
+    "org.cougaar.core.security.acl.auth.DualAuthenticator";
+
   private ValveBase _authValve = null;
   private Container _container = null;
 
@@ -67,7 +72,23 @@ public class AuthValve implements Valve, Contained {
    * Default constructor.
    */
   public AuthValve() {
-    init();
+    String authClass = System.getProperty(PROP_CLASS);
+    if (authClass == null && Boolean.getBoolean(PROP_ENABLE)) {
+      authClass = DEFAULT_SECURE;
+    }
+    if (authClass != null) {
+      try {
+        Class c = Class.forName(authClass);
+        _authValve = (ValveBase) c.newInstance();
+      } catch (ClassNotFoundException e) {
+        System.err.println("Error: could not find class " + authClass);
+      } catch (ClassCastException e) {
+        System.err.println("Error: the class " + authClass +
+                           " is not a Valve");
+      } catch (Exception e) {
+        System.err.println("Error: could not load the class " + authClass);
+      }
+    }
   }
 
   /**
@@ -75,21 +96,6 @@ public class AuthValve implements Valve, Contained {
    */
   public ValveBase getValve() {
     return _authValve;
-  }
-
-  private synchronized void init() {
-    if (Boolean.getBoolean(PROP_ENABLE)) {
-      try {
-        Class c = Class.forName(_authClass);
-        _authValve = (ValveBase) c.newInstance();
-      } catch (ClassNotFoundException e) {
-        System.out.println("Error: could not find class " + _authClass);
-      } catch (ClassCastException e) {
-        System.out.println("Error: the class " + _authClass + " is not a Valve");
-      } catch (Exception e) {
-        System.out.println("Error: could not load the class " + _authClass);
-      }
-    }
   }
 
   /**
@@ -114,21 +120,6 @@ public class AuthValve implements Valve, Contained {
     } else {
       context.invokeNext(request, response);
     }
-  }
-
-  /**
-   * Sets the Valve class to use.
-   */
-  public void setValveClass(String authClass) {
-    _authClass = authClass;
-    init();
-  }
-  
-  /**
-   * Returns the Valve class that was last set.
-   */
-  public String getValveClass() {
-    return _authClass;
   }
 
   /**

@@ -21,7 +21,7 @@
  * Created on September 12, 2001, 10:55 AM
  */
 
-package org.cougaar.core.security.coreservices.tomcat;
+package org.cougaar.lib.web.tomcat;
 
 import java.io.IOException;
 import javax.servlet.Servlet;
@@ -30,20 +30,18 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.cougaar.lib.web.tomcat.HookServlet;
-
 /**
  * This class is designed to load 
  * org.cougaar.core.security.acl.auth.SecureHookServlet if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * <code>org.cougaar.lib.web.tomcat.enableAuth</code> 
  * is "true".
  * <p>
  * The <code>web.xml</code> should have within the &lt;web-app&gt; element:
  * <pre>
  *   &lt;servlet&gt;
  *       &lt;servlet-name&gt;cougaar&lt;/servlet-name&gt;
- *       &lt;servlet-class&gt;org.cougaar.core.security.coreservices.tomcat.HookServletFront&lt;/servlet-class&gt;
+ *       &lt;servlet-class&gt;org.cougaar.lib.web.tomcat.HookServletFront&lt;/servlet-class&gt;
  *   &lt;/servlet&gt;
  * </pre>
  * <p>
@@ -51,29 +49,38 @@ import org.cougaar.lib.web.tomcat.HookServlet;
  * who has logged in.
  */
 public class HookServletFront implements Servlet {
-  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
+  private static final String PROP_ENABLE = 
+    "org.cougaar.lib.web.tomcat.enableAuth";
+  private static final String PROP_CLASS = 
+    "org.cougaar.lib.web.tomcat.hookservlet.class";
 
-  private String  _servletClass = "org.cougaar.core.security.acl.auth.SecureHookServlet";
-  private String  _fallbackClass = "org.cougaar.lib.web.tomcat.HookServlet;";
-
+  private static final String DEFAULT_SECURE =
+    "org.cougaar.core.security.acl.auth.SecureHookServlet";
   private Servlet _hookServlet = null;
   
   /**
    * default constructor
    */
   public HookServletFront() {
-    if (Boolean.getBoolean(PROP_ENABLE)) {
+    String servletClass = System.getProperty(PROP_CLASS);
+    if (servletClass == null && Boolean.getBoolean(PROP_ENABLE)) {
+      servletClass = DEFAULT_SECURE;
+    }
+
+    if (servletClass != null) {
       try {
-        Class c = Class.forName(_servletClass);
+        Class c = Class.forName(servletClass);
         _hookServlet = (Servlet) c.newInstance();
       } catch (ClassNotFoundException e) {
-        System.out.println("Error: could not find class " + _servletClass);
+        System.err.println("Error: could not find class " + servletClass);
       } catch (ClassCastException e) {
-        System.out.println("Error: the class " + _servletClass + " is not a Servlet");
+        System.err.println("Error: the class " + servletClass + 
+                           " is not a Servlet");
       } catch (Exception e) {
-        System.out.println("Error: Could not load the class " + _servletClass);
+        System.err.println("Error: Could not load the class " + servletClass);
       }
     }
+      
     if (_hookServlet == null) {
       _hookServlet = new HookServlet();
     }

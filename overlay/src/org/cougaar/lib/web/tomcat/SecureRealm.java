@@ -23,7 +23,7 @@
  * CHANGE RECORD
  * - 
  */
-package org.cougaar.core.security.coreservices.tomcat;
+package org.cougaar.lib.web.tomcat;
 
 import java.security.Principal;
 import java.security.cert.X509Certificate;
@@ -36,20 +36,25 @@ import org.apache.catalina.Realm;
  * A Realm extension for Tomcat 4.0 that will use
  * org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm if it
  * exists and the System property
- * <code>org.cougaar.core.security.coreservices.tomcat.enableAuth</code> 
+ * <code>org.cougaar.lib.web.tomcat.enableAuth</code> 
  * is "true".
  * <p>
  * The <code>server.xml</code> should have within the &lt;Engine&gt; section:
  * <pre>
- *   &lt;Realm className="org.cougaar.core.security.coreservices.tomcat.SecureRealm" /&gt;
+ *   &lt;Realm className="org.cougaar.lib.web.tomcat.SecureRealm" /&gt;
  * </pre>
  *
  * @author George Mount <gmount@nai.com>
  */
 public class SecureRealm implements Realm {
 
-  private static final String PROP_ENABLE = "org.cougaar.core.security.coreservices.tomcat.enableAuth";
-  private String _realmClass  = "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
+  private static final String PROP_ENABLE = 
+    "org.cougaar.lib.web.tomcat.enableAuth";
+  private static final String PROP_CLASS  =
+    "org.cougaar.lib.web.tomcat.realm.class";
+  private static final String DEFAULT_SECURE =
+    "org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm";
+
   private Realm _secureRealm = null;
   private Container _container = null;
 
@@ -57,7 +62,25 @@ public class SecureRealm implements Realm {
    * Default constructor.
    */
   public SecureRealm() {
-    init();
+    String realmClass = System.getProperty(PROP_CLASS);
+
+    if (realmClass == null && Boolean.getBoolean(PROP_ENABLE)) {
+      realmClass = DEFAULT_SECURE;
+    }
+
+    if (realmClass != null) {
+      try {
+        Class c = Class.forName(realmClass);
+        _secureRealm = (Realm) c.newInstance();
+      } catch (ClassNotFoundException e) {
+        System.err.println("Error: could not find class " + realmClass);
+      } catch (ClassCastException e) {
+        System.err.println("Error: the class " + realmClass +
+                           " is not a Realm");
+      } catch (Exception e) {
+        System.err.println("Error: could not load the class " + realmClass);
+      }
+    }
   }
 
   /**
@@ -65,21 +88,6 @@ public class SecureRealm implements Realm {
    */
   public Realm getRealm() {
     return _secureRealm;
-  }
-
-  private synchronized void init() {
-    if (Boolean.getBoolean(PROP_ENABLE)) {
-      try {
-        Class c = Class.forName(_realmClass);
-        _secureRealm = (Realm) c.newInstance();
-      } catch (ClassNotFoundException e) {
-        System.out.println("Error: could not find class " + _realmClass);
-      } catch (ClassCastException e) {
-        System.out.println("Error: the class " + _realmClass + " is not a Realm");
-      } catch (Exception e) {
-        System.out.println("Error: could not load the class " + _realmClass);
-      }
-    }
   }
 
   /** 
@@ -185,20 +193,5 @@ public class SecureRealm implements Realm {
       _secureRealm.setContainer(container);
     }
     _container = container;
-  }
-
-  /**
-   * Sets the Realm class to use.
-   */
-  public void setRealmClass(String realmClass) {
-    _realmClass = realmClass;
-    init();
-  }
-  
-  /**
-   * Returns the realm class that was last set.
-   */
-  public String getRealmClass() {
-    return _realmClass;
   }
 }
