@@ -71,7 +71,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private EventPublisher eventPublisher;
 
   public DataProtectionOutputStream(OutputStream os,
-                                    DataProtectionKeyEnvelope pke, 
+                                    DataProtectionKeyEnvelope pke,
                                     String agent, ServiceBroker sb)
     throws GeneralSecurityException, IOException {
     super(os);
@@ -137,7 +137,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       }
     }
     if (_keyRing == null) {
-      _keyRing = (KeyRingService) 
+      _keyRing = (KeyRingService)
         sb.getService(this, KeyRingService.class, null);
       if (_keyRing == null) {
         throw new RuntimeException("KeyRingService is not available");
@@ -152,16 +152,16 @@ public class DataProtectionOutputStream extends FilterOutputStream {
                                                      policy.asymmSpec, (SealedObject)dpKey.getObject());
   }
 
-  private PrivateKey getPrivateKey(final X509Certificate cert) 
+  private PrivateKey getPrivateKey(final X509Certificate cert)
     throws GeneralSecurityException {
-    PrivateKey pk = (PrivateKey) 
+    PrivateKey pk = (PrivateKey)
       AccessController.doPrivileged(new PrivilegedAction() {
           public Object run(){
             return _keyRing.findPrivateKey(cert);
           }
         });
     if (pk == null) {
-      String message = "Unable to get private key of " + 
+      String message = "Unable to get private key of " +
         cert + " -- does not exist.";
       throw new NoValidKeyException(message);
     }
@@ -194,7 +194,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     if (debug) {
       log.debug("Writing " + bos.size() + " to stream");
     }
-	
+
     bos.writeTo(this.out);
     bos = new ByteArrayOutputStream();
   }
@@ -216,8 +216,11 @@ public class DataProtectionOutputStream extends FilterOutputStream {
       ci = null;
     }
     this.out = null;
+
+    DataProtectionStatus.addOutputStatus(
+      agent, DataProtectionStatus.OUTPUT_COMPLETE);
   }
-    
+
 
   public static int getBufferSize() {
     return buffersize;
@@ -255,4 +258,5 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     */
     DataProtectionSensor.publishEvent(event);
   }
+
 }

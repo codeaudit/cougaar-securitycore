@@ -45,10 +45,7 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.dataprotection.DataProtectionKeyUnlockRequest;
-import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
-import org.cougaar.core.security.dataprotection.DataProtectionKeyCollection;
-import org.cougaar.core.security.dataprotection.DataProtectionRequestContent;
+import org.cougaar.core.security.dataprotection.*;
 
 public class KeyRecoveryRequestHandler {
   private ServiceBroker serviceBroker;
@@ -237,6 +234,8 @@ public class KeyRecoveryRequestHandler {
       new DataProtectionKeyImpl(skeyobj, dpKey.getDigestAlg(), policy,
 				newCertChain);
     request.updateResponse(request.getSource(), reEncryptedKey);
+
+    DataProtectionStatus.addInputStatus(newAgentName, DataProtectionStatus.KEY_RECOVERED);
   }
 
 }

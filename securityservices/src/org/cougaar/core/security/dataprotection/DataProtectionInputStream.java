@@ -118,7 +118,7 @@ public class DataProtectionInputStream extends FilterInputStream {
       this.in = new CipherInputStream(this.in, ci);
     }
 
-    _chunkIn = new ChunkInputStream(this.in); 
+    _chunkIn = new ChunkInputStream(this.in);
     this.in = _chunkIn;
 
     if (policy.secureMethod == SecureMethodParam.SIGN ||
@@ -151,7 +151,7 @@ public class DataProtectionInputStream extends FilterInputStream {
         _sigIn.verifySignature();
       } catch (SignatureException e) {
         log.debug("Digest does not match");
-        publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE, 
+        publishDataFailure(DataFailureEvent.VERIFY_DIGEST_FAILURE,
                            e.toString());
         throw new IOException("Digest does not match");
       }
@@ -164,8 +164,10 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
     this.in = null;
     log.debug("Closed");
-  }
 
+    DataProtectionStatus.addInputStatus(
+      agent, DataProtectionStatus.INPUT_COMPLETE);
+  }
 
   private SecretKey getSecretKey()
     throws GeneralSecurityException
@@ -250,7 +252,7 @@ public class DataProtectionInputStream extends FilterInputStream {
         if (_byteBuf.length < len) {
           _byteBuf = new byte[len];
         }
-	    
+
         ((DataInputStream)this.in).readFully(_byteBuf, 0, len);
         _buf = new ByteArrayInputStream(_byteBuf, 0, len);
       }
@@ -263,7 +265,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     public int available() throws IOException {
       return _buf.available();
     }
-    
+
     public boolean markSupported() {
       return false;
     }
