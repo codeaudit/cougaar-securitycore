@@ -1,3 +1,4 @@
+
 /*
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
@@ -26,10 +27,51 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.net.URL;
-
-public interface SecurityLog
+public class ConsoleLogger
+  extends Logger
 {
-  void createLogFile(String nodeName);
-  void logJarVerificationError(URL url, Exception e);
+  public void debug(String s) {
+    System.out.println("DEBUG:" + s);
+  }
+  public void debug(String s, Exception e) {
+    System.out.println("DEBUG:" + s);
+    e.printStackTrace();
+  }
+
+  public void info(String s) {
+    System.out.println("INFO:" + s);
+  }
+  public void info(String s, Exception e) {
+    System.out.println("INFO:" + s);
+    e.printStackTrace();
+  }
+
+  public void warn(String s) {
+    System.out.println("WARN:" + s);
+  }
+  public void warn(String s, Exception e) {
+    System.out.println("WARN:" + s);
+    e.printStackTrace();
+  }
+
+  public void error(String s) {
+    System.out.println("ERROR:" + s);
+  }
+  public void error(String s, Exception e) {
+    System.out.println("ERROR:" + s);
+    e.printStackTrace();
+  }
+
+  public boolean isDebugEnabled() {
+    return true;
+  }
+  public boolean isInfoEnabled() {
+    return true;
+  }
+  public boolean isWarnEnabled() {
+    return true;
+  }
+  public boolean isErrorEnabled() {
+    return true;
+  }
 }

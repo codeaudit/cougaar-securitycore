@@ -150,6 +150,12 @@ public class NodeConfiguration
       if (!nodeDir.exists()) {
 	nodeDir.mkdirs();
       }
+      String nodeConfigDirectory = nodeDirectory + File.separatorChar
+	+ "configs";
+      File nodeConfigDir = new File(nodeConfigDirectory);
+      if (!nodeConfigDir.exists()) {
+	nodeConfigDir.mkdirs();
+      }
 
       createDomainDirectories(aDomain);
     }

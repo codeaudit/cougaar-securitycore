@@ -45,12 +45,14 @@ import sun.security.util.ObjectIdentifier;
 // Cougaar core services
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.jar.JarConfigFinder;
 
 // Cougaar Security Services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.config.jar.SecureConfigFinder;
 
 /** Helper class to read the cryptographic service configuration.
  *
@@ -122,7 +124,7 @@ public class ConfigParserServiceImpl
     String searchPath = nodeDirectory + ";"
       + System.getProperty("org.cougaar.config.path");
     log.debug("Search path is set to: " + searchPath);
-    confFinder = new ConfigFinder(searchPath);
+    confFinder = new JarConfigFinder(searchPath);
 
     try {
       // Create SAX 2 parser...

@@ -29,17 +29,20 @@ package org.cougaar.core.security.securebootstrap;
 
 import java.security.*;
 
-/** This exception is being thrown by the org.cougaar.core.security.CertificateVerifier
-   if a jar file authenticity could not be verified (none of the certificates attached to  
-   it is trusted) or if jar file signing is not permitted.
+/** This exception is being thrown by the
+ * org.cougaar.core.security.CertificateVerifier
+ * if a jar file authenticity could not be verified (none of the
+ * certificates attached to  it is trusted) or if jar file
+ * signing is not permitted.
  */
 
-public class CertificateVerificationException extends GeneralSecurityException {
-    public String archive;
+public class CertificateVerificationException
+  extends GeneralSecurityException {
+    public String _archive;
 
-    CertificateVerificationException(String url) {
-        super("\n\tArchive \"" + url + "\" \n\tcannot be trusted and will be removed from the list of URLs");
-        archive = url;
+    CertificateVerificationException(String url, Exception cause) {
+        super("Archive " + url + " cannot be trusted");
+	initCause(cause);
+        _archive = url;
     }
-
 }

@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.Arrays;
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -47,6 +48,7 @@ public class BaseBootstrapper
   extends Bootstrapper
 {
   private String nodeName;
+  private static Logger _logger = Logger.getInstance();
 
   protected String getNodeName() {
     return nodeName;
@@ -62,57 +64,51 @@ public class BaseBootstrapper
     */
     try {
       /* Set the Java policy for use by the security manager */
-      if (loudness>0) {
-	System.out.println("Setting policy");
-      }
+      _logger.debug("Setting policy");
       setPolicy();
 
       /* Set the Java security manager */
-      if (loudness>0) {
-	System.out.println("Setting security manager");
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Setting security manager");
       }
       setSecurityManager();
 
       /* Create a log file to report JAR file verification failures.
 	 This is only used when a secure class loader is set. */
-      if (loudness>0) {
-	System.out.println("Creating Jar verification log");
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Creating Jar verification log");
       }
       createJarVerificationLog();
 
       /* Create the class loader. Load JAR files securely if
        * a secure class loader is used. */
-      if (loudness>0) {
-	System.out.println("Creating class loader");
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Creating class loader");
       }
       cl = super.prepareVM(classname, args);
-      if (loudness>0) {
-	System.out.println("Class Loader:" + cl.getClass().getName());
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Class Loader:" + cl.getClass().getName());
       }
  
       /* Load cryptographic providers */
-      if (loudness>0) {
-	System.out.println("Loading cryptographic providers");
-      }
       loadCryptoProviders(cl);
     }
     catch (Exception e) {
-      System.err.println("Failed to launch "+classname+": ");
-      e.printStackTrace();
+      _logger.warn("Failed to launch "+classname, e);
     }
 
     return cl;
   }
 
   protected void launchMain(ClassLoader cl, String classname, String[] args) {
-    if (loudness>0) {
-      System.out.println("Starting " + classname + " in "
-			 + System.getProperty("user.dir"));
-      System.out.println("Arguments: ");
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Starting " + classname + " in "
+		    + System.getProperty("user.dir"));
+      String s = "Arguments: ";
       for (int i = 0 ; i < args.length ; i++) {
-	System.out.print(args[i] + " ");
+	s = s + args[i] + " ";
       }
-      System.out.println();
+      _logger.debug(s);
     }
     super.launchMain(cl, classname, args);
   }
@@ -162,17 +158,26 @@ public class BaseBootstrapper
   }
 
   protected ClassLoader createClassLoader(List urlList) {
-    if (loudness>0) {
-      System.out.println("BaseBootstrapper.createClassLoader");
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("BaseBootstrapper.createClassLoader");
     }
     removeBootClasses(urlList);
 
     URL urls[] = (URL[]) urlList.toArray(new URL[urlList.size()]);
-    return new BaseClassLoader(urls, loudness);
+    return new BaseClassLoader(urls);
   }
 
   protected void loadCryptoProviders(ClassLoader cl)
   {
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Loading cryptographic providers");
+    }
+    String config_path = System.getProperty("org.cougaar.config.path");
+    /*
+    FileFinder fileFinder = FileFinderImpl.getInstance(config_path);
+    File file = fileFinder.locateFile("cryptoprovider.conf");
+    */
+
     StringBuffer configfile=new StringBuffer();
     String configproviderpath=
       System.getProperty("org.cougaar.core.security.crypto.cryptoProvidersFile");
@@ -191,11 +196,10 @@ public class BaseBootstrapper
     else {
       configfile.append(configproviderpath);
     }
-    
     File file=new File(configfile.toString());
-    if(!file.exists()) {
-      System.err.println("Cryptographic Provider Configuration file does not exist at given path ::"
-			 +configfile.toString());
+
+    if(file == null || !file.exists()) {
+      _logger.warn("Cannot find Cryptographic Provider Configuration file");
       return;
     }
     try {
@@ -213,10 +217,14 @@ public class BaseBootstrapper
 	  index=linedata.indexOf('=');
 	  if(index!=-1) {
 	    providerclassname=linedata.substring(index+1);
-	    if (loudness > 0) {
-	      System.out.println("Loading provider " + providerclassname);
+	    if (_logger.isDebugEnabled()) {
+	      _logger.debug("Loading provider " + providerclassname);
 	    }
 	    try {
+	      if (_logger.isDebugEnabled()) {
+		_logger.debug("Loading " + providerclassname
+			      + " with " + cl.toString());
+	      }
 	      Class c = Class.forName(providerclassname, true, cl);
 	      Object o = c.newInstance();
 	      if (o instanceof java.security.Provider) {
@@ -224,21 +232,19 @@ public class BaseBootstrapper
 	      }
 	    } 
 	    catch(Exception e) {
-	      System.err.println("Error loading security provider (" + e + ")"); 
+	      _logger.warn("Error loading security provider (" + e + ")"); 
 	    }
 	  }
 	}
       }
     }
     catch(FileNotFoundException fnotfoundexp) {
-      System.err.println("cryptographic provider configuration file not found");
-      fnotfoundexp.printStackTrace();
+      _logger.warn("cryptographic provider configuration file not found");
     }
     catch(IOException ioexp) {
-      System.err.println("Cannot read cryptographic provider configuration file: " + ioexp);
-      ioexp.printStackTrace();
+      _logger.warn("Cannot read cryptographic provider configuration file", ioexp);
     }
-    if (loudness>0) {
+    if (_logger.isDebugEnabled()) {
       printProviderProperties();
     }
   }
@@ -246,9 +252,9 @@ public class BaseBootstrapper
   public static void printProviderProperties() {
     Provider[] pv = Security.getProviders();
     for (int i = 0 ; i < pv.length ; i++) {
-      System.out.println("Provider[" + i + "]: "
-			 + pv[i].getName() + " - Version: " + pv[i].getVersion());
-      System.out.println(pv[i].getInfo());
+      _logger.debug("Provider[" + i + "]: "
+		    + pv[i].getName() + " - Version: " + pv[i].getVersion());
+      _logger.debug(pv[i].getInfo());
       // List properties
       String[] properties = new String[1];
       properties = (String[]) pv[i].keySet().toArray(properties);
@@ -257,7 +263,7 @@ public class BaseBootstrapper
 	String key, value;
 	key = (String) properties[j];
 	value = pv[i].getProperty(key);
-	System.out.println("Key: " + key + " - Value: " + value);
+	_logger.debug("Key: " + key + " - Value: " + value);
       }
     }
   }
@@ -270,8 +276,8 @@ public class BaseBootstrapper
    */
   protected void removeBootClasses(List urlList) {
     String bootclassPathProp = System.getProperty("sun.boot.class.path");
-    if (loudness > 0) {
-      System.out.println("Boot Class Path:" + bootclassPathProp);
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Boot Class Path:" + bootclassPathProp);
     }
     StringTokenizer st = new StringTokenizer(bootclassPathProp, ":");
     ArrayList bootclassPath = new ArrayList();
@@ -283,7 +289,7 @@ public class BaseBootstrapper
 	bootclassPath.add(url);
       }
       catch (Exception ex) {
-	System.out.println("Unable to parse " + s + " url.");
+	_logger.warn("Unable to parse " + s + " url.");
       }
     }
 
@@ -297,8 +303,8 @@ public class BaseBootstrapper
 	URL bootUrlElement = (URL) listIt.next();
 	if (bootUrlElement.equals(aUrl)) {
 	  // Don't add the bootclass URLs
-	  if (loudness > 0) {
-	    System.out.println("Removing " + aUrl.toString() + " from URL list");
+	  if (_logger.isDebugEnabled()) {
+	    _logger.debug("Removing " + aUrl.toString() + " from URL list");
 	  }
 	  it.remove();
           break;

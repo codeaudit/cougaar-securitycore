@@ -26,10 +26,52 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.net.URL;
-
-public interface SecurityLog
+public class Logger
 {
-  void createLogFile(String nodeName);
-  void logJarVerificationError(URL url, Exception e);
+  private static Logger _logger;
+
+  public void debug(String s) {
+  }
+  public void debug(String s, Exception e) {
+  }
+  public void info(String s) {
+  }
+  public void info(String s, Exception e) {
+  }
+  public void warn(String s) {
+  }
+  public void warn(String s, Exception e) {
+  }
+  public void error(String s) {
+  }
+  public void error(String s, Exception e) {
+  }
+
+  public boolean isDebugEnabled() {
+    return false;
+  }
+  public boolean isInfoEnabled() {
+    return false;
+  }
+  public boolean isWarnEnabled() {
+    return false;
+  }
+  public boolean isErrorEnabled() {
+    return false;
+  }
+
+  public static Logger getInstance() {
+    if (_logger == null) {
+      try {
+	_logger = (Logger)
+	  Class.forName
+	  (System.getProperty
+	   ("org.cougaar.core.security.securebootstrap.logger")).newInstance();
+      }
+      catch (Exception e) {
+	_logger = new NullLogger();
+      }
+    }
+    return _logger;
+  }
 }

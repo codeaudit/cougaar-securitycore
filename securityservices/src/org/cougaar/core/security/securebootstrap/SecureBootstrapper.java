@@ -93,6 +93,8 @@ public class SecureBootstrapper
 
   private boolean lazySignatureVerification = true;
 
+  private static Logger _logger = Logger.getInstance();
+
   /** Find the primary application entry point for the application class
    *  and call it.
    *  The default implementation will look for
@@ -104,21 +106,21 @@ public class SecureBootstrapper
 			    final String[] args) {
     final String node = getNodeName();
     try {
-      if(loudness > 0) {
-        System.out.println("Node being loaded: " + node);
+      if(_logger.isDebugEnabled()) {
+        _logger.debug("Node being loaded: " + node);
       }
       SecureBootstrapper.super.launchMain(cl, classname, args);
     }
     catch (Exception e) {
-      System.out.println("Unable to start application:" + e);
+      _logger.warn("Unable to start application:" + e);
     }
   }
 
   protected void createJarVerificationLog() {
-    securelog = new SecurityLog(loudness);
+    securelog = SecurityLogImpl.getInstance();
     securelog.createLogFile(getNodeName());
-    if (loudness>0) {
-      System.out.println("Jar verification log created");
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Jar verification log created");
     }
   }
 
@@ -132,19 +134,19 @@ public class SecureBootstrapper
 	System.setSecurityManager(new CougaarSecurityManager(getNodeName()));
       }
       else{
-	System.out.println("node name is null");
+	_logger.debug("node name is null");
       }
     }
-    if (loudness>0) {
-      System.out.println("Security Manager set");
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Security Manager set");
     }
   }
 
   protected ClassLoader createClassLoader(List l) {
     ClassLoader cl = null;
 
-    if (loudness>0) {
-      System.out.println("SecureBootstrapper.createClassLoader");
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("SecureBootstrapper.createClassLoader");
     }
     removeBootClasses(l);
     URL urls[] = (URL[]) l.toArray(new URL[l.size()]);
@@ -154,23 +156,23 @@ public class SecureBootstrapper
 					  "true"))).booleanValue();
 
     if (useAuthenticatedLoader == true) {
-      if (loudness > 0) {
-	System.out.println("Using authenticated class loader");
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Using authenticated class loader");
       }
       URL[] trustedURLs = getTrustedArchives(urls);
-      cl = new SecureClassLoader(trustedURLs, securelog, loudness);
+      cl = new SecureClassLoader(trustedURLs);
     }
     else {
-      if (loudness > 0) {
-	System.out.println("Using legacy class loader");
+      if (_logger.isDebugEnabled()) {
+	_logger.debug("Using legacy class loader");
       }
-      cl = new BaseClassLoader(urls, loudness);
+      cl = new BaseClassLoader(urls);
     }
     return cl;
   }
   /** verify each archive to be trusted */
   private URL[] getTrustedArchives(URL[] urls) {
-    CertificateVerifier cv = new CertificateVerifier();
+    CertificateVerifier cv = CertificateVerifierImpl.getInstance();
     ArrayList trustedJars = new ArrayList();
 
     for (int i = 0 ; i < urls.length ; i++) {
@@ -187,20 +189,20 @@ public class SecureBootstrapper
 	  //and exclude from urls if not trusted
 	  cv.verify(jf);
 	}
-	if (loudness > 0) {
-	  System.out.println(urls[i].getPath() + " has been verified");
+	if (_logger.isDebugEnabled()) {
+	  _logger.debug(urls[i].getPath() + " has been verified");
 	}
 	trustedJars.add(urls[i]);
 
       } catch (Exception e) {
 	/* When the security services fail to be verified, we exit
 	   because the security services are a critical component. */
-	if (loudness > 0)
-	  System.out.println(urls[i]
+	if (_logger.isDebugEnabled()) {
+	  _logger.debug(urls[i]
 			     + " could not be verified. " + e);
+	}
 	if (e instanceof GeneralSecurityException
 	    || e instanceof SecurityException) {
-	  securelog.logJarVerificationError(e);
 	  continue;
 	}
       }
@@ -208,16 +210,16 @@ public class SecureBootstrapper
     URL trustedURLs[] =
       (URL[]) trustedJars.toArray(new URL[trustedJars.size()]);
 
-    if(loudness > 0) {
+    if(_logger.isDebugEnabled()) {
       printcodearchives(trustedURLs);
     }
     return trustedURLs;
   }
 
   private void printcodearchives(URL[] arch) {
-    System.out.println("trusted archives:");
+    _logger.debug("trusted archives:");
     for(int i=0;i<arch.length;i++) {
-	System.out.println(arch[i].toString());
+	_logger.debug(arch[i].toString());
     }
   }
 

@@ -72,7 +72,8 @@ public class ConfigParserHandler
   private static final String POLICY_ELEMENT = "policy";
 
   // name of the crypto client policy file for this node.  should be of the form
-  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name} \
+  //     /configs/cryptoPolicy.xml
   private String cryptoPolicyFileName;
 
   // Constructor with XML Parser...
@@ -118,7 +119,8 @@ public class ConfigParserHandler
 
     securityPolicies = new ArrayList();
     // construct the crypto client policy file name.  should be of the form
-    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name} \
+    //    /cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
       sb.getService(this, SecurityPropertiesService.class, null);
     String nodeName = sps.getProperty("org.cougaar.node.name");
@@ -126,7 +128,8 @@ public class ConfigParserHandler
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
     String nodeDirectory = topDirectory + nodeName;
-    cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+    cryptoPolicyFileName = nodeDirectory + File.separatorChar +
+      "configs" + File.separatorChar + "cryptoPolicy.xml";
     sb.releaseService(this, SecurityPropertiesService.class, sps);
   }
 

@@ -39,10 +39,10 @@ import org.cougaar.bootstrap.*;
 public class BaseClassLoader
   extends XURLClassLoader
 {
+  private static final Logger _logger = Logger.getInstance();
   private static final String PROP_EXCLUSIONS =
   "org.cougaar.bootstrapper.exclusions";
   protected static List exclusions = new ArrayList();
-  protected int loudness;
 
   static {
     /* All classes in the excluded list will be loaded
@@ -73,17 +73,12 @@ public class BaseClassLoader
     return false;
   }
 
-  public BaseClassLoader(URL urls[], int loudness) {
+  public BaseClassLoader(URL urls[]) {
     super(urls);
-    this.loudness = loudness;
-    if (loudness>0) {
-      synchronized(System.err) {
-	System.err.println();
-	System.err.println("Bootstrapper URLs: ");
-	for (int i=0; i<urls.length; i++) {
-	  System.err.println("\t"+urls[i]);
-	}
-	System.err.println();
+    if (_logger.isDebugEnabled()) {
+      _logger.debug("Bootstrapper URLs: ");
+      for (int i=0; i<urls.length; i++) {
+	_logger.debug("\t"+urls[i]);
       }
     }
   }
@@ -104,19 +99,9 @@ public class BaseClassLoader
 	  checkPackageAccess(name);
 	}
 	catch (ClassNotFoundException e) {
-	  // if(BaseBootstrapper.loudness>0) {
-	  System.err.println("Class not found  Exception:");
-	  // e.printStackTrace();
-	  // } 
+	  _logger.warn("Class not found  Exception:" + e);
 	  // If still not found, then call findClass in order
 	  // to find the class.
-	}
-	catch (SecurityException sexp) {
-	  if(loudness>0) {
-	    System.err.println("Security Exception:");
-	    sexp.printStackTrace();
-	  }
-	  checkSecurityException(sexp,name);
 	}
       }
     }
@@ -125,7 +110,7 @@ public class BaseClassLoader
       if (parent == null) parent = getSystemClassLoader();
       c = parent.loadClass(name);
     }
-    if (loudness>1) {
+    if (_logger.isDebugEnabled()) {
       if (c != null) {
 	// Classes loaded by the bootstrapper shouldn't have
 	// the privilege to get the protection domain (this should be
@@ -139,10 +124,10 @@ public class BaseClassLoader
 	      if (p != null) {
 		java.security.CodeSource cs = p.getCodeSource();
 		if (cs != null) {
-		  System.err.println("BCL: "+c1
-				     + " loaded from "+cs.getLocation()
-				     + " with "
-				     + c1.getClassLoader().toString());
+		  _logger.debug("BCL: "+c1
+				+ " loaded from "+cs.getLocation()
+				+ " with "
+				+ c1.getClassLoader().toString());
 		}
 	      }
 	      return null;
@@ -150,17 +135,13 @@ public class BaseClassLoader
 	  });
       }
       else {
-	System.out.println("Unable to find class: " + name);
+	_logger.info("Unable to find class: " + name);
       }
     }
     if (resolve) {
       resolveClass(c);
     }
     return c;
-  }
-
-  protected void checkSecurityException(Exception e, String name)
-  {
   }
 
   protected boolean checkPackageAccess(String classpath)
@@ -205,10 +186,10 @@ public class BaseClassLoader
     CodeSource cs = pd.getCodeSource();
     PermissionCollection pc = pd.getPermissions();
     Enumeration perm = pc.elements();
-    System.out.println("Class: " + c + " - Code Source:"
-		       + cs + " - Permissions:");
+    _logger.debug("Class: " + c + " - Code Source:"
+		  + cs + " - Permissions:");
     while (perm.hasMoreElements()) {
-      System.out.println(perm.nextElement());
+      _logger.debug(perm.nextElement().toString());
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software, Inc.
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -24,12 +24,31 @@
  * - 
  */
 
-package org.cougaar.core.security.securebootstrap;
+package org.cougaar.core.security.config.jar;
 
-import java.net.URL;
+import java.io.FilterInputStream;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
 
-public interface SecurityLog
+public class SecureJarFilterStream
+  extends FilterInputStream
 {
-  void createLogFile(String nodeName);
-  void logJarVerificationError(URL url, Exception e);
+  SecureJarFilterStream(InputStream in) 
+    throws GeneralSecurityException {
+    super(in);
+    // Unfortunately, we don't know that the signature is
+    // correct until we have read the whole stream.
+    // So, we read the stream until the end, and we see if we
+    // get any exception.
+    try {
+      int v = 0;
+      while ((v = in.read()) != -1);
+    }
+    catch (Exception e) {
+      GeneralSecurityException gse =
+	new GeneralSecurityException("Invalid JAR file");
+      gse.initCause(e);
+      throw gse;
+    }
+  }
 }

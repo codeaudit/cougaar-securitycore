@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -38,25 +38,23 @@ import java.security.*;
 public class SecureClassLoader
   extends BaseClassLoader
 {
-  private SecurityLog securelog=null;
+  private static final Logger _logger = Logger.getInstance();
   private CertificateVerifier certificateVerifier;
   private Hashtable verifiedUrls;
   private boolean lazySignatureVerification;
 
-  public SecureClassLoader(URL urls[], SecurityLog log, int loudness)
-  {
-    super(urls, loudness);
-    securelog = log;
+  /** Log file to store Jar verification errors */
+  private static SecurityLog _securelog;
 
+  public SecureClassLoader(URL urls[])
+  {
+    super(urls);
     lazySignatureVerification = true;
     // Instantiate certificate verifier is lazy signature verification is performed
-    certificateVerifier = new CertificateVerifier();
+    certificateVerifier = CertificateVerifierImpl.getInstance();
     verifiedUrls = new Hashtable();
-  }
 
-  protected void checkSecurityException(SecurityException e, String name)
-  {
-    securelog.logJarVerificationError(e);
+    _securelog = SecurityLogImpl.getInstance();
   }
 
   /** calls findClass(String name) throws ClassNotFoundException
@@ -115,12 +113,10 @@ public class SecureClassLoader
 	      //and exclude from urls if not trusted
 	      certificateVerifier.verify(jf);
 	      verifiedUrls.put(urlc, Boolean.TRUE);
-	      //System.out.println(urlc.getPath() + " has been verified");
 	    }
 	    catch (Exception e) {
-	      //System.out.println(urlc.getPath() + " does not have valid signature");
-	      securelog.logJarVerificationError(e);
 	      verifiedUrls.put(urlc, Boolean.FALSE);
+	      _securelog.logJarVerificationError(urlc, e);
 	      c = null;
 	    }
 	  }
@@ -134,7 +130,7 @@ public class SecureClassLoader
     //if (c == null) {
       //System.out.println("unknown class: " + classname);
     //}
-    if (loudness > 0) {
+    if (_logger.isDebugEnabled()) {
       printPolicy(c);
     }
     return c;

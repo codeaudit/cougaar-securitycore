@@ -1,3 +1,4 @@
+
 /*
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
@@ -26,10 +27,39 @@
 
 package org.cougaar.core.security.securebootstrap;
 
-import java.net.URL;
-
-public interface SecurityLog
+public class NullLogger
+  extends Logger
 {
-  void createLogFile(String nodeName);
-  void logJarVerificationError(URL url, Exception e);
+  public void debug(String s) {
+  }
+  public void debug(String s, Exception e) {
+  }
+
+  public void info(String s) {
+  }
+  public void info(String s, Exception e) {
+  }
+
+  public void warn(String s) {
+  }
+  public void warn(String s, Exception e) {
+  }
+
+  public void error(String s) {
+  }
+  public void error(String s, Exception e) {
+  }
+
+  public boolean isDebugEnabled() {
+    return false;
+  }
+  public boolean isInfoEnabled() {
+    return false;
+  }
+  public boolean isWarnEnabled() {
+    return false;
+  }
+  public boolean isErrorEnabled() {
+    return false;
+  }
 }
