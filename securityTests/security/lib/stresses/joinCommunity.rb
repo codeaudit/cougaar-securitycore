@@ -15,6 +15,7 @@ class JoinCommunity < SecurityStressFramework
     @testAgent = "MaliciousAgentXYZ"
     # join community request to this community 
     @testCommunity = "TestCommunityXYZ"
+    @stressId="StressComty"
     @testManager = nil
     @attackAgent = nil
     @listenerId = nil
@@ -23,13 +24,13 @@ class JoinCommunity < SecurityStressFramework
   end
 
   def getStressIds()
-    return ["StressComty"]
+    return [@stressId]
   end
 
   def setupStress
     # find an attack agent
     @attackAgent = findAttackAgent(@run) # method in misc.rb
-    saveAssertion('StressMaliciousJoinCommunity',
+    saveAssertion(@stressId,
               "Found attack agent: #{@attackAgent.name}" )
     # determine community manager from communities
     searchForCommunityManager
@@ -45,7 +46,7 @@ class JoinCommunity < SecurityStressFramework
 	waitForMessageFailure
 	processResults
       rescue => ex
-	 saveAssertion('StressMaliciousJoinCommunity',
+	 saveAssertion(@stressId,
              "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
       end
     }
@@ -83,9 +84,9 @@ class JoinCommunity < SecurityStressFramework
   
   def processResults
     if @timedOut == true && @msgFailureDetected == false
-      saveResult(false, "StressMaliciousJoinCommunity", "Timeout Didn't receive Invalid Community Request MESSAGE_FAILURE")
+      saveResult(false, @stressId, "Timeout Didn't receive Invalid Community Request MESSAGE_FAILURE")
     elsif @msgFailureDetected == true
-      saveResult(true, "StressMaliciousJoinCommunity","Detected Invalid Community Request MESSAGE_FAILURE")
+      saveResult(true, @stressId,"Detected Invalid Community Request MESSAGE_FAILURE")
     end
   end
   
@@ -96,7 +97,7 @@ class JoinCommunity < SecurityStressFramework
           community.each_attribute do |key, value|
             if key == 'CommunityManager'
               @testManager = value
-              saveAssertion('StressMaliciousJoinCommunity', 
+              saveAssertion(@stressId, 
                 "Found community manager for #{@attackAgent.name}: #{@testManager}")
               return 
             end

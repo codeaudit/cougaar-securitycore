@@ -57,15 +57,17 @@ class Security3c2 < SecurityStressFramework
           raise "wrong revocation message found #{event.data}" unless name != []
           
           agent_name = name[0].to_s.split('(')[1]
-          if agent_name == @revoked_node.name
-            if event.data =~ /ServerTrustManager/
-              # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as initiator."
-              @ssl_receiver_nodes[event.cluster_identifier] = @revoked_node.name
-            elsif event.data =~ /ClientTrustManager/
-              # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as receiver."
-              @ssl_initiator_nodes[event.cluster_identifier] = @revoked_node.name
-            end
-          end # if agent_name
+          if (@revoked_node != nil)
+            if agent_name == @revoked_node.name
+              if event.data =~ /ServerTrustManager/
+                # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as initiator."
+                @ssl_receiver_nodes[event.cluster_identifier] = @revoked_node.name
+              elsif event.data =~ /ClientTrustManager/
+                # summary "Confirmed SSL failure on revoked certificate for node #{agent_name} as receiver."
+                @ssl_initiator_nodes[event.cluster_identifier] = @revoked_node.name
+              end
+            end # if agent_name
+          end # if (@revoked_node)
         end # if event.event_type
       rescue => ex
         logInfoMsg "Exception while processing event: #{event.to_s} - #{ex}\n #{ex.backtrace.join('\n')}"
@@ -228,24 +230,26 @@ class Security3c2 < SecurityStressFramework
     }
   end
 
+  # agent1 is the revoked agent
+  # agent2 is the valid agent
   def testMessage(agent1, agent2, comment)
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
                        'Stress3c21',
-                       "Send message with revoked cert IDMEF - " + comment,
+                       "Revoked agent tries to send message to valid agent. IDMEF - " + comment,
                        [ true, false, false, false ],
                        agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
                        'Stress3c21',
-                       "Receive message with revoked cert IDMEF - " + comment, 
+                       "Valid agent tries to send message to revoked agent. IDMEF - " + comment, 
                        [ true, false, false, false ],
                        agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-                       'Stress3c9', "Send message with revoked cert - " + comment, 
+                       'Stress3c9', "Revoked agent tries to send message to valid agent - " + comment, 
                        [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-                       'Stress3b9', "Receive message with revoked cert - " + comment, 
+                       'Stress3b9', "Valid agent tries to send message to revoked agent - " + comment, 
                        [ true, false, false, false ])
   end
 
