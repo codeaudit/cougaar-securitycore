@@ -224,7 +224,7 @@ public class AuthServiceImpl
       return isAuthorizedUL(ec, perm);
     } else {
       _log.warn("No execution context available at mediation time" +
-                " - is this ok?");
+                " - is this ok?", new Throwable());
       return true;
     }
   }
