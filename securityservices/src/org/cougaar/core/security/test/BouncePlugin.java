@@ -73,7 +73,7 @@ public class BouncePlugin extends ComponentPlugin {
 
   public void setParameter(Object o) {
     System.out.println("setParameter called with: " + o);
-    Thread.dumpStack();
+    //    Thread.dumpStack();
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List parameter " +
                                          "instead of " + 
@@ -84,14 +84,18 @@ public class BouncePlugin extends ComponentPlugin {
 
     List l = (List) o;
     Object[] arr = l.toArray();
+    System.out.println("argument array = " + arr + " with length " + arr.length);
+
     if (arr.length != 0) {
       _id = arr[0].toString();
     }
     if (arr.length > 1) {
       _destination =  MessageAddress.getMessageAddress(arr[1].toString());
+      System.out.println("_destination = " + _destination);
     }
     if (arr.length > 2) {
       _sendCount = Integer.parseInt(arr[2].toString());
+      System.out.println("_sendCount = " + _sendCount);
     } // end of else
   }
 
@@ -101,6 +105,9 @@ public class BouncePlugin extends ComponentPlugin {
       BlackboardService bbs = getBlackboardService();
       while (added.hasMoreElements()) {
         CmrRelay cmr = (CmrRelay) added.nextElement();
+        if (_log.isDebugEnabled()) {
+          _log.debug("Received " + cmr);
+        }
         UID contents = (UID) cmr.getContent();
         CmrRelay sentCmr = (CmrRelay) _sent.get(contents);
         if (sentCmr != null) {
@@ -122,6 +129,9 @@ public class BouncePlugin extends ComponentPlugin {
 	}
 	CmrRelay relay = (CmrRelay) _cmrFactory.newCmrRelay(o, ci);
         _sent.put(relay.getUID(), relay);
+        if (_log.isDebugEnabled()) {
+          _log.debug("sending " + relay);
+        }
         bbs.publishAdd(relay);
       } // end of while (added.hasMoreElements())
     } // end of if (_subscription.hasChanged())
@@ -147,6 +157,9 @@ public class BouncePlugin extends ComponentPlugin {
 	UID uid = new UID(_id, i);
 	CmrRelay relay = _cmrFactory.newCmrRelay(uid, _destination);
 	_sent.put(relay.getUID(), relay);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Sending initial relay" + relay);
+        }
 	bbs.publishAdd(relay);
       } // end of for (int i = 0; i < _sent.length; i++)
     }
