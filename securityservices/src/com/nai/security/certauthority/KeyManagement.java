@@ -248,6 +248,19 @@ public class KeyManagement
     if(inputstream == null)
       return;
     try {
+      if (debug) {
+	System.out.println("X.509 Request is : ");
+	String s = "";
+	while (inputstream.available() > 0) {
+	  int len = 256;
+	  byte[] bbuf = new byte[len];
+	  int read = inputstream.read(bbuf, 0, len);
+	  s = s + new String(bbuf, 0, read);
+	}
+	System.out.println(s);
+      }
+      inputstream.reset();
+
       // Extract X509 certificates from the input stream
       if(!inputstream.markSupported()) {
 	byte abyte0[] = getTotalBytes(new BufferedInputStream(inputstream));
