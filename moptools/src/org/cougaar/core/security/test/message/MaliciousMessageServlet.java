@@ -20,7 +20,6 @@ import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.AllocationResult;
 import org.cougaar.planning.ldm.plan.NewNotification;
 import org.cougaar.planning.ldm.plan.NewTask;
-import org.cougaar.planning.ldm.plan.NotificationImpl;
 import org.cougaar.planning.ldm.plan.Verb;
 
 import com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent;
@@ -62,7 +61,12 @@ public class MaliciousMessageServlet extends AdvancedSimpleServletComponent {
             NewTask task = pf.newTask();
             task.setVerb(Verb.getVerb(VERB));
             AllocationResult estAR = null;
-            NewNotification notification = new NotificationImpl(task, estAR, task.getPlan());       
+      
+			NewNotification notification = pf.newNotification();
+			notification.setPlan(task.getPlan());
+			notification.setAllocationResult(estAR);
+			notification.setTaskUID(task.getUID());
+    
             MessageAddress messageAddress = MessageAddress.getMessageAddress(address);
             notification.setDestination(messageAddress);           	
            	blackboardService.publishAdd(task);
