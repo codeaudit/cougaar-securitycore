@@ -39,7 +39,7 @@
     <sigAlgName>SHA1WithRSA</sigAlgName>
     <!-- The validity of self-signed certificates.
 	This value is overriden when the CA signs the certificate. -->
-    <validity>10 m</validity>
+    <validity>10 M</validity>
   </nodeConfiguration>
 
 
@@ -66,7 +66,7 @@
 
       <!-- How long to certify for. This is the validity of a certificate
 	signed by a node. -->
-      <certValidity>10 m</certValidity>
+      <certValidity>10 M</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
 

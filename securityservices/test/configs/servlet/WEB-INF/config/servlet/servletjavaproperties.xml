@@ -19,4 +19,8 @@
         <propertyname>org.cougaar.security.keystore</propertyname>
         <propertyvalue>keystoreTest</propertyvalue>
 </servletjavaproperties>
+<servletjavaproperties>
+        <propertyname>org.cougaar.core.security.crypto.debug</propertyname>
+        <propertyvalue>true</propertyvalue>
+</servletjavaproperties>
 </servletproperties>

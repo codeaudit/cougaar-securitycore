@@ -200,7 +200,36 @@ public class OpenLdapCertDirectoryService extends CertDirectoryService
   }
 
   public boolean revokeCertificate(LdapEntry ldapentry) {
+    /*
+      if( ! cn.startsWith("cn="))cn = "cn=" + cn;
+      try {
+      certEntry = (LdapEntry)ctx.lookup(cn);
+      certEntry.setStatus("3");
+      ctx.rebind(cn, certEntry);
+      }
+      catch(Exception ex) {
+      if(debug)ex.printStackTrace();
+      }
+      return certEntry;
+    */
     return false;
+  }
+
+  /** Remove all the objects that satisfy the given filter.
+   */
+  public Object removeLdapEntry(String filter) 
+  {
+    Object obj = null;
+    /*
+    try {
+      obj = context.lookup(cn); 
+      context.unbind(cn);
+    }
+    catch(NamingException ex) {
+      ex.printStackTrace();
+    }
+    */
+    return obj;
   }
 
   private void setLdapAttributes(X509Certificate cert, Attributes set) {

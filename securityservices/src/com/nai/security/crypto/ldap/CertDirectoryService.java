@@ -104,7 +104,7 @@ public abstract class CertDirectoryService
     return searchWithFilter(filter);
   }
 
-  public LdapEntry[] searchWithFilter(String filter)
+  public synchronized LdapEntry[] searchWithFilter(String filter)
   {
     NamingEnumeration search_results = internalSearchWithFilter(filter);
     ArrayList certList = new ArrayList();

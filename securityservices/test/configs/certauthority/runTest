@@ -10,9 +10,10 @@ setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.j
 
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securebootstrapper.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/bootstrapper.jar
+#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
+#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securebootstrapper.jar
+#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/bootstrapper.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_SECURITY_SERVICES}/classes
 
 	#-Xdebug \
 	#-Xrunjdwp:transport=dt_socket,server=y,suspend=n \

@@ -21,6 +21,10 @@
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
+    <!-- The type of the certificate directory service.
+         Currently, either CougaarOpenLdap or NetTools -->
+    <ldapType>CougaarOpenLdap</ldapType>
+
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
 
@@ -39,8 +43,8 @@
 
       <keysize>1024</keysize>
 
-      <!-- How long to certify for -->
-      <certValidity>720</certValidity>
+      <!-- How long to certify for. -->
+      <certValidity>6 M</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
 
@@ -62,6 +66,10 @@
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
+    <!-- The type of the certificate directory service.
+         Currently, either CougaarOpenLdap or NetTools -->
+    <ldapType>CougaarOpenLdap</ldapType>
+
     <!-- The name of a file where the next serial number is stored -->
     <serialNumberFile>SerialNumber_NCA_CA</serialNumberFile>
 
@@ -80,8 +88,9 @@
 
       <keysize>1024</keysize>
 
-      <!-- How long to certify for -->
-      <certValidity>720</certValidity>
+      <!-- How long to certify for.
+           Six months by default. -->
+      <certValidity>6 M</certValidity>
     </clientCertPolicy>
   </certificateAuthority>
 
