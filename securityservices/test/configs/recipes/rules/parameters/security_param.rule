@@ -357,5 +357,7 @@ society.each_host do |host|
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.servlet.useDaml", "true") 
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.crypto.useDaml", "true") 
     node.override_parameter("-Dorg.cougaar.core.security.policy.enforcers.access.useDaml", "true") 
+    node.override_parameter("-Dorg.cougaar.core.security.policy.auth.role.useDaml", "true")
+    node.override_parameter("-Dorg.cougaar.core.security.policy.auth.role.useAccessCaching", "true")
   end
 end
