@@ -186,7 +186,8 @@ public class DataProtectionServiceImpl
     List certList = null;
 
     if (certList == null || certList.size() == 0) {
-      int totalWait = 400000; // the persistence time is 5 minutes
+      int totalWait = 240000; // the persistence wait time is 4 minutes, so that we don't block the next persistence
+                              // which will also fail anyway
       int wait_time = 10000;
       try {
         totalWait = Integer.parseInt(System.getProperty(CERT_POLL_TIME,
