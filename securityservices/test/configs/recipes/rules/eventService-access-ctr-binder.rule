@@ -1,13 +1,13 @@
 #!/usr/bin/ruby
 ####################################################
-# Event Service Binder
+# Rule to insert EventAgentBinder
 
-agentBinder = "org.cougaar.core.security.access.EventAgentBinderFactory"
+plugin = "org.cougaar.core.security.access.EventAgentBinderFactory"
 
-society.each_node do |node|
-  node.add_component do |c|
-      c.insertionpoint = "Node.AgentManager.Binder"
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+      c.insertionpoint = "Node.AgentManager.Agent.PluginManager.Binder"
       c.priority = "BINDER"
-      c.classname = agentBinder
+      c.classname = plugin
   end
 end
