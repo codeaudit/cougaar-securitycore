@@ -1158,7 +1158,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="FWDSecurity-COMM" >
+  <Community Name="FwdSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1485,7 +1485,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="CONUSSecurity-COMM" >
+  <Community Name="ConusSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
@@ -1613,7 +1613,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
   </Community>
-  <Community Name="TRANSSecurity-COMM" >
+  <Community Name="TransSecurity-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
     <Entity Name="SocietySecurityMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
