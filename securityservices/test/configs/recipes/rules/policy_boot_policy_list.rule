@@ -410,7 +410,8 @@ END
     File.open(origFile,"w") { |file|
       file.print(lines1.join)
     }
-    output = policyUtil("build --maxReasoningDepth 150 --info #{damlFile}")
+    output = policyUtil("--maxReasoningDepth 150 build --info #{damlFile}",
+                        nil, "#{CIP}/configs/security")
     replaceFileInJar(configJar, damlFile)
     Dir["#{CIP}/configs/security/*.info"].each { |file|
       replaceFileInJar(configJar, file)
