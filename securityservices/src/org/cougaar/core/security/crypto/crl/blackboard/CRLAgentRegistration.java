@@ -23,8 +23,14 @@ package org.cougaar.core.security.crypto.crl.blackboard;
 
 import java.io.Serializable;
 import org.cougaar.core.blackboard.Publishable;
+import org.cougaar.core.util.XMLizable;
 
-public class CRLAgentRegistration implements Serializable,Publishable {
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import org.xml.sax.*;
+import org.apache.xml.serialize.*;
+
+public class CRLAgentRegistration implements Serializable,Publishable,XMLizable{
   public  String dnName;
   public String ldapURL;
   public int ldapType;
@@ -49,4 +55,33 @@ public class CRLAgentRegistration implements Serializable,Publishable {
     buffer.append("ldapType="+ldapType+"\n");
     return buffer.toString();
   }
+  public org.w3c.dom.Element getXML(org.w3c.dom.Document doc){
+    // Element  sourceNode = convertToXML(doc);
+    // sourceNode.appendChild(sourceNode);
+    Element agentregNode = doc.createElement("CRLAgentRegistration"); 
+    doc.appendChild(convertToXML(doc));
+    return  agentregNode;
+  }
+
+  public Node convertToXML(Document parent){
+    // Element agentregNode = parent.createElement("CRLAgentRegistration");
+    if(dnName!=null) {
+       Node dnNameNode = parent.createElement("DN");
+       dnNameNode.appendChild(parent.createTextNode(dnName));
+       parent.appendChild(dnNameNode);
+    }
+    if(ldapURL!=null) {
+       Node ldapURLNode = parent.createElement("LDAP URL");
+       ldapURLNode.appendChild(parent.createTextNode(ldapURL));
+       parent.appendChild(ldapURLNode);
+    }
+    Node ldapTypeNode = parent.createElement("LDAP TYPE");
+    ldapTypeNode.appendChild(parent.createTextNode(new StringBuffer().append(ldapType).toString()));
+    parent.appendChild(ldapTypeNode);
+    
+    return parent;
+
+  }
+
+
 }
