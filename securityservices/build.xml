@@ -512,6 +512,7 @@
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/debug"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/accesscontrol"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/misc"/>
+        <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/ruleset/signConfig"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
 
         <copy todir="${cougaar.install.path}/csmart/config/rules/security/robustness">
@@ -542,6 +543,13 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/signConfig">
+            <fileset dir="${securityservices.configs}/recipes/rules">
+                <patternset>
+                    <include name="z99-commit_jar_changes.rule"/>
+                </patternset>
+            </fileset>
+        </copy>
         <copy todir="${cougaar.install.path}/csmart/config/rules/security/ruleset/base">
             <fileset dir="${securityservices.configs}/recipes/rules">
                 <patternset>
@@ -556,7 +564,6 @@
                     <include name="policy_init_node_plugin.rule"/>
                     <include name="policy_uri_map.rule"/>
                     <include name="policy_user_role_map.rule"/>
-                    <include name="z99-commit_jar_changes.rule"/>
                 </patternset>
             </fileset>
         </copy>
