@@ -232,9 +232,21 @@ throws PolicyCompilerException
 {   pp = null;
     String userRole = null;
     Set servletNames = null;
-}   : "Require" "audit" "for" "all" "accesses" "to" "servlet" 
-        servletNames = tokenList userRole = auditUsers
+}   : "Require" "audit" "for" "all" "accesses" "to" 
+        servletNames=auditServlet  userRole = auditUsers
         { pp = new AuditParsedPolicy(pn, userRole, servletNames); }
+    ;
+
+
+/*
+ * returns a list of servlets and null if the list is supposed to be all
+ * servlets.
+ */
+auditServlet
+returns [Set servletNames]
+{  servletNames = null; }
+    : "servlet" servletNames = tokenList
+    | "all" "servlets"
     ;
 
 auditUsers

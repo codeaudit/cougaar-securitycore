@@ -54,25 +54,35 @@ class AuditParsedPolicy extends ParsedAuthenticationPolicy
           userRole == null ? ActorConcepts._Person_
                            : PolicyUtils.personActorClassPrefix + userRole,
           ActionConcepts._AccessAction_);
-    _servlets = new HashSet();
-    for (Iterator  servletIt = servletNames.iterator(); servletIt.hasNext();) {
-      String servletInstance = (String) servletIt.next();
-      _servlets.add(EntityInstancesConcepts.EntityInstancesDamlURL 
-                    + servletInstance);
+    if (servletNames != null) {
+      _servlets = new HashSet();
+      for (Iterator  servletIt = servletNames.iterator(); 
+           servletIt.hasNext();) {
+        String servletInstance = (String) servletIt.next();
+        _servlets.add(EntityInstancesConcepts.EntityInstancesDamlURL 
+                      + servletInstance);
+      }
+    } else {
+      _servlets = null;
     }
     buildDescription(userRole, servletNames);
   }
 
   private void buildDescription(String userRole, Set servletNames)
   {
-    _description = "Require audit for all accesses to servlet ";
+    _description = "Require audit for all accesses to ";
 
-    Iterator servletIt = servletNames.iterator();
-    String servletInstance = (String) servletIt.next();
-    _description += servletInstance;
-    while (servletIt.hasNext()) {
-      servletInstance = (String) servletIt.next();
-      _description += ", " + servletInstance;
+    if (servletNames != null) {
+      _description += "servlet ";
+      Iterator servletIt = servletNames.iterator();
+      String servletInstance = (String) servletIt.next();
+      _description += servletInstance;
+      while (servletIt.hasNext()) {
+        servletInstance = (String) servletIt.next();
+        _description += ", " + servletInstance;
+      }
+    } else {
+      _description += "all servlets";
     }
 
     if (userRole != null) {
@@ -87,13 +97,15 @@ class AuditParsedPolicy extends ParsedAuthenticationPolicy
       ontology.verifySubClass(getActor(), ActorConcepts._Person_);
       initiateBuildPolicy(ontology);
 
-      for (Iterator servletIt = _servlets.iterator(); servletIt.hasNext();) {
-        String servletInstance = (String) servletIt.next();
-        ontology.verifyInstanceOf(servletInstance, 
-                                  UltralogEntityConcepts._Servlet_);
-        _controls.addPropertyRangeInstance
-                           (UltralogActionConcepts._accessedServlet_,
-                            servletInstance);
+      if (_servlets != null) {
+        for (Iterator servletIt = _servlets.iterator(); servletIt.hasNext();) {
+          String servletInstance = (String) servletIt.next();
+          ontology.verifyInstanceOf(servletInstance, 
+                                    UltralogEntityConcepts._Servlet_);
+          _controls.addPropertyRangeInstance
+                                (UltralogActionConcepts._accessedServlet_,
+                                 servletInstance);
+        }
       }
       _controls.addPropertyRangeInstance
                        (UltralogActionConcepts._usedAuditLevel_, 
