@@ -32,6 +32,7 @@ import org.cougaar.core.security.util.DumpOutputStream;
 import org.cougaar.core.security.util.NullOutputStream;
 import org.cougaar.core.security.util.OnTopCipherOutputStream;
 import org.cougaar.core.security.util.SignatureOutputStream;
+import org.cougaar.core.security.util.ErasingMap;
 import org.cougaar.core.service.LoggingService;
 
 import java.io.ByteArrayOutputStream;
@@ -48,7 +49,7 @@ import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -86,7 +87,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   private static final boolean DUMP_MESSAGES = 
     Boolean.getBoolean(DUMP_PROPERTY);
 
-    private static final HashMap _certCache = new HashMap();
+  private static final Map _certCache = new ErasingMap();
 
   public ProtectedMessageOutputStream(OutputStream stream,
                                       MessageAddress source,
