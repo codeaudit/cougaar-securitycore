@@ -28,11 +28,15 @@
 package org.cougaar.core.security.dataprotection.plugin;
 
 
-import sun.security.x509.X500Name;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
-
 import javax.security.auth.x500.X500Principal;
 
 import org.cougaar.core.blackboard.BlackboardClient;
@@ -47,21 +51,17 @@ import org.cougaar.core.security.dataprotection.DataProtectionStatus;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.service.BlackboardService;
-import org.cougaar.core.service.DataProtectionKey;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
 
-import java.security.cert.X509Certificate;
-
-import java.util.Collection;
-import java.util.Iterator;
+import sun.security.x509.X500Name;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -98,9 +98,26 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
         		DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
         		if(log.isDebugEnabled()){
         			try{
-        			log.debug("Check dpkey, remote copy:" + dpKey.getCertificateChain()[0].getSignature());
-        			log.debug("Check dpkey, local copy:" + container.getKey().getCertificateChain()[0].getSignature());
-        			}catch(NullPointerException npe){
+        				byte[] _new = dpKey.getCertificateChain()[0].getSignature();
+        				byte[] original = container.getKey().getCertificateChain()[0].getSignature();
+        				BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(original)));
+						BufferedReader newreader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(_new)));
+						String line = reader.readLine();
+						log.debug("Original");
+						while(line!=null){
+							log.debug(line);
+							line =reader.readLine();
+						}
+						log.debug("new");
+						line =newreader.readLine();
+						while(line!=null){
+							log.debug(line);
+							line = newreader.readLine();
+						}
+        				
+        			//log.debug("Check dpkey, remote copy:" + dpKey.getCertificateChain()[0].getSignature());
+        			//log.debug("Check dpkey, local copy:" + container.getKey().getCertificateChain()[0].getSignature());
+        			}catch(Exception npe){
         				log.debug("Null dpkey cert");
         				
         			}
