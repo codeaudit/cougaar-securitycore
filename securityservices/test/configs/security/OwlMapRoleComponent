@@ -17,6 +17,7 @@ safe.policyManager.PolicyAdminServletComponent http://ontology.ihmc.us/Ultralog/
 
 com.bbn.fcss.plugin.inventory.UAInventoryPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.mlm.plugin.organization.OrgDataPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
+org.cougaar.mlm.plugin.organization.OrgDataParamPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.logistics.plugin.strattrans.StrategicTransportProjectorPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
 org.cougaar.logistics.plugin.demand.DemandForecastPlugin http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityQuery
