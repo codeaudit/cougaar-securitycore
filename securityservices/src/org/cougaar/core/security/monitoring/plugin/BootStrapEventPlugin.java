@@ -53,6 +53,7 @@ import org.cougaar.core.security.constants.IdmefClassifications;
 
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.mts.MessageAddress;
@@ -81,6 +82,7 @@ public class BootStrapEventPlugin extends SensorPlugin implements Observer {
   private int numberOfEvents = 0;
   */
   private SensorInfo _sensorInfo;
+  private ThreadService _threadService;
   private final  String[] CLASSIFICATIONS = { IdmefClassifications.SECURITY_MANAGER_EXCEPTION,
                                               IdmefClassifications.JAR_VERIFICATION_FAILURE };
   
@@ -88,7 +90,7 @@ public class BootStrapEventPlugin extends SensorPlugin implements Observer {
     super.setupSubscriptions();
     // sensorCondition = new BootstrapEventCondition(numberOfEvents);
     //_blackboard.publishAdd(sensorCondition);
-    EventPublisher publisher = new SecurityExceptionPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+    EventPublisher publisher = new SecurityExceptionPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo(), _threadService);
     setPublisher(publisher);
     // initialize the publisher
     publishIDMEFEvent();
@@ -98,7 +100,11 @@ public class BootStrapEventPlugin extends SensorPlugin implements Observer {
   
   protected void execute() {
   }
-  
+
+  public void setThreadService(ThreadService ts) {
+    _threadService = ts;
+  }
+
   protected SensorInfo getSensorInfo() {
     if(_sensorInfo == null) {
       _sensorInfo = new BootstrapSensorInfo();  

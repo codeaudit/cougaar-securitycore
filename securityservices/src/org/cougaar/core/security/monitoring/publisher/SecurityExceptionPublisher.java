@@ -24,6 +24,7 @@ package org.cougaar.core.security.monitoring.publisher;
 // cougaar core classes
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ThreadService;
 
 // securityservices classes
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
@@ -48,8 +49,8 @@ import java.util.List;
 public class SecurityExceptionPublisher extends IdmefEventPublisher {
 
   public SecurityExceptionPublisher(BlackboardService bbs, SecurityContextService scs, 
-    CmrFactory cmrFactory, LoggingService logger, SensorInfo info) {
-    super(bbs, scs, cmrFactory, logger, info);
+    CmrFactory cmrFactory, LoggingService logger, SensorInfo info, ThreadService ts) {
+    super(bbs, scs, cmrFactory, logger, info, ts);
   }
 
   private List createClassifications(String classification) {
