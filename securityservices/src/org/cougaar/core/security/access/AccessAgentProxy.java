@@ -121,9 +121,8 @@ public class AccessAgentProxy
    * @param message - The message to send.
    */
   public void sendMessage(Message message) {
-    if(log.isDebugEnabled()) {
-       log.debug("Send message of access binder called :"
-		 +message.toString());
+    if(log.isInfoEnabled()) {
+       log.info("SendMessage: " +message.toString());
     }
     
     if(myID != null && !message.getOriginator().equals(myID)){
@@ -250,8 +249,8 @@ public class AccessAgentProxy
       log.warn("Message Transport Client is null");
       return;
     }
-    if(log.isDebugEnabled()) {
-      log.debug("Received message of Access agent proxy in :"
+    if(log.isInfoEnabled()) {
+      log.info("receiveMessage: "
 		+ getMessageAddress().toString() +" : "+ m.toString());
     }
     if (m instanceof MessageWithTrust ) {
