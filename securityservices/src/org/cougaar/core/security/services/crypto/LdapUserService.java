@@ -126,7 +126,8 @@ public interface LdapUserService extends Service {
     throws NamingException ;
 
   /**
-   * Adds the given user to the LDAP database. attrs must contain
+   * Adds the given user to the LDAP database. The parameter 
+   * <code>attrs</code> must contain
    * all required attributes other than objectClass, but including
    * the uid.
    *
