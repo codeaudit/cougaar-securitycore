@@ -368,42 +368,17 @@ final public class KeyRing
     return c;
   }
 
-  /**
-   */
-  public X509Certificate findFirstAvailableCert(String name)
+  public synchronized Hashtable findCertPairFromNS(String source, String target)
     throws CertificateException {
-    // check whether agent has started yet, this fixes the problem where
-    // LDAP is dirty and returning old certificates. If agent has started
-    // and obtained new certificates it will update naming.
-    if (log.isDebugEnabled()) {
-      log.debug("findFirstAvailableCert: " + name);
-    }
-    try {
-      if (directoryKeystore.getNamingAttributes(name) == null)
-	return null;
-    } catch (NamingException nx) {
-      return null;
-    }
+    return directoryKeystore.findCertPairFromNS(source, target);
+  }
 
-    List certList =
-      findCert(name, KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (certList == null || certList.size() == 0) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to find certificate of " + name);
-      }
-      throw new CertificateException("Unable to find certificate: " + name);
-    }
-    X509Certificate cert = ((CertificateStatus)certList.get(0)).getCertificate();
+  public List findDNFromNS(String name) {
+    return directoryKeystore.findDNFromNS(name);
+  }
 
-/*
-    String dname = cert.getSubjectDN().getName();
-    String title = CertificateUtility.findAttribute(dname, "t");
-    if (title != null &&
-      (title.equals(DirectoryKeyStore.CERT_TITLE_AGENT)
-        || title.equals(DirectoryKeyStore.CERT_TITLE_NODE))) {
-*/
-
-    return cert;
+  public List findCert(X500Name dname, int lookupType, boolean validOnly) {
+    return directoryKeystore.findCert(dname, lookupType, validOnly);
   }
 
   public X509Certificate[] findCertChain(X509Certificate c)
@@ -459,7 +434,7 @@ final public class KeyRing
     if (directoryKeystore == null) {
       return;
     }
-    directoryKeystore.checkOrMakeCert(dname);
+    directoryKeystore.checkOrMakeCert(dname, false);
     return;
   }
 
