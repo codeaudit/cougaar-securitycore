@@ -639,6 +639,7 @@ public class AccessAgentProxy
     }
   }
 
+  /*
   private TrustSet[] outgoingTrust(Message msg){
     TrustSet[] set = new TrustSet[1]; 
     TrustSet policySet;
@@ -683,7 +684,7 @@ public class AccessAgentProxy
     }
     return set;
   }  
-
+  */
   private boolean checkOutVerbs(Message msg) {
     return checkMessage(msg, false);
   }
@@ -759,6 +760,7 @@ public class AccessAgentProxy
 
   /**
    */
+  /*
   private boolean outgoingMessageAction(Message msg, TrustSet trust) {
     String act;
     
@@ -808,7 +810,7 @@ public class AccessAgentProxy
     }
     return (!act.equals(AccessControlPolicy.SET_ASIDE));
   }
-  
+  */ 
   private boolean checkInVerbs(Message msg) {
     return checkMessage(msg, true);
   }

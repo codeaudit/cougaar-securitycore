@@ -55,7 +55,7 @@ public class CaServletComponent
   private String myPath = null;
   private Class myServletClass = null;
   private String myServletClassName = null;
-  private Servlet myServlet = null;
+  //private Servlet myServlet = null;
 
   private MessageAddress agentId;
   private SecurityServletSupport support;
@@ -63,7 +63,7 @@ public class CaServletComponent
   // Services
   private BlackboardService blackboardService;
   private BlackboardQueryService blackboardQueryService;
-  private CertificateManagementService certificateManagementService;
+  //private CertificateManagementService certificateManagementService;
   private LoggingService log;
 
   public void Initialize() {
@@ -76,7 +76,7 @@ public class CaServletComponent
 					    null);
     SecurityPolicy[] sp =
       configParser.getSecurityPolicies(CryptoClientPolicy.class);
-    CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+    //CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
   }
 
   /**

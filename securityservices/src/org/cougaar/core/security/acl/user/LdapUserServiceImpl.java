@@ -309,6 +309,9 @@ public class LdapUserServiceImpl implements UserService {
         _context.close();
       } catch (NamingException ne) {
         // ignore -- it's gone, anyway
+        if (_log.isDebugEnabled()) {
+          _log.debug("Ignore exception, it's gone anyway", ne);
+        }
       }
     }
     _context = null;
@@ -347,6 +350,9 @@ public class LdapUserServiceImpl implements UserService {
       _context.createSubcontext(_policy.userDN, attrs);
     } catch (NamingException ne) {
       // ignore it... this is in the middle of another call, anyway
+      if (_log.isDebugEnabled()) {
+        _log.debug("Ignore exception, this is the middle of another call anyway", ne);
+      }
     }
   }
 
@@ -372,6 +378,9 @@ public class LdapUserServiceImpl implements UserService {
       _context.createSubcontext(_policy.roleDN, attrs);
     } catch (NamingException ne) {
       // ignore it... this is in the middle of another call, anyway
+      if (_log.isDebugEnabled()) {
+        _log.debug("Ignore exception, this is the middle of another call anyway", ne);
+      }
     }
   }
 

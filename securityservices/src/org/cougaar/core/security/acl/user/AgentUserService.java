@@ -298,6 +298,9 @@ public class AgentUserService implements UserService, BlackboardClient {
             }
           } catch (NamingException e) {
             // error reading value, so it can't be a Security community
+            if (_log.isWarnEnabled()) {
+              _log.warn("Error reading value, so it can't be a security community");
+            }
           }
         }
       }
@@ -338,7 +341,11 @@ public class AgentUserService implements UserService, BlackboardClient {
       while ((response = (CasResponse)relay.getResponse()) == null) {
         try {
           _lock.wait();
-        } catch (Exception e) {/* don't care*/}
+        } catch (Exception e) {
+          if (_log.isWarnEnabled()) {
+            _log.warn("Exception while waiting on lock: " + e.toString());
+          }
+        }
       }
       if (_log.isDebugEnabled()) {
         _log.debug("Got Response: " + relay);

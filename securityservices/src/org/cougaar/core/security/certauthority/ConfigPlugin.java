@@ -79,7 +79,7 @@ public class ConfigPlugin
   public synchronized void unload() {
     super.unload();
     // unload services in reverse order of "load()"
-    ServiceBroker sb = bindingSite.getServiceBroker();
+    //ServiceBroker sb = bindingSite.getServiceBroker();
     // release services
   }
 
@@ -215,7 +215,9 @@ public class ConfigPlugin
         caagent = param.substring(agentindex+1, portindex);
         httpport = param.substring(portindex + 1, param.lastIndexOf(':'));
         httpsport = param.substring(param.lastIndexOf(':')+1, param.length());
-        log.debug("agent: " + caagent + " / " + httpport + " / " + httpsport);
+        if (log.isDebugEnabled()) {
+          log.debug("agent: " + caagent + " / " + httpport + " / " + httpsport);
+        }
       }
 
       infoURL = "http://" + cahost + ":" +
@@ -232,7 +234,11 @@ public class ConfigPlugin
       try {
         String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
         waittime = Integer.parseInt(waitPoll);
-      } catch (Exception ex) {}
+      } catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to parse configpoll property: " + ex.toString());
+        }
+      }
     }
 
     public void run() {
@@ -369,6 +375,8 @@ public class ConfigPlugin
     }
 
     // check whether CA key already created
+    /*
+    This code seems useless
     try {
       X500Name dname = new X500Name(caDN);
     }
@@ -377,6 +385,7 @@ public class ConfigPlugin
       e.printStackTrace();
       return;
     }
+    */
 
     // start generate CA key
     X500Principal p = new X500Principal(caDN);

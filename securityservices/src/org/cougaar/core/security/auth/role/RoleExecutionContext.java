@@ -142,11 +142,12 @@ public class RoleExecutionContext implements ExecutionContext {
     sb.append(")");
     return sb.toString();
   }
-
+  /*
   private List normalizeArrayToList(String []arr) {
     if(arr == null) {
       return Arrays.asList(new String[0]);
     }
     return Arrays.asList(arr);
   }
+  */
 }

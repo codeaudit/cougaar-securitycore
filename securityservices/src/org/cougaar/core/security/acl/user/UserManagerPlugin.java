@@ -96,7 +96,7 @@ public class UserManagerPlugin extends ComponentPlugin {
   private LoggingService   _log;
 
   private IncrementalSubscription _relaySub;
-  private CasRelay         _myRelay;
+  //private CasRelay         _myRelay;
   private UserEntries      _userCache;
   private String           _domain;
 
@@ -141,7 +141,7 @@ public class UserManagerPlugin extends ComponentPlugin {
   }
 
   private void setDomain(CommunityService cs, AgentIdentificationService ais) {
-    String myAddress = ais.getName();
+    //String myAddress = ais.getName();
 
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);

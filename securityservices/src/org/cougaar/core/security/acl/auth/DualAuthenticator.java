@@ -386,6 +386,9 @@ public class DualAuthenticator extends ValveBase {
       uri = URLDecoder.decode(uri, "UTF-8"); // Before checking constraints
     } catch (UnsupportedEncodingException e) {
       // leave the uri as is and pray
+      if (_log.isDebugEnabled()) {
+        _log.debug("Unsupported URL encoding: " + uri);
+      }
     }
     for (int i = 0; i < constraints.length; i++) {
       if (constraints[i].included(uri, "GET"))
@@ -543,6 +546,9 @@ public class DualAuthenticator extends ValveBase {
     try {
       Thread.sleep(_failSleep);
     } catch (Exception e) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Thread interrupted: " + e.toString());
+      }
     }
   }
 
@@ -626,6 +632,9 @@ public class DualAuthenticator extends ValveBase {
           }
         } catch (IOException e) {
           // just return null
+          if (_log.isWarnEnabled()) {
+            _log.warn("Unable to find session: " + e.toString());
+          }
         }
       }
     }

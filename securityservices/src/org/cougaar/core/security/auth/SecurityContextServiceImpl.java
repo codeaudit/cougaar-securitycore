@@ -47,7 +47,7 @@ public final class SecurityContextServiceImpl
   // logging service
   private LoggingService _log;
   // the client of this service
-  private Object _requestor;
+  //private Object _requestor;
   // current mapping between an object and an security context
   private HashMap _currentSCMap = new HashMap();
   // previous mapping between an object and an security context
