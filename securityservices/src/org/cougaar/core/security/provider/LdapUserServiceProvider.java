@@ -42,6 +42,11 @@ public class LdapUserServiceProvider
   implements ServiceProvider {
 
   private LdapUserService  _service = null;
+  private ServiceBroker    _nodeServiceBroker = null;
+
+  public LdapUserServiceProvider(ServiceBroker nsb) {
+    _nodeServiceBroker = nsb;
+  }
 
   /**
    * Get a service.
@@ -55,7 +60,7 @@ public class LdapUserServiceProvider
                                         Class serviceClass) {
 
     if (_service == null) {
-      _service = new LdapUserServiceImpl(sb);
+      _service = new LdapUserServiceImpl(sb, _nodeServiceBroker);
     }
     return _service;
   }

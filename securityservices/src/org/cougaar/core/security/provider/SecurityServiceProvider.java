@@ -68,6 +68,9 @@ public class SecurityServiceProvider
   /** The name of the community of type SecurityCommunity. */
   private String mySecurityCommunity;
 
+  /** True if the application is run with a Cougaar node */
+  private boolean isExecutedWithinNode = true;
+
   public SecurityServiceProvider() {
     setServiceBroker();
     registerServices();
@@ -139,7 +142,8 @@ public class SecurityServiceProvider
     }
     if (service == null) {
       if (log.isWarnEnabled()) {
-	log.warn("Service not registered: " + serviceClass.getName());
+	log.warn("Service not registered: " + serviceClass.getName()
+	  + " Requestor:" + requestor.getClass().getName());
       }
     }
     return service;
@@ -196,7 +200,6 @@ public class SecurityServiceProvider
   }
 
   private void registerServices() {
-    boolean isExecutedWithinNode = true;
 
     // Get root service broker
     nodeControlService = (NodeControlService)
@@ -228,6 +231,8 @@ public class SecurityServiceProvider
 				   loggingServiceProvider);
     }
 
+    System.setProperty("org.cougaar.core.security.isExecutedWithinNode",
+		       String.valueOf(isExecutedWithinNode));
     this.log = (LoggingService)
       rootServiceBroker.getService(this,
 				   LoggingService.class, null);
@@ -357,7 +362,7 @@ public class SecurityServiceProvider
        * LDAP user administration
        */
       services.put(LdapUserService.class,
-                   new LdapUserServiceProvider());
+                   new LdapUserServiceProvider(serviceBroker));
       rootServiceBroker.addService(LdapUserService.class, this);
       org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
         setNodeServiceBroker(serviceBroker);

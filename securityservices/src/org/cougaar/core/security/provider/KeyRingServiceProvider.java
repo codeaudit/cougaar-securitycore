@@ -61,7 +61,14 @@ public class KeyRingServiceProvider
       catch (Exception e) {
 	LoggingService log = (LoggingService)
 	  sb.getService(this, LoggingService.class, null);
-	log.warn("Unable to initialize KeyRingService: " + e);
+	boolean exec =
+	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+	if (exec == true) {
+	  log.warn("Unable to initialize KeyRingService: " + e);
+	}
+	else {
+	  log.info("Unable to initialize KeyRingService: " + e);
+	}
       }
     }
     return keyRingService;
