@@ -13,13 +13,6 @@ def getAnEnclave()
   end
 end
 
-def newTest(run, name)
-  run.info_message("***********************#{name}***********************")
-  $policyTestCount += 1
-end
-
-
-
 def irb(b)
   prompt = "ruby-> "
   while TRUE
@@ -90,6 +83,64 @@ module Cougaar
     end 
 
 
+    class PolicyTestAction < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+        @web = SRIWeb.new()
+      end
+
+      def perform(name)
+        agentName1 = "testBounceOne"
+        agentName2 = "testBounceTwo"
+        @agent1 = nil
+        @agent2 = nil
+        @run.society.each_agent do |agent|
+          if (agent.name == agentName1) then
+            @agent1 = agent
+          end
+          if (agent.name == agentName2) then
+            @agent2 = agent
+          end
+        end
+        @enclave = @agent1.host.enclave
+        @run.info_message("***********************#{name}***********************")
+        $policyTestCount += 1
+      end
+
+      def sendRelay(a,b)
+        @web.getHtml("#{a.uri}/message/send?address=#{b.name}&Send=Submit")
+      end
+
+      def clearRelays(a)
+        regexp=Regexp.compile"#{a.name}\/([0-9]+)[^0-9]"
+        relays = @web.getHtml("#{a.uri}/message/list").body
+        while m = regexp.match(relays) do
+          #puts m
+          #puts m[1]
+          @web.getHtml("#{@a.uri}/message/delete?uid=#{a.name}/#{m[1]}")
+          relays = @web.getHtml("#{a.uri}/message/list").body
+        end
+      end
+
+      def checkRelays(a)
+        result = @web.getHtml("#{a.uri}/message/list").body
+        !(result.include?("no response"))
+      end
+
+      def sendVerb(a, b, verb)
+        @web.postHtml("#{a.uri}/message/sendVerb/Sending", 
+                      ["address=#{b.name}", "verb=#{verb}"])
+      end
+
+      def checkVerb(b, verb)
+        result = @web.getHtml("#{b.uri}/message/receiveVerb").body
+        result.include?("Task received with verb #{verb}")
+      end
+
+    end
+
+
 ########################################################################
 #   Beginnining of test actions
 ########################################################################
@@ -97,15 +148,14 @@ module Cougaar
 
 
 #---------------------------------Test----------------------------------
-    class DomainManagerRehydrateReset < Cougaar::Action
+    class DomainManagerRehydrateReset < PolicyTestAction
       def initialize(run)
         super(run)
-        @run = run
       end
     
       def perform
+        super("Domain Manager Rehydration")
         begin
-          newTest(@run, "Domain Manager Rehydration")
           enclave = getAnEnclave()
           node    = getNonManagementNode(enclave)
           setPoliciesExperiment(enclave, node)
@@ -253,14 +303,12 @@ module Cougaar
 
 
 #---------------------------------Test----------------------------------
-    class ServletTest01 < Cougaar::Action
+    class ServletTest01 < PolicyTestAction
       def initialize(run)
         super(run)
-        @run = run
       end
 
       def test1(web)
-        newTest(@run, "auth servlet test")
         enclave = getAnEnclave()
         web.set_auth("mbarger", "badpassword")
         testAgent = nil
@@ -307,9 +355,9 @@ module Cougaar
       end
 
       def perform
+        super("auth servlet test")
         begin 
-          web = SRIWeb.new()
-          test1(web)
+          test1(@web)
         rescue => ex
           @run.info_message("Caught exception #{ex}, #{ex.backtrace.join("\n")}")
         end
@@ -320,49 +368,21 @@ module Cougaar
 
 #---------------------------------Test----------------------------------
 
-    class CommunicationTest01 < Cougaar::Action
+    class CommunicationTest01 < PolicyTestAction
       def initialize(run)
         super(run)
-        @run = run
-        @enclave = "Rear"
-        @agentName1 = "testBounceOne"
-        @agentName2 = "testBounceTwo"
         @msgPingTimeout = 20.seconds
-        @web = SRIWeb.new()
-      end
-
-      def initUris
-        @sendUri = 
-           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
-        @checkUri = "#{@agent1.uri}/message/list"
-        @deleteUri = "#{@agent1.uri}/message/delete?uid="
-      end
-
-      def clearRelays
-        regexp=Regexp.compile"#{@agentName1}\/([0-9]+)[^0-9]"
-        relays = @web.getHtml(@checkUri).body
-        while m = regexp.match(relays) do
-          #puts m
-          #puts m[1]
-          @web.getHtml("#{@deleteUri}#{@agentName1}/#{m[1]}")
-          relays = @web.getHtml(@checkUri).body
-        end
       end
 
       def checkSend
-        clearRelays
-        @web.getHtml(@sendUri)
+        clearRelays(@agent2)
+        sendRelay(@agent1, @agent2)
         sleep(@msgPingTimeout)
-        result = @web.getHtml(@checkUri).body
-        !(result.include?("no response"))
+        checkRelays(@agent1)
       end
 
       def perform
-        newTest(@run, "Comm Test 01")
-        @agent1 = @run.society.agents[@agentName1]
-        @agent2 = @run.society.agents[@agentName2]
-        initUris
-        clearRelays
+        super("auth policy test")
         @run.info_message("Attempting to send message")
         if (checkSend) then
           @run.info_message("Message sent and ack received")
@@ -374,17 +394,17 @@ module Cougaar
         pw2 = PolicyWaiter.new(@run, @agent2.node.name)
         @run.info_message("Inserting policy preventing  communication")
         deltaPolicy(@enclave, <<-DONE)
-          Agent #{@agentName1}
-          Agent #{@agentName2}
+          Agent #{@agent1.name}
+          Agent #{@agent2.name}
 
           Policy StopCommunication = [ 
             GenericTemplate
             Priority = 3,
-            %urn:Agent##{@agentName1} is not authorized to perform
+            %urn:Agent##{@agent1.name} is not authorized to perform
             $Action.owl#EncryptedCommunicationAction  
             as long as
             the value of $Action.owl#hasDestination
-            is a subset of the set { %urn:Agent##{@agentName2} }
+            is a subset of the set { %urn:Agent##{@agent2.name} }
           ]
         DONE
         if (!pw1.wait(200) || !pw2.wait(120)) then
@@ -410,44 +430,23 @@ module Cougaar
 #---------------------------------End Test------------------------------
 
 #---------------------------------Test----------------------------------
-    class CommunicationTest02 < Cougaar::Action
+    class CommunicationTest02 < PolicyTestAction
       def initialize(run)
         super(run)
-        @run = run
-        @agentName1 = "testBounceOne"
-        @agentName2 = "testBounceTwo"
         @verb1      = "Arm"
         @verb2      = "GetWater"
         @timeout    = 15
-        @web = SRIWeb.new()
-      end
-
-      def initSocietyVars
-        @agent1 = nil
-        @agent2 = nil
-        @run.society.each_agent do |agent|
-          if (agent.name == @agentName1) then
-            @agent1 = agent
-          end
-          if (agent.name == @agentName2) then
-            @agent2 = agent
-          end
-        end
-        @enclave = @agent1.host.enclave
-        @sendUri = "#{@agent1.uri}/message/sendVerb/Sending"
-        @receiveUri = "#{@agent2.uri}/message/receiveVerb"
       end
 
 
       def perform()
-        newTest(@run, "Verb Policy Test")
-        initSocietyVars
-        @run.info_message("Sending message from #{@agentName1} to " +
-                          "#{@agentName2} with verb #{@verb1}")
-        sendVerb(@verb1)
+        super("Verb Policy Test")
+        @run.info_message("Sending message from #{@agent1.name} to " +
+                          "#{@agent2.name} with verb #{@verb1}")
+        sendVerb(@agent1, @agent2, @verb1)
         @run.info_message("Checking  if message was received...")
         sleep(@timeout)
-        if (!checkVerb(@verb1)) then
+        if (!checkVerb(@agent2, @verb1)) then
           @run.info_message("should be able to send message")
           @run.info_message("test failed")
           return
@@ -456,7 +455,7 @@ module Cougaar
         @run.info_message("Adding policy denying verb #{@verb2}")
         pw = PolicyWaiter.new(@run, @agent1.node.name)
         deltaPolicy(@enclave, <<-EndVerbPolicy)
-          PolicyPrefix=%tests/
+          PolicyPrefix=%VerbTest
 
           Policy NoGetWater = [ 
             GenericTemplate
@@ -475,10 +474,10 @@ module Cougaar
         end
         @run.info_message("Policy committed")
         @run.info_message("Sending message with verb #{@verb2}")
-        sendVerb(@verb2)
+        sendVerb(@agent1, @agent2, @verb2)
         @run.info_message("Checking if message was received...")
         sleep(@timeout)
-        if (checkVerb(@verb2)) then
+        if (checkVerb(@agent2, @verb2)) then
           @run.info_message("should not be able to send message")
           return
         end
@@ -491,24 +490,130 @@ module Cougaar
       end
 
 
-      def sendVerb(verb)
-        @web.postHtml(@sendUri, ["address=#{@agent2.name}", "verb=#{verb}"])
-      end
 
-      def checkVerb(verb)
-        result = @web.getHtml(@receiveUri).body
-        result.include?("Task received with verb #{verb}")
-      end
     end
 
 #---------------------------------End Test------------------------------
 
-
 #---------------------------------Test----------------------------------
-    class BlackboardTest < Cougaar::Action
+
+    class CommunicationTest03 < PolicyTestAction
       def initialize(run)
         super(run)
-        @run = run
+        @enclave = "Rear"
+        @agent1.name = "testBounceOne"
+        @agent2.name = "testBounceTwo"
+        @msgPingTimeout = 20.seconds
+      end
+
+      def sendUri(a,  b)
+        "#{a.uri}/message/send?address=#{b.name}&Send=Submit"
+      end
+
+      def getPolicyManagerNodeFromEnclave(enclave)
+        run.society.each_agent do |agent|
+          agent.each_facet(:role) do |facet|
+            if facet[:role] == $facetPolicyManagerAgent then
+               return [agent.node, agent]
+            end
+          end
+        end
+      end
+
+
+      def checkUri(a)
+        "#{a.uri}/message/list"
+      end
+
+      def deleteUri(a)
+        "#{a.uri}/message/delete?uid="
+      end
+
+      def clearRelays(a)
+        regexp=Regexp.compile"#{a.name}\/([0-9]+)[^0-9]"
+        relays = @web.getHtml(checkUri(a)).body
+        while m = regexp.match(relays) do
+          #puts m
+          #puts m[1]
+          @web.getHtml("#{deleteUri(a)}#{a.name}/#{m[1]}")
+          relays = @web.getHtml(@checkUri).body
+        end
+      end
+
+      def checkSend(a,b)
+        clearRelays(b)
+        @web.getHtml(sendUri(a,b))
+        sleep(@msgPingTimeout)
+        result = @web.getHtml(checkUri(b)).body
+        !(result.include?("no response"))
+      end
+
+      def perform
+        newTest(@run, "half enforcement test")
+        @agent1 = @run.society.agents[@agent1.name]
+        @agent2 = @run.society.agents[@agent2.name]
+        @run.info_message("Attempting to send message")
+        if (checkSend(@agent1, @agent2)) then
+          @run.info_message("Message sent and ack received")
+        else
+          @run.info_message("Should be able to talk - test failed")
+          return
+        end
+        pw = PolicyWaiter.new(@run, @agent1.node.name)
+        @run.info_message("Inserting policy preventing  communication")
+        deltaPolicy(@enclave, <<-DONE)
+          Agent #{@agent1.name}
+          Agent #{@agent2.name}
+
+          Policy StopCommunicationOne = [ 
+            GenericTemplate
+            Priority = 3,
+            %urn:Agent##{@agent1.name} is not authorized to perform
+            $Action.owl#EncryptedCommunicationAction  
+            as long as
+            the value of $Action.owl#hasDestination
+            is a subset of the set { %urn:Agent##{@agent2.name} }
+          ]
+
+          Policy StopCommunicationTwo = [ 
+            GenericTemplate
+            Priority = 3,
+            %urn:Agent##{@agent2.name} is not authorized to perform
+            $Action.owl#EncryptedCommunicationAction  
+            as long as
+            the value of $Action.owl#hasDestination
+            is a subset of the set { %urn:Agent##{@agent1.name} }
+          ]
+        DONE
+        if (!pw.wait(200)) then
+          @run.info_message("no  policy received - test failed")
+          return
+        end
+        @run.info_message("Attempting to send another message")
+        if (checkSend) then
+          @run.info_message("message should not have been received - test failed")
+          return
+        end
+        $policyPassedCount += 1
+        @run.info_message("Test succeeded - restoring policies")
+        deltaPolicy(@enclave, <<-DONE)
+          Delete StopCommunicationOne
+          Delete StopCommunicationTwo
+        DONE
+
+      end
+    end # CommunicationTest03
+
+
+
+#---------------------------------End Test------------------------------
+
+
+
+#---------------------------------Test----------------------------------
+    class BlackboardTest < PolicyTestAction
+      def initialize(run)
+        super(run)
       end
 
       def setbburi()
@@ -535,7 +640,7 @@ module Cougaar
       end
 
       def perform
-        newTest(@run, "Blackboard OrgActivity Test")
+        super("Blackboard OrgActivity Test")
         setbburi()
         enclave = getAnEnclave()
         web = SRIWeb.new()
@@ -582,36 +687,6 @@ module Cougaar
         @run.info_message("#{$policyPassedCount} / #{$policyTestCount} tests passed")
       end
     end #Test Results
-
-    class CheckRMISwitch < Cougaar::Action
-      def initialize(run)
-        super(run)
-        @run = run
-        @web = SRIWeb.new()
-        @agentName1 = "testBounceOne"
-        @agentName2 = "testBounceTwo"
-      end
-
-      def perform
-        @agent1 = @run.society.agents[@agentName1]
-        @agent2 = @run.society.agents[@agentName2]
-        @sendUri = 
-           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
-        pw = PolicyWaiter.new(@run, "testBounceOne")
-        deltaPolicy(enclave, <<-DONE)
-          Delete EncryptCommunication
-          Policy testEncryptCommunication = [
-            MessageEncryptionTemplate
-            Require SecretProtection on all messages from members of 
-            $Actor.owl#Agent to members of $Actor.owl#Agent
-          ]
-        DONE
-        pw.wait(60)
-        @web.getHtml(@sendUri)
-      end
-    end
-
-
 
 
   end  # module Actions
