@@ -1173,8 +1173,20 @@ final public class KeyRing  implements KeyRingService  {
 
     Hashtable certTable = new Hashtable();
 
+    // sometimes (at unzip & run startup) naming has not been updated yet
+    // maybe able to find cert from local hash
+    // however, cert from local hash needs to be refreshed once naming
+    // update is finished, because local hash may not have the trusted
+    // cert.
     List srcdns = findDNFromNS(source);
+    if (srcdns == null || srcdns.size() == 0) {
+      srcdns = getX500NameFromNameMapping(source);
+    }
     List tgtdns = findDNFromNS(target);
+    if (tgtdns == null || tgtdns.size() == 0) {
+      tgtdns = getX500NameFromNameMapping(target);
+    }
+
     if (tgtdns.size() == 0 || srcdns.size() == 0) {
       if (log.isDebugEnabled()) {
 	log.debug("Failed to get naming attributes: " + source + " vs " + target);
