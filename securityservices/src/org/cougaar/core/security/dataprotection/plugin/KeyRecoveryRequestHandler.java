@@ -64,7 +64,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -176,12 +176,28 @@ if (log.isDebugEnabled()) {
       return;
     }
 
+    // Verify the trust of the certificate.
+    boolean isRevokedCert = false;
+    try {
+      keyRing.checkCertificateTrust(originalAgentCert);
+    } catch (Exception e) {
+      if (log.isWarnEnabled()) {
+        log.warn("A request for " + agentName + " contains an untrusted certificate (from original agent):" + e);
+      }
+      if (e instanceof CertificateRevokedException) {
+        isRevokedCert = true;
+      }
+      else {
+        return;
+      }
+    }
+
     boolean digestVerified = false;
     
     String sendSignature = System.getProperty("org.cougaar.core.security.dataprotection.sendSignature", "true");
-    if (sendSignature.equals("true")) {
+    if (sendSignature.equals("true") && isRevokedCert) {
       if (keyCollection.getSignature() == null) {
-        log.warn("A request dataprotection key does not have signature, the agent is probably compromised.");
+        log.warn("A request " + agentName + " dataprotection key does not have signature, the agent is probably compromised.");
         return;
       }
 
@@ -208,31 +224,24 @@ if (log.isDebugEnabled()) {
       bbs.closeTransaction();
       if (results.size() == 0) {
         if (log.isWarnEnabled()) {
-          log.warn("A request dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
+          log.warn("A request for " + agentName + " dataprotection key was not on the persistence manager blackboard, must be compromised snapshot");
         }
         return;
       }
       else if (results.size() != 1) {
         if (log.isWarnEnabled()) {
-          log.warn("A request dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
+          log.warn("A request " + agentName + " dataprotection key has more than one key in the persistence manager blackboard: " + results.size());
         }
       }
       digestVerified = true;
     }
 
-    // Verify the trust of the certificate.
-    try {
-      keyRing.checkCertificateTrust(originalAgentCert);
-    } catch (Exception e) {
-      if (e instanceof CertificateRevokedException && digestVerified) {
-        log.warn("certificate verification failed but digest verified, decrypting secret key for recovering compromised agent.");
+    if (isRevokedCert) {
+      if (digestVerified) {
+        log.warn("certificate verification failed for " + agentName + " but digest verified, decrypting secret key for recovering compromised agent.");
       }
 
       else {
-        if (log.isWarnEnabled()) {
-          log.warn("A request contains an untrusted certificate (from original agent):" + e);
-        }
-
         return;
       }
     }
@@ -240,7 +249,7 @@ if (log.isDebugEnabled()) {
     X500Principal originalX500Principal = originalAgentCert.getSubjectX500Principal();
     if (originalX500Principal == null) {
       if (log.isWarnEnabled()) {
-        log.warn("A request contains no X.500 name for the original agent");
+        log.warn("A request for " + agentName + " contains no X.500 name for the original agent");
       }
 
       return;
@@ -252,7 +261,7 @@ if (log.isDebugEnabled()) {
     X509Certificate[] newCertChain = content.getRequestorCertificateChain();
     if ((newCertChain == null) || (newCertChain.length == 0)) {
       if (log.isWarnEnabled()) {
-        log.warn("A request contains no certificate chain for the new agent");
+        log.warn("A request for " + agentName + " contains no certificate chain for the new agent");
       }
 
       return;
@@ -265,7 +274,7 @@ if (log.isDebugEnabled()) {
       keyRing.checkCertificateTrust(newAgentCert);
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("A request contains an untrusted certificate (from new agent):" + e);
+        log.warn("A request for " + agentName + " contains an untrusted certificate (from new agent):" + e);
       }
 
       return;
@@ -274,7 +283,7 @@ if (log.isDebugEnabled()) {
     X500Principal newX500Principal = newAgentCert.getSubjectX500Principal();
     if (newX500Principal == null) {
       if (log.isWarnEnabled()) {
-        log.warn("A request contains no X.500 name for the new agent");
+        log.warn("A request for " + agentName + " contains no X.500 name for the new agent");
       }
 
       return;
@@ -326,7 +335,7 @@ if (log.isDebugEnabled()) {
 
     if (skey == null) {
       if (log.isWarnEnabled()) {
-        log.warn("The private key cannot be recovered");
+        log.warn("The key for " + agentName + " cannot be recovered");
       }
 
       return;
@@ -350,7 +359,7 @@ if (log.isDebugEnabled()) {
       skeyobj = encryptionService.encryptSecretKey(policy.asymmSpec, skey, newAgentCert);
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("The private key cannot be re-encrypted");
+        log.warn("The private key for " + agentName + " cannot be re-encrypted");
       }
 
       return;
