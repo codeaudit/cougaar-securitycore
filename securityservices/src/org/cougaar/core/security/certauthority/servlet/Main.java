@@ -35,6 +35,7 @@ import javax.servlet.http.*;
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 
 public class Main
   extends HttpServlet
@@ -42,6 +43,7 @@ public class Main
   private SecurityServletSupport support;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
+  private CertificateCacheService  cacheService=null;
 
   public Main(SecurityServletSupport support) {
     this.support = support;
@@ -53,6 +55,10 @@ public class Main
     keyRingService = (KeyRingService)
       support.getServiceBroker().getService(this,
 					    KeyRingService.class,
+					    null);
+     cacheService = (CertificateCacheService)
+      support.getServiceBroker().getService(this,
+					    CertificateCacheService.class,
 					    null);
   }
 
@@ -66,7 +72,7 @@ public class Main
     out.println("<h1>Cougaar Certificate Authority</h1></font>");
     out.println("<h2>Select action in left frame</h2>");
 
-    Enumeration aliases = keyRingService.getAliasList();
+    Enumeration aliases = cacheService.getAliasList();
     if (!aliases.hasMoreElements()) {
       // No Ca key has been generated yet
       out.println("<br><br><b>WARNING!</b>");
