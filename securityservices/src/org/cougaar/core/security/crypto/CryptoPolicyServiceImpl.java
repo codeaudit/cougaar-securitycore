@@ -116,7 +116,7 @@ public class CryptoPolicyServiceImpl
 
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)incoming_a.get(source);
-
+/*
       if(cp==null && commu!=null){
         //find which community the agent belongs to and get the policy
         Collection c = commu.listParentCommunities(source);
@@ -131,7 +131,7 @@ public class CryptoPolicyServiceImpl
            }
         }
       }
-
+*/
       if(cp==null){
         //last try
         cp = dcp_out;
@@ -171,7 +171,7 @@ public class CryptoPolicyServiceImpl
 
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)incoming_a.get(target);
-
+/*
       if(cp==null && commu!=null){
         //find which community the agent belongs to and get the policy
         Collection c = commu.listParentCommunities(target);
@@ -186,7 +186,7 @@ public class CryptoPolicyServiceImpl
            }
         }
       }
-
+*/
       if(cp==null){
         //last try
         cp = dcp_in;
@@ -208,7 +208,7 @@ public class CryptoPolicyServiceImpl
 
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)dataprot_a.get(source);
-
+/*
       if(cp==null && commu!=null){
         //find which community the agent belongs to and get the policy
         Collection c = commu.listParentCommunities(source);
@@ -225,7 +225,7 @@ public class CryptoPolicyServiceImpl
             cp = (CryptoPolicy)dataprot_c.get(cname);
         }
       }
-
+*/
       if(cp==null){
         //last try
         cp = dcp_dataprot;

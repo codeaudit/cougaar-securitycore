@@ -111,7 +111,7 @@ public class CryptoPolicy extends SecurityPolicy {
   public Vector getSecuMethod(String key){ 
     Vector v = (Vector)secuMethod.get(key);
     //try community policy if null
-    if(v==null && commService!=null){
+/*   if(v==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -124,14 +124,14 @@ public class CryptoPolicy extends SecurityPolicy {
         }
       }
     }
-    //last try
+*/    //last try
     if(v==null) v = (Vector)secuMethod.get("DEFAULT");
     return v; 
   }
   public Vector getSymmSpec(String key) { 
     Vector v = (Vector)symmSpec.get(key);
     //try community policy if null
-    if(v==null && commService!=null){
+/*    if(v==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -144,14 +144,14 @@ public class CryptoPolicy extends SecurityPolicy {
         }
       }
     }
-    //last try
+*/    //last try
     if(v==null) v = (Vector)symmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getAsymmSpec(String key) { 
     Vector v = (Vector)asymmSpec.get(key);
     //try community policy if null
-    if(v==null && commService!=null){
+/*    if(v==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -164,14 +164,14 @@ public class CryptoPolicy extends SecurityPolicy {
         }
       }
     }
-    //last try
+*/    //last try
     if(v==null) v = (Vector)asymmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getSignSpec(String key) { 
     Vector v = (Vector)signSpec.get(key);
     //try community policy if null
-    if(v==null && commService!=null){
+/*    if(v==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -184,7 +184,7 @@ public class CryptoPolicy extends SecurityPolicy {
         }
       }
     }
-    //last try
+*/    //last try
     if(v==null) v = (Vector)signSpec.get("DEFAULT");
     return v; 
   }
