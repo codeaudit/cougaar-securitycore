@@ -21,26 +21,25 @@
  */
 
 
-package org.cougaar.core.security.coreservices.crypto;
+package org.cougaar.core.mts;
 
-import java.io.FilterInputStream;
-import java.io.InputStream;
+import java.io.FilterOutputStream;
+import java.io.OutputStream;
 
 // Cougar core infrastructure
 import org.cougaar.core.mts.MessageAttributes;
 
-public abstract class ProtectedInputStream
-  extends FilterInputStream
+public abstract class ProtectedOutputStream
+  extends FilterOutputStream
 {
-  public ProtectedInputStream(InputStream stream) {
+  public ProtectedOutputStream(OutputStream stream) {
     super(stream);
   }
 
-  /** ProtectedInputStream can write new attributes (such as status of
-   *  signature, at this point the attributes have already been received.)
+  /** ProtectedOutputStream can read old attributes (check to see if it should
+   *  write the signature. Note at this point the attributes were already sent)
    */
 
-  public abstract void finishInput(MessageAttributes attributes)
+  public abstract void finishOutput(MessageAttributes attributes)
     throws java.io.IOException;
-
 }

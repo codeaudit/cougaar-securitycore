@@ -24,14 +24,14 @@
  * - 
  */
 
-package org.cougaar.core.security.coreservices.identity;
+package org.cougaar.core.service;
 
 import java.security.Principal;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.agent.ClusterIdentifier;
+import org.cougaar.core.security.coreservices.identity.*;
 
 public interface AgentIdentityService
   extends Service
@@ -75,7 +75,7 @@ public interface AgentIdentityService
    * @exception  IdentityDeniedException the certificiate authority
    *             refused to sign the key
    */
-  public void CreateCryptographicIdentity(ClusterIdentifier agent,
+  public void CreateCryptographicIdentity(MessageAddress agent,
 					  RevocationCallBack clientCallBack)
     throws PendingRequestException,
     IdentityDeniedException;
@@ -89,11 +89,11 @@ public interface AgentIdentityService
 
   /**
    */
-  public void HoldCryptographicIdentity(ClusterIdentifier agent);
+  public void HoldCryptographicIdentity(MessageAddress agent);
 
   /**
    */
-  public void RevokeCryptographicIdentity(ClusterIdentifier agent);
+  public void RevokeCryptographicIdentity(MessageAddress agent);
 
   /**
    *  Notify the cryptographic service that an agent is about
@@ -113,9 +113,9 @@ public interface AgentIdentityService
    * @return an encrypted object that should be sent to the remote
    * node agent
    */
-  public TransferableIdentity initiateTransfer(ClusterIdentifier agent,
-					       ClusterIdentifier sourceAgent,
-					       ClusterIdentifier targetAgent);
+  public TransferableIdentity initiateTransfer(MessageAddress agent,
+					       MessageAddress sourceAgent,
+					       MessageAddress targetAgent);
 
   /** Notify the cryptographic service that an agent previously
    *  running on a remote node is about to be installed and
@@ -127,8 +127,8 @@ public interface AgentIdentityService
    * @param agentName        the name of the agent to be installed
    */
   public void completeTransfer(TransferableIdentity identity,
-			       ClusterIdentifier sourceAgent,
-			       ClusterIdentifier targetAgent);
+			       MessageAddress sourceAgent,
+			       MessageAddress targetAgent);
 
 }
 

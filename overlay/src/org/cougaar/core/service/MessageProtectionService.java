@@ -21,7 +21,7 @@
  */
 
 
-package org.cougaar.core.security.coreservices.crypto;
+package org.cougaar.core.service;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,6 +31,8 @@ import org.cougaar.core.component.Service;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
+import org.cougaar.core.mts.ProtectedInputStream;
+import org.cougaar.core.mts.ProtectedOutputStream;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -136,30 +138,5 @@ public interface MessageProtectionService extends Service {
 					     MessageAddress src,
 					     MessageAddress dst,
 					     MessageAttributes attrs);
-
-  /** 
-   * Take an unprotected message and apply appropriate cryptographic
-   * mechanisms.
-   * For instance, messages may be signed and encrypted.
-   * The transport service should call protectMessage for all
-   * outgoing messages, just before giving the message to the
-   * underlying tranport protocol.
-   *
-   * @param  m - the unprotected message
-   * @return the protected message, according to the crypto policy
-   */
-  public Message protectMessage(Message m);
-
-  /** 
-   * Take a cryptographically protected message and restore the
-   * original message.
-   * The transport service should call unprotectMessage for all
-   * incoming messages.
-   *
-   * @param  m - the protected message
-   * @return the unprotected message - May be null if the message 
-   * does not comply with the policy.
-   */
-  public Message unprotectMessage(Message m);
 
 }
