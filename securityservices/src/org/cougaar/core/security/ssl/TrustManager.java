@@ -118,8 +118,10 @@ public class TrustManager implements X509TrustManager {
       }
     }
     if (!accept) {
-      log.warn("Wrong type of certificate present.");
-      throw new CertificateException("Wrong type of certificate present.");
+      String s = "Wrong type of client certificate. Title=" + title
+        + " class=" + getClass().getName();
+      log.warn(s);
+      throw new CertificateException(s);
     }
 
     // check whether cert is valid, then build the chain
@@ -151,8 +153,9 @@ public class TrustManager implements X509TrustManager {
     String title = CertificateUtility.findAttribute(srvdn, "t");
     if (title == null || (!title.equals(CertificateCache.CERT_TITLE_NODE)
 			  && !title.equals(CertificateCache.CERT_TITLE_SERVER))) {
-      log.warn("Wrong type of certificate present.");
-      throw new CertificateException("Wrong type of certificate present.");
+      String s = "Wrong type of server certificate. Title=" + title;
+      log.warn(s);
+      throw new CertificateException(s);
     }
 
     checkChainTrust(chain);
