@@ -608,7 +608,7 @@ public class XURLClassLoader extends SecureClassLoader {
       }
     }
     new Thread(new JarFileGarbageCollector()).start();
-    new Thread(new ProcessMonitor()).start();
+    //new Thread(new ProcessMonitor()).start();
   }
 
   private class ProcessMonitor implements Runnable {
@@ -640,7 +640,7 @@ public class XURLClassLoader extends SecureClassLoader {
   }
 
   private class JarFileGarbageCollector implements Runnable {
-    private static final int RELEASE_JAR_TIMER = 11 * 60 * 1000; // every 15 minutes
+    private static final int RELEASE_JAR_TIMER = 15 * 60 * 1000; // every 15 minutes
 
     public void run() {
       while (true) {
