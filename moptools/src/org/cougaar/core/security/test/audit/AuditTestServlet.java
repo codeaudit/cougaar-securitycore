@@ -38,9 +38,12 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.servlet.BaseServletComponent;
 
-import java.io.BufferedReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.File;
-import java.io.FileReader;
 import java.io.PrintWriter;
 
 
@@ -51,148 +54,188 @@ import java.io.PrintWriter;
  * to read the audit logs when running in Secure Mode!
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class AuditTestServlet extends BaseServletComponent {
-  private String agentName;
-  private LoggingService logging = null;
+    private String agentName;
+    private LoggingService logging = null;
 
-  /**
-   * Get Path to this Servlet
-   *
-   * @return <code>/testAuditServlet</code>
-   */
-  protected String getPath() {
-    return "/testAuditServlet";
-  }
-
-
-  /**
-   * Get AgentIdentifier Service
-   */
-  public void load() {
-    super.load();
-    AgentIdentificationService agentIdService = (AgentIdentificationService) this.serviceBroker
-      .getService(this, AgentIdentificationService.class, null);
-    agentName = agentIdService.getMessageAddress().getAddress();
-    logging = (LoggingService) this.serviceBroker.getService(this,
-        LoggingService.class, null);
-  }
-
-
-  /**
-   * Create Servlet
-   *
-   * @return TestServlet
-   */
-  protected Servlet createServlet() {
-    return new TestServlet();
-
-  }
-
-  private class TestServlet extends HttpServlet {
     /**
-     * Simply does a search on the audit web access log for  the access event
-     * generated for access this servlet.
+     * Get Path to this Servlet
      *
-     * @param request HTTP Request
-     * @param response HTTP Response
+     * @return <code>/testAuditServlet</code>
      */
-    protected void execute(HttpServletRequest request,
-      HttpServletResponse response) {
-      String responseString = "FALSE";
-      if (logging.isDebugEnabled()) {
-        logging.debug("Testing audit service");
-
-      }
-
-      //wait for 5 seconds to give time for logger to log event
-      long timeMillis = System.currentTimeMillis();
-      while (System.currentTimeMillis() >= (timeMillis + 5000)) {
-        //do nothing
-      }
-
-      //check log records 
-      String auditDirectory = AuditLogger.getLoggingDirectory();
-      String fileName = auditDirectory + File.separator + "WebLog-"
-        + System.getProperty("org.cougaar.node.name") + ".txt.0";
-      if(logging.isDebugEnabled()){
-      	logging.debug("Reading audit file:" + fileName);
-      }
-      long minTime = (timeMillis - 30000);
-      long maxTime = (timeMillis + 30000);
-      try {
-        File f = new File(fileName);
-        BufferedReader reader = new BufferedReader(new FileReader(f));
-        StringBuffer recordBuffer = new StringBuffer();
-        String dataLine = reader.readLine();
-        long _timestamp = 0;
-        String _servletName = null;
-        String _agentName = null;
-        while (dataLine != null) {
-         if(dataLine.indexOf("<record>")>=0){
-         	_timestamp=0;
-         	_agentName=null;
-         	_servletName=null;
-         }
-          if (dataLine.indexOf("<timestamp>") >= 0) {
-            String timeStampStr = dataLine.substring(dataLine.indexOf(
-                  "<timestamp>") + 11, dataLine.indexOf("</timestamp"));
-            _timestamp = Long.parseLong(timeStampStr);
-
-          }
-
-          if (dataLine.indexOf("<agent>") >= 0) {
-            _agentName = dataLine.substring(dataLine.indexOf("<agent>") + 7,
-                dataLine.indexOf("</agent>"));
-          }
-
-          if (dataLine.indexOf("<servlet>") >= 0) {
-            _servletName = dataLine.substring(dataLine.indexOf("<servlet>") + 9,
-                dataLine.indexOf("</servlet>"));
-          }
-		  if(logging.isDebugEnabled()){
-		  	logging.debug("Found:" + _timestamp +","+_servletName+","+_agentName);
-		  	logging.debug("Required:" + minTime+":"+maxTime+",testAuditServlet," + agentName);
-		  }
-          if (((_timestamp >= minTime) && (_timestamp <= maxTime))
-            && (_servletName!=null && _servletName.equals("testAuditServlet")) &&(_agentName!=null && _agentName.equals(agentName))) {
-            responseString = "TRUE";
-            dataLine = null;
-          } else {
-            dataLine = reader.readLine();
-          }
-        }
-
-        reader.close();
-      } catch (Exception e) {
-        if (logging.isErrorEnabled()) {
-          logging.error("Error accessing audit log", e);
-        }
-      }
-
-      try {
-        PrintWriter out = response.getWriter();
-        out.println(responseString);
-        out.close();
-        if (logging.isDebugEnabled()) {
-          logging.debug("Audit log check:" + responseString);
-        }
-      } catch (Exception e) {
-        if (logging.isErrorEnabled()) {
-          logging.error("Error writing audit check response to response", e);
-        }
-      }
+    protected String getPath() {
+        return "/testAuditServlet";
     }
 
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
-      doPost(request, response);
+    /**
+     * Get AgentIdentifier Service
+     */
+    public void load() {
+        super.load();
+        AgentIdentificationService agentIdService = (AgentIdentificationService) this.serviceBroker
+            .getService(this, AgentIdentificationService.class, null);
+        agentName = agentIdService.getMessageAddress().getAddress();
+        logging = (LoggingService) this.serviceBroker.getService(this,
+                LoggingService.class, null);
     }
 
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) {
-      execute(request, response);
+    /**
+     * Create Servlet
+     *
+     * @return TestServlet
+     */
+    protected Servlet createServlet() {
+        return new TestServlet();
+
     }
-  }
+
+
+    private boolean checkLogFile(String fileName, long timeMillis,
+        String agentName, String servletName) {
+        boolean foundIt = false;
+        long minTime = (timeMillis - 30000);
+        long maxTime = (timeMillis + 30000);
+        try {
+            Object[] src = new Object[2];
+            src[0] = new File(fileName);
+            src[1] = "</log>\r\n";
+            XMLFragmentReader fr = new XMLFragmentReader(src, System.out);
+            Document dom = fr.build();
+            if (dom == null) {
+            	System.err.println("" + fr.lastErr);
+                if (logging.isErrorEnabled()) {
+                    logging.error("Error parsing log file");
+                }
+            } else {
+                NodeList recordList = dom.getDocumentElement()
+                                         .getElementsByTagName("record");
+                for (int i = 0; i < recordList.getLength(); i++) {
+                    if (foundIt == true) {
+                        break;
+                    }
+
+                    Element recordNode = (Element) recordList.item(i);
+                    NodeList timestampList = recordNode.getElementsByTagName(
+                            "timestamp");
+                    NodeList agentList = recordNode.getElementsByTagName(
+                            "agent");
+                    NodeList servletList = recordNode.getElementsByTagName(
+                            "servlet");
+                    if ((timestampList.getLength() > 0)
+                        && (agentList.getLength() > 0)
+                        && (servletList.getLength() > 0)) {
+                        Node agentNode = agentList.item(0);
+                        Node servletNode = servletList.item(0);
+                        Node timeNode = timestampList.item(0);
+                        String _agentName = agentNode.getFirstChild()
+                                                     .getNodeValue();
+                        long _timestamp = Long.parseLong(timeNode.getFirstChild()
+                                                                 .getNodeValue());
+                        String _servletName = servletNode.getFirstChild()
+                                                         .getNodeValue();
+                        if (logging.isDebugEnabled()) {
+                            logging.debug("Found:" + _timestamp + ","
+                                + _servletName + "," + _agentName);
+                            logging.debug("Required:" + minTime + ":" + maxTime
+                                + ","+servletName+"," + agentName);
+                        }
+
+                        if (((_timestamp >= minTime) && (_timestamp <= maxTime))
+                            && ((_servletName != null)
+                            && _servletName.equals(servletName))
+                            && ((_agentName != null)
+                            && _agentName.equals(agentName))) {
+                            foundIt = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (logging.isErrorEnabled()) {
+                logging.error("Error accessing audit log", e);
+            }
+        }
+
+        return foundIt;
+    }
+	
+	public static void main(String args[]){
+		String fileName = args[0];
+		String agentName = args[1];
+		String timeString = args[2];
+		String servletName = args[3];
+		long timeStamp = Long.parseLong(timeString);
+		
+		AuditTestServlet ts = new AuditTestServlet();
+		boolean foundIt = ts.checkLogFile(fileName, timeStamp, agentName, servletName);
+		System.out.println("Found it:" + foundIt);
+	}
+	
+    private class TestServlet extends HttpServlet {
+        /**
+         * Simply does a search on the audit web access log for  the access
+         * event generated for access this servlet.
+         *
+         * @param request HTTP Request
+         * @param response HTTP Response
+         */
+        protected void execute(HttpServletRequest request,
+            HttpServletResponse response) {
+            String responseString = "FALSE";
+            if (logging.isDebugEnabled()) {
+                logging.debug("Testing audit service");
+
+            }
+
+            //wait for 5 seconds to give time for logger to log event
+            long timeMillis = System.currentTimeMillis();
+            while (System.currentTimeMillis() >= (timeMillis + 5000)) {
+                //do nothing
+            }
+
+            //check log records 
+            String auditDirectory = AuditLogger.getLoggingDirectory();
+            String fileName = auditDirectory + File.separator + "WebLog-"
+                + System.getProperty("org.cougaar.node.name") + ".txt.0";
+            if (logging.isDebugEnabled()) {
+                logging.debug("Reading audit file:" + fileName);
+            }
+
+            boolean logged = checkLogFile(fileName, timeMillis, agentName,"/testAuditServlet");
+            if (logged) {
+                responseString = "TRUE";
+            }
+
+            try {
+                PrintWriter out = response.getWriter();
+                out.println(responseString);
+                out.close();
+                if (logging.isDebugEnabled()) {
+                    logging.debug("Audit log check:" + responseString);
+                }
+            } catch (Exception e) {
+                if (logging.isErrorEnabled()) {
+                    logging.error("Error writing audit check response to response",
+                        e);
+                }
+            }
+        }
+
+
+        public void doGet(HttpServletRequest request,
+            HttpServletResponse response) {
+            doPost(request, response);
+        }
+
+
+        public void doPost(HttpServletRequest request,
+            HttpServletResponse response) {
+            execute(request, response);
+        }
+    }
 }
