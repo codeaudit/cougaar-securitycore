@@ -5,13 +5,19 @@ require 'framework/policy_util'
 module Cougaar
    module Actions 
       class PublishConditionalPolicies < Cougaar::Action
+        def initialize(run, joinThreads=true, timeout=1.hour)
+          super(run)
+          @timeout = timeout
+          @joinThreads = joinThreads
+        end
+
         def perform
           threads = Hash.new
           @run.society.each_enclave { |enclave|
             begin
-            ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
-            thread = Thread.fork {
-              deltaPolicy(enclave, <<END_POLICY)
+              ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
+              thread = Thread.fork {
+                deltaPolicy(enclave, <<END_POLICY)
 PolicyPrefix=%CondPolicy/
 
 Delete CertWriteAuth
@@ -29,15 +35,41 @@ Policy CertWriteAuthHigh  = [
 ] when operating mode = HIGH
 
 END_POLICY
-              ::Cougaar.logger.info "Finished publishing conditional policy for #{enclave}"
-            }
-            threads[enclave]=thread
+                ::Cougaar.logger.info "Finished publishing conditional policy for #{enclave}"
+              }
+              threads[enclave]=thread
             rescue => e
               puts e.message;
               puts e.backtrace.join("\n");
             end
           }
           @run['ConditionalPolicyThreads'] = threads
+          if (@joinThreads)
+            quitTime = Time.now + @timeout
+            while (Time.now.to_f < quitTime.to_f)
+              finishedThreads = Array.new
+              threads.each_pair { |enclave, thread|
+                if (!thread.alive?)
+                  thread.join
+                  finishedThreads << enclave
+                end
+              }
+              finishedThreads.each { |enclave|
+                threads.delete(enclave)
+              }
+              if (threads.size > 0)
+                sleep 10.seconds
+              else 
+                return nil
+              end
+            end
+            # kill the threads -- they wouldn't stop
+            threads.each_pair { |enclave, thread|
+              ::Cougaar.logger.warn "Could not complete " +
+                "PublishConditionalPolicies for enclave #{enclave}"
+              thread.kill
+            }
+          end
         end
       end # PublishConditionalPolicies
    end # Actions
