@@ -22,7 +22,6 @@
  
 package org.cougaar.core.security.crypto;
 
-
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.SimpleMessageAttributes;
 import org.cougaar.mts.base.DestinationLink;
@@ -60,6 +59,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
 
   public static final String SIGNATURE_NEEDED = 
     "org.cougaar.core.security.crypto.sign";
+  public static final String SENDING_PRINCIPAL =
+    "org.cougaar.core.security.crypto.sending_principal";
   public static final String NEW_CERT = 
     "org.cougaar.core.security.crypto.newcert";
 
@@ -105,6 +106,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     public MessageAttributes deliverMessage(AttributedMessage msg) {
       Object sign = msg.getAttribute(SIGNATURE_NEEDED);
       if (sign != null) {
+        String myPrincipal = (String) msg.getAttribute(SENDING_PRINCIPAL);
         String source = msg.getOriginator().toAddress();
         String target = msg.getTarget().toAddress();
         if (_log.isInfoEnabled()) {
@@ -119,13 +121,16 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
           signMessage = Boolean.valueOf(sign.toString()).booleanValue();
         }
         if (signMessage) {
-            _crypto.setSendNeedsSignature(target, source);
+          _crypto.setSendNeedsSignature(target, myPrincipal, source);
         } else {
           try {
             Hashtable certs = _keyRing.findCertPairFromNS(target, source);
             if (certs != null) {
               X509Certificate cert = (X509Certificate) certs.get(source);
-              _crypto.removeSendNeedsSignature(target, source, cert);
+              _crypto.removeSendNeedsSignature(target, 
+                                               myPrincipal, 
+                                               source, 
+                                               cert);
             }
           } catch (Exception e) {
             _log.warn("Can't remove signature requirement for agent pair " +
