@@ -291,7 +291,7 @@ class Main
       ParsedPolicyFile parsed = compile(_policyFile);
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
-      System.out.println("Connecting to domain manager");
+      System.out.println("Connecting to domain manager & Initializing Ontologies");
       if (_cmdLineAuth) {
         _ontology = new TunnelledOntologyConnection(_url,
                                                     _cmdLineUser,
