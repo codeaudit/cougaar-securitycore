@@ -158,9 +158,14 @@ public class ThreatConLevelReporter extends ComponentPlugin {
       InterAgentOperatingModePolicy iaomp = (InterAgentOperatingModePolicy)i.next();
       //printOMPolicy(iaomp);
       InterAgentOperatingMode iaom = (InterAgentOperatingMode)_omMap.remove(iaomp);
-      getBlackboardService().publishRemove(iaom);
-      if(debug) {
-        _log.debug("removing operating mode [ " + iaom + ", " + getAgentIdentifier() + " ]"); 
+      if(iaom != null) {
+        getBlackboardService().publishRemove(iaom);
+        if(debug) {
+          _log.debug("removing operating mode [ " + iaom + ", " + getAgentIdentifier() + " ]"); 
+        }
+      }
+      else {
+        _log.warn("removePolicies: InterAgentOperatingMode doesn't exist for " + iaomp + " from " + iaomp.getSource());
       }
     }
   }
@@ -183,7 +188,7 @@ public class ThreatConLevelReporter extends ComponentPlugin {
         } else {
           if(debug) {
           _log.debug("not modifying operating mode value since the values the same (" + newValue + ").");
-        }
+          }
         }
         // doesn't make sense to constrain an operating mode more than once
         // therefore, we take the last constrain
@@ -201,10 +206,15 @@ public class ThreatConLevelReporter extends ComponentPlugin {
       iaomp = (InterAgentOperatingModePolicy)i.next();
       //printOMPolicy(iaomp);
       om = (OperatingMode)_omMap.get(iaomp);
-      if(modifyOperatingMode(iaomp, om)) {
+      if(om != null && modifyOperatingMode(iaomp, om)) {
         getBlackboardService().publishChange(om);
         if(debug) {
           _log.debug("changed operating mode [ " + om + ", " + getAgentIdentifier() + " ]"); 
+        }
+      }
+      else  {
+        if(om == null) {
+          _log.warn("changePolicies: InterAgentOperatingMode does not exist for " + iaomp + " from " + iaomp.getSource());
         }
       }
     }    
