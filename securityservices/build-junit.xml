@@ -10,11 +10,10 @@
 
 <project basedir="." default="run-node-tests-with-report" name="Ultra*Log/securityservices/junit">
 
+    <property name="junit.test.result.path" value="${securityservices.results}/${junit.test.desc}"/>
+
     <target name="init-junit">
-      <property name="junit.test.result.path" value="${securityservices.results}/${junit.test.desc}"/>
-
       <mkdir dir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE"/>
-
       <!-- Remove old results -->
       <delete dir="${junit.test.result.path}"/>
       <!-- Create output directory for Junit test -->
@@ -22,7 +21,7 @@
     </target>
 
     <!-- Build the Junit test package -->
-    <target name="build-junit-tests">
+    <target name="build-junit-tests" depends="init-junit">
         <echo message="+++++ Building Junit tests"/>
         <javac classpathref="securityservices.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
@@ -46,7 +45,7 @@
     </target>
 
     <!-- install junit files -->
-    <target name="install-junit-tests" depends="init-junit">
+    <target name="install-junit-tests">
         <echo message="+++++ Installing Junit test files"/>
         <copy todir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE">
             <fileset dir="${securityservices.regress}/config">
@@ -80,7 +79,7 @@
 
 	  <test name="test.org.cougaar.core.security.simul.NodeServerTest"
                 haltonfailure="no" haltonerror="no"
-                todir="${securityservices.results}" >
+                todir="${junit.test.result.path}" >
 	    <formatter type="xml" />
 	  </test>
        </junit>
