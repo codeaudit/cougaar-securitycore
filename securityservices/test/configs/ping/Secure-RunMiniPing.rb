@@ -7,9 +7,8 @@ $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
 
 # Uncomment the following two lines if working in the CSI testbed
-$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
-$:.unshift File.join(CIP, 'csmart', 'assessment', 'scripts') 
-require 'framework/scripting'
+$:.unshift File.join(CIP, 'csmart', 'lib') 
+require 'security/lib/scripting'
  
 require 'cougaar/scripting' 
 #require './create_society.rb' 
@@ -98,7 +97,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   do_action "SetAcmeUser" 
   do_action "BuildConfigJarFiles" 
 
-  do_action "CleanupSociety"
+  #do_action "CleanupSociety"
   do_action "VerifyHosts" 
   #do_action "ConnectOperatorService"
   #do_action "ClearPersistenceAndLogs"
