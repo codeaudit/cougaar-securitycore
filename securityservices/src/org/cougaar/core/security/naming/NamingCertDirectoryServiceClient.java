@@ -70,27 +70,16 @@ public class NamingCertDirectoryServiceClient {
   public boolean updateCert(CertificateEntry certEntry) throws Exception {
     X509Certificate c = (X509Certificate)certEntry.getCertificate();
     String dname = c.getSubjectDN().getName();
-    String cname = CertificateUtility.findAttribute(dname, "cn");
+    String cname = new X500Name(dname).getCommonName();
 
     NamingCertEntry entry = null;
-
-    if (whitePagesService == null) {
-      whitePagesService = (WhitePagesService)
-        sb.getService(this, WhitePagesService.class, null);
-    }
-    if (whitePagesService == null) {
-      throw new Exception("Cannot get white page service.");
-    }
-
-    if (log.isDebugEnabled()) {
-      log.debug("updating NS for " + dname);
-    }
 
     // node cert need to be there before anything else can be published
     if (!nodeupdated) {
       if (!cname.equals(NodeInfo.getNodeName())) {
         if (log.isDebugEnabled()) {
-          log.debug("storing " + dname + " before node cert registers to naming");
+          log.debug("storing " + dname
+            + " before node cert registers to naming");
         }
 
         certCache.put(dname, certEntry);
@@ -107,6 +96,19 @@ public class NamingCertDirectoryServiceClient {
         }
         certCache.clear();
       }
+    }
+
+    if (whitePagesService == null) {
+      whitePagesService = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+    }
+    if (whitePagesService == null) {
+      log.warn("Cannot get white page service.");
+      return false;
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("updating NS for " + dname);
     }
 
     AddressEntry ael = whitePagesService.get(cname,
