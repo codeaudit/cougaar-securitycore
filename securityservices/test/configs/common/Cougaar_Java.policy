@@ -92,19 +92,6 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}*" {
 // Tomcat 4.0 requires these permissions and therefore we must grant
 // them to all classes in the call chain.
 
-grant {
-        permission java.lang.RuntimePermission "getClassLoader";
-        permission java.lang.RuntimePermission "getClassLoader";
-        permission java.lang.RuntimePermission "createClassLoader";
-        permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
-        permission java.util.PropertyPermission "javax.xml.parsers.DocumentBuilderFactory", "read";
-	permission java.util.PropertyPermission "*", "read,write";
-	permission java.util.PropertyPermission "java.vm.info", "read,write";
-        permission java.io.FilePermission "*", "read, write";
-        permission java.io.FilePermission "${/}*", "read, write";
-        permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
-};
-
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar" signedBy "privileged"  {
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
