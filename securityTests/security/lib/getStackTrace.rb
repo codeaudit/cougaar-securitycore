@@ -103,7 +103,7 @@ class GetStackTrace < SecurityStressFramework
       response = @run.comms.new_message(host).set_body("command[list_java_pids]").request(60)
       if (response != nil)
         parsePids(response.body).each { |node, pid|
-          if (node.name == nodename)
+          if (node == nodename)
             nodeInfo.java_pid = pid
             break
           end
@@ -112,7 +112,7 @@ class GetStackTrace < SecurityStressFramework
       response = @run.comms.new_message(host).set_body("command[list_xml_nodes]").request(60)
       if (response != nil)
         parsePids(response.body).each { |node, pid|
-          if (node.name == nodename)
+          if (node == nodename)
             nodeInfo.node_pid = pid
             break
           end
