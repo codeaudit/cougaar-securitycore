@@ -2081,7 +2081,8 @@ public class DirectoryKeyStore
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
-        log.warn("Can't get certificate for " + alias + " Reason: " + e);
+        log.warn("Can't get certificate for " + alias + " Reason: " + e
+	  + ". Reply from CA is:" + reply);
       }
     }
     return privatekey;

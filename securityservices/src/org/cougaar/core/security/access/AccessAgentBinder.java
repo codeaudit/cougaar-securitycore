@@ -35,6 +35,7 @@ public class AccessAgentBinder
   extends ServiceFilterBinder 
   implements AgentBinder {
 
+  private ServiceBroker serviceBroker;
   private LoggingService log;
 
   public  AccessAgentBinder (BinderFactory bf,Object child) {
@@ -49,9 +50,19 @@ public class AccessAgentBinder
    */
   public MessageAddress getAgentIdentifier() {
     AgentBinder ab = (AgentBinder) getChildBinder();
+    if (ab == null) {
+      log.error("Unable to get child binder");
+      throw new RuntimeException("AccessAgentBinder: Unable to get child binder");
+    }
+
     MessageAddress ret = ab.getAgentIdentifier();
+    if (log == null) {
+      serviceBroker = getServiceBroker();
+      log = (LoggingService) serviceBroker.getService(this,LoggingService.class, null);
+    }
+
     if (log.isDebugEnabled()) {
-      log.debug("Agent "+ret+" wrapper: get agent-id from binder "+ab);
+      log.debug("getAgentIdentifier of agent "+ret);
     }
     return ret;
   }
@@ -67,7 +78,7 @@ public class AccessAgentBinder
     MessageAddress addr = ab.getAgentIdentifier();
     Agent ret = ab.getAgent();
     if (log.isDebugEnabled()) {
-      log.debug("Agent "+addr+" wrapper: get agent from binder "+ab);
+      log.debug("getAgent of agent " + addr);
     }
     return ret;
   }
@@ -93,7 +104,10 @@ public class AccessAgentBinder
     return new AccessAgentServiceBroker(sb);
   }
 
-  protected class AccessAgentBinderProxy extends ServiceFilterContainerProxy implements AgentManagerForBinder {
+  protected class AccessAgentBinderProxy
+    extends ServiceFilterContainerProxy
+    implements AgentManagerForBinder
+  {
     public void registerAgent(Agent agent) {
       //just passing through
       getAgentManager().registerAgent(agent);
@@ -104,15 +118,16 @@ public class AccessAgentBinder
     
   }
   
-  protected class AccessAgentServiceBroker extends FilteringServiceBroker {
-
+  protected class AccessAgentServiceBroker
+    extends FilteringServiceBroker
+  {
     public AccessAgentServiceBroker(ServiceBroker sb) {
       super(sb);
     }
     
-    protected Object getServiceProxy(Object service,Class serviceclass,Object client)  {
+    protected Object getServiceProxy(Object service, Class serviceclass, Object client)  {
       if(service instanceof MessageTransportService) {
-	ServiceBroker serviceBroker = getServiceBroker();
+	serviceBroker = getServiceBroker();
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
 	  try  {
@@ -133,9 +148,9 @@ public class AccessAgentBinder
 	if (serviceclass == null) {
 	  throw new IllegalArgumentException("Illegal service class");
 	}
+	log.debug("Creating Msg proxy. Requestor:" + client.getClass().getName()
+		  + ". Service: " + serviceclass.getName());
 	if(security != null) {
-	  log.debug("Checking Access Permission for :"+serviceclass.getName()+
-		    "\nRequestor is "+ client.getClass().getName()); 
 	  security.checkPermission(new AccessPermission(serviceclass.getName()));
 	}	
       	return new AccessAgentProxy((MessageTransportService)service,client,acps,
@@ -145,6 +160,4 @@ public class AccessAgentBinder
       return null;
     }
   }
-  
-
 }

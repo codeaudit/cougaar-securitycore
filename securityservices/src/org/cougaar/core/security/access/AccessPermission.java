@@ -26,6 +26,10 @@ package org.cougaar.core.security.access;
 import java.security.*;
 
 
+/**
+ * A Java security manager permission to access
+ * the message transport service.
+ */
 public final class AccessPermission extends BasicPermission {
 
   public AccessPermission(String name) {

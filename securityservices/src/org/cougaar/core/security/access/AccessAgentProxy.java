@@ -69,13 +69,8 @@ public class AccessAgentProxy
   private LoggingService log;
   // event publisher to publish message failure
   private static EventPublisher eventPublisher = null;
-  
-  private static MessageAddress myID = null;
-  private static AccessControlPolicyService acps;
-  private static boolean debug = false;
-  private static int infoLevel = 0;
-  private static String SECURE_PROPERTY = 
-  "org.cougaar.message.transport.secure";
+  private MessageAddress myID = null;
+  private AccessControlPolicyService acps;
   
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
@@ -86,8 +81,9 @@ public class AccessAgentProxy
     acps=myacps;
     serviceBroker = sb;
     
-    if (object instanceof Agent)
+    if (object instanceof Agent) {
       myID = ((Agent)object).getAgentIdentifier();
+    }
 
     log = (LoggingService)
       serviceBroker.getService(this,
@@ -96,10 +92,9 @@ public class AccessAgentProxy
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class, null);
-    if(log.isDebugEnabled())
-      log.debug("Access agent proxy got init:=========>");
-   
-    
+    if(log.isDebugEnabled()) {
+      log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
+    }
   }
   
   // static method used to initialize EventPublisher
@@ -113,10 +108,11 @@ public class AccessAgentProxy
    *  BEGIN MessageTransportService implementation
    */
   public void sendMessage(Message message) {
-    if(log.isDebugEnabled())
-       log.debug(" Send message of access binder called :"+message.toString());
+    if(log.isDebugEnabled()) {
+       log.debug("Send message of access binder called :"+message.toString());
+    }
 
-    if(myID != null && message.getOriginator() != myID){
+    if(myID != null && !message.getOriginator().equals(myID)){
       //not suppose to happen
       publishMessageFailure(message.getOriginator().toString(),
                             message.getTarget().toString(),
@@ -134,31 +130,26 @@ public class AccessAgentProxy
       checkOutVerbs(message);
 	
       if(ts==null) {
-	      if(log.isWarnEnabled()) {
-	        log.warn("Warning: rejecting outgoing message: " + 
-		        ((message != null)? message.toString():
-		        "Null Message"));
-	      }
-	      return;		// the message is rejected so we abort here
-      }
-      //making exceptions for SAFEMessage
-      if(message instanceof safe.comm.SAFEMessage){
-        mts.sendMessage(message);
-        return;
+	if(log.isWarnEnabled()) {
+	  log.warn("Rejecting outgoing message: " + 
+		   ((message != null)? message.toString():
+		    "Null Message"));
+	}
+	return;		// the message is rejected so we abort here
       }
       MessageWithTrust mwt;
       mwt = new MessageWithTrust(message, ts);
       mts.sendMessage(mwt);
       if(log.isDebugEnabled()) {
-	      log.debug("DONE sending Message from Access Agent proxy ====================>"+mwt.toString());
+	log.debug("DONE sending Message from Access Agent proxy"+mwt.toString());
       }
-    
     }
   }
   
   public void registerClient(MessageTransportClient client) {
-    if(log.isDebugEnabled())
-      log.debug(" registering client :============>");
+    if(log.isDebugEnabled()) {
+      log.debug("Registering client: " + client.getMessageAddress().toAddress());
+    }
     if(mts!=null) {
       mtc=client;
       mts.registerClient(this);
@@ -168,7 +159,7 @@ public class AccessAgentProxy
   
   public void unregisterClient(MessageTransportClient client) {
     if(log.isDebugEnabled())
-      log.debug("un registering client :============>");
+      log.debug("un registering client");
     if(mts!=null) {
       mtc=null;
       mts.unregisterClient(this);
@@ -220,89 +211,89 @@ public class AccessAgentProxy
   }
   
   public void receiveMessage(Message m)  {
-    if(mtc!=null) {
+    if(mtc == null) {
+      log.warn("Message Transport Client is null");
+      return;
+    }
+    if(log.isDebugEnabled())
+      log.debug("Received message of Access agent proxy in :"
+		+ getMessageAddress().toString() +" : "+ m.toString());
+    if (m instanceof MessageWithTrust ) {
       if(log.isDebugEnabled())
-	      log.debug(" received message of Access agent proxy in :"
-		      + getMessageAddress().toString() +"  :        "+ m.toString());
-      if (m instanceof MessageWithTrust ) {
-	      if(log.isDebugEnabled())
-	        log.debug(" Got instance of MWT===================>");
-	      MessageWithTrust mwt = (MessageWithTrust)m;
-	      if (mwt == null) {
-	        if(log.isWarnEnabled()) {
-	          log.warn("WARNING: message to " + mtc.getMessageAddress().toString()
-			        + " not delivered (null msg)");
-	        }
-	      }
-	
-	      Message contents =mwt.getMessage();
-	      TrustSet tset[]=mwt.getTrusts();
-	      if(contents==null) {
-	        publishMessageFailure(m.getOriginator().toString(),
-                                m.getTarget().toString(),
-                                MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
-                                m.toString());
-	        if(log.isWarnEnabled()) {
-	          log.warn("WARNING: Rejecting incoming messagewithtrust as message contents are NULL: "
-		          + m.toString());
-	        }
-	        return;
-	      }
-	
-	      if(tset==null) {
-	        mtc.receiveMessage(contents);
-	        if(log.isDebugEnabled()) {
-	          log.debug("receiving Message from Access Agent proxy ====================>");
-	        }
-	        return;
-	      }
-	
-	      checkInVerbs(contents);
-	      incomingTrust(contents, tset);
-	      String failureIfOccurred = null;
-	      if(!incomingMessageAction(contents, tset[0])) {
-	        failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_MESSAGE_ACTION;
-	        if (log.isWarnEnabled())
-	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
-		          + m.toString());
-	      }
-	      else if(!incomingAgentAction(contents)) {
-	        failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_AGENT_ACTION;
-	        if (log.isWarnEnabled())
-	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
-		          + m.toString());
-	      }
-	
-	      if(failureIfOccurred != null) {
-	        // a failure has occurred.  publish idmef message and return
-	        publishMessageFailure(m.getOriginator().toString(),
-                                m.getTarget().toString(),
-                                failureIfOccurred,
-                                m.toString());
-	        return;
-	      }
-	      
-	      if(log.isDebugEnabled()) {
-	        log.debug("DONE receiving Message from Access Agent proxy ====================>"+ contents.toString());
-	      }
-	
-	      mtc.receiveMessage(contents);
-	      return;
-      } 
-      else if(m instanceof safe.comm.SAFEMessage){
-        mtc.receiveMessage(m);
-      } 
-      else {
-	      if (log.isErrorEnabled())
-	        log.error("Not an MessageWithTrust: " + m);
-	      return;
-	    //deliverer.deliverMessage(m, dest);
+	log.debug(" Got instance of MWT");
+      MessageWithTrust mwt = (MessageWithTrust)m;
+      if (mwt == null) {
+	if(log.isWarnEnabled()) {
+	  log.warn("Message to " + mtc.getMessageAddress().toString()
+		   + " not delivered (null msg)");
+	}
       }
+	
+      Message contents =mwt.getMessage();
+      TrustSet tset[]=mwt.getTrusts();
+      if(contents==null) {
+	publishMessageFailure(m.getOriginator().toString(),
+			      m.getTarget().toString(),
+			      MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
+			      m.toString());
+	if(log.isWarnEnabled()) {
+	  log.warn("Rejecting incoming messagewithtrust as message contents are NULL: "
+		   + m.toString());
+	}
+	return;
+      }
+	
+      if(tset==null) {
+	mtc.receiveMessage(contents);
+	if(log.isDebugEnabled()) {
+	  log.debug("receiving Message from Access Agent proxy");
+	}
+	return;
+      }
+	
+      checkInVerbs(contents);
+      incomingTrust(contents, tset);
+      String failureIfOccurred = null;
+      if(!incomingMessageAction(contents, tset[0])) {
+	failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_MESSAGE_ACTION;
+	if (log.isWarnEnabled())
+	  log.warn("Rejecting incoming messagewithtrust : "
+		   + m.toString());
+      }
+      else if(!incomingAgentAction(contents)) {
+	failureIfOccurred = MessageFailureEvent.SETASIDE_INCOMING_AGENT_ACTION;
+	if (log.isWarnEnabled())
+	  log.warn("Rejecting incoming messagewithtrust : "
+		   + m.toString());
+      }
+	
+      if(failureIfOccurred != null) {
+	// a failure has occurred.  publish idmef message and return
+	publishMessageFailure(m.getOriginator().toString(),
+			      m.getTarget().toString(),
+			      failureIfOccurred,
+			      m.toString());
+	return;
+      }
+	      
+      if(log.isDebugEnabled()) {
+	log.debug("DONE receiving Message from Access Agent proxy"+ contents.toString());
+      }
+	
+      mtc.receiveMessage(contents);
+      return;
+    } 
+    else {
+      if (log.isWarnEnabled()) {
+	log.warn("Dropping message. It should be wrapped in a MessageWithTrust: "
+		 + m.toString(), new Throwable());
+      }
+      return;
     }
   }
   
   /** removes the nth directive from a directive message */
-  private  static boolean removeDirective(DirectiveMessage msg, int index) {
+  private boolean removeDirective(DirectiveMessage msg, int index) {
     Directive[] oldDirective = msg.getDirectives();
     if(oldDirective.length == 1){
       msg.setDirectives(new Directive[0]);
@@ -332,7 +323,7 @@ public class AccessAgentProxy
    * Check verb-based policy
    * @param direction true: incoming message. false: outgoing message.
    */
-  private static void checkMessage(Message msg, boolean direction) {
+  private void checkMessage(Message msg, boolean direction) {
     if(msg instanceof DirectiveMessage) {
       Directive directive[] = ((DirectiveMessage)msg).getDirectives();
       int len = directive.length;
@@ -367,8 +358,8 @@ public class AccessAgentProxy
   
   }
 
-  private static boolean matchVerb(String source, String target,
-				   Verb verb, boolean direction)  {
+  private boolean matchVerb(String source, String target,
+			    Verb verb, boolean direction)  {
 
     Object[] verbs = null;
     if (direction) {
@@ -396,6 +387,7 @@ public class AccessAgentProxy
       }
       catch(Exception e){
         //probably a cast error, quietly skip
+	log.info("Unable to match verbs:" + e);
       }
       if (v==null) continue;
 
@@ -436,11 +428,12 @@ public class AccessAgentProxy
       TrustAttribute policyAttribute = policySet.getAttribute(type);
 		
       try {
-	if(policyAttribute.compareTo(msgAttribute) < 0)
+	if(policyAttribute.compareTo(msgAttribute) < 0) {
 	  msgSet.addAttribute(policyAttribute);
+	}
       }
       catch(Exception ex) {
-	//ex.printStackTrace();
+	log.warn("Unable to compare message against policy: " + ex);
       }
     }
   }
@@ -455,9 +448,10 @@ public class AccessAgentProxy
 	 msg.getTarget().toString());
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-      log.debug("Warning: no msg outgoing trust for type = "
-			 + msg.getClass());  
+      if(log.isWarnEnabled()) {
+	log.warn("No msg outgoing trust for type = "
+		 + msg.getClass());
+      }
       return null;
     }
     if(policySet!=null){
@@ -501,8 +495,8 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-      log.debug("Warning: no access control for message type "
+      if(log.isWarnEnabled())
+      log.warn("No access control for message type "
 			 + msg.getClass());
       return true;
     }
@@ -564,9 +558,10 @@ public class AccessAgentProxy
       act = acps.getOutgoingAction(msgOrigin, trustValue);
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-        log.debug("AccessControlProxy: Warning: no access control for msg"
+      if(log.isWarnEnabled()) {
+        log.warn("AccessControlProxy: no access control for msg"
 			 + msg);
+      }
       return true;
     }
     if(act == null) {
@@ -592,9 +587,10 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-        log.debug("Warning: no msg incoming trust for type = "
-			 + msg.getClass());  
+      if(log.isWarnEnabled()) {
+        log.warn("No msg incoming trust for type = "
+		 + msg.getClass());  
+      }
       return;
     }
     if(policySet!=null){
@@ -637,9 +633,10 @@ public class AccessAgentProxy
 	(msg.getOriginator().toString(), msg.getTarget().toString());
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-        log.debug("Warning: no access control for message type "
-			 + msg.getClass());
+      if(log.isWarnEnabled()) {
+        log.warn("No access control for message type "
+		 + msg.getClass());
+      }
       return true;
     }
     if(log.isDebugEnabled())
@@ -688,13 +685,13 @@ public class AccessAgentProxy
 	 (String)t.getAttribute(MissionCriticality.name).getValue());
     }
     catch(Exception ex) {
-      if(log.isDebugEnabled())
-        log.debug("Warning: no access control for message" + msg);
+      if(log.isWarnEnabled()) {
+        log.warn("No access control for message" + msg);
+      }
       return true;
     }
-    if(debug) {
-      if(log.isDebugEnabled())
-        log.debug("AccessControlProxy: action(in) = "	 + action);
+    if(log.isWarnEnabled()) {
+      log.warn("AccessControlProxy: action(in) = " + action);
     }
     if(action == null)
       return true;
