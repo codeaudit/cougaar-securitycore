@@ -26,6 +26,7 @@ module Cougaar
 # Utility Classes
 ########################################################################
 
+
     class WaitForUserManagerReady < Cougaar::Action
       def initialize(run)
         super(run)
@@ -112,7 +113,6 @@ module Cougaar
     #
         @run.info_message("killing #{node.name}")
         @run['node_controller'].stop_node(node)
-    # the sleep ensures that the node is really gone
         pw = PolicyWaiter.new(@run, policyNode.name)
         @run.info_message( "installing no audit policy")
         deltaPolicy(enclave, <<DONE)
@@ -192,19 +192,15 @@ DONE
       end
     
       def getPolicyManagerNodeFromEnclave(enclave)
-        run.society.each_node do |node|
-          node.each_facet(:role) do |facet|
-            if facet[:role] == $facetManagement
-              node.each_agent do |agent|
-                if /PolicyDomainManager/.match(agent.name) then
-                  return [node, agent]
-                end
-              end
+        run.society.each_agent do |agent|
+          agent.each_facet(:role) do |facet|
+            if facet[:role] == $facetPolicyManagerAgent then
+               return [agent.node, agent]
             end
           end
         end
       end
-    
+
       def getNonManagementNode(enclave)
         return run.society.nodes["RearWorkerNode"]
       end
@@ -347,7 +343,7 @@ DONE
             is a subset of the set { %urn:Agent##{@agentName2} }
           ]
 DONE
-        if (!pw1.wait(120) || !pw2.wait(120)) then
+        if (!pw1.wait(200) || !pw2.wait(120)) then
           @run.info_message("no  policy received - test failed")
           return
         end
@@ -367,6 +363,97 @@ DONE
 
 
 #---------------------------------End Test------------------------------
+
+#---------------------------------Test----------------------------------
+
+    class CommunicationTest02 < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+        @enclave = "Rear"
+        @agentName1 = "testBounceOne"
+        @agentName2 = "testBounceTwo"
+        @msgPingTimeout = 20.seconds
+        @web = SRIWeb.new()
+      end
+
+      def initUris
+        @sendUri = 
+           "#{@agent1.uri}/message/send?address=#{@agentName2}&Send=Submit"
+        @checkUri = "#{@agent1.uri}/message/list"
+        @deleteUri = "#{@agent1.uri}/message/delete?uid="
+      end
+
+      def clearRelays
+        regexp=Regexp.compile"#{@agentName1}\/([0-9]+)[^0-9]"
+        relays = @web.getHtml(@checkUri).body
+        while m = regexp.match(relays) do
+          #puts m
+          #puts m[1]
+          @web.getHtml("#{@deleteUri}#{@agentName1}/#{m[1]}")
+          relays = @web.getHtml(@checkUri).body
+        end
+      end
+
+      def checkSend
+        clearRelays
+        @web.getHtml(@sendUri)
+        sleep(@msgPingTimeout)
+        result = @web.getHtml(@checkUri).body
+        !(result.include?("no response"))
+      end
+
+      def perform
+        newTest(@run, "Comm Test 01")
+        @agent1 = @run.society.agents[@agentName1]
+        @agent2 = @run.society.agents[@agentName2]
+        initUris
+        clearRelays
+        @run.info_message("Attempting to send message")
+        if (checkSend) then
+          @run.info_message("Message sent and ack received")
+        else
+          @run.info_message("Should be able to talk - test failed")
+          return
+        end
+        pw1 = PolicyWaiter.new(@run, @agent1.node.name)
+        pw2 = PolicyWaiter.new(@run, @agent2.node.name)
+        @run.info_message("Inserting policy preventing  communication")
+        deltaPolicy(@enclave, <<DONE)
+          Agent #{@agentName1}
+          Agent #{@agentName2}
+
+          Policy StopCommunication = [ 
+            GenericTemplate
+            Priority = 3,
+            %urn:Agent##{@agentName1} is not authorized to perform
+            $Action.owl#EncryptedCommunicationAction  
+            as long as
+            the value of $Action.owl#hasDestination
+            is a subset of the set { %urn:Agent##{@agentName2} }
+          ]
+DONE
+        if (!pw1.wait(200) || !pw2.wait(120)) then
+          @run.info_message("no  policy received - test failed")
+          return
+        end
+        @run.info_message("Attempting to send another message")
+        if (checkSend) then
+          @run.info_message("message should not have been received - test failed")
+          return
+        end
+        $policyPassedCount += 1
+        @run.info_message("Test succeeded - restoring policies")
+        deltaPolicy(@enclave, <<DONE)
+          Delete StopCommunication
+DONE
+
+      end
+    end # CommunicationTest01
+
+
+#---------------------------------End Test------------------------------
+
 
 #---------------------------------Test----------------------------------
     class BlackboardTest < Cougaar::Action
@@ -436,7 +523,6 @@ DONE
 #---------------------------------End Test------------------------------
 
 
-
     class TestResults < Cougaar::Action
       def initialize(run)
         super(run)
@@ -448,9 +534,7 @@ DONE
       end
     end #Test Results
 
-
-
-    class checkRMISwitch < Cougaar::Action
+    class CheckRMISwitch < Cougaar::Action
       def initialize(run)
         super(run)
         @run = run
@@ -477,6 +561,8 @@ DONE
         @web.getHtml(@sendUri)
       end
     end
+
+
 
 
   end  # module Actions

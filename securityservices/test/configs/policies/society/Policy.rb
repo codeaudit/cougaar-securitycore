@@ -74,9 +74,9 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     "#{RULES}/security/mop/audit_servlet.rule",
     "#{RULES}/security/robustness",
     "#{RULES}/security/mts/loopback_protocol.rule",
-#    "#{RULES}/security/mts/sslRMI.rule",
-#    "#{RULES}/security/mts/http_mts.rule",
-    "#{RULES}/security/mts/https_mts.rule",
+    "#{RULES}/security/mts/sslRMI.rule",
+    "#{RULES}/security/mts/http_mts.rule",
+#    "#{RULES}/security/mts/https_mts.rule",
     "#{RULES}/security/naming",
 #    "#{RULES}/security/test/test-network-config.rule"
 
@@ -93,7 +93,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   # 
   # replace the last parameter with your jabber server's host name  
 
-  do_action "StartJabberCommunications"
+  do_action "StartCommunications"
   do_action "VerifyHosts" 
 
   do_action "BuildConfigJarFiles"
@@ -112,7 +112,15 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "ServletTest01"
   do_action "CommunicationTest01"
   do_action "DomainManagerRehydrateReset"
-
+#  do_action "CheckRMISwitch"
   do_action "TestResults"
+
+  do_action "GenericAction" do |myRun|
+# use @run for the run variable here - myRun and run doesn't work.
+# to reference one of the classes from policyTests use the following syntax:
+#   ::Cougaar::Actions::BlackboardTest.new(@run)
+    load 'debug.rb'
+  end
+
 }
 
