@@ -17,27 +17,7 @@ SUB_COMM = {"REAR"=>	[
            }
            
 # BUILD ROOT COMMUNITY
-ROOT_COMM_MGRS = ["SocietyMnRManager", "RearEnclaveMnRManager",
-                  "FwdEnclaveMnRManager", "ConusEnclaveMnRManager",
-                  "TransEnclaveMnRManager"]
-society.communities.add("ROOT-SECURITY-COMM") do |community|
-  if (society.agents[ROOT_COMM_MGRS[0]] != nil)
-    # Add manager role to the society manager
-    community.add_attribute("CommunityManager", society.agents[ROOT_COMM_MGRS[0]].node.name)
-  end
-  community.add_attribute("CommunityType", "Security")
-  for i in 0...ROOT_COMM_MGRS.length
-    agent_name = ROOT_COMM_MGRS[i]
-    community.add_agent(agent_name) do |entity|
-      entity.add_role("Member")
-      case agent_name
-      when "SocietyMnRManager"
-        entity.add_role("Manager")
-        entity.add_role("Root")
-      end
-    end
-  end
-end
+ROOT_COMM_MGRS = ["SocietyMnRManager"]
 
 society.each_enclave do |enclave|
 
@@ -61,6 +41,7 @@ society.each_enclave do |enclave|
           when "#{enclave.capitalize}EnclavePersistenceManager"
             entity.add_role("PersistenceManager")
           when "#{enclave.capitalize}EnclaveMnRManager"
+            ROOT_COMM_MGRS << agent.name
             entity.add_role("Manager")
           end
         end
@@ -110,3 +91,18 @@ society.each_enclave do |enclave|
   end
   
 end # enclaves
+
+society.communities.add("ROOT-SECURITY-COMM") do |community|
+  community.add_attribute("CommunityType", "Security")
+  for i in 0...ROOT_COMM_MGRS.length
+    agent_name = ROOT_COMM_MGRS[i]
+    community.add_agent(agent_name) do |entity|
+      entity.add_role("Member")
+      case agent_name
+      when "SocietyMnRManager"
+        entity.add_role("Manager")
+        entity.add_role("Root")
+      end
+    end
+  end
+end
