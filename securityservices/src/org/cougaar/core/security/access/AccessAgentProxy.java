@@ -346,30 +346,28 @@ public class AccessAgentProxy
           log.debug("Wrapping trust, it is not wrapped in a MessageWithTrust: "
              + m.toString());
         }
-        TrustSet[] ts = null;
+        
+        int len;
         if(m instanceof DirectiveMessage){
           Directive directive[] = 
             ((DirectiveMessage)m).getDirectives();
-          int len = directive.length;
-          ts = new TrustSet[len];
-          Vector v = new Vector(len);
+          len = directive.length;
 
-          for(int i = 0; i < len; i++) {
-            v.add(makeLowestTrust());
-          }
-          
-          ts = (TrustSet[])v.toArray();
         }
         else{
-          ts = new TrustSet[1];
-          ts[0] = makeLowestTrust();
+          len = 1;
+        }
+        
+        TrustSet[] ts = new TrustSet[len];
+        for(int i = 0; i < len; i++) {
+          ts[i] = makeLowestTrust();
         }
         MessageWithTrust newMessage = new MessageWithTrust(m, ts);
-        if (log.isDebugEnabled()) {
-          log.debug("Wrapping message:" + m + "with lowest Trust: "
-             + ts[0].toString());
-        }
         receiveMessage(newMessage);
+        
+        if (log.isDebugEnabled()) {
+          log.debug("Wrapping message:" + m + "with lowest Trust.");
+        }
         return;
       }
     }
