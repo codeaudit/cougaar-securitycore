@@ -7,8 +7,8 @@ require 'security/lib/caDomain'
 #
 #
 class Security4a1Experiment < SecurityStressFramework
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @revokedAgent = nil
       @modifiedAgent = nil
       @revokeDetection = false

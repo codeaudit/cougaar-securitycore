@@ -1,4 +1,10 @@
 
+# $configuredSecurityTests contains the list of tests that should be
+# executed during a given experiment.
+if !defined? $configuredSecurityTests
+  $configuredSecurityTests = []
+end
+
 module Cougaar
   module Actions
 
@@ -40,7 +46,15 @@ module Cougaar
           rescue => ex
             if ex.message =~ /private method `new' called/
 	      ret = eval("#{stressorClass}.instance(run)")
-            end
+            else
+              raise ex
+	    end
+          end
+	  begin
+	    # Get the names of the stresses.
+            $configuredSecurityTests.concat( ret.getStressIds() )
+          rescue
+            logWarningMsg "The stressor class should implement a getStressIds() method"
           end
 	  ret.myexperiment = MyExperiment.new(run)
 	  setMyRun(run)
@@ -62,9 +76,9 @@ module Cougaar
 	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logInfoMsg "Unable to start stress: #{@stressorClassName}" + ex
+	  logInfoMsg "Unable to start stress: #{@stressorClassName} - " + ex
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
-             "#{ex}\n#{ex.backtrace.join("\n")}")
+             "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end
       end
@@ -81,7 +95,7 @@ module Cougaar
 	rescue => ex
 	  logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
-               "#{ex}\n#{ex.backtrace.join("\n")}")
+               "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	end
 	t2 = Time.now
 	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName} in #{t2 - t1} seconds"
@@ -96,9 +110,9 @@ module Cougaar
 	  @stressor = Stressors.getStressInstance(className, run)
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
-	  logInfoMsg "Unable to start stress: #{className}" + ex
+	  logInfoMsg "Unable to start stress: #{className} - " + ex
           saveResult(false, "Stress: #{className}.#{methodName}",
-             "#{ex}\n#{ex.backtrace.join("\n")}")
+             "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end
 
@@ -125,7 +139,7 @@ module Cougaar
 	    rescue => ex
 	      logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
               saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", 
-                  "#{ex}\n#{ex.backtrace.join("\n")}")
+                  "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	    end
 	    id += 1
 	    sleep @interval

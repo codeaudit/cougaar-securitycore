@@ -1,4 +1,8 @@
 class CheckCACerts < SecurityStressFramework
+   def initialize(run)
+     super(run)
+   end
+
    def postLoadSociety
       @caDomains = CaDomains.instance
       @caDomains.ensureExpectedEntities

@@ -12,10 +12,14 @@ class SecurityMop21 < AbstractSecurityMop
 
   def initialize(run)
     super(run)
-    @name = "2-1"
+    @name = "2.1"
     @descript = "Percentage of sensitive data elements in computer memory that were available to an unauthorized entity"
     @detail = []
     reset
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.1"]
   end
 
   def reset
@@ -79,7 +83,7 @@ class SecurityMop21 < AbstractSecurityMop
       if (@score == 100.0)
 	success = true
       end
-      saveResult(success, 'mop2.1',@info)
+      saveResult(success, 'SecurityMop2.1',@info)
 
     rescue Exception => e
 puts "error, probably in compileResults" if $VerboseDebugging
@@ -159,8 +163,12 @@ end
 class SecurityMop22 < AbstractSecurityMop
   def initialize(run)
     super(run)
-    @name = "2-2"
+    @name = "2.2"
     @descript = "Percentage of sensitive data elements stored on disk that were available to an unauthorized entity"
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.2"]
   end
 
   def calculate
@@ -175,7 +183,7 @@ class SecurityMop22 < AbstractSecurityMop
     if (@score == 100.0)
       success = true
     end
-    saveResult(success, 'mop2.2', @info)
+    saveResult(success, 'SecurityMop2.2', @info)
   end
 
   def scoreText
@@ -204,8 +212,12 @@ end
 class SecurityMop23 < AbstractSecurityMop
   def initialize(run)
     super(run)
-    @name = "2-3"
+    @name = "2.3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.3"]
   end
 
   def scoreText
@@ -225,7 +237,7 @@ class SecurityMop23 < AbstractSecurityMop
     hosts = []
     agentnames.each do |agentname|
       if agentname.kind_of?(String)
-        agent = getRun.society.agents[agentname]
+        agent = run.society.agents[agentname]
       else
         agent = agentname
       end
@@ -280,14 +292,14 @@ end
 
 def doRemoteCmd(hostname, cmd, timeout=30)
   if hostname.kind_of?(String)
-    host = getRun.society.hosts[hostname]
+    host = run.society.hosts[hostname]
   else
     host = hostname
   end
   cmd = "command[rexec]#{cmd}"
   logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}" if $VerboseDebugging
   begin
-    answer = getRun.comms.new_message(host).set_body(cmd).request(timeout)
+    answer = run.comms.new_message(host).set_body(cmd).request(timeout)
     logInfoMsg "doRemoteCmd answer #{hostname}: #{answer.class}, #{answer}" if $VerboseDebugging
     if answer
       return getRexecBody(answer.to_s).chomp

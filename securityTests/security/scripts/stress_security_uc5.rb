@@ -16,6 +16,5 @@ require 'security/lib/stresses/javaPolicy'
 
 insert_before :society_running do
   # Java policy checks
-  do_action  "StartScheduledStress", "Stress5f", "postConditionalNextOPlanStage", 0.minute, 5.minute
+  do_action  "StartScheduledStress", "Stress5f", "postConditionalNextOPlanStage", 0.minute, 10.minute
 end
-

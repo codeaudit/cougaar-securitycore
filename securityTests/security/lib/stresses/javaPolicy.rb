@@ -6,7 +6,11 @@ require "security/lib/cougaarMods"
 
 class Stress5f < SecurityStressFramework
   def initialize(run)
-    @run = run
+    super(run)
+  end
+
+  def getStressIds()
+    return ["Stress5f"]
   end
 
   def postConditionalNextOPlanStage
@@ -20,7 +24,7 @@ class Stress5f < SecurityStressFramework
       success = false
     end
     #logInfoMsg description
-    saveResult(success, '5f', description);
+    saveResult(success, 'Stress5f', description);
 
     # ####################
     # Unauthorized servlet
@@ -32,7 +36,7 @@ class Stress5f < SecurityStressFramework
       success = false
     end
     #logInfoMsg description
-    saveResult(success, '5f', description);
+    saveResult(success, 'Stress5f', description);
 
   end # postConditionalNextOPlanStage
 
@@ -51,7 +55,7 @@ class Stress5f < SecurityStressFramework
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-	saveUnitTestResult('5f', "Unexpected response: #{result} at #{goodurl}" )
+	saveUnitTestResult('Stress5f', "Unexpected response: #{result} at #{goodurl}" )
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)
@@ -77,7 +81,7 @@ class Stress5f < SecurityStressFramework
       if result.to_s =~ /TRUE/
         @numberOfSuccess = @numberOfSuccess + 1
       else
-	saveUnitTestResult('5f', "Unexpected response: #{result} at #{badurl}")
+	saveUnitTestResult('Stress5f', "Unexpected response: #{result} at #{badurl}")
       end
     end
     result = 100 * (@numberOfSuccess.to_f / @numberOfAgents.to_f)

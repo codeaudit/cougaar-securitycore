@@ -7,8 +7,8 @@ require 'security/lib/rules'
 
 class Security3c4 < SecurityStressFramework
 
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @testAgent = true
 
       @untrust_node = nil

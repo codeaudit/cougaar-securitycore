@@ -6,8 +6,12 @@ class SecurityMop26 < AbstractSecurityMop
   
   def initialize(run)
     super(run)
-    @name = "2-6"
+    @name = "2.6"
     @descript = "Percentage of all designated user actions in violation of policy that are recorded as policy violations"
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.6"]
   end
 
   def to_s

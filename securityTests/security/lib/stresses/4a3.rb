@@ -4,8 +4,8 @@ require 'security/lib/dataProtection'
 require 'security/lib/caDomain'
 
 class Security4a3Experiment < SecurityStressFramework
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @expiredAgent = nil
       @agent_node = nil
       @success = false

@@ -7,7 +7,7 @@ require 'security/lib/rules'
 class Security3c2 < SecurityStressFramework
 
    def initialize(run)
-      @run = run
+     super(run)
       @useIdmef = true
       @revoked_node = nil
       @revoked_agent = nil
@@ -16,6 +16,10 @@ class Security3c2 < SecurityStressFramework
       @msg_nodes = {}
       @src_agent = nil
       @dest_agent = nil
+   end
+
+   def getStressIds()
+     return ["Stress5k103", "Stress5k104", "Stress3c2", "Stress3c5"]
    end
 
    def postLoadSociety
@@ -97,7 +101,8 @@ class Security3c2 < SecurityStressFramework
       sleep(10.minutes)
       puts "thread awakens"
 
-      @dest_agent = @certRevocation.selectAgent
+      #@dest_agent = @certRevocation.selectAgent
+      @dest_agent = getValidDestAgent()
       agent1 = @run.society.agents[agent]
       agent2 = @run.society.agents[@dest_agent]
 
@@ -116,11 +121,22 @@ class Security3c2 < SecurityStressFramework
 
    end
 
+   def getValidDestAgent
+     agentName = nil
+     run.society.each_agent(true) do |agent|
+       if !(agent.has_facet? "AgentAttacker")
+	 agentName = agent
+	 break
+       end
+     end
+     return agentName
+   end
+
    def getAttackAgent
      agentName = nil
      run.society.each_agent(true) do |agent|
        if agent.has_facet? "AgentAttacker"
-	 agentName = agent.name
+	 agentName = agent
 	 break
        end
      end
@@ -131,7 +147,7 @@ class Security3c2 < SecurityStressFramework
      nodeName = nil
      run.society.each_node do |node|
        if node.has_facet? "NodeAttacker"
-	 nodeName = node.name
+	 nodeName = node
 	 break
        end
      end
@@ -140,10 +156,14 @@ class Security3c2 < SecurityStressFramework
 
    def revokeAgentAndNode
      Thread.fork {
-       @revoked_agent = getAttackAgent()
-       @revoked_node = getAttackNode()
-       revokeAgent(@revoked_agent)
-       revokeNode(@revoked_node)
+       begin
+	 @revoked_agent = getAttackAgent()
+	 @revoked_node = getAttackNode()
+	 revokeAgent(@revoked_agent.name)
+	 revokeNode(@revoked_node.name)
+       rescue => ex
+	 saveUnitTestResult('Stress3c2', "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
+       end
      }
    end
 
@@ -160,20 +180,22 @@ class Security3c2 < SecurityStressFramework
    def testMessage(agent1, agent2)
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
-                       '3c21', "Send message with expired cert IDMEF",
-                       [ true, false, false, false ],
-                       agent1.node.agent.name)
+        '3c21',
+	"Send message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.",
+        [ true, false, false, false ],
+        agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
-                       '3c21', "Receive message with expired cert IDMEF", 
-                       [ true, false, false, false ],
-                       agent1.node.agent.name)
+        '3c21',
+	"Receive message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.", 
+        [ true, false, false, false ],
+        agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-                       '3c9', "Send message with expired cert", 
-                       [ true, false, false, false ])
+            '3c9', "Send message with expired cert: #{agent1.name} => #{agent2.name}.", 
+             [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-                       '3b9', "Receive message with expired cert", 
-                       [ true, false, false, false ])
+            '3b9', "Receive message with expired cert: #{agent1.name} => #{agent2.name}.", 
+            [ true, false, false, false ])
    end
 
    def printSummary

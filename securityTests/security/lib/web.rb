@@ -145,7 +145,7 @@ puts "<#{e.message.inspect}>" if $WebVerboseDebugging
 
   def postHtml(url, params=[], timeout=5.minutes, header={"content-type"=>"application/x-www-form-urlencoded"}, relocationRetries=7)
     if relocationRetries < 0
-      raise "Too many web redirections: '#{url}'"
+      raise "Too many web redirections: #{relocationRetries} - '#{url}'"
     end
     response = postHtmlAux(url, params, timeout, header)
     if response.status == 302
@@ -155,8 +155,8 @@ puts "<#{e.message.inspect}>" if $WebVerboseDebugging
       return postHtml(location, params, timeout, header, relocationRetries-1)
     end
     if response.status == 401
-      puts "unauthorized access attempt, will try again (#{url}) ..."
-      sleep 10.seconds
+      logInfoMsg "Unauthorized access attempt, will try again (#{url}) ..."
+      sleep 30.seconds
       return postHtml(url, params, timeout, header, relocationRetries-1)
     end
 #puts "status=#{response.code}"

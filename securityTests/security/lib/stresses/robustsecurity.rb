@@ -4,9 +4,9 @@ require 'security/lib/misc'
 require 'security/lib/common_security_rules'
 
 class StressDisturbAgent < SecurityStressFramework
-  def initialize(testNum, testName,
+  def initialize(run, testNum, testName,
                  waitTime = 10.minutes, delay = 0)
-    super()
+    super(run)
     @delay = delay
     @waitTime = waitTime
     @testNum = testNum
@@ -53,9 +53,9 @@ end # StressDisturbAgent
 
 =begin
 class StressMoveAgent < StressDisturbAgent
-  def initialize(testNum, testName,
+  def initialize(run, testNum, testName,
                  agent, waitTime = 10.minutes, delay = 0)
-    super(testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
+    super(run, testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
   end
 
   def postConditionalNextOPlanStage
@@ -70,9 +70,9 @@ class StressMoveAgent < StressDisturbAgent
 end # StressMoveAgent
 
 class StressRestartAgent < StressDisturbAgent
-  def initialize(testNum, testName, agent, 
+  def initialize(run, testNum, testName, agent, 
                  waitTime = 10.minutes, midDelay = 3.minutes, delay = 0)
-    super(testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
+    super(run, testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
     @midDelay = midDelay
   end
   
@@ -95,9 +95,9 @@ class StressRestartAgent < StressDisturbAgent
 end # StressRestartAgent
 
 class StressRebootAgent < StressDisturbAgent
-  def initialize(testNum, testName, agent, 
+  def initialize(run, testNum, testName, agent, 
                  waitTime = 10.minutes, midDelay = 3.minutes, delay = 0)
-    super(testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
+    super(run, testNum, testName, agent, "#{agent.upcase}-NODE", waitTime, delay)
     @midDelay = midDelay
   end
   
@@ -121,9 +121,9 @@ end # StressRebootAgent
 =end
 
 class StressMRRAgent < StressDisturbAgent
-  def initialize(testNum, testName, agent,
+  def initialize(run, testNum, testName, agent,
                  waitTime = 10.minutes, midDelay = 3.minutes, delay = 0)
-    super(testNum, testName, waitTime, delay)
+    super(run, testNum, testName, waitTime, delay)
     @midDelay = midDelay
     @agent = agent
   end
@@ -201,8 +201,8 @@ class Stress6a1 < StressMRRAgent
     "Reboot M&R Manager",
     "Restart M&R Manager"
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "ConusEnclaveMnRManager",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "ConusEnclaveMnRManager",
           10.minutes, 6.minutes, 0.seconds)
   end
 end # Stress6a1
@@ -214,15 +214,15 @@ class Stress6b1 < StressMRRAgent
     "Reboot CRL Manager",
     "Restart CRL Manager"
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "ConusEnclaveCrlManager",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "ConusEnclaveCrlManager",
           10.minutes, 6.minutes, 0.minutes)
   end
 end # Stress6b1
 
 class Stress6c1 < StressDisturbAgent
-  def initialize
-    super("6c1", "Reboot CA", 10.minutes, 0.minutes)
+  def initialize(run)
+    super(run, "6c1", "Reboot CA", 10.minutes, 0.minutes)
   end
 
   def postConditionalNextOPlanStage
@@ -253,8 +253,8 @@ class Stress6d1 < StressMRRAgent
     "Reboot Policy Manager",
     "Restart Policy Manager"
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "ConusPolicyDomainManager",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "ConusPolicyDomainManager",
           10.minutes, 6.minutes, 0.minutes)
   end
 end # Stress6d1
@@ -267,8 +267,8 @@ class Stress6e1 < StressMRRAgent
     "Reboot Persistence Manager",
     nil
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "ConusEnclavePersistenceManager",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "ConusEnclavePersistenceManager",
           10.minutes, 6.minutes, 0.minutes)
   end
 end # Stress6e1
@@ -280,8 +280,8 @@ class Stress6f1 < StressMRRAgent
     "Reboot User Manager",
     "Restart User Manager"
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "ConusUserAdminAgent",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "ConusUserAdminAgent",
           10.minutes, 6.minutes, 0.minutes)
   end
 end # Stress6f1
@@ -294,8 +294,8 @@ class Stress6g1 < StressMRRAgent
     "Reboot Security Console Manager",
     "Restart Security Console Manager"
   ]
-  def initialize
-    super(STRESS_NUMS, STRESS_NAMES, "RearEnclaveConsoleManager",
+  def initialize(run)
+    super(run, STRESS_NUMS, STRESS_NAMES, "RearEnclaveConsoleManager",
           10.minutes, 6.minutes, 0.minutes)
   end
 end # Stress6g1

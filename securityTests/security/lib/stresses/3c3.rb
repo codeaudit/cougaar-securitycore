@@ -5,8 +5,8 @@ require 'security/lib/rules'
 
 class Security3c3 < SecurityStressFramework
 
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @useIdmef = true
       @expired_node = nil
       @expired_agent_node = nil

@@ -156,7 +156,7 @@ end
 
 def runCommandAs(agent, user, command)
   #Cougaar::myexperiment.runCommandAs(agent, user, command)
-  getRun.myexperiment.runCommandAs(agent, user, command)
+  run.myexperiment.runCommandAs(agent, user, command)
 end
 
 
@@ -216,7 +216,7 @@ end
 # Call this when you can't recover from an error
 def criticalError(msg='Critical error')
   logExceptionMsg msg
-  do_action 'StopSociety' if getRun
+  do_action 'StopSociety' if run
   exit 1
 end
 
@@ -252,7 +252,7 @@ end
 
 
 def getAgent(agent)
-  getRun.society.agents[agent]
+  run.society.agents[agent]
 end
 
 
@@ -410,41 +410,54 @@ def getTestResultXmlFile()
 end
 
 $TestResults = []
-def saveResult(pass, testnum, testname)
+def saveResult(pass, testnum, testname, tagId="testId")
   success = "SUCCESS"
   if !pass
     success = "FAILURE"
   end
-  saveResultsToFile(pass, success, testnum, testname)
+  saveResultsToFile(pass, success, testnum, testname, tagId)
   s = [success, testnum, testname].join("\t")
   resultSummary(s)
   $TestResults << [ pass, testnum, testname ]
 end # saveResult
 
 def saveUnitTestResult(testnum, description)
-  file = getTestResultXmlFile()
-  file.print("<unitTestResult>\n")
-  file.print("  <date>#{Time.now.to_s}</date>\n")
-  file.print("  <testId>#{testnum}</testId>\n")
-  file.print("  <description>#{description}</description>\n")
-  file.print("</unitTestResult>\n")
-  file.close();
+  Thread.critical = true
+  begin
+    file = getTestResultXmlFile()
+    file.print("<unitTestResult>\n")
+    file.print("  <date>#{Time.now.to_s}</date>\n")
+    file.print("  <testId>#{testnum}</testId>\n")
+    file.print("  <description>#{description}</description>\n")
+    file.print("</unitTestResult>\n")
+    file.close();
+  rescue => ex
+    logWarningMsg "Unable to save test result: #{ex}"
+  end
+  Thread.critical = false
 end # saveUnitTestResult
 
 
-def saveResultsToFile(pass, success, testnum, testname)
-  file = getTestResultFile()
-  file.print(success + "\t" + testnum + "\t" + testname + "\n");
-  file.close();
-
-  file = getTestResultXmlFile()
-  file.print("<event>\n")
-  file.print("  <date>#{Time.now.to_s}</date>\n")
-  file.print("  <testId>#{testnum}</testId>\n")
-  file.print("  <success>#{pass}</success>\n")
-  file.print("  <description>#{testname}</description>\n")
-  file.print("</event>\n")
-  file.close();
+def saveResultsToFile(pass, success, testnum, testname, tagId)
+  Thread.critical = true
+  begin
+    file = getTestResultFile()
+    file.print(success + "\t" + testnum + "\t" + testname + "\n");
+    file.close();
+    
+    file = getTestResultXmlFile()
+    file.print("<event>\n")
+    file.print("  <date>#{Time.now.to_s}</date>\n")
+    file.print("  <#{tagId}>#{testnum}</#{tagId}>\n")
+    file.print("  <success>#{pass}</success>\n")
+    file.print("  <description>#{testname}</description>\n")
+    file.print("</event>\n")
+    file.close();
+  rescue => ex
+    logWarningMsg "Unable to save test result: #{ex}"
+  end
+  Thread.critical = false
+    
 end 
 
 def getClasspath

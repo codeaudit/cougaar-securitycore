@@ -6,7 +6,8 @@ require 'security/lib/common_security_rules'
 require 'conf-full-1ad-ARUC1' unless $POLARIS
 
 class InjectBlackboardCompromise < SecurityStressFramework
-  def initialize
+  def initialize(run)
+    super(run)
   end
 
    def postLoadSociety

@@ -5,8 +5,8 @@ require 'security/lib/agent_mobility'
 require 'security/lib/rules'
 
 class Security4a101Experiment < SecurityStressFramework
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @certRevocation = nil
    end
 

@@ -12,6 +12,10 @@ $ChaseNumKills = 3
 $ChaseWaitTimeAfterRehydration = 0.minutes
 
 class ChaseKill < SecurityStressFramework
+  def initialize(run)
+    super(run)
+  end
+
   attr_accessor :killAgent, :numKills, :waitTimeBetween
 
   def initialize(killAgentName=$ChaseAgent, numKills=$ChaseNumKills, waitTimeAfterRehydration=$ChaseWaitTimeAfterRehydration)

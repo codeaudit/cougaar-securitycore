@@ -2,7 +2,8 @@ require 'security/lib/scripting'
 require 'security/lib/society_util'
 
 class StressWPRegistration < SecurityStressFramework
-  def initialize
+  def initialize(run)
+    super(run)
     puts "StressWPRegistration is in the society"
     @started = false
 #    startTesting(15.minutes)

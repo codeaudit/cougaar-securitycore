@@ -2,8 +2,8 @@ require 'security/lib/certRevocation'
 
 class Security5jExperiment < SecurityStressFramework
 
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @revoked_agent = nil
       @agent_ca = nil
       @management = {}

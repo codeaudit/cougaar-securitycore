@@ -2,8 +2,8 @@
 require 'security/lib/certRevocation'
 
 class Security4a104Experiment < SecurityStressFramework
-   def initialize
-      super
+   def initialize(run)
+      super(run)
       @moved_agents = []
    end
 

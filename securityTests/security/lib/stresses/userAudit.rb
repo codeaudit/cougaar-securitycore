@@ -1,6 +1,7 @@
 
 class Stress1f1 < SecurityStressFramework
-  def initialize
+  def initialize(run)
+    super(run)
     @numberOfSuccess = 0
     @numberOfAgents = 0
   end

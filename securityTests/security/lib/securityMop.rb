@@ -236,7 +236,7 @@ end
 
 
 def storeIdmefsForSecurityMop
-  if @idmefStorerRunCount != getRun.count
+  if @idmefStorerRunCount != run.count
     begin
       @idmefStorerListener.close if @idmefStorerListener
     rescue Exception => e
@@ -247,7 +247,7 @@ def storeIdmefsForSecurityMop
     @idmefStorerListener = nil
   end
   unless @idmefStorerListener
-    idmefStorerRunCount = getRun.count
+    idmefStorerRunCount = run.count
     @idmefStorerListener = onCaptureIdmefs do |event|
       puts 'saving event' if $VerboseDebugging
       event.saveForSecurityMop

@@ -5,7 +5,7 @@
 class ThreatConChange < SecurityStressFramework
 
   def initialize(run)
-    @run = run
+    super(run)
     @enteredHIGH = false
     @enteredLOW = false
     @threat_con_om = "org.cougaar.core.security.monitoring.THREATCON_LEVEL"
@@ -13,6 +13,10 @@ class ThreatConChange < SecurityStressFramework
     @enclave = "Fwd"
     @attackAgent = nil
     @userDomain = nil
+  end
+
+  def getStressIds()
+    return ["Stress1e1", "Stress1e2", "Stress3e1", "Stress3e2"]
   end
 
   def preStartSociety
@@ -28,11 +32,12 @@ class ThreatConChange < SecurityStressFramework
 
   def postSocietyQuiesced
     thread = Thread.fork {
-      setUserDomain
-      # perform the invalid logins
-      performLoginFailures
-      waitForHIGH
-      waitForLOW
+      begin
+	setUserDomain
+	# perform the invalid logins
+	performLoginFailures
+	waitForHIGH
+	waitForLOW
 =begin
     # sleep for a max of 10 minutes or at least until the THREATCON_LEVEL
     # has gone back to the LOW state
@@ -48,8 +53,12 @@ class ThreatConChange < SecurityStressFramework
       logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL LOW"
     end
 =end
-      # check results
-      processResults
+	# check results
+	processResults
+      rescue => ex
+	saveUnitTestResult('Stress1e1',
+            "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
+      end
     }
   end
   
@@ -70,7 +79,8 @@ class ThreatConChange < SecurityStressFramework
     else
       msg = "THREATCON_LEVEL did not change as a result of an increase or decrease in login failures"
     end
-    saveResult(passed, "3e1, 3e2", msg)
+    saveResult(passed, "Stress3e1", msg)
+    saveResult(passed, "Stress3e2", msg)
   end 
  
   #
@@ -110,12 +120,16 @@ class ThreatConChange < SecurityStressFramework
     servlet = '/move'
     user = 'george'
     badPasswd = 'thisisabadpasswd'
-    params = ['Basic', @attackAgent, user, badPasswd, servlet, 401]
-    count = 0
-    while count < 5
-      @userDomain.accessServlet(params)
-      count += 1
-    end 
+    saveUnitTestResult('Stress1e1', "performLoginFailures" )
+
+    run.society.each_agent do |agent|
+      params = ['Basic', agent, user, badPasswd, servlet, 401]
+      count = 0
+      while count < 5
+	@userDomain.accessServlet(params)
+	count += 1
+      end 
+    end
 =begin   
     # wait for the THREATCON_LEVEL HIGH event
     logInfoMsg "Waiting for: THREATCON_LEVEL HIGH" 
@@ -178,7 +192,7 @@ class ThreatConChange < SecurityStressFramework
         node.each_agent do |agent|
           # get the first agent from this node
           @attackAgent = agent
-          logInfoMsg "Found attack agent: #{@attackAgent.name}"
+	  saveUnitTestResult('Stress1e1', "Found attack agent: #{@attackAgent.name}" )
           break 
         end 
         return
@@ -190,6 +204,7 @@ class ThreatConChange < SecurityStressFramework
   # Set @userDomain for accessing servlets
   #  
   def setUserDomain
+    saveUnitTestResult('Stress1e1', "setUserDomain" )
     UserDomains.instance.ensureUserDomains
     @userDomain = @attackAgent.userDomain
     if @userDomain == nil
@@ -209,9 +224,9 @@ class ThreatConChange < SecurityStressFramework
       count += 1
     end
     if count == 50 && @enteredLOW == false
-      saveResult(true, "1E2", "Timeout Didn't receive THREATCON_LEVEL LOW")
+      saveResult(true, "Stress1e2", "Timeout Didn't receive THREATCON_LEVEL LOW")
     elsif @enteredLOW == true
-      saveResult(true, "1E2", "Received THREATCON_LEVEL LOW")
+      saveResult(true, "Stress1e2", "Received THREATCON_LEVEL LOW")
     end
   end
 
@@ -224,9 +239,9 @@ class ThreatConChange < SecurityStressFramework
       count += 1
     end
     if count == 10 && @enteredHIGH == false
-      saveResult(false, "1E1", "Timeout Didn't receive THREATCON_LEVEL HIGH")
+      saveResult(false, "Stress1e1", "Timeout Didn't receive THREATCON_LEVEL HIGH")
     elsif @enteredHIGH == true
-      saveResult(true, "1E1","Received THREATCON_LEVEL HIGH")
+      saveResult(true, "Stress1e1","Received THREATCON_LEVEL HIGH")
     end
   end
 

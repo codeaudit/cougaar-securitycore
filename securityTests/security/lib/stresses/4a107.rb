@@ -2,8 +2,8 @@ require 'security/lib/dataProtection'
 
 class Security4a107Experiment < SecurityStressFramework
 
-   def initialize
-      super
+   def initialize(run)
+      super(run)
    end
 
 

@@ -3,8 +3,8 @@ require 'security/lib/misc'
 require 'security/lib/policy_util'
 
 class Security3c8 < SecurityStressFramework
-  def initialize
-    super()
+  def initialize(run)
+    super(run)
     @useIdmef = true
   end
 

@@ -1,6 +1,10 @@
 require 'security/lib/society_util'
 
 class WpProtect < SecurityStressFramework
+  def initialize(run)
+    super(run)
+  end
+
   def postLoadSociety
     run.society.each_node do |node|
       node.add_component('org.cougaar.core.security.services.wp.WPProtectionComponent') do |c|

@@ -3,7 +3,8 @@ require 'security/lib/misc'
 require 'security/lib/policy_util'
 
 class StressWebs < SecurityStressFramework
-  def initialize
+  def initialize(run)
+    super(run)
   end
 
   def postLoadSociety
@@ -13,8 +14,8 @@ class StressWebs < SecurityStressFramework
 end # StressWebs
 
 class Stress3a1 < SecurityStressFramework
-  def initialize(useIdmef = true)
-    super()
+  def initialize(run, useIdmef = true)
+    super(run)
     @useIdmef = useIdmef
   end
 
@@ -119,7 +120,7 @@ DONE
 end # Stress3a1
 
 class Stress3a1mop < Stress3a1
-  def initialize
-    super(false)
+  def initialize(run)
+    super(run, false)
   end
 end # Stress3a1mop

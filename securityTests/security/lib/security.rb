@@ -26,4 +26,7 @@ class SecurityExperimentFramework < ExperimentFramework
 end
 
 class SecurityStressFramework < StressFramework
+  def initialize(run)
+    @run = run
+  end
 end

@@ -421,7 +421,7 @@ puts user
    begin
      certFile = "#{userName}_cert.pem"
      keyFile = "#{userName}_key.pem"
-#      portNumber = getRun.society.agents['NCA'].node.secure_cougaar_port
+#      portNumber = run.society.agents['NCA'].node.secure_cougaar_port
      logInfoMsg "python ./do_cert_auth.py '#{hostName}' '#{portNumber}' '#{certFile}' '#{keyFile}' '#{urlPath}'"
      resp = %x{python ./do_cert_auth.py '#{hostName}' '#{portNumber}' '#{certFile}' '#{keyFile}' '#{urlPath}'}
      logInfoMsg "RETCODE=|#{resp}| :Login to #{urlPath} using user=#{userName} and GoodCertificate"
@@ -438,10 +438,6 @@ puts user
     return do_cert_auth("bogus_"+userName, hostName, urlPath)
   end
 
-   def run
-     getRun
-   end
-
 end # UserDomain
 
 
@@ -455,10 +451,6 @@ class UserDomains
 
    def ensureDomains
       @domains = {} unless @domains
-   end
-
-   def run
-      getRun
    end
 
    def [](domainName)
@@ -494,7 +486,6 @@ class UserDomains
       # this only needs to be performed once.
       return nil if @userAdminHasBeenSet
       @userAdminHasBeenSet = true
-      run = getRun
       getUserCommunities.each do |community|
          userDomain = self[community.name]
          members = []

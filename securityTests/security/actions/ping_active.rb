@@ -2,7 +2,7 @@
 module Cougaar
    module States
      class PingActive < Cougaar::State
-       DEFAULT_TIMEOUT = 20.minutes
+       DEFAULT_TIMEOUT = 40.minutes
        PRIOR_STATES = ["SocietyRunning"]
        DOCUMENTATION = Cougaar.document {
          @description = "Waits for agents to ping each other."

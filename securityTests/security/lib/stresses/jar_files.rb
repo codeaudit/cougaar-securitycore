@@ -5,7 +5,8 @@ require 'thread'
 
 class StressIdmefJar < SecurityStressFramework
 
-  def initialize(idmefNum, idmefName, idmefEvent)
+  def initialize(run, idmefNum, idmefName, idmefEvent)
+    super(run)
     @idmefNum = idmefNum
     @idmefName = idmefName
     @idmefEvent = idmefEvent
@@ -31,7 +32,8 @@ class StressJarFile < SecurityStressFramework
   GOOD_KEYSTORE   = "#{$CIP}/operator/signingCA_keystore"
   TEST_KEYSTORE   = "#{$CIP}/configs/testKeystore/testSigningCA_keystore"
 
-  def initialize(componentName, attackNum, attackName, successExpected)
+  def initialize(run, componentName, attackNum, attackName, successExpected)
+    super(run)
     @testAgent = nil
     @attackNum = attackNum
     @attackName = attackName
@@ -77,9 +79,9 @@ class StressJarFile < SecurityStressFramework
 end # StressJarFile
 
 class StressConfigJar < StressJarFile
-  def initialize(attackNum, attackName, successExpected,
+  def initialize(run, attackNum, attackName, successExpected,
                  keystore = nil, cert = nil)
-    super("org.cougaar.core.security.test.ConfigReaderServlet",
+    super(run, "org.cougaar.core.security.test.ConfigReaderServlet",
           attackNum, attackName, successExpected)
     @filename = "#{attackNum}.txt"
     @jarFile = createJarConfig(@filename, attackName)
@@ -107,37 +109,37 @@ class StressConfigJar < StressJarFile
 end # StressConfigJar
 
 class StressConfigIdmef < StressIdmefJar
-  def initialize(idmefNum, idmefName, jarFile)
-    super(idmefNum, idmefName,
+  def initialize(run, idmefNum, idmefName, jarFile)
+    super(run, idmefNum, idmefName,
           "IDMEF\\([^)]+\\) Classification\\(org.cougaar.core.security.monitoring.JAR_VERIFICATION_FAILURE\\) AdditionalData\\([^)]*#{jarFile}")
   end
 end # StressConfigIdmef
 
 class Stress4a50 < StressConfigJar
-  def initialize
-    super("4a50", "Load a configuration stored in an unsigned jar file", false)
+  def initialize(run)
+    super(run, "4a50", "Load a configuration stored in an unsigned jar file", false)
   end
 end # Stress4a50
 
 class Stress4a51 < StressConfigJar
-  def initialize
-    super("4a51",
+  def initialize(run)
+    super(run, "4a51",
           "Load a configuration stored in a jar signed by expired cert", false,
           TEST_KEYSTORE, "expired")
   end
 end # Stress4a51
 
 class Stress4a52 < StressConfigJar
-  def initialize
-    super("4a52",
+  def initialize(run)
+    super(run, "4a52",
           "Load a configuration stored in a jar signed by untrusted cert",
           false, TEST_KEYSTORE, "badsigner")
   end
 end # Stress4a52
 
 class Stress4a53 < StressConfigJar
-  def initialize
-    super("4a53",
+  def initialize(run)
+    super(run, "4a53",
           "Load a configuration stored in a tampered, but properly signed jar",
           false, GOOD_KEYSTORE, "privileged")
   end
@@ -154,41 +156,41 @@ end # Stress4a53
 
 
 class Stress4a201 < StressConfigJar
-  def initialize
-    super("4a201",
+  def initialize(run)
+    super(run, "4a201",
           "Load a configuration stored in a jar signed by correct cert",
           true, GOOD_KEYSTORE, "privileged")
   end
 end # Stress4a201
 
 class Stress4a60 < StressConfigIdmef
-  def initialize
-    super("4a60", "IDMEF event after 4a50", "4a50.txt.jar")
+  def initialize(run)
+    super(run, "4a60", "IDMEF event after 4a50", "4a50.txt.jar")
   end
 end # Stress4a60
 
 class Stress4a61 < StressConfigIdmef
-  def initialize
-    super("4a61", "IDMEF event after 4a51", "4a51.txt.jar")
+  def initialize(run)
+    super(run, "4a61", "IDMEF event after 4a51", "4a51.txt.jar")
   end
 end # Stress4a61
 
 class Stress4a62 < StressConfigIdmef
-  def initialize
-    super("4a62", "IDMEF event after 4a52", "4a52.txt.jar")
+  def initialize(run)
+    super(run, "4a62", "IDMEF event after 4a52", "4a52.txt.jar")
   end
 end # Stress4a62
 
 class Stress4a63 < StressConfigIdmef
-  def initialize
-    super("4a63", "IDMEF event after 4a53", "4a53.txt.jar")
+  def initialize(run)
+    super(run, "4a63", "IDMEF event after 4a53", "4a53.txt.jar")
   end
 end # Stress4a63
 
 class StressComponentJar < StressJarFile
-  def initialize(attackNum, attackName, successExpected,
+  def initialize(run, attackNum, attackName, successExpected,
                  keystore = nil, cert = nil)
-    super("org.cougaar.core.security.test.RunCodeServlet",
+    super(run, "org.cougaar.core.security.test.RunCodeServlet",
           attackNum, attackName, successExpected)
     @component = "Stress#{attackNum}"
     @jarFile = createComponentJar(@component, <<COMPONENT)
@@ -204,7 +206,7 @@ COMPONENT
 
   def postLoadSociety
     super
-    installCodeRunnerServlet()
+    #installCodeRunnerServlet()
   end
 
   def postStopSociety
@@ -223,28 +225,28 @@ COMPONENT
 end # StressComponentJar
 
 class Stress5a1 < StressComponentJar
-  def initialize
-    super("5a1", "Load code from unsigned jar file", false)
+  def initialize(run)
+    super(run, "5a1", "Load code from unsigned jar file", false)
   end
 end
 
 class Stress5a2 < StressComponentJar
-  def initialize
-    super("5a2", "Load code from jar signed by expired cert", false,
+  def initialize(run)
+    super(run, "5a2", "Load code from jar signed by expired cert", false,
           TEST_KEYSTORE, "expired")
   end
 end
 
 class Stress5a3 < StressComponentJar
-  def initialize
-    super("5a3", "Load code from jar signed by not trusted cert", false,
+  def initialize(run)
+    super(run, "5a3", "Load code from jar signed by not trusted cert", false,
           TEST_KEYSTORE, "badsigner")
   end
 end
 
 class Stress5a4 < StressComponentJar
-  def initialize
-    super("5a4", "Load code from a tampered signed jar", false,
+  def initialize(run)
+    super(run, "5a4", "Load code from a tampered signed jar", false,
           GOOD_KEYSTORE, "privileged")
   end
 
@@ -272,39 +274,39 @@ COMPONENT
 end
 
 class Stress5a101 < StressComponentJar
-  def initialize
-    super("5a101", "Load code from a signed jar", true,
+  def initialize(run)
+    super(run, "5a101", "Load code from a signed jar", true,
           GOOD_KEYSTORE, "privileged")
   end
 end
 
 class StressComponentIdmef < StressIdmefJar
-  def initialize(idmefNum, idmefName, exceptionText)
-    super(idmefNum, idmefName,
+  def initialize(run, idmefNum, idmefName, exceptionText)
+    super(run, idmefNum, idmefName,
           "IDMEF\\([^)]+\\) Classification\\(org.cougaar.core.security.monitoring.JAR_VERIFICATION_FAILURE\\) AdditionalData\\([^)]*#{exceptionText}")
   end
 end
 
 class Stress5a20 < StressComponentIdmef
-  def initialize
-    super("5a20", "IDMEF generated during 5a1", "Stress5a1.jar")
+  def initialize(run)
+    super(run, "5a20", "IDMEF generated during 5a1", "Stress5a1.jar")
   end
 end
 
 class Stress5a21 < StressComponentIdmef
-  def initialize
-    super("5a21", "IDMEF generated during 5a2", "Stress5a2.jar")
+  def initialize(run)
+    super(run, "5a21", "IDMEF generated during 5a2", "Stress5a2.jar")
   end
 end
 
 class Stress5a22 < StressComponentIdmef
-  def initialize
-    super("5a22", "IDMEF generated during 5a3", "Stress5a3.jar")
+  def initialize(run)
+    super(run, "5a22", "IDMEF generated during 5a3", "Stress5a3.jar")
   end
 end
 
 class Stress5a23 < StressComponentIdmef
-  def initialize
-    super("5a23", "IDMEF generated during 5a4", "Stress5a4.class")
+  def initialize(run)
+    super(run, "5a23", "IDMEF generated during 5a4", "Stress5a4.class")
   end
 end

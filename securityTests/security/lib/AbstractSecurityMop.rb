@@ -2,9 +2,10 @@ require 'singleton'
 require 'security/lib/security'
 
 class AbstractSecurityMop < SecurityStressFramework
+
   attr_accessor :date, :runid, :name, :descript, :score, :info, :calculationDone, :raw, :summary
   def initialize(run)
-    @run = run
+    super(run)
     @runid = ''
     @calculationDone = false
     @summary = ''

@@ -1,4 +1,8 @@
 class Security1a < SecurityStressFramework
+   def initialize(run)
+     super(run)
+   end
+
    def preConditionalNextOPlanStage
       setup
    end

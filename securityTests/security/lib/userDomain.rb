@@ -254,7 +254,7 @@ end
     begin
       certFile = "#{userName}_cert.pem"
       keyFile = "#{userName}_key.pem"
-      portNumber = getRun.society.agents['NCA'].node.secure_cougaar_port
+      portNumber = run.society.agents['NCA'].node.secure_cougaar_port
 #puts "secureport=#{portNumber}"
       logInfoMsg "Doing Certificate Authentication for #{urlPath} with user=#{userName} on host #{hostName}:#{portNumber}"
 #      logInfoMsg "python ./do_cert_auth.py '#{hostName}' '#{portNumber}' '#{certFile}' '#{keyFile}' '#{urlPath}'"
@@ -324,7 +324,6 @@ class UserDomains
       # this only needs to be performed once.
       return nil if @userAdminHasBeenSet
       @userAdminHasBeenSet = true
-      run = getRun
       getUserCommunities.each do |community|
          userDomain = self[community.name]
          members = []

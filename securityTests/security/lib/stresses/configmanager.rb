@@ -1,6 +1,7 @@
 
 class TestConfigurationManager < SecurityStressFramework
-  def initialize
+  def initialize(run)
+    super(run)
   end
 
   def postConditionalNextOPlanStage

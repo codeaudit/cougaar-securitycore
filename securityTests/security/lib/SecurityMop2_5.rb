@@ -6,8 +6,12 @@ class SecurityMop2_5 < AbstractSecurityMop
   
   def initialize(run)
     super(run)
-    @name = "2-5"
+    @name = "2.5"
     @descript = "Percentage of all designated user actions that are recorded"
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.5"]
   end
 
   def to_s

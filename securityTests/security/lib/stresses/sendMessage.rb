@@ -1,10 +1,18 @@
 require 'security/lib/message_util'
 
 class Stress3c1 < SecurityStressFramework
+   def initialize(run)
+     super(run)
+   end
+
+   def getStressIds()
+    return ["Stress3c1", ]
+  end
+
 #  def preConditionalGLSConnection
   def postConditionalNextOPlanStage
     saveResult(!agentExists('NO-SSL-ATTACK-NODE'),
-               '3c1', "Non-SSL Communication");
+               'Stress3c1', "Non-SSL Communication");
   end # postConditionalNextOPlanStage
 
   def preTransformSociety
@@ -41,11 +49,14 @@ end # Stress3c1
 # agent should successfully send a message
 class Stress3a101 < SecurityStressFramework
   def initialize(run)
+    super(run)
     @answered = false
     @saved = false
-    @run = run
   end
 
+  def getStressIds() 
+    return ["Stress3a101"]
+  end
 =begin
   def postLoadSociety
     # Now inserted through a rule
@@ -72,7 +83,7 @@ class Stress3a101 < SecurityStressFramework
     }
 
     testMessageSuccess(agent1.name, agent2.name, 
-                       '3ab101', "Send message successfully")
+                       'Stress3a101', "Send message successfully")
   end # postConditionalNextOPlanStage
 end # Stress3a101
 

@@ -12,8 +12,12 @@ class SecurityMop2_4 < AbstractSecurityMop
     super(run)
     reset
     removePemCertificates
-    @name = "2-4"
+    @name = "2.4"
     @descript = "Percentage of user actions that were available for invocation counter to authorization policy"
+  end
+
+  def getStressIds()
+    return ["SecurityMop2.4"]
   end
 
   def removePemCertificates
@@ -140,7 +144,7 @@ class SecurityMop2_4 < AbstractSecurityMop
 
       @conusDomain.disableUser('DisabledLogistician')
       @conusDomain.deleteUser('DeletedLogistician')
-      getRun.society.agents['NCA'].caDomains[0].revokeUserCert('RevokedLogistician')
+      run.society.agents['NCA'].caDomains[0].revokeUserCert('RevokedLogistician')
 
       # Keep the original cert for RecreatedLogistician
       user = "ConusEnclaveCARecreatedLogistician"
@@ -283,12 +287,12 @@ class SecurityMop2_4 < AbstractSecurityMop
   def getTests
     
     begin
-      fwdAgent   = getRun.society.agents['1-ad-divPolicyDomainManagerServlet']
-      rearAgent  = getRun.society.agents['RearPolicyDomainManagerServlet']
-      conusAgent = getRun.society.agents['ConusPolicyDomainManagerServlet']
-      transAgent = getRun.society.agents['1-ad-divsupPolicyDomainManagerServlet']
+      fwdAgent   = run.society.agents['1-ad-divPolicyDomainManagerServlet']
+      rearAgent  = run.society.agents['RearPolicyDomainManagerServlet']
+      conusAgent = run.society.agents['ConusPolicyDomainManagerServlet']
+      transAgent = run.society.agents['1-ad-divsupPolicyDomainManagerServlet']
       @fwdAgent   = fwdAgent
-      puts "getRun:#{getRun}, #{fwdAgent}" if $VerboseDebugging
+      puts "run:#{run}, #{fwdAgent}" if $VerboseDebugging
       
       unless fwdAgent and rearAgent and conusAgent and transAgent
         raise "One of the PolicyDomainManagerServlet agents is missing [Fwd|Rear|Conus|Trans]"
@@ -323,7 +327,7 @@ class SecurityMop2_4 < AbstractSecurityMop
 
   def testSet(agent, user, otherUser)
     puts "agent: #{agent.name}, #{user}, #{otherUser}" if $VerboseDebugging
-    agent = getRun.society.agents[agent] if agent.kind_of?(String)
+    agent = run.society.agents[agent] if agent.kind_of?(String)
     domainName = agent.userDomain.name
     policyServlet = '/policyAdmin'
     tests = [

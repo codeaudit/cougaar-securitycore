@@ -614,7 +614,7 @@ class CaDomains
 =begin
 
    def getRootCertificateNode
-      getRun.society.each_node do |node|
+      run.society.each_node do |node|
          node.each_facet do |facet|
             if facet['role']=='RootCertificateAuthority'
                return node
@@ -622,7 +622,7 @@ class CaDomains
          end
       end
       logWarningMsg "There doesn't seem to be a facet with 'RootCertificateAuthority' as role.  Will try using 'ROOT-CA-NODE' for the root CA node."
-      return getRun.society.nodes['ROOT-CA-NODE']
+      return run.society.nodes['ROOT-CA-NODE']
    end
 
    # The following code creates hashes based on time for UserTry and Idmef

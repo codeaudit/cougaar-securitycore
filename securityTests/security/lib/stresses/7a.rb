@@ -2,6 +2,10 @@
 require 'security/lib/certRevocation'
 
 class Csi7a < SecurityStressFramework
+   def initialize(run)
+     super(run)
+   end
+
    attr_accessor :revokedAgent
    attr_accessor :modifiedAgent
 

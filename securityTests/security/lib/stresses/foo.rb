@@ -1,8 +1,8 @@
 require 'security/lib/certRevocation'
 
 class SecurityTest < SecurityStressFramework
-   def initialize
-      super
+   def initialize(run)
+      super(run)
    end
 
    def postConditionalStartSociety

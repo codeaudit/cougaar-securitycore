@@ -2,7 +2,8 @@ require 'security/lib/misc'
 require 'security/lib/security'
 
 class StressCountRegistrations < SecurityStressFramework
-  def initialize(attack, regName, filename = nil)
+  def initialize(run, attack, regName, filename = nil)
+    super(run)
     @filename = filename
     @count = {}
     @methodNum = -1
@@ -21,7 +22,7 @@ class StressCountRegistrations < SecurityStressFramework
 
   def preConditionalStartSociety
 #    logInfoMsg "================================ Start to look for events"
-    @methodNum = getRun.comms.on_cougaar_event do |event|
+    @methodNum = run.comms.on_cougaar_event do |event|
       eventCall(event)
     end
   end
@@ -68,7 +69,7 @@ class StressCountRegistrations < SecurityStressFramework
 
   def stop
     if @methodNum != -1
-      getRun.comms.remove_on_cougaar_event @methodNum
+      run.comms.remove_on_cougaar_event @methodNum
       @methodNum = -1
     else
       return nil # we've already stopped!
@@ -188,9 +189,8 @@ end # StressCountRegistrations
 
 class Stress2f102 < StressCountRegistrations
   def initialize(run)
-    super('2f102', "M&R Registration")
+    super(run, '2f102', "M&R Registration")
     #"#{$CIP}/workspace/test/mrreg.tbl"
-    @run = run
   end
 
   def eventCall(event)
@@ -255,8 +255,8 @@ end # Stress2f102
 
 
 class Stress5j102 < StressCountRegistrations
-  def initialize
-    super('5j102', "CRL Registration")
+  def initialize(run)
+    super(run, '5j102', "CRL Registration")
     # "#{$CIP}/workspace/test/crlreg.tbl"
     @baseCount = {}
   end

@@ -8,7 +8,7 @@ require 'cougaar/communities'
 class JoinCommunity < SecurityStressFramework
 
   def initialize(run)
-    @run = run
+    super(run)
     @timedOut = false
     @msgFailureDetected = false
     # join community request on behave of this agent
@@ -20,6 +20,10 @@ class JoinCommunity < SecurityStressFramework
     @listenerId = nil
     @filter = "IDMEF\\([^)]+\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\)" +
               ".*AdditionalData\\(MESSAGE_FAILURE_REASON:Invalid Community Request,.*"
+  end
+
+  def getStressIds()
+    return ["StressMaliciousJoinCommunity"]
   end
 
   def setupStress
@@ -70,9 +74,9 @@ class JoinCommunity < SecurityStressFramework
   
   def processResults
     if @timedOut == true && @msgFailureDetected == false
-      saveResult(false, "maliciousJoinCommunityStress", "Timeout Didn't receive Invalid Community Request MESSAGE_FAILURE")
+      saveResult(false, "StressMaliciousJoinCommunity", "Timeout Didn't receive Invalid Community Request MESSAGE_FAILURE")
     elsif @msgFailureDetected == true
-      saveResult(true, "maliciousJoinCommunityStress","Detected Invalid Community Request MESSAGE_FAILURE")
+      saveResult(true, "StressMaliciousJoinCommunity","Detected Invalid Community Request MESSAGE_FAILURE")
     end
   end
   
