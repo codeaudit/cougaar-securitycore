@@ -72,7 +72,9 @@ public class AccessAgentProxy
   private static EventPublisher eventPublisher = null;
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
-  private Set nodeList;
+  private Set nodeList = null;
+  private Set agentList = null;
+  private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
 			   Object myobj,
@@ -96,10 +98,11 @@ public class AccessAgentProxy
 			       SecurityPropertiesService.class, null);
 
     //load agent and node name list from topo reader
-    TopologyReaderService toporead = (TopologyReaderService) 
+    toporead = (TopologyReaderService) 
       sb.getService(this, TopologyReaderService.class, null);
     
     nodeList = toporead.getAll(TopologyReaderService.NODE);
+    agentList = toporead.getAll(TopologyReaderService.AGENT);
     
     if(log.isDebugEnabled()) {
       log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
@@ -113,6 +116,23 @@ public class AccessAgentProxy
     }
   }
   
+  private int checkNodeAgent(String name, boolean recheck){
+    if(nodeList.contains(name)){
+      //is NodeAgent
+      return 1;
+    }else{
+      if(agentList.contains(name)){
+        return 2;
+      }else if(recheck){
+        //may be list is not updated
+        nodeList = toporead.getAll(TopologyReaderService.NODE);
+        agentList = toporead.getAll(TopologyReaderService.AGENT);
+        checkNodeAgent(name, false);
+      }
+      //fall through, we don't know
+      return 3;
+    }
+  }
   /* ********************************************************
    *  BEGIN MessageTransportService implementation
    */
@@ -146,14 +166,24 @@ public class AccessAgentProxy
        *wrapping with TrustSet--for node agents. Once Bugzilla #2103
        *is addressed remember to take this out.
        */
-      if(nodeList.contains(message.getTarget().toString())){
-        //no wrapping with trust
+      String target = message.getTarget().toString();
+      int ret = checkNodeAgent(target, true);
+      if(ret==1){
+        //isNode agent, no wrapping with trust
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
           log.debug("no wrapping with trust for node agent." + message);
         }
         return;
+      }else if(ret == 3){
+        //can't send, drop message
+        if(log.isErrorEnabled()){
+          log.error("The target has to be an agent or a node agent in msg: " 
+            + message + " ; Message dropped.");
+        }
+        return;
       }
+        
       
       TrustSet[] ts;
       ts = checkOutgoing(message);
