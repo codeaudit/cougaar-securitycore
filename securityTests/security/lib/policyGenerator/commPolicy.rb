@@ -126,10 +126,6 @@ class CommPolicies
       File.open("#{filename}-#{enclave}", "w+") do |file|
         debug "writing file #{file}"
         file.write("PolicyPrefix=%URPolicy\n\n")
-        @run.society.each_agent(true) do |agent|
-          file.write("Agent \"#{agent.name}\"\n")
-        end
-        file.write("\n")
         @setDefinitions.keys.each do |name|
           debug "Inserting group definition #{name}"
           file.write("AgentGroup \"#{name}\" = {")
@@ -357,7 +353,7 @@ class CommPolicies
         return
       end
       members = getMembersRecursive(community)
-      membersName = "#{community.name}Members"
+      membersName = "MembersOf#{community.name}"
       if (!members.empty?) then
         declareSet(membersName, members)
         debug "members = #{members.join(", ")}"
@@ -547,7 +543,7 @@ class CommPolicies
     banner("Allow Security")
     @run.society.each_enclave() do |enclave|
       securityAgents = getSecurityAgents(enclave)
-      securityAgentsName = "#{enclave}SecurityAgents"
+      securityAgentsName = "SecurityAgentsIn#{enclave}"
       declareSet(securityAgentsName, securityAgents)
       permit(enclaveAgentsName(enclave), securityAgentsName,
              "AllowSecurityManagement-I",
