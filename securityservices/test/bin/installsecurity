@@ -82,6 +82,7 @@ zip -qr AS_csi_secserv.zip \
 	sys/Tidy.jar \
 	sys/dl.jar \
 	sys/iw.jar \
+	sys/mail.jar \
 	sys/jdom.jar
 
 cp AS_csi_secserv.zip ${startupdir}

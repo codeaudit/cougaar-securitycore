@@ -555,6 +555,13 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}*", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}-", "read";
 
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}servicediscovery${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}servicediscovery${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}servicediscovery${/}-", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}yp${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}yp${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}yp${/}-", "read";
+
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}core${/}-", "read,write";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}plugin${/}-", "read,write";
 
