@@ -103,11 +103,15 @@ public class AccessControlPolicyServiceImpl
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
 
+/**no longer needed???
     //setup for default policy
     AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT", serviceBroker);
     if(app!=null){
       pp.add(app);
     }
+ *
+ ******/
+    
   }//Constructor
 
   private AccessControlPolicy getIncomingPolicy(String target){
