@@ -50,6 +50,8 @@ which ant >& /dev/null
 if [ $? != 0 ]; then
   if [ -d "/mnt/shared/srosset/apache-ant-1.5.3-1/bin" ]; then
     ant=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/ant
+  elif [ -d "/mnt/software/ANT/jakarta-ant-1.5/bin" ]; then
+    ant=/mnt/software/ANT/jakarta-ant-1.5/bin/ant
   else
     echo "$0: Can't find ant. Add it to your path. Exiting..."
     rm -rf ${tmpdir}
