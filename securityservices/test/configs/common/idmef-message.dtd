@@ -622,3 +622,30 @@
        %attlist.global;
      >
 
+<!--
+  Added as a short term fix for the SAXParseException that occurs when
+  trying to invoke IDMEF_Message.createMessage(String).  Otherwise,
+  the DOMParser will complain that the prefix "Cougaar" for element
+   "Cougaar:Agent" is not bound.  Will need to add this as an ENTITY to
+   the DOCTYPE prior to parsing the IDMEF alert string  -mluu
+-->
+<!ELEMENT Cougaar:Agent (
+    Cougaar:description?, 
+    Cougaar:location?,
+    Address?, 
+    ( Cougaar:source-ident | Cougaar:target-ident )+ )
+>
+
+<!ATTLIST Cougaar:Agent
+    xmlns                   CDATA                #FIXED
+        'idmef+cougaar'
+    xmlns:Cougaar           CDATA                #FIXED
+        'idmef+cougaar'
+    Cougaar:name            CDATA                #REQUIRED    
+>
+
+<!ELEMENT Cougaar:description       (#PCDATA) >
+<!ELEMENT Cougaar:location          (#PCDATA) >
+<!ELEMENT Cougaar:source-ident      (#PCDATA) >
+<!ELEMENT Cougaar:target-ident      (#PCDATA) >
+
