@@ -33,10 +33,17 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import edu.jhuapl.idmef.Alert;
-import edu.jhuapl.idmef.Analyzer;
-import edu.jhuapl.idmef.Classification;
-import edu.jhuapl.idmef.DetectTime;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 import org.cougaar.core.adaptivity.OperatingMode;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -46,6 +53,7 @@ import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.UIDService;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
@@ -55,18 +63,10 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Serializable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Analyzer;
+import edu.jhuapl.idmef.Classification;
+import edu.jhuapl.idmef.DetectTime;
 
 
 /**
@@ -104,6 +104,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   protected LoggingService logging;
   /** DomainService */
   protected DomainService domainService;
+  protected UIDService uidService;
   /** Subscription to operating mode */
   protected IncrementalSubscription operatingModeSubscription;
   /** Subscription to blackboard test tasks */
@@ -375,7 +376,9 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       }
     }
   }
-
+	public void setUIDService(UIDService service){
+		 this.uidService =service;
+	 }
 
   private void processTesting() {
     Enumeration enum = testingSubscription.getAddedList();
