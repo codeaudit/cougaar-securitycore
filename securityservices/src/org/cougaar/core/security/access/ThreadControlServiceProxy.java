@@ -62,7 +62,12 @@ class ThreadControlServiceProxy extends SecureServiceProxy
   public void setMaxRunningThreadCount(int count) {
     _tcs.setMaxRunningThreadCount(count);
   }
-            
+
+  public boolean setChildQualifier(UnaryPredicate predicate) {
+    UnaryPredicate sup = createSecurePredicate(predicate, _scs.getExecutionContext());
+    return _tcs.setChildQualifier(sup);
+  }
+             
   public boolean setQualifier(UnaryPredicate predicate) {
     UnaryPredicate sup = createSecurePredicate(predicate, _scs.getExecutionContext());
     return _tcs.setQualifier(sup);
