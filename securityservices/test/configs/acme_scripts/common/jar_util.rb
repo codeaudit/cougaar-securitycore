@@ -126,7 +126,7 @@ def replaceFileInJar(jarFile, replacementFile)
   }
   if targetFile != nil
 #    puts "found file: #{targetFile}"
-    `jar xf #{jarFile} -C #{jarFile} #{targetFile}`
+    `cd #{jarDir} && jar xf #{jarFile} #{targetFile}`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
     targetFile = baseFilename
