@@ -28,7 +28,7 @@ org.cougaar.install.path=/mnt/shared/integ
 #
 # By default persistence is disabled.
 org.cougaar.core.persistence.enable=true
-org.cougaar.core.persistence.clear=true
+org.cougaar.core.persistence.clear=false
 
 # Add the "java-io-patch" to allow Cougaar persistence.
 #
@@ -116,7 +116,7 @@ org.cougaar.safe.domainName=TestDomain
 # Naming service over SSL.
 # True to enable naming service over SSL.
 # The certificates need to be createdd first before this feature is turned on.
-#org.cougaar.core.naming.useSSL=false
+org.cougaar.core.naming.useSSL=true
 
 # MTS RMI over SSL
 # The certificates need to be createdd first before this feature is turned on.
@@ -257,9 +257,9 @@ org.cougaar.message.transport.debug=security
 class9.max.parts=5
 
 #DAML policy enforcement
-org.cougaar.core.security.policy.enforcers.servlet.useDaml=true
-org.cougaar.core.security.policy.enforcers.crypto.useDaml=true
-org.cougaar.core.security.policy.enforcers.access.useDaml=true
+#org.cougaar.core.security.policy.enforcers.servlet.useDaml=true
+#org.cougaar.core.security.policy.enforcers.crypto.useDaml=true
+#org.cougaar.core.security.policy.enforcers.access.useDaml=true
 
 #dump messages
 #org.cougaar.core.security.crypto.dumpMessages=true
