@@ -26,8 +26,10 @@
 
 package org.cougaar.core.security.policy;
 
+import java.io.Serializable;
+
 public class PersistenceManagerPolicy
-  extends SecurityPolicy
+  extends SecurityPolicy implements Serializable
 {
   // what type of communication to PM, currently only supports URL
   public String pmType;
