@@ -527,7 +527,7 @@ public class DataProtectionServiceImpl
         }
         
         if (certList == null || certList.size() == 0) {
-          CertificateException cx = new CertificateException("No certificate available to sign.");
+          CertificateException cx = new CertificateException("No certificate available to sign. Agent name: " + agent);
           publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
           throw new IOException(cx.getMessage());
         }
