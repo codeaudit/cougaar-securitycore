@@ -27,6 +27,8 @@ package org.cougaar.core.security.crypto.ldap;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -113,13 +115,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (_serviceBroker == null) {
         return false;
       }
-      _userService = (UserService) _serviceBroker.
-        getService(this, UserService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run() {
+          _userService = (UserService) _serviceBroker.
+             getService(this, UserService.class, null);
+          _keyRingService = (KeyRingService) _serviceBroker.
+             getService(this, KeyRingService.class, null);
+          return null;
+        }
+      });
       if (_userService == null) {
         _serviceBroker.addServiceListener(new UserServiceListener());
       }
-      _keyRingService = (KeyRingService) _serviceBroker.
-        getService(this, KeyRingService.class, null);
       if (_keyRingService == null) {
         _serviceBroker.addServiceListener(new KeyRingServiceListener());
       }
