@@ -103,8 +103,8 @@ java.class.name=org.cougaar.bootstrap.Bootstrapper
 ########################################################################
 # A couple properties fir the kaos domain manager
 ########################################################################
-#org.cougaar.core.security.Domain=TestDomain
-#org.cougaar.safe.domainName=TestDomain
+org.cougaar.core.security.Domain=TestDomain
+org.cougaar.safe.domainName=TestDomain
 
 
 ########################################################################

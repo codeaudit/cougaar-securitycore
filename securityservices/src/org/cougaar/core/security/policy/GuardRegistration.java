@@ -91,7 +91,7 @@ public abstract class GuardRegistration
     //guardRetriever = new GuardRetriever();
     //guard = guardRetriever.getGuard();
     if (guard == null) {
-      log.error("FATAL ERROR: Cannot continue without guard");
+      log.error("FATAL: Cannot continue without guard", new Throwable());
       throw new RuntimeException("ERROR: Cannot continue without guard");
     }
 
