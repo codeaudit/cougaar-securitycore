@@ -117,11 +117,8 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
   private IncrementalSubscription remoteQueryRelays;
   
   // private String param;
-  private boolean root=false;
-  private String myRole=null;
-  
-  private CommunityServiceUtil _csu;
-  // private MessageAddress destAddress;
+  private boolean root = false;
+  private String myRole = null;
   
   public void setParameter(Object o){
     if (!(o instanceof List)) {
@@ -137,11 +134,9 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     String param=null; ;
     param = (String)iter.next();
     if(param.equalsIgnoreCase("root")){
-      System.out.println(" Setting as root:");
-      root=true;
+      root = true;
     }
   }
-
   
   protected void setupSubscriptions() {
     
@@ -151,12 +146,12 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
           + myAddress.toString());
     }
     
-    String mySecurityCommunity=getMySecurityCommunity();
+    String mySecurityCommunity = getMySecurityCommunity();
     if (loggingService.isDebugEnabled()) {
       loggingService.debug("My security community :"+mySecurityCommunity
           +" agent name :"+myAddress.toString());  
     }
-    if(mySecurityCommunity==null) {
+    if(mySecurityCommunity == null) {
       loggingService.error("No Info about My SecurityCommunity"+myAddress.toString());  
       return;
     }
@@ -270,13 +265,8 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         }
         createSubQuery(capabilities,response,relay );
       }// end agentlookupquery.updates
-    }//end whil
-    
-  }
-  
-
-
-  
+    }//end while()
+  }  
 
   private void processNewQueries(CapabilitiesObject capabilities, Collection newQueries) {
     CmrRelay relay;
@@ -305,7 +295,6 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         loggingService.error(" There should have been No Mapping object for :"+relay.getUID());
       }
     }// end of While
-    
   }// end  processNewQueries
   
 
@@ -384,7 +373,6 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     }// end while
   }// end removeRelays
 
-  
   private void removeRelay(QueryMapping mapping) {
     if(mapping==null) {
       return;
@@ -407,8 +395,6 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       }
     }
   }
-  
- 
   
   private boolean isSecurityCommunity(String communityName) {
     boolean securitycommunity=false;
@@ -441,37 +427,4 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       return ret;
     }
   }
-
-  /*
-    private void removeAllMyQueryRelay() {
-    Collection queryRelayCollection= getBlackboardService().query(new AllMyRelayPredicate());
-    loggingService.debug("Size of my relay  collection BEFORE  remove is :"+queryRelayCollection.size());
-    Iterator i=queryRelayCollection.iterator();
-    CmrRelay relay=null;
-    while(i.hasNext()) {
-    relay=(CmrRelay)i.next();
-    getBlackboardService().publishRemove(relay);
-    }
-        
-    queryRelayCollection= getBlackboardService().query(new AllMyRelayPredicate());
-    loggingService.debug("Size of my relay  collection After remove is :"+queryRelayCollection.size());
-    
-    }
-
-    private void removeAllQueryMappingFromBB() {
-    Collection queryCollection= getBlackboardService().query(new QueryMappingPredicate());
-    loggingService.debug("Size of query mapping collection BEFORE  remove is :"+queryCollection.size());
-    Iterator i=queryCollection.iterator();
-    QueryMapping query=null;
-    while(i.hasNext()) {
-    query=(QueryMapping)i.next();
-    getBlackboardService().publishRemove(query);
-    }
-    
-    queryCollection= getBlackboardService().query(new QueryMappingPredicate()); 
-    loggingService.debug("Size of query mapping collection AFTER  remove is :"+queryCollection.size());
-    }
-
-   */
-   
 }

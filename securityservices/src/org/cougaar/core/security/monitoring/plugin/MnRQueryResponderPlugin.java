@@ -71,19 +71,6 @@ class QueryRespondRelayPredicate implements  UnaryPredicate{
   }
 }
  
-
-/*
-  class ALLQueryRelayPredicate implements  UnaryPredicate{
-  public boolean execute(Object o) {
-  boolean ret = false;
-  if (o instanceof CmrRelay ) {
-  CmrRelay relay = (CmrRelay)o;
-  ret =(( relay.getContent() instanceof MRAgentLookUp ));
-  }
-  return ret;
-  }
-  } 
- */
 class QueryMappingObjectPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
@@ -108,20 +95,6 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
   
   private IncrementalSubscription queryResponse;
   private IncrementalSubscription querymapping;
-  /*  
-      private IncrementalSubscription capObjSubscription;
-      private IncrementalSubscription newQuerySubscription;
-   */
-  private Object param;
-  
-  
-  public void setParameter(Object o){
-    this.param=o;
-  }
-
-  public java.util.Collection getParameters() {
-    return (Collection)param;
-  }
   
   protected void setupSubscriptions() {
   
@@ -132,7 +105,6 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
   }
   
   protected void execute () {
-    System.out.println(myAddress + " execute().....");
     Collection addedQueryMappingCollection;
     if(querymapping.hasChanged()) {
       addedQueryMappingCollection=querymapping.getAddedCollection();
@@ -201,10 +173,7 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
               loggingService.debug("Ouststanding query uid "+outstandingquery.getUID() + "outstanding object is :"+ outstandingquery.toString());
               if(outstandingquery.getUID().equals(relay.getUID())) {
                 loggingService.debug("Receive Response for Ouststanding query uid "+outstandingquery.getUID() + "Current relay id is :"+relay.getUID() );
-                //list.remove(i);
                 outstandingquery.setOutStandingQuery(false);
-                //list.add(i,outstandingquery);
-                //mapping.setQueryList(list);
                 modified=true;
               }
             }
@@ -226,13 +195,11 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
               loggingService.debug(" Relay List in Query Mapping is NULL :");
             }
           }
-	   
         }// end of sub query list is null
         else{
           loggingService.error("Response is null in processRemoteQueries :" +relay.getUID() );
         }
       }
-      
     }// end while
   }
 
@@ -332,7 +299,6 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           if (reply != null) {
             if(reply.getAgentList()!=null) {
               agentList=mergeResponse(agentList, reply.getAgentList());
-              //agentList.addAll( reply.getAgentList());
             }
             else {
               loggingService.debug("list of agents in current relay is null"); 
@@ -351,6 +317,8 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
                 "in Update response of agent :"+myAddress.toString());
         }
       }
+      // there is a possibility that the current relay contains a response
+      // if so, we should merge it with the latest response
       MRAgentLookUpReply rr = (MRAgentLookUpReply)relay.getResponse();
       if(rr != null) {
         List l = rr.getAgentList();
@@ -359,7 +327,7 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
           agentList = mergeResponse(agentList, l);        
         }
       }
-      reply=new MRAgentLookUpReply(agentList);
+      reply = new MRAgentLookUpReply(agentList);
       map.setResultPublished(true);
       relay.updateResponse(relay.getSource(),reply);
       loggingService.debug("UPDATING RESPONSE AFTER MERGING  "+relay.toString() );
@@ -427,28 +395,5 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
       }
     }
     return present;
-    
   }
-    
-  /*
-    public CmrRelay  findCmrRelay (UID key) {
-    CmrRelay relay=null;
-    Collection relaycollection=allqueryRelays.getCollection();
-    if(relaycollection==null) {
-    return null;
-    }
-    Iterator iter = relaycollection.iterator();
-    if(iter==null) {
-    return null;
-    }
-    while(iter.hasNext()) {
-    relay=(CmrRelay)iter.next();
-    if(relay.getUID().equals(key)) {
-    return relay;
-    }
-    }
-    return null;
-    }
-   */
-  // COPIED FROM RECEIVER PLUGIN
 }

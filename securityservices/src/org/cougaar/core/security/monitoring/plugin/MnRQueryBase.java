@@ -232,11 +232,11 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       }
     }
     /*
-    loggingService.debug("Printing result of query:" + sensors);
-    for(int i=0;i<commonAgents.size();i++) {
+      loggingService.debug("Printing result of query:" + sensors);
+      for(int i=0;i<commonAgents.size();i++) {
       loggingService.debug("result at i:"+i +" agent is :"+(String)commonAgents.get(i));  
-    }
-    */
+      }
+     */
     return commonAgents;
     
   }
@@ -251,7 +251,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       if(list2.isEmpty()){
       return list1;
       }
-    */
+     */
     Iterator iter=list1.iterator();
     String agentname;
     while(iter.hasNext()) {
@@ -272,7 +272,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(searchClassification==null) {
       return agentlist;
       }
-    */
+     */
     if (loggingService.isDebugEnabled()) {
       if(searchClassification!=null){
         loggingService.debug("In find agent FUNCTION  query is :"+searchClassification.getName()+
@@ -293,7 +293,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         //loggingService.debug("got search classification as null will return all sensors :");
         if(sensors) {
           if((reg.getType().equals(IdmefMessageFactory.SensorType))){
-	    //  loggingService.debug("Analyzer id is :"+ reg.getAgentName());
+            //  loggingService.debug("Analyzer id is :"+ reg.getAgentName());
             //loggingService.debug("Adding sensor key when classification is null :"+key);
             agentlist.add(reg.getAgentName());
           }
@@ -339,7 +339,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       if(searchSource==null) {
       return agentlist;
       }
-    */
+     */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug("In  searchBySources FUNCTION  query is :"+searchSource);
     }
@@ -402,7 +402,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(searchTarget==null) {
       return agentlist;
       }
-    */
+     */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchByTargets FUNCTION  query is :"+searchTarget);
     }
@@ -466,7 +466,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(agentname==null) {
       return agentlist;
       }
-    */
+     */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchBySourcesofattack  FUNCTION  query is :"+agentname);
     }
@@ -528,7 +528,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
               }
               if(found) {
                 if(sensors) {
-		  //    loggingService.debug("Looking for sensors agents :");
+                  //    loggingService.debug("Looking for sensors agents :");
                   if((reg.getType().equals(IdmefMessageFactory.SensorType))){
                     //loggingService.debug(" adding sensor key :"+key);
                     agentlist.add(reg.getAgentName());
@@ -562,7 +562,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     /*if(agentname==null) {
       return agentlist;
       }
-    */
+     */
     if (loggingService.isDebugEnabled()) {
       //loggingService.debug(" in  searchByTargetofattack  FUNCTION  query is :"+agentname);
     }
@@ -631,7 +631,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
                   }
                 }
                 else {
-		  // loggingService.debug("Looking for Security  manager :");
+                  // loggingService.debug("Looking for Security  manager :");
                   if(reg.getType().equals(IdmefMessageFactory.SecurityMgrType)) {
                     //loggingService.debug("Adding security manager  key :"+key);
                     agentlist.add(key);
@@ -647,41 +647,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     return agentlist;
     // return new ArrayList();
   }
-  
-  /*
-  private String getMyRole(String mySecurityCommunity) {
-    String myRole=null;
-    boolean enclavemgr=false;
-    boolean societymgr=false;
-    if(communityService==null) {
-      loggingService.error(" Community Service is null" +myAddress.toString()); 
-    }
-    Collection roles =communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
-    Iterator iter=roles.iterator();
-    String role;
-    while(iter.hasNext()) {
-      role=(String)iter.next();
-      if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
-        enclavemgr=true;
-      }
-      if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
-        societymgr=true;
-      }
-    }
-    if(enclavemgr) {
-      myRole="SecurityMnRManager-Enclave"; 
-    }
-    if(societymgr ) {
-      myRole="SecurityMnRManager-Society";
-    }
-    if(enclavemgr && societymgr) {
-      myRole="SecurityMnRManager-Society"; 
-    }
-    return myRole;
-    						      
-  }
-  */
-  
+
   protected List searchByCommunity (String community) {
     ArrayList list=new ArrayList();
     if(communityService==null) {
@@ -766,7 +732,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       currentclassification=classificationList[i];
       /*loggingService.debug("current classification :"+ classificationtoString(currentclassification));
         loggingService.debug("query classification :"+ classificationtoString(queryclassification));
-      */
+       */
       if(areClassificationsEqual(currentclassification,queryclassification)){
         isclassification=true;
         return isclassification;
@@ -784,7 +750,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         return ispresent;
       }
       else {
-	//  loggingService.debug(" source or Target is not present :");
+        //  loggingService.debug(" source or Target is not present :");
       }
     }
     return ispresent ;
@@ -797,7 +763,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     boolean serviceequal=false;
     boolean processequal=false;
     if(!(((existing instanceof Source) && (inquery instanceof Source))||
-        ((existing instanceof Target) && (inquery instanceof Target)))) {
+           ((existing instanceof Target) && (inquery instanceof Target)))) {
       return equal;
     }
     IDMEF_Node existingNode=null;
@@ -1171,9 +1137,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     OutStandingQuery outstandingq;  
     //QueryMapping tempqMapping;
     if(!queryMappingCol.isEmpty()){
-      if (loggingService.isDebugEnabled()) {
-        //loggingService.debug("Going to find uid from list of Query mapping Objects on bb"+queryMappingCol.size()); 
-      }
+      
       Iterator iter=queryMappingCol.iterator();
       while(iter.hasNext()) {
         foundqMapping=(QueryMapping)iter.next();
@@ -1182,14 +1146,11 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         }
         relayList=foundqMapping.getQueryList();
         if(relayList==null) {
-           continue;
+          continue;
         }
         for(int i=0;i<relayList.size();i++) {
           outstandingq=(OutStandingQuery)relayList.get(i);
           if(outstandingq.getUID().equals(givenUID)) {
-            if (loggingService.isDebugEnabled()) {
-              //loggingService.debug(" Found given uid :"+ givenUID +" in object with UID :"+outstandingq.getUID());
-            }
             return foundqMapping;
           }
         }
@@ -1217,17 +1178,18 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     }
   }
 
-   public CmrRelay  findCmrRelay (UID key) {
-    CmrRelay relay=null;
-    Collection allrelays= getBlackboardService().query( new UnaryPredicate() {
-	public boolean execute(Object o) {
-	  boolean ret = false;
-	  if (o instanceof CmrRelay ) {
-	    CmrRelay relay = (CmrRelay)o;
-	    ret = (relay.getContent() instanceof MRAgentLookUp);
-	  }
-	  return ret;
-	}
+  public CmrRelay findCmrRelay(UID key) {
+    CmrRelay relay = null;
+    final UID fKey = key;
+    Collection allrelays = getBlackboardService().query( new UnaryPredicate() {
+        public boolean execute(Object o) {
+          if (o instanceof CmrRelay) {
+            CmrRelay relay = (CmrRelay)o;
+            return ((relay.getUID().equals(fKey)) &&
+                    (relay.getContent() instanceof MRAgentLookUp));
+          }
+          return false;
+        }
       });
     Iterator iter =allrelays.iterator();
     while(iter.hasNext()) {
