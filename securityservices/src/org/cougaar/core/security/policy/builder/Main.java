@@ -288,7 +288,7 @@ class Main
       ParsedPolicyFile parsed = compile(_policyFile);
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
-      System.out.println("Policies parsed");
+      System.out.println("Connecting to domain manager");
       if (_cmdLineAuth) {
         _ontology = new TunnelledOntologyConnection(_url,
                                                     _cmdLineUser,
@@ -339,7 +339,6 @@ class Main
         } 
       }
     }
-    System.out.println("New Unconditional Policy Msgs created");
     System.out.println("Getting Existing Policies from servlet");
     List oldPolicies = _ontology.getPolicies();
     List oldPolicyMsgs = new Vector();
