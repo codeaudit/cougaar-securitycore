@@ -41,7 +41,7 @@ import java.net.URLConnection;
 public class DamlURLConnection extends URLConnection
 {
   static private LoggingService _log = null;
-  private File _damlFile;
+  private String _ontologyFileName;
   private InputStream _input;
   private boolean _connected = false;
 
@@ -69,14 +69,13 @@ public class DamlURLConnection extends URLConnection
     if (_log != null && _log.isDebugEnabled()) {
       _log.debug("URL = " + u);
     }
-    ConfigFinder cf = ConfigFinder.getInstance();
     String path = u.getPath();
     int index = path.lastIndexOf("/");
     String filename = path.substring(index + 1);
     if (_log != null && _log.isDebugEnabled()) {
       _log.debug("Retrieved file name = " + filename);
     }
-    _damlFile = cf.locateFile("Ontology-" + filename);
+    _ontologyFileName = "Ontology-" + filename;
   }
 
 
@@ -86,13 +85,11 @@ public class DamlURLConnection extends URLConnection
    */
   public void connect() throws IOException
   {
-    if (_damlFile == null) {
-      throw new IOException("File not found - probably ConfigFinder problem...");
-    }
     if (_log != null && _log.isDebugEnabled()) {
       _log.debug("Connecting...");
     }
-    _input = new FileInputStream(_damlFile);
+    ConfigFinder cf = ConfigFinder.getInstance();
+    _input = cf.open(_ontologyFileName);
     _connected = true;
   }
 
