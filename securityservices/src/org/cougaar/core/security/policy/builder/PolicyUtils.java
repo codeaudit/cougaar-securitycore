@@ -99,7 +99,7 @@ public class PolicyUtils
                                         null, 
                                         KAoSConstants.ACTOR_CLASS_SCOPE);
     subjects.addElement(subject);
-    String action = controls.getClassName();
+    String action = controls.getImmediateBaseClass();
     PolicyMsg policyMsg = new PolicyMsg(policy.getPolicyID(),
                                         policy.getPolicyName(),
                                         policy.getPolicyDesc(),
@@ -342,7 +342,8 @@ public class PolicyUtils
         KAoSClassBuilderImpl classBuilder
           = new KAoSClassBuilderImpl(myClassName);
 
-        classBuilder.addBaseClass(kaos.ontology.jena.ActorConcepts._Person_);
+        classBuilder.addImmediateBaseClass(ActorConcepts._Person_);
+        classBuilder.addBaseClass(ActorConcepts._Person_);
         classBuilder.addRequiredValueOnProperty(kaos.ontology.jena.GroupConcepts._isMemberOf_, 
                                                 userRole);
 						
@@ -402,7 +403,7 @@ public class PolicyUtils
         String myClassName = pluginsInRoleClassPrefix + shortRole;
         KAoSClassBuilderImpl classBuilder 
           = new KAoSClassBuilderImpl(myClassName);
-
+        classBuilder.addImmediateBaseClass(UltralogActorConcepts._UltralogPlugins_);
         classBuilder.addBaseClass(UltralogActorConcepts._UltralogPlugins_);
         classBuilder.addRequiredValueOnProperty(UltralogActorConcepts._roleOfPlugin_,
                                                 bbRole);
