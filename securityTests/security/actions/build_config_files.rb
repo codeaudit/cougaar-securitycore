@@ -62,6 +62,9 @@ class NodeConfigUtility
       convertToDos(@arguments)
       convertToDos(@env)
       convertToDos(@jvm_props)
+      propertiesInFile = []
+      extractArgumentsToPropertyFile(@jvm_props, propertiesInFile)
+
       @commandLineDos = "@java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} 2> %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stderr.log > %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stdout.log"
 
       saveCommandLineDos
@@ -81,6 +84,71 @@ class NodeConfigUtility
     end
   end
 
+  # Save properties to file in a format that the bootstrapper can read.
+  def savePropertiesToFile(propertyFile, propertiesInFile)
+    #puts "Saving properties to #{propertyFile}..."
+    file = File.open(propertyFile ,"w") { |file|
+      propertiesInFile.each do |prop|
+        prop = prop.gsub(/^-D/, '')
+        file.write(prop + "\n")
+      end
+    }
+  end
+  
+  # Extract arguments that are not needed by the bootstrapper.
+  # This is needed on Windows 2000, as the command line length is
+  # limited to 2047 characters.
+  # On Windows XP, the length of the commmand line is limited to 9191 characters
+  # For additional information, see:
+  #   http://support.microsoft.com/default.aspx?scid=kb;en-us;830473
+  #
+  def extractArgumentsToPropertyFile(arguments, propertiesInFile)
+    propertyFile = "#{@society_config_dir}/#{@node_name}.prop"
+    # A list of arguments that should be kept on the command line
+    # They are needed by the bootstrapper.
+    argumentsNeeded = [
+       "^-Dorg\\.cougaar\\.bootstrap\\..*",
+       "^-Dorg\\.cougaar\\.install\\.path",
+       "^-Dorg\\.cougaar\\.workspace",
+       "^-Dorg\\.cougaar\\.system\\.path",
+       "^-Dorg\\.cougaar\\.class\\.path",
+       "^-Djava\\.class\\.path",
+       "^-Djava\\.security\\..*",
+       "^-Djava\\.io\\..*",
+       "^-X.*",
+    ]
+    regexpNeeded = []
+    argumentsNeeded.each do |neededArg|
+       regexpNeeded << Regexp.new(neededArg)
+    end
+		parsedArgs = []
+		
+    arguments.each do |arg|
+      needed = false
+      regexpNeeded.each do |neededArg|
+        if neededArg =~ arg
+          needed = true
+          #puts "#{arg} - #{neededArg}"
+          break
+        end
+      end
+      if !needed
+        #puts "Argument #{arg} is NOT needed by bootstrapper"
+        arg.gsub!(/%COUGAAR_INSTALL_PATH%/, CIP)
+        arg.gsub!(/\\/, '/')
+        propertiesInFile << arg
+      else
+        #puts "Argument #{arg} is needed by bootstrapper"
+        parsedArgs << arg
+      end
+    end
+    parsedArgs << "-Dorg.cougaar.properties.url=file:#{@node_name}.prop"
+    arguments.clear
+	  arguments.concat(parsedArgs)
+	  
+    savePropertiesToFile(propertyFile, propertiesInFile)
+  end
+  
   # Build the .bat file for Windows. This is hacky but it should work.
   def convertToDos(arguments)
     arguments.each do |arg|
