@@ -25,6 +25,7 @@ import java.net.*;
 import java.io.*;
 
 import javax.net.ssl.*;
+import javax.net.*;
 
 import org.cougaar.core.security.ssl.*;
 import org.cougaar.core.security.provider.*;
@@ -34,6 +35,7 @@ import org.cougaar.core.component.*;
 
 public class SSLTest {
   SSLServiceImpl sslservice;
+  KeyRingService keyRing;
   String host = "localhost";
   int port = 8900;
 
@@ -41,6 +43,8 @@ public class SSLTest {
     SSLTest test = new SSLTest();
     if (test.createService() != null) {
       test.testSocket();
+
+      test.testUserSocket();
     }
   }
 
@@ -51,7 +55,7 @@ public class SSLTest {
     SecurityServiceProvider secProvider = new SecurityServiceProvider();
 
     ServiceBroker serviceBroker = secProvider.getServiceBroker();
-    KeyRingService keyRing = (KeyRingService)secProvider.getService(serviceBroker,
+    keyRing = (KeyRingService)secProvider.getService(serviceBroker,
 						     this,
 						     KeyRingService.class);
 
@@ -75,7 +79,7 @@ public class SSLTest {
       ServerThread st = new ServerThread();
       st.start();
 
-      SSLSocket s = (SSLSocket)sslservice.getSocketFactory().createSocket(host, port);
+      SSLSocket s = (SSLSocket)KeyRingSSLFactory.getDefault().createSocket(host, port);
 
       System.out.println("=====> Testing send server stream.");
 
@@ -102,6 +106,21 @@ public class SSLTest {
 
   }
 
+  public void testUserSocket() {
+    System.out.println("=====> Testing usersocket");
+
+    try {
+      UserSSLServiceImpl userservice = new UserSSLServiceImpl();
+      userservice.init(keyRing);
+      SocketFactory usersocfac = userservice.getUserSocketFactory();
+      Socket s = usersocfac.createSocket(host, port);
+      System.out.println("=====> Successfully created user socket.");
+    } catch (Exception ex) {
+      System.out.println("XXXXX Exception occurred: " + ex.toString());
+      ex.printStackTrace();
+    }
+  }
+
 
 
   class ServerThread extends Thread {
@@ -109,7 +128,7 @@ public class SSLTest {
     public void run() {
       try {
         SSLServerSocket ss = (SSLServerSocket)
-          sslservice.getServerSocketFactory().createServerSocket(port);
+          KeyRingSSLServerFactory.getDefault().createServerSocket(port);
         SSLSocket s = (SSLSocket)ss.accept();
         //s.startHandshake();
 
