@@ -41,13 +41,26 @@ import test.org.cougaar.core.security.simul.BasicNode;
 public class MessageProtectionServiceTest
   extends TestCase
 {
+  private MessageProtectionService mps;
+  private BasicNode bn;
+  private SecurityServiceProvider secProvider;
 
   public MessageProtectionServiceTest(String name) {
     super(name);
   }
 
-  public static Test suite() {
-    return new TestSuite(MessageProtectionServiceTest.class);
+  public void setUp() {
+    // Initialize Basic Node
+    bn = new BasicNode();
+    Assert.assertNotNull("Could not get Basic Node", bn);
+
+    secProvider = bn.getSecurityServiceProvider();
+
+    // Get Message Protection Service
+    mps = (MessageProtectionService)secProvider.getService(bn.getServiceBroker(),
+							   this,
+							   MessageProtectionService.class);
+    Assert.assertNotNull("Could not get MessageProtectionService", mps);
   }
 
   /**
@@ -57,20 +70,7 @@ public class MessageProtectionServiceTest
    * 2) Code which exercises the objects in the fixture.
    * 3) Code which verifies the result.
    */
-  public void testEncryption() {
-    // Initialize Basic Node
-    BasicNode bn = new BasicNode();
-    Assert.assertNotNull("Could not get Basic Node", bn);
-
-    SecurityServiceProvider secProvider = bn.getSecurityServiceProvider();
-
-    // Get Message Protection Service
-    MessageProtectionService mps = 
-      (MessageProtectionService)secProvider.getService(bn.getServiceBroker(),
-						       this,
-						       MessageProtectionService.class);
-    Assert.assertNotNull("Could not get MessageProtectionService", mps);
-
+  public void testHeaderEncryption() {
     // Create a test header
     String header = "Source:foo - Target:bar";
     byte[] rawData = header.getBytes();
@@ -103,22 +103,58 @@ public class MessageProtectionServiceTest
     System.out.println("Header before encryption: " + header);
     //System.out.println("Header after encryption: " + new String(encryptedHeader));
     System.out.println("Header after encryption/decryption: " + newHeader);
+  }
 
-    // 
-    OutputStream os = null;
-    InputStream is = null;
+  /** Test stream encryption
+   */
+  public void testStreamEncryption() {
+    MessageAddress source = new MessageAddress("foo");
+    MessageAddress destination = new MessageAddress("bar");
     MessageAttributes attrs = null;
 
+    String msgContent = "This is a message - 12345567890";
+    byte[] aMessage = msgContent.getBytes();
+    
+    // Encrypt stream
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
     ProtectedOutputStream pos =
       mps.getOutputStream(os,
 			  source,
 			  destination,
 			  attrs);
+    Assert.assertNotNull("Protected Output stream is null", pos);
+
+    try {
+      pos.write(aMessage);
+      pos.finishOutput(attrs);
+    }
+    catch (Exception e) {
+      Assert.assertTrue("Exception while writing to the stream:" + e, false);
+    }
+
+    byte[] encryptedMsg = os.toByteArray();
+    System.out.println("Message after encryption: " + new String(encryptedMsg));
+
+    // Decrypt stream
+    InputStream is = new ByteArrayInputStream(encryptedMsg);
+
     ProtectedInputStream pis =
       mps.getInputStream(is,
 			 source,
 			 destination,
 			 attrs);
+    Assert.assertNotNull("Protected Input stream is null", pis);
 
+    try {
+      pis.finishInput(attrs);
+    }
+    catch (Exception e) {
+      Assert.assertTrue("Exception while reading from the stream:" + e, false);
+    }
+    /*
+    while (pis.isavailable()) {
+      pis.read();
+    }
+    */
   }
 }
