@@ -34,7 +34,7 @@ import java.io.Serializable;
 public class QueryMapping implements Publishable, Serializable {
   private ArrayList queryList;
   private UID relay_uid;
-  
+  private boolean alreadypublished=false;  
   public QueryMapping (UID id, ArrayList query) {
     this.relay_uid=id;
     this.queryList=query;
@@ -51,8 +51,14 @@ public class QueryMapping implements Publishable, Serializable {
   public void setQueryList(ArrayList querylist) {
     this.queryList=querylist;
   }
+   public void setResultPublished(boolean published) {
+    this.alreadypublished=published;
+  }
 
    public boolean isPersistable() {
     return true;
   } 
+  public boolean isResultPublished() {
+    return alreadypublished;
+  }
 }
