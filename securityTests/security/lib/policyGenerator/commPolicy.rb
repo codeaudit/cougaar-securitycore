@@ -124,12 +124,49 @@ class CommPolicies
     puts "#{policyCount()} policies found"
   end
 
-  def isMsgAllowed(sender, receiver)
+  def wellDefined?()
+    ret = true
+    @policies.each do |policy|
+      name = policyName(policy)
+      enclaves = policyEnclaves(policy)
+      count = 0
+      @policies.each do |policyInner|
+        if name == policyName(policyInner) then
+          count += 1
+        end
+      end
+      if count > 1 then
+        ret = false
+        puts "ERROR: #{name} used to represent #{count} distinct policies"
+      end
+      policySenders(policy).each do |agent|
+        if !enclaves.include?(getEnclaveFromAgent(agent)) then
+          ret = false
+          puts("ERROR: policy #{name} involves agent #{agent} outside " +
+               "policy enclaves [#{enclaves.join(", ")}]")
+        end
+      end
+      policyReceivers(policy).each do |agent|
+        if !enclaves.include?(getEnclaveFromAgent(agent)) then
+          ret = false
+          puts("ERROR: policy #{name} involves agent #{agent} outside" +
+               "policy enclaves [#{enclaves.join(", ")}]")
+        end
+      end
+    end
+    ret
+  end
+
+  def isMsgAllowed(sender, receiver, verbose = false)
     if @mumbleFlag && sender == receiver then
       return true
     end
     @policies.each do |policy|
-      if policySenders(policy).include?(sender) && policyReceivers(policy).include?(receiver) then
+      if policySenders(policy).include?(sender) && 
+         policyReceivers(policy).include?(receiver) then
+        if verbose then
+          puts("Allowed by policy #{policyName(policy)}")
+        end
         return true
       end
     end
@@ -298,6 +335,17 @@ class CommPolicies
     agents
   end
 
+  def getEnclaveFromAgent(agentname)
+    @run.society.each_agent(true) do |agent|
+      if agent.name == agentname then
+        return agent.host.enclave
+      end
+    end
+    #raise "No agent named #{agentname}"
+    @run.info_message "WARNING  - where is agent #{agentname}?"
+    return nil
+  end
+
   def getNodeFromAgent(agentname)
     @run.society.each_agent do |agent|
       if agent.name == agentname then 
@@ -307,6 +355,16 @@ class CommPolicies
     raise "Agent has no node"
   end
 
+  def communityEntityIsAgent(entity)
+    return (entity.entity_type == "Agent" ||
+            entity.entity_type == "Node"  ||
+            (entity.entity_type == nil  && 
+                  @allAgents.include?(entity.name)))
+  end
+
+  #
+  # Named Set utilities.
+  #
   def namedAgent(agent)
     "Agent#{agent}"
   end
@@ -411,28 +469,34 @@ class CommPolicies
 
   def allowSpecialCommunity()
     banner("Allow special communities")
-    debug "working on community policies"
     @run.society.communities.each do |community|
       debug "working on community #{community.name}"
+
       specialMembers = getSpecialCommunityAgentsRecursive(community)
       debug "special members = #{specialMembers.join(", ")}"
       specialSetName = "Special#{community.name}Members"
-      if (specialMembers.empty?) then
-        next
-      end
       declareSet(specialSetName, specialMembers);
-      permit(@allNodesName, specialSetName, 
-             "Special#{community.name}Policy-I",
-             getCommunityEnclaves(community))
-      permit(specialSetName, @allNodesName,
-             "Special#{community.name}Policy-II",
-             getCommunityEnclaves(community))
+
+      enclaves = getCommunityEnclaves(community)
+      communityNodesName = "Possible#{community.name}Nodes"
+      declareSet(communityNodesName, getNodesFromEnclaves(enclaves))
+
       membersName = communityMembersName(community)
       members = translateSet(membersName)
       if (members == nil || members.empty?) then
         next
       end
       debug "members = #{members.join(", ")}"
+
+      permit(communityNodesName, membersName, 
+             "Special#{community.name}Policy-I",
+             enclaves)
+      permit(membersName, communityNodesName,
+             "Special#{community.name}Policy-II",
+             enclaves)
+      if (specialMembers.empty?) then
+        next
+      end
       permit(membersName, specialSetName, 
              "Special#{community.name}Policy-III",
              getCommunityEnclaves(community))
@@ -444,38 +508,17 @@ class CommPolicies
 
   def getCommunityEnclaves(community)
     enclaves = []
-    debug("collecting enclaves")
-    community.each do |entity|
-      debug("Found entity named #{entity.name} with type #{entity.entity_type}")
-      if entity.entity_type != "Agent" &&  entity.entity_type != "Node" then
+    getMembersRecursive(community).each do |agent|
+      debug "Looking at agent #{agent}"
+      enclave = getEnclaveFromAgent(agent)
+      debug " in enclave #{enclave}"
+      if enclave == nil then
         next
       end
-      agent = nil
-      debug("have an entity (#{entity.name}) - looking for the agent name")
-      @run.society.each_agent(true) do |anAgent|
-        if anAgent.name == entity.name then
-          agent = anAgent
-          break
-        end
+      if ! enclaves.include?(enclave) then
+        enclaves.push(enclave)
       end
-      
-      if agent == nil then
-        debug("not found")
-        next
-      end
-      debug("found agent")
-      if !enclaves.include?(agent.host.enclave) then
-        debug("Added new enclave  #{agent.host.enclave} " +
-              "because of #{agent.name}")
-        enclaves.push(agent.host.enclave)
-      end
-      debug("bottom of entities loop")
     end
-    debug("Finished entities loop for getCommunity Enclaves")
-    if (enclaves.size > 1) then
-      debug "Community #{community.name} spans enclaves"
-    end
-    debug("Finishing get enclave communities")
     enclaves
   end
 
@@ -525,7 +568,7 @@ class CommPolicies
     end
     community.each do |entity|
       debug("Examining entity #{entity.name}")
-      if entity.entity_type != "Agent" then
+      if ! communityEntityIsAgent(entity) then
         next
       end
       agent = entity.name
@@ -582,8 +625,7 @@ class CommPolicies
     agents = []
     community.each do |entity|
       debug("type = #{entity.entity_type}, name = #{entity.name}")
-      if (entity.entity_type == "Agent" ||
-           (entity.entity_type == nil  && @allAgents.include?(entity.name)))
+      if communityEntityIsAgent(entity) then
         agent = entity.name
         if !agents.include?(agent) then
           agents.push(agent)
@@ -593,6 +635,16 @@ class CommPolicies
       end
     end
     agents
+  end
+
+  def getNodesFromEnclaves(enclaves)
+    nodes = []
+    @run.society.each_node do |node|
+      if enclaves.include?(node.host.enclave) then
+        nodes.push(node.name)
+      end
+    end
+    nodes
   end
 
 #==========================================================================
@@ -695,7 +747,7 @@ class CommPolicies
                 "AllowHealthMonitoring#{community.name}-I",
                 getCommunityEnclaves(community))
         permit(communityMembersName(community), healthMonitorsName,
-                "AllowHealthMonitoring#{community.name}-I",
+                "AllowHealthMonitoring#{community.name}-II",
                 getCommunityEnclaves(community))
       end
     end
@@ -705,10 +757,7 @@ class CommPolicies
     agents = []
     commmunity.each do |entity|
       entity.each_role do |role|
-        if role == 'HealthMonitor' && 
-            (entity.entity_type == "Node" || 
-             entity.entity_type == "Agent" ||
-             @allAgents.include?(entity.name)) then
+        if role == 'HealthMonitor' && communityEntityIsAgent(entity) then
           agents.push(entity.name)
         end
       end
@@ -822,16 +871,27 @@ class CommPolicies
         end
       end
       debug "subordinates = #{subordinates.join(',')}"
+      enclaves = [ agent.host.enclave ]
+      subordinates.each do |subordinate|
+        enclave = getEnclaveFromAgent(subordinate)
+        if enclave == nil then
+          next
+        end
+        if ! enclaves.include?(enclave) then
+          enclaves.push(enclave)
+        end
+      end
+      debug "enclaves = [#{enclaves.join(", ")}]"
       if (! subordinates.empty?) then
         declareSet(namedAgent(superior), [superior])
         subordinatesName = "SubordinatesOf#{superior}"
         declareSet(subordinatesName, subordinates)
         permit(namedAgent(superior), subordinatesName,
                "#{superior}TalksToSubordinates-I",
-               [ agent.host.enclave ])
+               enclaves)
         permit(subordinatesName, namedAgent(superior),
                "#{superior}TalksToSubordinates-II",
-               [ agent.host.enclave ])
+               enclaves)
       end
     end
   end
@@ -1104,21 +1164,6 @@ class CommunicationPolicy < CommPolicy
     puts "Destined for enclaves [#{policyEnclaves.join(", ")}]"
     puts "#{@senderSet} = #{policySenders}"
     puts "#{@receiverSet} = #{policyReceivers}"
-  end
-
-  def wellDefined?()
-    policies.each do |policy|
-      name = policyName(policy)
-      count = 0
-      policies.each do |policyInner|
-        if name == policyName(policyInner) then
-          count += 1
-        end
-      end
-      if count > 1 then
-        puts "ERROR: #{name} used to represent #{count} distinct policies"
-      end
-    end
   end
 
   def isMsgAllowed(sender, receiver)
