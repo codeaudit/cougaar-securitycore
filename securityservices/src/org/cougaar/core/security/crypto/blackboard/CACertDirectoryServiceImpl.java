@@ -28,7 +28,7 @@ package org.cougaar.core.security.crypto.blackboard;
 
 import java.util.*;
 import java.security.cert.X509Certificate;
-import java.security.PrivateKey;
+import java.security.*;
 
 // Cougaar core services
 import org.cougaar.core.service.BlackboardService;
@@ -40,10 +40,9 @@ import org.cougaar.util.UnaryPredicate;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.CACertDirectoryService;
-
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.CertificateUtility;
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.naming.CertificateEntry;
 
 public class CACertDirectoryServiceImpl
@@ -62,7 +61,7 @@ public class CACertDirectoryServiceImpl
     BlackboardService bbs = (BlackboardService)
       _serviceBroker.getService(this,
 			       BlackboardService.class,
-                                null);
+			       null);
     if(bbs==null) {
       if (_log.isDebugEnabled()) {
 	_log.debug("Adding service listner for blackboard service :");
@@ -111,15 +110,30 @@ public class CACertDirectoryServiceImpl
       if (certList == null) {
 	certList = new ArrayList();
       }
-      int index = certList.indexOf(certEntry);
+      // indexOf only compares by reference, but publishCertificate(Certificate...)
+      // creates a new one every time it is called
+      //int index = certList.indexOf(certEntry);
+      int index = -1;
+      PublicKey pubKey = certEntry.getCertificate().getPublicKey();
+      for (int i = 0; i < certList.size(); i++) {
+        CertificateEntry entry = (CertificateEntry)certList.get(i);
+        if (entry.getCertificate().getPublicKey().equals(pubKey)) {
+          // Entry is being modified
+          certList.set(index, certEntry);
+          index = i;
+          break;
+        }
+      }
       if (index == -1) {
 	// New entry
 	certList.add(certEntry);
       }
+      /*
       else {
 	// Entry is being modified
 	certList.set(index, certEntry);
       }
+      */
       // Add entry for DN and Unique ID so that we can search using both strings
       _certStore.put(dnname, certList);
       _certStore.put(certEntry.getUniqueIdentifier(), certEntry);
@@ -150,7 +164,7 @@ public class CACertDirectoryServiceImpl
    */
   public List getAllCertificates() {
     if (_log.isDebugEnabled()) {
-      _log.debug("Get all certificates");
+      _log.debug("Get all certificates, cache size " + _certStore.size());
     }
     Enumeration enum = _certStore.elements();
     List completeList = new ArrayList();
@@ -215,12 +229,20 @@ public class CACertDirectoryServiceImpl
     }
     if (!_blackboardService.didRehydrate() || collection == null) {
       _blackboardService.publishAdd(_certStore);
+      if (_log.isDebugEnabled()) {
+        _log.debug("adding cert store to BB");
+      }
     }
     else {
       if (bbstore != null) {
+        // need to handle collisions
         _certStore.putAll(bbstore);
         if (_certStore.size() != 0) {
           updateBlackBoard();
+          if (_log.isDebugEnabled()) {
+            _log.debug("updating cert store to BB");
+          }
+
         }
       }
       else {
@@ -237,7 +259,7 @@ public class CACertDirectoryServiceImpl
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
-        _log.debug("BB Service is now available");
+	  _log.debug("BB Service is now available");
 	if(_blackboardService==null){
 	  setBlackboardService();
 	}
