@@ -132,29 +132,10 @@ public class UserManagerPlugin extends ComponentPlugin {
 
   private void setDomain(CommunityService cs, AgentIdentificationService ais) {
     String myAddress = ais.getName();
-    Collection communities = cs.listParentCommunities(myAddress);
-    Iterator iter = communities.iterator();
-    while (iter.hasNext()) {
-      // find the "User" community
-      String community = iter.next().toString();
-      Attributes attrs = cs.getCommunityAttributes(community);
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-          try {
-            for (int i = 0; i < attr.size(); i++) {
-              if (AgentUserService.COMMUNITY_TYPE.
-                  equals(attr.get(i).toString())) {
-                // found the right community
-                _domain = community;
-                return;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a User community
-          }
-        }
-      }
+    String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
+    Collection communities = cs.listParentCommunities(myAddress, filter);
+    if (!communities.isEmpty()) {
+      _domain = communities.iterator().next().toString();
     }
   }
 

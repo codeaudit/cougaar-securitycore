@@ -151,27 +151,10 @@ public class LdapUserServiceImpl implements UserService {
 
   }
   private void setDefaultDomain(CommunityService cs, String agent) {
-    Collection communities = 
-      cs.listParentCommunities(agent);
-    Iterator iter = communities.iterator();
-    while (iter.hasNext()) {
-      String community = iter.next().toString();
-      Attributes attrs = cs.getCommunityAttributes(community);
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-          try {
-            for (int i = 0; i < attr.size(); i++) {
-              if (AgentUserService.COMMUNITY_TYPE.equals(attr.get(i).toString())) {
-                _defaultDomain = community;
-                return;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a Security community
-          }
-        }
-      }
+    String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
+    Collection communities = cs.listParentCommunities(agent, filter);
+    if (!communities.isEmpty()) {
+      _defaultDomain = communities.iterator().next().toString();
     }
   }
 
