@@ -17,8 +17,8 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES lib_mod_recipe_arg WRITE;
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Class Name',4.000000000000000000000000000000,'org.cougaar.core.mts.MessageProtectionAspect');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Component Name',0.000000000000000000000000000000,'org.cougaar.core.mts.MessageProtectionAspect');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Class Name',4.000000000000000000000000000000,'org.cougaar.core.security.crypto.MessageProtectionAspectImpl');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Component Name',0.000000000000000000000000000000,'org.cougaar.core.security.crypto.MessageProtectionAspectImpl');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Component Priority',2.000000000000000000000000000000,'INTERNAL');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Number of Arguments',3.000000000000000000000000000000,'0');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-MessageProtectionAspect','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryAllNodes');
