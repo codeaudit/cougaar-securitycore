@@ -71,7 +71,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
   
   class CRLAgentRegistrationPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
-      loggingService.debug(" Object on BB is :"+ o.toString());
+      //loggingService.debug(" Object on BB is :"+ o.toString());
       boolean ret = false;
       if (o instanceof  CrlRelay ) {
 	return true;
@@ -159,11 +159,6 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       getBlackboardService().publishAdd(crlRegistrationTable);
       loggingService.debug(" Publishing CRL reg table :");
     }
-   
-/*
-  crlregistrationtable=(IncrementalSubscription)getBlackboardService().subscribe
-  (new CRLRegistrationTablePredicate());
-*/
     crlagentregistration=(IncrementalSubscription)getBlackboardService().subscribe
       (new CRLAgentRegistrationPredicate());
 
@@ -186,11 +181,11 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     CrlRelay crlrelay=null;
     CRLAgentRegistration regagentObject=null;
     Collection regcollection= crlagentregistration.getAddedCollection();
-    Collection completecollection= crlagentregistration.getCollection();
-    loggingService.debug("execute of crl agent registration plugin called ");
+    //Collection completecollection= crlagentregistration.getCollection();
+    //loggingService.debug("execute of crl agent registration plugin called ");
     loggingService.debug("execute of crl agent registration plugin called "+crlagentregistration.hasChanged());
     loggingService.debug("Recived Collection size for new CRL Registration :"+regcollection.size());
-    loggingService.debug("Complete Collection size for CRL Registration :"+completecollection.size());
+    //loggingService.debug("Complete Collection size for CRL Registration :"+completecollection.size());
     boolean modified=false;
     if(crlRegistrationTable==null) {
       // completeregistration=false;
@@ -521,6 +516,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	    return crlrelay;
 	  }
 	}
+        crlrelay=null;
       }
       return crlrelay;
     }
