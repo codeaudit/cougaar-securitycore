@@ -416,7 +416,7 @@ public class DataProtectionServiceImpl
         policy.asymmSpec, sk, pmCert);
       DataProtectionKeyImpl pmDPKey =
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
-                              keyRing.findCertChain(pmCert));
+                              keyRing.findCertChain(pmCert), pmp);
 //	TODO Is this the right place for this?
 /*
 	if(log.isDebugEnabled()){
@@ -559,6 +559,19 @@ public class DataProtectionServiceImpl
           int sleep_time = 10000;
           while (skey == null && wait_time > 0) {
             PersistenceManagerPolicy [] pmp = pps.getPolicies();
+            if (pmp.length == 0 && keyCollection.size() > 1) {
+              pmp = new PersistenceManagerPolicy[keyCollection.size() - 1];
+              for (int i = 1; i < keyCollection.size(); i++) {
+                DataProtectionKeyImpl keyImpl = (DataProtectionKeyImpl)
+                  keyCollection.get(i);
+                pmp[i-1] = keyImpl.getPMPolicy();
+              }
+            }
+
+            if (log.isDebugEnabled()) {
+              log.debug("pmp size: " + pmp.length);
+            }
+
             for (int i = 0; i < pmp.length; i++) {
               // did we use the pm cert to encrypt the secret key at all?
 /*
@@ -627,7 +640,6 @@ public class DataProtectionServiceImpl
             for (int i = 1; i < keyCollection.size(); i ++) {
               newCollection.add(keyCollection.get(i));
             }
-
             pke.setDataProtectionKey(newCollection);
           }
 
