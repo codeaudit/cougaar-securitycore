@@ -33,7 +33,7 @@ parameters:
 #    - $CIP/csmart/config/rules/security/ruleset/debug
 #    - $CIP/csmart/config/rules/security/ruleset/signConfig
 
-    - $CIP/csmart/lib/security/rules
+#    - $CIP/csmart/lib/security/rules
 #    - $CIP/csmart/config/rules/security/mop
 #    - $CIP/csmart/config/rules/security/testCollectData
 
