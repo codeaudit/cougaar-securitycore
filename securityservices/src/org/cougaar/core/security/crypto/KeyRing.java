@@ -995,10 +995,16 @@ final public class KeyRing  implements KeyRingService  {
 
   }
 
-  public synchronized  List findCert(X500Name dname,
+  private Object findCertLock = new Object();
+//  public synchronized  List findCert(X500Name dname,
+  public List findCert(X500Name dname,
                                      int lookupType, boolean validOnly)
     {
-
+    // findCert is called very frequently
+    // we should not place a lock on the KeyRing class itself,
+    // if we lock on findCert itself we only need to iliminate
+    // circular lock on findCert.
+    synchronized (findCertLock) {
       ArrayList certificateList = new ArrayList(0);
       if(cacheservice==null) {
         log.warn(" Unable to get Certificate cache service in findCert");
@@ -1073,8 +1079,8 @@ final public class KeyRing  implements KeyRingService  {
 	}
       }
       return  certificateList;
-
     }
+  }
 
   private List internalFindCert(X500Name x500name,
 				int lookupType,
@@ -1527,39 +1533,42 @@ final public class KeyRing  implements KeyRingService  {
     checkOrMakeCert(dname, isCACert, null);
   }
 
-  public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
-    if (log.isDebugEnabled()) {
-      log.debug("CheckOrMakeCert: " + dname.toString() );
+  //public synchronized void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
+  private Object addKeyLock = new Object();
+  public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
+    synchronized (addKeyLock) {
+      if (log.isDebugEnabled()) {
+        log.debug("CheckOrMakeCert: " + dname.toString() );
 
-    }
-    if(cacheservice==null) {
-      log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
-    }
+      }
+      if(cacheservice==null) {
+        log.warn("Unable to get Certificate cache Service in checkOrMakeCert");
+      }
 
-    //check first
-    List certificateList = null;
-    try{
-      certificateList = findCert(dname,
+      //check first
+      List certificateList = null;
+      try{
+        certificateList = findCert(dname,
 				 KeyRingService.LOOKUP_KEYSTORE,
 				 true);
-      if(certificateList != null && certificateList.size() != 0) {
-	//checkOrMakeHostKey();
-	String commonname=null;
-	if(cacheservice!=null) {
-	  commonname=cacheservice.getCommonName(dname);
-	}
-	else {
-	  log.debug("cacheservice is null in checkOrMakeCert");
+        if(certificateList != null && certificateList.size() != 0) {
+	  //checkOrMakeHostKey();
+	  String commonname=null;
+	  if(cacheservice!=null) {
+	    commonname=cacheservice.getCommonName(dname);
+	  }
+	  else {
+	    log.debug("cacheservice is null in checkOrMakeCert");
 
-	}
-	if(commonname!=null){
-	  log.debug("common name in checkOrMakeCert is :"+commonname);
-	}
-	else {
-	  log.debug("common name in checkOrMakeCert is :NULL");
-	}
+	  }
+	  if(commonname!=null){
+	    log.debug("common name in checkOrMakeCert is :"+commonname);
+	  }
+	  else {
+	    log.debug("common name in checkOrMakeCert is :NULL");
+	  }
 
-        if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
+          if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
           /* This functionality will be performed in KeyManagement
              CA only needs to be updated to NS
              if (cryptoClientPolicy.isCertificateAuthority()) {
@@ -1569,45 +1578,46 @@ final public class KeyRing  implements KeyRingService  {
              }
              }
           */
-          updateNS(dname);
-          handleRequestedIdentities(trustedCaPolicy);
+            updateNS(dname);
+            handleRequestedIdentities(trustedCaPolicy);
+          }
+	  return;
         }
-	return;
-      }
-      else {
-	log.debug("Find cert returned no certificate "
+        else {
+	  log.debug("Find cert returned no certificate "
 		  + dname.toString());
+        }
       }
-    }
-    catch(Exception e){
-      log.warn("Can't locate the certificate for:"
+      catch(Exception e){
+        log.warn("Can't locate the certificate for:"
 	       + dname.toString()
 	       +". Reason:"+e+". Generating new one...", e);
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("checkOrMakeCert: creating key for "
+      }
+      if (log.isDebugEnabled()) {
+        log.debug("checkOrMakeCert: creating key for "
 		+ dname.toString());
-    }
-    //we'll have to make one
-    PrivateKey privatekey = certRequestor.addKeyPair(dname, null,
+      }
+      //we'll have to make one
+      PrivateKey privatekey = certRequestor.addKeyPair(dname, null,
                                                      isCACert, trustedCaPolicy);
-    if (privatekey != null) {
-      String commonname=cacheservice.getCommonName(dname);
+      if (privatekey != null) {
+        String commonname=cacheservice.getCommonName(dname);
 
-      // notify validity listener
-      CertValidityService validityService = (CertValidityService)
-        serviceBroker.getService(this,
+        // notify validity listener
+        CertValidityService validityService = (CertValidityService)
+          serviceBroker.getService(this,
                                  CertValidityService.class,
                                  null);
-      validityService.updateCertificate(commonname);
-      serviceBroker.releaseService(this,
+        validityService.updateCertificate(commonname);
+        serviceBroker.releaseService(this,
                                    CertValidityService.class,
                                    validityService);
 
       // only do it for node cert, otherwise will have infinite loop here
-      if (commonname.equals(NodeInfo.getNodeName())) {
-        updateNS(dname);
-        handleRequestedIdentities(trustedCaPolicy);
+        if (commonname.equals(NodeInfo.getNodeName())) {
+          updateNS(dname);
+          handleRequestedIdentities(trustedCaPolicy);
+        }
       }
     }
   }
