@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.certauthority;
@@ -75,7 +75,7 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
  * + org.cougaar.security.CA.certpath: set when class used as a standalone CA.
  *     In that case, KeyManagement is instantiated from a servlet.
  *     The property should not be defined if the CA service is instantiated
- *     from Cougaar. 
+ *     from Cougaar.
  * + See also org.cougaar.core.security.crypto.ConfParser for other required properties. */
 public class KeyManagement
   implements CertificateManagementService
@@ -133,7 +133,7 @@ public class KeyManagement
 	this,
 	KeyRingService.class,
 	null);
-    
+
     this.configParser = (ConfigParserService)
       serviceBroker.getService(this,
 			       ConfigParserService.class,
@@ -147,9 +147,9 @@ public class KeyManagement
 	System.out.println("Running as Cougaar node");
       }
     }
-  
+
     nodeConfiguration = new NodeConfiguration(caDN);
-  
+
     role = secprop.getProperty(secprop.SECURITY_ROLE);
     if (role == null && CryptoDebug.debug == true) {
       System.out.println("warning: Role not defined");
@@ -221,7 +221,7 @@ public class KeyManagement
       throw new RuntimeException("Error: Unable to find CA cert: " + e);
     }
   }
- 
+
 
   private void publishCAinLdap()
   {
@@ -246,9 +246,9 @@ public class KeyManagement
 	 }
 	 catch (Exception exp) {
 	   System.out.println("Found no certificate for +++ :: "+ cn +"as exp occured");
-	  
+
 	   //exp.printStackTrace();
-	   
+
 	 }
 	  System.out.println("trying to get with cn name :: "+ cn);
 	 try {
@@ -257,12 +257,12 @@ public class KeyManagement
 	 }
 	 catch (Exception exp2) {
 	   System.out.println("got second exp while trying to find certificate for alias  : "+a + "in keystore");
-	     
+
 	 }
 	 System.out.println("going to call for publishing ca with ca  : "+cn);
 	 PrivateKey pk=keyRing.findPrivateKey(cn);
 	 caOperations.publishCertificate((X509Certificate)c,CertificateUtility.CACert,pk);
-	 
+
        }
      }
      else {
@@ -318,8 +318,7 @@ public class KeyManagement
     }
   }
 
-  /** Process a PKCS10 request.
-   * This method does the following:
+  /** Process a PKCS10 request:
    * - Get a list of certificate signing requests.
    * - Sign each request with the CA private key.
    * - Save each signed certificate in a local file system.
@@ -371,18 +370,29 @@ public class KeyManagement
 
   public void processPkcs10Request(PrintStream out, InputStream request)
   {
+    processPkcs10Request(out, request, false);
+  }
+
+  public String processPkcs10Request(PrintStream out, InputStream request, boolean replyInHtml)
+  {
+    String reply = "";
     if (!caPolicy.requirePending) {
       try {
         X509Certificate[] certs = processPkcs10Request(request);
         //CertificateUtility.base64EncodeCertificates(out, certs);
-        String reply = "";
         for (int i = 0 ; i < certs.length ; i++) {
           reply = reply + CertificateUtility.base64encode(certs[i].getEncoded(),
               CertificateUtility.PKCS7HEADER,
                 CertificateUtility.PKCS7TRAILER);
         }
 
-        out.print(URLEncoder.encode(reply));
+        if (replyInHtml) {
+          // convert \n to <br>
+          reply = reply.replaceAll("\n", "<br>");
+        }
+        else {
+          out.print(URLEncoder.encode(reply));
+        }
 
       }
       catch (CertificateEncodingException e) {
@@ -390,7 +400,7 @@ public class KeyManagement
       catch (IOException e) {
       }
 
-      return;
+      return reply;
     }
 
     try {
@@ -449,15 +459,22 @@ public class KeyManagement
             dirlist[2], keyRing.getAlias(clientX509), clientX509);
         }
 
-        // put reply in xml format
-        if (CryptoDebug.debug) {
-	  out.println("status=" + status);
-	}
         // no need to send back the certificate, client will get it from LDAP
-        /*
-        if (status == PENDING_STATUS_APPROVED)
-          CertificateUtility.base64encode(out, prevCert.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
-        */
+        if (replyInHtml) {
+          if (status == PENDING_STATUS_APPROVED) {
+            reply = CertificateUtility.base64encode(prevCert.getEncoded(),
+              CertificateUtility.PKCS7HEADER,
+                CertificateUtility.PKCS7TRAILER);
+            // convert \n to <br>
+            reply = reply.replaceAll("\n", "<br>");
+          }
+          else
+            reply = "status=" + status;
+
+        }
+        else
+          out.println("status=" + status);
+
       }
     }
     catch (Exception e) {
@@ -465,6 +482,7 @@ public class KeyManagement
       e.printStackTrace();
     }
 
+    return reply;
   }
 
   private void saveX509Request(X509CertImpl clientX509, boolean pending)
@@ -535,7 +553,7 @@ public class KeyManagement
       throw new CertificateException(ioexception.getMessage());
     }
   }
-  
+
   public void printPkcs7Request(BufferedReader bufreader)
   {
     try {
@@ -603,7 +621,7 @@ public class KeyManagement
       }
 
       // Extract Base-64 encoded request and remove request from sbuf
-      String base64pkcs = sbuf.substring(ind_start + 
+      String base64pkcs = sbuf.substring(ind_start +
 					 CertificateUtility.PKCS10HEADER.length(),
 					 ind_stop);
       sbuf = sbuf.substring(ind_stop + CertificateUtility.PKCS10TRAILER.length());
@@ -644,7 +662,7 @@ public class KeyManagement
 	   InvalidKeyException
   {
     PKCS10 request = new PKCS10(bytes);
-    
+
     if (CryptoDebug.debug) {
       System.out.println("PKCS10 request:" + request.toString());
       // pkcs10Request.print(dbgout);
@@ -667,7 +685,7 @@ public class KeyManagement
 
     if (!fserial.exists()) {
       if (CryptoDebug.debug) {
-	System.out.println("Serial Number file (" + serialNbFileName + 
+	System.out.println("Serial Number file (" + serialNbFileName +
 			   ") does not exists. Creating...");
       }
       fserial = new File(serialNbFileName);
@@ -705,6 +723,8 @@ public class KeyManagement
     return nextSerialNumber;
   }
 
+  public final static int KEYUSAGE_CERT_SIGN_BIT = 5;
+
   /** Sign a PKCS10 certificate signing request with a CA key
    */
   public X509CertImpl signX509Certificate(PKCS10 clientRequest)
@@ -718,6 +738,23 @@ public class KeyManagement
       System.out.println("CA x509:" + caX509cert.toString());
     }
 
+    // does it have signing capability?
+    KeyUsageExtension keyusage = null;
+    try {
+      String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+      if(s != null) {
+        keyusage = (KeyUsageExtension)((X509CertImpl)caX509cert).get(s);
+      }
+    } catch (Exception ex) {
+      if (CryptoDebug.debug)
+        System.out.println("Exception in getKeyUsage: "
+          + ex.toString());
+    }
+    if (keyusage == null || keyusage.getBits().length < KEYUSAGE_CERT_SIGN_BIT
+      || !keyusage.getBits()[KEYUSAGE_CERT_SIGN_BIT])
+      throw new CertificateException("Certificate is not authorized to sign.");
+
+
     if (CryptoDebug.debug) {
       //System.out.println("x500: " + caX500IssuerName.getCommonName());
     }
@@ -728,10 +765,10 @@ public class KeyManagement
     // TODO
     Signature caSignature = Signature.getInstance("SHA1withRSA");
     // caSignature.initSign(caPrivateKey);
-    
+
     X500Signer caX500signer = new X500Signer(caSignature, caX500Name);
 
-    /** 
+    /**
      * Client certificate attributes
      * Valid attributes:
      *  version, serialNumber, algorithmID, issuer, validity, subject, key
@@ -744,7 +781,7 @@ public class KeyManagement
     CertificateSubjectUniqueIdentity certSubjectUniqueIdentity = new CertificateSubjectUniqueIdentity();
     clientCertInfo.set("subjectuniqueid", certSubjectUniqueIdentity);
     */
-    
+
 
     // Sign certificate
     clientCertificate.sign(caPrivateKey, caPolicy.algorithmId.getName());
@@ -763,19 +800,19 @@ public class KeyManagement
    * call to generateCertificate consumes only one certificate, and the read
    * position of the input stream is positioned to the next certificate in the file.
    */
-  public ArrayList readX509Certificates(String filename) 
+  public ArrayList readX509Certificates(String filename)
     throws FileNotFoundException, CertificateException, IOException
   {
     FileInputStream fis = new FileInputStream(filename);
     DataInputStream dis = new DataInputStream(fis);
 
     CertificateFactory cf = CertificateFactory.getInstance("X.509");
-    
+
     byte[] bytes = new byte[dis.available()];
     dis.readFully(bytes);
     ArrayList certs = new ArrayList();
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    
+
     while (bais.available() > 0) {
       Certificate cert = cf.generateCertificate(bais);
       certs.add(cert);
@@ -814,7 +851,7 @@ public class KeyManagement
     ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream(2048);
     bytearrayoutputstream.reset();
     int i;
-    while((i = inputstream.read(abyte0, 0, abyte0.length)) != -1) 
+    while((i = inputstream.read(abyte0, 0, abyte0.length)) != -1)
       bytearrayoutputstream.write(abyte0, 0, i);
     return bytearrayoutputstream.toByteArray();
   }
@@ -834,7 +871,7 @@ public class KeyManagement
       }
     }
 
-    /** 
+    /**
      * Client certificate attributes
      * Valid attributes:
      *  version, serialNumber, algorithmID, issuer, validity, subject, key
@@ -909,23 +946,25 @@ public class KeyManagement
 
     X509CertImpl clientCertificate = new X509CertImpl(clientCertInfo);
 
-    String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
-        //System.out.println("=====> ObjectIdentifier: " + s);
+    if (caPolicy.certVersion >= 2) {
+      String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+          //System.out.println("=====> ObjectIdentifier: " + s);
 
-    KeyUsageExtension keyusage = new KeyUsageExtension();
-    keyusage.set("digital_signature", new Boolean(true));
-    keyusage.set("key_encipherment", new Boolean(true));
-    keyusage.set("data_encipherment", new Boolean(true));
+      KeyUsageExtension keyusage = new KeyUsageExtension();
+      keyusage.set("digital_signature", new Boolean(true));
+      keyusage.set("key_encipherment", new Boolean(true));
+      keyusage.set("data_encipherment", new Boolean(true));
 
-    // Set keyusage
-    if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
-      // need signing capability?
-      // only for node with key signing ability defined in CA crypto policy
-      if (configParser.getCryptoClientPolicy().getCertificateAttributesPolicy().nodeIsSigner)
-        keyusage.set("key_certsign", new Boolean(true));
-    }
-    if(s != null) {
-      clientCertificate.set(s, keyusage);
+      // Set keyusage
+      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
+        // need signing capability?
+        // only for node with key signing ability defined in CA crypto policy
+        if (caPolicy.nodeIsSigner)
+          keyusage.set("key_certsign", new Boolean(true));
+      }
+      if(s != null) {
+        clientCertificate.set(s, keyusage);
+      }
     }
 
     return clientCertificate;
