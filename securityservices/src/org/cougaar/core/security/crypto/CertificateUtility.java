@@ -33,6 +33,7 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import sun.security.pkcs.*;
 import sun.security.x509.*;
+import sun.security.util.*;
 import java.security.MessageDigest;
 
 // Cougaar security services
@@ -313,17 +314,18 @@ public class CertificateUtility {
     out.println("<br>");
 
     out.println("<b>Key Usage &nbsp;&nbsp;&nbsp;:</b>");
-    String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
-    if(s != null) {
-      try {
+    try {
+      String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
+      if(s != null) {
         KeyUsageExtension keyusageextension =
           (KeyUsageExtension)((X509CertImpl)certimpl).get(s);
         if (keyusageextension != null)
           out.println(keyusageextension.toString());
-      } catch (CertificateParsingException ex) {
-        out.println("Failed to get key usage. " + ex.toString());
       }
+    } catch (Exception ex) {
+      out.println("Failed to get key usage. " + ex.toString());
     }
+    
     out.println("<br>");
 
     out.println("<b>Algorithm &nbsp;&nbsp;:</b>"
