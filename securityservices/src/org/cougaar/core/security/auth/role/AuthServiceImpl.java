@@ -414,7 +414,10 @@ public class AuthServiceImpl
       _guard.checkPermission(kap, null);
       return true;
     } catch (SecurityException e) {
-      if (_log.isWarnEnabled()) {
+      if (_log.isWarnEnabled() && 
+          !action.equals(org.cougaar.core.security.policy.enforcers.ontology.jena.
+                         EntityInstancesConcepts.EntityInstancesDamlURL + 
+                         "BlackBoardAccessQuery")) {
         _log.warn("Permission denied " + e);
         _log.warn("Action = " + aid);
       }
