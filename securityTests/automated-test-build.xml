@@ -126,6 +126,7 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="rm -rf ${testbed.cip.dir}"
+        timeout="20000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Creating CIP on testbed machine..."/>
@@ -133,6 +134,7 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="mkdir -p ${testbed.cip.dir}"
+        timeout="20000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Copying zip file to testbed machine..."/>
@@ -146,6 +148,7 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"
+        timeout="60000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Remove cougaar-test.zip on remote machine..."/>
@@ -153,13 +156,15 @@
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="cd ${testbed.cip.dir} ; rm -f cougaar-test.zip"
+        timeout="20000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <echo message="Unzip overlay files on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip $f ; done'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done'"
+        timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
       <loadfile property="ssh-message-1"
