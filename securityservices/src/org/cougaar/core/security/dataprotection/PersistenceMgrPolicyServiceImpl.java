@@ -26,9 +26,12 @@
 package org.cougaar.core.security.dataprotection;
 
 // Cougaar core infrastructure
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceListener;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.wp.AddressEntry;
@@ -58,6 +61,7 @@ import sun.security.x509.X500Name;
 public class PersistenceMgrPolicyServiceImpl 
   implements PersistenceMgrPolicyService {
   
+  private ServiceBroker _serviceBroker;
   private LoggingService _log;
   // key ring service used to determine the DN(s) of the persistence manager(s)
   private KeyRingService _keyRing;
@@ -65,6 +69,8 @@ public class PersistenceMgrPolicyServiceImpl
   private CommunityService _cs;
   // to get the agent address entries
   private WhitePagesService _wps;
+  // community and white pages service listener
+  private ServiceListener _serviceListener;
   // my community
   private String _myCommunity;
   // list of persistence manager policies
@@ -79,11 +85,14 @@ public class PersistenceMgrPolicyServiceImpl
   private static String PM_ROLE = "PersistenceManager";
   
   public PersistenceMgrPolicyServiceImpl(ServiceBroker sb, String community) {
+    _serviceBroker = sb;
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
-    // TODO: add service listeners since these services may not be available
     _cs = (CommunityService)sb.getService(this, CommunityService.class, null);
     _wps = (WhitePagesService)sb.getService(this, WhitePagesService.class, null);
+    if(_cs == null || _wps == null) {
+      registerServiceListener();
+    } 
     _myCommunity = community;
     _policies = new ArrayList();
     _agents = new ArrayList();
@@ -115,6 +124,36 @@ public class PersistenceMgrPolicyServiceImpl
     return policies;
   }
   
+  // register community and white pages service listener
+  public void registerServiceListener() {
+    ServiceAvailableListener sal = new ServiceAvailableListener() {  
+      public void serviceAvailable(ServiceAvailableEvent ae) {
+        if(ae.getService() == CommunityService.class) {
+          _log.debug("community service is now available");
+          _cs = (CommunityService)
+            ae.getServiceBroker().getService(this, CommunityService.class, null);
+        }
+        else if(ae.getService() == WhitePagesService.class) {
+          _log.debug("white pages service is now available");
+          _wps = (WhitePagesService)
+            ae.getServiceBroker().getService(this, WhitePagesService.class, null);
+        }
+        if(_cs != null && _wps != null) {
+          removeServiceListener();
+        }
+      }
+    };
+    _serviceBroker.addServiceListener(sal);
+    _serviceListener = sal; 
+  } 
+
+  // remove service listener for community and white pages service
+  private void removeServiceListener() {
+    if(_serviceListener != null) {
+      _serviceBroker.removeServiceListener(_serviceListener);
+    }
+  }
+
   private PersistenceManagerPolicy createPolicy(String url, String dn) {
     PersistenceManagerPolicy policy = new PersistenceManagerPolicy();
     policy.pmType = "URL"; // only type that is supported
