@@ -45,20 +45,53 @@ index	cn		eq
 su root
 /usr/libexec/slapd
 
-   OpenLDAP comes with a few command line tools 
-  
+4. OpenLDAP comes with a few command line tools. Use ldapadd tool to add the 
+   directory contexts to the server. Data about the directories to be created
+   are stored in the entries.ldif -- use entries.ldif to create records for the
+   rootdn and base suffix.
+
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f entries.ldif \
+	-w passwd -h host
+
+  In this example, replace passwd with the password specified as rootpw and
+  the quoted string after -D should match the rootdn in slapd.conf. The host
+  is the name of the host where you have installed the ldap server. At a 
+  minimum, entries.ldif should contain entries similar too the following:
+
+# Root DN organization
+dn: dc=cougaar, dc=org
+objectClass: dcObject
+objectClass: organization
+dc: COUGAAR
+o: UltraLog
+description: UltraLog Certificates
+
+# Organizational Role for Directory Manager
+dn: cn=manager, dc=cougaar, dc=org
+objectClass: organizationalRole
+cn: Manager
+description: Directory Manager
+
+  After running ldapadd, both entries should be visible using the gq browser.
+  To configure gq, use File->Preferences, then click on the servers tab. Click
+  the NEW button and enter the Name, LDAP host, LDAP Port (in the examples 
+  so far these would be pear, pear, and 389)
 
 
-
-
-
-The LDAP servers are configured using an URI such as ldap://pear:389/dc=cougaar,dc=org which mean the server is 
+5 The LDAP servers are configured using an URI such as:
+	   ldap://pear:389/dc=cougaar,dc=org 
+  This URL specifies pear on port 389 which a base distinguished name equal
+  to "dc=cougaar,dc=org".
 
 NOTE: URL's should look like the following without any trailing slashes:
 
 		   ldap://pear:389/dc=cougaar,dc=org 
 		   ldap://pear:389/dc=nai,dc=cougaar,dc=org 
 
+
+
+LDAPCert utility examples:
+--------------------------
 Before running the examples below make sure your $CLASSPATH is set include the ${COUGAAR_INSTALL_PATH}/sys/securityservice.jar (and all other lib and 3rd party jar files).
 
 Listing the contexts of a directory:

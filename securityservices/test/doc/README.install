@@ -73,11 +73,13 @@ export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
 
 4. Sign all the jar and zip files under the $COUGAAR_INSTALL_PATH/lib and
    $COUGAAR_INSTALL_PATH/sys directories. This can be done by typing:
-       cd securityservices
+       cd ..
        test/bin/signJars
 
 5. Copy the configuration files under securityservices/sys/test/configs/common
    into $COUGAAR_INSTALL_PATH/configs/common.
+
+	Note: You will be overwriting the default.psps.xml file.
 
 6. Use the myalpc tool to compile all the Java source code. Several environment
    variables will need to be set beforehand. For the purposes of this example,
@@ -222,11 +224,14 @@ Running the ul-mini-config society
    
        ssh -v -l <user name> <hostname>
        
-   Also, more information may be found in the SSH man pages.
+   More information may be found in the SSH man pages.
 
 3. Create a ".ssh" directory under your home directory if it does not exist already.
 
        mkdir .ssh
+
+   Note that the .ssh directory MUST NOT be world or group readable, writable,
+   or executable. 
 
 4. Under the .shh directory, create a "config" file if it does not exist.
    Edit the "config" file and add the following lines:
@@ -349,6 +354,9 @@ As an example, two configuration files are provided: ul-mini-config.conf
 and ul-mini-config-LA.conf.
 
 Java properties
+
+
+
 ===============
 Below  is the list of system properties used by the access control,
 cryptographic and Monitoring & Response services, and their default value:
