@@ -459,7 +459,16 @@
 
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/agentrestart"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
+        <mkdir dir="${cougaar.install.path}/csmart/assessment/lib/framework"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
+
+        <copy todir="${cougaar.install.path}/csmart/assessment/lib/framework">
+            <fileset dir="${securityservices.configs}/acme_scripts/common">
+                <patternset>
+                    <include name="*.rb"/>
+                </patternset>
+            </fileset>
+        </copy>
 
         <!--
         <copy todir="${cougaar.install.path}/csmart/config/rules/security">
