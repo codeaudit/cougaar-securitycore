@@ -57,6 +57,10 @@ public class CertificateSearchServiceImpl
   private KeyRingService keyRingService;
   private CertDirectoryServiceFactory fac;
 
+  private int dn_memory_count = 0;
+  private int find_memory_count = 0;
+  private int _detectMemory = 0;
+
   public CertificateSearchServiceImpl(ServiceBroker serviceBroker,
                                       CertDirectoryServiceFactory factory) {
     sb = serviceBroker;
@@ -65,6 +69,14 @@ public class CertificateSearchServiceImpl
     log = (LoggingService)
       sb.getService(this, LoggingService.class,
                     null);
+
+    String detect = System.getProperty("org.cougaar.core.security.repeat_wp_count", null);
+    try {
+      _detectMemory = Integer.parseInt(detect);
+    } catch (Exception ex) {}
+    if (log.isDebugEnabled()) {
+      log.debug("repeat " + _detectMemory + " times for every wp request");
+    }
 
   }
 
@@ -82,6 +94,20 @@ public class CertificateSearchServiceImpl
     }
     try {
       AddressEntry ael = fetchCertEntry(cname, null);
+      if (_detectMemory != 0) {
+        for (int i = 0; i < _detectMemory; i++) {
+          String testname = cname + i;
+          fetchCertEntry(testname, null);
+        }
+        dn_memory_count++;
+
+        if (log.isDebugEnabled()) {
+          int total = dn_memory_count + find_memory_count;
+          if (total % 100 == 0) {
+            log.debug("memory detection: " + dn_memory_count + " times check dn " + find_memory_count + " times check certificate");
+          }
+        }
+      }      
       //AddressEntry ael = whitePagesService.refresh(cname, WhitePagesUtil.WP_CERTIFICATE_TYPE,1);
       if (ael == null) {
         if (log.isDebugEnabled()) {
@@ -193,6 +219,21 @@ public class CertificateSearchServiceImpl
 
       }
       AddressEntry ael = fetchCertEntry(cname, callback);
+      if (_detectMemory != 0) {
+        for (int i = 0; i < _detectMemory; i++) {
+          String testname = cname + i;
+          fetchCertEntry(testname, null);
+        }
+        find_memory_count++;
+
+        if (log.isDebugEnabled()) {
+          int total = dn_memory_count + find_memory_count;
+          if (total % 100 == 0) {
+            log.debug("memory detection: " + dn_memory_count + " times check dn " + find_memory_count + " times check certificate");
+          }
+        }
+      }      
+
       if (scb == null) {
         return processFindResponse(cname, dname, ael);
       }
