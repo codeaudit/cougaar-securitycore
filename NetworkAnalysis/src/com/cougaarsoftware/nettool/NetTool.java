@@ -34,6 +34,7 @@ public class NetTool extends JFrame {
 
 	private static final String MENU_ITEM_OPEN = "Open";
 	private static final String MENU_ITEM_CLOSE = "Close";
+	private static final String MENU_ITEM_DISPLAY_NODE_NAME = "Display Node Name";
 	private static final String MENU_FILE = "File";
 	
 	public NetTool() {
@@ -51,17 +52,16 @@ public class NetTool extends JFrame {
 			}
 		});
 		
-		m_graphRenderer = new GraphRenderer();
+		m_graphRenderer = new GraphRenderer(this);
 		getContentPane().add(m_graphRenderer);
 
 		m_menu = new JMenuBar();
 		JMenu fileMenu = new JMenu(MENU_FILE);
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		m_menu.add(fileMenu);
-		JMenuItem fileOpen = new JMenuItem(MENU_ITEM_OPEN, KeyEvent.VK_O);
-		fileOpen.setAccelerator(KeyStroke.getKeyStroke(
-					KeyEvent.VK_O, ActionEvent.ALT_MASK));
-		fileOpen.addActionListener(new ActionListener(){
+		
+		addMenuItem(MENU_ITEM_OPEN, KeyEvent.VK_O, ActionEvent.ALT_MASK, fileMenu,
+				new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JMenuItem source = (JMenuItem)(e.getSource());
 				if (source.getText().equals(MENU_ITEM_OPEN)) {
@@ -69,12 +69,9 @@ public class NetTool extends JFrame {
 				}			
 			}
 		});
-		fileMenu.add(fileOpen);
 		
-		JMenuItem fileClose = new JMenuItem(MENU_ITEM_CLOSE, KeyEvent.VK_F4);
-		fileClose.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_F4, ActionEvent.CTRL_MASK));
-		fileClose.addActionListener(new ActionListener(){
+		addMenuItem(MENU_ITEM_CLOSE, KeyEvent.VK_F4, ActionEvent.CTRL_MASK, fileMenu,
+				new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JMenuItem source = (JMenuItem)(e.getSource());
 				if (source.getText().equals(MENU_ITEM_CLOSE)) {
@@ -83,8 +80,17 @@ public class NetTool extends JFrame {
 				}			
 			}
 		});
-		fileMenu.add(fileClose);
-		
+		addMenuItem(MENU_ITEM_DISPLAY_NODE_NAME, 0, 0, fileMenu,
+				new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem source = (JMenuItem)(e.getSource());
+				if (source.getText().equals(MENU_ITEM_DISPLAY_NODE_NAME)) {
+					m_graphRenderer.switchDisplayNodeName();
+					pack();
+				}			
+			}
+		});
+				
 		setJMenuBar(m_menu);
 		pack();
 		
@@ -99,6 +105,14 @@ public class NetTool extends JFrame {
 		System.exit(0);
 	}
 
+	private void addMenuItem(String menuText, int shortcut, int mask, JMenu menu, ActionListener listener) {
+		JMenuItem item = new JMenuItem(menuText, shortcut);
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				shortcut, mask));
+		item.addActionListener(listener);
+		menu.add(item);
+	}
+	
 	private void openAndDisplayGraph() {
 		File theGraphFile = null;
 		
@@ -109,6 +123,10 @@ public class NetTool extends JFrame {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			theGraphFile = fc.getSelectedFile();
 		}
+		openAndDisplayGraph(theGraphFile);
+	}
+
+	public void openAndDisplayGraph(File theGraphFile) {
 		if (theGraphFile != null && theGraphFile.exists()) {
 			Graph g = m_graphFileHandler.openGraphFile(theGraphFile);
 			m_graphRenderer.displayGraph(g);

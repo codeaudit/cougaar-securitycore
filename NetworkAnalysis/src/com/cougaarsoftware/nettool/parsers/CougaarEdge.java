@@ -28,7 +28,7 @@ public class CougaarEdge {
 	}
 	
 	public CougaarEdge(String initialTime, String sourceAgent, String destinationAgent, String type) throws ParseException {
-		System.out.println(df.format(new Date()));
+		//System.out.println(df.format(new Date()));
 		m_initialTime = df.parse(initialTime);
 		m_sourceAgent = sourceAgent;
 		m_destinationAgent = destinationAgent;

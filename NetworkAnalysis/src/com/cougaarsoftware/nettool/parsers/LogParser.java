@@ -29,9 +29,7 @@ import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.decorators.StringLabeller;
 import edu.uci.ics.jung.graph.decorators.StringLabeller.UniqueLabelException;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
-import edu.uci.ics.jung.graph.impl.UndirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.impl.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.impl.SparseVertex;
 import edu.uci.ics.jung.utils.UserDataContainer;
 
@@ -108,7 +106,7 @@ public class LogParser {
 	}
 	
 	private Vertex addVertex(String name, Map vertexList, StringLabeller sl) {
-		System.out.println("Creating vertex " + name);
+		//System.out.println("Creating vertex " + name);
 		Vertex v = new SparseVertex();
 		v.addUserDatum(KEY_AGENT_NAME, name, new UserDataContainer.CopyAction.Shared());
 		vertexList.put(name, v);
