@@ -258,7 +258,7 @@ public class ServletPolicyEnforcer
       return;
     }
 
-    if (debug) {
+    if (log.isDebugEnabled()) {
       log.debug("ServletPolicyEnforcer: Received policy message");
       RuleParameter[] param = policy.getRuleParameters();
       for (int i = 0 ; i < param.length ; i++) {
@@ -277,7 +277,8 @@ public class ServletPolicyEnforcer
       } else if (param[i] instanceof KeyRuleParameter) {
         KeyRuleParameter krp = (KeyRuleParameter) param[i];
         KeyRuleParameterEntry entry[] = krp.getKeys();
-        String agent = krp.getValue().toString();
+        String agent = name;
+        name = krp.getValue().toString();
         if (entry != null) {
           for (int j = 0; j < entry.length; j++) {
             String val = entry[j].getValue();
