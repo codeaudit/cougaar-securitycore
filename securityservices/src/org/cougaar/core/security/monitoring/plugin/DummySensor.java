@@ -29,16 +29,22 @@ import org.cougaar.util.StateModelException ;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
-import org.cougaar.planning.ldm.plan.*;
-import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
 import edu.jhuapl.idmef.*;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 
-
-
-public class DummySensor extends  ComponentPlugin  implements SensorInfo {
+/** A dummy sensor used to show how to register capabilities and
+ *  publish IDMEF events.
+ *
+ *  The cmr domain should be added to the node. This can be done by
+ *  adding the following line in the LDMDomains.ini file:
+ *     cmr=org.cougaar.core.security.monitoring.blackboard.CmrDomain
+ */
+public class DummySensor
+  extends  ComponentPlugin
+  implements SensorInfo
+{
   private DomainService domainService = null;
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -62,37 +68,143 @@ public class DummySensor extends  ComponentPlugin  implements SensorInfo {
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
-    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
+    if (factory == null) {
+      System.out.println("Error: Unable to get Monitoring Factory");
+      return;
+    }    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     DummySensor sensor=new DummySensor();
 	
     // create list of capabilities
     List capabilities = new ArrayList();
-    capabilities.add( imessage.createClassification( "POD", null  ) );
-    capabilities.add( imessage.createClassification( "TCPSCAN", null  ) );
-    capabilities.add( imessage.createClassification( "LOGINFAILURE", null  ) );
+    capabilities.add( imessage.createClassification( "Cougaar.security.nai.PingOfDeath",
+						     "http://foo.com/security/pod.html",
+						     Classification.VENDOR_SPECIFIC  ) );
+    capabilities.add( imessage.createClassification( "Cougaar.security.nai.TCPSCAN", null,
+						     Classification.VENDOR_SPECIFIC  ) );
+    capabilities.add( imessage.createClassification( "Cougaar.security.nai.LOGINFAILURE", null,
+						     Classification.VENDOR_SPECIFIC  ) );
     // no need to specify targets since we may not know of the targets
-    RegistrationAlert reg=imessage.createRegistrationAlert(new DummySensor(),capabilities,IdmefMessageFactory.newregistration);
+    RegistrationAlert reg=
+      imessage.createRegistrationAlert(this,
+				       capabilities,IdmefMessageFactory.newregistration);
     // System.out.println(" Registration object is :"+reg);
     System.out.println("factory is :"+factory.toString());
     NewEvent event=factory.newEvent(reg);
     System.out.println(" going to publish capabilities :");
     getBlackboardService().publishAdd(event);
     System.out.println("Success in publishing  capabilities :");
+
+
+    /* ---------------------------------------------------------------- */
+    System.out.println("Publishing sensor Event :");
+    // ********************************
+    // Source
+
+    // Make a node
+    Address source_address_list[] =
+    {new Address("10.1.1.1", null, null, null, null, null),
+     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
+               null, null)};
+    IDMEF_Node source_node = new IDMEF_Node("locationA",
+                                          "attackerA",
+                                          source_address_list,
+                                          "id01",
+                                          IDMEF_Node.DNS);
+    // Make a user
+    UserId source_userId_list[] = {new UserId("Attacker_User",
+				       new Integer (100),
+				       "Test_Ident1", UserId.CURRENT_USER)};
+    
+    User source_user = new User(source_userId_list, "Test_Ident1", User.APPLICATION);
+
+    // Make a Process
+    String source_arg_list[] = {"-r", "-b", "12.3.4.5"};
+    String source_env_list[] = {"HOME=/home/testuser/", "PATH=/usr/sbin"};
+    IDMEF_Process source_process = new IDMEF_Process("Killer-process",
+						     new Integer(666),
+						     "/usr/bin/Killer",
+						     source_arg_list, source_env_list,
+						     "Test_IdentProcess1");
+    // Create a service
+    Service source_service = null;
+    // Make a source
+    Source source = imessage.createSource(source_node,
+					  source_user,
+					  source_process,
+					  source_service,
+					  Source.YES);
+    ArrayList sources = new ArrayList(1);
+    sources.add(source);
+
+    // ********************************
+    // Target
+
+    // Make a node
+    Address target_address_list[] =
+    {new Address("10.1.1.1", null, null, null, null, null),
+     new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX,
+               null, null)};
+    IDMEF_Node target_node = new IDMEF_Node("locationB",
+                                          "victimB",
+                                          target_address_list,
+                                          "id02",
+                                          IDMEF_Node.DNS);
+    // Make a user
+    UserId target_userId_list[] = {new UserId("Victim_User",
+					      new Integer (123),
+					      "Test_Ident2", UserId.CURRENT_USER)};
+    
+    User target_user = new User(target_userId_list, "Test_Ident2", User.APPLICATION);
+
+    // Make a Process
+    String target_arg_list[] = {"12"};
+    String target_env_list[] = {"HOME=/home/victimuser/", "PATH=/usr/sbin"};
+    IDMEF_Process target_process = new IDMEF_Process("Node-process",
+						     new Integer(1002),
+						     "/usr/bin/Node",
+						     target_arg_list, target_env_list,
+						     "Test_IdentProcess");
+    // Create a service
+    Service target_service = null;
+    // Create a file list
+    FileList target_fileList = null;
+    Target target = imessage.createTarget(target_node,
+					  target_user,
+					  target_process,
+					  target_service,
+					  target_fileList,
+					  Target.YES);
+    ArrayList targets = new ArrayList(1);
+    targets.add(target);
+    Classification classification =
+      imessage.createClassification("cougaar_signature_exception",
+				    "http://www.cougaar.org",
+				    Classification.VENDOR_SPECIFIC);
+    ArrayList classifications = new ArrayList(1);
+    classifications.add(classification);
+    ArrayList data = null;
+    DetectTime detectTime = new DetectTime();
+    Alert alert = imessage.createAlert(this, detectTime,
+				       sources, targets,
+				       classifications, data);
+    Event e = factory.newEvent(alert);
+    getBlackboardService().publishAdd(e);
+
   }
   public String getName(){
-    return "<sensor-name>";
+    return "Sample Sensor";
   }
   public String getManufacturer(){
-    return "<manufacturer>";
+    return "NAI Labs";
   }
   public String getModel(){
-    return "<model>";
+    return "Cougaar";
   }
   public String getVersion(){
-    return "<version>";
+    return "1.0";
   }
   public String getAnalyzerClass(){
-    return "<class>";
+    return "Security Analyzer";
   }
         
        
