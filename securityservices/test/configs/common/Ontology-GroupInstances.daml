@@ -20,8 +20,14 @@
     </daml:Ontology>
 
     <ultralogGroup:Role rdf:ID="AdministratorRole"/>
-    <ultralogGroup:Role rdf:ID="GuestRole"/>
+    <ultralogGroup:Role rdf:ID="CAAdministratorRole"/>
     <ultralogGroup:Role rdf:ID="GeneralRole"/>
+    <ultralogGroup:Role rdf:ID="GuestRole"/>
+    <ultralogGroup:Role rdf:ID="LogisticianRole"/>
+    <ultralogGroup:Role rdf:ID="LogisticsViewerRole"/>
+    <ultralogGroup:Role rdf:ID="MonitorManagerRole"/>
+    <ultralogGroup:Role rdf:ID="PolicyAdministratorRole"/>
+    <ultralogGroup:Role rdf:ID="UserManagerRole"/>
 
     <ultralogGroup:Community rdf:ID="CommunityX"/>
     <ultralogGroup:Community rdf:ID="CommunityY"/>

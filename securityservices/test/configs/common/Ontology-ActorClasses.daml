@@ -28,12 +28,13 @@
         </rdfs:subClassOf>
     </daml:Class>
 
-    <daml:Class rdf:ID="Guest">
+
+    <daml:Class rdf:ID="CAAdministrator">
         <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
         <rdfs:subClassOf>
             <daml:Restriction>
                 <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
-                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#GuestRole"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#CAAdministratorRole"/>
             </daml:Restriction>
         </rdfs:subClassOf>
     </daml:Class>
@@ -47,5 +48,66 @@
             </daml:Restriction>
         </rdfs:subClassOf>
     </daml:Class>
+
+    <daml:Class rdf:ID="Guest">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#GuestRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Logistician">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#LogisticianRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="LogisticsViewer">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#LogisticsViewerRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="MonitorManager">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#MonitorManagerRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PolicyAdministrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#PolicyAdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="UserManager">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#UserManagerRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
 
 </rdf:RDF>

@@ -19,6 +19,13 @@
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
     </daml:Ontology>
 
+    <!--           ****Temporary Hack****                             -->
+    <!--Sadly this file is scanned by a method that is looking for the-->
+    <!--string:                                                       -->
+    <!--              "<ultralogEntity:Servlet rdf:ID="               -->
+    <!-- So be careful with formatting.                               -->
+
+
     <!--Servlets with an explicit agent -->
     <ultralogEntity:Servlet rdf:ID="AggegatorServlets"/>
     <ultralogEntity:Servlet rdf:ID="NCAServlets"/>
@@ -30,7 +37,7 @@
     <ultralogEntity:Servlet rdf:ID="HierarchyServlet"/>
     <ultralogEntity:Servlet rdf:ID="LogInventoryServlet"/>
     <ultralogEntity:Servlet rdf:ID="PolicyServlet"/>
-    <ultralogEntity:Servlet rdf:ID="RootServlet"/>
+    <ultralogEntity:Servlet rdf:ID="SocietyAdminServlet"/>
     <ultralogEntity:Servlet rdf:ID="UserManagerServlets"/>
 
     <ultralogEntity:AuthenticationLevel rdf:ID="NoAuth"/>
@@ -44,6 +51,13 @@
     <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="TopSecretProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
+
+
+    <!--           ****Temporary Hack****                             -->
+    <!--Sadly this file is scanned by a method that is looking for the-->
+    <!--string:                                                       -->
+    <!--              "<ultralogEntity:ULContentValue rdf:ID="        -->
+    <!-- So be careful with formatting.                               -->
 
     <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
     <ultralogEntity:ULContentValue rdf:ID="GetLogSupport"/>
