@@ -162,7 +162,11 @@ society.each_host do |host|
     ########################################################################
     # CSI Security services
     ########################################################################
-    
+   
+    # Secure Config Finder 
+    #
+    node.override_parameter("-Dorg.cougaar.util.ConfigFinder.ClassName", "org.cougaar.core.security.config.jar.SecureConfigFinder")
+
     # Naming service over SSL.
     # True to enable naming service over SSL.
     # The certificates need to be createdd first before this feature is turned on.
