@@ -12,7 +12,7 @@ into the security services.jar file.
 Directory structure
 ===================
 The securityservices module has the following directory structure:
-	* top-level directory - contains a Makefile used to build the security
+      * top-level directory - contains a Makefile used to build the security
       services
 
       * src	- contains the source code for the security services
@@ -21,16 +21,16 @@ The securityservices module has the following directory structure:
       KAoS policy integration. These jar files should be copied into the
       $COUGAAR_INSTALL_PATH directory before running a society.
 
-	* test/bin - additional scripts to build and run a society:
+      * test/bin - additional scripts to build and run a society:
          signJars: signing all jar files in the lib and sys directories,
          myalpc: compile source code,
          SecureNode: run a security-enhanced Cougaar society,
          myrmic: compile RMI stubs
 
-	* test/configs/demo - to contain all the scripts for launching a sample
+      * test/configs/demo - to contain all the scripts for launching a sample
       ul-mini-config
 
-	* test/configs/ul-mini-config - keystores, access control and crypto
+      * test/configs/ul-mini-config - keystores, access control and crypto
       policies for ul-mini-config, and java (permissions) policy files
 
       * test/doc - documentation for the securityservices module
@@ -41,7 +41,7 @@ Running a security-enhanced Cougaar society requires:
 * Cougaar version 8.4.1.1
 * JDK or JRE version 1.3.1
 * Jar files dependencies:
-	* KAoS, which is used to propagate security policies, requires the following
+      * KAoS, which is used to propagate security policies, requires the following
 	  the jar files:
 	   - KAoS.jar
 	   - SAFE.jar
