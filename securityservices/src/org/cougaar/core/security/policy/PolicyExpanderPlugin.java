@@ -45,7 +45,7 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.planning.ldm.policy.Policy;
 
 // KAoS policy management
-import kaos.core.policy.PolicyConstants;
+import kaos.policy.util.PolicyConstants;
 import kaos.core.util.*;
 import safe.util.*;
 

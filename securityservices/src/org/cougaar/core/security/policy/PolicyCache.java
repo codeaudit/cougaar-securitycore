@@ -37,8 +37,8 @@ import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
 
 // KAoS policy management
-import kaos.core.enforcer.Enforcer;
-import kaos.core.guard.Guard;
+import kaos.policy.enforcement.Enforcer;
+import kaos.policy.guard.Guard;
 
 /**
  * Parent class, which defines methods for processing Cougaar and KAoS 

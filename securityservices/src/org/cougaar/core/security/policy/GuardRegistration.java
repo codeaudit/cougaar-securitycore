@@ -28,6 +28,7 @@ package org.cougaar.core.security.policy;
 
 import java.util.*;
 import org.w3c.dom.Document;
+import org.apache.xml.serialize.XMLSerializer;
 import java.io.*;
 
 // Cougaar core services
@@ -39,17 +40,14 @@ import org.cougaar.core.plugin.*;
 import org.cougaar.util.*;
 
 // KAoS policy management
-import kaos.core.guard.Guard;
-import kaos.core.guard.GuardRetriever;
-import kaos.core.enforcer.Enforcer;
-import kaos.core.policy.PolicyConstants;
+import kaos.policy.guard.*;
+import kaos.policy.enforcement.Enforcer;
+import kaos.policy.util.PolicyConstants;
 import kaos.core.util.*;
 
 // Cougaar security services
 import org.cougaar.core.security.util.DOMWriter;
-import org.cougaar.core.security.policy.XMLPolicyCreator;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public abstract class GuardRegistration
@@ -59,6 +57,7 @@ public abstract class GuardRegistration
   private SecurityPropertiesService secprop = null;
   private ServiceBroker serviceBroker;
   protected LoggingService log;
+  private ConfigParserService cps = null;
 
   /**
    * toggles debugging messages for a vebose mode
@@ -66,7 +65,7 @@ public abstract class GuardRegistration
   protected boolean debug = true;
 
   /** The KAoS guard **/
-  private Guard guard = null;
+  private EnforcerManager guard = null;
 
   /** The policy type to which we are subscribing
       This is the fully-qualified class name of the policy **/
@@ -85,6 +84,10 @@ public abstract class GuardRegistration
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class, null);
+
+    cps = (ConfigParserService)
+      serviceBroker.getService(this,
+			       ConfigParserService.class, null);
 
     // Setup whether we're in debug mode or not
     debug = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
@@ -137,7 +140,11 @@ public abstract class GuardRegistration
     if (getPolicyType() == null) {
       throw new EnforcerRegistrationException("Policy type not specified!");
     }
-    guard.registerEnforcer(this, getPolicyType());
+    SubjectMsg sm = new SubjectMsg(getName(),getName(),"scope");
+    Vector v = new Vector();
+    v.add(sm);
+    EnforcementCapabilityMsg ecm = new EnforcementCapabilityMsg(getPolicyType(),v);
+    guard.registerEnforcer(this, ecm);
     if (debug) {
       log.debug("Registered for " + getPolicyType());
     }
@@ -190,13 +197,7 @@ public abstract class GuardRegistration
     policyID =          (String) aMsg.getId();
     policyName =        (String) aMsg.getName();
     policyDescription = (String) aMsg.getDescription();
-    policyScope =       (String) aMsg.getScope();
-    policySubjectID =   (String) aMsg.getSubjectId();
-    policySubjectName = (String) aMsg.getSubjectName();
-    policyTargetID =    (String) aMsg.getTargetId();
-    policyTargetName =  (String) aMsg.getTargetName();
-    policyType =        (String) aMsg.getPolicyType();
-
+ 
     if (debug) {
       log.debug("Policy Message: " + aMsg.toString());
       log.debug("policyID:" + policyID);
@@ -277,32 +278,32 @@ public abstract class GuardRegistration
 				  String policyTargetName,
 				  String policyType)
   {
-    if (attribute instanceof SecurityPolicy) {
+    if (log.isDebugEnabled()) {
+      log.debug("policyTypeInMessage:" + attribute);
+    }
+    if(attribute instanceof SecurityPolicy) {
       SecurityPolicy policy = (SecurityPolicy) attribute;
-      if (debug) {
-	log.debug("policyTypeInMessage:" + attribute);
-      }
-      if (policyType != null && !policyType.equals("")
-	  && !policyType.equals(attribute)) {
-	// Inconsistency in policy type
-	if (debug == true) {
-	  log.debug("GuardRegistration. ERROR. Inconsistent policy types");
-	}
-	return;
-      }
       receivePolicyMessage(policy,
 			   policyID, policyName, policyDescription,
 			   policyScope,
 			   policySubjectID, policySubjectName,
 			   policyTargetID, policyTargetName,
 			   policyType);
-    }
-    else {
+    }else if(attribute instanceof Policy) {
+      Policy policy = (Policy) attribute;
+      receivePolicyMessage(policy,
+			   policyID, policyName, policyDescription,
+			   policyScope,
+			   policySubjectID, policySubjectName,
+			   policyTargetID, policyTargetName,
+			   policyType);
+    }else{
       // This is not a recognized policy message
       if (debug == true) {
-	log.debug("GuardRegistration. ERROR. Unknown attribute:"
+    	log.debug("GuardRegistration. ERROR. Unknown attribute:"
 			   + attribute.getClass().getName());
       }
+      return;
     }
   }
 
@@ -317,28 +318,76 @@ public abstract class GuardRegistration
 				String policyTargetName,
 				String policyType)
   {
-    if (attribute instanceof Document) {
-      Document doc = (Document) attribute;
+    if (!(attribute instanceof Document)) return;
+    Document doc = (Document) attribute;
+    Class pt = null;
+    Object obj = null;
+    try{
+      pt = Class.forName(policyType); 
+      obj = pt.newInstance();
+    }catch(Exception e){
+      if (log.isDebugEnabled()) 
+        log.debug("GuardRegistration-processXmlPolicy:received unknown Type:"
+          + policyType);
+    }
+    
+    if(obj instanceof Policy){
       //reconstruct the policy from xml doc
       XMLPolicyCreator xpc = new XMLPolicyCreator(doc, "NodeGuard");
       Policy[] p = xpc.getPoliciesByType(policyType);
-      if (debug) {
-	log.debug("PolicyCreator.getPoliciesByType returned "
-			   + p.length
-			   + " policy objects");
+      if (log.isDebugEnabled()) {
+        log.debug("PolicyCreator.getPoliciesByType returned "
+         + p.length
+         + " policy objects");
       }
       for(int j=0; j<p.length; j++) {
-	if (debug) {
-	  log.debug("Calling receivePolicyMessage for "
-			     + p[j]
-			     + " - Guard type:" + getClass().toString());
-	}
-	receivePolicyMessage(p[j],
-			     policyID, policyName, policyDescription,
-			     policyScope,
-			     policySubjectID, policySubjectName,
-			     policyTargetID, policyTargetName,
-			     policyType);
+        if (log.isDebugEnabled()) {
+        log.debug("Calling receivePolicyMessage for "
+           + p[j]
+           + " - Guard type:" + getClass().toString());
+        }
+        receivePolicyMessage(p[j],
+                 policyID, policyName, policyDescription,
+                 policyScope,
+                 policySubjectID, policySubjectName,
+                 policyTargetID, policyTargetName,
+                 policyType);
+      }
+    }else if(obj instanceof SecurityPolicy){
+      //get InputStream back for the parser
+      byte[] ba; 
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      try{
+        XMLSerializer serializer = new XMLSerializer();
+        serializer.setOutputByteStream(out);
+        serializer.serialize(doc);
+      }catch(Exception e){
+      if (log.isDebugEnabled()) 
+        log.debug("GuardRegistration-processXmlPolicy:failed getting DOM Stream:"
+          + e.getMessage());
+      }
+      ba = out.toByteArray();
+      ByteArrayInputStream in = new ByteArrayInputStream(ba);
+      cps.parsePolicy(in);
+      SecurityPolicy[] p = cps.getSecurityPolicies(pt);
+      
+      if (log.isDebugEnabled()) {
+        log.debug("PolicyCreator.getPoliciesByType returned "
+         + p.length
+         + " policy objects");
+      }
+      for(int j=0; j<p.length; j++) {
+        if (log.isDebugEnabled()) {
+        log.debug("Calling receivePolicyMessage for "
+           + p[j]
+           + " - Guard type:" + getClass().toString());
+        }
+        receivePolicyMessage(p[j],
+                 policyID, policyName, policyDescription,
+                 policyScope,
+                 policySubjectID, policySubjectName,
+                 policyTargetID, policyTargetName,
+                 policyType);
       }
     }
   }

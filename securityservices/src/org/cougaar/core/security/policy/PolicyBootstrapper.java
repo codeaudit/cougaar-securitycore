@@ -88,7 +88,7 @@ public class PolicyBootstrapper
     }
     else if (type.equals(Policy.class)) {
       if(xpc!=null) {
-	ruleParamPolicies = xpc.getPoliciesByType(type.getName());
+        ruleParamPolicies = xpc.getPoliciesByType(type.getName());
       }
     }
     if (log.isDebugEnabled()) {
@@ -99,21 +99,16 @@ public class PolicyBootstrapper
     }
 
     PolicyMsg policyMsg = null;
-    //SubjectMsg sm = new SubjectMsg("bootID","default","scope");
-    //Vector v = new Vector();
-    //v.add(sm);
+    SubjectMsg sm = new SubjectMsg("bootID","default","scope");
+    Vector v = new Vector();
+    v.add(sm);
     if (policies != null || ruleParamPolicies != null) {
-        policyMsg = new PolicyMsg ("",
-				   "",
-				   "",
-				   "",
-				   "",
-				   "",
-				   "",
-				   "",
-				   "",
-				   true,
-				   false,
+        policyMsg = new PolicyMsg ("boot",
+				   "BootPolicy",
+				   "boot policy",
+				   type.toString(),
+				   "admin",
+				   v,
 				   false);
         for (int i=0; i<policies.length; i++) {                    
             // wrap the policy in a KAoS message

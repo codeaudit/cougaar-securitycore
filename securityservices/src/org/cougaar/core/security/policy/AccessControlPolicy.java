@@ -26,109 +26,90 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.planning.ldm.policy.*;
+import java.util.HashMap;
 
 /**
  * Access control policy class instance and policy contstants. The constants
  * are specific to access control policy. An instance should have a specific 
- * target agent (or possibly a node).
+ * target agent (or possibly community).
  */
-public class AccessControlPolicy extends TypedPolicy {
-
-    /**
-     * Name of rule parameter containing the agent's name.
-     */
-    private static final String AGENT_NAME_RULE = "agentName";
-
-    // XML policy file constants used as keys for looking up policy
-
-    // incoming message policy sections
-
-    /**
-     * Incoming message integrity level (Integer value)
-     */
-    public static String IN_MSG_INTEGRITY = "IncomingMessageIntegrity";
-    /**
-     * Incoming message criticality (Integer value)
-     */
-    public static String IN_MSG_CRITICALITY = "IncomingMessageCriticality";
-    /**
-     * Incoming message action { SET_ASIDE, FORWARD, ACCEPT }
-     */
-    public static String IN_MSG_ACTION = "IncomingMessageAction";
-
-    /**
-     * Incoming agent action { SET_ASIDE, FORWARD, ACCEPT }
-     */
-    public static String IN_AGENT_ACTION = "IncomingAgentAction";
-
-    // outgoing message action policy sections
-
-    /**
-     * Outgoing message integrity level (Integer value)
-     */
-    public static String OUT_MSG_INTEGRITY = "OutgoingMessageIntegrity";
-    /**
-     * Outgoing message mission criticality (Integer value)
-     */
-    public static String OUT_MSG_CRITICALITY = "OutgoingMessageCriticality";
-    /**
-     * Outgoing message action { SET_ASIDE, FORWARD, ACCEPT }
-     */
-    public static String OUT_MSG_ACTION = "OutgoingMessageAction";
-    /**
-     * Outgoing message action { SET_ASIDE, FORWARD, ACCEPT }
-     */
-    public static String OUT_AGENT_ACTION = "OutgoingAgentAction";
-    
-
-    // Message action constants
-
-    /**
-     * A message action constant to redirect a message to another agent or
-     * node. This can be used for incoming or outgoing messages.
-     */
-    public static String FORWARD = "ForwardTo";
-    /**
-     * A message action constant to allow a message to be accepted. Incoming
-     * messages will be received by the agent and outgoing messages will be 
-     * sent to the message transport service.
-     */
-    public static String ACCEPT = "AcceptMessage";
-    /**
-     * A message action constant to allow a message to be accepted. Incoming
-     * messages will be received by the agent and outgoing messages will be 
-     * sent to the message transport service.
-     */
-
-    public static String SET_ASIDE = "SetAside";
-
-    /**
-     * Constant used to determine a rule's default value.
-     */
-    public static final String DEFAULT = "DEFAULT";
+public class AccessControlPolicy extends SecurityPolicy {
 
   /**
-   * default contructors which calls TypedPolicy constructor and name policy type
+   * to whom this policy is applied to.
    */
-  public AccessControlPolicy() {
-    super("org.cougaar.core.security.policy.AccessControlPolicy");
+  public String Name = "UNKNOWN";
 
+  public static final int AGENT = 1;
+  public static final int COMMUNITY = 2;
+  public static final int SOCIETY = 3;
+  public int Type = AGENT;
+
+  public static final int INCOMING = 1;
+  public static final int OUTGOING = 2;
+  public static final int BOTH = 3;
+  public int Direction = BOTH;
+
+  public static final String ACCEPT = "ACCEPT";
+  public static final String SET_ASIDE = "SET_ASIDE";
+  private HashMap agtActions = new HashMap();
+  public Object getAgentAction(String key){
+    Object o = agtActions.get(key);
+    if(o==null) o=agtActions.get("DEFAULT");
+    return o;
+  }
+  public void setAgentAction(String key, Object value){
+    agtActions.put(key, value);
+    return;
   }
 
-  /**
-   * Returns the name for which this access control policy pertains.
-   */
-  public String getAgentName() 
-  {
-      RuleParameter nameRule = Lookup(AGENT_NAME_RULE);
-      if(nameRule == null) {
-        String name = (String)nameRule.getValue();
-        if(name instanceof String) {
-            return name;
-        }
-      }
-      return "UNKNOWN";
+  private HashMap msgActions = new HashMap();
+  public Object getMsgAction(String key){
+    return msgActions.get(key);
+  }
+  public void setMsgAction(String key, Object value){
+    msgActions.put(key, value);
+    return;
+  }
+  
+  private HashMap integrity = new HashMap();
+  public Object getIntegrity(String key){
+    Object o = integrity.get(key);
+    if(o==null) o=integrity.get("DEFAULT");
+    return o;
+  }
+  public void setIntegrity(String key, Object value){
+    integrity.put(key, value);
+    return;
+  }
+
+  private HashMap verbs = new HashMap();
+  public Object getVerbs(String key){
+    Object o = verbs.get(key);
+    if(o==null) o=verbs.get("DEFAULT");
+    return o;
+  }
+  public void setVerbs(String key, Object value){
+    verbs.put(key, value);
+    return;
+  }
+
+  private HashMap criticality = new HashMap();
+  public Object getCriticality(String key){
+    Object o = criticality.get(key);
+    if(o==null) o=criticality.get("DEFAULT");
+    return o;
+  }
+  public void setCriticality(String key, Object value){
+    criticality.put(key, value);
+    return;
+  }
+
+  public String toString() {
+  return "NAME:" + Name +
+        " TYPE:" + Type +
+        " DIRECTION:" + Direction 
+  ;
   }
 
 }

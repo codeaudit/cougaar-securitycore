@@ -47,6 +47,7 @@ public class ConfigParserHandler
   private CryptoClientPolicyHandler cryptoClientHandler;
   private CaPolicyHandler caPolicyHandler;
   private CryptoPolicyHandler cryptoPolicyHandler;
+  private MsgAccessPolicyHandler msgAccessPolicyHandler;
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
@@ -70,6 +71,7 @@ public class ConfigParserHandler
     cryptoClientHandler = new CryptoClientPolicyHandler(serviceBroker);
     caPolicyHandler = new CaPolicyHandler(serviceBroker);
     cryptoPolicyHandler = new CryptoPolicyHandler(serviceBroker);
+    msgAccessPolicyHandler = new MsgAccessPolicyHandler(serviceBroker);
 
     securityPolicies = new ArrayList();
   }
@@ -137,6 +139,13 @@ public class ConfigParserHandler
 	cryptoPolicyHandler.collectPolicy(parser, this,
 				      role, POLICY_ELEMENT);
 	SecurityPolicy newSecPolicy = cryptoPolicyHandler.getSecurityPolicy();
+	newSecPolicy.setName(attr.getValue("name"));
+	securityPolicies.add(newSecPolicy);
+      }
+      else if (policyType.equals("org.cougaar.core.security.policy.AccessControlPolicy")) {
+	msgAccessPolicyHandler.collectPolicy(parser, this,
+				      role, POLICY_ELEMENT);
+	SecurityPolicy newSecPolicy = msgAccessPolicyHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
       }
