@@ -56,8 +56,8 @@ if !(@damlUriMapCompleted)
 # Servlets with no particular agent.
 #
 #  datagatherer is not included so the automated tests work...
-#/\$.*/datagatherer DataGrabberServlet
-#/\$.*/log_inventory DataGrabberServlet
+#/\$.*/datagatherer AggegatorServlets
+#/\$.*/log_inventory AggegatorServlets
 #
 /\$.*/CA/CertificateSigningRequest CertReqServlet
 /\$.*/CA/BrowserSigningRequest CertReqServlet
