@@ -36,10 +36,14 @@ public class CAClient {
   private KeyPairGenerator kpg;
   private NodePolicy policy;
   private boolean debug = false;
+  private String role = null;
+
   /** Creates new CertGenerator */
-  public CAClient(String role) {
+  public CAClient(String aRole) {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
+
+    role = aRole;
 
     ConfParser confParser = new ConfParser();
     try{
@@ -79,6 +83,7 @@ public class CAClient {
       huc.setRequestMethod("POST");
       PrintWriter out = new PrintWriter(huc.getOutputStream());
       String content = "pkcs=" + URLEncoder.encode(pkcs);
+      content = content + "&role=" + URLEncoder.encode(role);
       content = content + "&dnname=" + URLEncoder.encode(policy.CA_DN);
       content = content + "&pkcsdata=" + URLEncoder.encode(request);
       out.println(content);

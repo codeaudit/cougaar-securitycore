@@ -99,7 +99,7 @@ final public class KeyRing {
       confParser = new ConfParser();
       String role = System.getProperty("org.cougaar.security.role"); 
       if (role == null && debug == true) {
-	System.out.println("Warning: LDAP role not defined");
+	System.out.println("Keyring Warning: LDAP role not defined");
       }
       NodePolicy nodePolicy = confParser.readNodePolicy(role);
       ConfigFinder configFinder = new ConfigFinder();

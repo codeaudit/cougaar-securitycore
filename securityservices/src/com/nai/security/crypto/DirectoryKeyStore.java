@@ -30,19 +30,21 @@ import java.io.*;
 import java.util.*;
 
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Principal;
 import java.security.MessageDigest;
-import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.InvalidKeyException;
 import java.security.Signature;
 import java.security.cert.*;
 import java.security.KeyPair;
 import java.security.SecureRandom;
+
+import java.security.SignatureException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.InvalidKeyException;
+import java.security.KeyException;
+import java.security.KeyStoreException;
 
 import sun.security.pkcs.*;
 import sun.security.x509.*;
@@ -137,7 +139,7 @@ public class DirectoryKeyStore implements Runnable
 	// certificate authority services. In that cases, we need CA policy
 	String role = System.getProperty("org.cougaar.security.role"); 
 	if (role == null && debug == true) {
-	  System.out.println("Warning: LDAP role not defined");
+	  System.out.println("DirectoryKeystore warning: LDAP role not defined");
 	}
 	caClient = new CAClient(role);
       }
@@ -217,6 +219,11 @@ public class DirectoryKeyStore implements Runnable
       if (pk != null) {
 	privateKeysAlias.put(commonName, pk);
       }
+      /* Now, we have a private key. However, the key may not be valid for the
+       * following reasons:
+       *   + the key has expired
+       *   + the key was generated, but we couldn't get it signed from the CA
+       */
     } catch (Exception e) {
       System.err.println("Failed to get PrivateKey for \"" + commonName + "\": "+e);
       e.printStackTrace();
@@ -621,6 +628,35 @@ public class DirectoryKeyStore implements Runnable
   }
 
 
+  private void checkCertificateValidity(X509Certificate cert)
+    throws CertificateNotYetValidException, KeyException
+  {
+    try {
+      cert.checkValidity();
+    }
+    catch (CertificateExpiredException e) {
+      // Certificate has expired
+      // Generate a new certificate with the same name
+      String commonName = getCommonName(cert);
+      PrivateKey pk = addKeyPair(commonName);
+      if (pk == null) {
+	// Unable to create a new certificate. Throw an exception
+	throw new KeyException("Certificate has expired and unable to create a new certificate");
+      }
+    }
+    catch (CertificateNotYetValidException e) {
+      // Certificate is not valid yet
+      // It probably means the Certificate Authority hasn't allowed the entity
+      // to use it before some date in the future.
+      throw new CertificateNotYetValidException(e.getMessage());
+    }
+
+    // Now, make sure that the certificate chain leads to a trusted CA.
+    // If not, maybe it's because we did not send the certificate request
+    // to the CA, or maybe because we didn't get the reply from the CA
+    // the last time we tried to send it to the CA.
+  }
+
   private boolean buildChain(X509Certificate x509certificate, Vector vector,
 			     Hashtable hashtable)
   {
@@ -734,6 +770,9 @@ public class DirectoryKeyStore implements Runnable
 	  System.out.println("Creating key pair for node: " + nodeName);
 	}
 	alias = makeKeyPair(commonName);
+	// At this point, the key pair has been added to the keystore, but we don't
+	// have the reply from the certificate authority yet.
+
 	// Send the public key to the Certificate Authority (PKCS10)
 	request = generateSigningCertificateRequest(keystore.getCertificate(alias), alias);
 	if (debug) {
