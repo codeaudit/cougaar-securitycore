@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -221,10 +221,14 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       secprop.getProperty(secprop.SECURITY_ROLE);
 
     if (role == null && log.isInfoEnabled() == true) {
-      log.info("Role is not defined");
+      if (log.isInfoEnabled()) {
+	log.info("Role is not defined");
+      }
     }
 
-    log.info(" Certificate Cache initilization called : ");
+    if (log.isInfoEnabled()) {
+      log.info(" Certificate Cache initilization called : ");
+    }
     
     SecurityPolicy[] sp =
       configParser.getSecurityPolicies(CryptoClientPolicy.class);
@@ -234,7 +238,10 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       log.error(" cryptoClientPolicy is null in init of certificate cache :");
     }
     else {
-      log.info(" cryptoClientPolicy ----->"+ cachecryptoClientPolicy.toString());
+      if (log.isInfoEnabled()) {
+	log.info(" cryptoClientPolicy ----->"
+		 + cachecryptoClientPolicy.toString());
+      }
     }
     
     if (cachecryptoClientPolicy == null
@@ -248,7 +255,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	log.warn("Unable to get crypto Client policy");
       }
       else {
-	log.info("Unable to get crypto Client policy");
+	if (log.isInfoEnabled()) {
+	  log.info("Unable to get crypto Client policy");
+	}
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
@@ -1925,31 +1934,41 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         log.debug(" MyServiceAvailableListener listener called for service :"+ sc.getName());
       }
       if( CRLCacheService.class.isAssignableFrom(sc)) {
-	log.info("CRL Cache Service is available now in Certificate Cache going to call updateCRLCache");
+	if (log.isInfoEnabled()) {
+	  log.info("CRL Cache Service is available now in Certificate Cache going to call updateCRLCache");
+	}
         if(_crlCacheService == null) {
           updateCRLCache();	
         }
       }
       if(BlackboardService.class.isAssignableFrom(sc)) {
-        log.info("Black board Service is available now in Certificate Cache going to publish used CA DNS ");
+	if (log.isInfoEnabled()) {
+	  log.info("Black board Service is available now in Certificate Cache going to publish used CA DNS ");
+	}
         if(_blackboardService == null) {
           publishDNstoBB();
         }
       }
       if(ThreadService.class.isAssignableFrom(sc)) {
-        log.info("Thread Service is available now in Certificate Cache going to publish used CA DNS ");
+	if (log.isInfoEnabled()) {
+	  log.info("Thread Service is available now in Certificate Cache going to publish used CA DNS ");
+	}
         if(_threadService == null) {
           publishDNstoBB();
         }
       }
       if(EventService.class.isAssignableFrom(sc)) {
-        log.info("Event Service is available now in Certificate Cache going to publish used CA DNS ");
+	if (log.isInfoEnabled()) {
+	  log.info("Event Service is available now in Certificate Cache going to publish used CA DNS ");
+	}
         if(_eventService == null) {
           createEvents();
         }
       }
       if ( (sc == AgentIdentificationService.class) &&(myAddress==null) ) {
-	log.info(" AgentIdentification Service is available now in Certificate Cache");
+	if (log.isInfoEnabled()) {
+	  log.info(" AgentIdentification Service is available now in Certificate Cache");
+	}
         AgentIdentificationService ais = (AgentIdentificationService)
           serviceBroker.getService(this, AgentIdentificationService.class, null);
         if(ais!=null){
