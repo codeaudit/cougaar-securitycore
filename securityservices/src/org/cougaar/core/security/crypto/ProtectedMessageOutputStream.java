@@ -210,8 +210,10 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private synchronized void init(final ServiceBroker sb) {
-    if (_log == null) {
+  private synchronized void init(final ServiceBroker sb) 
+    throws IOException
+  {
+    if (!servicesReady()) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
       AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {
@@ -225,7 +227,28 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
         }
       });
     }
+    if (!servicesReady()) {
+      if (_log != null) {
+        if (_keyRing == null) { 
+          _log.warn("No keyring service");
+        }
+        if (_crypto == null) {
+          _log.warn("No crypto service");
+        }
+        if (_cps == null) {
+          _log.warn("No Crypto Protection Service");
+        }
+      }
+      throw new IOException("Needed services for ProtectedMessageOutputStream not available");
+    }
   }
+
+  private boolean servicesReady()
+  {
+    return (_log != null && _keyRing != null 
+                         && _crypto != null && _cps != null);
+  }
+
 
     public static void clearCertCache(String source, String target) {
 	synchronized (_certCache) {

@@ -202,16 +202,15 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private synchronized void init(final ServiceBroker sb) {
-    if (_log == null) {
+  private synchronized void init(final ServiceBroker sb) 
+    throws IOException
+  {
+    if (!servicesReady()) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
       AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {
           _keyRing = (KeyRingService) 
             sb.getService(this, KeyRingService.class, null);
-          if (_keyRing == null) {
-            _log.error("This needs fixing");
-          }
           _cacheService = (CertificateCacheService) 
             sb.getService(this, CertificateCacheService.class, null);
           _crypto = (EncryptionService)
@@ -222,6 +221,30 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         }
       });
     }
+    if (!servicesReady()) {
+      if (_log != null) {
+        if (_keyRing == null) { 
+          _log.warn("No keyring service");
+        }
+        if (_cacheService == null) {
+          _log.warn("No cache service");
+        }
+        if (_crypto == null) {
+          _log.warn("No crypto service");
+        }
+        if (_cps == null) {
+          _log.warn("No Crypto Protection Service");
+        }
+      }
+      throw new IOException("Needed services for ProtectedMessageOutputStream not available");
+    }
+    
+  }
+
+  private boolean servicesReady()
+  {
+    return (_log != null && _keyRing != null && _cacheService != null
+                         && _crypto != null && _cps != null);
   }
 
   private void publishMessageFailure(String source, String target,
