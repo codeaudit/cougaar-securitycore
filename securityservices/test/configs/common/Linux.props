@@ -225,6 +225,7 @@ org.cougaar.security.crypto.config=cryptoPolicy.xml
 
 # Print crypto-related debug information about the security aspect
 org.cougaar.core.security.crypto.debug=true
+#org.cougaar.core.security.crypto.dumpMesages=true
 
 # Print transport-related debug information about the security aspect
 org.cougaar.message.transport.debug=security

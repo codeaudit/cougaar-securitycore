@@ -55,7 +55,7 @@ if ($user eq 'ychen') {
                  $user,
                  $httpport,
                  $httpsport,
-                 "$node.log",
+                 "$node.html",
                  "$host",
                  '--BACKSLASH--',
                  '',
@@ -76,8 +76,8 @@ push @commandLine, @ARGV;
 if ( ! -d "$cip/workspace/log4jlogs" ) {
   mkdir "$cip/workspace", 0777;
   mkdir "$cip/workspace/log4jlogs", 0777;
-} elsif ( -f "$cip/workspace/log4jlogs/$node.log" ) {
-  unlink "$cip/workspace/log4jlogs/$node.log";
+} elsif ( -f "$cip/workspace/log4jlogs/$node.html" ) {
+  unlink "$cip/workspace/log4jlogs/$node.html";
 }
 
 #print "@commandLine\n";
