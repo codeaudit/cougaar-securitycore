@@ -97,6 +97,15 @@ public class CACertificateEntry extends CertificateEntry
     }
     return null;
   }
-
-
+  
+  public String toString() {
+    StringBuffer buff=new StringBuffer();
+    if(getLastModifiedTimeStamp()!=null) {
+      buff.append("Last Modified :"+ getLastModifiedTimeStamp());
+    }
+    else {
+      buff.append("Last Modified :  ");
+    }
+   return  buff.toString();
+  }
 }

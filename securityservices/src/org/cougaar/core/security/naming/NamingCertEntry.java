@@ -103,4 +103,21 @@ final public class NamingCertEntry extends Cert
   }
 
   int _hashcode;
+  public String toString() {
+    StringBuffer buff=new StringBuffer();
+    if(certList.isEmpty()) {
+      buff.append("CertList is empty");
+    }
+    Iterator iter =certList.iterator();
+    Object Obj=null;
+    CACertificateEntry caentry =null;
+    while(iter.hasNext()){
+      Obj=(Object)iter.next();
+      if(Obj instanceof CACertificateEntry) {
+        caentry=(CACertificateEntry)Obj;
+        buff.append (" CA Entry  : "+ caentry.toString() +"\n");
+      }
+    }
+    return buff.toString();
+  }
 }
