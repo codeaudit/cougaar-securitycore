@@ -16,5 +16,36 @@
       <!-- Do nothing. There is nothing to compile here. -->
     </target>
  
+     <!-- install config files -->
+    <target name="custom-install-conf" id="custom.install">
+ 
+         <copy todir="${securityservices.staging}/operator/security">
+            <fileset dir="${securityservices.base}/test/bin">
+                <patternset>
+                    <include name="checkTrace*.rb"/>
+                    <include name="signSingleJar"/>
+                    <include name="runallparallel"/>
+                    <include name="printProcessInfo.rb"/>
+                    <include name="checkReportChainReady.rb"/>
+                    <include name="createJarConfigFiles"/>
+                    <include name="policyUtil"/>
+                </patternset>
+            </fileset>
+            <fileset dir="${securityservices.configs}/sign-jars">
+                <patternset>
+                    <include name="signingCA_keystore"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy todir="${securityservices.staging}/operator">
+          <!-- Also copy keystore to $CIP/operator - ACME OSS does not provide it -->
+            <fileset dir="${securityservices.configs}/sign-jars">
+                <patternset>
+                    <include name="signingCA_keystore"/>
+                </patternset>
+            </fileset>
+        </copy>
+    </target>
+ 
 </project>
   

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+LogFile=/tmp/policyUtil.log
+
+for i in ${COUGAAR_INSTALL_PATH}/lib/*.jar
+do
+  CP=$CP:$i
+done
+for i in ${COUGAAR_INSTALL_PATH}/sys/*.jar
+do
+  CP=$CP:$i
+done
+
+rm  -rf ${LogFile}
+
+DEFS="-Xmx512m -Dorg.cougaar.config.path=${COUGAAR_INSTALL_PATH}/configs/security"
+DEFS="${DEFS} -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder"
+DEFS="${DEFS} -Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore"
+
+
+#LOG="${LOG} -Dlog4j.rootCategory=WARN"
+LOG="${LOG} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
+LOG="${LOG} -Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
+
+java $DEFS ${LOG} -classpath $CP org.cougaar.core.security.policy.builder.Main $*
+
+
+# All comments below this line
+#----------------------------------------------------------------------------
+# Other attempts to get logging working...
+#LOG="-Dlog4j.appender.CNCCALC.File=node.log -Dlog4j.appender.UC3.File=node.log"
+#LOG="${LOG} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/common/loggingConfig.conf"
+#LOG="${LOG} -Dlog4j.rootCategory=WARN,SECURITY"
+#LOG="${LOG} -log4j.appender.SECURITY=org.apache.log4j.ConsoleAppender"
+#LOG="${LOG} -log4j.appender.CNCCALC.File=node.log"
+
+
+# Debug
+#DEFS="${DEFS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=9999"
