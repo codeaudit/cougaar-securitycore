@@ -250,7 +250,7 @@ public class CertificateSigningRequest
     out.println("<tr ><td colspan=\"3\">");
 
     // CA
-    out.println("Select CA: <select id=\"dnname\" name=\"cadnname\">");
+    out.println("Select CA: <select id=\"dnname\" name=\"dnname\">");
     for (int i = 0 ; i < caDNs.length ; i++) {
       out.println("<option value=\"" + caDNs[i].toString() + "\">" 
 		  + caDNs[i].toString() + "</option>");

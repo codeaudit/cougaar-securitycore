@@ -657,7 +657,7 @@ public class KeyManagement
 	   NoSuchAlgorithmException, InvalidKeyException
   {
     int len = 200;     // Size of a read operation
-    int ind_start, ind_stop;
+    int ind_start, ind_stop, ind_end;
     byte [] bbuf = new byte[len];
     String sbuf = null;
     ArrayList pkcs10requests = new ArrayList();
@@ -672,25 +672,24 @@ public class KeyManagement
       sbuf = sbuf + s;
 
       // Find header
-      ind_start = sbuf.indexOf(CertificateUtility.PKCS10HEADER);
+      ind_start = findLine(sbuf,CertificateUtility.PKCS10HEADER, 0);
       if (ind_start == -1) {
-	// No header was found
-	break;
+        // No header was found
+        break;
       }
 
       // Find trailer
-      ind_stop = sbuf.indexOf(CertificateUtility.PKCS10TRAILER, ind_start);
-      if (ind_stop == -1) {
+      ind_end = findLine(sbuf,CertificateUtility.PKCS10TRAILER, ind_start);
+      if (ind_end == -1) {
 	// No trailer was found. Maybe we didn't read enough data?
 	// Try to read more data.
 	continue;
       }
+      ind_stop = sbuf.indexOf(CertificateUtility.PKCS10TRAILER[0], ind_start);
 
       // Extract Base-64 encoded request and remove request from sbuf
-      String base64pkcs = sbuf.substring(ind_start +
-					 CertificateUtility.PKCS10HEADER.length(),
-					 ind_stop);
-      sbuf = sbuf.substring(ind_stop + CertificateUtility.PKCS10TRAILER.length());
+      String base64pkcs = sbuf.substring(ind_start,ind_stop);
+      sbuf = sbuf.substring(ind_end);
       if (log.isDebugEnabled()) {
 	log.debug("base64pkcs: " + base64pkcs);
       }
@@ -707,6 +706,15 @@ public class KeyManagement
     }
 
     return pkcs10requests;
+  }
+
+  private static int findLine(String str, String[] components, int start) {
+    for (int i = 0; i < components.length; i++) {
+      start = str.indexOf(components[i], start);
+      if (start == -1) return -1;
+      start += components[i].length();
+    }
+    return start;
   }
 
   public ArrayList getSigningRequests(String filename)
