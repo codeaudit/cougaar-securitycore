@@ -24,12 +24,19 @@ package test.org.cougaar.core.security.crypto;
 
 import junit.framework.*;
 
+import java.io.*;
+
 // Cougaar core services
 import org.cougaar.core.service.*;
+import org.cougaar.core.component.*;
+import org.cougaar.core.mts.*;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+
+// Regress
+import test.org.cougaar.core.security.simul.BasicNode;
 
 public class MessageProtectionServiceTest
   extends TestCase
@@ -51,21 +58,67 @@ public class MessageProtectionServiceTest
    * 3) Code which verifies the result.
    */
   public void testEncryption() {
+    // Initialize Basic Node
+    BasicNode bn = new BasicNode();
+    Assert.assertNotNull("Could not get Basic Node", bn);
 
-    /** 1) */
+    SecurityServiceProvider secProvider = bn.getSecurityServiceProvider();
 
-    SecurityServiceProvider secProvider = null;
-    MessageProtectionService mps = null;
-    secProvider = new SecurityServiceProvider();
-
-    mps =
-      (MessageProtectionService)secProvider.getService(null,
+    // Get Message Protection Service
+    MessageProtectionService mps = 
+      (MessageProtectionService)secProvider.getService(bn.getServiceBroker(),
 						       this,
 						       MessageProtectionService.class);
+    Assert.assertNotNull("Could not get MessageProtectionService", mps);
 
-    /** 2) */
+    // Create a test header
+    String header = "Source:foo - Target:bar";
+    byte[] rawData = header.getBytes();
+    MessageAddress source = new MessageAddress("foo");
+    MessageAddress destination = new MessageAddress("bar");
+    byte[] encryptedHeader = null;
+    byte[] decryptedHeader = null;
 
-    /** 3) */
-    Assert.assertTrue(false);
+    // Encrypt header
+    encryptedHeader = mps.protectHeader(rawData,
+					source,
+					destination);
+    Assert.assertNotNull("Encrypted Header is null", encryptedHeader);
+   
+    // Decrypt header
+    decryptedHeader = mps.unprotectHeader(encryptedHeader,
+					  source,
+					  destination);
+    String newHeader = new String (decryptedHeader);
+    Assert.assertNotNull("Deccrypted Header is null", decryptedHeader);
+
+    // Original header and (encrypted then decrypted) header should be equal.
+    Assert.assertEquals(header, newHeader);
+
+    // Original header and encrypted header should be different
+    // (but of course that does not guarantee that encryption is done properly)
+    boolean isDifferent = !header.equals(new String(encryptedHeader));
+    Assert.assertTrue(isDifferent);
+
+    System.out.println("Header before encryption: " + header);
+    //System.out.println("Header after encryption: " + new String(encryptedHeader));
+    System.out.println("Header after encryption/decryption: " + newHeader);
+
+    // 
+    OutputStream os = null;
+    InputStream is = null;
+    MessageAttributes attrs = null;
+
+    ProtectedOutputStream pos =
+      mps.getOutputStream(os,
+			  source,
+			  destination,
+			  attrs);
+    ProtectedInputStream pis =
+      mps.getInputStream(is,
+			 source,
+			 destination,
+			 attrs);
+
   }
 }
