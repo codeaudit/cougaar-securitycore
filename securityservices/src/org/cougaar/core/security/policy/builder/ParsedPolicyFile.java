@@ -28,26 +28,34 @@ import java.util.Vector;
 
 public class ParsedPolicyFile 
 {
-  Map  declarations;
-  List policies;
+  private Map    _declarations;
+  private List   _policies;
+  private String _prefix;
 
   public ParsedPolicyFile()
   {
-    declarations = new HashMap();
-    policies     = new Vector();
+    _prefix       = "";
+    _declarations = new HashMap();
+    _policies     = new Vector();
+  }
+
+  public void setPrefix(String prefix)
+  {
+    _prefix = prefix;
   }
 
   public void addPolicy(ParsedPolicy pp)
   {
-    policies.add(pp);
+    pp.setPolicyPrefix(_prefix);
+    _policies.add(pp);
   }
 
   public void declareInstance(String instanceName,
                               String className)
   {
-    declarations.put(instanceName, className);
+    _declarations.put(instanceName, className);
   }
 
-  public Map  declarations() { return declarations; }
-  public List policies()     { return policies;     }
+  public Map  declarations() { return _declarations; }
+  public List policies()     { return _policies;     }
 }

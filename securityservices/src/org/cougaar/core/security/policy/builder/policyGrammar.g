@@ -52,7 +52,8 @@ throws PolicyCompilerException
 
 declaration[ParsedPolicyFile ppf]
 throws PolicyCompilerException
-    : "Agent" agentName:URI
+    : setprefix[ppf]
+    | "Agent" agentName:URI
         { ppf.declareInstance(ParsedPolicy.tokenToURI(agentName),
                               ActorConcepts._Agent_); }
     | "UserRole" userRoleName:TOKEN
@@ -71,6 +72,17 @@ throws PolicyCompilerException
         { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
                               + blackBoardObjectName.getText(),
                               UltralogEntityConcepts._BlackBoardObjects_); }
+    ;
+
+setprefix[ParsedPolicyFile ppf]
+throws PolicyCompilerException
+    : "PolicyPrefix" EQ prefix:URI
+        {  
+      if (prefix.getText().startsWith("$")) {
+        throw new PolicyCompilerException("Policy prefix must begin with %");
+      }
+      ppf.setPrefix(ParsedPolicy.tokenToURI(prefix));
+         }
     ;
 
 policy 
@@ -328,7 +340,6 @@ WS	:	(	' '
 
 // I have been having trouble with comments - what is matchNot doing?
 COMMENT: '#' (~'\n')* '\n'
-//COMMENT: '#' ('0'..'9'|'a'..'z'|'A'..'Z'|'.'|','|'('|')'|';'|'-'|'\"'|'$'|'='|'['|']'|'{'|'}'|':'|'/'|'#'|'<'|'>'|'\''|' '|'\t')* '\n'
 		{$setType(Token.SKIP);  newline(); }	//ignore this token
     ;
 

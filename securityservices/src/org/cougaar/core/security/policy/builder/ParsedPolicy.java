@@ -36,13 +36,14 @@ import antlr.Token;
 
 public abstract class ParsedPolicy 
 {
-  protected String  _policyName;
-  protected int     _priority;
-  protected String  _modality;
-  protected String  _action;
-  protected String  _actor;
+  private   String  _policyPrefix;
+  private   String  _policyName;
+  private   int     _priority;
+  private   String  _modality;
+  private   String  _action;
+  private   String  _actor;
   protected String  _description;
-  protected String  _conditionalMode;
+  private   String  _conditionalMode;
   
   protected DAMLPolicyBuilderImpl    _pb;
   protected KAoSClassBuilderImpl _controls;
@@ -53,6 +54,7 @@ public abstract class ParsedPolicy
                String  actor,
                String  action)
   {
+    _policyPrefix    = "";
     _policyName      = policyName;
     _priority        = priority;
     _modality        = modality;
@@ -67,7 +69,12 @@ public abstract class ParsedPolicy
 
   public String getPolicyName()
   {
-    return _policyName;
+    return _policyPrefix + _policyName;
+  }
+
+  public void setPolicyPrefix(String prefix)
+  {
+    _policyPrefix = prefix;
   }
 
   public String getActor()
@@ -181,7 +188,7 @@ public abstract class ParsedPolicy
         fatal.initCause(e);
         throw fatal;
       }
-      _pb.setPolicyName(_policyName);
+      _pb.setPolicyName(getPolicyName());
       _pb.setPriority(_priority);
       _pb.setPolicyDesc(_description);
       _pb.setHasSiteOfEnforcement(kaos.ontology.jena.PolicyConcepts.
