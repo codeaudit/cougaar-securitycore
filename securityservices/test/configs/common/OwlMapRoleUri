@@ -16,8 +16,8 @@
 #
 
 
-/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAddRole
+/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAdd
 
-/$*/tasks http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAllRole
-/$*/editOplan http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAllRole
+/$*/tasks http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAll
+/$*/editOplan http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAll
 
