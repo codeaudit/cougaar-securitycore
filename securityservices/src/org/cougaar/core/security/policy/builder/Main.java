@@ -20,6 +20,9 @@
  */
 package org.cougaar.core.security.policy.builder;
 
+import com.hp.hpl.jena.daml.common.DAMLModelImpl;
+import com.hp.hpl.mesa.rdf.jena.model.RDFException;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -32,7 +35,10 @@ import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
 import kaos.ontology.util.RangeIsBasedOnInstances;
 import kaos.ontology.util.ValueNotSet;
+import kaos.policy.information.DAMLPolicyContainer;
+import kaos.policy.util.DAMLPolicyBuilderImpl;
 import kaos.policy.util.PolicyBuildingNotCompleted;
+
 
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
 
@@ -50,9 +56,10 @@ class Main {
   }
 
 
-  private static final int BUILD_CMD  = 0;
-  private static final int JTP_CMD    = 1;
-  private static final int COMMIT_CMD = 2;
+  private static final int BUILD_CMD   = 0;
+  private static final int JTP_CMD     = 1;
+  private static final int COMMIT_CMD  = 2;
+  private static final int EXAMINE_CMD = 3;
 
   private int     _cmd;
   private boolean _quiet;
@@ -111,6 +118,10 @@ class Main {
           "/$" + args[counter++] + "/policyAdmin";
         System.out.println("_url = " + _url);
         _policyFile = args[counter++];
+      } else if (args[counter].equals("examine")) {
+        counter++;
+        _cmd = EXAMINE_CMD;
+        _policyFile = args[counter++];
       } else {
         usage();
       }
@@ -140,6 +151,7 @@ class Main {
     System.out.println("\tport  = port on which the servlet listens");
     System.out.println("\tagent = agent running the servlet");
     System.out.println("\tpoliciesFile = policies to commit");
+    System.out.println("" + (counter++) + ". examine policyFile");
     System.exit(-1);
   }
 
@@ -168,6 +180,9 @@ class Main {
       break;
     case COMMIT_CMD:
       commitPolicies();
+      break;
+    case EXAMINE_CMD:
+      examinePolicyFile();
       break;
     default:
       throw new RuntimeException("Shouldn't be here");
@@ -366,6 +381,59 @@ class Main {
                           .equals("true")));
     }
     return p;
+  }
+
+
+  /**
+   * Provides a command line way of viewing a policy file.
+   */
+  public void examinePolicyFile()
+    throws IOException, RDFException
+  {
+    FileInputStream   fis = new FileInputStream(_policyFile);
+    ObjectInputStream ois = new ObjectInputStream(fis);
+    PolicyMsg          pm = null;
+
+    try {
+      Object obj = ois.readObject();
+      pm = (PolicyMsg) obj;
+    } catch (ClassCastException e) {
+      System.out.println("File is not a policy message file");
+    } catch (ClassNotFoundException e) {
+      System.out.println("File has unknown format");
+    }
+    System.out.println("Policy = " + pm);
+    examineDAMLMsg(pm);
+  }
+
+  /*
+   * This routine looks to see if the policy message has a daml part and if 
+   * so it prints it out.  This is good for those guys who want to see DAML.
+   * 
+   * This currently only prints the right information for authorization 
+   * policies.
+   */
+  static private void examineDAMLMsg(PolicyMsg pm)
+    throws RDFException
+  {
+    Vector attribs = pm.getAttributes();
+     
+    for (Iterator attribsIt = attribs.iterator(); attribsIt.hasNext(); ) {
+      AttributeMsg attrib = (AttributeMsg) attribsIt.next();
+      
+      // Check if the AttributeMsg is the DAML_CONTENT
+      if (attrib.getName().equals(AttributeMsg.DAML_CONTENT)) {
+        // first read the policy specific data
+        DAMLPolicyContainer dpc = (DAMLPolicyContainer) attrib.getValue();
+        
+
+        System.out.println("DAML = ");
+        dpc.getPolicyModel().write(new PrintWriter(System.out),
+                                   "RDF/XML-ABBREV");
+        dpc.getControlActionModel().write(new PrintWriter(System.out),
+                                           "RDF/XML-ABBREV");
+      }
+    }
   }
 }
 
