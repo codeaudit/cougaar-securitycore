@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package org.cougaar.core.security.config;
@@ -77,7 +77,7 @@ public class CaPolicyHandler
   private static final String CA_KEYSIZE_ELEMENT          = "keysize";
   private static final String CA_CERTVALIDITY_ELEMENT     = "certValidity";
   private static final String CA_REQUIREPENDING_ELEMENT   = "requirePending";
-
+  private static final String CA_NODE_IS_SIGNER_ELEMENT   = "nodeIsSigner";
 
   public void startElement( String namespaceURI,
 			    String localName,
@@ -87,7 +87,7 @@ public class CaPolicyHandler
     super.startElement(namespaceURI, localName, qName, attr);
 
   }
- 
+
   public void endElement( String namespaceURI,
 			  String localName,
 			  String qName )
@@ -97,7 +97,7 @@ public class CaPolicyHandler
       return;
     }
     if (CryptoDebug.debug) {
-      System.out.println("CaPolicy: " + localName 
+      System.out.println("CaPolicy: " + localName
 			 + " = " + getContents());
     }
 
@@ -145,14 +145,14 @@ public class CaPolicyHandler
       String type = getContents();
       if (type != null) {
 	if (type.equalsIgnoreCase("NetTools")) {
-	  caPolicy.ldapType = CaPolicy.NETTOOLS; 
+	  caPolicy.ldapType = CaPolicy.NETTOOLS;
 	}
 	else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
 	  caPolicy.ldapType = CaPolicy.COUGAAR_OPENLDAP;
 	}
       }
       else {
-	if (CryptoDebug.debug) { 
+	if (CryptoDebug.debug) {
 	  System.out.println("Error !!!!!!! No LDAP server type specified.");
 	}
       }
@@ -217,6 +217,13 @@ public class CaPolicyHandler
       if (strPending != null && strPending.equals("true"))
 	caPolicy.requirePending = true;
     }
+    if (localName.equals(CA_NODE_IS_SIGNER_ELEMENT)) {
+      String val = getContents();
+      caPolicy.nodeIsSigner = false;
+      if (val.equalsIgnoreCase("true")) {
+	caPolicy.nodeIsSigner = true;
+      }
+    }
   }
 }
- 
+
