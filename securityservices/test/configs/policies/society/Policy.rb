@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 CIP = ENV['CIP'] 
-RULES = File.join(CIP, 'csmart','config','rules') 
  
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
@@ -16,6 +15,7 @@ require 'cougaar/experiment'
 require 'security/actions/saveEvents'
 require 'security/lib/cougaarMods'
 require 'security/actions/buildPolicies'
+require 'security/actions/buildCoordinatorPolicies'
 require 'security/actions/buildUserFiles'
 require 'security/actions/configFiles'
 require 'security/actions/saveEvents'
@@ -40,12 +40,12 @@ Cougaar::ExperimentMonitor.enable_logging
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
 
-  society_file="PolicyOne.xml"
-  layout_file="PolicyOne-layout.xml"
+#  society_file="PolicyOne.xml"
+#  layout_file="PolicyOne-layout.xml"
 
-# society_file="PolicyTwo.xml"
+  society_file="PolicyTwo.xml"
 # layout_file="PolicyTwo-layout.xml"
-# layout_file="PolicyTwoSpread-layout.xml"
+  layout_file="PolicyTwoSpread-layout.xml"
 
  
   # read the basic society definition 
@@ -62,31 +62,34 @@ Cougaar.new_experiment("Policy-Test").run(1) {
 
    hosts_file = "hosts.xml"
 
+RULES = File.join(CIP, 'csmart','config','rules') 
+
  
   # transform the basic society to use our host-node layout 
   do_action "LayoutSociety", "#{layout_file}", hosts_file 
 
   do_action "TransformSociety", false, 
     ".",
-    "#{RULES}/isat",
-    "#{RULES}/security",
-    "#{RULES}/security/communities",
-    "#{RULES}/security/mop/audit_servlet.rule",
-    "#{RULES}/security/robustness",
-    "#{RULES}/security/mts/loopback_protocol.rule",
-    "#{RULES}/security/mts/sslRMI.rule",
-    "#{RULES}/security/mts/http_mts.rule",
-#    "#{RULES}/security/mts/https_mts.rule",
-    "#{RULES}/security/naming",
-#    "#{RULES}/security/test/test-network-config.rule"
-
-
+    "#{CIP}/csmart/config/rules/isat",
+    "#{CIP}/csmart/config/rules/security",
+    "#{CIP}/csmart/config/rules/security/mop/audit_servlet.rule",
+    "#{CIP}/csmart/config/rules/security/robustness",
+    "#{CIP}/csmart/config/rules/security/mts/loopback_protocol.rule",
+    "#{CIP}/csmart/config/rules/security/mts/sslRMI.rule",
+    "#{CIP}/csmart/config/rules/security/mts/http_mts.rule",
+#    "#{CIP}/csmart/config/rules/security/mts/https_mts.rule",
+    "#{CIP}/csmart/config/rules/security/naming",
+#    "#{CIP}/csmart/config/rules/security/test/test-network-config.rule",
+    "#{CIP}/csmart/config/rules/security/testCollectData/MessageReaderAspect.rule",
     "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
+
+  do_action "TransformSociety", false,
+    "#{CIP}/csmart/config/rules/security/communities"
 
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 
   do_action "SaveCurrentSociety", "mySociety.rb" 
-  do_action "SaveCurrentCommunities", "myCommunities.xml" 
+  do_action "SaveCurrentCommunities", "myCommunity.xml" 
 
 
   # start jabber 
@@ -108,19 +111,19 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   
    do_action "InitDM"
 
-  do_action "BlackboardTest"
-  do_action "ServletTest01"
-  do_action "CommunicationTest01"
-  do_action "DomainManagerRehydrateReset"
+#  do_action "BlackboardTest"
+#  do_action "ServletTest01"
+#  do_action "CommunicationTest01"
+#  do_action "DomainManagerRehydrateReset"
 #  do_action "CheckRMISwitch"
   do_action "TestResults"
 
-  do_action "GenericAction" do |myRun|
+#  do_action "GenericAction" do |myRun|
 # use @run for the run variable here - myRun and run doesn't work.
 # to reference one of the classes from policyTests use the following syntax:
 #   ::Cougaar::Actions::BlackboardTest.new(@run)
-    load 'debug.rb'
-  end
+#    load 'debug.rb'
+#  end
 
 }
 
