@@ -101,19 +101,19 @@
         <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#Community"/>
     </owl:FunctionalProperty>
 
-    <owl:ObjectProperty rdf:ID="drrsHasPrivilege">
-      <rdfs:domain rdf:resource="DrrsAction"/>
-      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#DrrsPrivilege"/>
+    <owl:ObjectProperty rdf:ID="oqlHasPrivilege">
+      <rdfs:domain rdf:resource="OQLAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#OQLPrivilege"/>
     </owl:ObjectProperty>
 
-    <owl:ObjectProperty rdf:ID="drrsHasDataField">
-      <rdfs:domain rdf:resource="DrrsAction"/>
-      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#DrrsDataField"/>
+    <owl:ObjectProperty rdf:ID="oqlHasDataField">
+      <rdfs:domain rdf:resource="OQLAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#OQLDataField"/>
     </owl:ObjectProperty>
 
-    <owl:ObjectProperty rdf:ID="drrsHasDataSource">
-      <rdfs:domain rdf:resource="DrrsAction"/>
-      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#DrrsDataSource"/>
+    <owl:ObjectProperty rdf:ID="oqlHasDataSource">
+      <rdfs:domain rdf:resource="OQLAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#OQLDataSource"/>
     </owl:ObjectProperty>
 
 <!-- Section with class definitions--> 
@@ -260,13 +260,14 @@
        </rdfs:subClassOf>
      </owl:Class>
 
-     <owl:Class rdf:ID="DrrsAction">
+     <owl:Class rdf:ID="OQLAction">
        <owl:disjointWith rdf:resource="#ServletAccess"/>
        <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
        <owl:disjointWith rdf:resource="#WPUpdate"/>
        <owl:disjointWith rdf:resource="#WPLookup"/>
        <owl:disjointWith rdf:resource="#WPForward"/>
        <owl:disjointWith rdf:resource="#CommunityAction"/>
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
        <rdfs:subClassOf>
          <owl:Restriction>
            <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>

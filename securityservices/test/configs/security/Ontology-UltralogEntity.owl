@@ -95,8 +95,8 @@
         </owl:unionOf>
     </owl:Class>
 
-    <owl:Class rdf:ID="DrrsPrivilege"/>
-    <owl:Class rdf:ID="DrrsDataField"/>
-    <owl:Class rdf:ID="DrrsDataSource"/>    
+    <owl:Class rdf:ID="OQLPrivilege"/>
+    <owl:Class rdf:ID="OQLDataField"/>
+    <owl:Class rdf:ID="OQLDataSource"/>    
 
 </rdf:RDF>
