@@ -155,7 +155,7 @@ public class DirectoryKeyStore
       km.finishInitialization();
     } else {
       _initKeyManager.add(km);
-    } 
+    }
   }
 
   public synchronized void finishInitialization() {
@@ -164,7 +164,7 @@ public class DirectoryKeyStore
       _initializing = false;
       certificateFinder =
         CertDirectoryServiceFactory.
-        getCertDirectoryServiceClientInstance(param.ldapServerType, 
+        getCertDirectoryServiceClientInstance(param.ldapServerType,
                                               param.ldapServerUrl,
                                               param.serviceBroker);
       if(certificateFinder == null) {
@@ -1879,7 +1879,9 @@ public class DirectoryKeyStore
        *  then the agent key is signed by the node.
        * If the node is not a signer, the requested key is self-signed.
        */
-      if(commonName.equals(nodeName) || commonName.equals(getHostName())
+      String title = CertificateUtility.findAttribute(dname.getName(), "t");
+      if(commonName.equals(nodeName)/* || commonName.equals(getHostName())*/
+         || (title != null && title.equals(CERT_TITLE_USER))
 	 || !cryptoClientPolicy.getCertificateAttributesPolicy().nodeIsSigner) {
 	// Create a self-signed key and send it to the CA.
 	if (keyAlias != null) {
@@ -2466,20 +2468,6 @@ public class DirectoryKeyStore
       updateNS(caDNs[i]);
   }
 
-  private void checkOrMakeHostKey() {
-    // generate one for webserver
-    List hostList = findCert(getHostName());
-    if (hostList == null || hostList.size() == 0) {
-      addKeyPair(getHostName(), null);
-      WebserverIdentityService sslwebserver = (WebserverIdentityService)
-        param.serviceBroker.getService(this,
-				       WebserverIdentityService.class,
-				       null);
-      if (sslwebserver != null)
-        sslwebserver.updateKeystore();
-    }
-  }
-
    public void setSleeptime(long sleeptime)
   {
     // Check security permissions
@@ -2696,7 +2684,7 @@ public class DirectoryKeyStore
       log.warn("Unable to send PKCS request to CA. CA URL:" + trustedCaPolicy[0].caURL
 	       + " . CA DN:" + trustedCaPolicy[0].caDN, e);
     }
-      
+
     return reply;
   }
 
@@ -2853,6 +2841,23 @@ public class DirectoryKeyStore
     }
     return null;
   }
+
+  /*
+  // Cache LDAP connections
+  private CertDirectoryServiceClient getCertFinder(int type, String url) {
+    String key = url + type;
+    CertDirectoryServiceClient certFinder = (CertDirectoryServiceClient)
+      certFinderList.get(key);
+    if (certFinder == null) {
+      synchronized (certFinderList) {
+        certFinder = CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
+            type, url, param.serviceBroker);
+        certFinderList.put(key, certFinder);
+      }
+    }
+    return certFinder;
+  }
+  */
 
   /**
    * Check whether the certificate comes from the local CA
