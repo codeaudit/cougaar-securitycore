@@ -31,7 +31,7 @@ import java.net.*;
 
 // Cougaar core services
 import org.cougaar.core.service.*;
-import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.*;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.identity.*;
 
@@ -43,13 +43,16 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
 import org.cougaar.core.security.certauthority.servlet.CAInfo;
 import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.provider.*;
 
 
 /**
  *
  *
  */
-public class ConfigPlugin extends ComponentPlugin {
+public class ConfigPlugin
+  extends SecurityComponent {
+  //extends ComponentPlugin {
   /**
    */
   protected LoggingService  log;
@@ -58,17 +61,33 @@ public class ConfigPlugin extends ComponentPlugin {
   protected ConfigParserService configParser;
   protected CryptoClientPolicy cryptoClientPolicy;
   protected CertificateCacheService cacheservice;
+  protected BindingSite bindingSite;
 
   private String caDN = null;
   private String ldapURL = null;
+  private String upperCA = null;
   private String httpport = null;
   private String httpsport = null;
 
-  public void initialize() {
-    super.initialize();
-    ServiceBroker sb = getServiceBroker();
-    log = (LoggingService) sb.getService(this, LoggingService.class, null);
-    _sb = sb;
+  public void setBindingSite(BindingSite bs) {
+    bindingSite = bs;
+  }
+
+  public void setState(Object loadState) {}
+  public Object getState() {return null;}
+
+  public synchronized void unload() {
+    super.unload();
+    // unload services in reverse order of "load()"
+    ServiceBroker sb = bindingSite.getServiceBroker();
+    // release services
+  }
+
+  public void load() {
+    super.load();
+    _sb = bindingSite.getServiceBroker();
+
+    log = (LoggingService) _sb.getService(this, LoggingService.class, null);
 
     keyRingService = (KeyRingService)
       _sb.getService(this,
@@ -89,28 +108,11 @@ public class ConfigPlugin extends ComponentPlugin {
 
     httpport = sps.getProperty("org.cougaar.lib.web.http.port", null);
     httpsport = System.getProperty("org.cougaar.lib.web.https.port", null);
-  }
 
-  public void load() {
-    super.load();
+    execute();
   }
 
   protected void execute() {
-    Collection l = getParameters();
-    if (l.size() == 0 || l.size() > 3) {
-      System.out.println("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
-    }
-    Iterator it = l.iterator();
-
-    try {
-      caDN = (String)it.next();
-      ldapURL = (String)it.next();
-    } catch (Exception ex) {
-      throw new RuntimeException("Parameter incorrect: " + caDN + " : " + ldapURL);
-    }
-
-    System.out.println("Parameter: " + caDN + " : " + ldapURL);
-
     // check whether the policy can be modified (only for first time unzip & run)
     // determined by the field isCertificateAuthority as undefined
     // if the CA with the DN already in trust store then it is done
@@ -134,17 +136,41 @@ public class ConfigPlugin extends ComponentPlugin {
 
       cryptoClientPolicy.setIsCertificateAuthority(true);
     }
-    if (l.size() > 2) {
-      // this is not a root CA, get trusted ca policy
-      // input is CAhost:CAagent, not complete URL
-      String param = (String)it.next();
-      addTrustedPolicy(param);
+    if (upperCA != null) {
+      addTrustedPolicy(upperCA);
     }
     else {
       cryptoClientPolicy.setIsRootCA(true);
       checkOrMakeIdentity(null, "");
     }
 
+  }
+
+  public void setParameter(Object o) {
+    //Collection l = getParameters();
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List argument to setParameter");
+    }
+    List l = (List) o;
+    if (l.size() == 0 || l.size() > 3) {
+      System.out.println("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
+    }
+    Iterator it = l.iterator();
+
+    try {
+      caDN = (String)it.next();
+      ldapURL = (String)it.next();
+    } catch (Exception ex) {
+      throw new RuntimeException("Parameter incorrect: " + caDN + " : " + ldapURL);
+    }
+
+    System.out.println("Parameter: " + caDN + " : " + ldapURL);
+
+    if (l.size() > 2) {
+      // this is not a root CA, get trusted ca policy
+      // input is CAhost:CAagent, not complete URL
+      upperCA = (String)it.next();
+    }
   }
 
   protected void addTrustedPolicy(String param) {
