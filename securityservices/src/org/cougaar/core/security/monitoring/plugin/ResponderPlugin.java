@@ -223,17 +223,21 @@ public abstract class ResponderPlugin extends ComponentPlugin {
     _idmefFactory = _cmrFactory.getIdmefMessageFactory();
     _failureQuery = (IncrementalSubscription)
       blackboard.subscribe(getFailurePredicate());
-    
+   
     _maxFailureSubscription = (IncrementalSubscription)
       blackboard.subscribe(_maxFailurePredicate);
     
-    // read init values from config file and set operating modes accordingly
-    _maxFailureOM = new OperatingModeImpl(_maxFailureOMString, 
-                                          MAX_FAILURE_RANGE, 
-                                          new Double(_maxFailures));
-    
-    blackboard.publishAdd(_maxFailureOM);
-
+    // determine if we should publish this operating mode or not
+    Collection c = blackboard.query(_maxFailurePredicate);
+    if(c != null && c.size() > 0) {
+      _maxFailureOM = (OperatingMode)c.iterator().next();
+    }
+    else {
+      _maxFailureOM = new OperatingModeImpl(_maxFailureOMString, 
+                                            MAX_FAILURE_RANGE, 
+                                            new Double(_maxFailures));
+      blackboard.publishAdd(_maxFailureOM);
+    }
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
     ts.schedule(_failureCache,
