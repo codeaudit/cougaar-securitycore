@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="Cougaar security utils custom build">
+
+    <!-- ********************************************************************************
+         * Custom build below
+         ******************************************************************************** -->
+    <path id="core.class.path">
+        <!-- Base class path -->
+        <path refid="base.core.class.path"/>
+    </path>
+</project>
