@@ -24,22 +24,22 @@ if !(@damlUserMapCompleted)
   configJar = "#{CIP}/configs/security/securityservices_config.jar"
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
-.*\\Administrator Administrator
-.*\\CAAdministrator CAAdministrator
-.*\\General General
-.*\\Guest Guest
-.*\\Logistician Logistician
-.*\\LogisticsViewer LogisticsViewer
-.*\\MonitorManager MonitorManager
-#{enclave_list.collect {|e| "#{e.capitalize}UserDomainComm\\PolicyAdministrator #{e.capitalize}PolicyAdministrator"}.join("\n")}
-.*\\PolicyAdministrator PolicyAdministrator
-.*\\UserManager UserManager
-.*\\SocietyAdmin SocietyAdmin
+.*\\\\Administrator Administrator
+.*\\\\CAAdministrator CAAdministrator
+.*\\\\General General
+.*\\\\Guest Guest
+.*\\\\Logistician Logistician
+.*\\\\LogisticsViewer LogisticsViewer
+.*\\\\MonitorManager MonitorManager
+#{enclave_list.collect {|e| "#{e.capitalize}UserDomainComm\\\\PolicyAdministrator x#{e.capitalize}PolicyAdministrator"}.join("\n")}
+.*\\\\PolicyAdministrator PolicyAdministrator
+.*\\\\UserManager UserManager
+.*\\\\SocietyAdmin SocietyAdmin
 
 END
   }
   replaceFileInJar(configJar, damlFile)
 
-  signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+  signJar(configJar, "#{CIP}/operator/signingCA_keystore",            
                       "privileged")
 end 

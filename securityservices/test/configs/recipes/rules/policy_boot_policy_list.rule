@@ -67,7 +67,7 @@ UserRole Guest
 UserRole Logistician
 UserRole LogisticsViewer
 UserRole MonitorManager
-#{enclave_list.collect {|e| "UserRole #{e.capitalize}PolicyAdministrator" }.join("\n")}
+#{enclave_list.collect {|e| "UserRole \"x#{e.capitalize}PolicyAdministrator\"" }.join("\n")}
 UserRole PolicyAdministrator
 UserRole UserManager
 UserRole SocietyAdmin
@@ -85,7 +85,7 @@ Servlet CAReadServlet
 Servlet CAWriteServlet
 Servlet HierarchyServlet
 Servlet LogInventoryServlet
-#{enclave_list.collect {|e| "Servlet #{e.capitalize}PolicyServlet" }.join("\n")}
+#{enclave_list.collect {|e| "Servlet \"#{e.capitalize}PolicyServlet\"" }.join("\n")}
 Servlet PolicyServlet
 Servlet SocietyAdminServlet
 Servlet UserManagerServlets
@@ -258,14 +258,14 @@ Policy RequireAudit = [
 
 #{enclave_list.collect {|e| "Policy PolicyServlet#{e.capitalize} = [
   ServletUserAccessTemplate
-  A user in role #{e.capitalize}PolicyAdministrator can access a servlet 
-  named #{e.capitalize}PolicyServlet
+  A user in role \"x#{e.capitalize}PolicyAdministrator\" can access a servlet 
+  named \"#{e.capitalize}PolicyServlet\"
 ]
 
 Policy PolicyServlet#{e.capitalize}Auth  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
-  authentication when accessing the servlet named #{e.capitalize}PolicyServlet
+  authentication when accessing the servlet named \"#{e.capitalize}PolicyServlet\"
 ]
 "}.join("\n")}
 
@@ -412,10 +412,10 @@ END
     }
     output = policyUtil("build --maxReasoningDepth 150 --info #{damlFile}")
     replaceFileInJar(configJar, damlFile)
-    Dir["#{$CIP}/configs/security/*.info"].each { |file|
+    Dir["#{CIP}/configs/security/*.info"].each { |file|
       replaceFileInJar(configJar, file)
     }
-    signJar(configJar, "#{$CIP}/operator/signingCA_keystore",            
+    signJar(configJar, "#{CIP}/operator/signingCA_keystore",            
                         "privileged")
   end
 end
