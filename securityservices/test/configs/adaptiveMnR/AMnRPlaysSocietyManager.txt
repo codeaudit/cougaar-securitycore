@@ -42,7 +42,7 @@ PERCEIVED_THREAT_LEVEL == 1
     : [agent.PolicyDomainManager2]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
     : [agent.PolicyDomainManager3]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW
     : [agent.PolicyDomainManager4]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
-PERCEIVED_THREAT_LEVEL == 3
+PERCEIVED_THREAT_LEVEL == 2
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
