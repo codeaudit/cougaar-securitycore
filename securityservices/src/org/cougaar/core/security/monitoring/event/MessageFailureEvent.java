@@ -54,14 +54,4 @@ public class MessageFailureEvent extends FailureEvent {
     super(IdmefClassifications.MESSAGE_FAILURE, source, 
       target, reason, REASON_ID, data, DATA_ID);
   }
-  
-  public String toString(){
-    StringBuffer sb = new StringBuffer(128);
-    sb.append("[classification: " + getClassification() + "]\n");
-    sb.append("[source: " + getSource() + "]\n");
-    sb.append("[target: " + getTarget() + "]\n");
-    sb.append("[reason: " + getReason() + "]\n");
-    sb.append("[data: " + getData() + "]\n");
-    return sb.toString();
-  }
 }

@@ -90,6 +90,9 @@ public interface CertificateManagementService
   public int  revokeCertificate(String caDN ,String userUniqueIdentifier)
     throws IOException,Exception,CertificateException;
 
+  public int  revokeAgentCertificate(String caDN ,String agentName)
+    throws IOException,Exception,CertificateException;
+    
   public Collection printPkcs7Request(InputStream inputstream)
     throws CertificateException;
 }

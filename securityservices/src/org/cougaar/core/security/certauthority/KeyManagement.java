@@ -1181,9 +1181,23 @@ public class KeyManagement
   public void createCertificateRevocationList()
   {
   }
-
+  
   public int  revokeCertificate(String caDN ,String userUniqueIdentifier)
-    throws IOException,Exception,CertificateException
+    throws IOException, Exception, CertificateException
+  {
+    String filter = "(uniqueIdentifier=" + userUniqueIdentifier + ")";
+    return _revokeCertificate(caDN, filter);
+  }
+  
+  public int  revokeAgentCertificate(String caDN ,String agentName)
+    throws IOException, Exception, CertificateException
+  {
+    String filter = "(cn=" + agentName + ")";
+    return _revokeCertificate(caDN, filter);
+  }
+  
+  private int _revokeCertificate(String caDN, String ldapFilter)
+  throws IOException,Exception,CertificateException
   {
     int status=1;
     X500Name x500name=new X500Name(caDN);
@@ -1200,8 +1214,8 @@ public class KeyManagement
       SearchResult caresult=caOperations.getLdapentry(filter,false);
       Attributes caAttributes=caresult.getAttributes();
       String cabindingName=caresult.getName();
-      SearchResult userresult=caOperations.getLdapentry(userUniqueIdentifier,
-							true);
+      SearchResult userresult=caOperations.getLdapentry(ldapFilter,
+							false);
       Attributes userAttributes=userresult.getAttributes();
       CertificateRevocationStatus userstatus=
 	caOperations.getCertificateRevocationStatus(userAttributes);
@@ -1265,5 +1279,4 @@ public class KeyManagement
 
     //Operations.publishCRLentry((X509CRLEntry)crlentry);
   }
-
 }

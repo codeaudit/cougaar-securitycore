@@ -111,4 +111,16 @@ public class FailureEvent implements java.io.Serializable {
   public String getClassification(){
     return m_classification;
   }
+
+  public String toString(){
+    StringBuffer sb = new StringBuffer(128);
+    sb.append("[classification: " + getClassification() + "]\n");
+    sb.append("[detection time: " + m_detectTime.getidmefDate() + "]\n");
+    sb.append("[source: " + getSource() + "]\n");
+    sb.append("[target: " + getTarget() + "]\n");
+    sb.append("[reason: " + getReason() + "]\n");
+    sb.append("[data: " + getData() + "]\n");
+    
+    return sb.toString();
+  }
 }
