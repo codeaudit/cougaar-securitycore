@@ -9,6 +9,10 @@ society.each_agent(true) do |agent|
       agent.add_component do |c|
           c.classname ="org.cougaar.core.security.test.policy.TestUserPolicyServlet"
           c.add_argument("/TestUserPolicy")
+          c.classname ="org.cougaar.core.security.test.policy.TestPasswordPolicyServlet"
+          c.add_argument("/TestPasswordPolicy")
+          c.classname ="org.cougaar.core.security.test.policy.TestCertPolicyServlet"
+          c.add_argument("/TestCertPolicy")
       end
     end
   end
