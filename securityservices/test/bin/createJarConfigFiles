@@ -1,7 +1,14 @@
 #!/bin/sh
 
-rm -f $CIP/configs/common/config_common.jar
-jar cf config_common.jar $CIP/configs/common/*
-jarsigner -keystore ./test/configs/sign-jars/signingCA_keystore -storepass keystore config_common.jar privileged
+signJar() {
+	echo "Packaging and signing $2/$1"
+	echo "  with all files under $2"
+	rm -f $2/$1
+	jar cf $1 $2/*
+	jarsigner -keystore ./test/configs/sign-jars/signingCA_keystore -storepass keystore $1 privileged
+	mv $1 $2
+}
 
-mv config_common.jar $CIP/configs/common
+signJar config_common.jar $CIP/configs/common
+signJar config_planning.jar $CIP/planning/data/common
+signJar config_glmtrans.jar $CIP/configs/glmtrans
