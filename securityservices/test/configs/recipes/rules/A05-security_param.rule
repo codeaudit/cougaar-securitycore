@@ -107,9 +107,8 @@ society.each_host do |host|
     
     # Enable or disable persistence.
     #
-    # By default persistence is disabled.
-    #node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
-    #node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
+    node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
+    node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
     
     # Add the "java-io-patch" to allow Cougaar persistence.
     #
