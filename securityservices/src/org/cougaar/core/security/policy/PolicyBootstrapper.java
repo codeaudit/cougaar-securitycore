@@ -115,6 +115,8 @@ public class PolicyBootstrapper
         log.debug(".PolicyBootStrapper: for policy type " + type +
                   " I am looking in the policy file " + policyFile);
 
+	if (policyFile == null)
+          continue;
 
         FileInputStream policyStream = new FileInputStream(policyFile);
         ObjectInputStream policyObjectStream 
