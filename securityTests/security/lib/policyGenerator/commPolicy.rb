@@ -22,11 +22,15 @@ class CommPolicies
   @@allEnclaves           = "AllEnclaves"
 
 
-  def initialize(run)
-    @dbUser                = "society_config"
-    @dbHost                = "sv007"
-    @dbPassword            = "s0c0nfig"
-    @db                    = "cougaar104"
+  def initialize(run,
+                 dbUser     = "society_config",
+                 dbHost     = "cougaar-db",
+                 dbPassword = "s0c0nfig",
+                 db         = "cougaar104")
+    @dbUser                = dbUser
+    @dbHost                = dbHost
+    @dbPassword            = dbPassword
+    @db                    = db
     @mysql                 = Mysql.connect(@dbHost, 
                                            @dbUser,
                                            @dbPassword, 
