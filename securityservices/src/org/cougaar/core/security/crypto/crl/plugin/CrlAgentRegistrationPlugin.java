@@ -49,6 +49,7 @@ import org.cougaar.core.security.crypto.CRLWrapper;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
+import org.cougaar.core.security.util.DateUtil;
 
 
 public class CrlAgentRegistrationPlugin extends ComponentPlugin {
@@ -266,8 +267,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	  loggingService.debug("Modified time stamp for :"+ regObject.dnName);
 	  if(regObject.getModifiedTimeStamp()!=null) {
 	    loggingService.debug("Reg object modified stamp was NOT null");
-	    Date lastmodified=getDateFromUTC(regObject.getModifiedTimeStamp());
-	    Date currentLastmodified=getDateFromUTC(modifiedTimestamp);
+	    Date lastmodified=DateUtil.getDateFromUTC(regObject.getModifiedTimeStamp());
+	    Date currentLastmodified=DateUtil.getDateFromUTC(modifiedTimestamp);
 	    loggingService.debug("Modified time stamp in CRL registration table :"+regObject.getModifiedTimeStamp()
 				 + "date format :"+lastmodified.toString() );
 	    loggingService.debug("Modified time stamp in Ldap  :"+modifiedTimestamp
@@ -374,7 +375,7 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
 	if(crlrelay.getSource().equals(agent)){
 	  agentReg=(CRLAgentRegistration)crlrelay.getContent();
 	  if(agentReg.dnName.equals(dn)) {
-	  // bbs.closeTransaction();
+            // bbs.closeTransaction();
 	    return crlrelay;
 	  }
 	}
@@ -383,10 +384,10 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
     }
 
     private CertDirectoryServiceClient getDirectoryService(String dnname,String ldapURL,int ldapType) {
-    // TODO: this should not use the ldap dependent classes anymore here
+      // TODO: this should not use the ldap dependent classes anymore here
       CertDirectoryServiceRequestor cdsr =
 	new CertDirectoryServiceRequestorImpl(ldapURL,ldapType,
-                  (String)null,(String)null,
+                                              (String)null,(String)null,
 					      getBindingSite().getServiceBroker());
       CertDirectoryServiceClient cf = (CertDirectoryServiceClient)
 	getBindingSite().getServiceBroker().getService(cdsr, CertDirectoryServiceClient.class, null);
@@ -445,21 +446,8 @@ public class CrlAgentRegistrationPlugin extends ComponentPlugin {
       }
     }
   }
-  private Date getDateFromUTC( String utc ) {
-    // utc is in the form of "20010706080000Z". get year,
-    // month, day, hour, minute, and second from the utc
-    TimeZone tz = TimeZone.getTimeZone("GMT");
-    int year   = Integer.parseInt( utc.substring(  0, 4  ));
-    int mon    = Integer.parseInt( utc.substring(  4, 6  ));
-    int day    = Integer.parseInt( utc.substring(  6, 8  ));
-    int hour   = Integer.parseInt( utc.substring(  8, 10 ));
-    int minute = Integer.parseInt( utc.substring( 10, 12 ));
-    int second = Integer.parseInt( utc.substring( 12, 14 ));
 
-    Calendar utcTime = Calendar.getInstance(tz);
-    // set calendar to the time
-    utcTime.set( year, mon-1 , day, hour, minute, second );
-    return utcTime.getTime();
-  }
+  
+ 
 
 }
