@@ -104,10 +104,13 @@ public class CryptoClientPolicy
     return trustedCaKeystorePassword;
   }
   public CertificateAttributesPolicy getCertificateAttributesPolicy() {
-    if (certificateAttributesPolicy == null) {
-      TrustedCaPolicy[] tc = getIssuerPolicy();
-      if (tc.length != 0) {
-        return tc[0].getCertificateAttributesPolicy();
+    // return the cert attrib policy from the first trusted ca policy if there is one
+    // the default one will be the choice if the first one uses it
+    // this implies there must be a default cert attribute policy
+    if (trustedCAs.size() != 0) {
+      TrustedCaPolicy tc = (TrustedCaPolicy)trustedCAs.get(0);
+      if (tc.getCertificateAttributesPolicy() != null) {
+        return tc.getCertificateAttributesPolicy();
       }
     }
     return certificateAttributesPolicy;
