@@ -26,6 +26,7 @@
 
 package org.cougaar.core.security.securebootstrap;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.io.PrintStream;
@@ -50,8 +51,8 @@ import java.security.DomainCombiner;
 import javax.security.auth.Subject;
 import javax.security.auth.SubjectDomainCombiner;
 
-import org.cougaar.core.security.auth.SecuredObject;
-import org.cougaar.core.security.auth.SecuredObjectPrincipal;
+//import org.cougaar.core.security.auth.SecuredObject;
+//import org.cougaar.core.security.auth.SecuredObjectPrincipal;
 
 // Needed to retrieve the subject associated with an accessController context
 import javax.security.auth.Subject;
@@ -153,15 +154,30 @@ public class CougaarSecurityManager
       return;
     } 
 
-    if (context instanceof SecuredObject) {
+    if (isSecuredObject(context.getClass().getInterfaces())) {
+      // get the class loader of the context object
       ClassLoader loader = context.getClass().getClassLoader();
-      AccessControlContext acc = AccessController.getContext();
+      final AccessControlContext acc = AccessController.getContext();
       try {
-        Principal p = new SecuredObjectPrincipal((SecuredObject)context);
+        // set up the parameter types to object the correct constructor
+        Class cls = loader.loadClass("org.cougaar.core.security.auth.SecuredObjectPrincipal");
+        // NOTE: currently there's only one constructor
+        Constructor []constructors = cls.getConstructors();
+        // this is the argument to the constructor of SecuredObjectPrincipal
+        Object []args = {context};
+        // NOTE: assuming one constructor for SecuredObjectPrincipal
+        Principal p = (Principal)constructors[0].newInstance(args);
+        //Principal p = new SecuredObjectPrincipal((SecuredObject)context);
         Subject subject = new Subject();
         subject.getPrincipals().add(p);
-        DomainCombiner dc = new BothSubjectDomainCombiner(subject);
-        context = new AccessControlContext(acc, dc);
+        final DomainCombiner dc = new BothSubjectDomainCombiner(subject);
+        
+        context = (AccessControlContext)
+        AccessController.doPrivileged(new PrivilegedAction() {
+      	  public Object run() {
+      	    return new AccessControlContext(acc, dc);
+      	  }
+      	});
       } catch (Exception e) {
         e.printStackTrace(); // this shouldn't happen! (I hope)
       }
@@ -206,52 +222,63 @@ public class CougaarSecurityManager
       // When Jaas will be patched and fixed, we will have a better solution.
       // This is a temporary solution.
       if (perm instanceof java.util.PropertyPermission) {
-	java.util.PropertyPermission p = (java.util.PropertyPermission) perm;
-	if (p.getName().equals("org.cougaar.core.security.keystore.password")) {
-	  boolean isAllowed = false;
-	  Class[] ct = getClassContext();
-	  for (int i = 0 ; i < ct.length ; i++) {
-	    if (debug > 0) {
-	      System.out.println(ct[i].getName());
-	    }
-	    if (ct[i].getName().equals("org.cougaar.core.security.crypto.KeyRing")) {
-	      isAllowed = true;
-	      break;
-	    }
-	  }
-	  if (!isAllowed) {
-	    throw (new SecurityException("Cannot read org.cougaar.security.keystore.password property"));
-	  }
-	}
+      	java.util.PropertyPermission p = (java.util.PropertyPermission) perm;
+      	if (p.getName().equals("org.cougaar.core.security.keystore.password")) {
+      	  boolean isAllowed = false;
+      	  Class[] ct = getClassContext();
+      	  for (int i = 0 ; i < ct.length ; i++) {
+      	    if (debug > 0) {
+      	      System.out.println(ct[i].getName());
+      	    }
+      	    if (ct[i].getName().equals("org.cougaar.core.security.crypto.KeyRing")) {
+      	      isAllowed = true;
+      	      break;
+      	    }
+      	  }
+      	  if (!isAllowed) {
+      	    throw (new SecurityException("Cannot read org.cougaar.security.keystore.password property"));
+      	  }
+      	}
       }
       if (stack.length > 1000) {
-	// New security manager class is not on bootstrap classpath.
-	// Cause policy to get initialized before we install the new
-	// security manager, in order to prevent infinite loops when
-	// trying to initialize the policy (which usually involves
-	// accessing some security and/or system properties, which in turn
-	// calls the installed security manager's checkPermission method
-	// which will loop infinitely if there is a non-system class
-	// (in this case: the new security manager class) on the stack).
-	try {
-	  throw new RuntimeException("ERROR: stack overflow");
-	}
-	catch (Exception exp) {
-	  System.out.println("ERROR: stack length=" + stack.length + " - " + perm);
-	  exp.printStackTrace();
-	}
-	throw new SecurityException("JDK error");
+      	// New security manager class is not on bootstrap classpath.
+      	// Cause policy to get initialized before we install the new
+      	// security manager, in order to prevent infinite loops when
+      	// trying to initialize the policy (which usually involves
+      	// accessing some security and/or system properties, which in turn
+      	// calls the installed security manager's checkPermission method
+      	// which will loop infinitely if there is a non-system class
+      	// (in this case: the new security manager class) on the stack).
+      	try {
+      	  throw new RuntimeException("ERROR: stack overflow");
+      	}
+      	catch (Exception exp) {
+      	  System.out.println("ERROR: stack length=" + stack.length + " - " + perm);
+      	  exp.printStackTrace();
+      	}
+      	throw new SecurityException("JDK error");
+        }
+        else {
+  	      super.checkPermission(perm);
+        }
+      } catch (SecurityException e) {
+        
+        logPermissionFailure(perm, e, stack, true);
+        throw (new SecurityException(e.getMessage()));
       }
-      else {
-	super.checkPermission(perm);
-      }
-    } catch (SecurityException e) {
-      
-      logPermissionFailure(perm, e, stack, true);
-      throw (new SecurityException(e.getMessage()));
-    }
   }
 
+  // check if the array of classes is an instance of SecuredObject
+  private boolean isSecuredObject(Class []cls) {
+    for(int i = 0; i < cls.length; i++) {
+      // can't use instanceof since SecuredObject is loaded by Cougaar's ClassLoader
+      // and not the System's ClassLoader      
+      if (cls[i].getName().equals("org.cougaar.core.security.auth.SecuredObject")) {
+        return true;
+      } 
+    } 
+    return false;
+  }
   /** Display policy information about a particular class
    */
   private void printPolicy(Class c)
