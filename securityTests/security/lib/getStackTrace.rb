@@ -7,7 +7,7 @@ class GetStackTrace < SecurityStressFramework
     super(run)
     @interval=15
     @nodeInfoMap = {}
-    @stackTraceId = 0
+    @@stackTraceId = 0
     @stackbasedir = "#{CIP}/workspace/test/stacktraces"
     Dir.mkdirs(@stackbasedir)
   end
@@ -17,23 +17,25 @@ class GetStackTrace < SecurityStressFramework
   end
 
   def getStack(nodename)
-    stacktrace = nil
-    begin
-      #logInfoMsg "getStack #{nodename}"
-      nodeInfo = getJavaPid(nodename)
-      #logInfoMsg "getStack after getJavaPid #{nodename}"
-      #stacktrace = getStackTraceFromProcFileSystem(nodeInfo.java_pid)
-      #logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
-      stacktrace = getStackTraceFromAcme(nodeInfo)
-      logfile = "#{@stackbasedir}/stack-#{nodename}-#{nodeInfo.java_pid}.#{@stackTraceId}.log"
-      f = File.new(logfile, "w");
-      f << stacktrace
-      f.close
-      @stackTraceId += 1
-    rescue => e
-      logInfoMsg "Unable to collect stack trace: #{e} #{e.backtrace.join("\n")}"
-    end
-    return stacktrace
+    Thread.fork {
+      stacktrace = nil
+      begin
+        @@stackTraceId += 1
+        myStackTraceId = @@stackTraceId
+        #logInfoMsg "getStack #{nodename}"
+        nodeInfo = getJavaPid(nodename)
+        #logInfoMsg "getStack after getJavaPid #{nodename}"
+        logInfoMsg "Retrieving stack trace of #{nodename} at #{nodeInfo.node.host.name} - Java PID=#{nodeInfo.java_pid} PID=#{nodeInfo.node_pid}"
+        stacktrace = getStackTraceFromProcFileSystem(nodeInfo, myStackTraceId)
+        #stacktrace = getStackTraceFromAcme(nodeInfo)
+        logfile = "#{@stackbasedir}/stack-#{nodename}-#{nodeInfo.java_pid}.#{myStackTraceId}.log"
+        f = File.new(logfile, "w");
+        f << stacktrace
+        f.close
+      rescue => e
+        logInfoMsg "Unable to collect stack trace: #{e} #{e.backtrace.join("\n")}"
+      end
+    }
   end
 
   def getStackTraceFromAcme(nodeInfo)
@@ -48,7 +50,7 @@ class GetStackTrace < SecurityStressFramework
         response = @run.comms.new_message(host).set_body("command[stdio]#{pid}").request(30)
       end
     end
-    logInfoMsg "retrieving stack trace.."
+    #logInfoMsg "retrieving stack trace.."
     response = @run.comms.new_message(host).set_body("command[stack]#{pid}").request(60)
     if response != nil
       stacktrace = response.body
@@ -58,31 +60,70 @@ class GetStackTrace < SecurityStressFramework
     return stacktrace
   end
 
-  def getStackFromProcFileSystem(pid)
+  def getStackTraceFromProcFileSystem(nodeinfo, myStackTraceId)
+    pid = nodeinfo.java_pid
+    host = nodeinfo.node.host
+    stacktrace = nil
+    result = nil
+    localhostname = `hostname`
     begin
-      script = "/tmp/cmd-stack-#{pid}-#{@stackTraceId}.sh"
-      tmplogfile = "/tmp/stack-#{pid}.#{@stackTraceId}.log"
+      tmplogfile = "/tmp/stack-#{pid}.#{myStackTraceId}.log"
+
+      # Build the script that will retrieve the stack trace
+      script = "/tmp/cmd-stack-#{pid}-#{myStackTraceId}.sh"
+      #logInfoMsg "Script: #{script} - #{tmplogfile}"
       f = File.new(script, "w");
       f << "#!/bin/sh\n"
-      f << "cd /proc/#{pid}/fd\n"
-      f << "cat 1 > #{tmplogfile} & \n"
-      f << "kill -QUIT #{pid} \n"
+      f << "cd /proc/$1/fd\n"
+      f << "cat 1 > $2 & \n"
+      f << "kill -QUIT $1\n"
+      f << "chmod 777 $2\n"
       f << "sleep 30\n"
       f << "kill $!\n"
       f.chmod(0755)
       f.close
-      # The script should be executed as root:
-      out = `sh #{script}`
-      f = File.open(tmplogfile, File::RDONLY)
-      stacktrace = f.read
-      f.close
-      #sleep 1
-      `rm #{script}`
-      `rm #{tmplogfile}`
-    rescue => e
-      logInfoMsg "Unable to collect stack trace: #{e} #{e.backtrace.join("\n")}"
-    end
 
+      # Copy the script to the host where we want to do the stack trace
+      if (localhostname != host.name)
+        command = "scp #{script} #{host.name}:/tmp"
+        result = `#{command}`
+        #logInfoMsg "Copying script to remote host: #{command} - #{result}"
+        # And remove it from the operator host. It is no longer needed.
+        result = `rm -f #{script}`
+      end
+      # The script should be executed with root privileges
+      command = "sudo sh #{script} #{pid} #{tmplogfile}"
+      #logInfoMsg "Issuing command: #{command} at #{host.name}"
+      response = `ssh #{host.name} #{command}`
+      #response = @run.comms.new_message(host).set_body("command[rexec]#{command}").request(300)
+      # The stack should be in the tmplogfile at the remote host. Copy it to the operator host
+      #logInfoMsg "Response : #{response}"
+      if (localhostname != host.name)
+        command = "scp #{host.name}:#{tmplogfile} /tmp"
+        result = `#{command}`
+        #logInfoMsg "Copying stack trace file to operator host: #{command} - #{result}"
+      end
+      if (File.stat(tmplogfile).file?)
+        f = File.open(tmplogfile, File::RDONLY)
+        stacktrace = f.read
+        f.close
+        result = `rm -f #{tmplogfile}`
+      else
+        # Somehow we could not get a stack trace.
+      end
+      # Remove the remote log file and remote script file
+      if (localhostname != host.name)
+        command = "sudo rm -f #{tmplogfile} #{script}"
+        #logInfoMsg "Issuing command: #{command} at #{host.name}"
+        response = @run.comms.new_message(host).set_body("command[rexec]#{command}").request(300)
+      else
+        command = "sudo rm -f #{script}"
+        #result = `#{command}`
+        #logInfoMsg "command: #{command} - #{result}"
+      end
+    rescue => e
+      saveAssertion "wp_registration", "Unable to collect stack trace: #{e} #{e.backtrace.join("\n")}"
+    end
     return stacktrace
   end
 

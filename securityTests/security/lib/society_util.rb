@@ -60,11 +60,11 @@ def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
 #      else
 #        puts "#{Time.now} Agents missing: #{missing.length}"
         end
-        if (missing.empty?)
-          loop = false
-        else
+        #if (missing.empty?)
+        #  loop = false
+        #else
           sleep interval
-        end
+        #end
       end
     rescue => e
       saveAssertion "wp_registration", "Unable to check WP: #{e} #{e.backtrace.join("\n")}"
@@ -132,7 +132,7 @@ module Cougaar
     end # CorrectURLs
 
     class TestWPRegistration < Cougaar::Action
-      def initialize(run, interval = 5.minutes, delay = 9.minutes)
+      def initialize(run, interval = 5.minutes, delay = 10.minutes)
         super(run)
         @interval = interval
         @delay = delay
@@ -158,7 +158,6 @@ module Cougaar
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
             # Get stack trace of agents that have not registered
-            # Unfortunately, ACME is broken
             #getStackTraceAgents(missing)
           end
           lastCheck = missing.length
