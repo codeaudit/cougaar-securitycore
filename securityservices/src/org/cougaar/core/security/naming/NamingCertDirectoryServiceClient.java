@@ -58,6 +58,8 @@ public class NamingCertDirectoryServiceClient {
   private boolean _nodeupdated = false;
   private ThreadService _threadService;
 
+  private int _multiply = 0;
+
   /**
    * This class only handles updating cert directly to naming
    */
@@ -75,6 +77,14 @@ public class NamingCertDirectoryServiceClient {
     sb.addServiceListener(new MyServiceAvailableListener());
 
     _threadService=(ThreadService)sb.getService(this,ThreadService.class, null);
+
+    String multiplyString = System.getProperty("org.cougaar.core.security.repeat_wp_rebind", null);
+    try {
+      _multiply = Integer.parseInt(multiplyString);
+    } catch (Exception ex) {}
+    if (log.isDebugEnabled()) {
+      log.debug("naming entry will be repeated " + _multiply + " times to increase cert entry size");
+    }
   }
 
   /**
@@ -212,7 +222,7 @@ public class NamingCertDirectoryServiceClient {
 	    if (log.isDebugEnabled()) {
 	      log.debug("Creating new NamingCertEntry to update naming");
 	    }
-	    dnList.add(dname);
+	    dnList.add(dname);            
 	    certList.add(certEntry);
 	  }
 	  else {
@@ -238,6 +248,10 @@ public class NamingCertDirectoryServiceClient {
 	    }
 	  }
 
+
+          for (int i = 0; i < _multiply; i++) {
+            certList.add(certEntry);
+          }
 	  entry = new NamingCertEntry(dnList, certList);
 
           if (log.isDebugEnabled()) {
@@ -272,6 +286,7 @@ public class NamingCertDirectoryServiceClient {
   private class RebindThread implements Runnable {
     private String cname;
     private AddressEntry ael;
+    private NamingCertEntry entry;
 
     public RebindThread(String cn, AddressEntry a) {
       cname = cn;
@@ -302,6 +317,7 @@ public class NamingCertDirectoryServiceClient {
 	    }
 	  }
 	};
+
       _whitePagesService.rebind(ael, callback);
     }
   }
