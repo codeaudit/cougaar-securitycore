@@ -36,8 +36,6 @@ public class PersistenceMgrPolicyServiceProvider
 {
   // singleton 
   private PersistenceMgrPolicyService _instance;
-  // the security community of this node
-  private String _myCommunity;
   private ServiceBroker _serviceBroker;
 
 /*
@@ -58,7 +56,6 @@ public class PersistenceMgrPolicyServiceProvider
   
   public void init(ServiceBroker sb, String community) {
     _serviceBroker = sb;
-    _myCommunity = community;
     if(_instance == null) {
       _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker);
     }
