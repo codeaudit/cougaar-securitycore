@@ -70,6 +70,8 @@ public interface SecurityPropertiesService extends Service
   "org.cougaar.core.security.bootstrap.SecurityManagerLogFile";
   public static String CRL_POLLING_PERIOD =
   "org.cougaar.core.security.crypto.crlpoll";
+  public static String VALIDITY_POLLING_PERIOD =
+  "org.cougaar.core.security.crypto.validitypoll";
   public static String STAND_ALONE_MODE =
   "org.cougaar.core.security.standalone";
   public static String WEBSERVER_HTTPS_PORT =
