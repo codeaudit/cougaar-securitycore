@@ -64,7 +64,6 @@ import org.cougaar.util.log.Logger;
 public class Main 
 {
   private static WebProxyInstaller   _proxyInstaller;
-  private static OntologyConnection  _ontology = null;
   private static Logger              _log;
   static {
     _log = LoggerFactory.getInstance().createLogger(Main.class);
@@ -95,6 +94,10 @@ public class Main
   private char [] _cmdLinePassword;
   private String  _url;
   private boolean _setPolicies;
+
+  private OntologyConnection  _ontology = null;
+  private PolicyUtils         _pu       = null;
+
 
   /*
    * Argument passing routines
@@ -315,18 +318,19 @@ public class Main
     throws IOException
   {
     if (_cmdLineAuth) {
-      _ontology = new TunnelledOntologyConnection(_url,
-                                                  _cmdLineUser,
-                                                  _cmdLinePassword);
+      setOntologyConnection(new TunnelledOntologyConnection(_url,
+                                                            _cmdLineUser,
+                                                            _cmdLinePassword));
 
     } else {
-      _ontology = new TunnelledOntologyConnection(_url);
+      setOntologyConnection(new TunnelledOntologyConnection(_url));
     }
   }
 
   public void setOntologyConnection(OntologyConnection o)
   {
     _ontology = o;
+    _pu = new PolicyUtils(_ontology);
   }
 
 
@@ -360,8 +364,9 @@ public class Main
     }
 
     printMessage("Loading ontologies & declarations");
-    _ontology = new LocalOntologyConnection(parsed.declarations(), 
-                                            parsed.agentGroupMap());
+
+    setOntologyConnection(new LocalOntologyConnection(parsed.declarations(), 
+                                                      parsed.agentGroupMap()));
     printMessage("Ontologies loaded");
 
     if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
@@ -379,9 +384,9 @@ public class Main
         builtPolicyIt.hasNext();) {
       KAoSPolicyBuilderImpl pb = (KAoSPolicyBuilderImpl) builtPolicyIt.next();
       if (_buildinfo) {
-        PolicyUtils.writePolicyInfo(pb);
+        _pu.writePolicyInfo(pb);
       } else {
-        PolicyUtils.writePolicyMsg(pb);
+        _pu.writePolicyMsg(pb);
       }
     }
     if (!_buildinfo) {
@@ -389,7 +394,7 @@ public class Main
       for(Iterator condpmIt = builtConditionalPolicies.iterator();
           condpmIt.hasNext();) {
         ConditionalPolicyMsg condpm = (ConditionalPolicyMsg) condpmIt.next();
-        PolicyUtils.writeObject(getConditionName(condpm) + ".cpmsg", condpm);
+        _pu.writeObject(getConditionName(condpm) + ".cpmsg", condpm);
       }
     }
   }
@@ -451,9 +456,9 @@ public class Main
         printMessage("Connecting to domain manager");
         connectDomainManager();
         printMessage("Loading declarations");
-        PolicyUtils.verbsLoaded();
+        _pu.verbsLoaded();
       }
-      PolicyUtils.autoGenerateGroups(parsed.declarations(), 
+      _pu.autoGenerateGroups(parsed.declarations(), 
                                      parsed.agentGroupMap());
       
       if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
@@ -487,7 +492,7 @@ public class Main
            builtPolicyIt.hasNext();) {
         KAoSPolicyBuilderImpl pb
           = (KAoSPolicyBuilderImpl) builtPolicyIt.next();
-        newPolicies.add(PolicyUtils.getPolicyMsg(pb));
+        newPolicies.add(_pu.getPolicyMsg(pb));
       }
     } else {
       for(Iterator policyIt = parsed.iterator();
@@ -803,7 +808,7 @@ public class Main
             existingPoliciesForMode = new Vector();
           }
           KAoSPolicyBuilderImpl pb = pp.buildPolicy(_ontology);
-          existingPoliciesForMode.add(PolicyUtils.getPolicyMsg(pb));
+          existingPoliciesForMode.add(_pu.getPolicyMsg(pb));
           built.put(mode, existingPoliciesForMode);
         }
       }
@@ -849,7 +854,7 @@ public class Main
         PolicyMsg policy = convertMsgToPolicyMsg((Msg) policiesIt.next());
         String name = policy.getName();
         printMessage("Policy " + name + " found");
-        PolicyUtils.writeObject(name + ".msg", policy);
+        _pu.writeObject(name + ".msg", policy);
       }
     } catch (SymbolNotFoundException snfe) {
       IOException ioe = new IOException("Symbol not found");
