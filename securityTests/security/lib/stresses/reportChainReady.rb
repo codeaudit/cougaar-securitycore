@@ -88,7 +88,9 @@ class TestReportChainReady < SecurityStressFramework
 
   def getBadChains stack
     superior  = stack.last
-    puts "Working on #{superior}"
+    if @cmdline then
+      puts "Working on #{superior}"
+    end
     expected  = @expectedSubordinates[superior]
     found     = @foundSubordinates[superior]
     if @cmdline then
