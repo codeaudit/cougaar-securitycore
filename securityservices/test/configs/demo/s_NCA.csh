@@ -1,1 +1,1 @@
-setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-NCA -Dorg.cougaar.security.keystore.password=ul-dogwood -Dorg.cougaar.domain.manager=NCADomain -DSAFE.domainName=NCADomain"
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-NCA -Dorg.cougaar.security.keystore.password=ul-dogwood -Dorg.cougaar.core.security.Domain=NCADomain -DSAFE.domainName=NCADomain"

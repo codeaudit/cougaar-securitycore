@@ -1,1 +1,1 @@
-setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-Commercial-Air -Dorg.cougaar.security.keystore.password=ul-manzanita -Dorg.cougaar.domain.manager=NCADomain -DSAFE.domainName=NCADomain -DSAFE.debug=true"
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-Commercial-Air -Dorg.cougaar.security.keystore.password=ul-manzanita -Dorg.cougaar.core.security.Domain=NCADomain -DSAFE.domainName=NCADomain -DSAFE.debug=true"

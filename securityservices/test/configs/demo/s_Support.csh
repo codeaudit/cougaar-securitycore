@@ -1,1 +1,1 @@
-setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-Support -Dorg.cougaar.security.keystore.password=ul-fir -Dorg.cougaar.domain.manager=NCADomain -DSAFE.domainName=NCADomain -DSAFE.debug=true"
+setenv COUGAAR_MYPROP		 	"-Dorg.cougaar.security.keystore=keystore-Support -Dorg.cougaar.security.keystore.password=ul-fir -Dorg.cougaar.core.security.Domain=NCADomain -DSAFE.domainName=NCADomain -DSAFE.debug=true"
