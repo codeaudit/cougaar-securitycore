@@ -170,8 +170,10 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
 
     remoteQueryRelays= (IncrementalSubscription)getBlackboardService().subscribe
       (new RemoteQueryRelayPredicate(myAddress));
-    if(amIRoot()) {
-      loggingService.debug("security community set as ROOT:");
+    if (loggingService.isDebugEnabled()) {
+      if(amIRoot()) {
+        loggingService.debug("security community set as ROOT:");
+      }
     }
 
   }

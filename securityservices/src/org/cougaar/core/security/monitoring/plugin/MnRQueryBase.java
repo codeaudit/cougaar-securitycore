@@ -59,7 +59,7 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   protected CommunityServiceUtil _csu;
   protected MessageAddress myAddress;
  
-  private boolean _isRoot = false;
+  private Boolean _isRoot;
  
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -104,12 +104,14 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         getServiceBroker().getService(this, LoggingService.class, null); 
     }
     _csu = new CommunityServiceUtil(getServiceBroker());
-    _isRoot = _csu.amIRoot(myAddress.toString());
     
   }
-  
-  protected boolean amIRoot() {
-    return _isRoot;
+
+  protected synchronized boolean amIRoot() {
+    if (_isRoot == null) {
+      _isRoot = new Boolean(_csu.amIRoot(myAddress.toString()));
+    }
+    return _isRoot.booleanValue();
   } 
 
 /*

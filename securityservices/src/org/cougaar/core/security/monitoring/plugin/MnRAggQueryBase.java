@@ -69,7 +69,7 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
   protected DomainService domainService;
   protected MessageAddress myAddress;
   protected CommunityServiceUtil _csu;
-  private boolean _isRoot = false;
+  private Boolean _isRoot;
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -119,12 +119,13 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
                            + myAddress.toString());
     }
     _csu = new CommunityServiceUtil(getServiceBroker());
-    _isRoot = _csu.amIRoot(myAddress.toString());
-   
   }
   
   protected boolean amIRoot() {
-    return _isRoot;
+    if (_isRoot == null) {
+      _isRoot = new Boolean(_csu.amIRoot(myAddress.toString()));
+    }
+    return _isRoot.booleanValue();
   } 
   
   protected AggQueryMapping findAggQueryMappingFromBB(UID givenUID, Collection aggQueryMappingCol ) {

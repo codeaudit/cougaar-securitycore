@@ -161,8 +161,8 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       (new  NewAggQueryRelayPredicate(myAddress));
     remoteAggQueryRelays=(IncrementalSubscription)getBlackboardService().subscribe
       (new  RemoteAggQueryRelayPredicate(myAddress));
-    if(amIRoot()) {
-      if (loggingService.isDebugEnabled()) {
+    if (loggingService.isDebugEnabled()) {
+      if(amIRoot()) {
         loggingService.debug("security community set as ROOT:");
       }
     }
