@@ -53,8 +53,8 @@ public class CACertDirectoryServiceImpl
   private ServiceBroker _serviceBroker;
   private BlackboardService _blackboardService;
   private LoggingService _log;
-  //private CertificateBlackboardStore _certStore = new CertificateBlackboardStore();
-  private Hashtable _certStore = new Hashtable();
+  private CertificateBlackboardStore _certStore = new CertificateBlackboardStore();
+  //private Hashtable _certStore = new Hashtable();
 
   public CACertDirectoryServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
@@ -225,7 +225,8 @@ public class CACertDirectoryServiceImpl
       _serviceBroker.getService(this,BlackboardService.class, null);
 
     Collection collection = null;
-    Hashtable bbstore = null;
+    //Hashtable bbstore = null;
+    CertificateBlackboardStore bbstore = null;
     if(_blackboardService.didRehydrate()) {
       // Retrieve persisted instance of the Certificate Blackboard Store.
       // There should be only one instance of the the Certificate Store.
@@ -251,7 +252,8 @@ public class CACertDirectoryServiceImpl
 	Iterator it = collection.iterator();
         // bb should be started before CA servlet becomes available
         // to issue certificates
-	_certStore = (Hashtable) it.next();
+	//_certStore = (Hashtable) it.next();
+        _certStore = (CertificateBlackboardStore)it.next();
       }
     }
     if (!_blackboardService.didRehydrate() || collection == null) {
@@ -290,8 +292,8 @@ public class CACertDirectoryServiceImpl
   private class CertificateBlackboardStorePredicate implements UnaryPredicate {
     public boolean execute(Object o) {
       boolean ret = false;
-      //if (o instanceof CertificateBlackboardStore) {
-      if (o instanceof Hashtable) {
+      if (o instanceof CertificateBlackboardStore) {
+      //if (o instanceof Hashtable) {
 	return true;
       }
       return ret;
