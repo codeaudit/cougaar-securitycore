@@ -25,20 +25,20 @@
 
 PolicyPrefix=%WP/
 
-Agent RearPolicyDomainManager
 Agent RearEnclaveCaNode
 Agent RearPolicyManagerNode
 Agent RearWorkerNode
 Agent testBounceOne
 Agent testBounceTwo
 
+Agent RearPolicyDomainManager
 
 
 Policy WPRemove = [
   GenericTemplate
   Priority = 3,
-  $Actor.owl#Agent is not authorized to perform
+  %urn:Agent#RearPolicyDomainManager is not authorized to perform
   $Ultralog/UltralogAction.owl#WPUpdateSelf as long as the value of 
   $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
-  { $Ultralog/UltralogEntity.owl#WPRemove }
+  { $Ultralog/UltralogEntity.owl#WPAdd }
  ]

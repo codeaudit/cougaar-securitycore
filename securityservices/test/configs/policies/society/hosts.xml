@@ -1,0 +1,26 @@
+<?xml version="1.0"?> 
+ 
+<!-- 
+  An example hosts file. 
+ 
+  Replace "foo.com" with your host name. 
+--> 
+<society name='BlackHole.local.-hosts'  
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+ 
+  <host name='BlackHole.local'> 
+    <facet service="operator"/> 
+    <facet service="acme"/> 
+  </host> 
+
+  <host name='europa.local.'>
+    <facet service='acme'/>
+  </host>
+
+  <host name='192.168.1.62'>
+    <facet service="jabber"/>
+    <!-- <facet service="NFS"/>
+    <facet service="SMTP"/> -->
+  </host>
+</society> 

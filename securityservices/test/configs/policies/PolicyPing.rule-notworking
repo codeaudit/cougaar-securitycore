@@ -1,7 +1,0 @@
-
-society.each_agent(true) { |agent|
-  agent.add_component { |c|
-    c.classname = "org.cougaar.core.security.test.message.SendMessageComponent"
-  }
-}
-
