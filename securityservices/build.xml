@@ -97,11 +97,21 @@
     <!-- javamake global property file -->
     <!-- <property name="javamake.pdb.filename" value="classes/securityservices.pdb"/> -->
 
-    <target name="tstamp">
+    <target name="tstamp" depends="checkversion">
         <tstamp>
             <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
         </tstamp>
         <echo message="Build started at ${currentTime}"/>
+    </target>
+
+    <target name="checkversion">
+        <condition property="ant.version.incorrect" value="true">
+          <not>
+            <contains string="${ant.version}" substring="1.5"/>
+          </not>
+        </condition>
+        <fail message="ant version 1.5 or above is required. Current version is ${ant.version}"
+              if="ant.version.incorrect"/>
     </target>
 
     <target name="init" depends="install-build-jars">
