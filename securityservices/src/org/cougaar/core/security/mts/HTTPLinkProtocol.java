@@ -265,6 +265,10 @@ public class HTTPLinkProtocol extends LinkProtocol {
       }
     } //int cost(AttributedMessage message)
 
+    public boolean isValid() {
+    	return true;
+    }
+
     public MessageAddress getDestination() {
       return _target;
     } //getDestination()
