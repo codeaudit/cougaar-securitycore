@@ -67,6 +67,12 @@ class PolicyWaiter
       return false
     end
   end      
+
+  def to_s()
+    "-PolicyWaiter(#{@node})-"
+  end
+
+
 end
 
 
@@ -150,7 +156,7 @@ def getPolicyDir()
   dir
 end
 
-def commitPolicy(host, port, manager, args, filename, dir)
+def commitPolicy(host, port, manager, args, filename, dir = nil)
   # now commit the new policy
   policyUtil("#{args} --auth george george #{host} #{port} #{manager} #{filename}",nil,dir)
 end
@@ -179,8 +185,10 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
     cdCmd = "cd #{PathUtility.fixPath(execDir)} && "
   end
   cmd ="#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{PathUtility.getClassPath(classpath)} org.cougaar.core.security.policy.builder.Main #{args}"
-  #puts cmd
-  `#{cmd}`
+  puts cmd if $VerboseDebugging
+  output = `#{cmd}`
+  puts output if $VerboseDebugging
+  output
 end
 
 $policyLockLock = Mutex.new
