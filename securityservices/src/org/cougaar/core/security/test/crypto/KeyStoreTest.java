@@ -63,7 +63,7 @@ import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.KeyCertGenerator;
 
-import org.cougaar.core.security.services.ldap.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;

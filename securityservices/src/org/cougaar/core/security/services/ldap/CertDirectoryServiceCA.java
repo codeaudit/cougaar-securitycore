@@ -35,6 +35,8 @@ import java.security.cert.CRLException;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+
 public interface CertDirectoryServiceCA
   extends Service
 {
@@ -73,6 +75,5 @@ public interface CertDirectoryServiceCA
     throws NamingException;
 
   CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
-
   String getDirectoryServiceURL();
 }
