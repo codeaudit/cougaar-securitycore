@@ -125,6 +125,11 @@ public class ConfigParserServiceImpl
   private void processBootPolicyFiles(String filename){
 
     File f = confFinder.locateFile(filename);
+    if (f == null) {
+      log.fatal("Unable to get list of policy files. Install the BootPolicyList.ini file");
+      throw new
+	RuntimeException("Unable to get list of policy files. Install the BootPolicyList.ini file");
+    }
     try {
       FileReader filereader=new FileReader(f);
       BufferedReader buffreader=new BufferedReader(filereader);

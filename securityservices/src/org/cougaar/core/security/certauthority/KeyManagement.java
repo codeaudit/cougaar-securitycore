@@ -312,7 +312,7 @@ public class KeyManagement
 	 }
 	 catch (Exception e) {
 	   if (log.isWarnEnabled()) {
-	     log.warn("Unable to publish CA certificate to LDAP");
+	     log.warn("Unable to publish CA certificate to LDAP: " + e);
 	   }
 	 }
        }
@@ -367,8 +367,7 @@ public class KeyManagement
       }
     }
     catch(Exception e) {
-      log.error("Unable to process request: " + e);
-      e.printStackTrace();
+      log.error("Unable to process request: ", e);
     }
   }
 
@@ -407,8 +406,7 @@ public class KeyManagement
       }
     }
     catch (Exception e) {
-      log.error("Unable to process request: " + e);
-      e.printStackTrace();
+      log.error("Unable to process request: ", e);
       return null;
     }
 
@@ -455,14 +453,12 @@ public class KeyManagement
       }
       catch (CertificateEncodingException e) {
 	if (log.isDebugEnabled()) {
-	  log.debug("Unable to process PKCS10 request:" + e);
-	  e.printStackTrace();
+	  log.warn("Unable to process PKCS10 request:", e);
 	}
       }
       catch (IOException e) {
 	if (log.isDebugEnabled()) {
-	  log.debug("Unable to process PKCS10 request:" + e);
-	  e.printStackTrace();
+	  log.warn("Unable to process PKCS10 request:", e);
 	}
       }
 
@@ -499,7 +495,7 @@ public class KeyManagement
 	 * 4. if the request has never been issued
 	 */
         PendingCertCache pendingCache =
-	  PendingCertCache.getPendingCache(caPolicy, this);
+	  PendingCertCache.getPendingCache(caPolicy.caDnName.getName(), serviceBroker);
 
         X509CertImpl prevCert = null;
         PublicKey clientPubkey = clientX509.getPublicKey();
@@ -544,8 +540,7 @@ public class KeyManagement
       }
     }
     catch (Exception e) {
-      log.debug("Unable to process request: " + e);
-      e.printStackTrace();
+      log.warn("Unable to process request: ", e);
     }
 
     return reply;
@@ -605,7 +600,7 @@ public class KeyManagement
        * 4. if the request has never been issued
        */
       PendingCertCache pendingCache =
-        PendingCertCache.getPendingCache(caPolicy, this);
+        PendingCertCache.getPendingCache(caPolicy.caDnName.getName(), serviceBroker);
 
       X509CertImpl prevCert = null;
       PublicKey clientPubkey = clientX509.getPublicKey();
@@ -638,7 +633,7 @@ public class KeyManagement
       
       return new CertificateResponse(status, clientX509);
     } catch (Exception e) {
-      log.debug("Unable to process request", e);
+      log.warn("Unable to process request", e);
     }
 
     return null;
@@ -686,8 +681,7 @@ public class KeyManagement
       //printPkcs7Request(is);
    }
     catch (Exception e) {
-      log.debug("Exception: " + e);
-      e.printStackTrace();
+      log.warn("Exception: ", e);
     }
   }
 
@@ -734,8 +728,7 @@ public class KeyManagement
       log.debug("PKCS7: " + pkcs7);
     }
     catch (Exception e) {
-      log.debug("Exception: " + e);
-      e.printStackTrace();
+      log.warn("Exception: ", e);
     }
   }
 
@@ -909,7 +902,9 @@ public class KeyManagement
     SignerInfo si = null;
     if (caX509cert == null) {
       if (log.isWarnEnabled()) {
-	log.warn("X509 certificate of CA is null");
+	X500Name name = clientRequest.getSubjectName();
+	log.warn("Unable to sign certificate of " + name
+		 + ". CA does not have a key yet.");
       }
       throw new RuntimeException("X509 certificate of CA is null");
     }

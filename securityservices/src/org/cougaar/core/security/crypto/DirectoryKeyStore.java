@@ -500,7 +500,7 @@ public class DirectoryKeyStore
     else {
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
-	  log.warn("Failed to get Certificate for " + filter);
+	  log.warn("Did not find certificate in LDAP for " + filter);
 	}
       }
     }
@@ -1033,8 +1033,10 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled()) {
       log.debug("++++++ Checking certificate trust");
     }
+    int certCount = 0;
     Enumeration e = certCache.getKeysInCache();
     while (e.hasMoreElements()) {
+      certCount++;
       X500Name name = (X500Name) e.nextElement();
 
       ArrayList list = certCache.getCertificates(name);
@@ -1103,8 +1105,9 @@ public class DirectoryKeyStore
 	}
       } // END while(it.hasNext())
       if (isTrusted == false) {
-	if (log.isWarnEnabled()) {
-	  log.warn("No trusted certificate was found for " + name.toString());
+	if (log.isInfoEnabled()) {
+	  log.info("No trusted certificate was found for " + name.toString()
+	    + ". Keystore contains " + certCount + " untrusted certificates");
 	}
       }
     } // END while(e.hasMoreElements()

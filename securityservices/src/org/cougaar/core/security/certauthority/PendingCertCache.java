@@ -101,30 +101,6 @@ public class PendingCertCache
     init();
   }
 
-  public synchronized static PendingCertCache getPendingCache(
-    CaPolicy aCaPolicy,
-    CertificateManagementService aSigner) {
-    if (thisCache == null) {
-      try {
-        thisCache = new PendingCertCache(aCaPolicy, aSigner);
-      }
-      catch (Exception e) {
-        System.err.println("Error creating PendingCertCache: "
-			   + e.toString());
-        e.printStackTrace();
-      }
-    }
-    return thisCache;
-  }
-
-  private PendingCertCache (CaPolicy aCaPolicy,
-			    CertificateManagementService aSigner) 
-    throws Exception {
-    caPolicy = aCaPolicy;
-    signer = aSigner;
-    init();
-  }
-
   private void init()
     throws Exception {
     caDN = caPolicy.caDnName.getName();
@@ -282,8 +258,8 @@ public class PendingCertCache
     catch(IOException ioexception1) {
     }
     catch(Exception e) {
-      log.error("Exception when loading certificate from file: " + certfile.getPath());
-      e.printStackTrace();
+      log.error("Exception when loading certificate from file: "
+		+ certfile.getPath(), e);
     }
     return certlist;
   }
