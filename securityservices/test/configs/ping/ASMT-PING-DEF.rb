@@ -26,7 +26,7 @@ parameters:
 include_scripts:
 #  - script: clearPnLogs.rb
   - script: setup_ping.rb
-  - script: setup_security.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_security.rb
 #  - script: setup_robustness.rb
 #  - script: network_shaping.rb
 #  - script: cnccalc_include.rb

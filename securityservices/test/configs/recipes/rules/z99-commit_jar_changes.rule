@@ -2,6 +2,6 @@
 
 # Commit scheduled configuration file changes
 
-require 'framework/jar_util'
+require 'lib/jar_util'
 
 commitConfigChanges

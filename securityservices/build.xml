@@ -457,18 +457,6 @@
                     <include name="*.rb"/>
                 </patternset>
             </fileset>
-            <fileset dir="${securityservices.configs}/acme_scripts/includescripts">
-                <patternset>
-                    <include name="*.rb"/>
-                </patternset>
-            </fileset>
-        </copy>
-        <copy todir="${cougaar.install.path}/configs/ping">
-            <fileset dir="${securityservices.configs}/acme_scripts/includescripts">
-                <patternset>
-                    <include name="*.rb"/>
-                </patternset>
-            </fileset>
         </copy>
         <copy file="${securityservices.base}/test/bin/createJarConfigFiles" 
             todir="${cougaar.install.path}/configs/security/bin"/>
@@ -489,16 +477,7 @@
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/agentrestart"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/communities"/>
         <mkdir dir="${cougaar.install.path}/csmart/config/rules/security/testCollectData"/>
-        <mkdir dir="${cougaar.install.path}/csmart/assessment/lib/framework"/>
         <mkdir dir="${cougaar.install.path}/csmart/scripts"/>
-
-        <copy todir="${cougaar.install.path}/csmart/assessment/lib/framework">
-            <fileset dir="${securityservices.configs}/acme_scripts/common">
-                <patternset>
-                    <include name="*.rb"/>
-                </patternset>
-            </fileset>
-        </copy>
 
         <!--
         <copy todir="${cougaar.install.path}/csmart/config/rules/security">
