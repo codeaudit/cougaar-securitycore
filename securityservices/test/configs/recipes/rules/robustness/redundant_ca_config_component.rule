@@ -1,9 +1,15 @@
 ####################################################
 # enclave_ca_config_component.rule
 
+configPlugin = "org.cougaar.core.security.certauthority.ConfigPlugin"
+compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
+ 
+
 cahost = nil
+redundantroot = nil
 caHttpPort = nil
 caHttpsPort = nil
+caManager = 'RootCaManager'
 society.each_node do |node|
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority'
@@ -17,19 +23,46 @@ society.each_node do |node|
         raise "Unable to find HTTPS port number of root CA"
       end
     end
+    if facet[:role] == 'RedundantRootCertificateAuthority'
+      redundantroot = node
+    end
   end
 end
 
-compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
- 
+# use redundant root if there is one
+if redundantroot != nil
+      cahost = redundantroot.host.name
+      caManager = 'RootBackupCaManager'
+      caHttpPort = '8830'
+      caHttpsPort = '9830'
+         facetval = redundantroot.host.get_facet(:enclave)
+    securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
+
+#    puts "SecurityComponent #{securityFactoryComponentName}"
+
+    if redundantroot.agent.has_component?(securityFactoryComponentName)
+      redundantroot.agent.add_component do |c|
+        c.name = "RootCAConfigPlugin"
+        c.classname = configPlugin
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.add_argument("CN=RedundantRootCA, OU=RedundantRoot, O=DLA, L=MV, ST=CA, C=US, T=ca")
+      end
+    end
+
+#    redundantroot.agent.each_component do |c|
+#      puts "component #{c.name}"
+#    end
+end
+
 if cahost != nil
   society.each_node do |node|
     node.each_facet(:role) do |facet|
       if facet[:role] == 'RedundantCertificateAuthority'
          facetval = node.host.get_facet(:enclave)
+
          enclave = facetval[0..0] + facetval[1..facetval.length].downcase + "Backup"
-   
-         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase
+         securityFactoryComponentName = compFactory + facetval[0..0] + facetval[1..facetval.length].downcase 
          if node.agent.has_component?(securityFactoryComponentName)
            if enclave != nil
              #puts "Adding redundant CA component"
@@ -46,7 +79,7 @@ if cahost != nil
                #  2nd arg: Name of CA agent
                #  3rd arg: HTTP port number of CA
                #  4th arg: HTTPs port number of CA
-               c.add_argument(cahost + ":RootCaManager:#{caHttpPort}:#{caHttpsPort}")
+               c.add_argument(cahost + ":" + caManager + ":" + caHttpPort + ":" + caHttpsPort)
              end
            end
         else
