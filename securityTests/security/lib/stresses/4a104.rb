@@ -4,7 +4,6 @@ require 'security/lib/certRevocation'
 class Security4a104Experiment < SecurityStressFramework
    def initialize(run)
       super(run)
-      @moved_agents = []
    end
 
 
@@ -18,9 +17,9 @@ class Security4a104Experiment < SecurityStressFramework
       certRevocation = CertRevocation.new
       node = certRevocation.selectNode
 
-        @moved_agents = node.agents.collect{|agent| agent.name}
+        moved_agents = node.agents.collect{|agent| agent.name}
         summary "agents on killed node #{node.name}"
-        summary @moved_agents.as_string
+        summary moved_agents.as_string
 
       run.do_action "KillNodes", node.name
 
@@ -29,9 +28,9 @@ class Security4a104Experiment < SecurityStressFramework
 
       run.do_action "GenericAction" do |run|
 # 4A106
-        checkPersistenceRecovery(node.name)
+        checkPersistenceRecovery(node.name, moved_agents)
         printSummary
-exit 0   # keep the society running so that we can re-run this.
+#exit 0   # keep the society running so that we can re-run this.
       end
     }
   end
@@ -42,7 +41,7 @@ exit 0   # keep the society running so that we can re-run this.
    end
 
 
-   def checkPersistenceRecovery(nodename)
+   def checkPersistenceRecovery(nodename, moved_agents)
 puts "checkPersistenceRecovery #{nodename}"
      recReq = true
      recResp = true
@@ -74,7 +73,7 @@ puts "checkPersistenceRecovery #{nodename}"
 
 # compare with entities
  
-           missing = @moved_agents - requestAgents
+           missing = moved_agents - requestAgents
            if missing != []
              summary "#{nodename} missing agents for recovery request:"
              summary missing.as_string
@@ -101,3 +100,68 @@ puts "checkPersistenceRecovery #{nodename}"
 
 end
 
+class Security4b104Experiment < Security4a104Experiment
+
+   def postPublishNextStage
+# 4b104, shut down CA and management node and check recovery
+      certRevocation = CertRevocation.new
+
+      enclaves = {}
+# select an enclave
+      run.society.each_node do |node|
+        node.each_facet(:role) do |facet|
+          if facet[:role] == 'CertificateAuthority' \
+          or facet[:role] == 'AS-Management' \
+          or facet[:role] == 'AR-Management'
+          enclave = node.host.get_facet(:enclave)
+          entry = enclaves[enclave]
+          if entry == nil
+            entry = {}
+            enclaves[enclave] = entry
+          end
+          puts "adding #{node.name} for #{enclave}"
+          entry[facet[:role]]= node
+          end
+        end
+      end
+
+# get its CA and management node
+      index = rand(enclaves.keys.size)
+      enclave = enclaves.keys[index]
+          puts "selecting #{enclave}"
+      kill_nodes = enclaves[enclave]
+
+# kill CA, then management node, then AR manager node
+      run.do_action "KillNodes", kill_nodes['CertificateAuthority'].name
+      run.do_action "Sleep", 10.minutes
+
+      mgmt_node = kill_nodes['AS-Management']
+        moved_agents = mgmt_node.agents.collect{|agent| agent.name}
+        summary "agents on killed node #{mgmt_node.name}"
+        summary moved_agents.as_string
+
+      run.do_action "KillNodes", mgmt_node.name
+      run.do_action "Sleep", 10.minutes
+
+      ar_node = kill_nodes['AR-Management']
+        ar_agents = ar_node.agents.collect{|agent| agent.name}
+        summary "agents on killed node #{ar_node.name}"
+        summary ar_agents.as_string
+      run.do_action "KillNodes", ar_node.name
+      run.do_action "Sleep", 10.minutes
+
+    Thread.fork {
+      run.do_action "Sleep", 30.minutes
+
+      run.do_action "GenericAction" do |run|
+# 4b106
+        checkPersistenceRecovery(mgmt_node.name, moved_agents)
+        checkPersistenceRecovery(ar_node.name, ar_agents)
+        printSummary
+#exit 0   # keep the society running so that we can re-run this.
+      end
+    }
+
+  end
+
+end
