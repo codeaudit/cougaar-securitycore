@@ -106,7 +106,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
         failureIfOccurred = DataFailureEvent.SECRET_KEY_FAILURE;
         skey = getSecretKey();
 	if (log.isDebugEnabled()) {
-	  log.debug("skey class: " + skey.getClass().getName());
+	  log.debug("skey class: " + skey.getClass().getName()
+		    + " - Algorithm: " + skey.getAlgorithm());
 	}
         //Cipher ci=Cipher.getInstance(policy.symmSpec);
         failureIfOccurred = DataFailureEvent.INVALID_POLICY;
