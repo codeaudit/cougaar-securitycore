@@ -24,6 +24,7 @@ import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
 import edu.jhuapl.idmef.Alert;
 
+import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.constants.IdmefClassifications;
 import org.cougaar.util.UnaryPredicate;
@@ -41,6 +42,9 @@ public class AllMessageFailures
     if (obj instanceof Event) {
       Event event = (Event) obj;
       IDMEF_Message msg = event.getEvent();
+      if (msg instanceof RegistrationAlert) {
+        return false;
+      }
       if (msg instanceof Alert) {
         Classification[] c = ((Alert) msg).getClassifications();
         if (c != null) {
