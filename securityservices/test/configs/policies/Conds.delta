@@ -20,7 +20,7 @@
 #
 
 
-PolicyPrefix=%Conds/
+PolicyPrefix=%tests/
 
 Delete LogisticianHierarchy
 Delete LogisticsViewerHierarchy

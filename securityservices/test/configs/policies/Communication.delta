@@ -20,11 +20,11 @@
 #
 
 
-PolicyPrefix=%Communication/
+PolicyPrefix=%tests/
 
-Agent %#RearEnclaveCaNode
-Agent %#RearUserAdminAgent
-Agent %#RearPolicyManagerNode
+Agent RearEnclaveCaNode
+Agent RearUserAdminAgent
+Agent RearPolicyManagerNode
 
 AgentGroup RearEnclaveCaNodeGroup = { RearEnclaveCaNode }
 
@@ -33,12 +33,18 @@ AgentGroup RearEnclaveCaNodeGroup = { RearEnclaveCaNode }
 #                 policy to ensure that it will distribute everywhere.
 #
 
+#
+# This policy makes it impossible to access the protected CA servlets
+# because the messages to the user admin agent are rejected.
+#
+
 Policy BreakCAAccess = [ 
    GenericTemplate
    Priority = 3,
    $AgentsInGroup#RearEnclaveCaNodeGroup is not authorized to perform
-   $Action.daml#EncryptedCommunicationAction  
+   $Action.owl#EncryptedCommunicationAction  
    as long as
-   the value of $Action.daml#hasDestination
-   is a subset of the set { %#RearPolicyManagerNode %#RearUserAdminAgent }
+   the value of $Action.owl#hasDestination
+   is a subset of the set { %urn:Agent#RearPolicyManagerNode
+                            %urn:Agent#RearUserAdminAgent }
    ]
