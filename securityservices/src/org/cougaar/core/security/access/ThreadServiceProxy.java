@@ -103,6 +103,27 @@ class ThreadServiceProxy extends SecureServiceProxy
       _schedulable.start();
       _scs.resetExecutionContext();
     }
+    public void cancelTimer() {
+      _scs.setExecutionContext(_ec);
+      _schedulable.cancelTimer();
+      _scs.resetExecutionContext();
+    }
+    public void schedule(long delay) {
+      _scs.setExecutionContext(_ec);
+      _schedulable.schedule(delay);
+      _scs.resetExecutionContext();
+    }
+    public void schedule(long delay, long interval) {
+      _scs.setExecutionContext(_ec);
+      _schedulable.schedule(delay, interval);
+      _scs.resetExecutionContext();
+    }
+    public void scheduleAtFixedRate(long delay, long interval) {
+      _scs.setExecutionContext(_ec);
+      _schedulable.scheduleAtFixedRate(delay, interval);
+      _scs.resetExecutionContext();
+    }
+ 
   } // end class SecureSchedulable
   
   class SecureTimerTask extends TimerTask {
