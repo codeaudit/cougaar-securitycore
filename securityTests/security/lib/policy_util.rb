@@ -89,9 +89,13 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
   classpath = getClasspath
 
   defs = [
+    "-Xmx512m",
     "-Dorg.cougaar.config.path=#{File.join(CIP,'configs','security')}",
+    "-Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder",
+    "-Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore",
+    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=/tmp/policyUtil.log",
     "-Dlog4j.configuration=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
-    "-Dorg.cougaar.core.logging.config.filename=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
+    "-Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
   ]
 
   if javaArgs != nil
