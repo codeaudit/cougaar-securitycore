@@ -19,11 +19,11 @@
 		
 		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
 		<SecureMethod>signAndEncrypt</SecureMethod>
-		<SecureMethod>sign</SecureMethod>
+		<!--SecureMethod>sign</SecureMethod-->
 		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
-    		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+    		<!--SigningAlgorithm>MD2withRSA</SigningAlgorithm-->
 	</PolicyEntry>
 
 	<!--
@@ -33,6 +33,16 @@
     		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+	</PolicyEntry>
+	-->
+
+	<!--
+	<PolicyEntry>
+		<MsgCommunity>testComm</MsgCommunity>
+		<ComSecureMethod>sign</ComSecureMethod>
+    		<ComSymmetricAlgorithm>DES</ComSymmetricAlgorithm>
+    		<ComAsymmetricAlgorithm>RSA</ComAsymmetricAlgorithm>
+    		<ComSigningAlgorithm>MD5withRSA</ComSigningAlgorithm>
 	</PolicyEntry>
 	-->
 
