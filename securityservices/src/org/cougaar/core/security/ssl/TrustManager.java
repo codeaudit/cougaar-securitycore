@@ -56,7 +56,7 @@ public class TrustManager implements X509TrustManager {
     keyRing = krs;
     //keystore = keyRing.getDirectoryKeyStore();
 
-    //updateKeystore();
+    updateKeystore();
     CertificateCacheService cacheservice=(CertificateCacheService)
       serviceBroker.getService(this,
                                CertificateCacheService.class,
