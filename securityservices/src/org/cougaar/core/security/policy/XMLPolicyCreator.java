@@ -84,7 +84,7 @@ public class XMLPolicyCreator {
     try {
       doc = configFinder.parseXMLConfigFile(xmlfilename);
       if (doc == null) {
-	System.err.println("XML Parser could not handle file " + xmlfilename);
+	//System.err.println("XML Parser could not handle file " + xmlfilename);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -101,7 +101,7 @@ public class XMLPolicyCreator {
   public Policy[] getPolicies() {
     try {
       if (doc == null) {
-	System.err.println("XML document is null!");
+	//System.err.println("XML document is null!");
 	return null;
       }
       return parseDoc(doc);
@@ -114,7 +114,7 @@ public class XMLPolicyCreator {
   public Policy[] getPoliciesByType(String type) {
     try {
       if (doc == null) {
-        System.err.println("XML document is null!");
+        //System.err.println("XML document is null!");
         return null;
       }
       if (type == null) {
@@ -138,8 +138,8 @@ public class XMLPolicyCreator {
       requestedType = "";
     }
     if (debug) {
-      System.out.println("XMLPolicyCreator: Request for policy of type "
-			 + requestedType);
+      //System.out.println("XMLPolicyCreator: Request for policy of type "
+			 //+ requestedType);
     }
     Element root = doc.getDocumentElement();
     Vector policyVector = new Vector();
@@ -148,7 +148,7 @@ public class XMLPolicyCreator {
       NodeList nlist = root.getChildNodes();
       int nlength = nlist.getLength();
       if (debug) {
-	System.out.println("Policy has " + nlength + " Child Nodes");
+	//System.out.println("Policy has " + nlength + " Child Nodes");
       }
       for (int i=0; i<nlength; i++) {
 	Node policyNode = nlist.item(i);
@@ -164,7 +164,7 @@ public class XMLPolicyCreator {
           continue;
         }
 	if (debug) {
-	  System.out.println("XMLPolicyCreator: node type: " + policyType);
+	  //System.out.println("XMLPolicyCreator: node type: " + policyType);
 	}
 	if (policyNode.getNodeType() == Node.ELEMENT_NODE
 	    && policyType.equals(requestedType)) {
@@ -172,7 +172,7 @@ public class XMLPolicyCreator {
 	  if (p != null){
 	    policyVector.addElement(p);
 	    if (debug) {
-	      System.out.println("XMLPolicyCreator: Adding new policy");
+	      //System.out.println("XMLPolicyCreator: Adding new policy");
 	    }
 	  }
 	}
@@ -195,17 +195,17 @@ public class XMLPolicyCreator {
       p.setName(policyName);
       p.setType(policyType);
       if (debug) {
-	System.out.println("POLICY.NAME IS: " + p.getName());
-	System.out.println("POLICY.TYPE IS: " + p.getType());
+	//System.out.println("POLICY.NAME IS: " + p.getName());
+	//System.out.println("POLICY.TYPE IS: " + p.getType());
       }
       UID uid = new UID(owner, count++);
       p.setUID(uid);
       ClusterIdentifier ci = new ClusterIdentifier(owner);
       p.setOwner(ci);
     }	catch(Throwable e) {
-      System.err.println("Couldn't instantiate policy type " 
-			 + policyType + e);
-      System.err.println("Using default class org.cougaar.core.security.policy.TypedPolicy");
+      //System.err.println("Couldn't instantiate policy type " 
+			 //+ policyType + e);
+      //System.err.println("Using default class org.cougaar.core.security.policy.TypedPolicy");
     }
     if (p == null)
       p = new TypedPolicy(policyName, policyType);
@@ -217,7 +217,7 @@ public class XMLPolicyCreator {
     Policy p = null;
 
     if (debug) {
-      System.out.println("Policy node name:" + policyNode.getNodeName());
+      //System.out.println("Policy node name:" + policyNode.getNodeName());
     }
     if( policyNode.getNodeName().equals( "Policy" )){
 
@@ -229,7 +229,7 @@ public class XMLPolicyCreator {
       NodeList nlist = policyNode.getChildNodes();
       int nlength = nlist.getLength();
       if (debug) {
-	System.out.println("Policy has " + nlength + " Child Nodes");
+	//System.out.println("Policy has " + nlength + " Child Nodes");
       }
       for (int i=0; i<nlength; i++) {
 	Node ruleParamNode = nlist.item(i);
@@ -241,7 +241,7 @@ public class XMLPolicyCreator {
 	  }
 	  else {
 	    if (debug) {
-	      System.out.println(ruleParamNode.getNodeName());
+	      //System.out.println(ruleParamNode.getNodeName());
 	    }
 	  }
 	}
@@ -266,8 +266,8 @@ public class XMLPolicyCreator {
     try {
       String nodeType = child.getNodeName();
       if (debug) {
-	System.out.print("ParamName " + paramName
-			 + " paramType " + nodeType + " ");
+	//System.out.print("ParamName " + paramName
+			 //+ " paramType " + nodeType + " ");
       }
       
       if (nodeType.equals("Integer")) {
@@ -280,14 +280,14 @@ public class XMLPolicyCreator {
         IntegerRuleParameter irp = 
           new IntegerRuleParameter(paramName, min, max);
         if (debug) {
-	  System.out.println("new IntegerRuleParameter(" + paramName 
-			     + ", " + min  +", " + max + ")" );
+	  //System.out.println("new IntegerRuleParameter(" + paramName 
+			     //+ ", " + min  +", " + max + ")" );
 	}
         
         try {
           irp.setValue(val);
         } catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
         }
         rp = irp;
         
@@ -301,14 +301,14 @@ public class XMLPolicyCreator {
         DoubleRuleParameter drp = 
           new DoubleRuleParameter(paramName, min, max);
         if (debug) {
-	  System.out.println("new DoubleRuleParameter(" + paramName 
-			     + ", " + min  +", " + max + ")" );
+	  //System.out.println("new DoubleRuleParameter(" + paramName 
+			    // + ", " + min  +", " + max + ")" );
 	}
         
         try {
           drp.setValue(val);
         } catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
         }
         
         rp = drp;
@@ -322,14 +322,14 @@ public class XMLPolicyCreator {
         LongRuleParameter lrp = 
           new LongRuleParameter(paramName, min, max);
         if (debug) {
-	  System.out.println("new LongRuleParameter(" + paramName 
-			     + ", " + min  +", " + max + ")" );
+	  //System.out.println("new LongRuleParameter(" + paramName 
+			    // + ", " + min  +", " + max + ")" );
 	}
         
         try {
           lrp.setValue(val);
         } catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
         }
         
         rp = lrp;
@@ -339,14 +339,14 @@ public class XMLPolicyCreator {
         StringRuleParameter srp 
           = new StringRuleParameter(paramName);
         if (debug) {
-	  System.out.println("new StringRuleParameter(" + paramName + ")" +
-			     "  value=" + stringval);
+	  //System.out.println("new StringRuleParameter(" + paramName + ")" +
+			     //"  value=" + stringval);
 	}
         
         try {
           srp.setValue(stringval);
         } catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
         }
         
         rp = srp;
@@ -362,7 +362,7 @@ public class XMLPolicyCreator {
           crp.setValue(c);
           rp = crp;
         } catch (Exception e) {
-          System.err.println("Couldn't create class " + interfaceType + e);
+          //System.err.println("Couldn't create class " + interfaceType + e);
         } 
       } else if (nodeType.equals("Boolean")) {
         String boolvalue = child.getAttributes().getNamedItem("value").getNodeValue();
@@ -378,9 +378,9 @@ public class XMLPolicyCreator {
           try {
             brp.setValue(b);
           } catch (RuleParameterIllegalValueException e) {
-            System.err.println("Couldn't set value for boolean rule parameter "
-                               + paramName);
-            System.err.println(e);
+            //System.err.println("Couldn't set value for boolean rule parameter "
+                        //       + paramName);
+            //System.err.println(e);
           }
         }
         
@@ -407,14 +407,14 @@ public class XMLPolicyCreator {
         EnumerationRuleParameter erp = 
           new EnumerationRuleParameter(paramName, enumOptions);
         if (debug) {
-	  System.out.println("new EnumerationRuleParameter(" + paramName 
-			     + enumOptions +")" );
+	  //System.out.println("new EnumerationRuleParameter(" + paramName 
+			     //+ enumOptions +")" );
 	}
         
         try {
           erp.setValue(stringval);
         } catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
         }
         
         rp = erp;
@@ -423,7 +423,7 @@ public class XMLPolicyCreator {
 	String default_value = 
           child.getAttributes().getNamedItem("value").getNodeValue();
 	if (debug) {
-	  System.out.println("Default:" + default_value);
+	  //System.out.println("Default:" + default_value);
 	}
 	// Read the children, stuff them in an array
 	NodeList nlist = child.getChildNodes();
@@ -436,7 +436,7 @@ public class XMLPolicyCreator {
           String key = keyNode.getAttributes().getNamedItem("key").getNodeValue();
           String value = keyNode.getAttributes().getNamedItem("value").getNodeValue();
 	  if (debug) {
-	    System.out.println("<key=" + key + ", value=" + value);
+	    //System.out.println("<key=" + key + ", value=" + value);
 	  }
           keyVector.addElement(new KeyRuleParameterEntry(key, value));
 	}
@@ -449,7 +449,7 @@ public class XMLPolicyCreator {
 	try {
           krp.setValue(default_value);
 	} catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
 	}
         
 	rp = krp;
@@ -484,13 +484,13 @@ public class XMLPolicyCreator {
               break;
             default:
               if (debug) {
-		System.out.println("Node type: " + valNode.getNodeType());
+		//System.out.println("Node type: " + valNode.getNodeType());
 	      }
             }
           }
           if (value == null) {
-            System.err.println("XMLPolicyCreator: unable to parse range entry value for " +
-                               paramName + ". Min = " + min + " , max = " + max);
+            //System.err.println("XMLPolicyCreator: unable to parse range entry value for " +
+                            //   paramName + ". Min = " + min + " , max = " + max);
           } else {
             rangeVector.addElement(new RangeRuleParameterEntry(value, min, max));
           }
@@ -504,15 +504,15 @@ public class XMLPolicyCreator {
 	try {
           rrp.setValue(default_value);
 	} catch (RuleParameterIllegalValueException ve) {
-          System.err.println(ve);
+          //System.err.println(ve);
 	}
         
 	rp = rrp;
       }
       
     } catch (NumberFormatException nfe) {
-      System.err.println("Unable to parse xml for " + paramName + 
-                         " RuleParameter.");
+      //System.err.println("Unable to parse xml for " + paramName + 
+            //             " RuleParameter.");
       nfe.printStackTrace();
 
       rp = null;
