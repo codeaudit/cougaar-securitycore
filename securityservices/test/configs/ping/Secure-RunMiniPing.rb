@@ -39,7 +39,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   # will work in a stand-alone ACME setup. 
   hosts_file = nil 
   host = @hostname unless host 
-  Dir.glob(File.join(".", "*hosts.xml")).each do |file| 
+  Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
     hosts_file = file 
   end 
@@ -69,13 +69,13 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
  
   # load local rules (ping_env.rule) 
   do_action "TransformSociety", false, ".", 
-    "#{RULES1}/isat/nameserver.rule",
-    "#{RULES1}/isat/default_servlets.rule",
-    "#{RULES1}/isat/root_mobility_plugin.rule",
-    "#{RULES1}/isat/logging_config_servlet.rule",
-    "#{RULES1}/isat/community_plugin.rule",
-    "#{RULES1}/isat/show_jars.rule",
-    "#{RULES1}/isat/tic_env.rule",
+    "#{RULES}/isat/nameserver.rule",
+    "#{RULES}/isat/default_servlets.rule",
+    "#{RULES}/isat/root_mobility_plugin.rule",
+    "#{RULES}/isat/logging_config_servlet.rule",
+    "#{RULES}/isat/community_plugin.rule",
+    "#{RULES}/isat/show_jars.rule",
+    "#{RULES}/isat/tic_env.rule",
 #    "#{RULES}/isat",
     "#{RULES}/security" 
  
