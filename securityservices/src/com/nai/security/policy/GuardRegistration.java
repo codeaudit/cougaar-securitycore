@@ -64,7 +64,8 @@ public abstract class GuardRegistration implements IEnforcer {
 
   public GuardRegistration(String aPolicyType, String enforcerName) {
       // Setup whether we're in debug mode or not
-      debug = System.getProperty("org.cougaar.core.security.policy.debug", "false").equalsIgnoreCase("true");
+      debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.policy.debug",
+						  "false"))).booleanValue();
       setPolicyType(aPolicyType);
       setName(enforcerName);	// Setup the enforcer's name (agent or node)
   }
@@ -161,6 +162,19 @@ public abstract class GuardRegistration implements IEnforcer {
       }
       return;
     }
+    if (debug) {
+      System.out.println("policyTypeInMessage:" + policyTypeInMessage);
+      System.out.println("policyID:" + policyID);
+      System.out.println("policyName:" + policyName);
+      System.out.println("policyDescription:" + policyDescription);
+      System.out.println("policyScope:" + policyScope);
+      System.out.println("policySubjectID:" + policySubjectID);
+      System.out.println("policySubjectName:" + policySubjectName);
+      System.out.println("policyTargetID:" + policyTargetID);
+      System.out.println("policyTargetName:" + policyTargetName);
+      System.out.println("policyType:" + policyType);
+    }
+
     if (policyType.equals(policyTypeInMessage) == false) {
       // Incorrect policy message
       if (debug == true) {
@@ -179,6 +193,10 @@ public abstract class GuardRegistration implements IEnforcer {
     //check each message attribute to see if it contains an xml policy  document
     for (int i=0; i<attributes.size(); i++) {
       Msg attrMsg = (Msg) attributes.elementAt(i);
+      if (debug) {
+	System.out.println("Policy type: " +
+			   PolicyMsg.getAttributeName(attrMsg));
+      }
       if (PolicyMsg.getAttributeName(attrMsg).equals("POLICY_OBJECT")) {
 	boolean isSelected = PolicyMsg.getAttributeIsSelected(attrMsg);
 	policy = (Policy) PolicyMsg.getAttributeValue(attrMsg);
@@ -197,9 +215,18 @@ public abstract class GuardRegistration implements IEnforcer {
         //reconstruct the policy from xml doc
         XMLPolicyCreator xpc = new XMLPolicyCreator(doc, "NodeGuard");
         Policy[] p = xpc.getPoliciesByType(policyType);
-
+	if (debug) {
+	  System.out.println("PolicyCreator.getPoliciesByType returned "
+			     + p.length
+			     + " policy objects");
+	}
 	for(int j=0; j<p.length; j++) {
-        receivePolicyMessage(p[j],
+	  if (debug) {
+	    System.out.println("Calling receivePolicyMessage for "
+			       + p[j]
+			       + " - Guard type:" + getClass().toString());
+	  }
+	  receivePolicyMessage(p[j],
 			     policyID, policyName, policyDescription,
 			     policyScope,
 			     policySubjectID, policySubjectName,

@@ -241,6 +241,9 @@ public class PolicyCache extends GuardRegistration implements IEnforcer {
 				   String policyTargetID,
 				   String policyTargetName,
 				   String policyType) {
+    if (debug) {
+      System.out.println("PolicyCache.receivePolicyMessage");
+    }
     if(policy == null)return;
     RuleParameter[] ruleParameters = policy.getRuleParameters();
     //for each RuleParameter

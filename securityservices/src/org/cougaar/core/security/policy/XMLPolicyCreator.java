@@ -162,7 +162,8 @@ public class XMLPolicyCreator {
 	if (debug) {
 	  System.out.println("XMLPolicyCreator: node type: " + policyType);
 	}
-	if (policyNode.getNodeType() == Node.ELEMENT_NODE && policyType.equals(requestedType)) {
+	if (policyNode.getNodeType() == Node.ELEMENT_NODE
+	    && policyType.equals(requestedType)) {
 	  Policy p = getPolicy(policyNode);
 	  if (p != null){
 	    policyVector.addElement(p);
@@ -211,6 +212,9 @@ public class XMLPolicyCreator {
   public Policy getPolicy(Node policyNode) {
     Policy p = null;
 
+    if (debug) {
+      System.out.println("Policy node name:" + policyNode.getNodeName());
+    }
     if( policyNode.getNodeName().equals( "Policy" )){
 
       String policyName = policyNode.getAttributes().getNamedItem("name").getNodeValue();
@@ -221,7 +225,7 @@ public class XMLPolicyCreator {
       NodeList nlist = policyNode.getChildNodes();
       int nlength = nlist.getLength();
       if (debug) {
-	System.out.println("There are " + nlength + " Child Nodes");
+	System.out.println("Policy has " + nlength + " Child Nodes");
       }
       for (int i=0; i<nlength; i++) {
 	Node ruleParamNode = nlist.item(i);
@@ -231,8 +235,11 @@ public class XMLPolicyCreator {
 	    if (rp != null)
 	      p.Add(rp);
 	  }
-	  else 
-            System.out.println(ruleParamNode.getNodeName());
+	  else {
+	    if (debug) {
+	      System.out.println(ruleParamNode.getNodeName());
+	    }
+	  }
 	}
       }
     }
@@ -410,7 +417,9 @@ public class XMLPolicyCreator {
       } else if (nodeType.equals("KeySet")) {
 	String default_value = 
           child.getAttributes().getNamedItem("value").getNodeValue();
-	
+	if (debug) {
+	  System.out.println("Default:" + default_value);
+	}
 	// Read the children, stuff them in an array
 	NodeList nlist = child.getChildNodes();
 	int nlength = nlist.getLength();
@@ -421,6 +430,9 @@ public class XMLPolicyCreator {
             continue;
           String key = keyNode.getAttributes().getNamedItem("key").getNodeValue();
           String value = keyNode.getAttributes().getNamedItem("value").getNodeValue();
+	  if (debug) {
+	    System.out.println("<key=" + key + ", value=" + value);
+	  }
           keyVector.addElement(new KeyRuleParameterEntry(key, value));
 	}
 	KeyRuleParameterEntry []keys = 
