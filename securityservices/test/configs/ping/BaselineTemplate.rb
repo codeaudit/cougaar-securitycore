@@ -48,7 +48,7 @@ at :transformed_society
 
   do_action "VerifyHosts"
 
-  do_action "DeployCommunitiesFile"
+  #do_action "DeployCommunitiesFile"
   
   # optional: print the cougaar events 
   # 
