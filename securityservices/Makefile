@@ -133,3 +133,7 @@ installconf:
 confnai:
 	echo +++++++ Installing NAI configuration files
 	cp test/configs/mysql/cougaar.rc ${COUGAAR_INSTALL_PATH}/configs/small-135
+
+doc:
+	test/bin/generatedoc
+
