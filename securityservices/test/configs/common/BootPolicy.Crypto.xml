@@ -7,7 +7,7 @@
 	<Name>DEFAULT</Name>
 	
 	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
-	<Type>AGENT</Type>
+	<Type>SOCIETY</Type>
 	
 	<!-- one of INCOMING, OUTGOING, or BOTH -->
 	<Direction>BOTH</Direction>
