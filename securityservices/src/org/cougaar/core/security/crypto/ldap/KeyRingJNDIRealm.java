@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 package org.cougaar.core.security.crypto.ldap;
 
@@ -70,6 +70,9 @@ import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.plugin.LoginFailureSensor;
+import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 
 // Cougaar core infrastructure
 import org.cougaar.core.service.BlackboardService;
@@ -98,7 +101,7 @@ import org.cougaar.core.security.constants.IdmefClassifications;
  *
  * An example KeyRingJNDIRealm addition to server.xml:
  * <pre>
- *   &lt;Realm className="org.cougaar.security.crypto.ldap.KeyRingJNDIRealm" 
+ *   &lt;Realm className="org.cougaar.security.crypto.ldap.KeyRingJNDIRealm"
  *          certComponent="CN"
  *          debug="-1" /&gt;
  * </pre>
@@ -125,10 +128,12 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   private String                     _certComponent = "CN";
   private UserService                _userService;
 
+  /*
   private static BlackboardService   _blackboardService;
   private static IdmefMessageFactory _idmefFactory;
   private static CmrFactory          _cmrFactory;
   private static SensorInfo          _sensor;
+  */
   private Hashtable                  _servers = new Hashtable();
 
   public static final int    LF_USER_DOESNT_EXIST       = 0;
@@ -141,22 +146,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public static final int    LF_REQUIRES_CERT           = 7;
   public static final int    LF_REQUIRES_ROLE           = 8;
 
-  public static final String FAILURE_REASON = "LOGIN_FAILURE_REASON";
-  public static final Classification LOGINFAILURE = 
-    new Classification(IdmefClassifications.LOGIN_FAILURE, "", Classification.VENDOR_SPECIFIC);
-
-  public static final String FAILURE_REASONS[] = {
-    "USER_DOES_NOT_EXIST",
-    "DATABASE_ERROR",
-    "INVALID_USER_CERTIFICATE",
-    "INVALID_SUBJECT",
-    "DISABLED_ACCOUNT",
-    "NULL_DB_PASSWORD",
-    "WRONG_PASSWORD",
-    "CERTIFICATE_REQUIRED",
-    "INSUFFICIENT_PRIVILEGES"};
-
-  /** 
+  /**
    * Default constructor. Uses <code>UserService</code>
    * given in the setDefaultLdapUserService call.
    */
@@ -191,6 +181,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   /**
    * Sets the message factory and BlackboardService to use
    */
+  /*
   public static synchronized void initAlert(IdmefMessageFactory mf,
                                             CmrFactory cf,
                                             BlackboardService bbs,
@@ -200,13 +191,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     _blackboardService = bbs;
     _sensor = sensor;
   }
+  */
 
   /**
    * Returns true if the IDMEF message service is initialized
    */
+   /*
   public static boolean isAlertInitialized() {
     return (_idmefFactory != null);
   }
+  */
 
   /**
    * Sets the realm name for use in DIGEST
@@ -224,10 +218,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public String getCertComponent() {
     return _certComponent;
   }
- 
+
   /**
    * Set the certificate subject's domain component to be used in
-   * case the subject is not to be used. 
+   * case the subject is not to be used.
    *
    * certComponent cannot be
    * <code>null</code> or empty string.
@@ -342,7 +336,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                 String md5a2) {
     /*
       log.debug("Digest : " + clientDigest);
-      
+
       log.debug("************ Digest info");
       log.debug("Username:" + username);
       log.debug("ClientSigest:" + clientDigest);
@@ -374,10 +368,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       String serverDigest = this.md5Encoder.
         encode(md5Helper.digest(serverDigestValue.getBytes()));
 //       log.debug("Server digest : " + serverDigest);
-      
+
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
-      
+
       setLoginError(LF_PASSWORD_MISMATCH, username, null);
     } catch (UserServiceException ne) {
       setLoginError(LF_LDAP_ERROR, username, ne);
@@ -438,7 +432,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   /**
-   * Returns <code>null</code> always. 
+   * Returns <code>null</code> always.
    *
    * This is not used.
    */
@@ -459,7 +453,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     String authFields = "EITHER";
     if (_userService == null) return null;
     username = (String) userAttr.get(_userService.getUserIDAttribute());
-    String authAttr = (String) 
+    String authAttr = (String)
       userAttr.get(_userService.getAuthFieldsAttribute());
     if (authAttr != null) {
       authFields = authAttr;
@@ -468,7 +462,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     if (log.isDebugEnabled()) {
       log.debug("Got roles for " + username + ": " + roles);
     }
-    return new CougaarPrincipal(this, username, new ArrayList(roles), 
+    return new CougaarPrincipal(this, username, new ArrayList(roles),
                                 authFields);
   }
 
@@ -485,7 +479,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * Returns true if the given user/password match the database.
    * Also logs failures to M&R.
    */
-  protected boolean passwordOk(String username,  String password, 
+  protected boolean passwordOk(String username,  String password,
                                Map attrs)
     throws UserServiceException {
     boolean match = false;
@@ -543,10 +537,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (attrVal != null) {
         if (Boolean.valueOf(attrVal.toString()).booleanValue()) {
           return false; // user is granted special certificate access
-        } 
+        }
       } // end of if (attrVal != null)
     } // end of if (isCertAuth)
-    
+
     Object attrVal = attrs.get(_userService.getEnableTimeAttribute());
     if (attrVal != null) {
       String val = attrVal.toString();
@@ -566,7 +560,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     StringBuffer dn = new StringBuffer();
     StringTokenizer tok = new StringTokenizer(certDN,"/");
     boolean first = true;
-    
+
     while (tok.hasMoreTokens()) {
       if (first) {
         first = false;
@@ -579,20 +573,21 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   /**
-   * Return a short name for this Realm implementation, 
+   * Return a short name for this Realm implementation,
    * for use in log messages.
    */
   public String getName() {
     return "KeyRing JNDI Realm";
   }
 
+  /*
   private synchronized boolean initAlert(ServiceBroker sb) {
     if (sb == null) return false;
     try {
     if (_idmefFactory == null) {
       _blackboardService =
         (BlackboardService) sb.getService(this, BlackboardService.class, null);
-      DomainService ds = 
+      DomainService ds =
         (DomainService) sb.getService(this, DomainService.class, null);
       if (ds == null) {
         log.error("Error: There is no DomainService. I cannot alert on login failures.");
@@ -606,15 +601,15 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       } else {
         _cmrFactory = (CmrFactory) ds.getFactory("cmr");
         _idmefFactory = _cmrFactory.getIdmefMessageFactory();
-      
+
         List capabilities = new ArrayList();
         capabilities.add(LOGINFAILURE);
-      
-        RegistrationAlert reg = 
+
+        RegistrationAlert reg =
           _idmefFactory.createRegistrationAlert( _sensor, capabilities,
                                                  _idmefFactory.newregistration ,_idmefFactory.SensorType);
         NewEvent regEvent = _cmrFactory.newEvent(reg);
-      
+
         boolean close = true;
         try {
           close = _blackboardService.tryOpenTransaction();
@@ -668,14 +663,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     addrs.add(_idmefFactory.createAddress(url, null, Address.URL_ADDR));
-    
+
     node = _idmefFactory.createNode(node.getName(), addrs);
 
     IDMEF_Process process = _idmefFactory.getProcessInfo();
-    Service service = _idmefFactory.createService("Cougaar Web Server", 
+    Service service = _idmefFactory.createService("Cougaar Web Server",
                                                   new Integer(serverPort),
                                                   protocol);
-      
+
     User user = null;
     List uids = new ArrayList();
     if (userName != null) {
@@ -690,7 +685,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     targets.add(target);
     return targets;
   }
-  
+
   private List createAdditionalData(int failureType, String targetIdent,
                                     Exception e) {
     Agent agentinfo = _idmefFactory.getAgentInfo();
@@ -706,7 +701,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
     agentinfo.setRefIdents(ref);
 
-    AdditionalData additionalData = 
+    AdditionalData additionalData =
       _idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
     List addData = new ArrayList();
     addData.add(_idmefFactory.
@@ -720,14 +715,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
     return addData;
   }
+  */
 
-  public void alertLoginFailure(int failureType, String userName, 
+  public void alertLoginFailure(int failureType, String userName,
                                 Exception ex,
                                 String remoteAddr,
                                 int serverPort, String protocol,
                                 String url) {
+    /*
     if (!isAlertInitialized()) {
-      log.debug("Couldn't alert about " + 
+      log.debug("Couldn't alert about " +
                          FAILURE_REASONS[failureType] +
                          ", userName: " + userName);
       return; // can't alert without IDMEF factory
@@ -743,9 +740,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                             sources, targets,
                                             classifications,
                                             additionalData);
-    
+
     NewEvent event = _cmrFactory.newEvent(alert);
-    
+
     try {
       _blackboardService.openTransaction();
       _blackboardService.publishAdd(event);
@@ -753,6 +750,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     } catch (Exception e) {
       log.warn("Unable to publish alert login failure to the blackboard:" + e);
     }
+    */
+
+    String [] targets = new String[] {url, new Integer(serverPort).toString(), protocol, userName};
+    FailureEvent event = new LoginFailureEvent(new String[]{remoteAddr},
+                                              targets,
+                                              LoginFailureEvent.FAILURE_REASONS[failureType],
+                                              ex.toString());
+    LoginFailureSensor.publishEvent(event);
   }
 
   public long currentTimeMillis() { return System.currentTimeMillis(); }
@@ -766,7 +771,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   }
 
   private void setLoginError(int err, String userName, Exception e) {
-    log.info("Login failed for " + userName + " . Reason:" + FAILURE_REASONS[err]);
+    log.info("Login failed for " + userName + " . Reason:" +
+      LoginFailureEvent.FAILURE_REASONS[err]);
     ServerInfo info = (ServerInfo) _servers.get(Thread.currentThread());
 
     alertLoginFailure(err, userName, e, info.remoteAddr, info.serverPort,
