@@ -35,13 +35,15 @@ module Cougaar
 	    sleep_time = 10.seconds
             begin
 	      while (true)
+                #logInfoMsg "Searching for node Java pids..."
 		# Not all nodes may be started, so we need to periodically
 		# check for new nodes. Also, some nodes may die.
 		@run.society.each_service_host("acme") { |host|
+                  #logInfoMsg "Searching for node Java pids: #{host.name}"
 		  response = @run.comms.new_message(host).set_body("command[list_java_pids]").request(300)
 		  if (response != nil)
 		    parsePids(response.body).each { |node, pid|
-		      #saveAssertion "processInfo", "getNodePid: #{node}: #{host.name} - #{pid}"
+		      #logInfoMsg "getNodePid: #{node}: #{host.name} - #{pid}"
                       if !@nodeInfoMap.has_key?(node)
 		        nodeInfo = NodeInfo.new(node, host, pid)
 		        getParam(nodeInfo, "-Xmx")		    
@@ -91,6 +93,7 @@ module Cougaar
               if (@nodename != nil && nodeInfo.name == @nodename)
 	        sleep_time = @frequency
               end
+              #logInfoMsg "Monitoring #{nodeInfo.name} - pid=#{nodeInfo.pid} at f=#{sleep_time} - #{nodeInfo.host.name}"
               while (true)
 	        begin
 		  # -h   Do not display header
@@ -99,14 +102,17 @@ module Cougaar
 		  command = "ps -h -p #{nodeInfo.pid} -o pcpu,pmem,sz,rss,rsz"
 		  #saveAssertion "processInfo", "#{nodeInfo.host.name} #{command}"
 		  response = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                  #logInfoMsg response
                   gotResults = false
                   if (response != nil)
                     gotResults = true
                     parseMemoryUsage(nodeInfo, response.body)
                   end
+                  #logInfoMsg "logNodeInfo1?: #{gotResults}"
                   if (@nodename != nil && nodeInfo.name == @nodename && @getStackTrace)
                     command = "kill -QUIT #{nodeInfo.pid}"
                     #puts "Send QUIT signal :#{command} ..."
+                    # `date > #{CIP}/workspace/nodelogs/#{nodename}.log`
 		    res = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
                     #puts "Done Send QUIT signal :#{res}"
                   end
@@ -118,6 +124,7 @@ module Cougaar
                     gotResults = true
                     parseUpTime(nodeInfo, response.body)
                   end
+                  #logInfoMsg "logNodeInfo2?: #{gotResults}"
                   if (gotResults)
 		    logNodeInfo(nodeInfo)
                   end
@@ -169,8 +176,11 @@ module Cougaar
         end
  
         def logNodeInfo(nodeInfo)
-	  @nodeInfoFile << "#{nodeInfo.to_s}\n"
-	  @nodeInfoFile.flush
+          #logInfoMsg "Saving data to disk... #{nodeInfo != nil}"
+          if (nodeInfo != nil) 
+            @nodeInfoFile << "#{nodeInfo.to_s}\n"
+	    @nodeInfoFile.flush
+          end
         end
       end # LogNodeInfo
       
@@ -198,17 +208,21 @@ module Cougaar
           s += "#{now.strftime("%m/%d/%Y")} #{now.strftime("%H:%M:%S")} "
           s += "#{name.ljust(30)}\t#{rsz}\t"
           value = @xmx
-          @xmx.scan(/([0-9]+)(.+)/) { |match|
-            value = match[0].to_i
-            unit = match[1].downcase
-            if (unit =~ /m/)
-              value = value * 1024
-            elsif (unit =~ /g/)
-              value = value * 1024 * 1024
-            elsif (unit =~ /k/)
-              value = value
-            end
-          }
+          if (@xmx != nil) 
+            @xmx.scan(/([0-9]+)(.+)/) { |match|
+              value = match[0].to_i
+              unit = match[1].downcase
+              if (unit =~ /m/)
+                value = value * 1024
+              elsif (unit =~ /g/)
+                value = value * 1024 * 1024
+              elsif (unit =~ /k/)
+                value = value
+              end
+            }
+          else
+            value = 0
+          end
           # Compute diff between XMX and RSZ
           diff = value.to_i - rsz.to_i
           s += "#{value}\t#{diff}\t#{pcpu}\t#{pmem}\t#{rss}"
