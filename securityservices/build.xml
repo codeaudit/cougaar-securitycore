@@ -206,6 +206,7 @@
         </jar>
     </target>
     
+                      <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
@@ -218,7 +219,6 @@
             includes="org/cougaar/core/security/**/*.class,
 		     org/cougaar/core/security/SecurityComponent.class"
             excludes="org/cougaar/core/security/*bootstrap/**,
-                      org/cougaar/core/security/**/test/**,
                       org/cougaar/core/security/oldmonitoring/**"/>
         <jar jarfile="${securityservices.classes}/CougaarCRLextensions.jar"
             basedir="${securityservices.classes}"
@@ -310,10 +310,13 @@
     <!-- install config files -->
     <target name="install-conf" depends="install-cougaarCA">
         <echo message="+++++ Installing configuration files"/>
+	<mkdir dir="${cougaar.install.path}/configs/security"/>
+        <copy todir="${cougaar.install.path}/configs/security">
+            <fileset dir="${securityservices.configs}/common"/>
+        </copy>
         <copy todir="${cougaar.install.path}/configs">
             <fileset dir="${securityservices.configs}">
                 <patternset>
-                    <include name="common/*"/>
                     <include name="small-135/*"/>
                     <exclude name="**/CVS/**"/>
                 </patternset>
@@ -328,7 +331,7 @@
         <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
             file="${securityservices.configs}/tomcat4/web.xml"/>
         <exec executable="test/bin/chooseBootPolicy.sh" os="Linux">
-            <arg line="${cougaar.install.path}/configs/common"/>
+            <arg line="${cougaar.install.path}/configs/security"/>
         </exec>
         <echo message="+++++ Installed configuration files"/>
     </target>
