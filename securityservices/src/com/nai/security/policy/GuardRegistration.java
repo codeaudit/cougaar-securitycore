@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package com.nai.security.policy;
@@ -30,6 +30,7 @@ import java.util.*;
 import org.cougaar.domain.planning.ldm.policy.*;
 import org.cougaar.core.cluster.*;
 import org.cougaar.core.plugin.*;
+import org.cougaar.core.security.policy.XMLPolicyCreator;
 import org.cougaar.util.*;
 import org.w3c.dom.Document;
 import java.io.*;
@@ -116,7 +117,7 @@ public abstract class GuardRegistration implements IEnforcer {
       throw new EnforcerRegistrationException("Guard Unavailable");
     }
   }
-    
+
   /** Receive a policy change from the guard.
 	IEnforcer implementation.
 	(IEnforcer is the interface exposed by enforcers to the guard). **/
@@ -188,6 +189,24 @@ public abstract class GuardRegistration implements IEnforcer {
 			     policyTargetID, policyTargetName,
 			     policyType);
       }
+
+      if (PolicyMsg.getAttributeName(attrMsg).equals("XMLContent")) {
+	boolean isSelected = PolicyMsg.getAttributeIsSelected(attrMsg);
+
+        Document doc = (Document) PolicyMsg.getAttributeValue(attrMsg);
+        //reconstruct the policy from xml doc
+        XMLPolicyCreator xpc = new XMLPolicyCreator(doc, "NodeGuard");
+        Policy[] p = xpc.getPoliciesByType(policyType);
+
+	for(int j=0; j<p.length; j++) {
+        receivePolicyMessage(p[j],
+			     policyID, policyName, policyDescription,
+			     policyScope,
+			     policySubjectID, policySubjectName,
+			     policyTargetID, policyTargetName,
+			     policyType);
+        }
+      }
     } //end if
   } //end for each attribute
 
@@ -211,7 +230,7 @@ public abstract class GuardRegistration implements IEnforcer {
    * policies. In this case, the node enforcer is responsible for the
    * enforcement of agent-level policies. Therefore, there should not also
    * be agent-level enforcers.
-   * 
+   *
    * When a policy is received, the scope can either be domain, node or agent.
    * If the scope is "agent", then the targetID contains the name the agent
    * to which this policy should apply to. If the scope is "node", the
@@ -230,7 +249,7 @@ public abstract class GuardRegistration implements IEnforcer {
    * @param policyTargetName   A user-readable name of the target.
    * @param policyType         The type of the policy
    */
- 
+
   public abstract void receivePolicyMessage(Policy policy,
 				   String policyID,
 				   String policyName,

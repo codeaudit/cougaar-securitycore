@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -36,9 +36,9 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
     //policy source
     CryptoPolicyProxy cpp;
-    
-    //params look-up by name  
-    static HashMap hm = new HashMap(); 
+
+    //params look-up by name
+    static HashMap hm = new HashMap();
 
     /** Creates new CryptoPolicyServiceImpl */
     public CryptoPolicyServiceImpl() {
@@ -59,7 +59,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 	}
         return (SecureMethodParam)obj;
     }
-    
+
     public synchronized SecureMethodParam getReceivePolicy(String name) {
         Object obj = hm.get(name);
         //if not found, try sender with default target
@@ -67,12 +67,12 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
         //still not found, last try with default sender and default target
         //usually the case at bootstrap
         if(obj==null) obj = hm.get("DEFAULT:DEFAULT");
-            
+
         return (SecureMethodParam)obj;
     }
-    
+
     private class CryptoPolicyProxy extends GuardRegistration implements NodeEnforcer{
-        
+
         public CryptoPolicyProxy() {
             super("org.cougaar.core.security.policy.CryptoPolicy",
 		  "CryptoPolicyService");
@@ -83,7 +83,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 ex.printStackTrace();
             }
         }
-        
+
   /**
    * Merges an existing policy with a new policy.
    * @param policy the new policy to be added
@@ -108,10 +108,12 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 
 	if(policy == null)return;
         //whom is the policy for?
-        String sub = policyTargetID;
-        if(policy.getName().equalsIgnoreCase("BootPolicy")) sub = "DEFAULT";
+        String sub = policySubjectName;
+        boolean isBoot = false;
+        if(policyScope=="") isBoot = true;
+        if(policyScope==""||policyScope=="Domain"||policyScope=="VM") sub = "DEFAULT";
         if(sub=="" || sub == null) return ;
-        
+
         //for each RuleParameter
 	RuleParameter[] ruleParameters = policy.getRuleParameters();
         for (int j=0; j < ruleParameters.length; j++)
@@ -131,12 +133,13 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 }
                 if(name.startsWith("Incoming")) {
                     if(value!=null) updateSecureMethod("DEFAULT"+":"+sub,value);
+                    if(value!=null&&isBoot) updateSecureMethod("BOOT"+":"+sub,value);
                     for(int i = 0; i < entry.length; i++) {
                       updateSecureMethod(entry[i].getKey()+":"+sub, entry[i].getValue());
                     }
                 }
             }
-            
+
             if(name.endsWith("SymmetricAlgorithm")){
                 if(name.startsWith("Outgoing")) {
                     if(value!=null) updateSymmetricAlgorithm(sub+":"+"DEFAULT",value);
@@ -146,12 +149,13 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 }
                 if(name.startsWith("Incoming")) {
                     if(value!=null) updateSymmetricAlgorithm("DEFAULT"+":"+sub,value);
+                    if(value!=null&&isBoot) updateSymmetricAlgorithm("BOOT"+":"+sub,value);
                     for(int i = 0; i < entry.length; i++) {
                       updateSymmetricAlgorithm(entry[i].getKey()+":"+sub, entry[i].getValue());
                     }
                 }
             }
-            
+
             if(name.endsWith("AsymmetricAlgorithm")){
                 if(name.startsWith("Outgoing")) {
                     if(value!=null) updateAsymmetricAlgorithm(sub+":"+"DEFAULT",value);
@@ -161,12 +165,13 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 }
                 if(name.startsWith("Incoming")) {
                     if(value!=null) updateAsymmetricAlgorithm("DEFAULT"+":"+sub,value);
+                    if(value!=null&&isBoot) updateAsymmetricAlgorithm("BOOT"+":"+sub,value);
                     for(int i = 0; i < entry.length; i++) {
                       updateAsymmetricAlgorithm(entry[i].getKey()+":"+sub, entry[i].getValue());
                     }
                 }
             }
-            
+
             if(name.endsWith("SigningAlgorithm")){
                 if(name.startsWith("Outgoing")) {
                     if(value!=null) updateSigningAlgorithm(sub+":"+"DEFAULT",value);
@@ -176,16 +181,17 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
                 }
                 if(name.startsWith("Incoming")) {
                     if(value!=null) updateSigningAlgorithm("DEFAULT"+":"+sub,value);
+                    if(value!=null&&isBoot) updateSigningAlgorithm("BOOT"+":"+sub,value);
                     for(int i = 0; i < entry.length; i++) {
                       updateSigningAlgorithm(entry[i].getKey()+":"+sub, entry[i].getValue());
                     }
                 }
             }
         }
-            
-	    
+
+
     }
-    
+
     private synchronized void updateSecureMethod(String key, String value){
         //entry in the hash map
         SecureMethodParam smp;
@@ -202,7 +208,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
         }
         hm.put(key, smp);
     }
-        
+
     private synchronized void updateSymmetricAlgorithm(String key, String value){
         //entry in the hash map
         SecureMethodParam smp;
@@ -227,6 +233,6 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
         smp.signSpec = value;
         hm.put(key, smp);
     }
-    
+
 }
 }
