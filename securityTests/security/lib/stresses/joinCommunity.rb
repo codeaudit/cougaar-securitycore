@@ -38,9 +38,14 @@ class JoinCommunity < SecurityStressFramework
   
   def executeStress
     thread = Thread.fork {
-      issueJoinRequest
-      waitForMessageFailure
-      processResults
+      begin
+	issueJoinRequest
+	waitForMessageFailure
+	processResults
+      rescue => ex
+	 saveUnitTestResult('StressMaliciousJoinCommunity',
+             "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
+      end
     }
   end
 
@@ -62,8 +67,9 @@ class JoinCommunity < SecurityStressFramework
     logInfoMsg "Waiting for: MESSAGE_FAILURE"
     count = 0
     while @msgFailureDetected == false && count < 10
-      sleep(10)
-      logInfoMsg "Sleeping 10 secs: Waiting for MESSAGE_FAILURE"
+      interval = 60
+      sleep(interval)
+      logInfoMsg "Sleeping #{interval} secs: Waiting for MESSAGE_FAILURE"
       count += 1
     end
     if count == 10

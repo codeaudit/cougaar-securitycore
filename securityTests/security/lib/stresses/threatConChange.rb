@@ -241,6 +241,7 @@ class ThreatConChange < SecurityStressFramework
     if count == 10 && @enteredHIGH == false
       saveResult(false, "Stress1e1", "Timeout Didn't receive THREATCON_LEVEL HIGH")
     elsif @enteredHIGH == true
+      logInfoMsg "Entered HIGH threat level"
       saveResult(true, "Stress1e1","Received THREATCON_LEVEL HIGH")
     end
   end

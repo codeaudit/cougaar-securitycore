@@ -74,6 +74,7 @@ class ResultParser
   
     outputFile = File.new(@xmlFile, "w")
     outputFile << "<?xml version='1.0'?>\n"
+    outputFile << '<?xml-stylesheet type="text/xsl" href="results.xsl"?>\n'
     outputFile << "<securityResults>\n"
 
     outputFile << "  <securityEvents>\n"

@@ -208,7 +208,7 @@ end
       if useCase
         saveResult(successBoolean, useCase, msg)
       else
-        summary msg
+        logInfoMsg msg
       end
 #      addUserTry Time.now, msg, code
       sleep(1.seconds) unless counter>=count

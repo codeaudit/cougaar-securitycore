@@ -104,8 +104,14 @@ class Security3c2 < SecurityStressFramework
       #@dest_agent = @certRevocation.selectAgent
       @dest_agent = getValidDestAgent()
       agent1 = @run.society.agents[agent]
-      agent2 = @run.society.agents[@dest_agent]
+      agent2 = @dest_agent
 
+      if (agent1 == nil) 
+	raise "Unable to find source agent: #{agent}"
+      end
+      if (agent2 == nil) 
+	raise "Unable to find destination agent: #{@dest_agent}"
+      end
       testMessage(agent1, agent2)      
 
       summary "The following nodes received SSL connection request from revoked node:"
