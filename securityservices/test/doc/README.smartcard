@@ -1,0 +1,89 @@
+This README covers how to install the Schlumberger smart card reader,
+install a user certificate on it and use that certificate to authenticate
+to secured Cougaar Servlets.
+
+1) Install the Schlumberger software from the driver CD onto your
+   Windows machine. If you are using Windows NT, you will not be able
+   to use the USB Schlumberger smart card reader. Find a Windows 2000,
+   XP, 98, or ME machine to install it on.
+
+2) Plug the smart card reader into the USB port on your Windows box. It
+   should recognize it and ask to install the drivers that already exist
+   on the machine.
+
+3) If you plan on using the Netscape browser, select the Schlumberger Smart
+   Cards and Terminals -> PKCS11 Enable -> Enable PKCS11 for Netscape
+   from the Start menu. This should install the PKCS11 module into
+   your Netscape browser. If it doesn't work, you will need to do it manually:
+
+    Version 4.x
+    -----------
+    A) Open the Netscape browser.
+    B) Click on the "Security" lock icon at the top of the window. 
+    C) Select "Cryptographic Modules"
+    D) Select "Add"
+    E) Enter a name like "Smart Card" into the "Module Name" field.
+    F) Enter the location of slbck.dll into the "Module File" field. It is
+       located at D:\Program Files\Schlumberger\Smart Cards and Terminals\
+                  Cyberflex Access Kits\v4 on my computer
+    G) Select Ok.
+
+    Version 6+
+    ----------
+    A) Open the Netscape browser.
+    B) Select Edit->Preferences->Privacy and Security->Certificates
+    C) Click on "Manage Security Devices"
+    D) Select "Load"
+    E) Enter a name like "Smart Card" into the "Module Name" field.
+    F) Browse and find the "slbck.dll" into the "Module File" field. It is
+       located at D:\Program Files\Schlumberger\Smart Cards and Terminals\
+                  Cyberflex Access Kits\v4 on my computer
+    G) Select Ok.
+
+4) Insert a card into the card reader.
+
+5) Start the COVE Admin tool from the start button by traversing
+   Schlumber Smart Cards and Terminals->Cyberflex Access SDK 4.2->
+   COVE Admin Tool 4.2
+
+6) Select the "Schlumberger Reflex USB" and then click "Connect" to
+   connect to the card.
+
+7) Choose the cryptography support:
+
+   o If you will be using only Microsoft IE, select "Microsoft.cpf"
+   o If you will be using only Netscape, select "Netscape.cpf"
+   o If you will be using both Netscape and IE, select 
+     "Microsoft_interop_Netscape.cpf"
+
+8) Personalize the card: Modify the card label the User PIN. You may make
+   the PIN things any alphanumeric (policy can be modified in the
+   advanced section)
+
+9) Click on "Select Keys..." and open COVE.ksf and then choose
+   "Cyberflex Access Developer 32K"
+
+10) Click on "Personalize" and the card is now ready to load a certificate.
+
+11) Go to the CA using your browser. Select "Request Browser Certificate."
+
+12) Enter the user id for the user to be granted access. This is the
+    same user id given when you created the user in the User Admin.
+    If you are using Netscape, select "1024" for the key size. If you
+    are using IE, select "Schlumberger Cryptographic Service Provider"
+    for the cryptographic service provider. Select "Get Certificate."
+
+13) If you set up your CA so that it doesn't require manual input,
+    the certificate will be installed into your smart card (requiring
+    the PIN you gave in step 12). If you require a manual approval of
+    the certificate, you must first approve the certificate, then view
+    the certificate and click on "Install Certificate" to download it
+    into your browser*. 
+
+    * Note that the user can also install a CA certificate this way also and
+      they will never be prompted with that annoying "invalid certificate"
+      error.
+
+14) Connect to the SSL port of your Cougaar service. You should be able to
+    select the new certificate (or it may be done for you automatically) and
+    it will recognize you as the user in the smart card.
