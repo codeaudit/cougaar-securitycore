@@ -59,6 +59,8 @@
         <!-- Tomcat libraries -->
         <pathelement location="${cougaar.install.path}/sys/tomcat_40.jar"/>
         <pathelement location="${cougaar.install.path}/lib/webserver.jar"/>
+        <!-- JUNIT libraries -->
+        <pathelement location="${cougaar.install.path}/sys/junit.jar"/>
         <!-- Cougaar packages -->
         <pathelement location="${cougaar.install.path}/lib/build.jar"/>
         <pathelement location="${cougaar.install.path}/lib/glm.jar"/>
