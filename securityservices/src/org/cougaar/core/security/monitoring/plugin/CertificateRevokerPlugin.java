@@ -67,7 +67,7 @@ import java.util.Enumeration;
  * the MAX_MESSAGE_FAILURE Operating Modes driven by the adaptivity engine.
  * Add these lines to your agent:
  * <pre>
- * plugin = org.cougaar.core.security.monitoring.plugin.MessageFailureAnalyzer(600,86400)
+ * plugin = org.cougaar.core.security.monitoring.plugin.CertificateRevokerPlugin(600,86400)
  * plugin = org.cougaar.core.security.monitoring.plugin.EventQueryPlugin(SocietySecurityManager,org.cougaar.core.security.monitoring.plugin.AllMessageFailures)
  * plugin = org.cougaar.lib.aggagent.plugin.AggregationPlugin
  * plugin = org.cougaar.lib.aggagent.plugin.AlertPlugin
@@ -77,11 +77,10 @@ import java.util.Enumeration;
  * keep the message failures before deleting it. SocietySecurityManager is
  * the agent name of the society security manager.
  */
-public class MessageFailureAnalyzer extends ComponentPlugin {
+public class CertificateRevokerPlugin extends ComponentPlugin {
   private int  m_maxFailures   = 3;
   private long m_cleanInterval = 1000 * 60 * 10;      // 10 minutes
   private long m_rememberTime  = 1000 * 60 * 60;      // 1 hour
-  private long m_lockoutTime   = 1000 * 60 * 60 * 24; // 1 day
 
   FailureCache m_failures       = new FailureCache();
   private LoggingService  m_log;
@@ -183,9 +182,9 @@ public class MessageFailureAnalyzer extends ComponentPlugin {
   }
 
   /**
-   * Lockout a given user for the lockout duration
+   * revoke an agent's certificate
    */
-  public void revokeCertificate(String agent) {
+  private void revokeCertificate(String agent) {
     // throws Exception {
     m_log.debug("revoking certificate of agent(" + agent + ")");
     // get a handle to the ca and revoke the agent's certificate
