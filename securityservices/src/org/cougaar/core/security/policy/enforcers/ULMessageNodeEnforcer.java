@@ -239,7 +239,7 @@ public class ULMessageNodeEnforcer
    * This is a very simple pre-canned test.  It is called though a
    * servlet that has an html context given by the PrinterWriter out.
    */
-  public void testEnforcer(PrintWriter out, Set agents) 
+  public void testEnforcer(PrintWriter out, List agents) 
     throws IOException, UnknownConceptException
   {
     out.print("<p><b>Message Mediation Check</b></p>");
