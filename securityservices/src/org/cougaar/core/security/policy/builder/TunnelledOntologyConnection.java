@@ -74,6 +74,7 @@ public class TunnelledOntologyConnection extends OntologyConnection
   }
 
 
+
   /**
    * Opens a tunnelled connection (through the policy servlet) to the
    * KAoSDirectoryService.  
