@@ -21,9 +21,9 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   # Scripts add listener which look for Added Persistence manager on a Node 
   # Waits for all Persistence Manager to be ready main persistence Manager and backup Persistence manager  
-  - script: $CIP/csmart/lib/security/scripts/setup_PersistenceManagementReady.rb
-    parameters:
-      - persistence_mgr_watcher_label: society_running
+#  - script: $CIP/csmart/lib/security/scripts/setup_PersistenceManagementReady.rb
+#    parameters:
+#      - persistence_mgr_watcher_label: society_running
   # Insert a "Wait for user manager ready" action. This action must be called
   # before any other action attempts to access servlets.
   - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
