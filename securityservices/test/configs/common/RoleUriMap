@@ -1,1 +1,17 @@
+# Uri-Role mapping is used by the Blackboard Authorization components.
+# Uri-Role mapping format:
+#
+# <URI> <ROLE>
+#
+# The URI format MUST be one of the follow:
+#
+#   /$*/* - all servlets in all agents
+#   /$*/<path> - all agents with the servlet represented by path (e.g., /tasks or /details/tasks)
+#   /$<agent-name>/* - all servlets in agent specified by agent-name
+#   /$<agent-name>/<path> - only the servlet in an agent
+#
+# The ROLE format is of the follow:
+#
+# http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#<role-name>
+#
 /$*/tasks http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityAllRole

@@ -1,3 +1,18 @@
+# Component-Role mapping is used by the Blackboard Authorization components.
+# Component-Role mapping format:
+#
+# <COMPONENT> <ROLE>
+#
+# The COMPONENT format MUST be one of the two:
+#
+#   org.cougaar.core.security - all classes under this package
+#   org.cougaar.core.security.plugins.AnalyzeFailures - only this class
+#
+# The ROLE format is of the follow:
+#
+# http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#<role-name>
+#
+
 safe.policyManager.PolicyAdminServletComponent http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#PolicyServletRole
 #org.cougaar http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryNoReadRole
 org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
