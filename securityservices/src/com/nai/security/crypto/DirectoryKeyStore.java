@@ -348,6 +348,20 @@ public class DirectoryKeyStore implements Runnable
     if(certificateForImport != null) {
 	keystore.setKeyEntry(alias, privatekey, keystorePassword, certificateForImport);
     }
+    
+      // Keystore to store key pairs
+      String installpath = System.getProperty("org.cougaar.install.path");
+      String defaultKeystorePath = installpath + File.separatorChar
+	+ "configs" + File.separatorChar + "common"
+	+ File.separatorChar + "keystore";
+      String ksPath = System.getProperty("org.cougaar.security.keystore",
+					 defaultKeystorePath);
+     try{
+         FileOutputStream out = new FileOutputStream(ksPath);
+         keystore.store(out, keystorePassword);
+     }catch(Exception e){
+         System.out.println("Error: can't flush the certificate to the keystore--"+e.getMessage());
+     }
   }
 
   private Certificate[] establishCertChain(Certificate certificate,
