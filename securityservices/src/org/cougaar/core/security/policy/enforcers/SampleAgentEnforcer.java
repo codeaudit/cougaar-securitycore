@@ -104,7 +104,7 @@ public class SampleAgentEnforcer
     _agentName = agentName;
     _sb = sb;
     _agents=new Vector();
-    _agents.add("urn:KAoS#" + _agentName);
+    _agents.add(ULOntologyNames.agentPrefix + _agentName);
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);
   }
