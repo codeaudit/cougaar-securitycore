@@ -39,12 +39,12 @@ Cougaar::ExperimentMonitor.enable_logging
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
 
-#  society_file="PolicyOne.xml"
-#  layout_file="PolicyOne-layout.xml"
+  society_file="PolicyOne.xml"
+  layout_file="PolicyOne-layout.xml"
 
- society_file="PolicyTwo.xml"
+# society_file="PolicyTwo.xml"
 # layout_file="PolicyTwo-layout.xml"
- layout_file="PolicyTwoSpread-layout.xml"
+# layout_file="PolicyTwoSpread-layout.xml"
 
  
   # read the basic society definition 
@@ -70,7 +70,7 @@ Cougaar.new_experiment("Policy-Test").run(1) {
     "#{RULES}/isat",
     "#{RULES}/security",
     "#{RULES}/security/communities",
-    "#{RULES}/security/mop",
+    "#{RULES}/security/mop/audit_servlet.rule",
     "#{RULES}/security/robustness",
     "#{RULES}/security/mts/loopback_protocol.rule",
 #    "#{RULES}/security/mts/http_mts.rule",
@@ -110,6 +110,6 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "DomainManagerRehydrateReset"
 
   do_action "TestResults"
-  do_action "Sleep", 3600.seconds 
+  do_action "Sleep", 3600.seconds
 }
 
