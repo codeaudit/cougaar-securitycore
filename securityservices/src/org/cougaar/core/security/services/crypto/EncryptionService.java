@@ -38,6 +38,7 @@ import org.cougaar.core.mts.MessageAddress;
 // Cougaar security services
 import org.cougaar.core.security.crypto.ProtectedObject;
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.policy.CryptoPolicy;
 
 /** Service for most common public key cryptographic operations.
  *  Use: cryptographic aspect.
@@ -142,5 +143,17 @@ public interface EncryptionService extends Service {
 				ProtectedObject envelope,
 				SecureMethodParam policy)
     throws GeneralSecurityException;
+
+  public ProtectedObject protectObject(Serializable object,
+				       MessageAddress sourceAgent,
+				       MessageAddress targetAgent,
+				       CryptoPolicy policy)
+    throws GeneralSecurityException, IOException;
+
+  public Object unprotectObject(MessageAddress source,
+				MessageAddress target,
+				ProtectedObject envelope,
+				CryptoPolicy policy)
+    throws GeneralSecurityException, IOException;
 }
 

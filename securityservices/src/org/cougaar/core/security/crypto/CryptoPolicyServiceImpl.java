@@ -121,16 +121,14 @@ public class CryptoPolicyServiceImpl
         //find which community the agent belongs to and get the policy
         Collection c = commu.listParentCommunities(source);
         if(c!=null){
+           Iterator it = c.iterator();
           String cname = null;
-          try{
-            //agent could belongs to multiple communities, thus multiple set
-            //of policy--no policy consolidation for now, just pick one.
-            cname = (String)c.iterator().next();
-          }catch(Exception e){
-            log.error("failed getting community name: " + e.getMessage());
-          }
-          if(cname != null && outgoing_c !=null)
-            cp = (CryptoPolicy)outgoing_c.get(cname);
+           while(it.hasNext()){
+             cname = (String)it.next();
+             if(cname != null && outgoing_c !=null)
+               cp = (CryptoPolicy)outgoing_c.get(cname);
+             if(cp!=null) break;
+           }
         }
       }
 
@@ -142,7 +140,10 @@ public class CryptoPolicyServiceImpl
       if(cp==null){
           log.error("Can't find policy for " + "->" +  source);
       }
-        return cp;
+ 
+      if(cp!=null && commu!=null) cp.setCommunityService(commu);
+       
+      return cp;
     }
 
     public SecureMethodParam getReceivePolicy(String source, String target) {
@@ -175,16 +176,14 @@ public class CryptoPolicyServiceImpl
         //find which community the agent belongs to and get the policy
         Collection c = commu.listParentCommunities(target);
         if(c!=null){
+          Iterator it = c.iterator();
           String cname = null;
-          try{
-            //agent could belongs to multiple communities, thus multiple set
-            //of policy--no policy consolidation for now, just pick one.
-            cname = (String)c.iterator().next();
-          }catch(Exception e){
-            log.error("Failed getting community name: " + e.getMessage());
-          }
-          if(cname != null && incoming_c !=null)
-            cp = (CryptoPolicy)incoming_c.get(cname);
+           while(it.hasNext()){
+             cname = (String)it.next();
+             if(cname != null && incoming_c !=null)
+               cp = (CryptoPolicy)incoming_c.get(cname);
+             if(cp!=null) break;
+           }
         }
       }
 
@@ -196,7 +195,10 @@ public class CryptoPolicyServiceImpl
       if(cp==null){
           log.debug("can't find policy for " + "->" +  target);
       }
-        return cp;
+
+      if(cp!=null && commu!=null) cp.setCommunityService(commu);
+       
+      return cp;
     }
 
     public SecureMethodParam getDataProtectionPolicy(String source) {
