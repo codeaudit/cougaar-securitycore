@@ -94,8 +94,7 @@ public class KeyManagement
     return reply;
   }
 
-  public String processPkcs10Request(BufferedReader request, String caDN) {
-    String reply = null;
+  public void processPkcs10Request(PrintStream out, InputStream request, String caDN) {
     try {
       // First, get all the PKCS10 requests in an array list.
       ArrayList requests = getSigningRequests(request);
@@ -110,6 +109,9 @@ public class KeyManagement
 	PKCS10 req = (PKCS10)i.next();
 
 	X509CertImpl clientX509 = signX509Certificate(req, caDN);
+
+	base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
+
 	// Save the X509 reply in a file
 	saveX509Request(clientX509, caX509);
 
@@ -121,8 +123,15 @@ public class KeyManagement
       System.out.println("Unable to proocess request: " + e);
       e.printStackTrace();
     }
+  }
 
-    return reply;
+  private void base64encode(PrintStream out, byte [] der, String header, String trailer)
+    throws IOException
+  {
+    out.println(header);
+    BASE64Encoder b64 = new BASE64Encoder();
+    b64.encodeBuffer(der, out);
+    out.println(trailer);
   }
 
   private void saveX509Request(X509CertImpl clientX509, X509Certificate caX509)
@@ -141,11 +150,8 @@ public class KeyManagement
 
     f.createNewFile();
     PrintStream out = new PrintStream(new FileOutputStream(f));
-    out.println(PKCS7HEADER);
+    base64encode(out, clientX509.getEncoded(), PKCS7HEADER, PKCS7TRAILER);
 
-    BASE64Encoder b64 = new BASE64Encoder();
-    b64.encodeBuffer(clientX509.getEncoded(), out);
-    out.println(PKCS7TRAILER);
     out.close();
   }
 
@@ -277,19 +283,19 @@ public class KeyManagement
    * the beginning by -----BEGIN NEW CERTIFICATE REQUEST-----, and bounded at the
    * end by -----END NEW CERTIFICATE REQUEST-----.
    */
-  public ArrayList getSigningRequests(BufferedReader bufreader)
+  public ArrayList getSigningRequests(InputStream reader)
     throws FileNotFoundException, IOException, SignatureException,
 	   NoSuchAlgorithmException, InvalidKeyException
   {
     int len = 200;     // Size of a read operation
     int ind_start, ind_stop;
-    char [] cbuf = new char[len];
+    byte [] bbuf = new byte[len];
     String sbuf = null;
     ArrayList pkcs10requests = new ArrayList();
 
-    while (bufreader.ready()) {
-      int read = bufreader.read(cbuf, 0, len);
-      sbuf = sbuf + new String(cbuf, 0, read);
+    while (reader.available() > 0) {
+      int read = reader.read(bbuf, 0, len);
+      sbuf = sbuf + new String(bbuf, 0, read);
 
       // Find header
       ind_start = sbuf.indexOf(PKCS10HEADER);
@@ -338,7 +344,7 @@ public class KeyManagement
     if (debug) {
       System.out.println("PKCS10 file: " + filename);
     }
-    BufferedReader is = new BufferedReader(new FileReader(filename));
+    FileInputStream is = new FileInputStream(filename);
     return getSigningRequests(is);
   }
 
