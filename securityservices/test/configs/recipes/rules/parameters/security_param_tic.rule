@@ -63,48 +63,6 @@ if (user == nil)
   print "defaulting to user to #{user}\n"
 end
 
-if (user == "tredmond")
-  httpport = 9000
-  httpsport = 9500
-elsif (user == "srosset")
-  httpport = 5561
-  httpsport = 6561
-elsif (user == "rliao1")
-  httpport = 5556
-  httpsport = 6556
-elsif (user == "gmount")
-  httpport = 5557
-  httpsport = 6557
-elsif (user == "rtripath")
-  httpport = 5560
-  httpsport = 6560
-elsif (user == "mluu")
-  httpport = 5555
-  httpsport = 6555
-elsif (user == "sri")
-  httpport = 5553
-  httpsport = 6553
-elsif (user == "asmt")
-  httpport = 8800
-  httpsport = 8888
-elsif (user == "junittest")
-  httpport = 5570
-  httpsport = 6670
-elsif (user == "csmart1")
-  httpport = 5571
-  httpsport = 6671
-elsif (user == "csmart2")
-  httpport = 5575
-  httpsport = 6675
-elsif (user == "acme")
-  httpport = 5580
-  httpsport = 6680
-else
-  print "WARNING: Using default HTTP(S) port settings.\n"
-  print "HTTP port: #{httpport}\n"
-  print "HTTPS port: #{httpsport}\n"
-end
-
 society.each_host do |host|
   # the host
   hostname = host.host_name
@@ -176,9 +134,7 @@ society.each_host do |host|
     # java.class.path=/mnt/shared/integ/lib/bootstrap.jar
     # However, the Jython interpreter requires the JAR files
     # referenced from Python be on the "real" classpath.
-    node.remove_parameter("-classpath")
-    node.add_parameter("-classpath #{cip}/lib/CougaarCRLextensions.jar")
-    #node.override_parameter("-Djava.class.path", "#{cip}/lib/CougaarCRLextensions.jar")
+    node.override_parameter("-Djava.class.path", "#{cip}/lib/CougaarCRLextensions.jar")
         
     # Set the config path, which uses ";" separators.
     #
