@@ -20,7 +20,7 @@
         clean-log   - Delete log files
         clean       - Delete .class and .jar files
         help        - print out usage message     
-
+ 
    To run junit tests, the following files must be included in the ANT lib directory:
      1) junit.jar
      2) jakarta-ant-1.4.1-optional.jar
