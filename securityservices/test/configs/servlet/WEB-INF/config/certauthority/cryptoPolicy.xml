@@ -19,6 +19,7 @@
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
     <!-- The type of the certificate directory service.
@@ -64,6 +65,7 @@
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</ldapURL>
 
     <!-- The type of the certificate directory service.
