@@ -35,6 +35,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.crypto.CertValidityListener;
@@ -49,7 +50,8 @@ import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.ServletRequestUtil;
 import org.cougaar.core.service.wp.AddressEntry;
-import org.cougaar.core.wp.resolver.ConfigReader;
+import org.cougaar.core.wp.bootstrap.Bundle;
+import org.cougaar.core.wp.bootstrap.ConfigReader;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
@@ -142,16 +144,19 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
   }
 
-  private void readNameServerConfig() {
+  private void readNameServerConfig() 
+  {
     // regardless of the naming server configs, we get the entries that
     // are parsed by ConfigReader.
-    Iterator i = ConfigReader.listEntries().iterator();
-    // iterator through the list of naming server entries
-    while(i.hasNext()) {
-      AddressEntry entry = (AddressEntry)i.next();
+    for (Iterator bundleIt = ConfigReader.getBundles().values().iterator();
+         bundleIt.hasNext();) {
+      Bundle b = (Bundle) bundleIt.next();
+      Map aeMap = b.getEntries();
+      if (aeMap == null) { continue; }
+      AddressEntry entry = (AddressEntry) aeMap.get("alias");
       
       if (log.isDebugEnabled()) {
-          log.debug("NamingServer AddressEntry: " + entry);
+        log.debug("NamingServer AddressEntry: " + entry);
       }
       
       // we should match all local WP binds that aren't of type alias.
@@ -162,13 +167,13 @@ public class NameServerCertificateComponent extends ComponentPlugin {
         String agent = entry.getName(); 
         if (log.isDebugEnabled()) {
           log.debug("Name server is " + agent + ":" + host + " Localhost:"
-          + NodeInfo.getHostName());
+                    + NodeInfo.getHostName());
         }
         //if (NodeInfo.getNodeName().equals(agent)) {
         if (getAgentIdentifier().toString().equals(agent)) {
           _isNameServer = true; 
           _nameservers.put(agent, 
-            new NameServerCertificate(agent, null));
+                           new NameServerCertificate(agent, null));
         }
         else {
           if (agent == null) {
