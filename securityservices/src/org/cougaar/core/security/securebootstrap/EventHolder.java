@@ -27,6 +27,10 @@
 package org.cougaar.core.security.securebootstrap;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Collections;
+import java.util.ListIterator;
 import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
@@ -36,16 +40,17 @@ import java.util.TimerTask;
 
 public class EventHolder extends Observable  {
 
-  private ArrayList events=null;
+  private List events=null;
   private static EventHolder _instance;
   //private boolean atleastoneObserver=false;
   //private LoggingService log=null; 
   private final long delay  =50;
+  private boolean observerNotified=false;
   Timer timer=null;
 
   protected EventHolder() {
     //this.log=ls;
-    events =new ArrayList();
+    events = Collections.synchronizedList(new LinkedList());
     timer=new Timer();
   }
 
@@ -63,38 +68,35 @@ public class EventHolder extends Observable  {
  
 
   public synchronized void   register (Observer o) {
-    //System.out.println(" Observer is being added :"+o.toString());
     /*
-    if(loggingService!=null) {
+      if(loggingService!=null) {
       loggingService.debug(" Observer is being added :"+o.toString());
-    }
+      }
     */
     addObserver(o);
     //System.out.println(" No of observers is :"+ this.countObservers());
     //if(!atleastoneObserver)
     //atleastoneObserver=true;
     if((_instance.countObservers()>0)&&(events.size()>0)){
-       timer.schedule(new NotifyTask(),delay);
+      timer.schedule(new NotifyTask(),delay);
     }
     else {
       /*
-      if(loggingService!=null) {
-	 loggingService.debug(" No Observer to notify :");
-	 loggingService.debug("Size of event queue :"+_instance.events.size());
-       }
+        if(loggingService!=null) {
+        loggingService.debug(" No Observer to notify :");
+        loggingService.debug("Size of event queue :"+_instance.events.size());
+        }
       */
-      //System.out.println(" One of the conditions to notify observers has failed:");
-      //System.out.println(" atleast one observer condition :"+atleastoneObserver);
-      //System.out.println(" size of event queue :"+_instance.events.size());
     }
   }
 
-    public synchronized void  remove (Observer o) {
-      deleteObserver(o);
+  public synchronized void  remove (Observer o) {
+    deleteObserver(o);
   }
   
   public void addEvent(BootstrapEvent o) {
-    events.add(o);
+    ListIterator iter=events.listIterator();
+    iter.add(o);
     timer.schedule(new NotifyTask(),delay);
   }
   
@@ -109,23 +111,17 @@ public class EventHolder extends Observable  {
     public void run() {
       if(_instance.countObservers()>0)  {
 	ArrayList eventList=new ArrayList();
-	Iterator iterator=_instance.events.iterator();
-	while(iterator.hasNext()) {
-	  eventList.add((BootstrapEvent)iterator.next());
-	}
-	_instance.setChanged();
-	//System.out.println("Going to notify observers :");
-	_instance.notifyObservers(eventList);
-	//System.out.println(" clearing events in add event:");
-	events.clear();
+        ListIterator iterator=_instance.events.listIterator();
+        while(iterator.hasNext()) {
+          eventList.add((BootstrapEvent)iterator.next());
+          iterator.remove();
+        }
+        _instance.setChanged();
+        _instance.notifyObservers(eventList);
       }
       else {
-	/*
-	  if(loggingService!=null) {
-	  loggingService.debug("No  Observers to notify   :");
-	  }
-	*/
-	
+        //System.out.println("No  Observers to notify   :");
+        
       }
       
     }
