@@ -845,7 +845,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
               for(int j=0;j<crlRelays.size();j++) {
                 relay=(CrlRelay)crlRelays.elementAt(j);
                 blackboardService.publishAdd(relay);
-                log.debug(" CRL relay being published :"+relay.toString());
+                log.debug(" CRL relay being published :"+relay.toString() + "Source :" + relay.getTarget());
               }
             }
             try {
@@ -926,6 +926,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     Vector regrelays=new Vector();
     while(crlKeys.hasMoreElements()) {
       key     = (String)crlKeys.nextElement();
+      if(log.isDebugEnabled()) {
+        log.debug(" Key that is being used to send crl registration is :"+ key);
+      }
       wrapper = (CRLWrapper) crlsCache.get(key);
       crlagentregistartion = new CRLAgentRegistration(wrapper.getDN(),
                                                       wrapper.getCertDirectoryURL(),
@@ -937,6 +940,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       crlregrelay=crlMgmtService.newCrlRelay(crlagentregistartion,
                                              aba);
       regrelays.add(crlregrelay);
+    }
+    if(log.isDebugEnabled()) {
+      log.debug(" Size for number of relay to be published from publishCRLRegistrationToAddedCommunity is  :"+ regrelays.size());
     }
     final Vector crlrelays=regrelays;
     Schedulable crlThread = threadService.getThread(this, new Runnable( ) {
@@ -971,29 +977,58 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
 
     CommunityServiceUtilListener csul = new CommunityServiceUtilListener() {
         public void getResponse(Set resp) {
-          log.debug(" call back for community is called :" );
+          log.debug(" call back for community is called :" + resp );
           setMySecurityCommunity((Set)resp);
           csu.releaseServices();
-          //_listening = false;
-          setServices(); // try that again...
+          //  setServices(); // try that again...
         }
       };
-
-    csu.getSecurityCommunities(csul);
+    csu.getSecurityCommunitiesWithUpdates(csul);
+    _listening=true;
   }
 
   private void setMySecurityCommunity(Collection c) {
     log.debug(" setMySecurityCommunity called ");
+    boolean newCommunity=false;
+    Vector addedCommunities=new Vector();
     if(!c.isEmpty()) {
       Iterator iter=c.iterator();
       synchronized(_mySecurityCommunities) {
         while(iter.hasNext()) {
           Community  community=(Community)iter.next();
           if(!_mySecurityCommunities.contains(community.getName())){
+            if(log.isDebugEnabled()) {
+              log.debug(" New Community is added in setmySecurityCommunity  to my _mySecurityCommunities :" +_mySecurityCommunities );
+            }
+            newCommunity=true;
             _mySecurityCommunities.add(community.getName());
+            addedCommunities.add(community.getName());
+            /*
+            publishCRLRegistrationToAddedCommunity(community.getName());
+            */
           }
         }
       }    
+    }
+    if((newCommunity)) {
+      if(log.isDebugEnabled()) {
+          log.debug(" New Community is added in setmySecurityCommunity  :" +_crlRegistered );
+        }
+      if(_crlRegistered){
+        for(int i=0; i<addedCommunities.size();i++) {
+          publishCRLRegistrationToAddedCommunity((String)addedCommunities.elementAt(i));
+          if(log.isDebugEnabled()) {
+            log.debug(" publishCRLRegistrationToAddedCommunity is called for :"+ addedCommunities.elementAt(i));
+          }
+        }
+      }
+      else {
+        if(log.isDebugEnabled()) {
+          log.debug(" publishCRLRegistration is  called from for setmySecurityCommunity  :" +_crlRegistered );
+          log.debug(" Mysexcurity community is :"+ _mySecurityCommunities);
+        }
+        publishCrlRegistration();
+      }
     }
     boolean isEmpty;
     synchronized (_mySecurityCommunities) {
@@ -1029,9 +1064,8 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
 
     if ((!_crlRegistered) && (crlMgmtService != null) &&
-        (blackboardService != null) && isEmpty &&
-        (threadService != null)) {
-       log.info("Calling publishCrlRegistration");
+        (blackboardService != null) && (!isEmpty) && (threadService != null)) {
+      log.info("Calling publishCrlRegistration");
       publishCrlRegistration();
     }
     if ((!_createdCRLBlackboard) && (myAddress != null) &&
@@ -1093,6 +1127,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());
       if(settingServices) {
+        if(log.isDebugEnabled()) {
+          log.debug(" Calling Set service from Service Listener ");
+        }
         setServices(); 
       }
     }
