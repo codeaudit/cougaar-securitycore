@@ -55,18 +55,19 @@ class SecurityMop26 < AbstractSecurityMop
           total = SecurityMop2_4.instance.numLoggablePolicies
           if total == 0
             if @numAccessAttempts == 0
-              @summary = "There weren't any access attempts."
+              @summary1 = "There weren't any access attempts."
             else
-              @summary = "There weren't any access attempts which needed to be logged."
+              @summary1 = "There weren't any access attempts which needed to be logged."
               
             end
           else
             # note: these two values are swapped, but are fixed on the analysis side
-            @summary = "There were #{total} servlet access attempts, #{logged} were correct."
+            @summary1 = "There were #{total} servlet access attempts, #{logged} were correct."
           end
           @raw = SecurityMop2_4.instance.raw6
           @info = SecurityMop2_4.instance.html6
-          @summary <<"<BR> Score :#{@score}</BR>\n" 
+          @summary = "SecurityMop2.6(IDMEF Events on unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
+          @summary <<"#{@summary1}\n"
           #@summary << "#{@info}"
           success = false
           if (@score == 100.0)

@@ -155,13 +155,14 @@ class  SecurityMop2_4 < AbstractSecurityMop
           @info = SecurityMop2_4.instance.html4
           #puts " info is #{@info}"
           if @numAccessAttempts == 0
-            @summary = "There weren't any access attempts."
+            @summary1 = "There weren't any access attempts."
           else
-            @summary = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
+            @summary1 = "There were #{@numAccessAttempts} servlet access attempts, #{@numAccessesCorrect} were correct."
           end
           #puts "summary of result : #{@summary}"
           success = false 
-          @summary <<"<BR> Score :#{@score}</BR>\n" 
+          @summary = "SecurityMop2.4 (unauthorized user actions)\n <BR> Score :#{@score}</BR>\n" 
+          @summary <<  "#{@summary1}\n"
           #@summary << "#{@info}"
           if (@score == 100.0)
             success = true
@@ -364,7 +365,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
           saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
           runTests(@tests)
         end
-       # runServletPolicyTests
+        runServletPolicyTests
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
       rescue Exception => e
@@ -504,13 +505,13 @@ class  SecurityMop2_4 < AbstractSecurityMop
             @numActionsLogged += 1
             if expectedResult == 200
                @numtotalAccessAttemptCorrect+=1
-              @actions << " Success :  #{msg}"
+              @actions << " #{msg}"
             end   
             logInfoMsg  "logged:  #{msg}" if $VerboseDebugging
           else
             if(mop25)
               if expectedResult == 200
-                @actions << "Failure :  #{msg}"
+                @actions << "Failure :User Denied Access   #{msg}"
             end 
             end
             waitTime=5
@@ -531,8 +532,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
                   @logins << "Failure : test case #{useCase}  #{msg}" 
                   saveAssertion("Failure :test case #{useCase}   #{msg}")
                 else 
-                  @logins << "Failure : #{msg}" 
-                  saveAssertion("Failure :  #{msg}")
+                  @logins << "Failure : User Allowd Access   #{msg}" 
+                  saveAssertion("Failure : User Allowd Access    #{msg}")
                 end
               end
             end
@@ -544,7 +545,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
                 @policies << " Success : #{msg}"
               else
                 @policies << " Failure No IDMEF Generated for #{useCase} : #{msg}"
-                saveAssertion(useCase," FAILED TEST :No IDMEF Generated for #{useCase} SecurityMop2.6 expectedResult:#{expectedResult} actual:#{actualResult} idmefPattern:#{idmefPattern} NOT Found")
+                saveAssertion(useCase,"  Failure No IDMEF Generated for #{useCase} SecurityMop2.6 expectedResult:#{expectedResult} actual:#{actualResult} idmefPattern:#{idmefPattern} NOT Found")
               end
             end
           end # if actualResult == 200
