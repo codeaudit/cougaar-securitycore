@@ -79,12 +79,15 @@ public class SSLServiceImpl implements SSLService {
     KeyRingSSLServerFactory.init(sslcontext);
 
     // set default connection socket factory
+    if (log.isDebugEnabled()) {
+      log.debug("Install socket factory for HTTPS connections...");
+    }
     HttpsURLConnection.setDefaultSSLSocketFactory(
       (SSLSocketFactory)KeyRingSSLFactory.getDefault());
 
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("Successfully created SSLContext.");
-
+    }
   }
 
   public void updateKeystore() {
