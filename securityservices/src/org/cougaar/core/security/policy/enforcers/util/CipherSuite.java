@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * This class represents a suite of crypto algorithms including symmetric, 
  * assymmetric and checksum algorithms.  
@@ -73,6 +74,8 @@ public class CipherSuite {
     _signature    = new LinkedHashSet();
     _conditionMap = new HashMap();
   }
+
+  public String getName() { return _name; }
 
   /**
    * Returns the vector of symmetric algorithms in the suite as a
