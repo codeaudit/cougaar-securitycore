@@ -25,13 +25,21 @@ CP=${COUGAAR_INSTALL_PATH}/sys/xml-apis.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
+CP=${COUGAAR_INSTALL_PATH}/lib/secure_bootstrapper.jar:${CP}:
+CP=${COUGAAR_INSTALL_PATH}/lib/secure_util.jar:${CP}:
 CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:${CP}
 CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:${CP}
 
 DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
+DEFS="${DEFS} -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder"
+DEFS="${DEFS} -Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore"
 
 
-java $DEFS -classpath $CP \
+LOG="${LOG} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
+LOG="${LOG} -Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
+
+
+java $DEFS $LOG -classpath $CP \
    org.cougaar.core.security.util.webproxy.WebProxyInstaller \
    kaos.tools.ontologyJavaMapper.OWLOntologyJavaMapper $1 $2 $3
 
