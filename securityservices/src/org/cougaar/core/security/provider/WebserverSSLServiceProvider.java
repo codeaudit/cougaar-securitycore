@@ -66,7 +66,9 @@ public class WebserverSSLServiceProvider
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      System.out.println("Failed to initialized WebserverSSLService!");
+      if (CrytoDebug.debug)
+	e.printStackTrace();
+      System.out.println("Failed to initialize WebserverSSLService!");
     }
     return sslservice;
   }
