@@ -1522,7 +1522,6 @@ public class DirectoryKeyStore
     /**
      * Handle CA cert
      */
-    String caDN = null;
     if (isCACert) {
 
       if (!param.isCertAuth) {
@@ -1571,13 +1570,49 @@ public class DirectoryKeyStore
       }
     }
     else if (param.isCertAuth) {
-      X500Name [] caDNs = configParser.getCaDNs();
-      if (caDNs.length == 0) {
+      try {
+        String caDN = null;
+        X500Name [] caDNs = configParser.getCaDNs();
+        if (caDNs.length == 0) {
+          if (log.isDebugEnabled())
+            log.debug("No CA key created yet, the certificate can not be created.");
+          return null;
+        }
+
+        if (keyAlias != null)
+          alias = keyAlias;
+        else
+          alias = makeKeyPair(dname, isCACert);
+
+        caDN = configParser.getCaDNs()[0].getName();
+        // sign it locally
+        CertificateManagementService km = (CertificateManagementService)
+          param.serviceBroker.getService(this,
+                                         CertificateManagementService.class,
+                                         null);
+
+        km.setParameters(caDN);
         if (log.isDebugEnabled())
-          log.debug("No CA key created yet, the certificate can not be created.");
-        return null;
+          log.debug("Signing certificate locally with " + caDN);
+        X509CertImpl certImpl = km.signX509Certificate(
+          generatePKCS10Request((X509Certificate)
+                                keystore.getCertificate(alias),
+                                alias));
+
+        // publish to LDAP
+        km.publishCertificate(certImpl);
+
+        // install
+        installCertificate(alias, new X509Certificate[] {certImpl});
+        privatekey = (PrivateKey)keystore.getKey(alias, param.keystorePassword);
+      } catch (Exception e) {
+        if (log.isDebugEnabled()) {
+          log.warn("Unable to create key: " + dname
+                             + " - Reason:" + e);
+          e.printStackTrace();
+        }
       }
-      caDN = configParser.getCaDNs()[0].getName();
+      return privatekey;
     }
 
     try {
@@ -1618,26 +1653,6 @@ public class DirectoryKeyStore
           }
 	  reply = sendPKCS(request, "PKCS10");
 	}
-        else {
-          // sign it locally
-          CertificateManagementService km = (CertificateManagementService)
-            param.serviceBroker.getService(this,
-                                           CertificateManagementService.class,
-                                           null);
-          km.setParameters(caDN);
-          if (log.isDebugEnabled())
-            log.debug("Signing certificate locally with " + caDN);
-          X509CertImpl certImpl = km.signX509Certificate(
-            generatePKCS10Request((X509Certificate)
-                                  keystore.getCertificate(alias),
-                                  alias));
-
-          // publish to LDAP
-
-          // install
-          installCertificate(alias, new X509Certificate[] {certImpl});
-          return (PrivateKey)keystore.getKey(alias, param.keystorePassword);
-        }
       }
       else {
         if (getNodeCert(nodeName) == null)
@@ -2358,12 +2373,9 @@ public class DirectoryKeyStore
 	  new BufferedReader(new InputStreamReader(huc.getInputStream()));
 	int len = 2000;     // Size of a read operation
 	char [] cbuf = new char[len];
-	int read = 0;
-	while (read != -1) {
-	  read = in.read(cbuf, 0, len);
-	  if (read != -1) {
-	    reply = reply + new String(cbuf, 0, read);
-	  }
+	while (in.ready()) {
+	  int read = in.read(cbuf, 0, len);
+	  reply = reply + new String(cbuf, 0, read);
 	}
 	in.close();
         reply = URLDecoder.decode(reply, "UTF-8");
