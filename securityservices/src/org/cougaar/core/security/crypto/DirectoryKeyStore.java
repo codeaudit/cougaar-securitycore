@@ -2252,6 +2252,10 @@ public class DirectoryKeyStore
     while(parser.hasMoreElements()) {
       String tok1 = parser.nextToken().trim().toLowerCase();
       String tok2 = parser.nextToken();
+      if (tok1.equalsIgnoreCase("t")) {
+	// LDAP uses 'title', not 't'
+	tok1 = "title";
+      }
       filter = filter + "(" + tok1 + "=" + tok2 + ")";
     }
     filter = filter + ")";

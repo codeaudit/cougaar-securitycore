@@ -74,7 +74,7 @@ public class CryptoManagerServiceImpl
 	    return keyRing.findPrivateKey(name);
 	  }
 	});
-    if (pkList.size() == 0) {
+    if (pkList == null || pkList.size() == 0) {
       throw new CertificateException("Private key not found.");
     }
     PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
@@ -133,7 +133,7 @@ public class CryptoManagerServiceImpl
     List certList =
       keyRing.findCert(name,
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
-    if (certList.size() == 0) {
+    if (certList == null || certList.size() == 0) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
     }
     java.security.cert.Certificate cert =
