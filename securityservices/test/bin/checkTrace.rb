@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 
 CIP = ENV['CIP']
+$stdout.sync = true
+$stderr.sync = true
 
 # Add extra arguments to the grep function. For example, "-c" will report a count only
 $extraargs = ARGV
@@ -186,11 +188,14 @@ def searchIssues(removeOkPattern, logResultsDir)
     next if !( filename =~ /\.log/ )
     filepath = "#{$logFileDirectory}/#{filename}"
     puts "++ Checking #{filepath}"
+
+=begin
     time = getStartupTime(filepath)
     if ((time <=> startupTime) == -1) || startupTime == 0
       startupTime = time
       #puts "Set startup time: " + startupTime.to_s
     end
+=end
     if (removeOkPattern) 
       command="grep #{badPattern} #{filepath} | grep #{$extraargs} #{okPattern}"
     else

@@ -8,5 +8,5 @@ while true; do
 
   #date | tee -a topOut
   echo "" | tee -a topOut
-  sleep 10
+  #sleep 10
 done
