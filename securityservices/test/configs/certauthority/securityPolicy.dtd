@@ -1,0 +1,47 @@
+<!ELEMENT policies (policy, javaproperties)>
+<!ELEMENT javaproperties (property)>
+<!ELEMENT property (name, value)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
+
+<!ELEMENT policy (cryptoClientPolicy, certificateAuthority)>
+<!ELEMENT cryptoClientPolicy (isCertificateAuthority, trustedCAs, certificateAttributes)>
+
+<!ELEMENT trustedCAs (CA_keystore, CA_keystorePassword, trustedCA)>
+<!ELEMENT trustedCA (CA_DN, CA_alias, CA_URL, CertDirectoryURL, CertDirectoryType)>
+<!ELEMENT certificateAttributes (distinguishedName, keyAlgName, keysize, sigAlgName, validity)>
+<!ELEMENT distinguishedName (ou, o, l, st, c, domain)>
+<!ELEMENT CA_DN (#PCDATA)>
+<!ELEMENT CA_alias (#PCDATA)>
+<!ELEMENT CA_URL (#PCDATA)>
+<!ATTLIST CA_URL role CDATA #REQUIRED>
+<!ELEMENT CA_keystore (#PCDATA)>
+<!ELEMENT CA_keystorePassword (#PCDATA)>
+<!ELEMENT CertDirectoryURL (#PCDATA)>
+<!ATTLIST CertDirectoryURL role CDATA #REQUIRED>
+<!ELEMENT CertDirectoryType (#PCDATA)>
+
+<!ELEMENT ou (#PCDATA)>
+<!ELEMENT o (#PCDATA)>
+<!ELEMENT l (#PCDATA)>
+<!ELEMENT st (#PCDATA)>
+<!ELEMENT c (#PCDATA)>
+<!ELEMENT domain (#PCDATA)>
+
+<!ELEMENT keyAlgName (#PCDATA)>
+<!ELEMENT keysize (#PCDATA)>
+<!ELEMENT sigAlgName (#PCDATA)>
+<!ELEMENT validity (#PCDATA)>
+
+
+<!ELEMENT certificateAuthority (serialNumberFile, pkcs10Directory, x509Directory, clientCertPolicy)>
+<!ELEMENT serialNumberFile (#PCDATA)>
+<!ELEMENT pkcs10Directory (#PCDATA)>
+<!ELEMENT x509Directory (#PCDATA)>
+<!ELEMENT clientCertPolicy (certVersion, AlgorithmId, keysize, certValidity)>
+
+<!ELEMENT certVersion (#PCDATA)>
+<!ELEMENT AlgorithmId (#PCDATA)>
+<!ELEMENT keysize (#PCDATA)>
+<!ELEMENT certValidity (#PCDATA)>
+
