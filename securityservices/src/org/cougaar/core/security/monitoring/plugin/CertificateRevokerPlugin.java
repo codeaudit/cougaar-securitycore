@@ -558,7 +558,12 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                   if(_debug) {
                     _log.debug("Publishing sensor capabilities to local blackboard.");
                   }
-                  bbs.publishAdd(regEvent);
+		  bbs.openTransaction();
+		  try {
+		    bbs.publishAdd(regEvent);
+		  } finally {
+		    bbs.closeTransaction();
+		  }
                 }
                 else {
                   AttributeBasedAddress messageAddress =
@@ -569,14 +574,19 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                     _log.debug("Sending sensor capabilities to community '" +
                                 community.getName() + "'" + ", role '" + _managerRole + "'.");
                   }
-                  bbs.publishAdd(relay);
+		  bbs.openTransaction();
+		  try {
+		    bbs.publishAdd(relay);
+		  } finally {
+		    bbs.closeTransaction();
+		  }
                 }
               }
             }
           }
         } catch (NamingException e) {
           throw new RuntimeException("This should never happen");
-        }
+	}
 
       }
     });
