@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -37,6 +37,8 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
 
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.crypto.ldap.*;
@@ -45,11 +47,12 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.util.*;
 
 public class NamingCertDirectoryServiceClient {
-  LoggingService log;
-  ServiceBroker sb;
-  WhitePagesService whitePagesService;
-  Hashtable certCache = new Hashtable();
-  boolean nodeupdated = false;
+  private LoggingService log;
+  private ServiceBroker sb;
+  private WhitePagesService _whitePagesService;
+  private Hashtable _certCache = new Hashtable();
+  private boolean _nodeupdated = false;
+  private ThreadService _threadService;
 
   /**
    * This class only handles updating cert directly to naming
@@ -63,9 +66,11 @@ public class NamingCertDirectoryServiceClient {
                     null);
 
     if (log.isDebugEnabled()) {
-      log.debug("Adding service listner for naming service :");
+      log.debug("Adding service listener for naming service :");
     }
     sb.addServiceListener(new NamingServiceAvailableListener());
+
+    _threadService=(ThreadService)sb.getService(this,ThreadService.class, null);
   }
 
   /**
@@ -77,18 +82,18 @@ public class NamingCertDirectoryServiceClient {
 
     // node cert need to be there before anything else can be published
 
-    if (!nodeupdated) {
+    if (!_nodeupdated) {
       if (!cname.equals(NodeInfo.getNodeName())) {
         if (log.isDebugEnabled()) {
           log.debug("storing " + dname
                     + " before node cert registers to naming");
         }
 
-        certCache.put(dname, certEntry);
+        _certCache.put(dname, certEntry);
         return false;
       }
       else {
-        nodeupdated = true;
+        _nodeupdated = true;
 
         if (log.isDebugEnabled()) {
           log.debug("updating other cert entries now node cert is created.");
@@ -96,11 +101,11 @@ public class NamingCertDirectoryServiceClient {
         updateCertEntryFromCache();
       }
     }
-    if (whitePagesService == null) {
+    if (_whitePagesService == null) {
       if (log.isDebugEnabled()) {
         log.debug("Naming service is not yet available, storing to cache.");
       }
-      certCache.put(dname, certEntry);
+      _certCache.put(dname, certEntry);
       return false;
     }
 
@@ -109,28 +114,28 @@ public class NamingCertDirectoryServiceClient {
   }
 
   private void setNamingService() {
-    whitePagesService = (WhitePagesService)
+    _whitePagesService = (WhitePagesService)
       sb.getService(this, WhitePagesService.class, null);
 
     updateCertEntryFromCache();
   }
 
   private void updateCertEntryFromCache() {
-    if (!nodeupdated) {
+    if (!_nodeupdated) {
       if (log.isDebugEnabled()) {
         log.debug("update cert from cache: need to wait until node is enabled");
       }
       return;
     }
-    if (whitePagesService == null) {
+    if (_whitePagesService == null) {
       if (log.isDebugEnabled()) {
         log.debug("update cert from cache: need to wait until white pages is available");
       }
       return;
     }
 
-    synchronized (certCache) {
-      for (Iterator it = certCache.values().iterator(); it.hasNext(); ) {
+    synchronized (_certCache) {
+      for (Iterator it = _certCache.values().iterator(); it.hasNext(); ) {
         CertificateEntry cachedEntry = (CertificateEntry)it.next();
         if (log.isDebugEnabled()) {
           log.debug("updating " + cachedEntry.getCertificate().getSubjectDN()
@@ -144,7 +149,7 @@ public class NamingCertDirectoryServiceClient {
         }
       }
     }
-    certCache.clear();
+    _certCache.clear();
   }
 
   private void updateCertEntry(final CertificateEntry certEntry) throws Exception {
@@ -152,7 +157,7 @@ public class NamingCertDirectoryServiceClient {
     final String dname = c.getSubjectDN().getName();
     final String cname = new X500Name(dname).getCommonName();
 
-    if (whitePagesService == null) {
+    if (_whitePagesService == null) {
       log.warn("Cannot get white page service.");
       throw new Exception("Naming service is not available yet.");
     }
@@ -233,37 +238,56 @@ public class NamingCertDirectoryServiceClient {
 	      entry);
 	  }
 
-	  Callback callback = new Callback() {
-	      /** Handle a WhitePagesService response. */
-	      public void execute(Response res) {
-		if ( ((Response.Bind) res).didBind() ) {
-		  // naming bug: naming service is enabled before
-		  // naming thread is created so there is a problem
-		  // updating naming even though naming service is available
-		  // need to wait until we successfully updated naming
-		  // for an entry (should happen after agents registers.
-		  if (!certCache.isEmpty()) {
-		    updateCertEntryFromCache();
-		  }
-		  if (log.isDebugEnabled()) {
-		    log.debug("Successfully updated naming: " + cname);
-		  }
-		}
-		else {
-		  if (log.isWarnEnabled()) {
-		    log.warn("Unable to update naming: " + cname);
-		  }
-		}
-	      }
-	    };
-	  whitePagesService.rebind(ael, callback);
-
+	  // Cannot invoke wp.rebind() from within a Callback
+	  // So create a thread to do the job.
+          Schedulable rebindThread =
+	    _threadService.getThread(this,
+				    new RebindThread(cname, ael),
+				    "CertRebindThread");
+	  rebindThread.start();
 	}
       };
 
-    whitePagesService.get(cname,
+    _whitePagesService.get(cname,
 			  WhitePagesUtil.WP_CERTIFICATE_TYPE,
 			  callback);
+  }
+
+  private class RebindThread implements Runnable {
+    private String cname;
+    private AddressEntry ael;
+
+    public RebindThread(String cn, AddressEntry a) {
+      cname = cn;
+      ael = a;
+    }
+
+    public void run() {
+      Callback callback = new Callback() {
+	  /** Handle a WhitePagesService response. */
+	  public void execute(Response res) {
+	    if ( ((Response.Bind)res).didBind() ) {
+	      // naming bug: naming service is enabled before
+	      // naming thread is created so there is a problem
+	      // updating naming even though naming service is available
+	      // need to wait until we successfully updated naming
+	      // for an entry (should happen after agents registers.
+	      if (!_certCache.isEmpty()) {
+		updateCertEntryFromCache();
+	      }
+	      if (log.isDebugEnabled()) {
+		log.debug("Successfully updated naming: " + cname);
+	      }
+	    }
+	    else {
+	      if (log.isWarnEnabled()) {
+		log.warn("Unable to update naming: " + cname);
+	      }
+	    }
+	  }
+	};
+      _whitePagesService.rebind(ael, callback);
+    }
   }
 
   private class NamingServiceAvailableListener implements ServiceAvailableListener {
