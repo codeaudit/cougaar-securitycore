@@ -53,6 +53,7 @@ public class CryptoManagerServiceImpl
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  private HashMap        ciphers = new HashMap();
 
   /** A hashtable that contains encrypted session keys.
    *  The session keys may be used for multiple messages instead of having to generate and encrypt
@@ -105,6 +106,30 @@ public class CryptoManagerServiceImpl
     spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
     se=Signature.getInstance(spec);
     return new SignedObject(obj, pk, se);
+  }
+
+  private Cipher getCipher(String spec) 
+    throws NoSuchAlgorithmException, NoSuchPaddingException {
+    ArrayList list;
+    synchronized (this.ciphers) {
+      list = (ArrayList) this.ciphers.get(spec);
+      if (list == null) {
+        list = new ArrayList();
+        this.ciphers.put(spec,list);
+      }
+    }
+    synchronized (list) {
+    Cipher cipher;
+    } else if (list.size() > 0) {
+      return (Cipher) list.remove(list.size() - 1);
+    } // end of else
+    
+    return Cipher.getInstance(spec);
+  }
+
+  private synchronized void returnCipher(String spec, Cipher cipher) {
+    ArrayList list = (ArrayList) this.ciphers.get(spec);
+    list.add(cipher);
   }
 
   public Object verify(String name, String spec, SignedObject obj)
@@ -188,10 +213,11 @@ public class CryptoManagerServiceImpl
       log.debug("Encrypting for " + name + " using " + spec);
     }
     /*init the cipher*/
-    Cipher ci;
-    ci=Cipher.getInstance(spec);
+    Cipher ci = getCipher(spec);
     ci.init(Cipher.ENCRYPT_MODE,key);
-    return new SealedObject(obj,ci);
+    SealedObject so = new SealedObject(obj,ci);
+    returnCipher(spec,ci);
+    return so;
   }
 
   public Object asymmDecrypt(final String name,
@@ -219,9 +245,11 @@ public class CryptoManagerServiceImpl
       if(spec==null||spec=="")
 	spec=key.getAlgorithm();
       try {
-	ci=Cipher.getInstance(spec);
-	ci.init(Cipher.DECRYPT_MODE, key);
-	return obj.getObject(ci);
+	ci=getCipher(spec);
+        ci.init(Cipher.DECRYPT_MODE, key);
+        Object o = obj.getObject(ci);
+        returnCipher(spec,ci);
+        return o;
       }
       catch (Exception e) {
 	// That's OK. Maybe there is an old certificate which is not
@@ -245,9 +273,11 @@ public class CryptoManagerServiceImpl
   throws GeneralSecurityException, IOException {
     /*create the cipher and init it with the secret key*/
     Cipher ci;
-    ci=Cipher.getInstance(spec);
+    ci=getCipher(spec);
     ci.init(Cipher.ENCRYPT_MODE,sk);
-    return new SealedObject(obj,ci);
+    SealedObject so = new SealedObject(obj,ci);
+    returnCipher(spec,ci);
+    return so;
   }
 
   public Object symmDecrypt(SecretKey sk, SealedObject obj){
@@ -259,8 +289,13 @@ public class CryptoManagerServiceImpl
       return o;
     }
 
+    String alg = obj.getAlgorithm();
     try{
-      return obj.getObject(sk);
+      Cipher ci = getCipher(alg);
+      ci.init(Cipher.DECRYPT_MODE, sk);
+      o = obj.getObject(ci);
+      returnCipher(alg,ci);
+      return o;
     }
     catch(NullPointerException nullexp){
       boolean loop = true;
@@ -270,15 +305,18 @@ public class CryptoManagerServiceImpl
       while(loop){
       	try{
       	  Thread.sleep(200);
-      	  o = obj.getObject(sk);
-      	  if (log.isDebugEnabled()) {
-      	    log.debug("Workaround to Cougaar core bug. Succeeded");
+          Cipher ci = getCipher(alg);
+          ci.init(Cipher.DECRYPT_MODE, sk);
+          o = obj.getObject(ci);
+          returnCipher(alg,ci);
+      	  if (log.isWarnEnabled()) {
+      	    log.warn("Workaround to Cougaar core bug. Succeeded");
       	  }
       	  return o;
       	}
       	catch(NullPointerException null1exp){
-      	  if (log.isDebugEnabled()) {
-      	    log.debug("Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
+      	  if (log.isWarnEnabled()) {
+      	    log.warn("Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
       	  }
       	  continue;
       	}
