@@ -1,4 +1,5 @@
 require "security/lib/cougaarMods"
+require 'security/lib/getStackTrace'
 
 def getRegisteredAgents
   nameServers = run.society.name_servers
@@ -35,34 +36,38 @@ def getMissingAgents
   getExpectedAgents - getRegisteredAgents
 end
 
-def testAgentRegistrations(interval = 2.minutes, delay = 2.minutes)
+def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
 #  puts "********************************************** testing agent fork"
   Thread.fork {
+    begin
 #    puts "running test agents"
-    sleep delay
-    expected = getExpectedAgents
+      sleep delay
+      expected = getExpectedAgents
 #    puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 #    puts "Expected Agents"
 #    puts expected.join("\n")
 #    puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-    loop = true
-    while (loop)
-      registered = getRegisteredAgents
-      missing = expected - registered
+      loop = true
+      while (loop)
+        registered = getRegisteredAgents
+        missing = expected - registered
 #      puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 #      puts "Missing Agents"
 #      puts missing.join("\n")
 #      puts "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-      if block_given?
-        yield(missing, expected)
+        if block_given?
+          yield(missing, expected)
 #      else
 #        puts "#{Time.now} Agents missing: #{missing.length}"
+        end
+        if (missing.empty?)
+          loop = false
+        else
+          sleep interval
+        end
       end
-      if (missing.empty?)
-        loop = false
-      else
-        sleep interval
-      end
+    rescue => e
+      saveAssertion "wp_registration", "Unable to check WP: #{e} #{e.backtrace.join("\n")}"
     end
   }
 end
@@ -127,11 +132,12 @@ module Cougaar
     end # CorrectURLs
 
     class TestWPRegistration < Cougaar::Action
-      def initialize(run, interval = 2.minutes, delay = 1.minutes)
+      def initialize(run, interval = 5.minutes, delay = 5.minutes)
         super(run)
         @interval = interval
         @delay = delay
         Cougaar::Actions::Stressors.addStressIds(['wp_registration'])
+        @stackTrace = GetStackTrace.new(run)
       end #initialize
 
       def perform
@@ -151,10 +157,25 @@ module Cougaar
             saveAssertion("wp_registration", "Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
+            # Get stack trace of agents that have not registered
+            getStackTraceAgents(missing)
           end
           lastCheck = missing.length
         }
       end #perform
+
+     def getStackTraceAgents(agents)
+       # Create node list
+       nodes = []
+       agents.each { |agent|
+         nodes = nodes | [agent.node]
+       }
+       saveAssertion "wp_registration", "Nodes where agents are missing: #{nodes.join(" ")}"
+       nodes.each { |node|
+         @stackTrace.getStack(node.name)
+       }
+     end #getStackTraceAgents
+
     end # class TestWPRegistration
   end # module Actions
 end # module Cougaar
