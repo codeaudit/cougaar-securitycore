@@ -185,7 +185,7 @@ public class UserCertRequestDialog extends JDialog {
       return false;
     }
 
-    keyRing.checkOrMakeCert(userx500);
+    keyRing.checkOrMakeCert(userx500, false);
 
     if (!setKeyPassword(userx500, getPwd())) {
       JOptionPane.showMessageDialog(null, "User certificate not received, either request failed or pending.");
