@@ -278,7 +278,7 @@ public class CryptoManagerServiceImpl
    * a hyphen and key length. The provider can follow
    * the entire algorithm in parentheses. A complex
    * example is:<p>
-   * <tt>AES-192/CBC/WithCTS(BC)</tt>
+   * <tt>AES#192/CBC/WithCTS{BC}</tt>
    * <p>
    * The key length and provider are optional.
    *
