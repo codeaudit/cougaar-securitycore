@@ -58,6 +58,9 @@ import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.IDMEF_Process;
 import edu.jhuapl.idmef.AdditionalData;
 
+
+import org.cougaar.core.security.constants.IdmefClassifications;
+
 /**
  * This class must be placed in the Node ini file to allow
  * Tomcat to report login failures. This class reports the sensor
@@ -71,41 +74,15 @@ import edu.jhuapl.idmef.AdditionalData;
  * The communities that the capabilities are sent to are all the ones that
  * this sensor belongs to.
  */
-public class LoginFailureSensor extends ComponentPlugin {
-  private DomainService  _domainService;
+public class LoginFailureSensor extends SensorPlugin {
+  /* private DomainService  _domainService;
   private LoggingService _log;
+  */ 
   private String         _managerRole   = "SecurityMnRManager-Enclave";
-
+ 
+  private final  String[] CLASSIFICATIONS = {IdmefClassifications.LOGIN_FAILURE};
+  private SensorInfo  sensor=null;
   public LoginFailureSensor() {
-  }
-
-  /**
-   * Used by the binding utility through reflection to set my DomainService
-   */
-  public void setDomainService(DomainService aDomainService) {
-    _domainService = aDomainService;
-  }
-
-  /**
-   * Used by the binding utility through reflection to get my DomainService
-   */
-  public DomainService getDomainService() {
-    return _domainService;
-  }
-
-  public synchronized boolean setLoggingService() {
-    if (_log != null) {
-      return true;
-    }
-
-    ServiceBroker sb = getServiceBroker();
-    if (sb == null) {
-      return false;
-    }
-    
-    _log = (LoggingService) sb.
-      getService(this, LoggingService.class, null);
-    return (_log != null);
   }
 
   /**
@@ -117,17 +94,40 @@ public class LoginFailureSensor extends ComponentPlugin {
     }
     List l = (List) o;
     if (l.size() > 1) {
-      if (setLoggingService()) {
-        _log.warn("Unexpected number of parameters given. Expecting 1, got " + 
+      if (m_log.isWarnEnabled()) {
+        m_log.warn("Unexpected number of parameters given. Expecting 1, got " + 
                   l.size());
       }
     }
     if (l.size() > 0) {
       _managerRole = l.get(0).toString();
-      if (setLoggingService() && _log.isInfoEnabled()) {
-        _log.info("Setting Security Manager role to " + _managerRole);
+      if ( m_log.isInfoEnabled()) {
+        m_log.info("Setting Security Manager role to " + _managerRole);
       }
     }
+  }
+  
+  
+
+   protected SensorInfo getSensorInfo() {
+    if(sensor == null) {
+      sensor = new LFSensor();  
+    } 
+    return sensor;
+  }
+  
+  protected  String []getClassifications() {
+    return CLASSIFICATIONS;
+   
+  }
+
+  protected  boolean agentIsTarget() {
+    return true;
+  }
+  
+  protected  boolean agentIsSource() {
+    return false;
+    
   }
 
   /**
@@ -135,7 +135,12 @@ public class LoginFailureSensor extends ComponentPlugin {
    * login failures can be reported with the IDMEF service.
    */
   protected void setupSubscriptions() {
+
+    super.setupSubscriptions();
+
     SensorInfo           sensor       = new LFSensor();
+        
+    /*
     BlackboardService    bbs          = getBlackboardService();
     DomainService        ds           = getDomainService(); 
     CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
@@ -213,8 +218,8 @@ public class LoginFailureSensor extends ComponentPlugin {
         AttributeBasedAddress messageAddress = 
           new AttributeBasedAddress(community, "Role", _managerRole);
         CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
-        if (_log.isInfoEnabled()) {
-          _log.info("Sending sensor capabilities to community '" + 
+        if (m_log.isInfoEnabled()) {
+          m_log.info("Sending sensor capabilities to community '" + 
                     community + "'");
         }
         bbs.publishAdd(relay);
@@ -222,10 +227,14 @@ public class LoginFailureSensor extends ComponentPlugin {
       }
     }
     if (!addedOne) {
-      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
+      m_log.warn("This agent does not belong to any community. Login failures won't be reported.");
     }
-    KeyRingJNDIRealm.initAlert(idmefFactory, cmrFactory, bbs, sensor);
-  }  
+    */
+    KeyRingJNDIRealm.initAlert(m_idmefFactory,m_cmrFactory, m_blackboard, getSensorInfo());
+  } 
+
+  
+  
 
   /**
    * Dummy function doesn't do anything. No subscriptions are made.
