@@ -538,13 +538,60 @@ class CommPolicy
     @run.society.each_agent(true) do |agent|
       superior = agent.name
       debug "superior = #{superior}"
-      subordinates = directlyReporting(superior)
+      subordinates = directlyReportingAll(superior)
       debug "subordinates = #{subordinates.join(',')}"
       permit([ superior ], subordinates)
       permit(subordinates, [ superior ])
     end
   end
 
+  def allowSuperiorSubordinateLinear()
+    banner("Allow Superior/Subordinate")
+    levelSets = calculateLevelSets
+    i = 0
+    while (i < levelSets.size - 1) do
+      permit(levelSets[i], levelSets[i+1])
+      permit(levelSets[i+1], levelSets[i])
+    end  
+  end
+
+  def calculateLevelSets(levelSets = [["OSD.GOV"]])
+    last = levelSets.size - 1
+    debug "last entry = #{last}"
+    found = []
+    i = 0
+    while (i < last) do  # really! - I am not including the last one
+      found += levelSets[i]
+      i += 1
+    end
+    debug "found = [#{found.join(", ")}]"
+    newLevelSet = []
+    levelSets[last].each do |superior|
+      debug "looking at superior #{superior}"
+      if found.include?(superior) then
+        debug "found loop at #{superior}"
+      else 
+        directlyReportingAll(superior).each do |subordinate|
+          if ! newLevelSet.include? subordinate then
+            newLevelSet.push(subordinate)
+          end
+        end
+      end
+    end
+    debug "newLevelSet = [#{newLevelSet.join(", ")}]"
+    debug "empty = #{newLevelSet.empty?}"
+    if ! newLevelSet.empty? then
+      levelSets += [ newLevelSet ]
+      levelSets = calculateLevelSets(levelSets)
+    end
+    levelSets
+  end
+
+  def directlyReportingAll(superior)
+    directlyReporting(superior) + 
+      directlyReportingAdministrative(superior) +
+      directlyReportingSupport(superior)
+  end
 
   def directlyReporting(superior)
     subordinates = []
@@ -563,9 +610,15 @@ class CommPolicy
         end
       end
     end
+    return subordinates
+  end
+
+  def directlyReportingAdministrative(superior)
+    subordinates = []
     mysqlsubs = @mysql.query("select supporting_org_id " +
                              "from org_relation " +
-                        "where supported_org_id = \'#{superior}\'")
+                        "where supported_org_id = \'#{superior}\' " +
+                        "and role = \'AdministrativeSubordinate\'")
     mysqlsubs.each do |row|
       if !subordinates.include?(row[0]) then
         debug "#{row[0]} reports to #{superior} (mysql)"
@@ -575,6 +628,43 @@ class CommPolicy
     return subordinates
   end
 
+  def directlyReportingSupport(superior)
+    subordinates = []
+    mysqlsubs = @mysql.query("select supporting_org_id " +
+                             "from org_relation " +
+                        "where supported_org_id = \'#{superior}\' " +
+                        "and role = \'SupportSubordinate\'")
+    mysqlsubs.each do |row|
+      if !subordinates.include?(row[0]) then
+        debug "#{row[0]} reports to #{superior} (mysql)"
+        subordinates.push(row[0])
+      end
+    end
+    return subordinates
+  end
+
+#
+# Some relevant queries:
+#
+=begin
+
+select x.supported_org_id from org_relation as x
+  where x.role = 'AdministrativeSubordinate'
+   and not exists (select * from org_relation as y
+                      where y.supporting_org_id = x.supported_org_id);
+
+select x.supported_org_id from org_relation as x
+  where x.role = 'SupportSubordinate'
+   and not exists (select * from org_relation as y
+                      where y.supporting_org_id = x.supported_org_id);
+
+
+select distinct role from org_relation;
+
+=end
+
+
+
 
 #==========================================================================
 # Agents can talk to service providers
@@ -582,7 +672,7 @@ class CommPolicy
 
   def allowServiceProviders
     requires = getRequiresMap
-    provides = getProvidesMap
+    provides = getProvidesMap(requires.keys)
     requires.each_key do |providerType|
       debug "working on #{providerType}"
       clients = requires[providerType]
@@ -607,7 +697,8 @@ class CommPolicy
         if (component.classname == sdclientplugin) then
           debug "#{agent.name} uses the plugin"
           component.each_argument do |arg|
-            providerType = arg.value
+            providerType = stripProviderTypeSuffix(arg.value)
+
             debug "#{agent.name} needs \'#{providerType}\'"
             if (requiresMap[providerType] == nil) then
               requiresMap[providerType] = []
@@ -622,45 +713,30 @@ class CommPolicy
     requiresMap
   end
 
-  def getProvidesMap()
+  def getProvidesMap(providerTypes)
     @agentInputs = "#{CIP}/servicediscovery/data/serviceprofiles/agent-input.txt"
     providesMap = Hash.new()
-    agentSubstring = nil
-    File.open(@agentInputs).each_line do |line|
-      debug "reading #{line}"
-      m = nil
-      if agentSubstring != nil &&
-         (m = /roleName *= *([^ ,]*),/.match(line)) != nil then
-        provider = m[1]
-        debug "#{agentSubstring} -> #{provider}"
-        @run.society.each_agent do |agent|
-          if agent.name.include?(agentSubstring) then
-            if providesMap[provider] == nil then
-              providesMap[provider] = []
-            end
-            providesMap[provider].push(agent.name)
-            debug "added #{agent.name} provides #{provider}"
-          end
-        end
-      elsif (m = (/agentName *= *([^ ]*)$/.match(line))) != nil then
-        agentSubstring = m[1]
-        agentSubstring.chop!
-        debug "found agent = #{agentSubstring}"
-      end
-    end
-    providesMap.each_key do |providerType|
+    # revision 1.1 uses the agent-input.txt file.
+    providerTypes.each do |providerType|
       @run.society.each_agent do |agent|
-        if providesMap[providerType].include?(agent.name) then
-          next
+        if providesMap[providerType] == nil then
+          providesMap[providerType] = []
         end
         agent.each_facet do |facet|
-          if facet[:role] == providerType then
+          if facet[:role] != nil &&
+             stripProviderTypeSuffix(facet[:role]) == providerType then
             providesMap[providerType].push(agent.name)
           end
         end
       end
     end
     providesMap
+  end
+
+  def stripProviderTypeSuffix(providerType)
+    # strip off the trailing ":number" if it is there
+    m = /^([^:]*)(:[0-9]*|)/.match(providerType)
+    return m[1]
   end
 
 #==========================================================================
