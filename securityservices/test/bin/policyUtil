@@ -29,6 +29,8 @@ DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
 DEFS="${DEFS} -Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/common/loggingConfig.conf"
 #DEFS="${DEFS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=9999"
 
-
+LOG="-Dlog4j.configuration=${COUGAAR_INSTALL_PATH}/configs/common/loggingConfig.conf"
+LOG="${LOG} -Dlog4j.rootCategory=WARN,SECURITY"
+LOG="${LOG} -log4j.appender.SECURITY=org.apache.log4j.ConsoleAppender"
 java $DEFS -classpath $CP org.cougaar.core.security.policy.builder.Main $*
 
