@@ -45,7 +45,7 @@
 .
 .
 .
-1f. End the society tag:
+1e. End the society tag:
 <society>
 
 
@@ -61,11 +61,13 @@
    certificate chain of 1 or more certificates which should lead to a self-
    signed certificate. 
 
-4. Import the signed certificates into the keystores. 
+4. Import the signed certificates into the keystores. This will only import the
+   the public and private keys for the local node and agents.
 
 ./run-genkey ul-mini-config-cert.xml -importsigned
 
-5. Import all public keys into each keystore.
+5. Import all public keys into each keystore. This adds all the remaining
+   public key certificates.
 
 ./run-genkey ul-mini-config-cert.xml -importpub
 
