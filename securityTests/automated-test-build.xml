@@ -165,7 +165,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd $CIP ; tcsh install_stage2.tcsh"
+	command="cd $CIP/.. ; tcsh install_stage2.tcsh"
         timeout="1200000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 

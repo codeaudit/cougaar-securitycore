@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-set zipFilename = $1
+set zipFileName = cougaar-test.zip
 
 set cipDirPrefix = ~/UL/cougaar
 
@@ -8,7 +8,8 @@ set cdir = `mktemp -d ${cipDirPrefix}.XXXX`
 
 # Stage 2: unzip files
 cd ${CIP}
-unzip -q ${zipFileName}
+echo "Unzipping ${zipFileName}"
+unzip -q -o ${zipFileName}
 
 foreach f (cou*.zip)
   echo "Unzipping $f"
@@ -20,7 +21,7 @@ foreach f (acme*.zip)
   unzip -q -o $f
 end
 
-foreach f (*.tar)
+foreach f (*.tar.gz)
   echo "Untar $f"
   tar xfz $f
 end
