@@ -64,16 +64,25 @@ public class CAClient {
       if (debug) {
 	System.out.println("Sending PKCS10 request to " + policy.CA_URL);
 	System.out.println("DN= " + policy.CA_DN);
-	System.out.println("= " + policy.CA_DN);
       }
       URL url = new URL(policy.CA_URL);
       HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+      // Let the system know that we want to do output
       huc.setDoOutput(true);
+      // Let the system know that we want to do input
+      huc.setDoInput(true);
+      // No caching, we want the real thing
+      huc.setUseCaches(false);
+      // Specify the content type
+      huc.setRequestProperty("Content-Type",
+			     "application/x-www-form-urlencoded");
       huc.setRequestMethod("POST");
       PrintWriter out = new PrintWriter(huc.getOutputStream());
-      out.println("pkcs=" + URLEncoder.encode(pkcs));
-      out.println("dnname=" + URLEncoder.encode(policy.CA_DN));
-      out.println("pkcsdata=" + URLEncoder.encode(request));
+      String content = "pkcs=" + URLEncoder.encode(pkcs);
+      content = content + "&dnname=" + URLEncoder.encode(policy.CA_DN);
+      content = content + "&pkcsdata=" + URLEncoder.encode(request);
+      out.println(content);
+      out.flush();
       out.close();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(huc.getInputStream()));
