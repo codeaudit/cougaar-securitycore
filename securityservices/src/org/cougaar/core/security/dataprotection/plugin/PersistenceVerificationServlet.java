@@ -78,10 +78,10 @@ public class PersistenceVerificationServlet
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");
     out.println("<head>");
-    out.println("<title>Certificate List from Ldap </title>");
+    out.println("<title>Persistence Status </title>");
     out.println("</head>");
     out.println("<body>");
-    out.println("<H2>Certificate List</H2>");
+    out.println("<H2>Persistence Status </H2>");
 
     StringBuffer sb=new StringBuffer();
 
@@ -108,13 +108,12 @@ public class PersistenceVerificationServlet
     sb.append("<TR><TH> Timestamp </TH><TH> Agent </TH><TH> Status </TH></TR>\n");
     for (Enumeration en = h.elements(); en.hasMoreElements(); ) {
       List statusList = (List)en.nextElement();
-      sb.append("<TR><TD>\n");
       for (int i = 0; i < statusList.size(); i++) {
         DataProtectionStatus status = (DataProtectionStatus)
           statusList.get(i);
-        sb.append("<TD>"+status.timestamp+"</TD>\n" );
-        sb.append("<TD>"+status.agent+"</TD>\n" );
-        sb.append("<TD>"+status.status+"</TD></TR>\n");
+        sb.append("<TR><TD>"+status.timestamp+"</TD>" );
+        sb.append("<TD>"+status.agent+"</TD>" );
+        sb.append("<TD>"+status.status+"</TD></TR>");
       }
     }
     sb.append("</table>");
