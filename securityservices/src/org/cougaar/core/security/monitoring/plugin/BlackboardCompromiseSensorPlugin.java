@@ -153,6 +153,7 @@ public class BlackboardCompromiseSensorPlugin extends SensorPlugin {
      * DOCUMENT ME!
      */
     public void execute() {
+      super.execute();
         if (logging.isDebugEnabled()) {
             logging.debug(pluginName + " is executing");
         }
