@@ -237,6 +237,11 @@ final public class IdmefMessageFactory {
                                  addressList );    // get the node info from the LDMServesPlugin ( name and address )
             agentName = m_agentId.toString();
             agentAddress = createAddress( m_agentId.getAddress(), null, Address.URL_ADDR );
+	    String username=System.getProperty( "user.name" );
+	    UserId userid=createUserId(username);
+	    List useridlist=new ArrayList();
+	    useridlist.add(userid);
+	    m_user=createUser(useridlist);
         }
         
     m_agent = createAgent( agentName,
@@ -549,14 +554,85 @@ final public class IdmefMessageFactory {
     return new RegistrationAlert();
   }
   
-   public RegistrationAlert createRegistrationAlert( Analyzer analyzer,
-		     Source []sources,
-		     Target []targets,
-		     Classification []capabilities,
-		     AdditionalData []data,
-		     String ident,int operationtype,String type, String agentName){
-     return  new RegistrationAlert(analyzer,sources,targets,capabilities,data,ident,operationtype,type,agentName);
-   }
+  public RegistrationAlert createRegistrationAlert( Analyzer analyzer,
+						    List sourceList,
+						    List targetList,
+						    List classificationList,
+						    List additionaldataList,
+						    int operationtype,String type, String agentName){
+    Classification [] classification=null;
+    Source [] sources=null;
+    Target [] targets=null;
+    AdditionalData [] additionaldata=null;
+    if(sourceList!=null)
+      sources = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+
+    if(targetList!=null) 
+       targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+    
+    if( classificationList != null )
+      classification = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+    
+    if(additionaldataList!=null) {
+      
+       AdditionalData [] tempdata=( AdditionalData [] )additionaldataList.toArray( ( new AdditionalData[ 0 ] ) );
+       additionaldata = new AdditionalData[tempdata.length+1];
+       additionaldata[0]= createAdditionalData( AdditionalData.STRING, 
+						"cougaar-alert-type", 
+						type ) ;
+       System.arraycopy(tempdata,0,additionaldata,1,tempdata.length);
+      
+    }
+    else {
+      additionaldata=new AdditionalData[1];
+      additionaldata[0]= createAdditionalData( AdditionalData.STRING, 
+					       "cougaar-alert-type", 
+					       type ) ;
+    }
+    return  new RegistrationAlert(analyzer,sources,targets,classification,additionaldata,createUniqueId(),operationtype,type,agentName);
+  }
+  
+  public RegistrationAlert createRegistrationAlert( Object sensor ,
+						    List sourceList,
+						    List targetList,
+						    List classificationList,
+						    List additionaldataList,
+						    int operationtype,String type, String agentName){
+    Classification [] classification=null;
+    Source [] sources=null;
+    Target [] targets=null;
+    AdditionalData [] additionaldata=null;
+    if( sensor instanceof SensorInfo ){ 
+      if(sourceList!=null)
+	sources = ( Source [] )sourceList.toArray( ( new Source[ 0 ] ) );
+      
+      if(targetList!=null) 
+	targets = ( Target [] )targetList.toArray( ( new Target[ 0 ] ) );
+      
+      if( classificationList != null )
+	classification = ( Classification [] )classificationList.toArray( ( new Classification[ 0 ] ) );
+      
+      if(additionaldataList!=null) {
+	AdditionalData [] tempdata=( AdditionalData [] )additionaldataList.toArray( ( new AdditionalData[ 0 ] ) );
+	additionaldata = new AdditionalData[tempdata.length+1];
+	additionaldata[0]= createAdditionalData( AdditionalData.STRING, 
+						 "cougaar-alert-type", 
+						 type ) ;
+	System.arraycopy(tempdata,0,additionaldata,1,tempdata.length);
+	
+      }
+      else {
+	additionaldata=new AdditionalData[1];
+	additionaldata[0]= createAdditionalData( AdditionalData.STRING, 
+						 "cougaar-alert-type", 
+						 type ) ;
+      }
+      return  new RegistrationAlert( createAnalyzer( sensor ),sources,targets,classification,additionaldata,createUniqueId(),operationtype,type,agentName);
+    }
+    return new RegistrationAlert(); 
+  }
+  
+  
   /**
    * Factory method to create initial consolidated capabilities.
    *
@@ -1437,6 +1513,14 @@ final public class IdmefMessageFactory {
   public IDMEF_Node getNodeInfo(){
     return m_node;
   }
+  /** 
+   * Get the User name that this message factory is running under
+   *
+   * @return an User object
+   */
+  public User getUserInfo(){
+    return m_user;
+  }
   
   /**
    * Factory method to create a unique id from the UIDServer
@@ -1464,5 +1548,6 @@ final public class IdmefMessageFactory {
   private IDMEF_Process m_process;
   private IDMEF_Node m_node;
   private LDMServesPlugin m_ldm;
+  private User m_user;
     
 }
