@@ -201,10 +201,10 @@ class Security3c2 < SecurityStressFramework
         sleep(5.minutes)
         # Request new certificates for the node and agent
         begin
-          logInfoMsg "Requesting new cert for #{@revoked_node.agent.name}"
+          saveAssertion('Stress3c2', "Requesting new cert for #{@revoked_node.agent.name}")
           @certRevocation.requestNewCertificate(@revoked_node, @revoked_node.agent, "10 d")
           saveAssertion('Stress3c2', "Requested new cert for #{@revoked_node.name}")
-          logInfoMsg "Requesting new cert for #{@revoked_agent.name}"
+          saveAssertion('Stress3c2', "Requesting new cert for #{@revoked_agent.name}")
           @certRevocation.requestNewCertificate(@revoked_node, @revoked_agent, "10 d")
           saveAssertion('Stress3c2', "Requested new cert for #{@revoked_agent.name}")
         rescue => ex2

@@ -138,10 +138,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
         end
         if((totalWaitTime >= maxWaitTime) && (SecurityMop2_4.instance.getPerformDone == false))
           saveResult(false, "SecurityMop2.4", "Timeout tests incomplete") 
-          logInfoMsg "Save results for SecurityMop2.4 Done Result failed "
+          saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done Result failed ")
           return
         elsif (SecurityMop2_4.instance.getPerformDone == true)
-          logInfoMsg "Saving SecurityMop2.4 test  results"
+          saveAssertion("SecurityMop2.4", "Saving SecurityMop2.4 test  results")
           @score = SecurityMop2_4.instance.score4
           #puts " score is #{@score}"
           @raw = SecurityMop2_4.instance.raw4
@@ -161,7 +161,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
             success = true
           end
           saveResult(success, 'SecurityMop2.4',@summary)
-          logInfoMsg "Save results for SecurityMop2.4 Done"
+          saveAssertion("SecurityMop2.4", "Save results for SecurityMop2.4 Done")
         end
       rescue Exception => e
         puts "error in 2.4 calculate "

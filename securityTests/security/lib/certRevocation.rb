@@ -129,16 +129,16 @@ class CertRevocation
   #
   def requestNewCertificate(node, agent, timeString)
     
-    logInfoMsg "setCAExpirationAttrib #{node.name} #{agent.name} #{timeString}"
+    saveAssertion("Stress5k104", "setCAExpirationAttrib #{node.name} #{agent.name} #{timeString}")
     setCAExpirationAttrib(agent, timeString)
     port = getParameter(node, /http.port/, nil)
     #url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
     url = "#{node.uri}/$#{node.name}/MakeCertificateServlet"
     puts "agent uri returned ---> #{agent.uri}"
     puts "node uri returned ---> #{node.uri}"
-    logInfoMsg "setCAExpirationAttrib #{url}"
+    saveAssertion("Stress5k104", "setCAExpirationAttrib #{url}")
     params = ["identifier=#{agent.name}"]
-    logInfoMsg "Invoking #{url} #{params}"
+    saveAssertion("Stress5k104", "Invoking #{url} #{params}")
     response = postHtml(url, params)
     raise "Failed to get new certificate. Error #{response.body.to_s}" unless response.body.to_s =~ /Success/
     

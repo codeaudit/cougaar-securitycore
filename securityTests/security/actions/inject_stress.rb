@@ -105,7 +105,7 @@ module Cougaar
 	if @stressor == nil
 	  return
 	end
-	logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
+	#logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
 	t1 = Time.now
 	begin
 	  @aMethod.call()
