@@ -1,14 +1,63 @@
 This file contains instructions for building the NAI Labs security services 
-packages. The services are separated into two Java archives: bootstrap.jar and 
+packages.
+
+Organization of the release
+===========================
+The services are separated into two Java archives: bootstrap.jar and 
 securityservices.jar. The bootstrap.jar archive contains classes necessary to
 initialize a security enhanced Ultra*Log node. The remain packages for 
 cryptographic services, access control, and monitoring & response are compiled
 into the security services.jar file.
 
+Directory structure
+===================
+The securityservices module has the following directory structure:
+	* top-level directory - contains a Makefile used to build the security
+      services
+
+      * src	- contains the source code for the security services
+
+      * sys - contains the additional jar files required for security and
+      KAoS policy integration. These jar files should be copied into the
+      $COUGAAR_INSTALL_PATH directory before running a society.
+
+	* test/bin - additional scripts to build and run a society:
+         signJars: signing all jar files in the lib and sys directories,
+         myalpc: compile source code,
+         SecureNode: run a security-enhanced Cougaar society,
+         myrmic: compile RMI stubs
+
+	* test/configs/demo - to contain all the scripts for launching a sample
+      ul-mini-config
+
+	* test/configs/ul-mini-config - keystores, access control and crypto
+      policies for ul-mini-config, and java (permissions) policy files
+
+      * test/doc - documentation for the securityservices module
+
+Requirements
+============
+Running a security-enhanced Cougaar society requires:
+* Cougaar version 8.4.1.1
+* JDK or JRE version 1.3.1
+* Jar files dependencies:
+	* KAoS, which is used to propagate security policies, requires the following
+	  the jar files:
+	   - KAoS.jar
+	   - SAFE.jar
+	   - xml4j.jar (IBM's SAX Parser)
+      * jaas.jar: Java Authentication and Authorization Services
+      * cryptix-jce-api.jar: open-source cryptographic provider
+      * cryptix-jce-provider.jar: open-source cryptographic provider
+      * jce1_2-do.jar: a SUN JCE cryptographic provider
+      * postgresql.jar: a JDBC driver for Postgres database
+
+Compiling and building JAR files
+================================
 1. Set the CVSROOT to point to NAI Labs cvs module:
 
-export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
 setenv CVSROOT :ext:user@cvs.utralog.net:/cvs/nai # for tcsh or csh shell users
+export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
 
 2. Unpack the security services distribution and go to the top level of the 
    source code tree. From cvs type the following:
@@ -16,9 +65,14 @@ setenv CVSROOT :ext:user@cvs.utralog.net:/cvs/nai # for tcsh or csh shell users
 cvs co securityservices
 cd src
 
-3. Use the myalpc tool to compile all the Java source code. Several environment
-   variables will need to be set beforehandr. For the purposes of this example,
-   we aassume that CVS check outs are done at a users home directory. If they
+3. Copy the jar files under securityservices/sys into $COUGAAR_INSTALL_PATH/sys.
+
+4. Copy the configuration files under securityservices/sys/test/configs/common
+   into $COUGAAR_INSTALL_PATH/configs/common.
+
+5. Use the myalpc tool to compile all the Java source code. Several environment
+   variables will need to be set beforehand. For the purposes of this example,
+   we assume that CVS check outs are done at a users home directory. If they
    are performed at a different location, substitute that location for the '~':
 
 setenv COUGAAR_INSTALL_PATH ~/cougaar-8.4.1.1		# needed for alpc to run
@@ -35,19 +89,126 @@ export COUGAARCLASSES=~/securityservices/classes	# bytecode tree root
 setenv PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash shell users
 export PATH ${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for csh or tcsh users
 
-4. Use the myalpc script from the securityservices directory. 
+6. Use the myalpc script from the securityservices directory. 
 
 test/bin/myalpc src
 
 
-5. Now all the source code should be compiled under the $COUGAARCLASSES 
+7. Now all the source code should be compiled under the $COUGAARCLASSES 
    directory. Use make to build and sign the jar files. All class files are 
    expected in the $COUGAARCLASSES directory. The makefile automatically 
    signs the bootstrap.jar and securityservices.jar with the appropriate keys.
 
 make jar
 
-6. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
+   Note 1:
+   The makefile assumes there is a sigingCA_keystore file in the
+   $COUGAAR_INSTALL_PATH/configs/common directory.
+
+   Note 2:
+   The Cougaar distribution includes scripts (in the build/bin directory) that
+   are used to build jar files.
+   These scripts should be updated to include the process of signing jar files,
+   by applying the same steps that are performed in NAI's makefile.
+   All jar files, including third-party jar files should be signed.
+   This procedure requires a keystore that contains private keys used to sign
+   the jar files. In an operational environment, these keys should be kept
+   private. However, to simplify the development process, the keystore can be
+   made publicly available (e.g. in the Cougaar distribution) to allow developers
+   to re-compile Cougaar if they need to. In an operational environment,
+   new keystores would be used instead.
+
+8. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
    directory. 
 
 make install
+
+
+Configuration data
+==================
+* configs/common/BootPolicy.ldm.xml - contains the boostrap policy for the
+  cryptographic and access control service. This policy is used to set a
+  default policy used to communicate with the KAoS domain manager.
+* KAoS policy - once a security-enhanced node has been boostrapped, the
+  guard communicates with its domain manager to retrieve the latest
+  security policies. The guard communicates using Cougaar messages that
+  are secured according to the boostrapping policy.
+* configs/ul-mini-config/keystore files - each security-enhanced node
+  requires a keystore file that contain a set of private/public key pairs
+  for the node and each agent running on the node. The keystore file may
+  also contain public keys for other agents in the society, although this
+  is not required. A node may use a certificate directory service to get
+  public keys for other agents in the society.
+* configs/common/bootstrap_keystore - contains public keys of Certificate
+  Authorities that are trusted to sign jar files.
+* configs/common/SigingCA_keystore - contains public/private key pairs
+  of Certificate Authorities that are trusted to sign jar files.
+* configs/common/Cougaar_Java.policy
+  Java policy files - a security enhanced node runs in a restricted
+  environment. By default, the Java policy is set in the Cougaar_Java.policy
+  file. The SecureNode script defines which Java policy file is used.
+  Another Java policy file is provided (CougaarAllPermissions.policy), which
+  grants all permissions. This file should only be used for testing
+  purposes.
+* configs/common/cryptoProviders.xml - this file defines the set of available
+  cryptographic providers.
+* configs/common/default.psps.xml - this file should be modified to include
+  PSPs that are required to run KAoS (see Boeing/IHMC documentation for
+  more details).
+* configs/common/Policy.ldm.dtd - a more up-to-date DTD file for policy files.
+
+Logging
+=======
+Data should be logged to directories that contain only logging data.
+It is a bad idea to log data to directories that contain other data, such
+as configuration data. A component could accidentaly or maliciously overwrite
+configuration data.
+It is suggested that a $COUGAAR_INSTALL_PATH/log directory should be
+created. Several sub-directories should be created to log data for services
+that have different privileges:
+* log/bootstrap - only the bootstrapper has the privileges to write to this
+  directory.
+* log/core - only the core infrastructure services have the privileges to
+  write to this directory.
+* log/plugins - PlugIns may log data to this directory.
+
+Running a society
+=================
+A security-enhanced node is executed by using the following script:
+
+	test/bin/SecureNode <options>
+
+where <options> are the same command-line arguments as for the Node script.
+This script sets environment variables specific to the security services
+and executes the boostrapper, which launches the node.
+
+Java properties
+===============
+Below  is the list of system properties used by the access control,
+cryptographic and Monitoring & Response services, and their default value:
+
+org.cougaar.message.transport.debug  ---> default is true
+our.cougaar.core.security.LogMessages ---> default is false
+LOG_PROPERTY ---> default is MTSlog.
+org.cougaar.core.security.access.Debug ---> default is true
+org.cougaar.core.security.bootstrapper.loud ---> default value is false
+     (it can be set to true,false, shout)
+org.cougaar.bootstrapper.exclusions
+org.cougaar.core.security.bootstrapper.policydebug
+org.cougaar.core.security.useSecurityManager ---> default value is true
+org.cougaar.properties.url
+org.cougaar.install.path
+org.cougaar.core.security.useAuthenticatedLoader ---> default value is true
+org.cougaar.core.security.bootstrap.JarVerificationLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/JarVerification_+[nodename]+_currenttime.log
+org.cougaar.core.security.bootstrap.keystore ---> default is null
+    (It is required to set through node script in order to run bootstrap in our case it is set to cougaar_installpath/configs/common/.bootstrap_keystore )
+org.cougaar.core.security.bootstrap.verifyKeyUsage ---> default value
+     is false (used for verifying jar signing capability)
+org.cougaar.core.security.bootstrap.SecurityManagerLogFile ---> default value is set to (cougaar_installpath/log/bootstrap/SecurityManager_+[nodename]+_currenttime.log
+org.cougaar.core.security.jaasDebug ---> default value is false
+org.cougaar.core.security.crypto.debug ---> default value is false
+org.cougaar.core.security.policy.debug ---> default is false
+org.cougaar.core.security.crypto.debug ----> default is false
+org.cougaar.core.security.crypto.cryptoProvidersFile ---> default value is "cryptoProviders.xml"
+org.cougaar.security.ldapserver ---> default value is  "ldap://localhost"
+com.nai.security.monitoringdebug ---> default value is false
