@@ -193,8 +193,10 @@ public class CertificateValidityMonitor
         log.debug("CertRequestor Thread running ******************");
       }
 
-      synchronized (_certRequests) {
-        for (Iterator it = _certRequests.values().iterator(); it.hasNext(); ) {
+      List requests = new ArrayList();
+      requests.addAll(_certRequests.values());
+    
+        for (Iterator it = requests.iterator(); it.hasNext(); ) {
           CertRequestInfo info = (CertRequestInfo)it.next();
           if (log.isDebugEnabled()) {
             log.debug("processing " + info.m_dname);
@@ -207,7 +209,7 @@ public class CertificateValidityMonitor
             }
 
             keyRing.updateNS(info.m_dname);
-            it.remove();
+            _certRequests.remove(info.m_dname.toString());
           }
           else {
             // if fail to get certificate, it is probably because CA is busy
@@ -216,7 +218,6 @@ public class CertificateValidityMonitor
             break;
           }
         }
-      }
     }
   }
 
