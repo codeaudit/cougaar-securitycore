@@ -8,10 +8,21 @@ import org.cougaar.core.util.UniqueObject;
 
 public class DataProtectionKeyContainer implements UniqueObject{
 	private UID uid = null;
-	private Collection keyCollection;
+        private byte[] key;
 	private String agentName;
 	private long timestamp;
 	
+        public DataProtectionKeyContainer(String agent, 
+          byte[] bytes, long timestamp) {
+          agentName = agent;
+          key = bytes;
+          this.timestamp = timestamp;
+        }
+
+        public void setUID(UID uid) {
+          this.uid = uid;
+        }
+
 	/**
 	 * @return
 	 */
@@ -20,24 +31,10 @@ public class DataProtectionKeyContainer implements UniqueObject{
 	}
 
 	/**
-	 * @param agentName
-	 */
-	public void setAgentName(String agentName) {
-		this.agentName = agentName;
-	}
-
-	/**
 	 * @return
 	 */
-	public Collection getKeyCollection() {
-		return keyCollection;
-	}
-
-	/**
-	 * @param key
-	 */
-	public void setKeyCollection(Collection _key) {
-		this.keyCollection = _key;
+	public byte[] getKey() {
+		return key;
 	}
 
 	/**
@@ -56,14 +53,6 @@ public class DataProtectionKeyContainer implements UniqueObject{
 
 	public UID getUID() {
 		return uid;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.cougaar.core.util.UniqueObject#setUID(org.cougaar.core.util.UID)
-	 */
-	public void setUID(UID id) {
-		uid = id;
-		
 	}
 
 }
