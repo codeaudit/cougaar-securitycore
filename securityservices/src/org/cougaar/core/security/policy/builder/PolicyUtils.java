@@ -75,9 +75,12 @@ public class PolicyUtils
         getBasePropertyRangeClass(kaos.ontology.jena.ActionConcepts.
                                   _performedBy_);
     } else {
+      //      subjectClass = controls.
+      //  getCurrentPropertyRangeClass(kaos.ontology.jena.ActionConcepts.
+      //                                     _performedBy_);
       subjectClass = controls.
         getPropertyRangeInstance(kaos.ontology.jena.ActionConcepts.
-                                     _performedBy_)[0];
+                                 _performedBy_)[0];
     } 
     SubjectMsg subject = new SubjectMsg(subjectClass, 
                                         null, 
@@ -210,18 +213,20 @@ public class PolicyUtils
    * This routine is called by the domain manager in a running society
    * and in the standalone tools to get the right ontologies forthe
    * policies.
+   *
+   * This should probably be changed so that it uses the PolicyBootstrapper 
+   * service rather than a static variable.  This will work because the first
+   * version of autoGenerateGroups is only called from the domain manager in 
+   * safe (where a service broker can presumably be found).  The second version
+   * is called from a standalone setting where no services are available, but
+   * in that case the declarations have already been found.
    */
 
   public static void autoGenerateGroups(KAoSDirectoryService kds)
     throws Exception
   {
-    ConfigFinder cf = ConfigFinder.getInstance();
-    InputStream damlPoliciesFile = null;
-    damlPoliciesFile = cf.open(PolicyBootstrapper._damlBootPolicies);
-    PolicyLexer lexer = new PolicyLexer(damlPoliciesFile);
-    PolicyParser parser = new PolicyParser(lexer);
-
-    autoGenerateGroups(kds, parser.policyFile().declarations());
+    ParsedPolicyFile ppf = PolicyBootstrapper.getParsedPolicyFile();
+    autoGenerateGroups(kds, ppf.declarations());
   }
 
   public static void autoGenerateGroups(KAoSDirectoryService kds, 
