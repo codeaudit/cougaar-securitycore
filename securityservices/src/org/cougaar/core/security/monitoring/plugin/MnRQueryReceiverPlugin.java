@@ -595,6 +595,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         if (loggingService.isDebugEnabled()) {
           loggingService.debug("REMOVING Relay COULD not find mapping for Relay :"+outstandingquery.getUID()); 
         }
+        
       }
     }// end of For loop
   }
