@@ -45,7 +45,7 @@ import org.cougaar.core.service.identity.*;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
-import org.cougaar.core.security.crypto.CertificateUtility;
+import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceFactory;
 import org.cougaar.core.security.crypto.ldap.LdapEntry;
@@ -111,7 +111,8 @@ public class CreateCaKeyServlet
       + ", o=" + caO
       + ", l=" + caL
       + ", st=" + caST
-      + ", c=" + caC;
+      + ", c=" + caC
+      + ", t=" + DirectoryKeyStore.CERT_TITLE_CA;
     if (log.isDebugEnabled()) {
       log.debug("Creating CA key for: " + caDN);
     }
