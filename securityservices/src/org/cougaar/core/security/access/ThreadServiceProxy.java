@@ -42,12 +42,14 @@ class ThreadServiceProxy extends SecureServiceProxy
     _requestor = requestor;
   }
   public Schedulable getThread(Object consumer, Runnable runnable) {
-    return new SecureSchedulable(_ts.getThread(consumer, runnable), 
+    Runnable sr = new SecureRunnable(runnable, _scs.getExecutionContext());
+    return new SecureSchedulable(_ts.getThread(consumer, sr), 
                                  _scs.getExecutionContext());
   }
             
   public Schedulable getThread(Object consumer, Runnable runnable, String name) {
-    return new SecureSchedulable(_ts.getThread(consumer, runnable, name), 
+    Runnable sr = new SecureRunnable(runnable, _scs.getExecutionContext());
+    return new SecureSchedulable(_ts.getThread(consumer, sr, name), 
                                  _scs.getExecutionContext());
   }
   
@@ -130,4 +132,18 @@ class ThreadServiceProxy extends SecureServiceProxy
       return retval; 
     }
   }// end class SecureTimerTask
+  
+  class SecureRunnable implements Runnable {
+    Runnable _r;
+    ExecutionContext _ec;
+    SecureRunnable(Runnable r, ExecutionContext ec) {
+      _r = r;
+      _ec = ec;
+    } 
+    public void run() {
+      _scs.setExecutionContext(_ec);
+      _r.run();
+      _scs.resetExecutionContext();
+    }
+  }// end class SecureRunnable
 }
