@@ -62,7 +62,7 @@ public class AccessControlPolicy extends SecurityPolicy {
   public Object getAgentAction(String key){
     Object o = agtActions.get(key);
     //try community policy if null
-    if(o==null && commService!=null){
+/*    if(o==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -75,7 +75,7 @@ public class AccessControlPolicy extends SecurityPolicy {
         }
       }
     }
-    if(o==null) o=agtActions.get("DEFAULT");
+*/    if(o==null) o=agtActions.get("DEFAULT");
     return o;
   }
   public void setAgentAction(String key, Object value){
@@ -96,7 +96,7 @@ public class AccessControlPolicy extends SecurityPolicy {
   public Object getIntegrity(String key){
     Object o = integrity.get(key);
     //try community policy if null
-    if(o==null && commService!=null){
+/*    if(o==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -109,7 +109,7 @@ public class AccessControlPolicy extends SecurityPolicy {
         }
       }
     }
-    if(o==null) o=integrity.get("DEFAULT");
+*/    if(o==null) o=integrity.get("DEFAULT");
     return o;
   }
   public void setIntegrity(String key, Object value){
@@ -121,7 +121,7 @@ public class AccessControlPolicy extends SecurityPolicy {
   public Object getVerbs(String key){
     Object o = verbs.get(key);
     //try community policy if null
-    if(o==null && commService!=null){
+/*    if(o==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -134,7 +134,7 @@ public class AccessControlPolicy extends SecurityPolicy {
         }
       }
     }
-    if(o==null) o=verbs.get("DEFAULT");
+*/    if(o==null) o=verbs.get("DEFAULT");
     return o;
   }
   public void setVerbs(String key, Object value){
@@ -146,7 +146,7 @@ public class AccessControlPolicy extends SecurityPolicy {
   public Object getCriticality(String key){
     Object o = criticality.get(key);
     //try community policy if null
-    if(o==null && commService!=null){
+/*    if(o==null && commService!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commService.listParentCommunities(key);
       if(c!=null){
@@ -159,7 +159,7 @@ public class AccessControlPolicy extends SecurityPolicy {
         }
       }
     }
-    if(o==null) o=criticality.get("DEFAULT");
+*/   if(o==null) o=criticality.get("DEFAULT");
     return o;
   }
   public void setCriticality(String key, Object value){
