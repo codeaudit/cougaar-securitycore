@@ -153,14 +153,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     SecureMethodParam headerPolicy = header.getPolicy();
     if (!isReply) {
       // check the policy
-      boolean ignoreSignature = 
-        ignoreSignature(encryptedSocket);
-      boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
+      boolean ignoreSignature = ignoreSignature(encryptedSocket);
+      int policyValidity = _cps.isReceivePolicyValid(_source, _target,
                                                      headerPolicy,
                                                      encryptedSocket,
                                                      ignoreSignature);
 
-      if (!goodPolicy) {
+      if (policyValidity != CryptoPolicyService.CRYPTO_POLICY_VALID) {
         if (_log.isDebugEnabled()) {
           _log.debug("Policy mismatch for message from " + _source + 
                      " to " + _target + " for policy " + headerPolicy);
@@ -171,7 +170,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
             (!alreadyToldToStartSigning() || resendProtectionLevelAnyway())) {
           sendSignatureValid(false); // please send me the signature next time
         }
-        throw new IncorrectProtectionException(headerPolicy);
+        throw new IncorrectProtectionException(policyValidity);
       }
     }
     if (_log.isDebugEnabled()) {
@@ -609,6 +608,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   {
     if (randomResendProtectionLevelCounter++ > resendProtectionCount) {
       randomResendProtectionLevelCounter = 0;
+      if (_log.isDebugEnabled()) {
+        _log.debug("Resending protection level message to make sure he saw the last one");
+      }
       return true;
     } else {
       return false;
