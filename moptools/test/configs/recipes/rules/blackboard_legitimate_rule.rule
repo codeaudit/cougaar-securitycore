@@ -1,3 +1,4 @@
+!/usr/bin/ruby
 ####################################################
 # Rule to insert LegitimateBlackboardPlugin
 
@@ -9,6 +10,7 @@ servlet="org.cougaar.core.security.test.blackboard.BlackboardTestManagerServlet"
 analyzer="org.cougaar.core.security.test.blackboard.AnalyzerServlet"
 #include_array=["2-BDE-1-AD","1-6-INFBN","1-35-ARBN"]
 
+=begin
 society.each_agent(true) do |agent|
 #  include_array.each{ |targetagent|
 #    if agent.name == targetagent
@@ -31,3 +33,5 @@ society.each_agent(true) do |agent|
 #    end
 #  }
 end
+
+=end
