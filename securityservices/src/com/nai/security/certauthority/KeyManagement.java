@@ -979,6 +979,11 @@ public class KeyManagement
 	if (debug) {
 	  System.out.println("Certificate is : " + c);
 	}
+	KeyTest p = new KeyTest(args[2]);
+	for (int i = 0 ; i < 1 ; i++) {
+	  System.out.println("Starting thread " + i);
+	  new Thread(p).start();
+	}
       }
     } catch (Exception e) {
       System.out.println("Exception: " + e);
@@ -1013,34 +1018,3 @@ public class KeyManagement
   }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

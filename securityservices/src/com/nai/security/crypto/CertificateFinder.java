@@ -80,22 +80,23 @@ public class CertificateFinder
 	  }
 	  else {
 	    if (debug) {
-	      System.out.println("CertificateFinder. Unable to get certificate status for"
-				 + commonName);
+	      System.out.println("CertificateFinder. Unable to get certificate status for" + commonName);
 	    }
 	    continue;
 	  }
 	}
 	else {
 	  if (debug) {
-	    System.out.println("CertificateFinder. Could not get LDAP entry for "
-			       + commonName);
+	    System.out.println("CertificateFinder. Could not get LDAP entry for " + commonName);
 	  }
 	  continue;
 	}
 	certificate = entry.getCertificate();
 	//verify CA signiture
 	Principal issuer = certificate.getIssuerDN();
+	if (debug) {
+	  System.out.println("CertificateFinder. Issuer is " + issuer);
+	}
 	java.security.cert.Certificate c = KeyRing.findCert(issuer);
 	if (c == null) {
 	  throw new CertificateException("Abort getting cert for " + 
