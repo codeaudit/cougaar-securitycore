@@ -10,6 +10,9 @@
     <property name="securityservices.policy" value="${securityservices.output}/policy"/>
 
     <path id="core.class.path">    
+        <!-- Base class path -->
+        <path refid="base.core.class.path"/>
+
         <!-- Cougaar 3rd party support packages -->
         <pathelement location="${securityservices.base}/build/lib/antlr.jar"/>
         <pathelement location="${securityservices.base}/sys/ibmpkcs.jar"/>
@@ -36,7 +39,6 @@
         <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
         <pathelement location="${cougaar.install.path}/sys/icu4j.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
         <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
         <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xercesImpl.jar"/>
