@@ -25,7 +25,10 @@
 package org.cougaar.core.security.pedigree;
 
 import java.security.Permission;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.cougaar.core.component.ServiceBroker;
@@ -44,8 +47,24 @@ public class PedigreeServiceImpl
 implements PedigreeService
 {
   private ServiceBroker       serviceBroker;
-  private Map                 pedigreeData = new WeakHashMap();
+  /**
+   * A Map of blackboard object to pedigree data.
+   */
+  private Map                 blackboardPedigreeEntries = new WeakHashMap();
+
+  /**
+   * A collection of pedigree objects.
+   */
+  private Map                 pedigreeMap  = new HashMap();
+  
+  /**
+   * The Java security manager.
+   */
   private SecurityManager     securityManager;
+  
+  /**
+   * A Permission to access the PedigreeService.
+   */
   private Permission          pedigreePermission;
   private static Logger       _log;
   
@@ -66,7 +85,7 @@ implements PedigreeService
    * @see org.cougaar.core.security.services.auth.PedigreeService#getPedigree(java.lang.Object)
    */
   public Pedigree getPedigree(Object blackboardObject) {
-    return (Pedigree)pedigreeData.get(blackboardObject);
+    return (Pedigree)blackboardPedigreeEntries.get(blackboardObject);
   }
   
   /* (non-Javadoc)
@@ -77,8 +96,17 @@ implements PedigreeService
       if (securityManager != null) {
         securityManager.checkPermission(pedigreePermission);
       }
-      synchronized (pedigreeData) {
-        pedigreeData.put(blackboardObject, pedigree);
+      // Avoid duplicating Pedigree objects.
+      Pedigree p = null;
+      synchronized(pedigreeMap) {
+        p = (Pedigree)pedigreeMap.get(pedigree);
+        if (p == null) {
+          pedigreeMap.put(pedigree, pedigree);
+          p = pedigree;
+        }
+      }
+      synchronized (blackboardPedigreeEntries) {
+        blackboardPedigreeEntries.put(blackboardObject, p);
       }
     }
     catch (SecurityException e) {
@@ -99,8 +127,8 @@ implements PedigreeService
       if (securityManager != null) {
         securityManager.checkPermission(pedigreePermission);
       }
-      synchronized(pedigreeData) {
-        pedigreeData.remove(blackboardObject);
+      synchronized(blackboardPedigreeEntries) {
+        blackboardPedigreeEntries.remove(blackboardObject);
       }
     }
     catch (SecurityException e) {

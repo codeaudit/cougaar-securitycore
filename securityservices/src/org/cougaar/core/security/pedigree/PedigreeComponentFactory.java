@@ -57,7 +57,7 @@ public final class PedigreeComponentFactory
     /* ********************************
      * Add Pedigree service to ServiceBroker of agent
      */
-    ServiceProvider newSP = new PedigreeServiceProvider(sb, mySecurityCommunity);
-    sb.addService(PedigreeService.class, newSP);
+    PedigreeServiceProvider psp = new PedigreeServiceProvider(sb, mySecurityCommunity, false);
+    sb.addService(PedigreeService.class, psp);
   }
 }

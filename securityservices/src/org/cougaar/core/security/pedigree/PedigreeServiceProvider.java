@@ -26,7 +26,6 @@
 
 package org.cougaar.core.security.pedigree;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.cougaar.core.component.Service;
@@ -36,19 +35,39 @@ import org.cougaar.core.security.provider.BaseSecurityServiceProvider;
 import org.cougaar.core.security.services.auth.PedigreeService;
 import org.cougaar.core.service.AgentIdentificationService;
 
+/**
+ * 
+ * @author srosset
+ *
+ * The provider of the PedigreeService. The provider is instantiated once
+ * per agent, and the implementation of the PedigreeService is instantiated
+ * once per agent.
+ *  
+ * There is no restriction on what component can retrieve the PedigreeService,
+ * however only security components can set the pedigree. Ordinary plugins have
+ * read-only access to the pedigree data.
+ */
 public class PedigreeServiceProvider
 extends BaseSecurityServiceProvider
 {
-  static private PedigreeService pedigreeService;
-  static private Map serviceMap;
+  /**
+   * The instance of the PedigreeService for the current agent.
+   */
+  private PedigreeService pedigreeService;
+  
+  /**
+   * This provider is instantiated once per agent. myAgentName is the name of the
+   * agent under which the current instance of the provider has been instantiated. 
+   */
   private String myAgentName;
   
-  public PedigreeServiceProvider(ServiceBroker sb, String community) {
-    super(sb, community);
-    serviceMap = new HashMap();
+  public PedigreeServiceProvider(ServiceBroker sb,
+      String community, boolean checkPermission) {
+    super(sb, community, checkPermission);
     AgentIdentificationService ais = (AgentIdentificationService)
     sb.getService(this, AgentIdentificationService.class, null);
     myAgentName = ais.getName();
+    pedigreeService = new PedigreeServiceImpl(sb);
     if (log.isDebugEnabled()) {
       log.debug("PedigreeServiceProvider. Agent name: " + myAgentName);
     }
@@ -63,7 +82,6 @@ extends BaseSecurityServiceProvider
    */
   protected synchronized Service getInternalService(ServiceBroker sb, 
       Object requestor, Class serviceClass) {
-    PedigreeService pedigreeService = null;
     
     /* Obtaining the agent name from the JaasClient is not
      * strictly necessary, however it is shown here to demonstrate
@@ -83,15 +101,11 @@ extends BaseSecurityServiceProvider
             + "name retrieved from AgentIdentificationService");
       }
     }
-    synchronized(serviceMap) {
-      pedigreeService = (PedigreeService)serviceMap.get(myAgentName);
-      if (pedigreeService == null) {
-        pedigreeService = new PedigreeServiceImpl(sb);
-        serviceMap.put(myAgentName, pedigreeService);
-      }
+    Service svc = null;
+    if (PedigreeService.class.isAssignableFrom(serviceClass)) {
+      svc = pedigreeService;
     }
-    
-    return pedigreeService;
+    return svc;
   }
   
   /** Release a service.
