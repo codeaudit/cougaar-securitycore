@@ -19,11 +19,8 @@ public class CertificateDetailsServlet extends  HttpServlet
 
       public void doPost (HttpServletRequest  req, HttpServletResponse res) throws ServletException,IOException
       {
-      }
-     protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
-     {
-       res.setContentType("Text/HTML");
- 
+        res.setContentType("Text/HTML");
+
        String hash=null;
        String role=null;
        String dnname=null;
@@ -76,10 +73,10 @@ public class CertificateDetailsServlet extends  HttpServlet
            return;
 
        }
-        X509CertImpl certimpl;
+        X509Certificate  certimpl;
         try
         {
-                certimpl=new X509CertImpl(ldapentry.getCertificate().getTBSCertificate());
+                certimpl=ldapentry.getCertificate();
         }
         catch (Exception exp)
         {
@@ -103,36 +100,23 @@ public class CertificateDetailsServlet extends  HttpServlet
        }
        out.println("<input type=\"hidden\" name=\"dnname\" value=\""+dnname+"\">");
        out.println("<p>");
+       System.out.println(certimpl.toString());
        out.println(certimpl.toString());
        out.println("<input type=\"button\" value=\"Revoke Certificate \" onClick=\"submit\">");
        out.println("</form>");
        out.println("</body></html>");
        out.flush();
        out.close();
+      }
+     protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
+     {
+
      }
 
         public String getServletInfo()
         {
           return("Displaying details of certificate with give hash map");
         }
-        public String createtable(Vector ldapentryvector)
-        {
-                StringBuffer sb=new StringBuffer();
-                LdapEntry ldapentry=null;
-                sb.append("<table align=\"center\">\n");
-                sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
-                for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
-                {
-                        ldapentry=(LdapEntry)enum.nextElement();
-                        sb.append("<TR><TD><a Href=\"../CertificateDetails?hash="+ldapentry.getHash() +"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a><TD>\n");
-                        sb.append("<TD>"+ldapentry.getStatus()+"</TD>\n" );
-                        sb.append("<TD>"+ldapentry.getCertificate().getIssuerDN().getName()+"</TD></TR>\n");
-
-                }
-                sb.append("</table>");
-                return sb.toString();
-        }
-
 
 }
 

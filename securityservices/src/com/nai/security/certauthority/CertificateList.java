@@ -51,6 +51,9 @@ public class CertificateList extends  HttpServlet
        out.println("<html>");
        out.println("<head>");
        out.println("<title>Certificate List from Ldap </title>");
+         out.println("<script language=\"javascript\">");
+       out.println("function submitme(form)");
+        out.println("{ form.submit()}</script>");
        out.println("</head>");
        out.println("<body>");
        out.println("<H2> Get Certificate List from Ldap</H2>");
@@ -105,12 +108,18 @@ out.println("</body></html>");
                 LdapEntry ldapentry=null;
                 sb.append("<table align=\"center\" border=\"2\">\n");
                 sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
+                int counter=0;
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
                         ldapentry=(LdapEntry)enum.nextElement();
-                        sb.append("<TR><TD><a Href=\"../certdetails?hash="+ldapentry.getHash() +"&dnname="+dnname+"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a></TD>\n");
+                        sb.append("<TR><TD>\n");
+                        sb.append("<form name=\"form"+counter+"\" action=\"/CA/servlet/certdetails\" method=\"post\">");
+                        sb.append("<input type=\"hidden\" name=\"hash\" value=\""+ldapentry.getHash()+"\">");
+                        sb.append("<input type=\"hidden\" name=\"dnname\" value=\""+dnname+"\">");
+                        sb.append("<a Href=\"javascript:submitme(document.form"+counter+")\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a></form></TD>\n");
                         sb.append("<TD>"+ldapentry.getStatus()+"</TD>\n" );
                         sb.append("<TD>"+ldapentry.getCertificate().getIssuerDN().getName()+"</TD></TR>\n");
+                        counter++;
 
                 }
                 sb.append("</table>");
@@ -123,13 +132,19 @@ out.println("</body></html>");
                 LdapEntry ldapentry=null;
                 sb.append("<table align=\"center\" border=\"2\">\n");
                 sb.append("<TR><TH> DN-Certificate </TH><TH> Status </TH><TH> DN-Signed By </TH></TR>\n");
+                int counter=0;
                 for(Enumeration enum =ldapentryvector.elements();enum.hasMoreElements();)
                 {
                         ldapentry=(LdapEntry)enum.nextElement();
-                        sb.append("<TR><TD><a Href=\"../certdetails?hash="+ldapentry.getHash() +"&dnname="+dnname+"&role="+role+"\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a></TD>\n");
+                        sb.append("<TR><TD>\n");
+                        sb.append("<form name=\"form"+counter+"\" action=\"/CA/servlet/certdetails\" method=\"post\">");
+                        sb.append("<input type=\"hidden\" name=\"hash\" value=\""+ldapentry.getHash()+"\">");
+                        sb.append("<input type=\"hidden\" name=\"dnname\" value=\""+dnname+"\">");
+                        sb.append("<input type=\"hidden\" name=\"role\" value=\""+role+"\">");
+                        sb.append("<a Href=\"javascript:submitme(document.form"+counter+")\">"+ldapentry.getCertificate().getSubjectDN().getName()+"</a></form></TD>\n");
                         sb.append("<TD>"+ldapentry.getStatus()+"</TD>\n" );
                         sb.append("<TD>"+ldapentry.getCertificate().getIssuerDN().getName()+"</TD></TR>\n");
-
+                        counter++;
                 }
                 sb.append("</table>");
                 return sb.toString();
