@@ -37,6 +37,6 @@ public class AggregationTypeImpl
     return _name;
   }
   public Map getParameters() {
-    return _paramaters;
+    return _parameters;
   }
 }
