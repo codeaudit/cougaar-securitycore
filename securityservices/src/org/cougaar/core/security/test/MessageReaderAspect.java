@@ -64,9 +64,6 @@ public class MessageReaderAspect extends StandardAspect {
        return new InternalMessageReader(rln);
      }
      else {
-       if(log.isDebugEnabled()){
-         log.debug(" Received delegate in Message ReaderAspect  of type:"+ delegatee.getClass().getName()); 
-       }
        return null;
      }
    }
