@@ -20,6 +20,7 @@ module Cougaar
 
       def perform
         init()
+        constructPolicies()
         compilePolicies()
         packageAndSignJar()
         deleteStagingDir()
@@ -28,13 +29,15 @@ module Cougaar
       def init
         @cip = ENV['COUGAAR_INSTALL_PATH']
         @stagingdir = "#{CIP}/workspace/BootPolicies-#{rand(1000000)}"
+        @highPolicy = "OwlCoordinatorHighPolicy"
+        @lowPolicy  = "OwlCoordinatorLowPolicy"
         Dir.mkdir(@stagingdir)
       end
 
       def compilePolicies
         policyUtil("--maxReasoningDepth 150 --useConfig build OwlBootPolicyList", nil, @stagingdir)
-        policyUtil("--maxReasoningDepth 150 --useConfig build OwlCoordinatorLowPolicy", nil, @stagingdir)
-        policyUtil("--maxReasoningDepth 150 --useConfig build OwlCoordinatorHighPolicy", nil, @stagingdir)
+        policyUtil("--maxReasoningDepth 150  build #{@lowPolicy}", nil, @stagingdir)
+        policyUtil("--maxReasoningDepth 150  build #{@highPolicy}", nil, @stagingdir)
       end # def compilePolicies
 
       def packageAndSignJar
@@ -55,6 +58,55 @@ module Cougaar
       def deleteStagingDir
         `rm -rf #{@stagingdir}`
       end # def deleteStagingDir
+
+      def constructPolicies
+        File.open(File.join(@stagingdir, @highPolicy),
+                  File::CREAT|File::WRONLY) do |file|
+          file.write <<-EndOfHighPolicy
+PolicyPrefix=%Coordinator
+
+Delete EncryptCommunication
+
+Policy HighEncryptCommunication = [ 
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $Actor.owl#Agent to members of $Actor.owl#Agent
+]
+          EndOfHighPolicy
+        end
+        File.open(File.join(@stagingdir, @lowPolicy),
+                  File::CREAT|File::WRONLY) do |file|
+          file.puts("PolicyPrefix=%Coordinator")
+          file.puts("AgentGroup \"PolicyManagers\" = \{\"#{getPolicyManagers().join("\",\n\t\"")}\"\}")
+          file.write <<-EndOfLowPolicies
+Policy LowEncryptCommunication = [ 
+  MessageEncryptionTemplate
+  Require SecretProtection on all messages from members of the
+  complement of $AgentsInGroup#PolicyManagers to members of
+  $Actor.owl#Agent 
+]
+
+Policy LowPolicyManagerEncryptCommunication = [
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $AgentsInGroup#PolicyManagers to members of $Actor.owl#Agent 
+]
+          EndOfLowPolicies
+        end
+      end
+
+      def getPolicyManagers()
+        pms = []
+        @run.society.each_agent do |agent|
+          agent.each_facet(:role) do |facet|
+            if facet[:role] ==  $facetPolicyManagerAgent then
+              pms.push(agent.name)
+            end
+          end
+        end
+        pms
+      end
+
 
     end # class BuildPolicies
   end # module Actions
