@@ -30,6 +30,8 @@ package org.cougaar.core.security.services.wp;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.NoValidKeyException;
+import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -38,14 +40,20 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.wp.WhitePagesProtectionService;
 import org.cougaar.util.log.Logger;
 
+import sun.security.x509.X500Name;
+
 import java.io.IOException;
 import java.io.Serializable;
 
+import java.security.AccessController;
 import java.security.GeneralSecurityException;
+import java.security.PrivilegedAction;
 import java.security.SignedObject;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -113,8 +121,17 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
     }
 
 
-    List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
-    if ((certList == null) || !(certList.size() > 0)) {
+//    List certList = keyRingService.findCert(name, KeyRingService.LOOKUP_KEYSTORE);
+	List certList;
+	try {
+		certList = getPrivateKeys(name, keyRingService);
+	} catch (GeneralSecurityException e1) {
+		throw (e1);
+	} catch (IOException e1) {
+		throw (new GeneralSecurityException(e1.getMessage()));
+	}
+	
+	if ((certList == null) || !(certList.size() > 0)) {
       throw new CertificateException("No certificate available for encrypting or signing: " + name);
     }
 
@@ -198,4 +215,44 @@ public class WhitePagesProtectionServiceImpl implements WhitePagesProtectionServ
 
     return obj;
   }
+  
+  private List getPrivateKeys(final String name, final KeyRingService keyRing)
+	 throws GeneralSecurityException, IOException {
+	 List pkList = (List)
+	   AccessController.doPrivileged(new PrivilegedAction() {
+		   public Object run(){
+			 // relieve messages to naming, for local keys
+			 // do not need to go to naming
+			 List nameList = keyRing.getX500NameFromNameMapping(name);
+			 //List nameList = keyRing.findDNFromNS(name);
+			 if (log.isDebugEnabled()) {
+			   log.debug("List of names for " + name + ": " + nameList);
+			 }
+			 List keyList = new ArrayList();
+			 for (int i = 0; i < nameList.size(); i++) {
+			   X500Name dname = (X500Name)nameList.get(i);
+			   List pkCerts = keyRing.findPrivateKey(dname);
+			   if (pkCerts == null) {
+				 return keyList;
+			   }
+			   Iterator iter = pkCerts.iterator();
+			   while (iter.hasNext()) {
+				 PrivateKeyCert pkc = (PrivateKeyCert) iter.next();
+				 keyList.add(pkc.getPrivateKey());
+			   }
+			 }
+			 return keyList;
+		   }
+		 });
+	 if (pkList == null || pkList.size() == 0) {
+	   String message = "Unable to get private key of " +
+		 name + " -- does not exist.";
+	   if (log.isWarnEnabled()) {
+		 log.warn(message);
+	   }
+	   throw new NoValidKeyException(message);
+	 }
+	 return pkList;
+   }
+
 }
