@@ -48,4 +48,9 @@
 /$*/log_inventory LogInventoryServlet
 #
 /$*/policyAdmin PolicyServlet
+#
+/$*/move SocietyAdminServlet
+/$*/load SocietyAdminServlet
+/$*/topology SocietyAdminServlet
+#
 /$*/useradmin UserManagerServlets
