@@ -8,6 +8,7 @@ CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/iw.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jakarta-oro-2.0.5.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jas.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:$CP
 CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:$CP
