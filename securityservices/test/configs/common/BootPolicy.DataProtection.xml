@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policies>
+  <policy name="Data Protection Policy" type="org.cougaar.core.security.policy.CryptoPolicy">
+    <cryptoPolicy>
+	<!-- whom this policy is for -->
+	<Name>DEFAULT</Name>
+	
+	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
+	<Type>SOCIETY</Type>
+	
+	<!-- one of INCOMING, OUTGOING, or BOTH -->
+	<Direction>DATAPROTECTION</Direction>
+	
+	<!-- one policy entry for each messaging party -->
+	<PolicyEntry>
+		<MsgParty>DEFAULT</MsgParty>
+		<!-- EACH one of the following can have more than one values -->
+		
+		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
+		<SecureMethod>signAndEncrypt</SecureMethod>
+		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
+    		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
+	</PolicyEntry>
+
+	<!--
+	<PolicyEntry>
+		<MsgParty>3-69-ARBN</MsgParty>
+		<SecureMethod>sign</SecureMethod>
+    		<SymmetricAlgorithm>DES</SymmetricAlgorithm>
+    		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
+    		<SigningAlgorithm>MD5withRSA</SigningAlgorithm>
+	</PolicyEntry>
+	-->
+
+    </cryptoPolicy>
+  </policy>
+</policies>
