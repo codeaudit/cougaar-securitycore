@@ -79,6 +79,18 @@ public class ConfParser {
 	System.out.println("Unable to read configFile: " + e);
       }
     }
+    if (configDoc == null) {
+      // Cannot proceed without policy
+      System.err.println("ERROR: Cannot continue secure execution without policy");
+      System.err.println("ERROR: Could not find crypto configuration file: " + configFile);
+      try {
+	throw new RuntimeException("No policy available");
+      }
+      catch (RuntimeException e) {
+	e.printStackTrace();
+      }
+      System.exit(-1);
+    }
   }
 
   public NodeList getChildren(String elementName) {
