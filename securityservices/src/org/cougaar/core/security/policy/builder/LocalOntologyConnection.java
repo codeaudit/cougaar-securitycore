@@ -100,6 +100,18 @@ public class LocalOntologyConnection extends OntologyConnection
     return _brains.testTrue(statement);
   }
 
+  public Vector getPolicies() 
+    throws IOException
+  {
+    throw new IOException("Remote Ultralog Policies Unavailable");
+  }
 
-
+  public void updatePolicies (List addedPolicies,
+                              List changedPolicies,
+                              List removedPolicies)
+    throws IOException
+  {
+    throw 
+      new IOException("Unable to update Policies on remote domain manager");
+  }
 }

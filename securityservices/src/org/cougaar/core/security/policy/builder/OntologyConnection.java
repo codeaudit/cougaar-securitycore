@@ -45,6 +45,7 @@ public abstract class OntologyConnection
   public OntologyConnection()
   {
     LocalPolicyInformationManager.giveIntelligence(this);
+    PolicyUtils.setOntologyConnection(this);
   }
 
   public abstract Set getInstancesOf (String conceptName) 
@@ -62,6 +63,13 @@ public abstract class OntologyConnection
 
   public abstract boolean testTrue (String statement) 
     throws ReasoningException;
+
+  public abstract Vector getPolicies() throws IOException;
+
+  public abstract void updatePolicies (List addedPolicies,
+                                       List changedPolicies,
+                                       List removedPolicies) 
+    throws IOException;
 
   public void verifySubClass(String smallSet, 
                              String bigSet)

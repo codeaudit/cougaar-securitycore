@@ -168,6 +168,10 @@ public class PolicyBootstrapper
         policyList.add(policy);
 
         _damlBootMap.put(type, policyList);
+
+        if (log.isDebugEnabled()) {
+          log.debug("Got policy: " + parsedPolicy.getDescription());
+        }
       }
       damlPoliciesFile.close();
     } catch (IOException e) {
