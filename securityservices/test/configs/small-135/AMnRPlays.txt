@@ -1,0 +1,22 @@
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE <= 10 : PERCEIVED_THREAT_LEVEL = 1;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE in { 11 thru 20 } : PERCEIVED_THREAT_LEVEL = 2;
+org.cougaar.core.security.monitoring.LOGIN_FAILURE_RATE > 20 : PERCEIVED_THREAT_LEVEL = 3;
+PERCEIVED_THREAT_LEVEL == 1
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
+    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
+PERCEIVED_THREAT_LEVEL == 2    
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 5
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_FAILURES
+    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
+PERCEIVED_THREAT_LEVEL == 3
+    : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
+    : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = -1
+    : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
+    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
+org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100 
+    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
+org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100 
+    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = MODERATE;
