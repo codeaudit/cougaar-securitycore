@@ -218,6 +218,9 @@ public class AgMobPlugin extends org.cougaar.core.plugin.ComponentPlugin
         public MessageAddress getMessageAddress() {
           return thisAgentID;
         }
+        public long getIncarnationNumber() {
+          return 0;
+        }
       };
 
     // get the message transport

@@ -185,6 +185,9 @@ extends BaseServletComponent
         public MessageAddress getMessageAddress() {
           return agentId;
         }
+        public long getIncarnationNumber() {
+          return 0;
+        }
       };
 
     // get the message transport

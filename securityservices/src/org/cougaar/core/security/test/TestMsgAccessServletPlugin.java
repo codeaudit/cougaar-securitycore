@@ -102,6 +102,9 @@ public class TestMsgAccessServletPlugin extends ComponentPlugin
         public MessageAddress getMessageAddress() {
           return myAgent;
         }
+        public long getIncarnationNumber() {
+          return 0;
+        }
       };
 
     // get the message transport

@@ -270,6 +270,10 @@ public class AccessAgentProxy implements MessageTransportService,
         return messageaddress;
     }
 
+    public long getIncarnationNumber() {
+        return (mtc == null ? 0 : mtc.getIncarnationNumber());
+    }
+
     public void receiveMessage(Message m) {
         if (mtc == null) {
             log.warn("Message Transport Client is null for: " + m
