@@ -60,9 +60,10 @@ public class MessageProtectionServiceTest
     secProvider = bn.getSecurityServiceProvider();
 
     // Get Message Protection Service
-    mps = (MessageProtectionService)secProvider.getService(bn.getServiceBroker(),
-							   this,
-							   MessageProtectionService.class);
+    mps = (MessageProtectionService)
+      secProvider.getService(bn.getServiceBroker(),
+			     this,
+			     MessageProtectionService.class);
     Assert.assertNotNull("Could not get MessageProtectionService", mps);
   }
 
