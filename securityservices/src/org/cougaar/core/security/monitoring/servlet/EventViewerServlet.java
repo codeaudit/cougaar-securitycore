@@ -79,9 +79,8 @@ public class EventViewerServlet
     }
   }
 
-  public EventViewerServlet(SimpleServletSupport support) {
+  public void setSimpleServletSupport(SimpleServletSupport support) {
     this.support = support;
-
     confFinder = ConfigFinder.getInstance();
   }
 
@@ -240,17 +239,22 @@ public class EventViewerServlet
   }
 
   private void printNode(PrintWriter out, IDMEF_Node n) {
-    out.print("Ident:" + n.getIdent() + "<br>");
-    out.print("Name:" + n.getName() + "<br>");
-    out.print("Category:" + n.getCategory() + "<br>");
-    out.print("Location:" + n.getLocation() + "<br>");
+    if (n != null) {
+      out.print("Ident:" + n.getIdent() + "<br>");
+      out.print("Name:" + n.getName() + "<br>");
+      out.print("Category:" + n.getCategory() + "<br>");
+      out.print("Location:" + n.getLocation() + "<br>");
 
-    Address[] addresses = n.getAddresses();
-    if ( addresses != null) {
-      for (int i = 0 ; i < addresses.length ; i++) {
-	out.print("Address[" + i + "]/" + addresses[i].getCategory()
+      Address[] addresses = n.getAddresses();
+      if ( addresses != null) {
+        for (int i = 0 ; i < addresses.length ; i++) {
+          out.print("Address[" + i + "]/" + addresses[i].getCategory()
 		  + " = " + addresses[i].getAddress());
+        }
       }
+    }
+    else {
+      out.print("Node is null");
     }
   }
 }
