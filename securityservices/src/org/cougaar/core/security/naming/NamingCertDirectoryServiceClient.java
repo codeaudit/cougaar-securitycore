@@ -59,9 +59,6 @@ public class NamingCertDirectoryServiceClient {
 			       LoggingService.class,
 			       null);
 
-    whitePagesService = (WhitePagesService)
-      sb.getService(this, WhitePagesService.class, null);
-
     // to poll naming if naming service does not handle updating objects
     /*
     NamingMonitorThread t = new NamingMonitorThread();
@@ -69,51 +66,58 @@ public class NamingCertDirectoryServiceClient {
     */
   }
 
-  public boolean updateCert(X500Name dname) throws Exception {
-    String cname = dname.getCommonName();
-    keyRingService = (KeyRingService)
-      sb.getService(this, KeyRingService.class, null);
+  public boolean updateCert(CertificateEntry certEntry) throws Exception {
+    X509Certificate c = (X509Certificate)certEntry.getCertificate();
+    String dname = c.getSubjectDN().getName();
+    String cname = CertificateUtility.findAttribute(dname, "cn");
 
-    List l = keyRingService.getValidCertificates(dname);
-    if (l == null || l.size() == 0) {
-      if (log.isDebugEnabled()) {
-        log.debug("No valid certificate to update naming entry: " + dname);
+    NamingCertEntry entry = null;
+
+    AddressEntry ael = whitePagesService.get(cname,
+      Application.getApplication("topology"), "cert");
+    if (ael != null) {
+      Cert cert = ael.getCert();
+      if (cert instanceof NamingCertEntry) {
+        entry = (NamingCertEntry)cert;
+        if (log.isDebugEnabled()) {
+          log.debug("Cert type found in naming, updating");
+        }
       }
-      return false;
+      else {
+        if (log.isDebugEnabled()) {
+          log.debug("Different Cert type in naming, replacing");
+        }
+      }
     }
-
-    CertificateStatus cs = (CertificateStatus)l.get(0);
-    NamingCertEntry entry = new NamingCertEntry();
-    CertificateEntry certEntry = new CertificateEntry(cs.getCertificate(),
-        // of course the cert is trusted by local node, otherwise not valid
-        CertificateRevocationStatus.VALID,
-        cs.getCertificateType());
-    certEntry.setCertificateChain(cs.getCertificateChain());
+    if (entry == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("Creating new NamingCertEntry to update naming");
+      }
+      entry = new NamingCertEntry();
+    }
     entry.addEntry(dname, certEntry);
     updateCert(cname, entry);
     return true;
   }
 
-  public void updateNS(X500Name dname) {
   /*
+  public void updateNS(X500Name dname) {
     synchronized (this) {
       if (!connected) {
         certCache.put(dname.getName(), dname);
       }
       else {
-      */
         try {
           updateCert(dname);
         } catch (Exception ex) {
           if (log.isWarnEnabled()) {
-            log.warn("Unable to update naming with naming started. " + ex);
+            log.warn("Unable to update naming with naming started. ", ex);
           }
         }
-      //}
-    //}
+      }
+    }
   }
 
-  /*
   boolean connected = false;
   class NamingMonitorThread extends Thread {
 
@@ -151,6 +155,14 @@ public class NamingCertDirectoryServiceClient {
   // for now when an identity starts it will overwrite the original
   // naming service entry (the entry it updated at last start)
   public void updateCert(String cname, Cert entry) throws Exception {
+    if (whitePagesService == null) {
+      whitePagesService = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+    }
+    if (whitePagesService == null) {
+      throw new Exception("Cannot get white page service.");
+    }
+
     URI certURI =
       URI.create("cert://"+cname);
     AddressEntry certEntry =
@@ -161,6 +173,10 @@ public class NamingCertDirectoryServiceClient {
           entry,
           Long.MAX_VALUE);
     whitePagesService.rebind(certEntry);
+
+    if (log.isDebugEnabled()) {
+      log.debug("Successfully updated naming: " + cname);
+    }
   }
 
 }

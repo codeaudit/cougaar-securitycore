@@ -41,18 +41,21 @@ final public class NamingCertEntry extends Cert
    * it is up to the retrieve function to digest all the cert paths.
    * It is also up to the retrieve function to verify cert validity.
    */
-  Hashtable certList = new Hashtable();
+  //Hashtable certList = new Hashtable();
+  ArrayList certList = new ArrayList();
+  ArrayList dnList = new ArrayList();
   CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
 
-  public void addEntry(X500Name dname, CertificateEntry certEntry) {
-    certList.put(dname, certEntry);
+  public void addEntry(String dname, CertificateEntry certEntry) {
+    dnList.add(dname);
+    certList.add(certEntry);
   }
 
-  public Collection getEntries() {
-    return certList.entrySet();
+  public List getEntries() {
+    return certList;
   }
 
-  public Collection getDNList() {
-    return certList.keySet();
+  public List getDNList() {
+    return dnList;
   }
 }

@@ -58,13 +58,17 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
       sb.getService(this,
 			       LoggingService.class,
 			       null);
-
-    whitePagesService = (WhitePagesService)
-      sb.getService(this, WhitePagesService.class, null);
   }
 
   public List findDNFromNS(String cname) {
     ArrayList l = new ArrayList();
+    if (whitePagesService == null) {
+      whitePagesService = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+    }
+    if (whitePagesService == null) {
+      return l;
+    }
     try {
       AddressEntry ael = whitePagesService.get(cname,
         Application.getApplication("topology"), "cert");
@@ -73,10 +77,19 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
         // go to contact the agent with attribute cert provider
       }
       else if (cert instanceof NamingCertEntry) {
-        l.addAll(((NamingCertEntry)cert).getDNList());
+        Iterator it = ((NamingCertEntry)cert).getDNList().iterator();
+        for (; it.hasNext(); ) {
+          l.add(new X500Name((String)it.next()));
+        }
+        if (log.isDebugEnabled()) {
+          log.debug("Retrieved cert entry from naming for " + cname + " size: " + l.size());
+        }
       }
       else if (cert instanceof IndirectCertEntry) {
-        l.addAll(((IndirectCertEntry)cert).getDNList());
+        Iterator it = ((IndirectCertEntry)cert).getDNList().iterator();
+        for (; it.hasNext(); ) {
+          l.add(new X500Name((String)it.next()));
+        }
       }
       else {
         // every name in naming should have a certificate
@@ -97,7 +110,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
         log.warn("Failed to request from naming: ", ex);
       }
     }
-    return null;
+    return l;
   }
 
   /**
@@ -114,13 +127,28 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
                                        null);
     }
 
+
     ArrayList l = new ArrayList();
+    if (whitePagesService == null) {
+      whitePagesService = (WhitePagesService)
+        sb.getService(this, WhitePagesService.class, null);
+    }
+    if (whitePagesService == null) {
+      return l;
+    }
     String dnameString = dname.getName();
     try {
       String cname = dname.getCommonName();
       CertificateStatus cs = null;
       AddressEntry ael = whitePagesService.get(cname,
         Application.getApplication("topology"), "cert");
+      if (ael == null) {
+        if (log.isDebugEnabled()) {
+          log.debug("Unable to find cert entry in naming: " + cname);
+        }
+        return l;
+      }
+
       Cert cert = ael.getCert();
       if (cert == Cert.PROXY) {
         // go to contact the agent with attribute cert provider
@@ -204,7 +232,7 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
         log.warn("Failed to request from naming: ", ex);
       }
     }
-    return null;
+    return l;
   }
 
   public CertDirectoryService getCertDirectoryService(String scheme) {
