@@ -60,7 +60,7 @@ public class EtherealHierarchyParser
     pp.parseConfigFile(null);
 
     ep.setProtocolPolicy(pp.getProtocolPolicy());
-    ep.parseResults(args[0]);
+    ep.parseResults(args);
     ep.displayProtocolHierarchy();
   }
 
@@ -77,7 +77,12 @@ public class EtherealHierarchyParser
     _log = LoggerFactory.getInstance().createLogger(this);
   }
 
-  public void parseResults(String filename) {
+  public void parseResults(String args[]) {
+    if (args.length != 1) {
+      _log.warn("First argument should be name of a capture file");
+      return;
+    }
+    String filename = args[0];
     try {
       _reader = new BufferedReader(new FileReader(filename));
     }
