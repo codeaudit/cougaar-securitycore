@@ -93,11 +93,15 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
         ret = (event.getEvent() instanceof AgentRegistration);
       }
       else {
-        log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+        if (log.isDebugEnabled()) {
+          log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+        }
         return ret;
       }
     }
-    log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+    if (log.isDebugEnabled()) {
+      log.debug(" ConsolidatedCapabilitiesRelayPredicate:" + ret);
+    }
     return ret;
   }
 }
@@ -181,9 +185,13 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       loggingService.debug("setupSubscriptions of CapabilitiesConsolidationPlugin called for "
           + myAddress.toAddress()); 
     }
+    _csu.getSecurityCommunity(myAddress.toAddress(), 
+                              new RegistrationListener());
+    /*
     if(!_csu.amIRoot( myAddress.toAddress())) {
       registerManager();
     }
+    */
         
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate(loggingService));
@@ -1190,4 +1198,25 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     _csu.findSecurityManager(myAddress.toString(), listener);
   }
 
+  private class RegistrationListener implements CommunityServiceUtilListener {
+    public void getResponse(Set entities) {
+      if (entities == null || entities.isEmpty()) {
+        // probably won't get here
+        loggingService.warn("Could not find any managed " +
+                            "security communities!");
+        return;
+      }
+      Community community = (Community) entities.iterator().next();
+      if (loggingService.isInfoEnabled()) {
+        loggingService.info("Got managed security community: " + 
+                            community.getName());
+      }
+      if (_csu.isRoot(community)) {
+        loggingService.info("I am the root security manager. " +
+                            "Not registerring.");
+      } else {
+        registerManager();
+      }
+    }
+  }
 }// class CapabilitiesConsolidationPlugin
