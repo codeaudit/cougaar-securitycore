@@ -36,6 +36,7 @@
         <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/community.jar"/>
 
        <pathelement location="${moptools.lib}/csiutil-1.0.jar"/>
        <pathelement location="${moptools.lib}/securityservices.jar"/>
