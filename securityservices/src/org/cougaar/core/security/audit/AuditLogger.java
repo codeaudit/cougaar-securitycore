@@ -300,6 +300,12 @@ public class AuditLogger {
           }
         }
       }
+      String roleList = "";
+      if (roles != null  && roles.length >= 1) {
+        for (int r = 0; r < roles.length; r++) {
+          roleList += ";" + roles[r];
+        }
+      }
 
       if ((roleMap.size() == 0) && (userMap.size() == 0)) {
         logIt = true;
@@ -314,9 +320,10 @@ public class AuditLogger {
       }
 
       if (logIt || ((username == null) && (roles == null))) {
-        logger.info(agent + ";" + authType + ";" + username + ";" + roles + ";"
-          + request.getRemoteAddr() + ";" + request.getServerName() + ";"
-          + servletName);
+        logger.info(agent + ";" + authType + ";" + username
+                    + ";" + request.getRemoteAddr() + 
+                    ";" + request.getServerName() + ";" + servletName
+                    + roleList);
       }
     }
   }
