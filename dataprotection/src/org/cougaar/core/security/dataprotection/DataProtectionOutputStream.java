@@ -136,11 +136,15 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     this.out = new DataOutputStream(this.out);
   }
 
-  private void init(ServiceBroker sb) {
+  private void init(final ServiceBroker sb) {
     if (encryptionService == null) {
       // Get encryption service
       encryptionService = (EncryptionService)
-        sb.getService(this, EncryptionService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {      
+            public Object run() {
+              return sb.getService(this, EncryptionService.class, null);
+            }
+          });
       if (encryptionService == null) {
         throw new RuntimeException("Encryption service not available");
       }
