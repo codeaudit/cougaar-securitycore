@@ -201,7 +201,7 @@ public class LoginFailureSensor extends ComponentPlugin {
   }  
 
   /**
-   * dummy function doesn't do anything... no subscriptions are made.
+   * Dummy function doesn't do anything. No subscriptions are made.
    */
   protected void execute () {
   }
