@@ -264,6 +264,11 @@ public class AgentUserService implements UserService, BlackboardClient {
 
   private MessageAddress findTargetAgent(String communityName) 
     throws UserServiceException {
+    final boolean debug = _log.isDebugEnabled();
+
+    if (debug) {
+	_log.debug("looking for community " + communityName);
+    }
     if (communityName == null) {
       String message = "The user has no domain and there " +
         "is no default for this agent.";
@@ -273,6 +278,7 @@ public class AgentUserService implements UserService, BlackboardClient {
     synchronized (_targets) {
       MessageAddress target = (MessageAddress) _targets.get(communityName);
       if (target != null) {
+        _log.debug("found manager in cache: " + target);
         return target;
       }
 
@@ -289,71 +295,57 @@ public class AgentUserService implements UserService, BlackboardClient {
       CommunityResponseListener crl = new CommunityResponseListener() {
 	  public void getResponse(CommunityResponse resp) {
 	    Object response = resp.getContent();
-	    if (!(response instanceof Community)) {
+	    if (debug) {
+	      _log.debug("got response in callback: " + response);
+	    }
+	    if (!(response instanceof Set)) {
 	      String errorString = "Unexpected community response class:"
 		+ response.getClass().getName() + " - Should be a Community";
 	      _log.error(errorString);
 	      throw new RuntimeException(errorString);
 	    }
-	    status.value = (Community) response;
+	    status.value = (Set) response;
 	    s.release();
 	  }
 	};
       // TODO: do this truly asynchronously.
-      _communityService.getCommunity(communityName, crl);
-      try {
-	s.acquire();
-      } catch (InterruptedException ie) {
-	_log.error("Error in searchByCommunity:", ie);
+      if (debug) {
+	  _log.debug("doing search for " + communityName);
       }
-      Community community = (Community) status.value;
-      if (community == null) {
-        String message = "The user has no community named " + communityName;
-        _log.debug(message);
-        throw new UserServiceException(message);
+      String filter = "(Role="  + MANAGER_ROLE + ")";
+      Collection agents = 
+	  _communityService.searchCommunity(communityName, filter, true,
+					    Community.AGENTS_ONLY, crl);
+      if (debug) {
+	  _log.debug("search result: " + agents);
       }
-      Attributes attrs = community.getAttributes();
-      if (_log.isDebugEnabled()) {
-        _log.debug("Attributes for Community (" + communityName + "): " +
-                   attrs);
+      if (agents == null) {
+	  try {
+	      _log.debug("waiting on semaphore");
+	      s.acquire();
+	      _log.debug("got semaphore!");
+	  } catch (InterruptedException ie) {
+	      _log.error("Error in searchByCommunity:", ie);
+	  }
+	  agents = (Set) status.value;
       }
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-          try {
-            for (int i = 0; i < attr.size(); i++) {
-              if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
-                // this is the right type of community.
-                // find an agent with that role
-		String filter = "(Role="  + MANAGER_ROLE + ")";
-                Collection mgr = community.search(filter, Community.AGENTS_ONLY);
-                if (mgr.size() != 1) {
-                  String message = "Could not find user manager for domain '" +
-                    communityName + "'.";
-                  _log.info(message);
-                  throw new UserServiceException(message);
-                }
-		Entity entity = (Entity) mgr.iterator().next();
-                target = MessageAddress.getMessageAddress(entity.getName());
-                if (_log.isDebugEnabled()) {
-                  _log.debug("Found manager for " + communityName + ": " + target);
-                }
-                _targets.put(communityName, target);
-                return target;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a Security community
-            if (_log.isWarnEnabled()) {
-              _log.warn("Error reading value, so it can't be a security community");
-            }
-          }
-        }
+      if (debug) {
+	  _log.debug("agent list is " + agents);
       }
+      if (agents == null || agents.size() != 1) {
+	  String message = "Could not find manager for community" +
+	      communityName;
+	  _log.debug(message);
+	  throw new UserServiceException(message);
+      }
+      Entity entity = (Entity) agents.iterator().next();
+      target = MessageAddress.getMessageAddress(entity.getName());
+      if (debug) {
+	  _log.debug("Found manager for " + communityName + ": " + target);
+      }
+      _targets.put(communityName, target);
+      return target;
     }
-    String message = "Unknown community: " + communityName;
-    _log.info(message);
-    throw new UserServiceException(message);
   }
 
   private class Status {
