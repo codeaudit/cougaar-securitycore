@@ -101,7 +101,8 @@ public class CryptoManagerServiceImpl
     throws CertificateException {
     List certList =
       keyRing.findCert(name,
-		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
+		       KeyRingService.LOOKUP_LDAP |
+		       KeyRingService.LOOKUP_KEYSTORE);
     if (certList == null || certList.size() == 0) {
       if (log.isWarnEnabled()) {
 	log.warn("Unable to verify object. Certificate of " + name
@@ -139,7 +140,8 @@ public class CryptoManagerServiceImpl
     }
     // No suitable certificate was found.
     if (log.isWarnEnabled()) {
-      log.warn("Signature verification failed.");
+      log.warn("Signature verification failed. Agent=" + name
+	+ " - Tried with " + certList.size() + " certificates");
     }
     return null;
   }
