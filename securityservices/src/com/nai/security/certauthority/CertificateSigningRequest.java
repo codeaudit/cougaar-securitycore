@@ -36,14 +36,25 @@ import org.cougaar.util.*;
 
 import org.w3c.dom.*;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
+
 public class CertificateSigningRequest extends  HttpServlet
 {
   private KeyManagement signer;
   javax.servlet.ServletContext context=null;
+
+  private SecurityPropertiesService secprop = null;
   
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
+
+    context=config.getServletContext();
+
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
+
     String file= config.getInitParameter("configfile");
     ConfigFinder confFinder = new ConfigFinder();
     try {
@@ -130,10 +141,10 @@ public class CertificateSigningRequest extends  HttpServlet
     ByteArrayInputStream bytestream=null;
     PrintStream printstream=new PrintStream(res.getOutputStream());
     byte [] bytedata=null;
-    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
+    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
     System.out.println(" cert path  is :"+certpath);
     
-    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
     System.out.println(" Conf path  is :"+confpath);
     if(( CA_DN_name==null)||( CA_DN_name=="")) {
       printstream.print("Error ---Unknown  type CA dn name :");

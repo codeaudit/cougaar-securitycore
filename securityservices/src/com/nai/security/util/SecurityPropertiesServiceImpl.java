@@ -28,14 +28,36 @@ package com.nai.security.util;
 public class SecurityPropertiesServiceImpl
   implements SecurityPropertiesService
 {
+  private javax.servlet.ServletContext servletContext = null;
+
   public SecurityPropertiesServiceImpl() {
   }
 
+  public SecurityPropertiesServiceImpl(javax.servlet.ServletContext aServletContext) {
+    servletContext = aServletContext;
+  }
+
   public String getProperty(String property) {
-    return System.getProperty(property, null);
+    return getProperty(property, null);
   }
 
   public String getProperty(String property, String defaultValue) {
-    return System.getProperty(property, defaultValue);
+    String value = null;
+    if (CryptoDebug.debug) {
+      System.out.println("getProperty(" + property + ")");
+    }
+    if (servletContext != null) {
+      value = (String) servletContext.getAttribute(property);
+      if (value == null) {
+	if (CryptoDebug.debug) {
+	  System.out.println("WARNING: servlet attribute undefined: " + property
+	    + ". Using system property");
+	}
+      }
+    }
+    if (value == null) {
+      value = System.getProperty(property, defaultValue);
+    }
+    return value;
   }
 }

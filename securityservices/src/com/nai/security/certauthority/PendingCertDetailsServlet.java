@@ -53,12 +53,12 @@ public class PendingCertDetailsServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
+    context=config.getServletContext();
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-    context=config.getServletContext();
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -96,7 +96,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
       ConfParser confParser = new ConfParser(confpath, true);
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder =
@@ -120,10 +120,12 @@ public class PendingCertDetailsServlet extends  HttpServlet
     X509Certificate  certimpl;
     try {
 
-      String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
-      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      String certpath=secprop.getProperty(secprop.CA_CERTPATH);
+      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
 
-      PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role, certpath, confpath);
+      PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname,
+								       role, certpath,
+								       confpath);
       certimpl = (X509Certificate)pendingCache.getCertificate(
         caPolicy.pendingDirectory, alias);
     }

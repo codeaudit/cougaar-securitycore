@@ -56,13 +56,13 @@ public class PendingCertificateServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
+    context=config.getServletContext();
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-    context=config.getServletContext();
-    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
+    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
     confParser = new ConfParser(confpath, true);
     caDNs = confParser.getCaDNs();
     roles = confParser.getRoles();
@@ -125,10 +125,12 @@ public class PendingCertificateServlet extends  HttpServlet
       System.out.println("calling create table will role:" + role);
     }
 
-    String certpath=(String)context.getAttribute("org.cougaar.security.CA.certpath");
-    String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
+    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
 
-    PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname, role, certpath, confpath);
+    PendingCertCache pendingCache = PendingCertCache.getPendingCache(cadnname,
+								     role, certpath,
+								     confpath);
     Hashtable certtable = (Hashtable)pendingCache.get(caPolicy.pendingDirectory);
     out.println(createtable(certtable,
                             cadnname, role,

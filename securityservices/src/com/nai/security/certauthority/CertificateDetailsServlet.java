@@ -56,11 +56,11 @@ public class CertificateDetailsServlet extends  HttpServlet
   public void init(ServletConfig config) throws ServletException
   {
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    context=config.getServletContext();
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
-    context=config.getServletContext();
      
   }
 
@@ -99,7 +99,7 @@ public class CertificateDetailsServlet extends  HttpServlet
       return;
     }
     try {
-      String confpath=(String)context.getAttribute("org.cougaar.security.crypto.config");
+      String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
       ConfParser confParser = new ConfParser(confpath, true);
       caPolicy = confParser.readCaPolicy(cadnname, role);
       certificateFinder = 

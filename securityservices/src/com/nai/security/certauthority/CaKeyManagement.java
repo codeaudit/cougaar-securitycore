@@ -40,9 +40,12 @@ import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.policy.CaPolicy;
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class CaKeyManagement extends  HttpServlet
 {
+  private SecurityPropertiesService secprop = null;
   private ConfParser confParser = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
   private javax.servlet.ServletContext context=null;
@@ -50,8 +53,11 @@ public class CaKeyManagement extends  HttpServlet
   public void init(ServletConfig config) throws ServletException
   {
     context=config.getServletContext();
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
+
     String confpath=
-      (String)context.getAttribute("org.cougaar.security.crypto.config");
+      secprop.getProperty(secprop.CRYPTO_CONFIG);
 
     confParser = new ConfParser(confpath, true);
   }

@@ -58,13 +58,15 @@ public class CertificateList extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
+    context=config.getServletContext();
+
     // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
 
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						 "false"))).booleanValue();
-    context=config.getServletContext();
-    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
+
+    String confpath=(String)secprop.getProperty(secprop.CRYPTO_CONFIG);
     if(debug)
       System.out.println("^^^^^^^^^^^^^^^^ In cert list  "+confpath);
     confParser = new ConfParser(confpath, true);

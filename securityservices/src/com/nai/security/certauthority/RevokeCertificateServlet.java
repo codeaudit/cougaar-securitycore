@@ -57,10 +57,10 @@ public class RevokeCertificateServlet extends  HttpServlet
 
   public void init(ServletConfig config) throws ServletException
   {
-    // TODO. Modify following line to use service broker instead
-    secprop = CryptoServiceProvider.getSecurityProperties();
-     
     context=config.getServletContext();
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
+     
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     if(debug)
@@ -78,8 +78,8 @@ public class RevokeCertificateServlet extends  HttpServlet
     String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");
    
-    String certpath=(String)context.getAttribute(secprop.CA_CERTPATH);
-    String confpath=(String)context.getAttribute(secprop.CRYPTO_CONFIG);
+    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
+    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
     
     out.println("<html>");
      out.println("<script language=\"javascript\">");
@@ -180,7 +180,7 @@ public class RevokeCertificateServlet extends  HttpServlet
        	out.println(" Got servlet  name :"+propname );
       }
     */
-    Enumeration enum =context.getAttributeNames();
+    Enumeration enum = context.getAttributeNames();
     for(;enum.hasMoreElements();)
       {
 	String propname=(String)enum.nextElement();

@@ -76,6 +76,6 @@ import org.cougaar.core.security.crypto.CryptoServiceProvider;
     // TODO. Modify following line to use service broker instead
     secprop = CryptoServiceProvider.getSecurityProperties();
 
-secprop.CRYPTO_DEBUG
+    secprop.CRYPTO_DEBUG
   */
 }

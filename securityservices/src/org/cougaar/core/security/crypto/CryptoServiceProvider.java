@@ -174,15 +174,19 @@ public class CryptoServiceProvider
 
   public static SecurityPropertiesService getSecurityProperties()
   {
+    return getSecurityProperties(null);
+  }
+
+  public static SecurityPropertiesService getSecurityProperties(javax.servlet.ServletContext context)
+  {
     /* Create a singleton class for now
      */
     synchronized(securityPropertiesServiceLock) {
       if (securityPropertiesService == null) {
-	securityPropertiesService = new SecurityPropertiesServiceImpl();
+	securityPropertiesService = new SecurityPropertiesServiceImpl(context);
       }
     }
     return securityPropertiesService;
   }
-
 
 }
