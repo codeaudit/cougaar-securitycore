@@ -80,6 +80,10 @@ public class DataProtectionKeyImpl
     return certificateChain[0].equals(certChain[0]);
   }
 
+  public int hashCode() {
+    return super.hashCode();
+  }
+  
   public String getDigestAlg() {
     return digestAlgSpec;
   }

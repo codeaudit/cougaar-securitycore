@@ -220,9 +220,10 @@ public class DataProtectionServiceImpl
 
     final String agent = dpsClient.getAgentIdentifier().toAddress();
 
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("getOutputStream for " + agent);
-
+    }
+    
     // check if there is key and certificate created for the client
     List certList = null;
 
@@ -264,6 +265,9 @@ public class DataProtectionServiceImpl
       dpKey = pke.getDataProtectionKey();
     }
     catch (Exception ioe) {
+      if (log.isDebugEnabled()) {
+        log.debug("Unable to get data protection key:" + ioe);
+      }
     }
     if (dpKey == null) {
       try {
@@ -438,8 +442,7 @@ public class DataProtectionServiceImpl
 
         if (keyCollection == null || keyCollection.size() == 0) {
           return;
-	}
-        CryptoPolicy cp = (CryptoPolicy)cps.getDataProtectionPolicy(agent);
+        }
         if (log.isDebugEnabled()) {
           log.debug("keyCollection size: " + keyCollection.size());
         }
@@ -512,9 +515,12 @@ public class DataProtectionServiceImpl
           skey = encryptionService.decryptSecretKey(
                           policy.asymmSpec,
                           (byte[])dpKey.getObject(),
-			  policy.symmSpec,
-			  dpKey.getCertificateChain()[0]);
+                          policy.symmSpec,
+                          dpKey.getCertificateChain()[0]);
         } catch (GeneralSecurityException gse) {
+          if (log.isDebugEnabled()) {
+            log.debug("Unable to decrypt key:" + gse);
+          }
         }
 
         if (skey == null) {
@@ -586,9 +592,13 @@ public class DataProtectionServiceImpl
           // wait for 20 minutes
           int wait_time = 1200000;
           try {
-            int configwait = Integer.parseInt(System.getProperty("org.cougaar.core.security.recoverytime", new Integer(wait_time).toString()));
+            int configwait = Integer.parseInt(System.getProperty("org.cougaar.core.security.recoverytime", Integer.toString(wait_time)));
             wait_time = configwait;
-          } catch (Exception tex) {}
+          } catch (Exception tex) {
+            if (log.isWarnEnabled()) {
+              log.warn("Unable to parse org.cougaar.core.security.recoverytime property: " + tex);
+            }
+          }
 
           int sleep_time = 10000;
           while (skey == null && wait_time > 0) {

@@ -60,7 +60,7 @@ public class PersistenceMgrPolicyServiceProvider
     _serviceBroker = sb;
     _myCommunity = community;
     if(_instance == null) {
-      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker, _myCommunity);
+      _instance = new PersistenceMgrPolicyServiceImpl(_serviceBroker);
     }
   }
 

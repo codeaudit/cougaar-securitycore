@@ -60,14 +60,13 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
   private KeyRingService keyRing;
   private EncryptionService encryptionService;
   private LoggingService log;
-  private MessageAddress persistenceAgentAddress;
   private BlackboardService bbs;
 
   /**
@@ -78,7 +77,6 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
    */
   public KeyRecoveryRequestHandler(ServiceBroker sb, MessageAddress address) {
     serviceBroker = sb;
-    persistenceAgentAddress = address;
 
     log = (LoggingService) serviceBroker.getService(this, LoggingService.class, null);
 
@@ -91,8 +89,7 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
   }
 
   private UnaryPredicate dataProtectionPredicate(
-    final DataProtectionKeyCollection keyCollection, 
-    final byte [] digest,
+    final byte [] digest, 
     final String agentName) {
     return new UnaryPredicate() {
       public boolean execute(Object o) {
@@ -216,7 +213,7 @@ if (log.isDebugEnabled()) {
     //check if exists on blackboard, if not return b/c invalid snap shot
       bbs.openTransaction();
     
-      Collection results = bbs.query(dataProtectionPredicate(keyCollection, dg1.digest(), agentName));
+      Collection results = bbs.query(dataProtectionPredicate(dg1.digest(), agentName));
       bbs.closeTransaction();
       if (results.size() == 0) {
         if (log.isWarnEnabled()) {

@@ -24,14 +24,13 @@ import java.util.HashMap;
 
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.component.ServiceBroker;
 
 
 /**
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -88,8 +87,6 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
           ServiceAvailableListener listener = new ServiceAvailableListener() {
             public void serviceAvailable(ServiceAvailableEvent ae) {
               Class sc = ae.getService();
-              boolean settingServices=false;
-              ServiceBroker sb = ae.getServiceBroker();
               if (sc == ThreadService.class && threadService == null) {
                 threadService = (ThreadService)
                   getServiceBroker().getService(this, 

@@ -28,7 +28,6 @@ package org.cougaar.core.security.dataprotection.plugin;
 
 import org.cougaar.core.security.util.SecurityServletSupport;
 import org.cougaar.core.security.dataprotection.DataProtectionStatus;
-import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,14 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PersistenceVerificationServlet
   extends  HttpServlet
 {
-  private SecurityServletSupport _support;
-  private LoggingService _log;
-
   public PersistenceVerificationServlet(SecurityServletSupport support) {
-    _support = support;
-    _log = (LoggingService)
-      _support.getServiceBroker().getService(this,
-					    LoggingService.class, null);
   }
 
   public void init(ServletConfig config)

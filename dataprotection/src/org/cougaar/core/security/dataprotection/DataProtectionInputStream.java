@@ -44,7 +44,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.SecurityEventPublisher;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.crypto.SignatureInputStream;
@@ -148,8 +147,7 @@ public class DataProtectionInputStream extends FilterInputStream {
 
     if (_sigIn != null) {
       // read to the end
-      while (read() != -1) {
-      }
+      while (read() != -1);
       _chunkIn.resetEnd();
       try {
         _sigIn.verifySignature();

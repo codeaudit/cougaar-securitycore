@@ -109,7 +109,7 @@ public class PersistenceMgrPolicyServiceImpl
   // because there are none available when they start persisting.
   private Hashtable pmListeners = new Hashtable();
 
-  public PersistenceMgrPolicyServiceImpl(ServiceBroker sb, String community) {
+  public PersistenceMgrPolicyServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
     _log = (LoggingService)sb.getService(this, LoggingService.class, null);
     _keyRing = (KeyRingService)sb.getService(this, KeyRingService.class, null);
