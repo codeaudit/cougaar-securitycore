@@ -667,14 +667,12 @@ public class AgentUserService implements UserService, BlackboardClient {
   private class BlackboardServiceListener implements ServiceAvailableListener {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (ae.getService().equals(BlackboardService.class)) {
-        Object obj =ae.getServiceBroker().
-          if (_bbs != null) {
-            if(_log.isDebugEnabled()){
-              _log.debug("Got Black B service starting subscription for AgentUser service");
-            }
-            ae.getServiceBroker().removeServiceListener(this);
-            startSubscription();
-          }
+        _bbs = (BlackboardService) ae.getServiceBroker().
+          getService(AgentUserService.this, BlackboardService.class, null);
+        if (_bbs != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+          startSubscription();
+        }
       }
     }
   }
