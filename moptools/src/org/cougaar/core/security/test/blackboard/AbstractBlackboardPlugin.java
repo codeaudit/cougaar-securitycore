@@ -40,13 +40,12 @@ import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
-import org.cougaar.servicediscovery.description.Classification;
 import org.cougaar.util.UnaryPredicate;
 
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Analyzer;
 import edu.jhuapl.idmef.DetectTime;
-
+import edu.jhuapl.idmef.Classification;
 
 /**
  * DOCUMENT ME!
