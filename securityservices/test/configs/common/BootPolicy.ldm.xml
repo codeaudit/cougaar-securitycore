@@ -9,10 +9,10 @@
  -->
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
     <RuleParam name="ldapurl">
-      <String value="ldap://tea:3890/"/>
+      <String value="ldap://u068:389/"/>
     </RuleParam>
     <RuleParam name="user">
-      <String value="cn=Manager,dc=couagaar,dc=org"/>
+      <String value="cn=manager,dc=cougaar,dc=org"/>
     </RuleParam>
     <RuleParam name="password">
       <String value="secret"/>
@@ -61,7 +61,6 @@
 -->
 
 <!-- BlackboardService read-only filter
--->
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.BlackboardFiltePolicy">
     <RuleParam name="read-only-rule">
       <KeySet value="org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet">
@@ -71,5 +70,6 @@
       </KeySet>
     </RuleParam>
   </Policy>
+-->
 
 </Policies>
