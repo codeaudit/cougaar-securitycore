@@ -405,6 +405,7 @@
     <target name="install-conf" depends="install-cougaarCA, install-daml, build-policies">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
+	<mkdir dir="${cougaar.install.path}/configs/security/bin"/>
         <!--
             Do not copy files individually. Files are now stored in JAR files
         -->
@@ -440,6 +441,10 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy file="${securityservices.base}/test/bin/createJarConfigFiles" 
+            todir="${cougaar.install.path}/configs/security/bin"/>
+        <copy file="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            todir="${cougaar.install.path}/configs/security/bin"/>
         <copy file="${securityservices.signed}/securityservices_config.jar" 
             todir="${cougaar.install.path}/configs/security"/>
         <copy file="${securityservices.signed}/log4j_config.jar" 
