@@ -1098,8 +1098,14 @@ public class DirectoryKeyStore implements Runnable
   
   public void checkOrMakeCert(String name){
       //check first
-      Certificate c = findCert(name);
-      if(c!=null) return;
+      Certificate c = null;
+      try{
+        c = findCert(name,false);
+          if(c!=null) return;
+      }catch(Exception e){
+          System.err.println("Can't locate the certificate for:"+name+"--"+e+".generating new one...");
+          e.printStackTrace();
+      }
       //we'll have to make one
       addKeyPair(name);
   }
