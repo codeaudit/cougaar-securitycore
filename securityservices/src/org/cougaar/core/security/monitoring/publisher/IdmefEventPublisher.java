@@ -3,25 +3,25 @@
  *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
 * CHANGE RECORD
-* - 
+* -
 */
 package org.cougaar.core.security.monitoring.publisher;
 
@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-/* 
+/*
 //for debugging purposes
 import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
@@ -73,11 +73,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * @see DataProtectionSensor
  */
 public class IdmefEventPublisher implements EventPublisher {
-  
+
   /**
    * Constructor
    */
-  public IdmefEventPublisher(BlackboardService bbs, CmrFactory cmrFactory, 
+  public IdmefEventPublisher(BlackboardService bbs, CmrFactory cmrFactory,
     LoggingService logger, SensorInfo info) {
     m_blackboard = bbs;
     m_logger = logger;
@@ -85,21 +85,21 @@ public class IdmefEventPublisher implements EventPublisher {
     m_idmefFactory = m_cmrFactory.getIdmefMessageFactory();
     m_sensorInfo = info;
   }
-  
+
   /**
    * method to publish an IDMEF message based on the events in the Collection.
    *
    * @param events a collection of events to publish as IDMEF messages
    */
   public void publishEvents(List events) {
-    if((events == null || 
-        events.size() > 0)){
+    if((events == null ||
+        events.size() == 0)){
       if(m_logger != null) {
         m_logger.warn("event list is empty!");
       }
-      return; 
+      return;
     }
-   
+
     if(m_blackboard != null) {
       boolean debug = m_logger.isDebugEnabled();
       Iterator i = events.iterator();
@@ -115,7 +115,7 @@ public class IdmefEventPublisher implements EventPublisher {
       }
     }
   }
-  
+
   /**
    * method to publish an IDMEF message based on the event
    *
@@ -129,7 +129,7 @@ public class IdmefEventPublisher implements EventPublisher {
 		      if(m_logger != null) {
 			  m_logger.warn("no event to publish!");
 		      }
-		      return; 
+		      return;
 		  }
 		  if(m_blackboard != null) {
 		      if(m_logger.isDebugEnabled()) {
@@ -148,12 +148,12 @@ public class IdmefEventPublisher implements EventPublisher {
 	  };
       tt.start();
   }
-  
+
   /**
    * private method to create an M&R domain objects
    */
-  private Event createIDMEFAlert(FailureEvent event){
-    List sources = null; 
+  protected Event createIDMEFAlert(FailureEvent event){
+    List sources = null;
     List targets = null;
     List classifications = new ArrayList(1);
     List data = new ArrayList();
@@ -164,7 +164,7 @@ public class IdmefEventPublisher implements EventPublisher {
 
     String src = event.getSource();
     String tgt = event.getTarget();
-    
+
     // create source information for the IDMEF event
     if(src != null) {
       List sRefList = new ArrayList(1);
@@ -188,7 +188,7 @@ public class IdmefEventPublisher implements EventPublisher {
     // add the event classification to the classification list
     classifications.add(m_idmefFactory.createClassification(event.getClassification(), null));
     String reason = event.getReason();
-    String evtData = event.getData(); 
+    String evtData = event.getData();
     if(reason != null) {
       data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
 			                                             event.getReasonIdentifier(),
@@ -212,17 +212,17 @@ public class IdmefEventPublisher implements EventPublisher {
       data = null;
     }
     // create the alert for this event
-    Alert alert = m_idmefFactory.createAlert(m_sensorInfo, 
-                                             event.getDetectTime(), 
-                                             sources, 
-                                             targets, 
+    Alert alert = m_idmefFactory.createAlert(m_sensorInfo,
+                                             event.getDetectTime(),
+                                             sources,
+                                             targets,
                                              classifications,
                                              data);
     /*
     if(m_logger.isDebugEnabled()) {
       try {
-        m_logger.debug("Alert in XML format:\n"); 
-        DocumentBuilder m_docBuilder = 
+        m_logger.debug("Alert in XML format:\n");
+        DocumentBuilder m_docBuilder =
           DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = m_docBuilder.newDocument();
         document.appendChild(alert.convertToXML(document));
@@ -235,14 +235,14 @@ public class IdmefEventPublisher implements EventPublisher {
     */
     return m_cmrFactory.newEvent(alert);
   }
-  
+
   // service needed to publish idmef messages
-  private BlackboardService m_blackboard = null;
+  protected BlackboardService m_blackboard = null;
   // service needed to do some appropriate logging
-  private LoggingService m_logger = null;
+  protected LoggingService m_logger = null;
   // factory used to create events that are published to the blackboard
-  private CmrFactory m_cmrFactory = null;
+  protected CmrFactory m_cmrFactory = null;
   // factory used to create idmef objects
-  private IdmefMessageFactory m_idmefFactory = null;
-  private SensorInfo m_sensorInfo = null;
+  protected IdmefMessageFactory m_idmefFactory = null;
+  protected SensorInfo m_sensorInfo = null;
 }
