@@ -151,8 +151,6 @@ END
 # commented out because of FreezeSociety
 #/\\$.*/log_inventory LogInventoryServlet
 #
-#{@enclaves.collect {|e| "/\\$#{e.capitalize}PolicyDomainManagerServlet/policyAdmin #{e.capitalize}PolicyServlet"}.join("\n")}
-/\\$.*/policyAdmin PolicyServlet
 
 #
 /\\$.*/move SocietyAdminServlet
@@ -162,10 +160,19 @@ END
 /\\$.*/useradmin UserManagerServlets
 /\\$.*/TestUserPolicy TestUserPolicyServlet
 
-/\\$.*/.* OtherServlets
-/.* OtherServlets
 
 END
+          file.write("/\\$.*/policyAdmin PolicyServlet\n")
+          run.society.each_agent do |agent|
+            agent.each_facet(:role) do |facet|
+              if facet[:role] == $facetPolicyServletManagerAgent then
+                enclave = agent.node.host.get_facet(:enclave).capitalize
+                file.write("/\\$#{agent.name}/policyAdmin #{enclave.capitalize}PolicyServlet\n")
+              end
+            end
+          end
+          file.write("/\\$.*/.* OtherServlets")
+          file.write("/.* OtherServlets")
         }
       end # def buildUriMap
 
