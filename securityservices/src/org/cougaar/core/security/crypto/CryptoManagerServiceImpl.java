@@ -392,7 +392,7 @@ public class CryptoManagerServiceImpl
     Cipher ci = null;
     try {
       ci = getCipher(spec);
-      ci.init(Cipher.ENCRYPT_MODE, key);
+      ci.init(Cipher.WRAP_MODE, key);
       return ci.wrap(skey);
 //       SealedObject so = new SealedObject(obj,ci);
 //       return so;
@@ -411,7 +411,7 @@ public class CryptoManagerServiceImpl
     try {
       PrivateKey key = getPrivateKey(name, cert);
       ci=getCipher(spec);
-      ci.init(Cipher.DECRYPT_MODE, key);
+      ci.init(Cipher.UNWRAP_MODE, key);
       return (SecretKey) ci.unwrap(encKey, keySpec, Cipher.SECRET_KEY);
     } finally {
       if (ci != null) {
