@@ -26,15 +26,16 @@
 
 package org.cougaar.core.security.services.identity;
 
+import org.cougaar.core.security.services.crypto.SSLService;
 import org.cougaar.core.component.Service;
 
 //import org.cougaar.lib.web.arch.server.*;
 import javax.net.ServerSocketFactory;
 
-public interface WebserverIdentityService extends Service {
+public interface WebserverIdentityService extends SSLService {
   /**
-   * This function should be called at Tomcat startup.
-   * It will perform the following:
+   * This function should be called at Tomcat startup, it will
+   * perform the following:
    *
    * 1. check whether there is a certificate for tomcat server, if not get one
    * 2. check whether the server cert has expired, if so get one
@@ -49,7 +50,6 @@ public interface WebserverIdentityService extends Service {
    * but the creation of SSLServerSocket will find no cert in keystore and will fail.
    *
    */
-
   ServerSocketFactory getWebServerSocketFactory();
 
   /**
