@@ -68,6 +68,10 @@ public class BasicAuthHandler extends AuthenticationHandler {
     this.username = username;
   }
 
+  public void setPassword(char [] password) {
+    _pa = new PasswordAuthentication(username, password);
+  }
+
   public String getDescription() {
     return "Basic password authentication";
   }

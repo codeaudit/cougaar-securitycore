@@ -115,6 +115,21 @@ public class UserAuthenticatorImpl
     } catch (Exception ex) {}
   }
 
+  // authenticate with password authentication only
+  public boolean authenticateWithPassword(String username, char [] password) {
+    for (Enumeration e = handlers.elements(); e.hasMoreElements(); ) {
+      AuthenticationHandler handler = (AuthenticationHandler)
+        e.nextElement();
+      if (handler instanceof BasicAuthHandler) {
+        BasicAuthHandler passHandler = (BasicAuthHandler)handler;
+        passHandler.setUserName(username);
+        passHandler.setPassword(password);
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean authenticateUser() throws Exception {
     if (handlers.size() == 0)
       return false;
