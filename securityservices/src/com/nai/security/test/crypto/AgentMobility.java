@@ -93,7 +93,7 @@ public class AgentMobility
     }
     X509Certificate signerCertificate =
       (X509Certificate)keyRing.findCert(signerAlias);
-    if (signerPrivKey == null) {
+    if (signerCertificate == null) {
       System.out.println("Error: unable to get certificate for sender node");
       return;
     }
@@ -104,7 +104,7 @@ public class AgentMobility
     PrivateKey privKey = keyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
       (X509Certificate)keyRing.findCert(pkcs12Alias);
-    if (signerPrivKey == null) {
+    if (privKey == null) {
       System.out.println("Error: unable to get agent key");
       return;
     }
