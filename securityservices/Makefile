@@ -38,7 +38,7 @@ clean-data:
 	rm -f  test/configs/demo/*.swp
 	rm -rf ${COUGAAR_INSTALL_PATH}/P
 
-jar: classes
+jar: build-classes
 # Build core.jar
 #	@echo +++++++ Building core.jar
 #	cd ${COUGAARCLASSES}; \
@@ -48,11 +48,16 @@ jar: classes
 #	rm -f /tmp/${USER}-cougaar.make.2
 #	@echo +++++++ Done Building core.jar
 #
-# Build bootstrapper
+# Build base bootstrapper
 	@echo +++++++ Building bootstrapper.jar
 	cd ${COUGAARCLASSES}; \
-	jar cf ${COUGAARCLASSES}/bootstrapper.jar com/nai/security/bootstrap
+	jar cf ${COUGAARCLASSES}/bootstrapper.jar org/cougaar/core/security/bootstrap/
 	@echo +++++++ Done Building bootstrapper.jar
+# Build secure bootstrapper 
+	@echo +++++++ Building securebootstrapper.jar
+	cd ${COUGAARCLASSES}; \
+	jar cf ${COUGAARCLASSES}/securebootstrapper.jar com/nai/security/bootstrap
+	@echo +++++++ Done Building securebootstrapper.jar
 
 # Build security services
 	@echo +++++++ Building securityservices.jar
@@ -65,7 +70,7 @@ jar: classes
 		com/nai/security/policy \
 		com/nai/security/test \
 		com/nai/security/util \
-		org 
+		org/cougaar/core/security/policy 
 	@echo +++++++ Done Building securityservices.jar
 
 build-classes: installconf
@@ -74,12 +79,14 @@ build-classes: installconf
 	echo ${COUGAARCLASSES}
 	./test/bin/myalpc src
 
-signjar: jar classes
+signjar: jar build-classes
 	@echo +++++++ Signing bootstrapper.jar and core.jar
 #	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 #		-storepass keystore ${COUGAARCLASSES}/core.jar privileged
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/bootstrapper.jar bootstrapper
+	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
+		-storepass keystore ${COUGAARCLASSES}/securebootstrapper.jar bootstrapper
 	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 		-storepass keystore ${COUGAARCLASSES}/securityservices.jar privileged
 	@echo +++++++ Done signing bootstrapper.jar and core.jar
@@ -87,6 +94,7 @@ signjar: jar classes
 install: installconf
 	@echo +++++++ Installing jar files into ${COUGAAR_INSTALL_PATH}
 	cp ${COUGAARCLASSES}/bootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
+	cp ${COUGAARCLASSES}/securebootstrapper.jar ${COUGAAR_INSTALL_PATH}/lib
 	cp ${COUGAARCLASSES}/securityservices.jar ${COUGAAR_INSTALL_PATH}/lib
 	@echo +++++++ Creating log directories
 	rm -rf ${COUGAAR_INSTALL_PATH}/log
