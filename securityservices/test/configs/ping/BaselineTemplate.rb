@@ -19,12 +19,11 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   # rule, which looks in the operator directory.  The code below 
   # will work in a stand-alone ACME setup. 
   host_file = nil 
-  host = @hostname unless host 
+  #host = @hostname unless host 
   Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
     host_file = file 
   end 
-  
   do_action "LayoutSociety", parameters[:layout_file], host_file
 
   do_action "TransformSociety", false, *parameters[:rules]
@@ -39,7 +38,9 @@ at :transformed_society
 
   do_action "StartCommunications"
 
-  do_action "CleanupSociety"
+  # The following action causes problems in the CSI testbed
+  # commented out
+  #do_action "CleanupSociety"
   do_action "Sleep", 10.seconds
 
   do_action "VerifyHosts"
@@ -49,11 +50,11 @@ at :transformed_society
   # optional: print the cougaar events 
   # 
   # this will also print the ping statistics events 
-  do_action "GenericAction" do |run| 
-     run.comms.on_cougaar_event do |event| 
-       puts event 
-     end 
-  end 
+  #do_action "GenericAction" do |run| 
+  #   run.comms.on_cougaar_event do |event| 
+  #     puts event 
+  #   end 
+  #end 
   
 at :setup_run
 
