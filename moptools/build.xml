@@ -98,6 +98,10 @@
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed signed jar files"/>
     </target>
+
+    <target name="install" depends="install-signed-jars">
+        <echo message="+++++ Installed MOP tools"/>
+    </target>
     
     <target name="install-unsigned-jars" depends="jar-moptools">
         <echo message="+++++ Installing jar files"/>

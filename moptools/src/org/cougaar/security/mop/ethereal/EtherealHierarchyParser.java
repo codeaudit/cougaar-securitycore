@@ -55,13 +55,18 @@ public class EtherealHierarchyParser
   "===========================";
 
   public static void main(String args[]) {
-    EtherealHierarchyParser ep = new EtherealHierarchyParser();
-    CryptoConfigParser pp = new CryptoConfigParser();
-    pp.parseConfigFile(null);
+    try {
+      EtherealHierarchyParser ep = new EtherealHierarchyParser();
+      CryptoConfigParser pp = new CryptoConfigParser();
+      pp.parseConfigFile(null);
 
-    ep.setProtocolPolicy(pp.getProtocolPolicy());
-    ep.parseResults(args);
-    ep.displayProtocolHierarchy();
+      ep.setProtocolPolicy(pp.getProtocolPolicy());
+      ep.parseResults(args);
+      ep.displayProtocolHierarchy();
+    }
+    catch (Exception e) {
+      System.out.println("Exception while processing data: " + e);
+    }
   }
 
   private void setProtocolPolicy(Map map) { _protocolPolicy = map; }
@@ -79,8 +84,9 @@ public class EtherealHierarchyParser
 
   public void parseResults(String args[]) {
     if (args.length != 1) {
-      _log.warn("First argument should be name of a capture file");
-      return;
+      String s = "First argument should be name of a capture file";
+      _log.warn(s);
+      throw new RuntimeException(s);
     }
     String filename = args[0];
     try {
