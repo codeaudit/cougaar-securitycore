@@ -131,6 +131,9 @@ public class CertificateCheckAspect
 		  + " is " + ret + " - " + nbcerts
                   + " certificates found - "
                   + super.getProtocolClass().getName());
+	if (ret == Integer.MAX_VALUE) {
+	  _log.debug("Dropping: " + message);
+	}
       }
       return ret;
     }
