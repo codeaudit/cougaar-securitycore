@@ -2,7 +2,7 @@
 
 <!DOCTYPE Policies SYSTEM "Policy.ldm.dtd" []>
 
-<!-- Policies for BOOTPOLICY -->
+<!-- Policies -->
 
 <Policies>
    <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.CryptoPolicy">
