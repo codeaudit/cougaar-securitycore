@@ -107,7 +107,7 @@ COMPONENT
   classpath = getClasspath
   `javac -d #{jarDir} -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
   jarFile = "#{$CIP}/lib/#{componentName}.jar"
-  createJar("*", jarFile, javaDir)
+  createJar("*", jarFile, jarDir)
   File.rm_all(jarDir)
   return jarFile
 end
