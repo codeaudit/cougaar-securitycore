@@ -10,7 +10,7 @@
     <property name="project.branch.name" value="${anthill.project.branch.name}"/>
 
     <!-- The parent directory of org.cougaar.install.path -->
-    <property name="org.cougaar.install.path.parent" value="${user.home}/UL"/>
+    <property name="org.cougaar.install.path.parent" value="${user.home}/nightly-cougaar"/>
 
     <!-- The name of the directory where Cougaar will be built 
          (or a cache of downloaded files) -->
@@ -19,6 +19,7 @@
     <!-- The name of the directory where overlays are downloaded -->
     <property name="overlays.directory.name" value="${base.directory.name}/staging"/>
 
+    <!-- cougaar install path on remote testbed -->
     <property name="testbed.cip.dir" value="~/UL/cougaar"/>
 
     <!-- Load additional properties which are used to upload
@@ -173,7 +174,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done ; for f in *.tar.gz ; do tar tfz $f ; done ;'"
+	command="sh -c 'cd ${testbed.cip.dir} ; for f in *.zip ; do unzip -o $f ; done ; for f in *.tar.gz ; do tar xvfz $f ; done ;'"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -194,7 +195,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
+	command="cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
         timeout="600000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
 
@@ -203,7 +204,7 @@
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; ruby ${testbed.cip.dir}/operator/security/checkTraceAlt.rb"
+	command="ruby ${testbed.cip.dir}/operator/security/checkTraceAlt.rb"
         timeout="120000"
         output="${analysis.directory.name}/sshexec.log" append="true"/>
     </target>
