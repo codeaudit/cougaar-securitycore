@@ -27,7 +27,7 @@ society.each_node do |node|
 	agent.add_component do |c|
           c.classname = "org.cougaar.core.security.monitoring.plugin.EventQueryPlugin"
           c.add_argument("SocietyMnRManager")
-          c.add_argument("#{enclave}-MnR-SECURITY-COMM")
+          c.add_argument("")
           c.add_argument("org.cougaar.core.security.monitoring.plugin.AllLoginFailures")
         end
         agent.add_component do |c|
