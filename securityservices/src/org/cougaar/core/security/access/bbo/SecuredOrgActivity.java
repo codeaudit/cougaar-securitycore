@@ -32,6 +32,9 @@
 
 package org.cougaar.core.security.access.bbo;
 
+import java.security.Permission;
+import java.util.HashMap;
+
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.auth.BlackboardObjectPermission;
 import org.cougaar.core.security.auth.ObjectContext;
@@ -43,9 +46,6 @@ import org.cougaar.glm.ldm.oplan.TimeSpan;
 import org.cougaar.glm.ldm.plan.GeolocLocation;
 import org.cougaar.planning.ldm.plan.LocationScheduleElement;
 import org.cougaar.planning.ldm.plan.Transferable;
-
-import java.security.Permission;
-import java.util.HashMap;
 
 public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   private        OrgActivity     _org;

@@ -34,6 +34,8 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Collection;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.planning.ldm.LatePropertyProvider;
@@ -43,8 +45,6 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.asset.PropertyGroup;
 import org.cougaar.planning.service.PrototypeRegistryService;
 import org.cougaar.util.StateModelException;
-
-import java.util.Collection;
 
 // this class is a proxy for the PrototypeRegistryService
 class PrototypeRegistryServiceProxy extends SecureServiceProxy 

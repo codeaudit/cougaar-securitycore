@@ -34,12 +34,12 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.TimerTask;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.thread.Schedulable;
-
-import java.util.TimerTask;
 
 // this class is a proxy for the ThreadService
 class ThreadServiceProxy extends SecureServiceProxy 

@@ -34,13 +34,13 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Hashtable;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.JaasClient;
 import org.cougaar.core.service.SchedulerService;
 import org.cougaar.util.Trigger;
-
-import java.util.Hashtable;
 
 /** 
  * Proxy class to shield the real scheduler from clients.  This proxy

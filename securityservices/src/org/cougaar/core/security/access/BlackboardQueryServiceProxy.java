@@ -34,12 +34,12 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Collection;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
 
 // this class is a proxy for the BlackboardQueryService
 class BlackboardQueryServiceProxy extends SecureServiceProxy 

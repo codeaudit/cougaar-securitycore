@@ -35,6 +35,8 @@
 package org.cougaar.core.security.access;
 
 // Cougaar core services
+import java.util.List;
+
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.BinderWrapper;
 import org.cougaar.core.component.ServiceBroker;
@@ -44,8 +46,6 @@ import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-
-import java.util.List;
 
 /*
  * add following line to the Node.ini file to activate this binder:

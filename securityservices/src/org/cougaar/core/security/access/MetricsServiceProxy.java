@@ -34,17 +34,17 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Hashtable;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Properties;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.qos.metrics.Metric;
 import org.cougaar.core.qos.metrics.MetricNotificationQualifier;
 import org.cougaar.core.qos.metrics.MetricsService;
 import org.cougaar.core.qos.metrics.VariableEvaluator;
 import org.cougaar.core.security.auth.ExecutionContext;
-
-import java.util.Hashtable;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Properties;
 
 // this class is a proxy for the MetricsService
 class MetricsServiceProxy extends SecureServiceProxy 

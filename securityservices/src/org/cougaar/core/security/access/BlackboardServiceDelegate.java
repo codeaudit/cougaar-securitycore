@@ -34,6 +34,9 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Collection;
+import java.util.Hashtable;
+
 import org.cougaar.core.blackboard.Subscriber;
 import org.cougaar.core.blackboard.SubscriberException;
 import org.cougaar.core.blackboard.Subscription;
@@ -48,9 +51,6 @@ import org.cougaar.core.security.auth.SecuredObject;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.Hashtable;
  
 /**
  * Delegates to the blackboard service if component has sufficient

@@ -34,6 +34,8 @@
 
 package org.cougaar.core.security.access;
 
+import java.util.Vector;
+
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -52,8 +54,6 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
-
-import java.util.Vector;
 
 import safe.enforcer.AgentEnforcer;
 

@@ -35,12 +35,12 @@
 package org.cougaar.core.security.access;
 
 // Cougaar core services
-import org.cougaar.core.mts.Message;
-import org.cougaar.core.security.acl.trust.TrustSet;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+
+import org.cougaar.core.mts.Message;
+import org.cougaar.core.security.acl.trust.TrustSet;
 
 public class MessageWithTrust
   extends Message
