@@ -121,7 +121,7 @@ extends XURLClassLoader
   }
   /*
    */
-  protected synchronized Class loadClass(String name, boolean resolve)
+  protected synchronized Class loadClass(final String name, boolean resolve)
     throws ClassNotFoundException {
     // First, check if the class has already been loaded
     Class c = findLoadedClass(name);
@@ -178,13 +178,17 @@ extends XURLClassLoader
 				+ c1.getClassLoader().toString());
 		}
 	      }
-	      return null;
+              // The return value is not used.
+              return null;
 	    }
 	  });
       }
       else {
 	_logger.info("Unable to find class: " + name);
       }
+    }
+    if (c == null) {
+      throw new ClassNotFoundException("Unable to find " + name);
     }
     if (resolve) {
       resolveClass(c);
