@@ -149,7 +149,9 @@ public class BouncePlugin extends ComponentPlugin {
     }
 
     List l = (List) o;
-    _id          = l.remove(0).toString();
+    if (l.size() != 0) {
+      _id = l.remove(0).toString();
+    }
     if (l.size() != 0) {
       _destination =  new ClusterIdentifier(l.remove(0).toString());
     }
@@ -205,7 +207,7 @@ public class BouncePlugin extends ComponentPlugin {
     DomainService        ds           = getDomainService(); 
     _cmrFactory                        = (CmrFactory) ds.getFactory("cmr");
 
-    if (_destination != null) {
+    if (_id != null && _destination != null) {
       for (int i = 0; i < _sendCount; i++) {
 	UID uid = new UID(_id, i);
 	CmrRelay relay = _cmrFactory.newCmrRelay(uid, _destination);

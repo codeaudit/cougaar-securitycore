@@ -45,11 +45,14 @@ public class KeySet
 	(certificates == null) || (certificates.length == 0)) {
       throw new IllegalArgumentException("Keys are not provided");
     }
-
+    
+    /*
+     * It is actually OK to have a different number of public and private keys
     if (privateKeys.length != certificates.length) {
       throw new
 	IllegalArgumentException("Number of keys and certs do not match");
     }
+    */
 
     this.privateKeys = privateKeys;
     this.certificates = certificates;

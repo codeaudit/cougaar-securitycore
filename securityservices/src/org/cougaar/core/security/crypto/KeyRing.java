@@ -561,5 +561,8 @@ final public class KeyRing
   public void addSSLCertificateToCache(X509Certificate cert) {
     directoryKeystore.addSSLCertificateToCache(cert);
   }
+  public void removeEntryFromCache(String commonName) {
+    directoryKeystore.removeEntryFromCache(commonName);
+  }
 }
 

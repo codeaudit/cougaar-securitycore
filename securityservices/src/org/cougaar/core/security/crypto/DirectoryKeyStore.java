@@ -970,6 +970,17 @@ public class DirectoryKeyStore
     storeKeyStore();
   }
 
+  public void removeEntryFromCache(String commonName) {
+    if (log.isInfoEnabled()) {
+      log.info("Removing entry from certificate cache:" + commonName);
+    }
+    X500Name x500Name = nameMapping.getX500Name(commonName);
+    certCache.deleteEntry(x500Name);
+    if (log.isDebugEnabled()) {
+      certCache.printCertificateCache();
+    }
+  }
+
   public void removeEntry(String commonName)
   {
     if (log.isInfoEnabled()) {
@@ -978,9 +989,6 @@ public class DirectoryKeyStore
 
     String alias = findAlias(commonName);
     deleteEntry(alias, commonName);
-
-    //certCache.deleteCertificate();
-    //certCache.deletePrivateKey();
 
     if (log.isDebugEnabled()) {
       certCache.printCertificateCache();
@@ -1259,10 +1267,10 @@ public class DirectoryKeyStore
       // Could establish a certificate chain. Certificate is trusted.
       // Update Certificate Status.
       if (log.isDebugEnabled()) {
-	log.debug("Certificate chain established");
+	log.debug("Certificate chain established for " + certificate.getSubjectDN().getName());
       }
       cs.setCertificateTrust(CertificateTrust.CERT_TRUST_CA_SIGNED);
-      certCache.updateBigInt2Dn(certificate);
+      certCache.updateBigInt2Dn(certificate,true);
       isTrusted = true;
     }
     catch (CertificateChainException exp) {
@@ -1384,8 +1392,10 @@ public class DirectoryKeyStore
     if (log.isDebugEnabled()) {
       log.debug("addCertificate from keystore");
     }
-    // Add the certificate to the cache
-    certCache.addCertificate(certstatus);
+    // Add the certificate to the cache.
+    // The certificate status may be an update, so we need to retrieve
+    // the real certificate status from the cache.
+    certstatus = certCache.addCertificate(certstatus);
     // Update Common Name to DN hashtable
     nameMapping.addName(certstatus);
 

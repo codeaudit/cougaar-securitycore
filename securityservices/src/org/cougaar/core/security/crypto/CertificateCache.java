@@ -241,10 +241,12 @@ public class CertificateCache
     }
   }
 
-  private void addCertStatus(List list, CertificateStatus certEntry,
-			     PrivateKey privkey)
+  private CertificateStatus addCertStatus(List list, CertificateStatus certEntry,
+					  PrivateKey privkey)
     throws SecurityException
   {
+    CertificateStatus ret = certEntry;
+
     if(certEntry != null) {
       X509Certificate cert = certEntry.getCertificate();
       // Retrieve the distinguished name, which is used as a key in
@@ -308,7 +310,7 @@ public class CertificateCache
 	    // Update the certificate trust field with the new one.
 	    // All other fields cannot change.
 	    if((aCertEntry.isValid()==false)&&(certEntry.isValid()==false)) {
-	      return;
+	      return ret;
 	    }
 
 	    /*
@@ -364,7 +366,7 @@ public class CertificateCache
 	      }
 	      aCertEntry.setCertificateOrigin(certEntry.getCertificateOrigin());
 	    }
-
+	    ret = aCertEntry;
 	    found = true;
 	    break;
 	  }
@@ -416,11 +418,13 @@ public class CertificateCache
 	}
       }
     }
+    return ret;
   }
 
   /** Add a certificate to the cache */
-  public void addCertificate(CertificateStatus certEntry)
+  public CertificateStatus addCertificate(CertificateStatus certEntry)
   {
+    CertificateStatus ret = certEntry;
     if(certEntry != null) {
       X509Certificate cert = certEntry.getCertificate();
       // Retrieve the distinguished name, which is used as a key in
@@ -439,7 +443,7 @@ public class CertificateCache
 	  CertificateTrust.CERT_TRUST_CA_SIGNED) ||
 	 (certEntry.getCertificateTrust()
 	  == CertificateTrust.CERT_TRUST_CA_CERT))    {
-	updateBigInt2Dn(cert);
+	updateBigInt2Dn(cert, true);
       }
       else {
 	if(log.isInfoEnabled())
@@ -452,37 +456,46 @@ public class CertificateCache
 	list = Collections.synchronizedList(new ArrayList());
       }
 
-      if(log.isDebugEnabled())
+      if(log.isDebugEnabled()) {
 	log.debug("CertificateCache.addCertificate");
-      addCertStatus(list, certEntry, null);
+      }
+      ret = addCertStatus(list, certEntry, null);
       certsCache.put(principal.getName(), list);
     }
+    return ret;
   }
 
-  public void updateBigInt2Dn(X509Certificate cert) {
+  /**
+   * @param actionIsPut: true if adding to hashtable. false if removing from hashtable.
+   */
+  public void updateBigInt2Dn(X509Certificate cert, boolean actionIsPut) {
     CRLKey crlkey=null;
     String subjectDN=cert.getSubjectDN().getName();
     String issuerDN=cert.getIssuerDN().getName();
     BigInteger bigint=cert.getSerialNumber();
     crlkey=new CRLKey(bigint,issuerDN);
 
-    if(bigint2dn.contains(crlkey)) {
-
-      if(log.isWarnEnabled()) {
-	log.warn("Bigint to dn mapping already contains key ::"
-		 +crlkey.toString());
-	log.warn("Warning !!!! Overriding existing entry :"
-		 +bigint2dn.get(crlkey));
-	bigint2dn.put(crlkey,subjectDN);
+    if (actionIsPut) {
+      if(bigint2dn.contains(crlkey) && log.isWarnEnabled()) {
+	log.warn("Bigint to dn mapping already contains key. "
+		 + crlkey.toString() + ". Overriding existing entry :"
+		 + bigint2dn.get(crlkey));
       }
+      else {
+	if(log.isDebugEnabled()) {
+	  log.debug(" Adding entry to Bigint to dn mapping "
+		    +crlkey.toString() + "subjectdn ::" +subjectDN);
+	}
+      }
+      bigint2dn.put(crlkey,subjectDN);
     }
     else {
       if(log.isDebugEnabled()) {
-	log.debug(" Adding entry to Bigint to dn mapping "
+	log.debug(" Removing entry to Bigint to dn mapping "
 		  +crlkey.toString() + "subjectdn ::" +subjectDN);
       }
+      bigint2dn.remove(crlkey);
     }
-    bigint2dn.put(crlkey,subjectDN);
     if(log.isDebugEnabled()) {
       printbigIntCache();
     }
@@ -548,9 +561,10 @@ public class CertificateCache
       list = Collections.synchronizedList(new ArrayList());
     }
 
-    if(log.isDebugEnabled())
+    if(log.isDebugEnabled()) {
       log.debug("CertificateCache.addPrivateKey");
-     addCertStatus(list, certEntry, privatekey);
+    }
+    addCertStatus(list, certEntry, privatekey);
 
     privateKeyCache.put(principal.getName(), list);
   }
@@ -720,5 +734,32 @@ public class CertificateCache
 
     }
     return isTrustedAndValid;
+  }
+
+  public void deleteEntry(X500Name name) {
+    if (name == null) {
+      log.warn("Unable to remove null entry from cache.");
+      throw new IllegalArgumentException("Unable to remove null entry from cache.");
+    }
+    String distinguishedName = name.getName();
+
+    // Update the CRL hashtable
+    List certList = getCertificates(distinguishedName);
+    Iterator it = certList.iterator();
+    CertificateStatus certstatus = null;
+    while (it.hasNext()) {
+      if (log.isDebugEnabled()) {
+	log.debug("Removing " + distinguishedName + " from CRL checking hashtable");
+      }
+      certstatus = (CertificateStatus) it.next();
+      updateBigInt2Dn(certstatus.getCertificate(), false);
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("Removing " + distinguishedName + " from certificate cache");
+    }
+
+    certsCache.remove(distinguishedName);
+    privateKeyCache.remove(distinguishedName);
   }
 }

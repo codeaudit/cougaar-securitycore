@@ -195,6 +195,8 @@ public class AgentIdentityServiceImpl
       log.debug("release identity:"
 		+ requestorAddress.toAddress());
     }
+    // Remove entry from certificate cache
+    keyRing.removeEntryFromCache(requestorAddress.toAddress());
   }
 
   /*
@@ -472,6 +474,7 @@ public class AgentIdentityServiceImpl
        * It should be ok to have a different number of private keys and public keys.
        */
       if (certificates.length != privateKeys.length) {
+	log.warn("Operation not supported yet. Number of certificates and private keys should match.");
 	return;
       }
       /* Step 2 */

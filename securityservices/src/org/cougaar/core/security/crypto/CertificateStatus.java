@@ -176,10 +176,31 @@ public class CertificateStatus
   }
 
   public void setCertificateTrust(CertificateTrust trust) {
+    if (log.isDebugEnabled()) {
+      String msg = "Set certificate trust:" + trust + " for ";
+      if (certificate != null) {
+	msg = msg + ((X509Certificate) certificate).getSubjectDN().toString();
+      }
+      else {
+	msg = msg + "unknown";
+      }
+      log.debug(msg);
+    }
+
     certificateTrust = trust;
   }
 
   public void setCertificateType(CertificateType type) {
+    if (log.isDebugEnabled()) {
+      String msg = "Set certificate type:" + type + " for ";
+      if (certificate != null) {
+	msg = msg + ((X509Certificate) certificate).getSubjectDN().toString();
+      }
+      else {
+	msg = msg + "unknown";
+      }
+      log.debug(msg);
+    }
     certificateType = type;
   }
 

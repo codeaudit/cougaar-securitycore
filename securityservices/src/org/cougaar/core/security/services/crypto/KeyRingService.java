@@ -151,5 +151,5 @@ public interface KeyRingService extends Service {
   void updateNS(X500Name x500name);
 
   void addSSLCertificateToCache(X509Certificate cert);
-
+  void removeEntryFromCache(String commonName);
 }
