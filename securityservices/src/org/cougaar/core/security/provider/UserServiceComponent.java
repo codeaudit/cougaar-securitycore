@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 BBNT Solutions, LLC
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -35,17 +35,19 @@ import org.cougaar.core.security.provider.UserServiceProvider;
 
 public class UserServiceComponent extends ComponentSupport
 {
-  boolean _serviceSet = false;
+  AgentIdentificationService _ais;
+
   public UserServiceComponent() {
   }
 
   public void setAgentIdentificationService(AgentIdentificationService ais) {
-    if (!_serviceSet) {
-      _serviceSet = true;
-      BindingSite bs = getBindingSite();
-      ServiceBroker sb = bs.getServiceBroker();
-      MessageAddress agent = ais.getMessageAddress();
-      sb.addService(UserService.class, new UserServiceProvider(agent));
-    }
+    _ais = ais;
+  }
+
+  public void load() {
+    super.load();
+    MessageAddress agent = _ais.getMessageAddress();
+    ServiceBroker sb = getServiceBroker();
+    sb.addService(UserService.class, new UserServiceProvider(agent));
   }
 }
