@@ -40,6 +40,8 @@ import org.cougaar.core.service.UIDService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,6 +170,8 @@ public class UserManagerPlugin extends ComponentPlugin {
                 " users and " + _userCache.getRoleCount() + 
                 " roles");
       _rehydrated = true;
+      // also process the relays left on the blackboard
+      process(bbs.query(UNANSWERED_CAS_TARGETS));
     } else {
       UIDService uidService = (UIDService)
         getServiceBroker().getService(this, UIDService.class, null);
@@ -180,23 +184,37 @@ public class UserManagerPlugin extends ComponentPlugin {
   }
 
   public void execute() {
-    if (_relaySub.hasChanged()) {
-      Iterator iter = _relaySub.getAddedCollection().iterator();
-      while (iter.hasNext()) {
-        CasRelay relay = (CasRelay) iter.next();
-        CasRequest request = (CasRequest) relay.getContent();
-        try {
-          CasResponse response = getResponse(request);
-          relay.setResponse(response);
-          getBlackboardService().publishChange(relay);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        if (_log.isDebugEnabled()) {
-          _log.debug("Responded to relay: " + relay);
-        }
-      } // end of while (iter.hasNext())
+    if (_log.isDebugEnabled()) {
+      _log.debug("Execute called: _relaySub.hasChanged(): " + _relaySub.hasChanged());
     }
+    if (_relaySub.hasChanged()) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Added: " + _relaySub.getAddedCollection().size());
+      }
+      Collection added = _relaySub.getAddedCollection();
+      process(added);
+    }
+  }
+
+  private void process(Collection added) {
+    Iterator iter = added.iterator();
+    while (iter.hasNext()) {
+      CasRelay relay = (CasRelay) iter.next();
+      if (_log.isDebugEnabled()) {
+	_log.debug("Relay: " + relay);
+      }
+      CasRequest request = (CasRequest) relay.getContent();
+      try {
+	CasResponse response = getResponse(request);
+	relay.setResponse(response);
+	getBlackboardService().publishChange(relay);
+      } catch (Exception e) {
+	_log.warn("Caught exception when setting the response", e);
+      }
+      if (_log.isDebugEnabled()) {
+	_log.debug("Responded to relay: " + relay);
+      }
+    } // end of while (iter.hasNext())
   }
   
   private void readUsers(InputStream in) {
@@ -397,9 +415,23 @@ public class UserManagerPlugin extends ComponentPlugin {
 
   private static final UnaryPredicate CAS_TARGETS = 
     new UnaryPredicate() {
+//         Logger _log = LoggerFactory.getInstance().createLogger(this);
         public boolean execute(Object obj) {
+//           if (_log.isDebugEnabled()) {
+//             _log.debug("Comparing against object of class: " + obj.getClass().getName() + " will return " + (obj instanceof CasRelay && 
+//                   ((CasRelay) obj).isTarget()));
+//           }
           return (obj instanceof CasRelay && 
                   ((CasRelay) obj).isTarget());
+        }
+      };
+
+  private static final UnaryPredicate UNANSWERED_CAS_TARGETS = 
+    new UnaryPredicate() {
+        public boolean execute(Object obj) {
+          return (obj instanceof CasRelay && 
+                  ((CasRelay) obj).isTarget() &&
+		  ((CasRelay) obj).getResponse() == null);
         }
       };
 
