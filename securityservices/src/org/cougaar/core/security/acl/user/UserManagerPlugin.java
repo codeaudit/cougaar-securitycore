@@ -40,6 +40,8 @@ import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // overlay class
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -128,12 +130,7 @@ public class UserManagerPlugin extends ComponentPlugin {
     }
   }
 
-  private void setDomain() {
-    CommunityService cs = (CommunityService)
-      getServiceBroker().getService(this, CommunityService.class, null);
-    AgentIdentificationService ais = (AgentIdentificationService)
-      getServiceBroker().getService(this, AgentIdentificationService.class,
-                                    null);
+  private void setDomain(CommunityService cs, AgentIdentificationService ais) {
     String myAddress = ais.getName();
     Collection communities = cs.listParentCommunities(myAddress);
     Iterator iter = communities.iterator();
@@ -165,7 +162,19 @@ public class UserManagerPlugin extends ComponentPlugin {
    * Register this sensor's capabilities
    */
   protected void setupSubscriptions() {
-    setDomain();
+    CommunityService cs = (CommunityService)
+      getServiceBroker().getService(this, CommunityService.class, null);
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class,
+                                    null);
+    if (cs == null || ais == null) {
+      getServiceBroker().addServiceListener(new MyServiceListener(ais, cs));
+    } else {
+      setDomain(cs, ais);
+      getServiceBroker().releaseService(this, CommunityService.class, cs);
+      getServiceBroker().releaseService(this, AgentIdentificationService.class,
+                                        ais);
+    }
     BlackboardService bbs = getBlackboardService();
     Collection entries = bbs.query(USER_ENTRIES);
     if (entries.size() != 0) {
@@ -418,4 +427,35 @@ public class UserManagerPlugin extends ComponentPlugin {
                   ((CasRelay) obj).isTarget());
         }
       };
+
+
+  private class MyServiceListener implements ServiceAvailableListener {
+    private AgentIdentificationService _ais;
+    private CommunityService     _cs;
+
+    public MyServiceListener(AgentIdentificationService ais,
+                             CommunityService cs) {
+      _ais = ais;
+      _cs = cs;
+    }
+
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (_cs == null && ae.getService().equals(CommunityService.class)) {
+        _cs = (CommunityService) ae.getServiceBroker().
+           getService(this, CommunityService.class, null);
+      } else if (_ais == null &&
+                 ae.getService().equals(AgentIdentificationService.class)) {
+        _ais = (AgentIdentificationService) ae.getServiceBroker().
+          getService(this, AgentIdentificationService.class, null);
+      }
+      if (_ais != null && _cs != null) {
+        ae.getServiceBroker().removeServiceListener(this);
+        setDomain(_cs, _ais);
+        getServiceBroker().releaseService(this, CommunityService.class, _cs);
+        getServiceBroker().releaseService(this, 
+                                          AgentIdentificationService.class,
+                                          _ais);
+      }
+    }
+  }
 }

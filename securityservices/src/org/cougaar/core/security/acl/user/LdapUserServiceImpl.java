@@ -64,6 +64,8 @@ import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // KAoS
 import safe.enforcer.NodeEnforcer;
@@ -141,6 +143,14 @@ public class LdapUserServiceImpl implements UserService {
     String agent = address.getAddress();
     CommunityService cs = (CommunityService)
       sb.getService(this, CommunityService.class, null);
+    if (cs == null) {
+      _serviceBroker.addServiceListener(new CommunityServiceListener(agent));
+    } else {
+      setDefaultDomain(cs, agent);
+    }
+
+  }
+  private void setDefaultDomain(CommunityService cs, String agent) {
     Collection communities = 
       cs.listParentCommunities(agent);
     Iterator iter = communities.iterator();
@@ -1003,6 +1013,28 @@ public class LdapUserServiceImpl implements UserService {
           ldap.setUserAttributes();
           ldap.setRoleAttributes();
           ldap.resetContext();
+        }
+      }
+    }
+  }
+
+
+  private class CommunityServiceListener implements ServiceAvailableListener {
+    private String _agent;
+
+    public CommunityServiceListener(String agent) {
+      _agent = agent;
+    }
+
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(CommunityService.class)) {
+        CommunityService cs = (CommunityService) ae.getServiceBroker().
+           getService(this, CommunityService.class, null);
+        if (cs != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+          setDefaultDomain(cs, _agent);
+          ae.getServiceBroker().releaseService(this, CommunityService.class,
+                                               cs);
         }
       }
     }
