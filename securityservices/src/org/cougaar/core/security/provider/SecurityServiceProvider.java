@@ -173,6 +173,13 @@ public class SecurityServiceProvider
     serviceBroker.addService(SecurityPropertiesService.class, this);
 
     /* ********************************
+     * Configuration services
+     */
+    services.put(ConfigParserService.class,
+		 new ConfigParserServiceProvider());
+    serviceBroker.addService(ConfigParserService.class, this);
+
+    /* ********************************
      * Encryption services
      */
     /* Certificate Management service */
@@ -230,12 +237,6 @@ public class SecurityServiceProvider
 		 new SSLServiceProvider());
     serviceBroker.addService(SSLService.class, this);
 
-    /* ********************************
-     * Configuration services
-     */
-    services.put(ConfigParserService.class,
-		 new ConfigParserServiceProvider());
-    serviceBroker.addService(ConfigParserService.class, this);
   }
 
   /* ******************************************************************
