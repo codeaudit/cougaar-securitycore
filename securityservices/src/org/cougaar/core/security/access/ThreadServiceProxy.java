@@ -124,6 +124,23 @@ class ThreadServiceProxy extends SecureServiceProxy
       _scs.resetExecutionContext();
       return retval; 
     } 
+    public int getBlockingType() {
+      Integer retval = new Integer(-1);
+      _scs.setExecutionContext(_ec);
+      // TODO For B11_4 integration
+      // Replace introspection with simple method invocation:
+      // retval = _schedulable.getBlockingType();
+      try {
+        Method m = _schedulable.getClass().getMethod("getBlockingType", null);
+        retval = (Integer) m.invoke(_schedulable, null);
+      }
+      catch (Exception e) {
+        // This should never happen in B11_2, as Schedulable does
+        // not implement getBlockingType()
+      }
+      _scs.resetExecutionContext();
+      return retval.intValue(); 
+    }
     public int getState() {
       int retval = 0;
       _scs.setExecutionContext(_ec);
