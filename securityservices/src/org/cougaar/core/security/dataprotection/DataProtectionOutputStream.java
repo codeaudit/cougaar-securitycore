@@ -235,7 +235,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
         if (log.isDebugEnabled()) {
           log.debug("trying to send session key using relay " + agent + " at time " + timestamp);
         }
-        KeyRecoveryRequestHandler.printBytes(sig, 0, 10, log);
+//        KeyRecoveryRequestHandler.printBytes(sig, 0, 10, log);
 
         for (int i = 1; i < keyCollection.size(); i++) {
           DataProtectionKeyImpl pmKey = (DataProtectionKeyImpl)
