@@ -18,6 +18,7 @@ import org.cougaar.core.service.UIDService;
 import java.util.Collection;
 import java.util.TimerTask;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 
@@ -25,7 +26,7 @@ import java.util.HashMap;
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -33,9 +34,8 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
     private UIDService uidService;
     private LoggingService logging;
     private ThreadService threadService;
-    //private static HashMap _pluginMap = new HashMap();
-    private static SessionKeySenderPlugin _senderPlugin = null;
-    private static ArrayList _keyCache = new ArrayList();
+    private static HashMap _pluginMap = new HashMap();
+    private static HashMap _keyCache = new HashMap();
 
     /**
      * Set logging service
@@ -75,9 +75,9 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
             logging.debug(pluginName + " setting up");
         }
 
-//        _pluginMap.put(this.getAgentIdentifier().getAddress(), this);
-        _senderPlugin = this;
-        processKeyCache();
+        String agent = this.getAgentIdentifier().getAddress();
+        _pluginMap.put(agent, this);
+        processKeyCache(agent);
 /*
         RelaySessionKey.getInstance().addPlugin(this.getAgentIdentifier()
                                                     .getAddress(), this);
@@ -85,14 +85,17 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
         
     }
 
-    private void processKeyCache() {
+    private void processKeyCache(String agent) {
       logging.debug("processing keys cached");
       synchronized (_keyCache) {
-        for (int i = 0; i < _keyCache.size(); i++) {
-          SharedDataRelay sdr = (SharedDataRelay)_keyCache.get(i);
+        List list = (List)_keyCache.get(agent);
+        if (list == null)
+          return;
+        for (int i = 0; i < list.size(); i++) {
+          SharedDataRelay sdr = (SharedDataRelay)list.get(i);
           sendSessionKey(sdr);
         } // for
-        _keyCache.clear();
+        _keyCache.remove(agent);
       } // sync
     }
 
@@ -117,17 +120,18 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
         SharedDataRelay sdr = new SharedDataRelay(null, source,
                 target, keyCollection, null);
 
-/*
         SessionKeySenderPlugin plugin = (SessionKeySenderPlugin)
           _pluginMap.get(agent);
         if (plugin != null) {
           plugin.sendSessionKey(sdr);
-*/   
-        if (_senderPlugin != null) {
-          _senderPlugin.sendSessionKey(sdr);
         }        
         else {
-          _keyCache.add(sdr);
+          List list = (List)_keyCache.get(agent);
+          if (list == null) {
+            list = new ArrayList();
+            _keyCache.put(agent, list);
+          }
+          list.add(sdr);
         }
      }
 
