@@ -84,6 +84,7 @@ import org.cougaar.core.thread.Schedulable;
 import org.cougaar.util.ConfigFinder;
 
 import sun.security.x509.X500Name;
+import javax.net.ssl.X509TrustManager;
 
 /** A hash table to store certificates from keystore, caKeystore and
  * the LDAP directory service, indexed by distinguished name.
@@ -1426,11 +1427,11 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
   }
 
   public static String getTitle(String commonName) {
-    String title = CertificateType.CERT_TITLE_AGENT;
+    String title = CertificateCacheConstants.CERT_TITLE_AGENT;
     if (commonName.equals(NodeInfo.getNodeName()))
-      title = CertificateType.CERT_TITLE_NODE;
+      title = CertificateCacheConstants.CERT_TITLE_NODE;
     else if (commonName.equals(NodeInfo.getHostName()))
-      title = CertificateType.CERT_TITLE_SERVER;
+      title = CertificateCacheConstants.CERT_TITLE_SERVER;
     return title;
   }
 
@@ -1497,7 +1498,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
                             CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
     // need to check whether it is a CA
     String title = CertificateUtility.findAttribute(importCert.getSubjectDN().getName(), "t");
-    if (title != null && title.equals(CertificateType.CERT_TITLE_CA)) {
+    if (title != null && title.equals(CertificateCacheConstants.CERT_TITLE_CA)) {
       certstatus.setCertificateType(CertificateType.CERT_TYPE_CA);
     }
 
@@ -1522,7 +1523,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
     String title = CertificateUtility.findAttribute(dname, "t");
     CertificateType certType = CertificateType.CERT_TYPE_END_ENTITY;
-    if (title != null && title.equals(CertificateType.CERT_TITLE_CA))
+    if (title != null && title.equals(CertificateCacheConstants.CERT_TITLE_CA))
       certType = CertificateType.CERT_TYPE_CA;
     CertificateStatus certstatus =
       new CertificateStatus(sslCert,
@@ -1739,7 +1740,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     }
   }
 
-  public void addTrustListener(TrustManager tm) {
+  public void addTrustListener(X509TrustManager tm) {
     trustListeners.add(tm);
   }
 
