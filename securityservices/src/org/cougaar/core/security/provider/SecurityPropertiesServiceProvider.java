@@ -50,6 +50,15 @@ public class SecurityPropertiesServiceProvider
   /** A singleton service to use when servlet context is null.
      */
   static private SecurityPropertiesService secProp;
+
+
+  /**
+   * Get a service.
+   * @param sb a Service Broker
+   * @param requestor the requestor of the service
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @return a service
+   */
   public synchronized Object getService(ServiceBroker sb, 
 					Object requestor, 
 					Class serviceClass) {
@@ -84,6 +93,12 @@ public class SecurityPropertiesServiceProvider
     return securityPropertiesService;
   }
 
+  /** Release a service.
+   * @param sb a Service Broker.
+   * @param requestor the requestor of the service.
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @param service the service to be released.
+   */
   public void releaseService(ServiceBroker sb,
 			     Object requestor,
 			     Class serviceClass,

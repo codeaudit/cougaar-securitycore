@@ -45,11 +45,25 @@ public class AgentIdentityServiceProvider
   implements ServiceProvider
 {
 
+  /**
+   * Get a service.
+   * @param sb a Service Broker
+   * @param requestor the requestor of the service
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @return a service
+   */
   public Object getService(ServiceBroker sb, 
 			   Object requestor, 
 			   Class serviceClass) {
     return new AgentIdentityServiceImpl(sb, requestor);
   }
+
+  /** Release a service.
+   * @param sb a Service Broker.
+   * @param requestor the requestor of the service.
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @param service the service to be released.
+   */
   public void releaseService(ServiceBroker sb,
 			     Object requestor,
 			     Class serviceClass,

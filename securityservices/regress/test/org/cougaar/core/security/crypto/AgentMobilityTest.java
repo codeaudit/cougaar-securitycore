@@ -24,7 +24,7 @@
  * - 
  */
 
-package org.cougaar.core.security.test.crypto;
+package test.org.cougaar.core.security.test.crypto;
 
 import java.io.*;
 import java.util.*;
@@ -57,61 +57,78 @@ import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
-public class AgentMobility
+import junit.framework.*;
+
+// Regress
+import test.org.cougaar.core.security.simul.BasicNode;
+
+public class AgentMobilityTest
+  extends TestCase
 {
   private SecurityServiceProvider secProvider = null;
+  private BasicNode bn;
   private KeyRingService keyRing = null;
   private AgentIdentityService agentIdentity = null;
 
-  public AgentMobility()
+  public AgentMobilityTest(String name)
   {
-    secProvider = new SecurityServiceProvider();
+    super(name);
+  }
+
+  public void setUp() {
+    // Initialize Basic Node
+    bn = new BasicNode();
+    Assert.assertNotNull("Could not get Basic Node", bn);
+
+    secProvider = bn.getSecurityServiceProvider();
 
     keyRing = (KeyRingService)secProvider.getService(null,
 						     this,
 						     KeyRingService.class);
+    Assert.assertNotNull("Could not get KeyRingService", keyRing);
 
+    agentIdentity = (AgentIdentityService)
+      secProvider.getService(null,
+			     this,
+			     AgentIdentityService.class);
+    Assert.assertNotNull("Could not get AgentIdentityService",
+			 agentIdentity);
   }
 
   /** Test code only. */
-  public static void main(String[] args) {
-    /* args[0] : alias of signer
-     * args[1] : alias of key to put in PKCS#12
-     * args[2] : alias of receiver
-     */
-
-    AgentMobility m = new AgentMobility();
-
-    m.testAgentMobility(args);
+  public void testAgentMobility() {
+    String signerAlias = "theSender";
+    String pkcs12Alias = "theSender";
+    String receiverAlias = "theReceiver";
+    testAgentMobility(signerAlias, pkcs12Alias, receiverAlias);
   }
 
-  public void testAgentMobility(String[] args) {
-    String signerAlias = args[0];
-    String pkcs12Alias = args[1];
-    String receiverAlias = args[2];
+  private void testAgentMobility(String signerAlias,
+				 String pkcs12Alias,
+				 String receiverAlias) {
 
     MessageAddress agent = new MessageAddress(pkcs12Alias);
     MessageAddress signer = new MessageAddress(signerAlias);
     MessageAddress receiver = new MessageAddress(receiverAlias);
 
-    if (CryptoDebug.debug) {
-      System.out.println("======== Wrapping key");
-    }
+    System.out.println("======== Wrapping key");
     TransferableIdentity identity =
       agentIdentity.transferTo(receiver);
-    if (CryptoDebug.debug) {
-      System.out.println("======== Unwrapping key");
-    }
+
+    Assert.assertNotNull("Unable to wrap key",
+			 identity);
+
+    System.out.println("======== Unwrapping key");
     KeySet keySet = null;
     try {
       agentIdentity.acquire(identity);
     }
     catch (Exception e) {
-      System.out.println("ERROR: " + e);
+      Assert.assertTrue("Unable to reacquire key: " + e, false);
     }
   }
 
-  public void testAgentMobilityWithPkcs12(String[] args) {
+  private void testAgentMobilityWithPkcs12(String[] args) {
 
     String signerAlias = args[0];
     String pkcs12Alias = args[1];

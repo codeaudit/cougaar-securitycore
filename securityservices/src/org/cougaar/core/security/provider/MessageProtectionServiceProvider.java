@@ -45,6 +45,13 @@ public class MessageProtectionServiceProvider
 
   static private MessageProtectionService mps;
 
+  /**
+   * Get a service.
+   * @param sb a Service Broker
+   * @param requestor the requestor of the service
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @return a service
+   */
   public synchronized Object getService(ServiceBroker sb, 
 					Object requestor, 
 					Class serviceClass) {
@@ -53,6 +60,13 @@ public class MessageProtectionServiceProvider
     }
     return mps;
   }
+
+  /** Release a service.
+   * @param sb a Service Broker.
+   * @param requestor the requestor of the service.
+   * @param serviceClass a Class, usually an interface, which extends Service.
+   * @param service the service to be released.
+   */
   public void releaseService(ServiceBroker sb,
 			     Object requestor,
 			     Class serviceClass,

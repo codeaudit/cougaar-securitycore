@@ -24,7 +24,7 @@
  * - 
  */
 
-package org.cougaar.core.security.test.crypto;
+package test.org.cougaar.core.security.test.crypto;
 
 import java.io.*;
 import java.net.*;
@@ -71,32 +71,51 @@ import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 
+import junit.framework.*;
 
-public class LdapTest {
+// Regress
+import test.org.cougaar.core.security.simul.BasicNode;
+
+public class LdapTest
+  extends TestCase
+{
+  private BasicNode bn;
   private CertDirectoryServiceCA caOperations = null;
   private CertDirectoryServiceClient certificateFinder=null;
   private SecurityPropertiesService secprop = null;
   private SecurityServiceProvider secProvider;
 
-  public LdapTest() {
+  public LdapTest(String name) {
+    super(name);
     secProvider = new SecurityServiceProvider();
   }
 
-  public void runTest(String[] args) {
+  public void setUp() {
+    // Initialize Basic Node
+    bn = new BasicNode();
+    Assert.assertNotNull("Could not get Basic Node", bn);
 
-    String url = args[0];
+    secProvider = bn.getSecurityServiceProvider();
 
+    secprop = (SecurityPropertiesService)
+      secProvider.getService(null,
+			     this,
+			     SecurityPropertiesService.class);
+    Assert.assertNotNull("Could not get SecurityPropertiesService",
+			 secprop);
+  }
+
+  public void runTest() {
+
+    String url = "ldap://pear:389/dc=JunitTest,dc=cougaar,dc=org";
     String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US";
-
-    // TODO. Modify following line to use service broker instead
-    secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     NodeConfiguration nodeConfiguration =
       new NodeConfiguration(caDN,
 			    secProvider.getServiceBroker());
 
     String role = secprop.getProperty(secprop.SECURITY_ROLE);
-    if (role == null && CryptoDebug.debug == true) {
+    if (role == null) {
       System.out.println("warning: Role not defined");
     }
 
@@ -112,10 +131,5 @@ public class LdapTest {
 	secProvider.getServiceBroker());
     certificateFinder.getContexts();
 
-  }
-
-  public static void main(String[] args) {
-    LdapTest lt = new LdapTest();
-    lt.runTest(args);
   }
 }
