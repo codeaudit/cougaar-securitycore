@@ -15,7 +15,7 @@ java \
 	-Dorg.cougaar.node.name=3ID-HHC \
 	-Dorg.cougaar.core.security.crypto.debug=true \
 	com.nai.security.certauthority.KeyManagement  \
-	-1 testalias
+	-1 srosset testalias
 	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
 	#-7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer
 

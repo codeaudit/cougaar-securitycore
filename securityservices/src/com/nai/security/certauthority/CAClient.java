@@ -111,7 +111,7 @@ public class CAClient {
       if (debug) {
 	System.out.println("Signing PKCS10 request with node");
       }
-      KeyManagement km = new KeyManagement(nodeDN);
+      KeyManagement km = new KeyManagement(nodeDN, null);
       X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);
       km.base64EncodeCertificates(ps, cf);

@@ -150,7 +150,42 @@ public class ConfParser {
     return nodePolicy;
   }
 
-  public CaPolicy readCaPolicy(String caDistinguishedName) 
+  public String getElementValue(Element top, String elementName, String role)
+  {
+    String value = null;
+    List conf = top.getChildren(elementName);
+    if (debug) {
+      System.out.println("Looking up role:" + role );
+    }
+    Iterator it = conf.iterator();
+    while (it.hasNext()) {
+      Element element = (Element) it.next();
+      /*
+      if (debug) {
+	System.out.println("text:" + element.getText() + " - attribute role: " 
+			   + element.getAttributeValue("role") );
+      }
+      */
+      if (role == null) {
+	if (element.getAttributeValue("role") == null) {
+	  value = element.getText();
+	}
+      }
+      else {
+	if (role.equals(element.getAttributeValue("role"))) {
+	  // Found role
+	  value = element.getText();
+	}
+      }
+    }
+    if (debug) {
+      System.out.println("Found value:" + value);
+    }
+    
+    return value;
+  }
+
+  public CaPolicy readCaPolicy(String caDistinguishedName, String role) 
     throws MalformedURLException, NoSuchFieldException, IllegalAccessException,
 	   IOException
   {
@@ -175,7 +210,9 @@ public class ConfParser {
       caPolicy.keyStoreFile      = caPolicyElement.getChildText(CA_KEYSTORE_ELEMENT);
       caPolicy.keyStorePassword  = caPolicyElement.getChildText(CA_KEYSTORE_PWD_ELEMENT);
       caPolicy.caCommonName      = caPolicyElement.getChildText(CA_CN_ELEMENT);
-      caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
+      caPolicy.ldapURL           = getElementValue(caPolicyElement, CA_LDAP_URL_ELEMENT, role);
+
+      //caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
       caPolicy.serialNumberFile  = caPolicyElement.getChildText(CA_SERIAL_NB_FILE_ELEMENT);
 
       caPolicy.pkcs10Directory   = caPolicyElement.getChildText(CA_PKCS10_DIR_ELEMENT);

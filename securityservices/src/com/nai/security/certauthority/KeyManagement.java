@@ -84,13 +84,14 @@ public class KeyManagement
   private LDAPCert certificateDirectory = null;
   private boolean standalone;                  /* true if run as a standalone server
 						  false if run within Cougaar */
-  public KeyManagement(String aCA_DN) 
+
+  public KeyManagement(String aCA_DN, String role) 
     throws Exception{
     caDN = aCA_DN;
     confParser = new ConfParser();
 
     try {
-      caPolicy = confParser.readCaPolicy(caDN);
+      caPolicy = confParser.readCaPolicy(caDN, role);
     }
     catch (Exception e) {
       throw new Exception("Unable to read policy" + e);
@@ -142,7 +143,7 @@ public class KeyManagement
       standalone = false;
 
       try {
-	caPolicy = confParser.readCaPolicy("");
+	caPolicy = confParser.readCaPolicy("", role);
       }
       catch (Exception e) {
 	throw new Exception("Unable to read policy" + e);
@@ -187,8 +188,15 @@ public class KeyManagement
     */
     // Create directory structure if it hasn't been created yet.
     createDirectoryStructure();
+  }
 
+  public LdapEntry getCertificate(String hash) 
+  {
+    return certificateDirectory.getCertificate(hash);
+  }
 
+  public Vector getCertificates() {
+    return certificateDirectory.getCertificates();
   }
 
   private X509Certificate findCert(String commonName)
@@ -891,21 +899,22 @@ public class KeyManagement
 
   public static void main(String[] args) {
     String option = args[0];
+    String role = args[1];
 
     String caDN = "CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
     try {
       KeyManagement km = null;
-      km = new KeyManagement(caDN);
+      km = new KeyManagement(caDN, role);
       System.out.println("Option is : " + option);
 
       if (option.equals("-10")) {
-	FileInputStream f = new FileInputStream(args[1]);
+	FileInputStream f = new FileInputStream(args[2]);
 	PrintStream ps = new PrintStream(System.out);
 	km.processPkcs10Request(ps, f);
 	/*
 	  BufferedReader pkcs10stream = null;
 	  PrintStream dbgout = new PrintStream(System.out);
-	  String pkcs10filename = args[1];
+	  String pkcs10filename = args[2];
 	  PKCS10 pkcs10Request = null;
 	  ArrayList pkcs7Certificates = new ArrayList();
 	  try {
@@ -922,17 +931,17 @@ public class KeyManagement
 
       }
       else if (option.equals("-7")) {
-	FileInputStream is = new FileInputStream(args[1]);
+	FileInputStream is = new FileInputStream(args[2]);
 	km.printPkcs7Request(is);
 	// km.printPkcs7Request(args[1]);
       }
       else if (option.equals("-1")) {
-	System.out.println("Search private key for " + args[1]);
-	PrivateKey pk = KeyRing.findPrivateKey(args[1]);
+	System.out.println("Search private key for " + args[2]);
+	PrivateKey pk = KeyRing.findPrivateKey(args[2]);
 	System.out.println(" ========================================");
 	System.out.println(" ========================================");
-	System.out.println("Search cert for " + args[1]);
-	Certificate c = KeyRing.findCert(args[1]);
+	System.out.println("Search cert for " + args[2]);
+	Certificate c = KeyRing.findCert(args[2]);
 	System.out.println("Certificate is : " + c);
       }
     } catch (Exception e) {
