@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policies>
+
+  <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
+    <cryptoClientPolicy>
+      <isCertificateAuthority>true</isCertificateAuthority>
+      <!-- If false this CA needs to send its CA certificate to trustedCA to
+	   be signed. -->
+      <isRootCA>true</isRootCA>
+      <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
+      <keystorePassword>keystorePassword</keystorePassword>
+      <trustedCAs>
+        <!-- Name of keystore where to find private key of CA -->
+        <CA_keystore>keystore-CONUS-RSA</CA_keystore>
+        <!-- Password of keystore where to find private key of CA -->
+        <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+    <!-- Example for a subordinate CA policy, the trustedCA specifies
+      which CA this CA's keys should sent to to be signed.
+        <trustedCA>
+          <CA_alias>NCA_CA</CA_alias>
+          <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US, T=ca</CA_DN>
+          <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+    -->
+      </trustedCAs>
+
+      <certificateAttributes>
+        <distinguishedName>
+          <!-- Organizational unit -->
+          <ou>CONUS</ou>
+          <!-- Organizational -->
+          <o>DLA</o>
+          <!-- City or Locality -->
+          <l>San Francisco</l>
+          <!-- State -->
+          <st>CA</st>
+          <!-- Country Code -->
+          <c>US</c>
+          <!-- Domain -->
+          <domain>dc=cougaar,dc=org</domain>
+        </distinguishedName>
+        <nodeIsSigner>false</nodeIsSigner>
+        <!-- The key algorithm -->
+        <keyAlgName>RSA</keyAlgName>
+        <!-- The key size -->
+        <keysize>1024</keysize>
+        <!-- The signature algorithm -->
+        <sigAlgName>SHA1WithRSA</sigAlgName>
+        <!-- The validity of self-signed certificates.
+             This value is overriden when the CA signs the certificate. -->
+        <validity>10 y</validity>
+	<!-- The envelope time to regenerate key again and send to CA
+	     for approval before certificate expires. -->
+	<timeEnvelope>1 d</timeEnvelope>
+      </certificateAttributes>
+
+    </cryptoClientPolicy>
+  </policy>
+
+</policies>
