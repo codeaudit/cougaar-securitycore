@@ -84,7 +84,6 @@ public class BrowserSigningRequest
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      caDNs = configParser.getCaDNs();
     }
     catch (RuntimeException e) {
       if (log.isErrorEnabled()) {
@@ -381,6 +380,8 @@ public class BrowserSigningRequest
 
     // CA
     out.println("Select CA:</td><td align=left><select id=\"dnname\" name=\"dnname\">");
+
+    caDNs = configParser.getCaDNs();
     for (int i = 0 ; i < caDNs.length ; i++) {
       out.println("<option value=\"" + caDNs[i].toString() + "\">" 
 		  + caDNs[i].toString() + "</option>");

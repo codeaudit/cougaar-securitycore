@@ -73,7 +73,6 @@ public class CertificateSigningRequest
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      caDNs = configParser.getCaDNs();
     }
     catch (RuntimeException e) {
       if (log.isErrorEnabled()) {
@@ -255,6 +254,7 @@ public class CertificateSigningRequest
     out.println("<tr ><td colspan=\"3\">");
 
     // CA
+    caDNs = configParser.getCaDNs();
     out.println("Select CA: <select id=\"dnname\" name=\"dnname\">");
     for (int i = 0 ; i < caDNs.length ; i++) {
       out.println("<option value=\"" + caDNs[i].toString() + "\">" 

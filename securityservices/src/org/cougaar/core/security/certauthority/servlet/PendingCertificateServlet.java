@@ -65,7 +65,6 @@ public class PendingCertificateServlet extends  HttpServlet
       support.getServiceBroker().getService(this,
 					    ConfigParserService.class,
 					    null);
-    caDNs = configParser.getCaDNs();
     //roles = configParser.getRoles();
   }
 
@@ -150,6 +149,8 @@ public class PendingCertificateServlet extends  HttpServlet
     out.println("<body>");
     out.println("<H2>Pending Certificate Request List</H2>");
 
+
+    caDNs = configParser.getCaDNs();
     if (caDNs == null) {
       out.println("No CA has been configured yet");
     }
