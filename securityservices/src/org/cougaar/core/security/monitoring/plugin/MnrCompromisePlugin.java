@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 2000-2003 Cougaar Software, Inc.
+ *  Copyright 2000-2003 Tim Tschampel
  *  All Rights Reserved
  * </copyright>
  */
@@ -20,8 +20,12 @@ import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.monitoring.blackboard.Event;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
 import org.cougaar.core.security.policy.PersistenceManagerPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.DomainService;
@@ -44,6 +48,8 @@ import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.util.UnaryPredicate;
 
+import java.net.URL;
+
 import java.security.cert.X509Certificate;
 
 import java.util.ArrayList;
@@ -57,6 +63,8 @@ import java.util.Vector;
 
 /**
  * Subscribes to IDMEF Events identifiying a compromised agent, node or host
+ * Not using the relays to the Ca, instead using the url, for some reason, the
+ * relays are not showing up on the ca??
  *
  * @author ttschampel
  */
@@ -141,6 +149,19 @@ public class MnrCompromisePlugin extends ComponentPlugin {
             }
         };
 
+    private IncrementalSubscription unpackSubs = null;
+    private UnaryPredicate unpackPredicate = new UnaryPredicate() {
+            public boolean execute(Object o) {
+                if (o instanceof SharedDataRelay) {
+                    SharedDataRelay sdr = (SharedDataRelay) o;
+                    return (sdr.getContent() != null)
+                    && sdr.getContent() instanceof Event;
+                }
+
+                return false;
+            }
+        };
+
     private IncrementalSubscription finishedTaskSubs = null;
     private UnaryPredicate finshedPredicate = new UnaryPredicate() {
             public boolean execute(Object o) {
@@ -198,14 +219,16 @@ public class MnrCompromisePlugin extends ComponentPlugin {
      * Setup subscriptions
      */
     protected void setupSubscriptions() {
-        this.eventSubscription = (IncrementalSubscription) getBlackboardService()
-                                                               .subscribe(eventPredicate);
+        //this.eventSubscription = (IncrementalSubscription) getBlackboardService()
+        //                                                      .subscribe(eventPredicate);
         this.recoverTasks = (IncrementalSubscription) getBlackboardService()
                                                           .subscribe(this.recoverPredicate);
         this.remoteAgentDoneSubs = (IncrementalSubscription) getBlackboardService()
                                                                  .subscribe(this.removeAgentDonePredicate);
         this.finishedTaskSubs = (IncrementalSubscription) getBlackboardService()
                                                               .subscribe(this.finshedPredicate);
+        this.unpackSubs = (IncrementalSubscription) getBlackboardService()
+                                                        .subscribe(this.unpackPredicate);
     }
 
 
@@ -351,11 +374,62 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                 //Get CA info
                 //for now end to caAgent
                 MessageAddress source = this.getAgentIdentifier();
-                MessageAddress target = MessageAddress.getMessageAddress(
-                        "caAgent");
-                SharedDataRelay relay = new SharedDataRelay(uidService.nextUID(),
-                        source, target, theTask, null);
-                getBlackboardService().publishAdd(relay);
+                CryptoClientPolicy policy = getCryptoClientPolicy();
+                if (policy == null) {
+                    if (logging.isErrorEnabled()) {
+                        logging.error("cryptoClientPolicy is null");
+                    }
+                }
+
+                //TODO : Use SharedDataRelay again, for now using URL.
+                TrustedCaPolicy[] trustedCaPolicy = policy.getTrustedCaPolicy();
+                for (int i = 0; i < trustedCaPolicy.length; i++) {
+                    String caURL = trustedCaPolicy[i].caURL;
+
+                    if (caURL != null) {
+                        ArrayList caDnList = (ArrayList) theTask.getPrepositionalPhrase(CompromiseBlackboard.CA_DN_PREP)
+                                                                .getIndirectObject();
+                        String caDn = (String) caDnList.get(0);
+
+                        String revokeCertServletURL = caURL.substring(0,
+                                caURL.lastIndexOf('/'))
+                            + "/RevokeCertificateServlet";
+                        revokeCertServletURL = revokeCertServletURL
+                            + "?revoke_type=agent&agent_name=" + agent
+                            + "&ca_dn=" + caDn;
+                        if (logging.isDebugEnabled()) {
+                            logging.debug(revokeCertServletURL);
+                        }
+
+                        try {
+                            URL url = new URL(revokeCertServletURL);
+                            url.openConnection();
+
+                            //complete task
+                            PlanningFactory ldm = (PlanningFactory) domainService
+                                .getFactory("planning");
+                            AspectValue[] values = new AspectValue[1];
+                            values[0] = AspectValue.newAspectValue(AspectType.END_TIME,
+                                    (double) System.currentTimeMillis());
+                            AllocationResult allocResult = ldm
+                                .newAllocationResult(1.0, true, values);
+                            Disposition disp = ldm.createDisposition(theTask
+                                    .getPlan(), theTask, allocResult);
+                            getBlackboardService().publishAdd(disp);
+                        } catch (Exception e) {
+                            if (logging.isErrorEnabled()) {
+                                logging.error("Error revoking cert", e);
+                            }
+                        }
+                        /*
+                         *  MessageAddress target = MessageAddress
+                                 .getMessageAddress(caAgent);
+                                 SharedDataRelay relay = new SharedDataRelay(uidService
+                                         .nextUID(), source, target, theTask, null);
+                                 getBlackboardService().publishAdd(relay);
+                         */
+                    }
+                }
             }
         }
     }
@@ -366,9 +440,10 @@ public class MnrCompromisePlugin extends ComponentPlugin {
      * complete in order to act accordingly
      */
     private void checkForCompromises() {
-        Enumeration enumeration = this.eventSubscription.getAddedList();
+        Enumeration enumeration = this.unpackSubs.getAddedList();
         while (enumeration.hasMoreElements()) {
-            Event event = (Event) enumeration.nextElement();
+            SharedDataRelay sdr = (SharedDataRelay) enumeration.nextElement();
+            Event event = (Event) sdr.getContent();
             Alert alert = (Alert) event.getEvent();
             AdditionalData[] data = alert.getAdditionalData();
             String scope = null;
@@ -378,25 +453,25 @@ public class MnrCompromisePlugin extends ComponentPlugin {
             String sourceHost = null;
             for (int i = 0; i < data.length; i++) {
                 AdditionalData adata = data[i];
-                String dType = adata.getType();
+                String dType = adata.getMeaning();
                 String dData = adata.getAdditionalData();
                 if ((dType != null) && dType.equals("compromisedata")) {
                     StringTokenizer tokenizer = new StringTokenizer(dData, ",");
                     while (tokenizer.hasMoreTokens()) {
                         String token = tokenizer.nextToken();
                         String _type = token.substring(0, token.indexOf("="));
-                        String _value = token.substring(token.indexOf(",") + 1,
+                        String _value = token.substring(token.indexOf("=") + 1,
                                 token.length());
                         if (_type.equals("scope")) {
-                            scope = dData;
+                            scope = _value;
                         } else if (_type.equals("compromise timestamp")) {
-                            timestamp = Long.parseLong(dData);
+                            timestamp = Long.parseLong(_value);
                         } else if (_type.equals("sourceAgent")) {
-                            sourceAgent = dData;
+                            sourceAgent = _value;
                         } else if (_type.equals("sourceNode")) {
-                            sourceNode = dData;
+                            sourceNode = _value;
                         } else if (_type.equals("sourceHost")) {
-                            sourceHost = dData;
+                            sourceHost = _value;
                         }
                     }
                 }
@@ -410,9 +485,9 @@ public class MnrCompromisePlugin extends ComponentPlugin {
             }
 
             if (scope == null) {
-                if (logging.isErrorEnabled()) {
-                    logging.error(
-                        "Error, received a compromise idmef event without a defined scope!");
+                if (logging.isDebugEnabled()) {
+                    logging.debug(
+                        "Received a compromise idmef event without a defined scope!");
                 }
             } else {
                 ArrayList agentsToBeRevoked = new ArrayList();
@@ -588,5 +663,24 @@ public class MnrCompromisePlugin extends ComponentPlugin {
         }
 
         return null;
+    }
+
+
+    private CryptoClientPolicy getCryptoClientPolicy() {
+        CryptoClientPolicy cryptoClientPolicy = null;
+        try {
+            ConfigParserService configParserService = (ConfigParserService) this.getServiceBroker()
+                                                                                .getService(this,
+                    ConfigParserService.class, null);
+            SecurityPolicy[] sp = configParserService.getSecurityPolicies(CryptoClientPolicy.class);
+            cryptoClientPolicy = (CryptoClientPolicy) sp[0];
+        } catch (Exception e) {
+            if (logging.isErrorEnabled()) {
+                logging.error("Can't obtain client crypto policy : "
+                    + e.getMessage());
+            }
+        }
+
+        return cryptoClientPolicy;
     }
 }
