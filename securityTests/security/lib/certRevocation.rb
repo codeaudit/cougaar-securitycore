@@ -128,10 +128,14 @@ class CertRevocation
   
   #
   def requestNewCertificate(node, agent, timeString)
+    
     logInfoMsg "setCAExpirationAttrib #{node.name} #{agent.name} #{timeString}"
     setCAExpirationAttrib(agent, timeString)
     port = getParameter(node, /http.port/, nil)
-    url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
+    #url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
+    url = "#{node.uri}/$#{node.name}/MakeCertificateServlet"
+    puts "agent uri returned ---> #{agent.uri}"
+    puts "node uri returned ---> #{node.uri}"
     logInfoMsg "setCAExpirationAttrib #{url}"
     params = ["identifier=#{agent.name}"]
     logInfoMsg "Invoking #{url} #{params}"
@@ -158,7 +162,8 @@ class CertRevocation
     node = agent.node
     
     port = getParameter(node, /http.port/, nil)
-    url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
+    #url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
+    url = "#{node.uri}/$#{node.name}/MakeCertificateServlet"
     params = ["identifier=#{agent.name}"]
     response = postHtml(url, params)
     unless response.body.to_s =~ /Success/
