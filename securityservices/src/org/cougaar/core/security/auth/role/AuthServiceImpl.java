@@ -108,12 +108,16 @@ public class AuthServiceImpl
     _scs = (SecurityContextService)
       _sb.getService(this, SecurityContextService.class, null);
     if (_scs == null) {
-      _log.debug("SecurityContextService not available yet...");
+      if (_log.isDebugEnabled()) {
+        _log.debug("SecurityContextService not available yet...");
+      }
       _sb.addServiceListener(new SecurityContextServiceAvailableListener());
     }
     registerEnforcer();
-    _log.debug("AuthServiceImp Constructor completed - UseDaml = " +
-               USE_DAML);
+    if (_log.isDebugEnabled()) {
+      _log.debug("AuthServiceImp Constructor completed - UseDaml = " +
+                 USE_DAML);
+    }
   }
 
   public void registerEnforcer()
@@ -128,7 +132,7 @@ public class AuthServiceImpl
     }
     if (!enfMgr.registerEnforcer(this, _enforcedActionType, new Vector())) {
       _sb.releaseService(this, EnforcerManagerService.class, enfMgr);
-      _log.fatal("Could not register with the Enforcer Manager Service");
+        _log.fatal("Could not register with the Enforcer Manager Service");
       throw new SecurityException(
                    "Cannot register with Enforcer Manager Service");
     }
@@ -193,8 +197,10 @@ public class AuthServiceImpl
     }
     
     if (_scs == null) { 
-      _log.warn("Failed to get securitycontext service before mediation"
-                + "this may be an issue");
+      if (_log.isWarnEnabled()) {
+            _log.warn("Failed to get securitycontext service before mediation"
+                      + "this may be an issue");
+      }
       return null;
     }
     // ec is null because there isn't an ExecutionPrincipal 
@@ -212,9 +218,13 @@ public class AuthServiceImpl
   }
 
   public boolean implies(ProtectionDomain domain, Permission perm) {
-    _log.debug("Checking if the permission is implied");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Checking if the permission is implied");
+    }
     // NOTE: FOR TESTING PURPOSES
-    //_log.debug("Checking if the permission is implied");
+    if (_log.isDebugEnabled()) {
+      _log.debug("Checking if the permission is implied");
+    }
     
     RoleExecutionContext ec = getExecutionContextFromDomain(domain);
     if (ec != null) {
@@ -224,8 +234,10 @@ public class AuthServiceImpl
       _log.debug("Have an execution context calling isAuthorizeUL");
       return isAuthorizedUL(ec, perm);
     } else {
-      _log.warn("No execution context available at mediation time" +
-                " - is this ok?", new Throwable());
+      if (_log.isWarnEnabled()) {
+        _log.warn("No execution context available at mediation time" +
+                  " - is this ok?", new Throwable());
+      }
       return true;
     }
   }
@@ -316,8 +328,10 @@ public class AuthServiceImpl
     // i'm allowing everything that isn't a BlackboardPermission 
     if(!(p instanceof BlackboardPermission) &&
        !(p instanceof BlackboardObjectPermission)) {
-      _log.warn("should I be here? object type = " +
-                p.getClass());
+      if (_log.isWarnEnabled()) {
+          _log.warn("should I be here? object type = " +
+                    p.getClass());
+      }
       return true;
     }
     ActionPermission ap = (ActionPermission) p;
@@ -338,9 +352,13 @@ public class AuthServiceImpl
     // e.g. add
     String actions [] = ap.getActionList();
 
-    _log.debug("Actions = " + actions);
-    _log.debug("authorize plugin(" + ec + ") for (" + actions + 
-                       ", " + object + ")");
+    if (_log.isDebugEnabled()) {
+        _log.debug("Actions = " + actions);
+    }
+    if (_log.isDebugEnabled()) {
+      _log.debug("authorize plugin(" + ec + ") for (" + actions + 
+                 ", " + object + ")");
+    }
     for (int i = 0; i < actions.length; i++) {
       String action = actions[i];
       String damlAction = (String) _damlActionMapping.get(action);
@@ -393,7 +411,9 @@ public class AuthServiceImpl
                  "(hope runs eternal though)", e);
       return false;
     } catch (InterruptedException e) {
-      _log.warn("Mediation interrupted - denying access");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Mediation interrupted - denying access");
+      }
       return false;
     }
   }
@@ -421,7 +441,9 @@ public class AuthServiceImpl
       Class sc = ae.getService();
       if (org.cougaar.core.security.services.auth.SecurityContextService.class.
           isAssignableFrom(sc)) {
-        _log.debug("SecurityContext Service is now available");
+        if (_log.isDebugEnabled()) {
+          _log.debug("SecurityContext Service is now available");
+        }
         _scs = (SecurityContextService)
           _sb.getService(this, SecurityContextService.class, null);        
       }
