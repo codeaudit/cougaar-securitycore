@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+
 ####################################################
 # create the AMnRPlaysSocietyManager.txt
 # it requires enclave info to accomplish its task
@@ -23,6 +24,7 @@ if !(@damlBootPolicyCompleted)
 
   damlFile = "#{CIP}/configs/security/OwlBootPolicyList"
   origFile = getConfigFile("OwlBootPolicyList")
+  policies = []
 
   file = File.open(damlFile ,"w") { |file|
     file.write <<END
@@ -150,14 +152,14 @@ BlackBoardObject OrgActivity
 #
 
 
-Policy AllowCommunication = [
+Policy #{policies.push("AllowCommunication").last()} = [
    MessageAuthTemplate
    Allow messages from members of $Actor.owl#Agent to
    members of $Actor.owl#Agent
 ]
 
 
-Policy EncryptCommunication = [ 
+Policy #{policies.push("EncryptCommunication").last()} = [ 
   MessageEncryptionTemplate
   Require NSAApprovedProtection on all messages from members of 
   $Actor.owl#Agent to members of $Actor.owl#Agent
@@ -168,7 +170,7 @@ Policy EncryptCommunication = [
 # Blackboard policies
 #
 
-Policy AllowBlackboard = [ 
+Policy #{policies.push("AllowBlackboard").last()} = [ 
    GenericTemplate
    Priority = 2,
    $Ultralog/UltralogActor.owl#UltralogPlugins is authorized to perform
@@ -209,29 +211,29 @@ Policy AllowBlackboard = [
 #]
 
 
-Policy OrgActivityAdd = [
+Policy #{policies.push("OrgActivityAdd").last()} = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityAdd can Add objects of type OrgActivity
 ]
 
-Policy OrgActivityChange = [
+Policy #{policies.push("OrgActivityChange").last()} = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityChange can Change, Query objects
    of type OrgActivity
 ]
 
-Policy OrgActivityQuery = [
+Policy #{policies.push("OrgActivityQuery").last()} = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityQuery can Query objects of type OrgActivity
 ]
 
-Policy OrgActivityRemove = [
+Policy #{policies.push("OrgActivityRemove").last()} = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityRemove can Remove, Query objects 
    of type OrgActivity
 ]
 
-Policy OrgActivityAll = [
+Policy #{policies.push("OrgActivityAll").last()} = [
    BlackboardTemplate
    A PlugIn in the role OrgActivityAll can Add, Change, Query, Remove
    objects of type OrgActivity
@@ -269,7 +271,7 @@ Policy OrgActivityAll = [
 #     efficient mechanism would not need this assumption.
 #
 
-Policy UnrestServlet = [ 
+Policy #{policies.push("UnrestServlet").last()} = [ 
    GenericTemplate
    Priority = 2,
    $Actor.owl#Person is authorized to perform
@@ -286,182 +288,183 @@ Policy UnrestServlet = [
 #  2. I can turn on other audits in other audit experiments.
 #
 
-Policy RequireAudit = [
+Policy #{policies.push("RequireAudit").last()} = [
    AuditTemplate
    Require audit for all accesses to all servlets
 ]
 
-#{enclave_list.collect {|e| "Policy PolicyServlet#{e.capitalize} = [
+#{enclave_list.collect {|e| 
+"Policy #{policies.push("PolicyServlet#{e.capitalize}").last()} = [
   ServletUserAccessTemplate
   A user in role \"x#{e.capitalize}PolicyAdministrator\" can access a servlet 
   named \"#{e.capitalize}PolicyServlet\"
 ]
 
-Policy PolicyServlet#{e.capitalize}Auth  = [ 
+Policy #{policies.push("PolicyServlet#{e.capitalize}Auth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named \"#{e.capitalize}PolicyServlet\"
 ]
 "}.join("\n")}
 
-Policy PolicyServlet  = [ 
+Policy #{policies.push("PolicyServlet").last()}  = [ 
   ServletUserAccessTemplate
   A user in role PolicyAdministrator can access a servlet 
   named PolicyServlet
 ]
 
-Policy PolicyServletAuth  = [ 
+Policy #{policies.push("PolicyServletAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named PolicyServlet
 ]
 
-Policy TestPolicyServlet  = [ 
+Policy #{policies.push("TestPolicyServlet").last()}  = [ 
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named TestUserPolicyServlet
 ]
-Policy TestPolicyServletAuth  = [ 
+Policy #{policies.push("TestPolicyServletAuth").last()}  = [ 
       ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named TestUserPolicyServlet
 ]
 
-Policy SCmrManagerAuth  = [ 
+Policy #{policies.push("SCmrManagerAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named SCmrmanagerServlets
 ]
 
-Policy SCmrManager  = [ 
+Policy #{policies.push("SCmrManager").last()}  = [ 
   ServletUserAccessTemplate
   A user in role MonitorManager can access a servlet named SCmrmanagerServlets
 ]
 
-Policy NCAServlet = [
+Policy #{policies.push("NCAServlet").last()} = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named NCAServlets
 ]
 
-Policy NCAServletAuth  = [ 
+Policy #{policies.push("NCAServletAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named NCAServlets
 ]
 
-Policy LogisticianAgg = [
+Policy #{policies.push("LogisticianAgg").last()} = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named AggegatorServlets
 ]
 
-Policy LogisticianAggAuth  = [ 
+Policy #{policies.push("LogisticianAggAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named AggegatorServlets
 ]
 
-Policy LogisticianViewAgg = [
+Policy #{policies.push("LogisticianViewAgg").last()} = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named AggegatorServlets
 ]
 
-Policy LogisticianViewAggAuth  = [ 
+Policy #{policies.push("LogisticianViewAggAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named AggegatorServlets
 ]
 
-Policy UserAdminServlets = [
+Policy #{policies.push("UserAdminServlets").last()} = [
   ServletUserAccessTemplate
   A user in role UserManager can access a servlet named UserManagerServlets
 ]
 
-Policy UserAdminServletsAuth  = [ 
+Policy #{policies.push("UserAdminServletsAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named UserManagerServlets
 ]
 
-Policy LogisticianInventory = [
+Policy #{policies.push("LogisticianInventory").last()} = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named LogInventoryServlet
 ]
 
-Policy LogisticianInventoryAuth  = [ 
+Policy #{policies.push("LogisticianInventoryAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named LogInventoryServlet
 ]
 
-Policy LogisticsViewerInventory = [
+Policy #{policies.push("LogisticsViewerInventory").last()} = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named LogInventoryServlet
 ]
 
-Policy LogisticsViewerInventoryAuth  = [ 
+Policy #{policies.push("LogisticsViewerInventoryAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named LogInventoryServlet
 ]
 
-Policy LogisticianHierarchy = [
+Policy #{policies.push("LogisticianHierarchy").last()} = [
   ServletUserAccessTemplate
   A user in role Logistician can access a servlet named HierarchyServlet
 ]
 
-Policy LogisticianHierarchyAuth  = [ 
+Policy #{policies.push("LogisticianHierarchyAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named HierarchyServlet
 ]
 
-Policy LogisticsViewerHierarchy  = [
+Policy #{policies.push("LogisticsViewerHierarchy").last()}  = [
   ServletUserAccessTemplate
   A user in role LogisticsViewer can access a servlet named HierarchyServlet
 ]
 
-Policy LogisticsViewerHierarchyAuth  = [ 
+Policy #{policies.push("LogisticsViewerHierarchyAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named HierarchyServlet
 ]
 
-Policy CertWrite  = [
+Policy #{policies.push("CertWrite").last()}  = [
   ServletUserAccessTemplate
   A user in role CAAdministrator can access a servlet named CAWriteServlet
 ]
 
-Policy CertWriteAuth  = [ 
+Policy #{policies.push("CertWriteAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named CAWriteServlet
 ]
 
-Policy SocietyAdmin = [
+Policy #{policies.push("SocietyAdmin").last()} = [
   ServletUserAccessTemplate
   A user in role SocietyAdmin can access a servlet named SocietyAdminServlet
 ]
 
-Policy SocietyAdminAuth  = [ 
+Policy #{policies.push("SocietyAdminAuth").last()}  = [ 
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named SocietyAdminServlet
 ]
 
-Policy AllowWhitePagesUpdate = [
+Policy #{policies.push("AllowWhitePagesUpdate").last()} = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is  authorized to perform
   $Ultralog/UltralogAction.owl#WPUpdateSelf
  ]
 
-Policy AllowWhitePagesLookup = [
+Policy #{policies.push("AllowWhitePagesLookup").last()} = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is  authorized to perform
   $Ultralog/UltralogAction.owl#WPLookup
  ]
 
-Policy AllowWhiteForward = [
+Policy #{policies.push("AllowWhiteForward").last()} = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is  authorized to perform
@@ -469,7 +472,7 @@ Policy AllowWhiteForward = [
  ]
 
 
-Policy AllowRegistration = [
+Policy #{policies.push("AllowRegistration").last()} = [
   GenericTemplate
   Priority = 2,
   $Actor.owl#Agent is authorized to perform
@@ -479,13 +482,24 @@ Policy AllowRegistration = [
 
   $Actor.owl#Agent
  ]
-
-
 END
-  }
+}
+
   lines1 = File.readlines(damlFile)
-  output = policyUtil("--maxReasoningDepth 150 build --quiet --info #{damlFile}",
+  output = policyUtil("--maxReasoningDepth 150 build --info #{damlFile}",
                       nil, "#{CIP}/configs/security")
+# some hacky attempts to determine that there were no errors
+#  errors are pretty much fatal!  Running the society if the following fails
+#  is probably a waste of time
+  policies.each do |policy|
+    if output.index("Built Policy: #{"OwlBootPolicy" + policy}") == nil then
+      puts output
+      puts "Fatal error making policies"
+      puts "Possibly policy #{policy} is bad"
+      puts "try cd /tmp; policyUtil build --info ${CIP}/configs/security/OwlBootPolicyList to see what is happening"
+      raise "Fatal Policy Build Error"
+    end
+  end
   scheduleConfigChange(damlFile)
   Dir["#{CIP}/configs/security/*.info"].each { |file|
       scheduleConfigChange(file)
