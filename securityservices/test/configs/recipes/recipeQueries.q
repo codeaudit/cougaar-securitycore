@@ -1,3 +1,4 @@
+
 # Find all agents including NodeAgents
 recipeQueryAllAgentsAndNodeAgents=\
  SELECT C.COMPONENT_ALIB_ID \
@@ -508,6 +509,13 @@ recipeQueryPlanLogServerAgent=\
 recipeQueryAllScalabilityManagers=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME LIKE '%ScalabilityManager'
 
+######ART did this one haha 
+# All Not ManagerAgents 
+recipeQueryNotManagerAgents=\
+ SELECT COMPONENT_ALIB_ID FROM alib_component WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME NOT LIKE '%Manager%' \
+ and COMPONENT_NAME NOT LIKE '%Agent%'
+
+
 ###########################################
 # OPlan Detector Recipe Insertions 
 #
@@ -862,3 +870,262 @@ WHERE COMPONENT_TYPE = 'agent' \
 ###########################################
 # End OPlan Detector Queries
 ###########################################
+
+#######################################
+# turn on inventory logging at ARBN's and major supply points
+#######################################
+
+recipeQueryARBNandMajorInventoryLogging=\
+SELECT COMPONENT_ALIB_ID \
+  FROM alib_component \
+WHERE COMPONENT_TYPE = 'agent' \
+  AND COMPONENT_NAME in \
+('1-35-ARBN','1-37-ARBN','2-37-ARBN','2-70-ARBN','1-13-ARBN', \
+'1-501-AVNBN','501-FSB','47-FSB','125-FSB','127-DASB','123-MSB', \
+'343-SUPPLYCO','18-PERISH-SUBPLT','227-SUPPLYCO', \
+'191-ORDBN','592-ORDCO','102-POL-SUPPLYCO','110-POL-SUPPLYCO',	 \
+'565-RPRPTCO','592-ORDCO', \ )
+
+# For Adding UniversalAllocator or AmmoPacker to OSC
+recipeQueryOSCAgent=\
+ SELECT COMPONENT_ALIB_ID FROM alib_component WHERE COMPONENT_TYPE = 'agent' AND COMPONENT_NAME='OSC'
+
+# Find all agents that are AL-Managers
+recipeQueryALManagers=\
+SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+   alib_component AC, \
+   community_attribute CA, \
+   community_entity_attribute CEA, \
+   asb_component_hierarchy ACH, \
+   expt_trial ET, \
+   expt_trial_assembly ETA, \
+   asb_assembly AA \
+WHERE \
+    ACH.ASSEMBLY_ID :assembly_match: \
+    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
+    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
+    AND ET.TRIAL_ID = ':trial_id:' \
+    AND ET.TRIAL_ID = ETA.TRIAL_ID \
+    AND AA.ASSEMBLY_TYPE = 'COMM' \
+    AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
+    AND AC.COMPONENT_TYPE = 'agent'\
+    AND CA.ATTRIBUTE_ID = 'CommunityType' \
+    AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
+    AND CEA.ATTRIBUTE_ID = 'Role' \
+    AND CEA.ATTRIBUTE_VALUE = 'AdaptiveLogisticsManager'
+
+recipeQueryALMembers=\
+SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+   alib_component AC, \
+   community_attribute CA, \
+   community_entity_attribute CEA, \
+   asb_component_hierarchy ACH, \
+   expt_trial ET, \
+   expt_trial_assembly ETA, \
+   asb_assembly AA \
+WHERE \
+    ACH.ASSEMBLY_ID :assembly_match: \
+    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
+    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
+    AND ET.TRIAL_ID = ':trial_id:' \
+    AND ET.TRIAL_ID = ETA.TRIAL_ID \
+    AND AA.ASSEMBLY_TYPE = 'COMM' \
+    AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
+    AND AC.COMPONENT_TYPE = 'agent'\
+    AND CA.ATTRIBUTE_ID = 'CommunityType' \
+    AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
+    AND CEA.ATTRIBUTE_ID = 'Role' \
+    AND CEA.ATTRIBUTE_VALUE = 'Member'
+
+recipeQueryALTransportMembers=\
+SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+   alib_component AC, \
+   community_attribute CA, \
+   community_entity_attribute CEA, \
+   asb_component_hierarchy ACH, \
+   expt_trial ET, \
+   expt_trial_assembly ETA, \
+   asb_assembly AA \
+WHERE \
+    ACH.ASSEMBLY_ID :assembly_match: \
+    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
+    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
+    AND ET.TRIAL_ID = ':trial_id:' \
+    AND ET.TRIAL_ID = ETA.TRIAL_ID \
+    AND AA.ASSEMBLY_TYPE = 'COMM' \
+    AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
+    AND AC.COMPONENT_TYPE = 'agent'\
+    AND CA.ATTRIBUTE_ID = 'CommunityType' \
+    AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
+    AND CEA.ATTRIBUTE_ID = 'Role' \
+    AND CEA.ATTRIBUTE_VALUE = 'Member' \
+    AND CA.COMMUNITY_ID LIKE '%TRANSPORT-COMM'
+
+recipeQueryALSupplyMembers=\
+SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+   alib_component AC, \
+   community_attribute CA, \
+   community_entity_attribute CEA, \
+   asb_component_hierarchy ACH, \
+   expt_trial ET, \
+   expt_trial_assembly ETA, \
+   asb_assembly AA \
+WHERE \
+    ACH.ASSEMBLY_ID :assembly_match: \
+    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+    ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
+    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
+    AND ET.TRIAL_ID = ':trial_id:' \
+    AND ET.TRIAL_ID = ETA.TRIAL_ID \
+    AND AA.ASSEMBLY_TYPE = 'COMM' \
+    AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
+    AND AC.COMPONENT_TYPE = 'agent'\
+    AND CA.ATTRIBUTE_ID = 'CommunityType' \
+    AND CA.ATTRIBUTE_VALUE = 'AdaptiveLogistics' \
+    AND CEA.ATTRIBUTE_ID = 'Role' \
+    AND CEA.ATTRIBUTE_VALUE = 'Member' \
+    AND CA.COMMUNITY_ID LIKE '%SUPPLY-COMM'
+
+
+recipeQueryTRANSCOMSubsetOfAgents= \
+SELECT DISTINCT COMPONENT_ALIB_ID FROM alib_component \
+WHERE \
+COMPONENT_TYPE = 'agent' \
+AND (COMPONENT_NAME = 'TRANSCOM' \
+OR COMPONENT_NAME = 'CONUSGround' \
+OR COMPONENT_NAME = 'GlobalAir' \
+OR COMPONENT_NAME = 'GlobalSea' \
+OR COMPONENT_NAME = 'PlanePacker' \
+OR COMPONENT_NAME = 'ShipPacker' \
+OR COMPONENT_NAME = 'TheaterGround')
+
+recipeQuerySubsetOfAgents= \
+SELECT DISTINCT COMPONENT_ALIB_ID FROM alib_component \
+WHERE \
+COMPONENT_TYPE = 'agent' \
+AND (COMPONENT_NAME = '47-FSB' \
+OR COMPONENT_NAME = '123-MSB' \
+OR COMPONENT_NAME = '110-POL-SUPPLYCO' \
+OR COMPONENT_NAME = '102-POL-SUPPLYCO' \
+OR COMPONENT_NAME = '191-ORDBN' \
+OR COMPONENT_NAME = '343-SUPPLYCO' \
+OR COMPONENT_NAME = '565-RPRPTCO' \
+OR COMPONENT_NAME = '592-ORDCO')
+
+recipeQueryExceptPlanLogAgent=\
+SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE COMPONENT_TYPE='agent' AND COMPONENT_NAME<>'PlanLogAgent'
+
+recipeQueryPSUSubsetOfAgents= \
+SELECT DISTINCT COMPONENT_ALIB_ID FROM alib_component \
+WHERE \
+COMPONENT_TYPE = 'agent' \
+AND (COMPONENT_NAME = '21-TSC-HQ' \
+OR COMPONENT_NAME = '5-CORPS-ARTY' \
+OR COMPONENT_NAME = '5-CORPS-REAR' \
+OR COMPONENT_NAME = '102-POL-SUPPLYCO' \
+OR COMPONENT_NAME = '110-POL-SUPPLYCO' \
+OR COMPONENT_NAME = '1-13-ARBN' \
+OR COMPONENT_NAME = '1-1-CAVSQDN' \
+OR COMPONENT_NAME = '123-MSB' \
+OR COMPONENT_NAME = '125-FSB' \
+OR COMPONENT_NAME = '125-ORDBN' \
+OR COMPONENT_NAME = '127-DASB' \
+OR COMPONENT_NAME = '1-27-FABN' \
+OR COMPONENT_NAME = '1-35-ARBN' \
+OR COMPONENT_NAME = '1-36-INFBN' \
+OR COMPONENT_NAME = '1-37-ARBN' \
+OR COMPONENT_NAME = '1-41-INFBN' \
+OR COMPONENT_NAME = '1-501-AVNBN' \
+OR COMPONENT_NAME = '16-ENGBN' \
+OR COMPONENT_NAME = '1-6-INFBN' \
+OR COMPONENT_NAME = '191-ORDBN' \
+OR COMPONENT_NAME = '1-94-FABN' \
+OR COMPONENT_NAME = '1-AD' \
+OR COMPONENT_NAME = '227-SUPPLYCO' \
+OR COMPONENT_NAME = '2-37-ARBN' \
+OR COMPONENT_NAME = '2-3-FABN' \
+OR COMPONENT_NAME = '240-SSCO' \
+OR COMPONENT_NAME = '244-ENGBN-CBTHVY' \
+OR COMPONENT_NAME = '2-4-FABN-MLRS' \
+OR COMPONENT_NAME = '2-501-AVNBN' \
+OR COMPONENT_NAME = '2-6-INFBN' \
+OR COMPONENT_NAME = '2-70-ARBN' \
+OR COMPONENT_NAME = '3-13-FABN-155' \
+OR COMPONENT_NAME = '343-SUPPLYCO' \
+OR COMPONENT_NAME = '3-SUPCOM-HQ' \
+OR COMPONENT_NAME = '40-ENGBN' \
+OR COMPONENT_NAME = '4-1-FABN' \
+OR COMPONENT_NAME = '4-27-FABN' \
+OR COMPONENT_NAME = '47-FSB' \
+OR COMPONENT_NAME = '501-FSB' \
+OR COMPONENT_NAME = '565-RPRPTCO' \
+OR COMPONENT_NAME = '592-ORDCO' \
+OR COMPONENT_NAME = '597-MAINTCO' \
+OR COMPONENT_NAME = '70-ENGBN' \
+OR COMPONENT_NAME = '900-POL-SUPPLYCO' \
+OR COMPONENT_NAME = 'CONUSGround' \
+OR COMPONENT_NAME = 'DLAHQ' \
+OR COMPONENT_NAME = 'GlobalAir' \
+OR COMPONENT_NAME = 'GlobalSea' \
+OR COMPONENT_NAME = 'HNS' \
+OR COMPONENT_NAME = 'OSC' \
+OR COMPONENT_NAME = 'PlanePacker' \
+OR COMPONENT_NAME = 'ShipPacker' \
+OR COMPONENT_NAME = 'TheaterGround' \
+OR COMPONENT_NAME = 'TRANSCOM')
+
+recipeQueryTaskFloodPlugin=\
+ SELECT 'com.centurylogix.cougaar.sensors.test.TaskFloodPlugin', 'plugin', 'com.centurylogix.cougaar.sensors.test.TaskFloodPlugin' \
+   FROM DUAL
+
+recipeQueryTargetPlugin=\
+ SELECT 'com.centurylogix.cougaar.sensors.test.TargetPlugin', 'plugin', 'com.centurylogix.cougaar.sensors.test.TargetPlugin' \
+   FROM DUAL
+
+recipeQueryFBSensorPlugin=\
+ SELECT 'com.centurylogix.cougaar.sensors.FBSensorPlugin', 'plugin', 'com.centurylogix.cougaar.sensors.FBSensorPlugin' \
+   FROM DUAL
+
+recipeQueryTestPlugin=\
+ SELECT 'com.centurylogix.cougaar.sensors.TestPlugin', 'plugin', 'com.centurylogix.cougaar.sensors.TestPlugin' \
+   FROM DUAL
+
+recipeQueryTimestampServicePlugin=\
+ SELECT 'org.cougaar.core.plugin.TimestampServicePlugin', 'plugin', 'org.cougaar.core.plugin.TimestampServicePlugin' \
+   FROM DUAL
+
+recipeQueryCPUStressorPlugin=\
+ SELECT 'org.cougaar.tools.cpustressor.CPUStressorPlugin', 'plugin', 'org.cougaar.tools.cpustressor.CPUStressorPlugin' \
+   FROM DUAL
+
+recipeQueryConditionServiceProvider=\
+ SELECT 'org.cougaar.core.adaptivity.ConditionServiceProvider', 'plugin', 'org.cougaar.core.adaptivity.ConditionServiceProvider' \
+   FROM DUAL
+
+recipeQuerySensorServlet=\
+ SELECT 'com.centurylogix.cougaar.sensors.servlet.SensorServlet', 'servlet', 'com.centurylogix.cougaar.sensors.servlet.SensorServlet' \
+   FROM DUAL
+
+# Find some agents by name - in this case, subordinates of 2BDE
+recipeQueryFBSensorAgents_ByName=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' \
+    AND (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match: \
+    AND C.COMPONENT_NAME in ('47-FSB', '123-MSB', '1-6-INFBN')
