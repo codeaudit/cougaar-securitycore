@@ -25,12 +25,17 @@ import kaos.ontology.util.ClassNameNotSet;
 import kaos.ontology.util.RangeIsBasedOnAClass;
 import kaos.policy.util.DAMLPolicyBuilderImpl;
 
+import org.cougaar.core.security.policy.enforcers.ontology.jena.
+  UltralogEntityConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.
+  ActionConcepts;
+import org.cougaar.core.security.policy.enforcers.ontology.jena.
+  EntityInstancesConcepts;
+
 public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
 {
    
-  final String _servletClass
-    = org.cougaar.core.security.policy.enforcers.ontology.jena.
-        UltralogEntityConcepts._Servlet_;
+  final String _servletClass = UltralogEntityConcepts._Servlet_;
 
   String _userClass;
   String _servletInstance;
@@ -44,32 +49,18 @@ public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
     super(policyName, 
           modality ? 2 : 3,
           modality,
-          //          org.cougaar.core.security.policy.enforcers.ontology.jena.
-          //        ActorClassesConcepts.ActorClassesDamlURL +
           PolicyUtils.personActorClassPrefix + userRole,
-           org.cougaar.core.security.policy.enforcers.ontology.jena.
           ActionConcepts._AccessAction_);
     _description = "A user in role " + userRole + (modality? " can":" cannot")
                          + "  access a servlet named " + servletName;
     _userClass = PolicyUtils.personActorClassPrefix + userRole;
-    // _userClass = org.cougaar.core.security.policy.enforcers.ontology.jena.
-    //              ActorClassesConcepts.ActorClassesDamlURL
-    //           + userRole;
-    _servletInstance = 
-      org.cougaar.core.security.policy.enforcers.ontology.jena.
-      EntityInstancesConcepts.EntityInstancesDamlURL
-      + servletName;
+    _servletInstance 
+      = EntityInstancesConcepts.EntityInstancesDamlURL + servletName;
   }
 
 /**
    * This routine does the core work of constructing the policy defined by 
-   * the servlet access policy.  Essentially all the needed
-   * information is available in the parameters:
-   *  @param policyName - the name of the policy
-   *  @param modality - does the policy allow or deny an action?
-   *  @param userRole - the role of the user
-   *  @param servlet  - the servlet that the user is either allowed
-   *                    or denied access to.
+   * the servlet access policy.
    */
 
   public DAMLPolicyBuilderImpl buildPolicy(OntologyConnection ontology)
