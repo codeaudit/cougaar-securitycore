@@ -114,10 +114,10 @@ extends BaseServletComponent implements BlackboardClient  {
     this.cs=cs;
   }
   /*
-  public void setNamingService(NamingService ns) {
+    public void setNamingService(NamingService ns) {
     //System.out.println(" set  Naming services call for Servlet component :");
     this.ns=ns;
-  }*/
+    }*/
   
   protected Servlet createServlet() {
     return new PublisherServlet();
@@ -172,20 +172,22 @@ extends BaseServletComponent implements BlackboardClient  {
       boolean message=false;
       boolean query=false;
       String parameter=null;
-      parameter =(String)request.getParameter("message");
+      String mnrMgr=null;
+      parameter =(String)request.getParameter("mnrMgr");
       out.println(CreateHeader());
       if(parameter!=null) {
-        out.println(" Received pasrameter to bublish new message");
-        message=true;
+        mnrMgr=(String)parameter;
+        //out.println(" Received pasrameter to ish new message");
+        // message=true;
       }
       parameter =(String)request.getParameter("query");
       if(parameter!=null) {
         out.println(" Received pasrameter to bublish new Query");
         query=true;
       }
-      if(message && query) {
-        out.println("<H2>MnR message &   Query publisher </H2><BR>");
-        out.println("Both message and query are true simultaneously  :");
+      if(mnrMgr==null) {
+        out.println("<H2>MnR DRILL Down  Query publisher </H2><BR>");
+        out.println("Target agent for query is NULL  :");
         out.println(CreateTail());
         out.flush();
         out.close();
@@ -205,7 +207,7 @@ extends BaseServletComponent implements BlackboardClient  {
             MessageAddress.getMessageAddress("SecurityManager-1"));
           */
           relay=factory.newDrillDownQueryRelay(aquery.toXml(),new MnRAggRateCalculator(120),false,
-                                               MessageAddress.getMessageAddress("SecurityManager-1"));
+                                               MessageAddress.getMessageAddress(mnrMgr));
           out.println(" publishing relay to --->SecurityManager-1 " +relay.toString() );
           blackboard.publishAdd(relay);
          
@@ -245,17 +247,18 @@ extends BaseServletComponent implements BlackboardClient  {
   public String  CreatePage( HttpServletRequest req) {
     StringBuffer buf =new StringBuffer();
     buf.append("<H2>MnR Message and Drill dwown Query Publisher </H2><BR>");
-   /* buf.append("<table>");
-    buf.append("<TR><TH>Action </TH><TH>Button</TH></TR>\n");
-    buf.append("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
-    buf.append("<TR><TD>Publish Message :<input name=\"message\"  value=\"yes\">");
-    buf.append("</td><td><input type=\"submit\">&nbsp;&nbsp;&nbsp;</td></tr>");
-    buf.append("</form></table>");
+    /* buf.append("<table>");
+       buf.append("<TR><TH>Action </TH><TH>Button</TH></TR>\n");
+       buf.append("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
+       buf.append("<TR><TD>Publish Message :<input name=\"message\"  value=\"yes\">");
+       buf.append("</td><td><input type=\"submit\">&nbsp;&nbsp;&nbsp;</td></tr>");
+       buf.append("</form></table>");
     */
     buf.append(" <br>  <br>  <br>");
     buf.append("<table>");
     buf.append("<TR><TH>Action </TH><TH>Button</TH></TR>\n");
     buf.append("<form action=\"" + req.getRequestURI() + "\" method =\"post\">");
+    buf.append("<TR><TD>Target MnRManager  :<input name=\"mnrMgr\"  value=\"\">");
     buf.append("<TR><TD>Publish Query :<input name=\"query\"  value=\"yes\">");
     buf.append("</td><td><input type=\"submit\">&nbsp;&nbsp;&nbsp;</td></tr>");
     buf.append("</form></table>");
