@@ -2048,11 +2048,13 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
+	log.warn("Reply from CA was:" + reply);
         //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
+	log.warn("Reply from CA was:" + reply);
         //e.printStackTrace();
       }
     }
