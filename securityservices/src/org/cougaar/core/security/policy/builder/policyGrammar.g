@@ -106,10 +106,10 @@ throws PolicyCompilerException
                 ParsedPolicyFile.tokenToText(oqlPriv),
                 UltralogEntityConcepts.OQLPrivilege());
             }
-    | "OQLDataField" oqlDf:TOKEN
-        { ppf.declareInstance(ULOntologyNames.oqlDataFieldPrefix +
+    | "OQLDataSet" oqlDf:TOKEN
+        { ppf.declareInstance(ULOntologyNames.oqlDataSetPrefix +
                 ParsedPolicyFile.tokenToText(oqlDf),
-                UltralogEntityConcepts.OQLDataField());
+                UltralogEntityConcepts.OQLDataSet());
             }
     | "OQLDataSource" oqlDs:TOKEN
         { ppf.declareInstance(ULOntologyNames.oqlDataSourcePrefix +
@@ -425,18 +425,20 @@ oqlSimplePolicy [String pn]
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
 { boolean m;
-  Set sources;
+  Set dataSets;
   pp = null; }
     : "Priority" EQ priority:INT COMMA  
       "A" "user" "in" "role" r:TOKEN m=servletUserAccessModality 
-        priv:TOKEN "the" "data" "sources" sources=tokenList
+        priv:TOKEN "the" "sets" dataSets=tokenList 
+        "in" dataSource:TOKEN
         {pp = new OQLParsedPolicy(
                 pn,
                 ParsedPolicyFile.identifierToInt(priority),
                 m,
                 ParsedPolicyFile.tokenToText(r),
                 ParsedPolicyFile.tokenToText(priv),
-                sources);
+                dataSets,
+                ParsedPolicyFile.tokenToText(dataSource));
             }
     ;
 
