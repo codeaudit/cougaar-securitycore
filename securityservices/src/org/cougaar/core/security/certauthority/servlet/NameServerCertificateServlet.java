@@ -32,6 +32,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -125,9 +128,17 @@ public class NameServerCertificateServlet extends HttpServlet {
         }
         //_certCache.put(nc.nameserver, nc.cert);
         NameServerCertificateComponent.addToNameCertCache(nc);
+
         CertificateCacheService cacheservice = (CertificateCacheService)
-          support.getServiceBroker().getService(this,
-                             CertificateCacheService.class, null);
+          AccessController.doPrivileged(new PrivilegedAction() {
+              public Object run() {
+                return support.getServiceBroker()
+                  .getService(this,
+                              CertificateCacheService.class, 
+                              null);
+              }
+            });
+
         for (int i = 0; i < nc.getCertChain().length; i++) {
           cacheservice.addSSLCertificateToCache(nc.getCertChain()[i]);
         }
