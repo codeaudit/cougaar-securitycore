@@ -3,8 +3,12 @@ package org.cougaar.core.security.policy.enforcers.init;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.util.*;
 
@@ -45,8 +49,6 @@ public class InitNodePlugin extends ComponentPlugin {
   private final String _messageServletPath = "/TestMessageMediationServlet";
   private Servlet _servletServlet;
   private final String _servletServletPath = "/TestServletMediationServlet";
-  private Servlet _timingServlet;
-  private final String _timingServletPath = "/TestMediationPerformanceServlet";
 
 
   /*
@@ -89,7 +91,6 @@ public class InitNodePlugin extends ComponentPlugin {
       // Construct the servlet - throw away code for Ultralog
       _messageServlet = new TestMessageMediationServlet();
       _servletServlet = new TestServletMediationServlet();
-      _timingServlet  = new TestMediationPerformanceServlet();
 
       servletService = (ServletService)
         sb.getService(this,
@@ -100,8 +101,6 @@ public class InitNodePlugin extends ComponentPlugin {
       }
       servletService.register(_messageServletPath, _messageServlet);
       servletService.register(_servletServletPath, _servletServlet);
-      servletService.register(_timingServletPath, _timingServlet);
-      // sb.releaseService(this, ServletService.class, servletService);
 
       //      getDirService(sb);
     } catch (Exception e) {
@@ -151,7 +150,8 @@ public class InitNodePlugin extends ComponentPlugin {
                   "</head>\n" + 
                   "<body>\n" + 
                   "<H1>Message Passing Mediation Check</H1>\n");
-        _msgEnf.testEnforcer(out);
+        _msgEnf.testEnforcer(out,
+                             TestStringsFromFile("DamlAgents"));
         out.print("</body>\n" +
                   "</html>\n");
       } catch (UnknownConceptException e) {
@@ -168,7 +168,6 @@ public class InitNodePlugin extends ComponentPlugin {
    */
   private class TestServletMediationServlet extends HttpServlet 
   {
-      
     /*
      * This function writes some initial introductory html before
      * calling the DummyNodeEnforcer for a test and some print
@@ -186,7 +185,9 @@ public class InitNodePlugin extends ComponentPlugin {
                   "</head>\n" + 
                   "<body>\n" + 
                   "<H1>Servlet Medition Check</H1>\n");
-        _servletEnf.testEnforcer(out);
+        _servletEnf.testEnforcer(out,
+                                 TestStringsFromFile("DamlTestUris"),
+                                 TestStringsFromFile("DamlTestRoles"));
         out.print("\n" + 
                   "</body>\n" +
                   "</html>\n");
@@ -202,34 +203,21 @@ public class InitNodePlugin extends ComponentPlugin {
   }
 
   /*
-   * An extremely simple servlet for some basic testing.
-   */
-  private class TestMediationPerformanceServlet extends HttpServlet 
+   * A hack for now until this plugin is removed and replaced with something 
+   * more appropriate.
+   */ 
+  private Set TestStringsFromFile(String filename)
+    throws IOException
   {
-      
-    /*
-     * This function writes some initial introductory html before
-     * calling the DummyNodeEnforcer for a test and some print
-     * statements.  Then the function wraps up the html page.
-     */
-    public void doGet(HttpServletRequest req,
-                      HttpServletResponse res) throws IOException 
-    {
-      _log.info("TestTiming: Doing Get...");
-      {
-        PrintWriter out = res.getWriter();
-        out.print("<html>\n" + 
-                  "<head>\n" + 
-                  "<TITLE>Mediation Performance Tests</TITLE>\n" + 
-                  "</head>\n" + 
-                  "<body>\n" + 
-                  "<H1>Timing Medition Routines</H1>\n");
-        _msgEnf.testTiming(out);
-        _servletEnf.testTiming(out);
-        out.print("\n" + 
-                  "</body>\n" +
-                  "</html>\n");
-      }
+    Set vars = new HashSet();
+    ConfigFinder cf = ConfigFinder.getInstance();
+    File file = cf.locateFile(filename);
+    Reader reader = new FileReader(file);
+    BufferedReader breader = new BufferedReader(reader);
+    String line;
+    while ((line = breader.readLine()) != null) {
+      vars.add(line);
     }
+    return vars;
   }
 }

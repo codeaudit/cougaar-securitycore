@@ -224,7 +224,6 @@ public class ULMessageNodeEnforcer
                                       String receiver, 
                                       String verb)
   {
-    out.print("<p><b>IsActionAuthorized Check</b></p>");
     out.print("<p>Is " + sender + " allowed to send " + verb +
               " messages to " + receiver + "?</p>");
     if (isActionAuthorized(sender, 
@@ -236,71 +235,22 @@ public class ULMessageNodeEnforcer
     }
   }
 
-  public void testTiming(PrintWriter out)
-  {
-    String sender   = (String) HardWired.agents[0];
-    String receiver = (String) HardWired.agents[0];
-    String verb     = "GetLogSupport";
-
-    out.print("<p><b>Timing Check</b></p>");
-    out.print("<p>Timing the two mediation calls required to determine " +
-              "if and how to send a " + verb + " message from " + 
-              sender + " to " + receiver + ".</p>");
-    boolean allowed = false;
-    CipherSuite suites  = null;
-    int     count   = 2000;
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < count; i++) {
-      suites  = getAllowedCipherSuites(sender,
-                                       // "##" + 
-                                       receiver);       
-      allowed = isActionAuthorized(sender, 
-                                   // "##" + 
-                                   receiver, verb);
-    }
-    long duration = System.currentTimeMillis() - start;
-    out.print("<p>" + count + " calls mediated in " 
-              + duration + " milliseconds.</p>");
-    out.print("<p>Last call returned the following results: ");
-    out.print("<p>Allowed cipher suites:</p>");
-    if (suites == null || !suites.isCipherAvailable()) { 
-      out.print("<p>None</p>");
-    } else {
-      Iterator iter = suites.getSymmetric().iterator();
-      out.println("<p>Symmetric Algorithms:<ul>");
-      while (iter.hasNext()) {
-        out.println("<li> " + iter.next());
-      }
-      out.println("</ul><p>Asymmetric Algorithms:<ul>");
-      iter = suites.getAsymmetric().iterator();
-      while (iter.hasNext()) {
-        out.println("<li> " + iter.next());
-      }
-      out.println("</ul><p>Signature Algorithms:<ul>");
-      iter = suites.getSignature().iterator();
-      while (iter.hasNext()) {
-        out.println("<li> " + iter.next());
-      }
-      out.println("</ul>");
-    }
-    out.print("<p>Message ");
-    if (allowed) { out.print("allowed</p>"); } 
-    else { out.print("not allowed</p>"); }
-  }
-
-
   /**
    * This is a very simple pre-canned test.  It is called though a
    * servlet that has an html context given by the PrinterWriter out.
    */
-  public void testEnforcer(PrintWriter out) 
+  public void testEnforcer(PrintWriter out, Set agents) 
     throws IOException, UnknownConceptException
   {
     out.print("<p><b>Semantic Matchers Check</b></p>");
-    for (int i = 0; i < HardWired.agents.length; i++) {
-      for (int j = 0; j < HardWired.agents.length; j++) {
-        String sender    = HardWired.agents[i];
-        String receiver  = HardWired.agents[j];
+    for (Iterator agentIt = agents.iterator();
+         agentIt.hasNext();) {
+      String sender    = (String) agentIt.next();
+      for (Iterator agentItInner = agents.iterator();
+           agentItInner.hasNext();) {
+        String receiver  = (String) agentItInner.next();
+
+        out.print("<b><p>Authorization check</p></b>");
         out.print("<p>Allowed cipher suites from " + sender
                   + " to " + receiver + "</p>");
         CipherSuite suites = getAllowedCipherSuites(sender,
@@ -326,8 +276,14 @@ public class ULMessageNodeEnforcer
           }
           out.println("</ul>");
         }
-        testIsActionAuthorized(out, sender, receiver, "GetWater");
-        testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
+        for (Iterator verbsIt = 
+               HardWired.readDamlDecls("Ontology-EntityInstances.daml", 
+                                       "<ultralogEntity:ULContentValue rdf:ID=")
+               .iterator();
+             verbsIt.hasNext();) {
+          String verb = (String) verbsIt.next();
+          testIsActionAuthorized(out, sender, receiver, verb);
+        }
       }
     }
   }

@@ -234,91 +234,16 @@ public class ServletNodeEnforcer
     return authLevel;
   }
 
-  /** 
-   * Broken for now...
-   */
-  public void testTiming(PrintWriter out)
-  {
-    out.print("<p><b>Mildly Broken for now! Fix me...</b></p>");
-    String role1 = HardWired.ulRoles[0];
-    String role2 = HardWired.ulRoles[1];
-    Set roles = new HashSet();
-    roles.add(role1);
-    roles.add(role2);
-    out.print("<p><b>Timing Check</b></p>");
-
-    String uri = null;
-    for (Iterator uriIt = HardWired.uriMap.keySet().iterator();
-         uriIt.hasNext();) {
-      uri = (String) uriIt.next();
-      break;
-    }
-
-    boolean firstStepOnly = false;
-    String cipher = null;
-    AuthSuite ciphers = whichAuthSuite(uri);
-    int authLevel = minAuth(ciphers.getAuth());
-    if (ciphers == null || ciphers.getSSL().size() == 0) {
-      firstStepOnly = true;
-      out.print("<p>No ciphers found: only doing the first step</p>");
-    } else {
-      for (Iterator ciphersIt = ciphers.getSSL().iterator();
-           ciphersIt.hasNext();) {
-        cipher = (String) ciphersIt.next();
-        break;
-      }
-    }
-
-    boolean allowed = false;
-    int     count   = 2000;
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < count; i++) {
-      ciphers = whichAuthSuite(uri);
-      if (!firstStepOnly) {
-        allowed=isActionAuthorized(roles, uri, cipher, authLevel);
-      }
-    }
-    long duration = System.currentTimeMillis() - start;
-    out.print("<p>" + count + " calls mediated in " 
-              + duration + " milliseconds.</p>");
-    out.print("<p>Last call returned the following results: </p>");
-    if (ciphers == null || ciphers.getSSL().size() == 0) {
-      out.print("<p>No user is allowed access</p>");
-    } else {
-      out.print("<p>Is user in roles " + role1 + " and " + role2 +
-                " using cipher suite <ul>");
-      out.print("<li>SSL Ciphers = " + ciphers.getSSL());
-//       out.print("<li>Symmetric = " + ciphers.getSymmetric());
-//       out.print("<li>Asymmetric = " + ciphers.getAsymmetric());
-//       out.print("<li>Checksum = " + ciphers.getSignature());
-      out.print("<li>");
-      if ((ciphers.getAuth() & AuthSuite.authCertificate) != 0) {
-        out.print("Certificate");
-      } 
-      if ((ciphers.getAuth() & AuthSuite.authPassword) != 0){
-        out.print("Password");
-      } 
-      if ((ciphers.getAuth() & AuthSuite.authNoAuth) != 0) {
-        out.print("No Authentication Required");
-      }
-      out.print("</ul>");
-      out.print("allowed access?</p>");
-      out.print("" + allowed);
-    }
-  }
-
   /**
    * This is a test that is intended to be run from a servlet.  Its
    * single argument is an output stream on which html will be written.
    *
    * I broke this today - come back to it later...
    */
-  public void testEnforcer(PrintWriter out) 
+  public void testEnforcer(PrintWriter out, Set uris, Set roles) 
     throws IOException, UnknownConceptException
   {
-    out.print("<p><b>Mildly Broken for now! Fix me...</b></p>");
     out.print("<p><b>Servlet Test</b></p>");
-    Set uris = HardWired.uriMap.keySet();
     for (Iterator uriIt = uris.iterator();
          uriIt.hasNext();) {
       String uri = (String) uriIt.next();
@@ -330,15 +255,9 @@ public class ServletNodeEnforcer
         out.print("<p>Permission denied " + 
                   "without even determining the user</p>");
       } else {
-//         for (Iterator cipherIt = cipherSuites.iterator();
-//              cipherIt.hasNext();) {
         AuthSuite suite = cipherSuites;
-//             = (CipherSuiteWithAuth) cipherIt.next();
           out.print("<p>Mediation says enforcer can use:</p><ul>");
           out.print("<li>Ciphers = " + suite.getSSL());
-//           out.print("<li>Symmetric = " + suite.getSymmetric());
-//           out.print("<li>Asymmetric = " + suite.getAsymmetric());
-//           out.print("<li>Signature = " + suite.getSignature());
           if ((suite.getAuth() & AuthSuite.authCertificate) != 0) {
             out.print("<li>Certificate");
           } 
@@ -350,11 +269,11 @@ public class ServletNodeEnforcer
           out.print("</ul>");
           out.print("<p>Now we find out who the user is.</p>");
 
-          int roleCount = HardWired.ulRoles.length;
           String sslCipher = (String) suite.getSSL().iterator().next();
           int authLevel = minAuth(suite.getAuth());
-          for (int i = 0; i < roleCount; i++) {
-            String role1 = HardWired.ulRoles[i];
+          for (Iterator rolesIt = roles.iterator();
+               rolesIt.hasNext();) {
+            String role1 = (String) rolesIt.next();
             HashSet roleSet = new HashSet();
             roleSet.add(role1);
             out.print("<p>A user in role " + role1 + " is ");
@@ -366,8 +285,9 @@ public class ServletNodeEnforcer
               out.print("disallowed.</p>");
               _log.debug("..servlet...testEnforcer: disallowed.</p>");
             }
-            for (int j = i+1; j < roleCount; j++) {
-              String role2 = HardWired.ulRoles[j];
+            for (Iterator rolesIt2 = roles.iterator();
+                 rolesIt2.hasNext();) {
+              String role2 = (String) rolesIt2.next();
               roleSet = new HashSet();
               roleSet.add(role1);
               roleSet.add(role2);
@@ -382,7 +302,6 @@ public class ServletNodeEnforcer
               }
             }
           }
-//         }
         out.print("<p><b>--------------------------------------</b></p>");
       }
     }

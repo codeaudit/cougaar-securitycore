@@ -87,7 +87,7 @@ public class ULSemanticMatcherFactory
 
   private class ULActorSemanticMatcher implements SemanticMatcher
   {
-    private String communityPrefix = "MembersOfDomainCommunity";
+    private String communityPrefix = "KAoS#MembersOfDomainCommunity";
     private String personPrefix    = ActorClassesConcepts.ActorClassesDamlURL;
 
     public void initSemanticMatcher ()

@@ -1,5 +1,6 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
+import java.io.*;
 import java.util.*;
 
 import org.cougaar.core.security.policy.enforcers.ontology.*;
@@ -7,6 +8,7 @@ import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.ConfigFinder;
 
 import kaos.ontology.repository.TargetInstanceDescription;
 
@@ -82,13 +84,6 @@ public class HardWired {
        "http://localhost/~redmond/Extras/Names.daml#Dick",
        "http://localhost/~redmond/Extras/Names.daml#Harry"};
 
-  public final static String [] agents
-    = {"EnclaveOneWorkerA", "EnclaveOneWorkerB", "EnclaveOneWorkerC",
-       "EnclaveOneWorkerD", "EnclaveOneWorkerE"};
-
-  public final static String [] ulRoles
-    = {"Administrator", "Guest", "General"};
-
   private static LoggingService _log;
 
   public static void setServiceBroker(ServiceBroker sb) {
@@ -122,37 +117,6 @@ public class HardWired {
     }
     return (EntityInstancesConcepts.EntityInstancesDamlURL
             + verb);
-  }
-
-
-  /**
-   * I don't think that servlets belong in an ontology.  Possibly a
-   * naming convention that converts names of servlets into names
-   * that can be used in daml would work.  A consequence is that
-   * some sort of dynamic registering could happen with the Domain
-   * Manager so that the appropriate information is available when
-   * the Domain Manager needs it.
-   *
-   * Now only used for testing...
-   *
-   */
-  public final static Map uriMap;
-  static {
-    uriMap = new HashMap();
-    uriMap.put("/$foo/policyAdmin",
-               EntityInstancesConcepts.EntityInstancesDamlURL
-               +  "PolicyServlet");
-
-
-    // CA servlet
-    String caServlet = EntityInstancesConcepts.EntityInstancesDamlURL +
-      "CAServlet";
-    uriMap.put("/$foo/CA/RevokeCertificateServlet", caServlet);
-    uriMap.put("/$foo/CA/CreateCaKeyServlet", caServlet);
-    uriMap.put("/$foo/CA/SubmitCaKeyServlet", caServlet);
-    uriMap.put("/$foo/CA/ProcessPendingCertServlet", caServlet);
-    uriMap.put("/$foo/CA/CaKeyManagement", caServlet);
-    uriMap.put("/$foo/useradmin", caServlet);
   }
 
   /**
@@ -256,19 +220,18 @@ public class HardWired {
   /**
    * This will later be calculated by the directory service.
    */
-  public final static HashSet hasSubjectValues;
+  public final static Set hasSubjectValues;
   static {
     hasSubjectValues = new HashSet();
-    hasSubjectValues.add(
-                         EntityInstancesConcepts.EntityInstancesDamlURL
-                         + "GetWater");
-    hasSubjectValues.add(
-                         EntityInstancesConcepts.EntityInstancesDamlURL
-                         + "GetLogSupport");
-    hasSubjectValues.add(
-                         EntityInstancesConcepts.EntityInstancesDamlURL
-                         + "NoVerb");
-    
+    Set rawVerbs = 
+      readDamlDecls("Ontology-EntityInstances.daml", 
+                    "<ultralogEntity:ULContentValue rdf:ID=");
+    for (Iterator rawVerbIt = rawVerbs.iterator();
+         rawVerbIt.hasNext();) {
+      String verb = (String) rawVerbIt.next();
+      hasSubjectValues.add(EntityInstancesConcepts.EntityInstancesDamlURL 
+                           + verb);
+    }
   }
 
   /**
@@ -277,15 +240,9 @@ public class HardWired {
   public final static HashSet usedProtectionLevelValues;
   static {
     usedProtectionLevelValues = new HashSet();
-    usedProtectionLevelValues.add(
-             EntityInstancesConcepts.EntityInstancesDamlURL
-             + "WeakProtection");
-    usedProtectionLevelValues.add(
-             EntityInstancesConcepts.EntityInstancesDamlURL
-             + "NSAApprovedProtection");
-    usedProtectionLevelValues.add(
-             EntityInstancesConcepts.EntityInstancesDamlURL
-             + "SecretProtection");
+    usedProtectionLevelValues.add(WEAK_CRYPTO);
+    usedProtectionLevelValues.add(SECRET_CRYPTO);
+    usedProtectionLevelValues.add(STRONG_CRYPTO);
   }
 
 
@@ -295,29 +252,11 @@ public class HardWired {
   public final static HashSet usedAuthenticationLevelValues;
   static {
     usedAuthenticationLevelValues = new HashSet();
-    usedAuthenticationLevelValues.add(
-                EntityInstancesConcepts.EntityInstancesDamlURL
-                + "Weak");
-    usedAuthenticationLevelValues.add(
-                EntityInstancesConcepts.EntityInstancesDamlURL
-                + "NSAApproved");
-  }
-
-  /**
-   * Somewhere we will need to keep a mapping from the ontology
-   * authentication levels and the crypto suites
-   */
-  public final static HashMap usedAuthenticationLevelMap;
-  static {
-    usedAuthenticationLevelMap = new HashMap();
-    usedAuthenticationLevelMap.put(
-                EntityInstancesConcepts.EntityInstancesDamlURL
-                + "Weak",
-                weakCrypto);
-    usedAuthenticationLevelMap.put(
-                EntityInstancesConcepts.EntityInstancesDamlURL
-                + "NSAApproved",
-                nsaApproved);
+    usedAuthenticationLevelValues.add(NO_AUTH);
+    usedAuthenticationLevelValues.add(NO_AUTH_SSL);
+    usedAuthenticationLevelValues.add(PASSWORD_AUTH);
+    usedAuthenticationLevelValues.add(PASSWORD_AUTH_SSL);
+    usedAuthenticationLevelValues.add(CERT_AUTH_SSL);
   }
 
   /**
@@ -356,4 +295,28 @@ public class HardWired {
                                                 authSet ) );
     return true;
   }
+
+  public final static Set readDamlDecls(String filename, String key)
+  {
+    try {
+      Set vars = new HashSet();
+      ConfigFinder cf = ConfigFinder.getInstance();
+      File file = cf.locateFile(filename);
+      Reader reader = new FileReader(file);
+      BufferedReader breader = new BufferedReader(reader);
+      String line;
+      while ((line = breader.readLine()) != null) {
+        if (line.indexOf(key) != -1) {
+          int start = line.indexOf('\"');
+          int end   = line.indexOf('\"', start + 1);
+          vars.add(line.substring(start+1,end));
+        }
+      }
+      return vars;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
 }
