@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.TimerTask;
 
 import edu.jhuapl.idmef.*;
 
@@ -134,9 +135,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription agentRegistrations;
    private String mySecurityCommunity=null;
   private int firstobject=0;
-  private AttributeBasedAddress mgrAddress;
+  //private MessageAddress mgrAddress;
   private MessageAddress myAddress;
-  private ClusterIdentifier destcluster;
+  private MessageAddress  destcluster;
   private String dest_community;
   private Object param;  
   private String mgrrole=null;
@@ -189,6 +190,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 			   + myAddress.toAddress()); 
     }
     
+    Thread th=new Thread(new ManagerRegistrationTask());
+    th.start();
+    /*
     mySecurityCommunity= getMySecurityCommunity();
     loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
     if(mySecurityCommunity==null) {
@@ -220,11 +224,58 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	loggingService.debug("Created  manager address :"+ mgrAddress.toString());
       }
     }
+    */
+    
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate(loggingService));
     agentRegistrations= (IncrementalSubscription)getBlackboardService().subscribe(new AgentRegistrationPredicate(loggingService));
   }
+  
 
+  public boolean setManagerAddress() {
+    mySecurityCommunity= getMySecurityCommunity();
+    loggingService.debug(" My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
+    if(mySecurityCommunity==null) {
+      loggingService.error("No Info about My SecurityCommunity. This plugin should be included in M&R managers only:"
+			   +myAddress.toString());  
+      return true;
+    }
+    else {
+      myRole=getMyRole(mySecurityCommunity);
+      loggingService.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString());
+      if((myRole.equalsIgnoreCase("memeber"))||(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave"))) {
+	if(myRole.equalsIgnoreCase("memeber")) {
+	  loggingService.error("This plugin can only be part of SecurityMnRManager-Enclave/SecurityMnRManager-Society.");
+	  loggingService.error("It is is in the right agent then modify community information");
+	}
+	if(myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")){
+	  mgrrole="SecurityMnRManager-Society";
+	}
+      }
+    }
+    dest_community=getDestinationCommunity(myRole);
+    if(dest_community==null) {
+      loggingService.error("Cannot get Destination community in agent  !!!!!!"+myAddress.toString()
+			   +"\nmy Role is "+ myRole);
+      
+    }
+    if((dest_community!=null)&&(mgrrole!=null)) {
+      Collection managers = communityService.searchByRole(dest_community, mgrrole);          
+      if(managers.size() > 1) {
+	  loggingService.error("There are " + managers.size() + " Society Security Manager in community=" + dest_community + " agent :"+myAddress.toString() );
+	return false;
+      }
+      if(managers.size()==0) {
+	loggingService.warn("Unable to get manager agent  for agent :" +myAddress.toString());
+	return true;
+      }
+      destcluster=(MessageAddress)managers.iterator().next();
+	return false;
+      
+    }
+    return true;
+       
+  }
 
   /**
    * Top level plugin execute loop.  
@@ -727,18 +778,22 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	   }
 	   loggingService.debug("Going to get next key in capabilities hash map:");
 	 }
-	 consCapabilities.setClassifications(consclassifications);
-	 consCapabilities.setSources(consSources);
-	 consCapabilities.setTargets(consTargets);
-	 consCapabilities.setAdditionalData(consAddData);
-	 Analyzer analyzer=new Analyzer();
-	 analyzer.setAnalyzerid(myAddress.toString());
-	 consCapabilities.setAnalyzer(analyzer);
-	 consclassifications=consCapabilities.getClassifications();
-	 //printConsolidation(consclassifications," consolidated classification after processing is :");
-	 if (loggingService.isDebugEnabled())
-	   loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+mgrAddress.toString()); 
-	 addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+	 if(consclassifications!=null) {
+	   if(consclassifications.length>0) {
+	     consCapabilities.setClassifications(consclassifications);
+	     consCapabilities.setSources(consSources);
+	     consCapabilities.setTargets(consTargets);
+	     consCapabilities.setAdditionalData(consAddData);
+	     Analyzer analyzer=new Analyzer();
+	     analyzer.setAnalyzerid(myAddress.toString());
+	     consCapabilities.setAnalyzer(analyzer);
+	     consclassifications=consCapabilities.getClassifications();
+	     //printConsolidation(consclassifications," consolidated classification after processing is :");
+	     if (loggingService.isDebugEnabled())
+	       loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+destcluster.toString()); 
+	     addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+	   }
+	 }
        }
        else {
 	 loggingService.debug(" It is the Society manager : No need to do any thing with hash table :"+ myAddress.toString());
@@ -1086,7 +1141,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       if (relay == null) {
 	if (loggingService.isDebugEnabled())
 	  loggingService.debug(" No relay was present creating one for Event "+ event.toString());
-	relay = factory.newCmrRelay(event, mgrAddress);
+	relay = factory.newCmrRelay(event, destcluster);
+	//relay = factory.newCmrRelay(event, mgrAddress);
 	if (loggingService.isDebugEnabled())
 	  loggingService.debug(" No relay was present creating one  "+ relay.toString());
 	//relay = factory.newCmrRelay(event, mgrAddress);
@@ -1256,6 +1312,29 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       }
     
     }
+
+  class ManagerRegistrationTask extends TimerTask {
+    int RETRY_TIME = 10 * 1000;
+    int counter = 1;
+    public void run() {
+      boolean  tryAgain = true;
+      //boolean neverfalse=true;
+      while(tryAgain) {
+	loggingService.debug("Trying to register counter: " + counter++);
+	tryAgain = setManagerAddress();
+	try {
+	  if(tryAgain) {
+	    Thread.sleep(RETRY_TIME);
+	  }
+	}
+	catch(InterruptedException ix) {
+	  loggingService.error("Was interrupted while sleeping: " + ix);
+	  tryAgain = false;
+	}
+      }
+    }
+  }
+
   
   
   }

@@ -71,6 +71,10 @@ public class MessageFailureSensor extends SensorPlugin {
   protected boolean agentIsTarget() {
     return true;
   }
+   protected boolean agentIsSource() {
+    return false;
+  }
+  
   
   /**
    * Register this sensor's capabilities, and initialize the services that need to

@@ -65,6 +65,10 @@ public class DataProtectionSensor extends  SensorPlugin
     return false;
   }
   
+   protected boolean agentIsSource() {
+    return false;
+  }
+  
   /**
    * Register this sensor's capabilities, and initialize the services that need to
    * to publish message failure events to this plugin's blackboard.
@@ -101,3 +105,4 @@ public class DataProtectionSensor extends  SensorPlugin
   
   private SensorInfo m_sensorInfo;
 }
+

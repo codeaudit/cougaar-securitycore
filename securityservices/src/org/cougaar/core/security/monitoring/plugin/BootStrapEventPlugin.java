@@ -69,21 +69,9 @@ import  org.cougaar.core.security.securebootstrap.BootstrapEvent;
 
 import edu.jhuapl.idmef.*;
 
-public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, SensorInfo  {
+public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
   
   private EventHolder eventholder=null;
-  private DomainService domainService = null;
-  private CommunityService communityService=null; 
-  private String mgrrole=null;
-  private AttributeBasedAddress mgrAddress;
-  private String sensor_name=null;
-  private String dest_community=null;
-  //private ClusterIdentifier destcluster;
-  //private String dest_agent;
-  private LoggingService log; 
-  //private String mgrrole=null;
-  private MessageAddress myAddress;
-  // For test purposes
   private Condition sensorCondition;
   private int numberOfEvents = 0;
   private OperatingMode dummyOP = null;
@@ -91,82 +79,37 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     "org.cougaar.core.security.monitoring.DUMMY_OP";
   private static final OMCRangeList DUMMY_OP_RANGE =
       new OMCRangeList(new OMCThruRange(1.0, Double.MAX_VALUE ));
-
-  public void setDomainService(DomainService aDomainService) {
-    domainService = aDomainService;
-  }
-  
-  /**
-   * Used by the binding utility through reflection to get my DomainService
-   */
-  public DomainService getDomainService() {
-    return domainService;
-  }
-  
-  public void setCommunityService(CommunityService cs) {
-    //System.out.println(" set community services Servlet component :");
-     this.communityService=cs;
-   }
-  
+  private SensorInfo m_sensorInfo;
+  private final  String[] CLASSIFICATIONS = {IdmefClassifications.SECURITY_MANAGER_EXCEPTION,IdmefClassifications.JAR_VERIFICATION_FAILURE};
+   
   /**
    * subscribe to
    */
   protected void setupSubscriptions() {
-    log = (LoggingService)
-      getBindingSite().getServiceBroker().getService(this,
-						     LoggingService.class, null);
-
-    BlackboardService bbservice=getBlackboardService();
-    DomainService service=getDomainService();
-    if((service==null)|| (bbservice==null)){
-      log.error("Unusual error either bbservice or domain service is null:");
-      
-    }
     // For test purposes
-    sensorCondition = new BootstrapEventCondition(numberOfEvents);
-    bbservice.publishAdd(sensorCondition);
 
-    myAddress = getBindingSite().getAgentIdentifier();
-    log.debug("setupSubscriptions of  called for BootStrapSensor Plugin in  :"+ myAddress.toString()); 
-    String mySecurityCommunity= getMySecurityCommunity();
-    log.debug(" BootStrapSensor My security community :"+mySecurityCommunity +" agent name :"+myAddress.toString());  
-    if(mySecurityCommunity==null) {
-      log.error("No Info about My  SecurityCommunity : returning Cannot continue !!!!!!"+myAddress.toString());  
-      return;
-    }
-    else {
-      String myRole=getMyRole(mySecurityCommunity);
-      log.debug(" My Role is  :"+myRole +" agent name :"+myAddress.toString()); 
-      if(myRole.equalsIgnoreCase("Member")) {
-	mgrrole="SecurityMnRManager-Enclave";
-	dest_community=mySecurityCommunity;
-      }
-      if((myRole.equalsIgnoreCase("SecurityMnRManager-Enclave")) &&(this instanceof SensorInfo)) {
-	mgrrole="SecurityMnRManager-Enclave";
-	dest_community=mySecurityCommunity;
-      }
-      log.debug(" My destination community is  :"+dest_community +" agent name :"+myAddress.toString());
-      if(mgrrole!=null) {
-	mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
-	//mgrAddress=new MessageAddress("Tiny1ADEnclaveSecurityManager");
-	log.debug("Created  manager address :"+ mgrAddress.toString() +" in  BootStrapSensor plugin at :"+myAddress.toString());
-	registercapabilities();
-      }
-    }
-    //registercapabilities();
+    super.setupSubscriptions();
+    sensorCondition = new BootstrapEventCondition(numberOfEvents);
+    m_blackboard.publishAdd(sensorCondition);
+
     registerforEvents();
    
     // Dummy operating mode
     dummyOP = new OperatingModeImpl(DUMMY_OP, 
 				    DUMMY_OP_RANGE, 
 				    new Double(5));
-    bbservice.publishAdd(dummyOP);
+    m_blackboard.publishAdd(dummyOP);
   }
   
   protected void execute() {
 
   }
- 
+  protected SensorInfo getSensorInfo() {
+    if(m_sensorInfo == null) {
+      m_sensorInfo = new BootstrapSensorInfo();  
+    } 
+    return m_sensorInfo;
+  }
   public void update(Observable o, Object arg) {
     // System.out.println(" New M&R boot strap events :");
     ArrayList eventList=(ArrayList)arg;
@@ -182,8 +125,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
 	//System.out.println(" Got event after reconstruction :"+event.toString());
       }
       else {
-        if(log.isDebugEnabled()) 
-          log.debug(" Got event as null in update of event Service :");
+        if(m_log.isDebugEnabled()) 
+          m_log.debug(" Got event as null in update of event Service :");
       }
     }
     if(!events.isEmpty()) {
@@ -198,11 +141,11 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     dservice=getDomainService();
     // bbservice=(BlackboardService)serviceBroker.getService(this,BlackboardService.class,null);
     if(bbservice==null) {
-      log.error(" error cannot get BlackBoard Service:");
+      m_log.error(" error cannot get BlackBoard Service:");
     }
     // domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
     if(dservice==null) {
-       log.error(" error cannot get domain service Going to loose all events :");
+       m_log.error(" error cannot get domain service Going to loose all events :");
     }
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
@@ -307,8 +250,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
       Class [] param={Observer.class};
       method=ob.getClass().getMethod("register",param);
       Object oobj=null;
-      if(log.isDebugEnabled())
-        log.debug(" observer being passed is :"+this.toString());
+      if(m_log.isDebugEnabled())
+        m_log.debug(" observer being passed is :"+this.toString());
       Object[] argss={this};
       oobj=method.invoke(ob,argss);
     }
@@ -318,18 +261,18 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     
   }
   
-
+  /*
   public void registercapabilities() {
     
     BlackboardService bbservice=getBlackboardService();
     DomainService dservice=getDomainService();
     if(bbservice==null) {
-      log.error(" error cannot get BlackBoard Service:");
+      m_log.error(" error cannot get BlackBoard Service:");
       return;
     }
     //domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
     if(dservice==null) {
-       log.error(" error cannot get domain service Going to loose all events :");
+       m_log.error(" error cannot get domain service Going to loose all events :");
        return;
     }
     CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
@@ -369,8 +312,8 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
 							   IdmefMessageFactory.SensorType,
 							   myAddress.toString());
      NewEvent event=factory.newEvent(reg);
-      if(log.isDebugEnabled())
-        log.debug(" going to publish capabilities in event Service  :");
+      if(m_log.isDebugEnabled())
+        m_log.debug(" going to publish capabilities in event Service  :");
     CmrRelay  relay ;
     relay= factory.newCmrRelay(event,mgrAddress);
     //relay= factory.newCmrRelay(event,destcluster);
@@ -378,115 +321,42 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     bbservice.publishAdd(relay); 
     
   }
-   public String getName(){
-    return "BootStrapEventSensor";
-  }
-  public String getManufacturer(){
-    return "NAI Labs";
-  }
-  public String getModel(){
-    return "Cougaar";
-  }
-  public String getVersion(){
-    return "1.0";
-  }
-  public String getAnalyzerClass(){
-    return "Security Analyzer";
+  */
+  
+    protected String []getClassifications() {
+    return CLASSIFICATIONS;
   }
   
-  private String getMySecurityCommunity() {
-    String mySecurityCommunity=null;
-    if(communityService==null) {
-     log.error(" Community Service is null" +myAddress.toString()); 
-    }
-    String filter="(CommunityType=Security)";
-    Collection securitycom=communityService.listParentCommunities(myAddress.toString(),filter);
-    if(!securitycom.isEmpty()) {
-      if(securitycom.size()>1) {
-	log.warn("Belongs to more than one Security Community " +myAddress.toString());  
-	return mySecurityCommunity;
-      }
-      String [] securitycommunity=new String[1];
-      securitycommunity=(String [])securitycom.toArray(new String[1]);
-      mySecurityCommunity=securitycommunity[0];
-    }
-    else {
-      	log.warn("Search  for my Security Community FAILED !!!!" +myAddress.toString()); 
+  protected boolean agentIsTarget() {
+    return true;
+  }
+  
+  protected boolean agentIsSource() {
+    return false;
+  }
+  
+  private class BootstrapSensorInfo implements SensorInfo {
+    
+    public String getName(){
+      return "BootStrapEventSensor";
     }
     
-    return mySecurityCommunity;
-  }
+    public String getManufacturer(){
+      return "NAI Labs";
+    }
+
+    public String getModel(){
+      return "Cougaar";
+    }
+    public String getVersion(){
+      return "1.0";
+    }
+    public String getAnalyzerClass(){
+      return "Security Analyzer";
+    }
   
-  private String getMyRole(String mySecurityCommunity) {
-    String myRole=null;
-    boolean enclavemgr=false;
-    boolean societymgr=false;
-    boolean member=false;
-    if(communityService==null) {
-      log.error(" Community Service is null" +myAddress.toString()); 
-    }
-    Collection roles =communityService.getEntityRoles(mySecurityCommunity,myAddress.toString());
-    Iterator iter=roles.iterator();
-    String role;
-    while(iter.hasNext()) {
-      role=(String)iter.next();
-      log.debug(" Roles for agent :"+ myAddress.toString() +"community :"+ mySecurityCommunity+
-		"role :"+role);
-      if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
-	enclavemgr=true;
-      }
-      else if(role.equalsIgnoreCase("SecurityMnRManager-Society")) {
-	societymgr=true;
-      }
-      else if(role.equalsIgnoreCase("Member")) {
-	member=true;
-      }
-    }
-    if(member){
-      myRole="Member";
-    }
-    else if(enclavemgr) {
-      myRole="SecurityMnRManager-Enclave"; 
-    }
-    else if(societymgr) {
-      myRole="SecurityMnRManager-Society";
-    }
-    log.debug(" returning !!!!! role :"+myRole);
-    return myRole;
-    						      
-  }
-  
-  public String getDestinationCommunity(String myrole) {
-    if(communityService==null) {
-      log.error(" Community Service is null" +myAddress.toString()); 
-    }
-    String destrole=null;
-    if(myrole.equalsIgnoreCase("member")) {
-      destrole="SecurityMnRManager-Enclave";
-    }
-    else if(myrole.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
-      destrole="SecurityMnRManager-Society";
-    }
-    String filter="(CommunityType=Security)";
-    Collection securitycol=communityService.search(filter);
-    Iterator itersecurity=securitycol.iterator();
-    String comm=null;
-    while(itersecurity.hasNext()) {
-      comm=(String)itersecurity.next();
-      Collection societysearchresult=communityService.searchByRole(comm,destrole);
-      if(societysearchresult.isEmpty()) {
-	continue;
-      }
-      else {
-	if(societysearchresult.size()>1) {
-	   log.error(" Too many Society Manager " +myAddress.toString());
-	   return null;
-	}
-	break;
-      }
-    }
-    return comm;
-  }
+} 
+ 
 
   // This condition is used to test the adaptivity engine
   // A realistic condition should be developed.

@@ -34,6 +34,7 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
 
@@ -66,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimerTask;
 
 /**
  * abstract sensor class that registers the capabilities of the sensor
@@ -95,6 +97,8 @@ public abstract class SensorPlugin extends ComponentPlugin {
    */
   protected abstract boolean agentIsTarget();
   
+  protected abstract boolean agentIsSource();
+  
   public void setDomainService(DomainService aDomainService) {
     m_domainService = aDomainService;
     m_log = (LoggingService) getServiceBroker().
@@ -107,6 +111,15 @@ public abstract class SensorPlugin extends ComponentPlugin {
   public DomainService getDomainService() {
     return m_domainService;
   }
+
+
+   public void setCommunityService(CommunityService cs) {
+    //System.out.println(" set community services Servlet component :");
+     this.m_cs=cs;
+   }
+   public CommunityService getCommunityService() {
+     return this.m_cs;
+   }
   
   public void setParameter(Object o){
    if (!(o instanceof List)) {
@@ -129,20 +142,21 @@ public abstract class SensorPlugin extends ComponentPlugin {
    * Register this sensor's capabilities
    */
   protected void setupSubscriptions() {
+    
     m_blackboard = getBlackboardService();
     ServiceBroker sb = getBindingSite().getServiceBroker();
     AgentIdentificationService ais    = (AgentIdentificationService)
       sb.getService(this, AgentIdentificationService.class, null);
     m_agent = ais.getName();
-    CommunityService cs = (CommunityService)
-      sb.getService(this, CommunityService.class,null);
     m_cmrFactory = (CmrFactory) getDomainService().getFactory("cmr");
     m_idmefFactory = m_cmrFactory.getIdmefMessageFactory();
     if(m_log == null) {
       m_log = (LoggingService)sb.getService(this, LoggingService.class, null);
     }
     // register this sensor's capabilities
-    registerCapabilities(cs, m_agent);
+    Thread th=new Thread(new RegistrationTask());
+    th.start();
+   //registerCapabilities(cs, m_agent);
   }  
   
   /**
@@ -154,11 +168,23 @@ public abstract class SensorPlugin extends ComponentPlugin {
   /**
    * register the capabilities of the sensor
    */
-  private void registerCapabilities(CommunityService cs, String agentName){
+  private boolean registerCapabilities( String agentName){
     List capabilities = new ArrayList();
     List targets = null;
+    List sources=null;
     List data = null;
     
+    if(m_cs == null) {
+      return true;
+    }
+    Collection manager = getEnclaveManager();
+    if(manager == null) {
+	return false;
+    }
+    else if(manager.size() == 0) {
+	m_log.warn("Enclave Security Manager not yet alive!");
+	return true; // enclave managers not yet alive
+    }  
     // if agent is the target then add the necessary information to the registration
     if(agentIsTarget()) {
       List tRefList = new ArrayList(1);
@@ -169,6 +195,22 @@ public abstract class SensorPlugin extends ComponentPlugin {
       // add the target ident to the reference ident list
       tRefList.add(t.getIdent());
       targets.add(t);
+      // since there isn't a data model for cougaar Agents, the Agent object is
+      // added to the AdditionalData of an IDMEF message
+      Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
+      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+    }
+    if(agentIsSource()) {
+      List tRefList = new ArrayList(1);
+      sources = new ArrayList(1);
+      if(data==null) {
+	data = new ArrayList(1);
+      }
+      Address tAddr = m_idmefFactory.createAddress(agentName, null, Address.URL_ADDR);
+      Source s = m_idmefFactory.createSource(null, null, null, null, null);
+      // add the target ident to the reference ident list
+      tRefList.add(s.getIdent());
+      sources.add(s);
       // since there isn't a data model for cougaar Agents, the Agent object is
       // added to the AdditionalData of an IDMEF message
       Agent tAgent = m_idmefFactory.createAgent(agentName, null, null, tAddr, tRefList);
@@ -191,58 +233,49 @@ public abstract class SensorPlugin extends ComponentPlugin {
                                               m_idmefFactory.SensorType,
                                               agentName);
     NewEvent regEvent = m_cmrFactory.newEvent(reg);
-    // get the list of communities that this agent belongs where CommunityType is Security
-    Collection communities = cs.listParentCommunities(agentName, "(CommunityType=Security)"); 
-    Iterator iter = communities.iterator();
     
-    if (communities.size() == 0) {
-      m_log.warn("Agent '" + agentName + 
-        "' does not belong to any security community. Failures won't be reported.");
-    }
-    else if(communities.size() > 1) {
-      m_log.warn("Agent '" + agentName + "' belongs to more than one security community.");
-    }
-    
-    while(iter.hasNext()) {
-      String community = iter.next().toString();
-      if(isSecurityManagerLocal(cs, community, agentName)) {
-        // sensor is located in same agent as the enclave security manager
-        // therefore we should publish the capabilities to local blackboard
-        if(m_log.isDebugEnabled()) {
-          m_log.debug("Publishing sensor capabilities to local blackboard.");
-        }
-        m_blackboard.publishAdd(regEvent); 
-      }
-      else {
-        // send the capability registeration to agents with in this community
-        // that has the role specified by m_managerRole
-        AttributeBasedAddress messageAddress = 
-          new AttributeBasedAddress(community, "Role", m_managerRole);
-        CmrRelay relay = m_cmrFactory.newCmrRelay(regEvent, messageAddress);
-        if(m_log.isDebugEnabled()) {
-          m_log.debug("Sending sensor capabilities to community '" + 
-                      community + "'" + ", role '" + m_managerRole + "'.");
-        }
-        m_blackboard.publishAdd(relay);
-      }  
-    }
+    CmrRelay regRelay = m_cmrFactory.newCmrRelay(regEvent, (MessageAddress)manager.iterator().next());
+    m_blackboard.openTransaction();
+    m_blackboard.publishAdd(regRelay);
+    m_blackboard.closeTransaction();
+    m_log.debug("Registered sensor successfully!");
+    return false;
   }
 
-  /*  
+    
   private void printCommunityInfo(CommunityService cs, Collection communities) {
     Iterator c = communities.iterator();
     while(c.hasNext()) {
       String community = (String)c.next();
-      m_log.info("### community = " + community);
+      m_log.debug("### community = " + community);
       Collection agents = cs.searchByRole(community, m_managerRole);
       Iterator i = agents.iterator();
       while(i.hasNext()) {
-        m_log.info("##### SearchByRole: " + i.next()); 
+        m_log.debug("##### SearchByRole: " + i.next()); 
       }
     }
   }
-  */
-  
+
+   private Collection getEnclaveManager() {
+      Collection community = m_cs.listParentCommunities(m_agent, "(CommunityType=Security)");
+      if(community.size() > 1) {
+	  m_log.error(m_agent + " should belong to only one Security community!");
+	  return null;
+      }
+      else if(community.size() == 0) {
+	  m_log.warn("Security Manager may not have registered yet!");
+	  return community;
+      }
+      printCommunityInfo(m_cs, community);
+      
+      String communityName = community.iterator().next().toString();
+      Collection managers = m_cs.searchByRole(communityName, m_managerRole);          
+      if(managers.size() > 1) {
+	  m_log.error("There are " + managers.size() + " Enclave Security Manager in community=" + communityName);
+	return null;
+      }
+      return managers;
+   }  
   /**
    * method used to determine if the plugin is located in the same
    * agent as the enclave security manager
@@ -258,8 +291,32 @@ public abstract class SensorPlugin extends ComponentPlugin {
       }
     }
     return false;
-  }      
+  }
+
+  class RegistrationTask extends TimerTask {
+    int RETRY_TIME = 10 * 1000;
+      int counter = 1;
+    public void run() {
+	boolean  tryAgain = true;
+	//boolean neverfalse=true;
+	while(tryAgain) {
+	    m_log.debug("Trying to register counter: " + counter++);
+	    tryAgain = registerCapabilities( m_agent);
+	    try {
+		if(tryAgain) {
+		    Thread.sleep(RETRY_TIME);
+		}
+	     }
+            catch(InterruptedException ix) {
+		m_log.error("Was interrupted while sleeping: " + ix);
+		tryAgain = false;
+            }
+	}
+    }
+  }
   
+ 
+  protected CommunityService m_cs;
   protected BlackboardService m_blackboard;
   protected DomainService m_domainService;
   protected LoggingService m_log;
@@ -267,4 +324,5 @@ public abstract class SensorPlugin extends ComponentPlugin {
   protected IdmefMessageFactory m_idmefFactory;
   protected String m_agent;
   protected String m_managerRole = "SecurityMnRManager-Enclave"; // default value
+  
 }
