@@ -28,9 +28,9 @@ module Cougaar
            sleep @sleep_time
            testPassed = processLogFiles() 
            if !testPassed
-             ::Cougaar.logger.warn "Test failure"
-             exit
-             `killall -9 ruby`
+             processID = Process.pid
+             puts "Test failed - Killing society. PID=#{processID}"
+             `echo "kill -9 #{processID}`
            end
          end
         }
