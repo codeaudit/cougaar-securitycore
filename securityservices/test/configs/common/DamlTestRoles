@@ -1,5 +1,11 @@
-Administrator
 CAAdministrator
-General
-Guest
+Logistician
+LogisticsViewer
+MonitorManager
+MoveAgent
+MnRResponder
 PolicyAdministrator
+Rover
+RoverManager
+SocietyAdmin
+UserManager
