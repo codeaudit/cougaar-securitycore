@@ -137,7 +137,9 @@ public class CertificateFinder
 	certificate.verify(pk);
       } catch(Exception ex) {
 	  certificate = null;
-	  ex.printStackTrace();
+	  if (debug) {
+	    ex.printStackTrace();
+	  }
       }
     }
     return certificate;

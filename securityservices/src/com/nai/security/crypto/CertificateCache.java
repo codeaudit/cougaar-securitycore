@@ -318,7 +318,11 @@ public class CertificateCache
 		|| aCertEntry.getCertificateOrigin() != certEntry.getCertificateOrigin()) {
 	      // Error. Certificate type and Certificate Origin cannot change
 	      if (debug) {
-		System.out.println("Error. Trying to update immutable fields");
+		System.out.println("Error. Trying to update immutable fields: ");
+		System.out.println("   " + aCertEntry.getCertificateType() + " ==> " 
+				   + certEntry.getCertificateType());
+		System.out.println("   " + aCertEntry.getCertificateOrigin() + " ==> "
+				   + certEntry.getCertificateOrigin());
 	      }
 	      throw new SecurityException("Error. Trying to update immutable fields");
 	    }

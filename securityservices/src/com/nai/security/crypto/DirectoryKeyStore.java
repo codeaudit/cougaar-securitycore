@@ -98,7 +98,7 @@ public class DirectoryKeyStore implements Runnable
   private String defaultCountry = null;
   private String defaultKeyAlgName = null;
   private int defaultKeysize = 0;
-  private int defaultValidity = 0;
+  private long defaultValidity = 0;
   private String defaultSigAlgName = null;
 
   public DirectoryKeyStore(String ldapURL,
@@ -116,6 +116,7 @@ public class DirectoryKeyStore implements Runnable
     init(stream, password, storepath, caStream, caPassword, caStorepath, standalone);
   }
 
+  /** Initialize the directory key store */
   private void init(InputStream stream, char[] password, String storepath,
 		    InputStream caStream, char[] caPassword, String caStorepath,
 		    boolean standaloneValue) {
@@ -176,7 +177,7 @@ public class DirectoryKeyStore implements Runnable
 	defaultCountry = nodePolicy.c;
 	defaultKeyAlgName = nodePolicy.keyAlgName;
 	defaultKeysize = nodePolicy.keysize;
-	defaultValidity = nodePolicy.validity;
+	defaultValidity = nodePolicy.howLong;
 	defaultSigAlgName = nodePolicy.sigAlgName;
       }
       else {
@@ -191,6 +192,7 @@ public class DirectoryKeyStore implements Runnable
     }
   }
 
+  /** Dump all the key aliases in a keystore */
   private void listKeyStoreAlias(KeyStore ks, String path) {
     try {
       Enumeration alias = ks.aliases();
@@ -366,7 +368,19 @@ public class DirectoryKeyStore implements Runnable
       catch (CertificateChainException e) {
 	if (debug) {
 	  System.out.println("Found non trusted cert in LDAP directory! "
-			     + commonName);
+			     + commonName + " - " + e);
+	}
+      }
+      catch (CertificateExpiredException e) {
+	if (debug) {
+	  System.out.println("Certificate in chain has expired. "
+			     + commonName + " - " + e);
+	}
+      }
+      catch (CertificateNotYetValidException e) {
+	if (debug) {
+	  System.out.println("Certificate in chain is not yet valid. "
+			     + commonName + " - " + e);
 	}
       }
     }	
@@ -624,7 +638,8 @@ public class DirectoryKeyStore implements Runnable
   }
 
   private Certificate[] checkCertificateTrust(Certificate certificate)
-    throws CertificateChainException
+    throws CertificateChainException, CertificateExpiredException,
+	   CertificateNotYetValidException
   {
 
     // Prepare a vector that will contain at least the entity certificate
@@ -636,6 +651,8 @@ public class DirectoryKeyStore implements Runnable
       int i = 0;
       for(int j = vector.size() - 1; j >= 0; j--) {
 	acertificate[i] = (Certificate)vector.elementAt(j);
+	// Check certificate validity
+	((X509Certificate) acertificate[i]).checkValidity();
 	i++;
       }
       return acertificate;
@@ -726,6 +743,18 @@ public class DirectoryKeyStore implements Runnable
 	    // Maybe we didn't get a reply from the CA the last time
 	    // we created the certificate. Send a new PKCS10 request to the CA.
 	    cs.setCertificateTrust(CertificateTrust.CERT_TRUST_SELF_SIGNED);
+	  }
+	}
+	catch (CertificateExpiredException exp) {
+	  if (debug) {
+	    System.out.println("Certificate in chain has expired. "
+			       + " - " + exp);
+	  }
+	}
+	catch (CertificateNotYetValidException exp) {
+	  if (debug) {
+	    System.out.println("Certificate in chain is not yet valid. "
+			       + " - " + exp);
 	  }
 	}
       }
@@ -863,6 +892,7 @@ public class DirectoryKeyStore implements Runnable
       // Self-signed certificate
       vector.addElement(x509certificate);
       CertificateStatus cs = (CertificateStatus) list1.get(0);
+
       if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	// This is a trusted certificate authority.
 	signedByAtLeastOneCA = true;
@@ -911,6 +941,7 @@ public class DirectoryKeyStore implements Runnable
 	// can be trusted.
 	signedByAtLeastOneCA = true;
       }
+
       if (debug) {
 	System.out.println("buildChain. Found acceptable signing key: "
 			   + x509certificate1.getSubjectDN().toString()
@@ -1328,9 +1359,10 @@ public class DirectoryKeyStore implements Runnable
     return alias;
   }
 
+  /** Generate a key pair and a self-signed certificate */
   public void doGenKeyPair(String alias, String dname,
 			   String keyAlgName, int keysize, String sigAlgName,
-			   int validity)
+			   long howLong)
     throws Exception
   {
     if(sigAlgName == null)
@@ -1353,8 +1385,7 @@ public class DirectoryKeyStore implements Runnable
     certandkeygen.generate(keysize);
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
-    ax509certificate[0] = certandkeygen.getSelfCertificate(x500name,
-							   validity * 24 * 60 * 60);
+    ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, howLong);
     setKeyEntry(alias, privatekey, ax509certificate);
 
     // Add the certificate to the certificate cache. The key cannot be used

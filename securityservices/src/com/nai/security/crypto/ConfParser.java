@@ -41,6 +41,7 @@ import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
 import com.nai.security.policy.*;
+import com.nai.security.util.*;
 
 /** Helper class to read the cryptographic service configuration.
  * 
@@ -156,8 +157,9 @@ public class ConfParser {
     nodePolicy.sigAlgName = getElementValue(nodePolicyElement, NODE_SIGALGNAME_ELEMENT, role);
     nodePolicy.keysize = (Integer.valueOf(getElementValue(nodePolicyElement,
                                NODE_KEYSIZE_ELEMENT, role))).intValue();
-    nodePolicy.validity = (Integer.valueOf(getElementValue(nodePolicyElement,
-                               NODE_VALIDITY_ELEMENT, role))).intValue();
+    Duration duration = new Duration();
+    duration.parse(getElementValue(nodePolicyElement, NODE_VALIDITY_ELEMENT, role));
+    nodePolicy.howLong = duration.getDuration();
     return nodePolicy;
   }
 
@@ -250,8 +252,9 @@ public class ConfParser {
       
       caPolicy.keySize = (Integer.valueOf(getElementValue(caClientPolicy,
 				 CA_KEYSIZE_ELEMENT, role))).intValue();
-      caPolicy.howLong = (Integer.valueOf(getElementValue(caClientPolicy,
-				 CA_CERTVALIDITY_ELEMENT, role))).intValue(); 
+      Duration duration = new Duration();
+      duration.parse(getElementValue(caClientPolicy, CA_CERTVALIDITY_ELEMENT, role));
+      caPolicy.howLong = duration.getDuration();
     }
     return caPolicy;
   }
