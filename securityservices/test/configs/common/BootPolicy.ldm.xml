@@ -46,6 +46,7 @@
   </Policy>
 
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.ServletPolicy">
+<!--
     <RuleParam name="UserAdminAgent">
       <KeySet value="allow-role">
         <Key key="/*" value="UserManager" />
@@ -56,7 +57,6 @@
         <Key key="/*" value="PolicyAdministrator" />
       </KeySet>
     </RuleParam>
-<!--
     <RuleParam name="caAgent">
       <KeySet value="allow-role">
         <Key key="/*" value="CAAdministrator" />
