@@ -70,7 +70,7 @@ import java.util.logging.Logger;
 public class AuditLogger {
   private static Map loggers = new HashMap();
   private static boolean auditEnabled = false;
-  private static String auditLogDirectory = "";
+  private static String auditLogDirectory = System.getProperty("org.cougaar.workspace") + File.separatorChar + "audit";
   private static Map roleMap = new HashMap();
   private static Map userMap = new HashMap();
   private static org.cougaar.util.log.Logger auditLogger =
