@@ -57,6 +57,7 @@ import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.connector.HttpResponseWrapper;
 
+import org.cougaar.lib.web.tomcat.SecureRealm;
 import org.cougaar.core.security.crypto.ldap.CougaarPrincipal;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
@@ -291,14 +292,14 @@ public class DualAuthenticator extends ValveBase {
   }
 
   private static void sendFailureMessage(Realm realm, int messageID, 
-                                         String user1, String user2) {
+                                  String user1, String user2) {
+    if (realm instanceof SecureRealm) {
+      realm = ((SecureRealm) realm).getRealm();
+    }
+
     if (realm instanceof KeyRingJNDIRealm) {
       KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
-      if (user2 == null) {
-        krjr.alertLoginFailure( messageID, user1 );
-      } else {
-        krjr.alertLoginFailure( messageID, user1, user2 );
-      }
+      krjr.alertLoginFailure( messageID, user1, user2 );
     }
   }
   /**
