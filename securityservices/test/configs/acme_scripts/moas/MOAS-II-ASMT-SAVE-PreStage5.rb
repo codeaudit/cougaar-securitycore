@@ -65,6 +65,7 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
   - script: $CIP/csmart/lib/security/scripts/log_node_process_info.rb
+  - script: $CIP/csmart/lib/security/scripts/check_message_queue.rb
 #  - script: $CIP/csmart/lib/security/scripts/setup_society_1000_ua.rb
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb
