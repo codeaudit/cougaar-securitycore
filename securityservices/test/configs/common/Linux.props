@@ -28,7 +28,7 @@ org.cougaar.install.path=/mnt/shared/integ
 #
 # By default persistence is disabled.
 org.cougaar.core.persistence.enable=true
-org.cougaar.core.persistence.clear=false
+org.cougaar.core.persistence.clear=true=
 
 # Add the "java-io-patch" to allow Cougaar persistence.
 #
@@ -155,7 +155,7 @@ java.Xbootclasspath/a=/mnt/shared/integ/lib/securebootstrapper.jar:/mnt/shared/i
 # DON'T FORGET to delete that property in CSMART global parameters, otherwise CSMART will override it.
 # This is now added as a CSMART recipe
 #org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect,org.cougaar.core.mts.MessageProtectionAspectImpl
-org.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.MessageProtectionAspectImpl
+#org.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.MessageProtectionAspectImpl
 #org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
 
 # Set the classname to the Bootstrapper. You must supply a command-line
@@ -191,7 +191,7 @@ org.cougaar.core.security.useSecurityManager=true
 org.cougaar.core.security.useAuthenticatedLoader=true
 
 # This property is used to set the interval (in seconds) at which CRLs are checked
-org.cougaar.core.security.crypto.crlpoll=60
+org.cougaar.core.security.crypto.crlpoll=600
 
 # Intervals at which validity is checked
 org.cougaar.core.security.crypto.validitypoll=600
