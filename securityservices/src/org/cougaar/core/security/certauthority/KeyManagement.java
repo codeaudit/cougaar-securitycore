@@ -987,7 +987,7 @@ public class KeyManagement  implements CertificateManagementService {
       PrivateKey caPrivateKey = ((PrivateKeyCert)caPrivateKeyList.get(0)).getPrivateKey();
       //Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
       // TODO
-      Signature caSignature = Signature.getInstance("SHA1withRSA");
+      //Signature caSignature = Signature.getInstance("SHA1withRSA");
       // caSignature.initSign(caPrivateKey);
 
       //X500Signer caX500signer = new X500Signer(caSignature, caX500Name);

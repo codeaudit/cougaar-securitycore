@@ -38,6 +38,8 @@ import java.security.PublicKey;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.log.LoggerFactory;
+import org.cougaar.util.log.Logger;
 
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
@@ -68,8 +70,13 @@ public class PendingCertCache
         thisCache = new PendingCertCache(cadnname, sb);
       }
       catch (Exception e) {
-        System.err.println("Error creating PendingCertCache: "
-			   + e.toString());
+	Logger logger =
+	  LoggerFactory.getInstance().createLogger("PendingCertCache");
+	if (logger == null) {
+	  throw new RuntimeException("Unable to get LoggingService");
+	}
+        logger.error("Error creating PendingCertCache: "
+		     + e.toString());
       }
     }
     return thisCache;

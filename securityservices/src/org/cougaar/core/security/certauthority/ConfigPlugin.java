@@ -34,6 +34,8 @@ import org.cougaar.core.service.*;
 import org.cougaar.core.component.*;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.identity.*;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import org.cougaar.core.security.config.PolicyHandler;
 import org.cougaar.core.security.services.crypto.*;
@@ -162,16 +164,17 @@ public class ConfigPlugin
 
   public void setParameter(Object o) {
     //Collection l = getParameters();
-    if (log == null) {
-      log = (LoggingService) _sb.getService(this, LoggingService.class, null);
-    }
 
     if (!(o instanceof List)) {
       throw new IllegalArgumentException("Expecting a List argument to setParameter");
     }
     List l = (List) o;
     if (l.size() == 0 || l.size() > 3) {
-      log.warn("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
+      Logger logger = LoggerFactory.getInstance().createLogger(this);
+      if (logger == null) {
+	throw new RuntimeException("Unable to get LoggingService");
+      }
+      logger.warn("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
     }
     Iterator it = l.iterator();
 

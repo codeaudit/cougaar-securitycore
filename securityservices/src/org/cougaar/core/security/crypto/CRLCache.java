@@ -96,8 +96,8 @@ final public class CRLCache
 {
 
   private SecurityPropertiesService secprop = null;
-  private DirectoryKeyStoreParameters param;
-  private KeyStore caKeystore = null; 
+  //private DirectoryKeyStoreParameters param;
+  //private KeyStore caKeystore = null; 
   private Hashtable crlsCache = new Hashtable(50);
   private long sleep_time=60000l; // Check CRL every minute by default
 
@@ -112,10 +112,10 @@ final public class CRLCache
   
 /** How long do we wait before retrying to send a certificate signing
  * request to a certificate authority? */
-  private long crlrefresh = 10;
+  //private long crlrefresh = 10;
   private BlackboardService blackboardService=null;
   private CrlManagementService crlMgmtService=null;
-  private IncrementalSubscription crlresponse;
+  //private IncrementalSubscription crlresponse;
 //  private BindingSite bindingSite=null;
   private CrlCacheBlackboardComponent crlBlackboardComponent=null;
   private CertificateCacheService cacheservice=null;
@@ -308,12 +308,12 @@ final public class CRLCache
       }
       String dnname=null;
       Enumeration enumkeys =crlsCache.keys();
-      for(;enumkeys.hasMoreElements();) {
+      while(enumkeys.hasMoreElements()) {
 	dnname=(String)enumkeys.nextElement();
 	updateCRLCache(dnname);
       }
       enumkeys=crlsCache.keys();
-      for(;enumkeys.hasMoreElements();) {
+      while(enumkeys.hasMoreElements()) {
 	dnname=(String)enumkeys.nextElement();
 	if(dnname!=null) {
 	  updateCRLInCertCache(dnname);
@@ -344,7 +344,7 @@ final public class CRLCache
     }
     iter=crlset.iterator();
     X509CRLEntry crlentry=null;
-    for(;iter.hasNext();) {
+    while(iter.hasNext()) {
       crlentry=(X509CRLEntry)iter.next();
       updateCRLEntryInCertCache(crlentry,distingushName);
     }
@@ -591,7 +591,7 @@ final public class CRLCache
 	      Array.setByte(obj, j, abyte0[j]);
 	    }
 	    Object aobj[] = { new Boolean(false), obj };
-	    CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
+	    //CertificateIssuerExtension ciext=new CertificateIssuerExtension( new Boolean(false),obj);
 	    CertAttrSet certattrset = (CertAttrSet)constructor.newInstance(aobj);
 	    if(certattrset instanceof CertificateIssuerExtension) {
 	      CougaarGeneralNames gn=(CougaarGeneralNames) certattrset.get
@@ -696,7 +696,8 @@ final public class CRLCache
     }
     return incrl;
   }
-  
+
+  /*
   private void initCRLCache(){
     try {
       //if(caKeystore != null && caKeystore.size() > 0) {
@@ -707,12 +708,11 @@ final public class CRLCache
       //initCRLCacheFromKeystore(caKeystore, param.caKeystorePassword);
       initCRLCacheFromKeystore();
       this.startThread();
-      /*
-        }
-        else {
-	log.debug(" Initializing CRL Cache  caKeystore == null ||  caKeystore.size() > 0");
-        }
-      */
+      //
+      //  }
+      //  else {
+      // log.debug(" Initializing CRL Cache  caKeystore == null ||  caKeystore.size() > 0");
+      //  }
     }
     catch (KeyStoreException e) {
       if (log.isWarnEnabled()) {
@@ -720,11 +720,12 @@ final public class CRLCache
       }
     }
   }
-  
+  */
+
 //  private void initCRLCacheFromKeystore(KeyStore aKeystore, char[] password)
   private void initCRLCacheFromKeystore()
     throws KeyStoreException {
-    String s=null;
+    //String s=null;
     X509Certificate certificate=null;
     String dnname=null;
     log.debug("initCRLCacheFromKeystore called :");
