@@ -169,7 +169,7 @@
         <echo message="+++++ Building Java Util"/>
         <javac classpathref="core.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}" 
-            includes="java/util/*.java" srcdir="${securityservices.src}"/>
+            includes="java/util/**" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built Java util"/>
     </target>
 
@@ -225,7 +225,7 @@
     <target name="jar-java-util" depends="build-java-util">
         <jar jarfile="${securityservices.classes}/javautil.jar">
             <fileset dir="${securityservices.classes}"
-                includes="java/util/*.class"/>
+                includes="java/util/**"/>
             <manifest>
               <attribute name="Built-By" value="${user.name}"/>
               <attribute name="Class-Path" value="/"/>
