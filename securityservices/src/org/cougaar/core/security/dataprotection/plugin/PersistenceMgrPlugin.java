@@ -68,7 +68,7 @@ public class PersistenceMgrPlugin
       getBindingSite().getServiceBroker().getService(this,
 						     LoggingService.class, null);
     if (log.isDebugEnabled()) {
-      log.debug("setupSubscriptions"); 
+      log.debug("setupSubscriptions");
     }
 
     requestHandler = new KeyRecoveryRequestHandler(getBindingSite().getServiceBroker(),
@@ -82,13 +82,21 @@ public class PersistenceMgrPlugin
 
   public void execute() {
     if (log.isDebugEnabled()) {
-      log.debug("execute"); 
+      log.debug("execute");
     }
     Collection requestCollection = unlockRequestsSubscription.getAddedCollection();
     Iterator it = requestCollection.iterator();
     while (it.hasNext()) {
       DataProtectionKeyUnlockRequest request = (DataProtectionKeyUnlockRequest)it.next();
+      log.debug("received request: " + request.toString());
       requestHandler.processKeyRecoveryRequest(request);
+      // need to change the source and target
+      Object response = request.getResponse();
+      if (response == null) {
+        log.debug("The response is empty.");
+        continue;
+      }
+      log.debug("recovered request: " + request.toString());
       getBlackboardService().publishChange(request);
     }
   }
