@@ -115,7 +115,7 @@ class AllQueryRelayPredicate implements  UnaryPredicate{
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
       if(relay.getContent() instanceof MRAgentLookUp) {
-        if(relay.getTargets().contains(myAddress)) {
+        if(relay.getTargets()!=null && relay.getTargets().contains(myAddress)) {
           ret=true;
         }
         if(!relay.getSource().equals(myAddress)){
