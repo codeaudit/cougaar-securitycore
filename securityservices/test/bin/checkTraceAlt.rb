@@ -13,6 +13,7 @@ $badMessages = [
   /FATAL/
 ]
 
+$testPassed=true
 
 $startupDelay = 10 * 60
 
@@ -202,8 +203,10 @@ end
 
 def checkLogs(path)
   fatals = []
+  nbLogFiles = 0
   Dir.glob(File.join(path, "*.log")).each do |file|
     repeats = copyRepeats
+    nbLogFiles += 1
     File.open(file) do |fd|
       currentTime = MyTime.new(fd.gets())
       startTime = currentTime.getTime()
@@ -219,6 +222,7 @@ def checkLogs(path)
           if !actuallyOk(startTime, currentTime, logmsg) then
             if nobadlogs then
               nobadlogs = false
+              $testPassed = false
               banner(startTime, file)
             end
             if isFatal(logmsg) then
@@ -238,9 +242,14 @@ def checkLogs(path)
     puts "***************************************************"
     puts "FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL FATAL"
     puts "The following serious errors were found"
+    $testPassed = false
     fatals.each do |msg|
       puts "\t#{msg}"
     end
+  end
+  if nbLogFiles == 0
+    puts "No log files were found"
+    $testPassed = false
   end
 end
 
@@ -366,3 +375,9 @@ end
 
 processArgs
 checkLogs($logdir)
+
+if $testPassed
+  puts "<testResult>SUCCESS</testResult>"
+else
+  puts "<testResult>FAILED</testResult>"
+end
