@@ -16,8 +16,12 @@ fi
 # Capture file
 capture_file="/tmp/capture.cap"
 
-# Filter
-filter="'!(tcp port 22)'"
+# Filter (tcpdump format)
+filter="' "
+filter="$filter !(tcp port 22)"            # SSH
+filter="$filter and !(tcp port 3306)"      # MySQL
+filter="$filter and !(udp port 2049)"      # NFS
+filter="$filter '"
 
 # Display packet summary while dumping packets
 #options=-S
