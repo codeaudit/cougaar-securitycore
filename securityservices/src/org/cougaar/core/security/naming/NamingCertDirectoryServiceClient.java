@@ -326,11 +326,15 @@ public class NamingCertDirectoryServiceClient {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.wp.WhitePagesService.class.isAssignableFrom(sc)) {
-	log.debug("Naming Service is now available");
+        if (log.isDebugEnabled()) {
+	  log.debug("Naming Service is now available");
+        }
         setNamingService();
       }
       else if (org.cougaar.core.service.ThreadService.class.isAssignableFrom(sc)) {
-	log.debug("Thread Service is now available");
+        if (log.isDebugEnabled()) {
+	  log.debug("Thread Service is now available");
+        }
         setThreadService();
       }
     }

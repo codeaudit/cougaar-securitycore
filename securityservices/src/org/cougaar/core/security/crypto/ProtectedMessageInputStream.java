@@ -275,7 +275,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       _log.debug("finishInput: " + _source + " -> " + _target);
     }
     if (_sign) {
-      _log.debug("trying to verify signature");
+      if (_log.isDebugEnabled()) {
+        _log.debug("trying to verify signature");
+      }
       try {
         _signature.verifySignature();
       } catch (SignatureException e) {

@@ -1646,10 +1646,14 @@ public class CryptoManagerServiceImpl
     }
     if (cert != null) {
       try {
-        log.debug("checking cerficate for " + source + "@[" + nodePrincipal +
+        if (log.isDebugEnabled()) {
+          log.debug("checking cerficate for " + source + "@[" + nodePrincipal +
                   "] to target " + target);
+        }
         keyRing.checkCertificateTrust(cert);
-        log.debug("certificate ok");
+        if (log.isDebugEnabled()) {
+          log.debug("certificate ok");
+        }
         return true;
       } catch (GeneralSecurityException e) {
         if (log.isInfoEnabled()) {
@@ -1661,8 +1665,10 @@ public class CryptoManagerServiceImpl
         throw e;
       }
     }
-    log.debug("No certificate found for " + source + "@[" + nodePrincipal +
+    if (log.isDebugEnabled()) {
+      log.debug("No certificate found for " + source + "@[" + nodePrincipal +
                   "] to target " + target);
+    }
     return false;
   }
 

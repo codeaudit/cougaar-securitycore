@@ -156,9 +156,11 @@ public final class KeyCertGenerator
         date.setTime(date.getTime() - envelope * 1000L);
 	date1.setTime(date1.getTime() + l * 1000L);
 
-	log.debug("date: " + date.toString());
-	log.debug("date1: " + date1.toString());
-	log.debug("l: " + l);
+        if (log.isDebugEnabled()) {
+       	  log.debug("date: " + date.toString());
+	  log.debug("date1: " + date1.toString());
+	  log.debug("l: " + l);
+        }
 
 	CertificateValidity certificatevalidity = new CertificateValidity(date, date1);
 	X509CertInfo x509certinfo = new X509CertInfo();

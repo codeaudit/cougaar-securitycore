@@ -86,7 +86,9 @@ public class LinkProtocolAspect
       _log.error("Unable to get crypto policy service");
       throw new RuntimeException("No crypto policy service");
     }
-    _log.debug("load completed");
+    if (_log.isDebugEnabled()) {
+      _log.debug("load completed");
+    }
   }
 
   public Object getDelegate(Object delegatee, Class type) {

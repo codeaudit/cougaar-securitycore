@@ -100,7 +100,9 @@ public class CryptoPolicyServiceImpl
         class.isAssignableFrom(sc)) {
                 commu = (CommunityService)
                 serviceBroker.getService(this, CommunityService.class, null);
-                log.info("CommunityService is available now");
+                if (log.isInfoEnabled()) {
+                  log.info("CommunityService is available now");
+                }
             }
     }
   }
@@ -367,7 +369,9 @@ public class CryptoPolicyServiceImpl
 	*/
         break;
       case  CryptoPolicy.SOCIETY:
-        log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
+        if (log.isDebugEnabled()) {
+          log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
+        }
         if(cp.Direction == CryptoPolicy.INCOMING){
           dcp_in = cp;
         }else if(cp.Direction == CryptoPolicy.OUTGOING){
@@ -482,7 +486,9 @@ public class CryptoPolicyServiceImpl
 	*/
         break;
       case  CryptoPolicy.SOCIETY:
-        log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
+        if (log.isDebugEnabled()) {
+          log.debug("CryptoPolicy for SOCIETY: " + cp.Direction);
+        }
         if(cp.Direction == CryptoPolicy.DATAPROTECTION){
           dcp_dataprot = cp;
         }

@@ -684,7 +684,9 @@ public class MessageProtectionServiceImpl
     try {
       boolean encryptedSocket    = isEncrypted(attrs);
       boolean criticalPLevelMsg  = isCriticalProtectionLevelMsg(attrs);
-      log.debug("returning encrypted service");
+      if (log.isDebugEnabled()) {
+        log.debug("returning encrypted service");
+      }
       return 
         new ProtectedMessageOutputStream(os, 
                                          source, destination, 

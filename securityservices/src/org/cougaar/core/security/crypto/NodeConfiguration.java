@@ -50,7 +50,9 @@ public class NodeConfiguration
     log = (LoggingService)
 	serviceBroker.getService(this,
 				 LoggingService.class, null);
-    log.debug("Node Crypto Initializing");
+    if (log.isDebugEnabled()) {
+      log.debug("Node Crypto Initializing");
+    }
 
     AccessController.doPrivileged(new PrivilegedAction() {
       public Object run() {
@@ -127,13 +129,17 @@ public class NodeConfiguration
     String nodeName = secprop.getProperty("org.cougaar.node.name");
 
     String cougaarWsp=secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
-    log.debug("Cougaar workspace is :" + cougaarWsp);
+    if (log.isDebugEnabled()) {
+      log.debug("Cougaar workspace is :" + cougaarWsp);
+    }
 
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
 
     nodeDirectory = topDirectory + nodeName + File.separatorChar;
-    log.debug("Node-level directory: " + nodeDirectory);
+    if (log.isDebugEnabled()) {
+      log.debug("Node-level directory: " + nodeDirectory);
+    }
 
     try {
       if (log.isDebugEnabled()) {

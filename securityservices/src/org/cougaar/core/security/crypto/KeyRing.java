@@ -1605,10 +1605,14 @@ try {
 
 	  }
 	  if(commonname!=null){
-	    log.debug("common name in checkOrMakeCert is :"+commonname);
+            if (log.isDebugEnabled()) {
+  	      log.debug("common name in checkOrMakeCert is :"+commonname);
+            }
 	  }
 	  else {
-	    log.debug("common name in checkOrMakeCert is :NULL");
+            if (log.isDebugEnabled()) {
+  	      log.debug("common name in checkOrMakeCert is :NULL");
+             }
 	  }
 
           if (commonname!=null && commonname.equals(NodeInfo.getNodeName())) {
