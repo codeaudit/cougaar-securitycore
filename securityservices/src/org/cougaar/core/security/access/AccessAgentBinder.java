@@ -131,8 +131,10 @@ public class AccessAgentBinder
 	AccessControlPolicyService acps=null;
 	if (serviceBroker != null)  {
 	  try  {
-	    log = (LoggingService) serviceBroker.getService(this,LoggingService.class, null);
-	    acps = (AccessControlPolicyService) serviceBroker.getService(this,AccessControlPolicyService.class, null);
+	    log = (LoggingService)
+	      serviceBroker.getService(this,LoggingService.class, null);
+	    acps = (AccessControlPolicyService)
+	      serviceBroker.getService(this,AccessControlPolicyService.class, null);
 	    if (acps == null) {
 	      throw new RuntimeException("Access Crl Aspect. No policy service");
 	    }
