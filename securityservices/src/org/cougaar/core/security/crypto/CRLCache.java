@@ -408,10 +408,14 @@ public class CRLCache implements Runnable
       log.debug(" cache contains  in CRL Caches updateCRLEntryInCertCache:");
 
       //keystore.certCache.printbigIntCache();
-      log.debug("");
-      log.debug("");
-      log.debug("");
     }
+
+    // need to store the revoked cert information even though
+    // we may not have received the cert yet. Otherwise there
+    // is a time window for a revoked cert to get into the 
+    // system. 
+    keystore.certCache.addToRevokedCache(actualIssuerDN, bigint);
+
     subjectDN=keystore.certCache.getDN(crlkey);
     if(subjectDN==null) {
 
