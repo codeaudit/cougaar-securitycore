@@ -167,7 +167,7 @@ public class CertificateStatus
   {
     String status = null;
     if (isValid()) {
-      status = "Not revoked";
+      status = "Valid";
     }
     else {
       status = "Revoked";

@@ -928,7 +928,7 @@ public class DirectoryKeyStore implements Runnable
     //Vector vector1 = (Vector)hashtable.get(principal1);
     if(list1 == null) {
       if (debug) {
-	System.out.println("Signer certificate not found");
+	System.out.println("No Signer certificate in cache");
       }
       // One intermediate CA may not be in the local keystore.
       // We need to go to the LDAP server to get the key if we haven't found
