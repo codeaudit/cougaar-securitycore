@@ -173,13 +173,14 @@ module Cougaar
 
         def NodeInfo.header_string
           #      "05/13/2004 13:51:24 u129            16434  ROOT-CA-NODE                         1"
-	  return "Date       Time     Host            PID    Node_Name                            RSZ\tXMX\tDIFF\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
+	  return "Host            PID    Date       Time     Node_Name                            RSZ\tXMX\tDIFF\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
         end
        
         def to_s
 	  now = Time.new
-          s = "#{now.strftime("%m/%d/%Y")} #{now.strftime("%H:%M:%S")} "
-          s += "#{@host.name.ljust(15)} #{@pid.ljust(6)} #{name.ljust(30)}\t#{rsz}\t"
+          s = "#{@host.name.ljust(15)} #{@pid.ljust(6)} "
+          s += "#{now.strftime("%m/%d/%Y")} #{now.strftime("%H:%M:%S")} "
+          s += "#{name.ljust(30)}\t#{rsz}\t"
           value = @xmx
           @xmx.scan(/([0-9]+)(.+)/) { |match|
             value = match[0].to_i
