@@ -51,9 +51,9 @@ class TestReportChainReady < SecurityStressFramework
   def afterReportChainReady
     badChains = getBadChains ["OSD.GOV"]
     if badChains.empty?
-      saveResult true, "ReportChainReady Achieved"
+      saveResult true, stressid, "ReportChainReady Achieved"
     else
-      saveResult false, "ReportChainReady failed"
+      saveResult false, stressid, "ReportChainReady failed"
       badChains.each do |chain|
         saveAssertion stressid, 
                       "ReportChainReady failed at subordinate #{chain.last}"
