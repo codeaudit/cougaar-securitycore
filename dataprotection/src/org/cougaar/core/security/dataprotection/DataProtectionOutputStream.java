@@ -159,7 +159,11 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     }
     if (_keyRing == null) {
       _keyRing = (KeyRingService)
-        sb.getService(this, KeyRingService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {      
+            public Object run() {
+              return sb.getService(this, KeyRingService.class, null);
+            }
+          });
       if (_keyRing == null) {
         throw new RuntimeException("KeyRingService is not available");
       }
