@@ -117,6 +117,7 @@ public class PersistenceMgrPolicyServiceImpl
     }
   }
 
+  /*
   private void startTimerTask() {
     // default to every 2 mins (120 secs)
     long period = 120000;
@@ -132,6 +133,7 @@ public class PersistenceMgrPolicyServiceImpl
     // schedule task to lookup persistence managers from community service
     (new Timer()).schedule(new PersistenceMgrSearchTask(), 0, period);
   }
+  */
 
   private void addCommunityListener() {
     if (_log.isDebugEnabled()) {
@@ -146,26 +148,16 @@ public class PersistenceMgrPolicyServiceImpl
       public void communityChanged(CommunityChangeEvent event) {
         Community community = event.getCommunity();
         try {
-          if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
-            if (_log.isDebugEnabled()) {
-              _log.debug("Community changed: " + event);
-            }
-          }
-          // else we don't care
-          else {
-            if (_log.isDebugEnabled()) {
-              _log.debug("No action on change event: " + event);
-            }
-            return;
-          }
-
           Attributes attrs = community.getAttributes();
           Attribute attr = attrs.get("CommunityType");
           if (attr != null) {
             for (int i = 0; i < attr.size(); i++) {
               Object type = attr.get(i);
               if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
-                startTimerTask();
+                if (_log.isDebugEnabled()) {
+                  _log.debug("Got community: " + community.getName());
+                }
+                setupRole(community);
               }
             }
           }
@@ -176,6 +168,23 @@ public class PersistenceMgrPolicyServiceImpl
       }
     });
   }
+
+  private void setupRole(Community community) {
+    String communityName = community.getName();
+    String filter = "(Role=" + PM_ROLE + ")";
+    Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
+    Iterator it = mgrAgents.iterator();
+    if (_log.isDebugEnabled()) {
+      _log.debug("setupRole for " + communityName
+	+ " - " + mgrAgents.size() + "  manager agents");
+      _log.debug("Community: " + community.toXml());
+    }
+    while (it.hasNext()) {
+      Entity entity = (Entity) it.next();
+      processPersistenceMgrEntry(entity);
+    }
+  }
+
 
   /**
    * get the latest Persistence Manager Policies
@@ -252,6 +261,7 @@ public class PersistenceMgrPolicyServiceImpl
    * This task is searches for persistence managers and constructs
    * a PersistenceManagerPolicy for new persistence managers
    */
+   /*
   class PersistenceMgrSearchTask extends TimerTask  {
     // list of persistence managers
     private List _agents;
@@ -303,6 +313,7 @@ public class PersistenceMgrPolicyServiceImpl
         processPersistenceMgrEntry((Entity) it.next());
       }
     }
+    */
 
     private void processPersistenceMgrEntry(Entity manager) {
       String agent = manager.getName();
@@ -359,6 +370,7 @@ public class PersistenceMgrPolicyServiceImpl
       } // if(!_agents.contains(pm))
     }
 
+    /*
     public void run() {
       // get a list of all security communities
       if(_cs == null || _wps == null) {
@@ -370,4 +382,5 @@ public class PersistenceMgrPolicyServiceImpl
       searchPersistenceManagers();
     } // public void run()
   } // class PersistenceMgrSearchTask
+  */
 }
