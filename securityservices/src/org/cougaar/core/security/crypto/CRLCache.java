@@ -739,6 +739,7 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       // is a time window for a revoked cert to get into the 
       // system.  
       cacheService.addToRevokedCache(actualIssuerDN, bigint);
+      event("newCRL", actualIssuerDN, "");
       return;
     }
     if(log.isDebugEnabled()) {
