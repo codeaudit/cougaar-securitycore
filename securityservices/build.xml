@@ -12,13 +12,13 @@
     <!-- prefix for all environment variables -->
     <property environment="env"/>
     <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
-    <property name="securityservices.base" value="${env.COUGAAR_SECURITY_SERVICES}"/>
+    <property name="securityservices.base" value="."/>
     <property name="securityservices.sys" value="${securityservices.base}/sys"/>
     <property name="securityservices.lib" value="${securityservices.base}/lib"/>
     <property name="securityservices.docdir" value="${securityservices.base}/doc"/>
     <property name="securityservices.configs" value="${securityservices.base}/test/configs"/> 
     <!-- The classes directory for output classes and jar files -->
-    <property name="securityservices.classes" value="${env.COUGAARCLASSES}"/>
+    <property name="securityservices.classes" value="classes"/>
     <!-- The base directories where the java source files are located -->
     <property name="securityservices.src" value="${securityservices.base}/src"/>
 
