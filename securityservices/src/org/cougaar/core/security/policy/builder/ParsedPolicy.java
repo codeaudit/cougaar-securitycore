@@ -29,9 +29,14 @@ package org.cougaar.core.security.policy.builder;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.agent.service.directory.DirectoryFailure;
+
 import jtp.ReasoningException;
+
 import kaos.core.util.UniqueIdentifier;
+import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.util.KAoSClassBuilderImpl;
+import kaos.ontology.util.QueryFailure;
 import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.vocabulary.PolicyConcepts;
@@ -232,18 +237,23 @@ public abstract class ParsedPolicy
                                           + " is not applicable to " 
                                           + _action);
       }
-      if (target.getRange() instanceof List) {
-        List instances = (List) target.getRange();
-        for (Iterator instanceIt = instances.iterator();
-             instanceIt.hasNext();) {
-          String instance = (String) instanceIt.next();
-          ontology.verifyInstanceOf(instance, fullRange);
-        }
-      } else {
-        ontology.verifySubClass((String) target.getRange(), fullRange);
+    } catch (UnknownConceptException uce) {
+      throw new PolicyCompilerException(uce);
+    } catch (QueryFailure qf) {
+      throw new PolicyCompilerException(qf);
+    } catch (DirectoryFailure df) {
+      throw new PolicyCompilerException(df);
+    }
+
+    if (target.getRange() instanceof List) {
+      List instances = (List) target.getRange();
+      for (Iterator instanceIt = instances.iterator();
+           instanceIt.hasNext();) {
+        String instance = (String) instanceIt.next();
+        ontology.verifyInstanceOf(instance, fullRange);
       }
-    } catch (ReasoningException re) {
-      throw new PolicyCompilerException(re);
+    } else {
+      ontology.verifySubClass((String) target.getRange(), fullRange);
     }
 
     try {

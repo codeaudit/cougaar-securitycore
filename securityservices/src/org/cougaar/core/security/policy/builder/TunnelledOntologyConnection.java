@@ -35,8 +35,9 @@ import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
 import kaos.kpat.tunnel.TunnelClient;
-import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.util.QueryFailure;
 import kaos.ontology.util.SerializableOntModelImpl;
+import kaos.ontology.management.UnknownConceptException;
 
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.userauth.UserAuthenticatorImpl;
@@ -115,34 +116,26 @@ public class TunnelledOntologyConnection extends OntologyConnection
 
   // not in tunnelclient
   public Vector getPropertiesApplicableTo (String className)
-    throws ReasoningException
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    try {
-      return _brains.getPropertiesApplicableTo(className);
-    } catch (Exception e) {
-      ReasoningException re 
-        = new ReasoningException("Failed to get properties for class "
-                                 + className);
-      re.initCause(e);
-      throw re;
-    }
+    return _brains.getPropertiesApplicableTo(className);
   }
 
   // not in tunnelclient
   public String getRangeOnPropertyForClass(String className, 
                                            String propertyName) 
-    throws ReasoningException
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    try {
+    //    try {
       return _brains.getRangeOnPropertyForClass(className,propertyName);
-    } catch (Exception e) {
-      ReasoningException re
-        = new ReasoningException("Failed to get the range for the property "
-                                 + propertyName + " which has domain " +
-                                 className);
-      re.initCause(e);
-      throw re;
-    }
+      //    } catch (Exception e) {
+      //      ReasoningException re
+      //        = new ReasoningException("Failed to get the range for the property "
+      //                                 + propertyName + " which has domain " +
+      //                                 className);
+      //      re.initCause(e);
+      //      throw re;
+      //    }
   }
 
   public Set getIndividualTargets (String baseTargetClass) 
@@ -181,16 +174,9 @@ public class TunnelledOntologyConnection extends OntologyConnection
 
 
   public boolean testTrue (String statement) 
-    throws ReasoningException
+    throws QueryFailure, DirectoryFailure
   {
-    try {
-      return _brains.testTrue(statement);
-    } catch (Exception e) {
-      ReasoningException re
-        = new ReasoningException("Could not ask question " + statement);
-      re.initCause(e);
-      throw re;
-    }
+    return _brains.testTrue(statement);
   }
 
   /*

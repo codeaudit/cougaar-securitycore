@@ -35,8 +35,9 @@ import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
 import kaos.core.service.directory.KAoSDirectoryService;
-import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.util.QueryFailure;
 import kaos.ontology.util.SerializableOntModelImpl;
+import kaos.ontology.management.UnknownConceptException;
 
 /**
  * This class represents a connection to the reasoner (the ontology
@@ -66,28 +67,16 @@ public class KAoSOntologyConnection extends OntologyConnection
   }
 
   public  Vector getPropertiesApplicableTo (String className)
-    throws ReasoningException
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    try {
-      return _kds.getPropertiesApplicableTo(className);
-    } catch (UnknownConceptException uce) {
-      ReasoningException re = new ReasoningException(uce.toString());
-      re.initCause(uce);
-      throw re;
-    }
+    return _kds.getPropertiesApplicableTo(className);
   }
 
   public String getRangeOnPropertyForClass(String className, 
                                            String propertyName) 
-    throws ReasoningException
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    try {
-      return _kds.getRangeOnPropertyForClass(className, propertyName);
-    } catch (UnknownConceptException uce) {
-      ReasoningException re = new ReasoningException(uce.toString());
-      re.initCause(uce);
-      throw re;
-    }
+    return _kds.getRangeOnPropertyForClass(className, propertyName);
   }
 
   public Set getIndividualTargets (String baseTargetClass) 
@@ -96,7 +85,7 @@ public class KAoSOntologyConnection extends OntologyConnection
     try {
       return _kds.getIndividualTargets(baseTargetClass);
     } catch (UnknownConceptException uce) {
-      ReasoningException re = new ReasoningException(uce.toString());
+      ReasoningException re = new ReasoningException("");
       re.initCause(uce);
       throw re;
     }
@@ -107,7 +96,13 @@ public class KAoSOntologyConnection extends OntologyConnection
                               String className)
     throws ReasoningException
   {
-    _kds.declareInstance(instanceName, className);
+    try {
+      _kds.declareInstance(instanceName, className);
+    } catch (QueryFailure qf) {
+      ReasoningException re = new ReasoningException("");
+      re.initCause(qf);
+      throw re;
+    }
   }
 
 
@@ -118,7 +113,7 @@ public class KAoSOntologyConnection extends OntologyConnection
   }
 
   public  boolean testTrue (String statement) 
-    throws ReasoningException
+    throws QueryFailure, DirectoryFailure
   {
     return _kds.testTrue(statement);
   }

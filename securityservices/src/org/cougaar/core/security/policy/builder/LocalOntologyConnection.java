@@ -37,6 +37,7 @@ import javax.agent.service.directory.DirectoryFailure;
 import jtp.ReasoningException;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.OntologyRepository;
+import kaos.ontology.util.QueryFailure;
 import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.vocabulary.RDFConcepts;
 
@@ -81,16 +82,28 @@ public class LocalOntologyConnection extends OntologyConnection
    */
 
   public Vector getPropertiesApplicableTo (String className)
-    throws ReasoningException 
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    return _brains.getPropertiesApplicableTo(className);
+    try {
+      return _brains.getPropertiesApplicableTo(className);
+    } catch (ReasoningException re) {
+      QueryFailure qf = new QueryFailure("Problem getting properties applicable to");
+      qf.initCause(re);
+      throw qf;
+    }
   }
 
   public String getRangeOnPropertyForClass(String className, 
                                                     String propertyName) 
-    throws ReasoningException
+    throws UnknownConceptException, QueryFailure, DirectoryFailure
   {
-    return _brains.getRangeOnPropertyForClass(className,propertyName);
+    try {
+      return _brains.getRangeOnPropertyForClass(className,propertyName);
+    } catch (ReasoningException re) {
+      QueryFailure qf = new QueryFailure("Problem getting range on property for class");
+      qf.initCause(re);
+      throw qf;
+    }
   }
 
   public Set getIndividualTargets (String baseTargetClass) 
@@ -128,9 +141,15 @@ public class LocalOntologyConnection extends OntologyConnection
 
 
   public boolean testTrue (String statement) 
-    throws ReasoningException
+    throws QueryFailure, DirectoryFailure
   {
-    return _brains.testTrue(statement);
+    try {
+      return _brains.testTrue(statement);
+    } catch (ReasoningException re) {
+      QueryFailure qf = new QueryFailure("Problem getting range on property for class");
+      qf.initCause(re);
+      throw qf;
+    }
   }
 
 

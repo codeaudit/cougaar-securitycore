@@ -37,6 +37,7 @@ import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
 import kaos.ontology.management.UnknownConceptException;
+import kaos.ontology.util.QueryFailure;
 import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.vocabulary.RDFConcepts;
 import kaos.ontology.vocabulary.RDFSConcepts;
@@ -98,9 +99,13 @@ public abstract class OntologyConnection
            + smallSet + " " + bigSet + ")")) {
         throw new PolicyCompilerException(error);
       }
-    } catch (ReasoningException re) {
+    } catch (QueryFailure qf) {
       PolicyCompilerException pe = new PolicyCompilerException(error);
-      pe.initCause(re);
+      pe.initCause(qf);
+      throw pe;
+    } catch (DirectoryFailure df) {
+      PolicyCompilerException pe = new PolicyCompilerException(error);
+      pe.initCause(df);
       throw pe;
     }
   }
@@ -119,13 +124,18 @@ public abstract class OntologyConnection
            element + " " + container + ")")) {
         throw new PolicyCompilerException(error);
       }
-    } catch (ReasoningException re) {
+    } catch (QueryFailure qf) {
       PolicyCompilerException pe = new PolicyCompilerException(error);
-      pe.initCause(re);
+      pe.initCause(qf);
+      throw pe;
+    } catch (DirectoryFailure df) {
+      PolicyCompilerException pe = new PolicyCompilerException(error);
+      pe.initCause(df);
       throw pe;
     }
   }
 
+  /*
   public void loadDeclarations(Map declarations)
     throws ReasoningException
   {
@@ -137,6 +147,8 @@ public abstract class OntologyConnection
     }
   }
 
+  */
+
   /*
    * Abstract methods
    */
@@ -145,11 +157,11 @@ public abstract class OntologyConnection
     throws UnknownConceptException, DirectoryFailure;
 
   public abstract Vector getPropertiesApplicableTo (String className)
-    throws ReasoningException ;
+    throws UnknownConceptException, QueryFailure, DirectoryFailure;
 
   public abstract String getRangeOnPropertyForClass(String className, 
                                                     String propertyName) 
-    throws ReasoningException;
+    throws UnknownConceptException, QueryFailure, DirectoryFailure;
 
   public abstract Set getIndividualTargets (String baseTargetClass) 
     throws ReasoningException;
@@ -163,7 +175,7 @@ public abstract class OntologyConnection
     throws UnknownConceptException, DirectoryFailure;
 
   public abstract boolean testTrue (String statement) 
-    throws ReasoningException;
+    throws QueryFailure, DirectoryFailure; 
 
   /*
    * Not implemented on the tunnelled ontology
