@@ -50,8 +50,8 @@ public class CryptoPolicy extends SecurityPolicy {
   public static final int BOTH = 3;
   public static final int DATAPROTECTION = 4;
   public int Direction = BOTH;
-  private CommunityService commService = null;
-  
+  private HashMap commList = new HashMap();
+ 
   private HashMap secuMethod = new HashMap();
   public void setSecuMethod(String key, String method){
     Object o = secuMethod.get(key);
@@ -59,6 +59,20 @@ public class CryptoPolicy extends SecurityPolicy {
       Vector sm = new Vector();
       sm.add(method);
       secuMethod.put(key, sm);
+    }else{
+      Vector sm = (Vector)o;
+      if(!sm.contains(method))
+        sm.add(method);
+    }
+  }
+  private HashMap secuMethodCom = new HashMap();
+  public void setComSecuMethod(String key, String method){
+    Object o = secuMethodCom.get(key);
+    if(o==null){
+      Vector sm = new Vector();
+      sm.add(method);
+      secuMethodCom.put(key, sm);
+      commList.put(key,null); //put in null for now, fill in setCommunityService.
     }else{
       Vector sm = (Vector)o;
       if(!sm.contains(method))
@@ -79,6 +93,20 @@ public class CryptoPolicy extends SecurityPolicy {
         sp.add(spec);
     }
   }
+  private HashMap symmSpecCom = new HashMap();
+  public void setComSymmSpec(String key, String spec){
+    Object o = symmSpecCom.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      symmSpecCom.put(key, sp);
+      commList.put(key,null); //put in null for now, fill in setCommunityService.
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))
+        sp.add(spec);
+    }
+  }
 
   private HashMap signSpec = new HashMap();
   public void setSignSpec(String key, String spec){
@@ -87,6 +115,20 @@ public class CryptoPolicy extends SecurityPolicy {
       Vector sp = new Vector();
       sp.add(spec);
       signSpec.put(key, sp);
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))
+        sp.add(spec);
+    }
+  }
+  private HashMap signSpecCom = new HashMap();
+  public void setComSignSpec(String key, String spec){
+    Object o = signSpecCom.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      signSpecCom.put(key, sp);
+      commList.put(key,null); //put in null for now, fill in setCommunityService.
     }else{
       Vector sp = (Vector)o;
       if(!sp.contains(spec))
@@ -107,84 +149,74 @@ public class CryptoPolicy extends SecurityPolicy {
         sp.add(spec);
     }
   }
+  private HashMap asymmSpecCom = new HashMap();
+  public void setComAsymmSpec(String key, String spec){
+    Object o = asymmSpecCom.get(key);
+    if(o==null){
+      Vector sp = new Vector();
+      sp.add(spec);
+      asymmSpecCom.put(key, sp);
+      commList.put(key,null); //put in null for now, fill in setCommunityService.
+    }else{
+      Vector sp = (Vector)o;
+      if(!sp.contains(spec))
+        sp.add(spec);
+    }
+  }
 
   public Vector getSecuMethod(String key){ 
     Vector v = (Vector)secuMethod.get(key);
     //try community policy if null
-/*   if(v==null && commService!=null){
+    if(v==null && secuMethodCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) v = (Vector)secuMethod.get(cname);
-          if(v!=null) break;
-        }
+        v = (Vector)secuMethodCom.get(c);
       }
     }
-*/    //last try
+    //last try
     if(v==null) v = (Vector)secuMethod.get("DEFAULT");
     return v; 
   }
   public Vector getSymmSpec(String key) { 
     Vector v = (Vector)symmSpec.get(key);
     //try community policy if null
-/*    if(v==null && commService!=null){
+    if(v==null && symmSpecCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) v = (Vector)symmSpec.get(cname);
-          if(v!=null) break;
-        }
+        v = (Vector)symmSpecCom.get(c);
       }
     }
-*/    //last try
+    //last try
     if(v==null) v = (Vector)symmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getAsymmSpec(String key) { 
     Vector v = (Vector)asymmSpec.get(key);
     //try community policy if null
-/*    if(v==null && commService!=null){
+    if(v==null && asymmSpecCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) v = (Vector)asymmSpec.get(cname);
-          if(v!=null) break;
-        }
+        v = (Vector)asymmSpecCom.get(c);
       }
     }
-*/    //last try
+    //last try
     if(v==null) v = (Vector)asymmSpec.get("DEFAULT");
     return v; 
   }
   public Vector getSignSpec(String key) { 
     Vector v = (Vector)signSpec.get(key);
     //try community policy if null
-/*    if(v==null && commService!=null){
+    if(v==null && signSpecCom.size()>0){
       //find which community the agent belongs to and get the policy
-      Collection c = commService.listParentCommunities(key);
+      String c = commLookup(key);
       if(c!=null){
-        Iterator it = c.iterator();
-        String cname = null;
-        while(it.hasNext()){
-          cname = (String)it.next();
-          if(cname != null) v = (Vector)signSpec.get(cname);
-          if(v!=null) break;
-        }
+        v = (Vector)signSpecCom.get(c);
       }
     }
-*/    //last try
+    //last try
     if(v==null) v = (Vector)signSpec.get("DEFAULT");
     return v; 
   }
@@ -227,7 +259,28 @@ public class CryptoPolicy extends SecurityPolicy {
   }
 
   public void setCommunityService(CommunityService cs){
-    commService = cs;
+    //fill community info
+    Iterator iter = commList.keySet().iterator();
+    while(iter.hasNext()){
+      String comName = (String)iter.next();
+      Collection c = cs.listEntities(comName);
+      commList.put(comName, c);
+    }
+  }
+  //lookup community name
+  private String commLookup(String agent){
+    Iterator iter = commList.keySet().iterator();
+    while(iter.hasNext()){
+      String comName = (String)iter.next();
+      Collection v = (Collection)commList.get(comName);
+      if (v != null){
+        if(v.contains(agent)){
+          return comName;
+        }
+      }
+    }
+    //fall through
+    return null;
   }
   
   public String toString() {

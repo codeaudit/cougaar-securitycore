@@ -33,6 +33,8 @@ import java.util.Collection;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.component.ServiceAvailableListener;
+import org.cougaar.core.component.ServiceAvailableEvent;
 
 // KAoS policy management
 import safe.enforcer.NodeEnforcer;
@@ -83,12 +85,42 @@ public class CryptoPolicyServiceImpl
     secprop = (SecurityPropertiesService)
       serviceBroker.getService(this,
 			       SecurityPropertiesService.class, null);
-
+/*
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
 
+    
+    if(commu==null && log.isWarnEnabled()){
+      log.warn("can't get community Service.");
+    }
+*/
+    // check to see if CommunityService is available
+    // if not, add listener
+    if(serviceBroker.hasService
+      (org.cougaar.core.service.community.CommunityService.class)){
+        commu = (CommunityService) 
+          sb.getService(this, CommunityService.class, null);
+        log.info("CommunityService is available initially");
+    }
+    else {
+      serviceBroker.addServiceListener(new CommunityServiceAvailableListener());
+    }
+    
     cpp = new CryptoPolicyProxy(serviceBroker);
     dpp = new DataProtectionPolicyProxy(serviceBroker);
+  }
+    
+  private class CommunityServiceAvailableListener implements ServiceAvailableListener
+  {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      Class sc = ae.getService();
+      if (org.cougaar.core.service.community.CommunityService.
+        class.isAssignableFrom(sc)) {
+                commu = (CommunityService) 
+                serviceBroker.getService(this, CommunityService.class, null);
+                log.info("BlackboardService is available now");
+            }
+    }
   }
 
     public SecureMethodParam getSendPolicy(String source, String target) {
@@ -115,23 +147,12 @@ public class CryptoPolicyServiceImpl
       }
 
       //try agent first
-      CryptoPolicy cp = (CryptoPolicy)incoming_a.get(source);
-/*
-      if(cp==null && commu!=null){
-        //find which community the agent belongs to and get the policy
-        Collection c = commu.listParentCommunities(source);
-        if(c!=null){
-           Iterator it = c.iterator();
-          String cname = null;
-           while(it.hasNext()){
-             cname = (String)it.next();
-             if(cname != null && outgoing_c !=null)
-               cp = (CryptoPolicy)outgoing_c.get(cname);
-             if(cp!=null) break;
-           }
-        }
+      CryptoPolicy cp = (CryptoPolicy)outgoing_a.get(source);
+
+      if(cp==null && outgoing_c.size()>0){
+        cp = (CryptoPolicy)outgoing_c.get(source);
       }
-*/
+
       if(cp==null){
         //last try
         cp = dcp_out;
@@ -141,8 +162,6 @@ public class CryptoPolicyServiceImpl
           log.error("Can't find policy for " + "->" +  source);
       }
  
-      if(cp!=null && commu!=null) cp.setCommunityService(commu);
-       
       return cp;
     }
 
@@ -171,22 +190,11 @@ public class CryptoPolicyServiceImpl
 
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)incoming_a.get(target);
-/*
-      if(cp==null && commu!=null){
-        //find which community the agent belongs to and get the policy
-        Collection c = commu.listParentCommunities(target);
-        if(c!=null){
-          Iterator it = c.iterator();
-          String cname = null;
-           while(it.hasNext()){
-             cname = (String)it.next();
-             if(cname != null && incoming_c !=null)
-               cp = (CryptoPolicy)incoming_c.get(cname);
-             if(cp!=null) break;
-           }
-        }
+
+      if(cp==null && incoming_c.size()>0){
+        cp = (CryptoPolicy)incoming_c.get(target);
       }
-*/
+
       if(cp==null){
         //last try
         cp = dcp_in;
@@ -195,9 +203,6 @@ public class CryptoPolicyServiceImpl
       if(cp==null){
           log.debug("can't find policy for " + "->" +  target);
       }
-
-      if(cp!=null && commu!=null) cp.setCommunityService(commu);
-       
       return cp;
     }
 
@@ -208,24 +213,11 @@ public class CryptoPolicyServiceImpl
 
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)dataprot_a.get(source);
-/*
-      if(cp==null && commu!=null){
-        //find which community the agent belongs to and get the policy
-        Collection c = commu.listParentCommunities(source);
-        if(c!=null){
-          String cname = null;
-          try{
-            //agent could belongs to multiple communities, thus multiple set
-            //of policy--no policy consolidation for now, just pick one.
-            cname = (String)c.iterator().next();
-          }catch(Exception e){
-            log.error("Failed getting community name: " + e.getMessage());
-          }
-          if(cname != null && dataprot_c !=null)
-            cp = (CryptoPolicy)dataprot_c.get(cname);
-        }
+
+      if(cp==null && dataprot_c.size()>0){
+        cp = (CryptoPolicy)dataprot_c.get(source);
       }
-*/
+
       if(cp==null){
         //last try
         cp = dcp_dataprot;
@@ -324,13 +316,19 @@ public class CryptoPolicyServiceImpl
         }
         break;
       case  CryptoPolicy.COMMUNITY:
-        if(cp.Direction == CryptoPolicy.INCOMING){
-          incoming_c.put(cp.Name, cp);
-        }else if(cp.Direction == CryptoPolicy.OUTGOING){
-          outgoing_c.put(cp.Name, cp);
-        }else if(cp.Direction == CryptoPolicy.BOTH){
-          incoming_c.put(cp.Name, cp);
-          outgoing_c.put(cp.Name, cp);
+        if (commu == null) return;
+        Collection c = commu.listEntities(cp.Name);
+        Iterator iter = c.iterator();
+        while(iter.hasNext()){
+          String name = (String)iter.next();
+          if(cp.Direction == CryptoPolicy.INCOMING){
+            incoming_c.put(name, cp);
+          }else if(cp.Direction == CryptoPolicy.OUTGOING){
+            outgoing_c.put(name, cp);
+          }else if(cp.Direction == CryptoPolicy.BOTH){
+            incoming_c.put(name, cp);
+            outgoing_c.put(name, cp);
+          }
         }
         break;
       case  CryptoPolicy.SOCIETY:
@@ -343,7 +341,12 @@ public class CryptoPolicyServiceImpl
           dcp_in = cp;
           dcp_out = cp;
         }
+      }//switch
+      //update community list in cp.
+      if(commu!=null) {
+        cp.setCommunityService(commu);
       }
+      
       return;
     }
   }
@@ -424,8 +427,14 @@ public class CryptoPolicyServiceImpl
         }
         break;
       case  CryptoPolicy.COMMUNITY:
-        if(cp.Direction == CryptoPolicy.DATAPROTECTION){
-          dataprot_c.put(cp.Name, cp);
+        if (commu == null) return;
+        Collection c = commu.listEntities(cp.Name);
+        Iterator iter = c.iterator();
+        while(iter.hasNext()){
+          String name = (String)iter.next();
+          if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+            dataprot_c.put(name, cp);
+          }
         }
         break;
       case  CryptoPolicy.SOCIETY:
