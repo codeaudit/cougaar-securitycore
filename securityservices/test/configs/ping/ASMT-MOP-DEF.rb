@@ -112,7 +112,7 @@ include_scripts:
   # Test the SecureConfigFinder. This test will create bad jar files
   # (e.g. jar files with revoked cert, expired cert, bad signature,
   # tampered file...) and check that the files in those jar files are not loaded.
-#  - script: $CIP/csmart/lib/security/scripts/stress_security_uc4.rb
+  - script: $CIP/csmart/lib/security/scripts/stress_security_uc4.rb
   # Test the Java Security Manager. A malicious plugin attempts to write
   # a file without appropriate privileges, and the Java security manager should
   # reject the request.
