@@ -548,7 +548,7 @@ public class DirectoryKeyStore
 	}
       }
     }
-    
+
     return certList;
   }
 
@@ -1482,9 +1482,9 @@ public class DirectoryKeyStore
    * checkCertificateTrust().
    * @param checkValidity - False if we don't care about the validity of the chain
    */
-  private boolean internalBuildChain(X509Certificate x509certificate, 
-                                     Vector vector, 
-                                     boolean signedByAtLeastOneCA, 
+  private boolean internalBuildChain(X509Certificate x509certificate,
+                                     Vector vector,
+                                     boolean signedByAtLeastOneCA,
                                      CertDirectoryServiceClient certFinder,
 				     boolean checkValidity)
   {
@@ -1514,7 +1514,7 @@ public class DirectoryKeyStore
             cs = (CertificateStatus) listSigner.get(0);
           }
 
-          if (cs != null && 
+          if (cs != null &&
               cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
             // This is a trusted certificate authority.
             signedByAtLeastOneCA = true;
@@ -1527,7 +1527,7 @@ public class DirectoryKeyStore
             String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
             if (title != null && !title.equals(CERT_TITLE_CA))
               return false;
-          
+
             return true;
           }
           else {
@@ -1610,8 +1610,8 @@ public class DirectoryKeyStore
           // chain is trusted.
           return signedByAtLeastOneCA;
         }
-      } 
-      
+      }
+
       Iterator it = listSigner.listIterator();
       // Loop through all the issuer keys and check to see if there is at least
       // one trusted key.
@@ -1655,7 +1655,7 @@ public class DirectoryKeyStore
         }
       }
     } // end of for (int i = 0; i < 2; i++)
-    
+
     if (log.isDebugEnabled()) {
       log.debug("No valid signer key");
     }
@@ -1792,6 +1792,7 @@ public class DirectoryKeyStore
     return title;
   }
 
+  /*
   public CertificateAttributesPolicy getDefaultCertAttrPolicy() {
     TrustedCaPolicy [] tc = cryptoClientPolicy.getIssuerPolicy();
     if (tc.length == 0) {
@@ -1799,9 +1800,10 @@ public class DirectoryKeyStore
     }
     return cryptoClientPolicy.getCertificateAttributesPolicy(tc[0]);
   }
+    */
 
   public String getX500DN(String commonName) {
-    return getX500DN(commonName, getDefaultCertAttrPolicy());
+    return getX500DN(commonName, cryptoClientPolicy.getCertificateAttributesPolicy());
   }
 
   public String getX500DN(String commonName, CertificateAttributesPolicy certAttribPolicy) {

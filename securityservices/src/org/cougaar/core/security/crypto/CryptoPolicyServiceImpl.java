@@ -88,7 +88,7 @@ public class CryptoPolicyServiceImpl
     commu = (CommunityService)
       serviceBroker.getService(this, CommunityService.class, null);
 
-    
+
     if(commu==null && log.isWarnEnabled()){
       log.warn("can't get community Service.");
     }
@@ -97,25 +97,25 @@ public class CryptoPolicyServiceImpl
     // if not, add listener
     if(serviceBroker.hasService
       (org.cougaar.core.service.community.CommunityService.class)){
-        commu = (CommunityService) 
+        commu = (CommunityService)
           sb.getService(this, CommunityService.class, null);
         log.info("CommunityService is available initially");
     }
     else {
       serviceBroker.addServiceListener(new CommunityServiceAvailableListener());
     }
-    
+
     cpp = new CryptoPolicyProxy(serviceBroker);
     dpp = new DataProtectionPolicyProxy(serviceBroker);
   }
-    
+
   private class CommunityServiceAvailableListener implements ServiceAvailableListener
   {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if (org.cougaar.core.service.community.CommunityService.
         class.isAssignableFrom(sc)) {
-                commu = (CommunityService) 
+                commu = (CommunityService)
                 serviceBroker.getService(this, CommunityService.class, null);
                 log.info("BlackboardService is available now");
             }
@@ -160,7 +160,7 @@ public class CryptoPolicyServiceImpl
       if(cp==null){
           log.error("Can't find policy for " + "->" +  source);
       }
- 
+
       return cp;
     }
 
@@ -205,7 +205,7 @@ public class CryptoPolicyServiceImpl
       return cp;
     }
 
-    public SecureMethodParam getDataProtectionPolicy(String source) {
+    public CryptoPolicy getDataProtectionPolicy(String source) {
       if(log.isDebugEnabled()) {
         log.debug("getting DataProtection CryptoPolicy for " + source);
       }
@@ -227,12 +227,7 @@ public class CryptoPolicyServiceImpl
           return null;
       }
 
-      SecureMethodParam smp = cp.getSecureMethodParam(source);
-
-      if(smp==null){
-          log.error("Failed converting CryptoPolicy " + cp);
-      }
-      return smp;
+      return cp;
     }
 
     private class CryptoPolicyProxy
@@ -345,7 +340,7 @@ public class CryptoPolicyServiceImpl
       if(commu!=null) {
         cp.setCommunityService(commu);
       }
-      
+
       return;
     }
   }
