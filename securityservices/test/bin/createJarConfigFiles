@@ -4,8 +4,13 @@ signJar() {
 	echo "Packaging and signing $2/$1"
 	echo "  with all files under $2"
 	rm -f $2/$1
-	jar cf $1 $2/*
-	jarsigner -keystore ./test/configs/sign-jars/signingCA_keystore -storepass keystore $1 privileged
+        # do not include communities.xml file, as it is generated separately
+	jar cf $1 `ls $2/* | grep -v "communities.xml"`
+        signingKeystore="$CIP/configs/security/bin/signingCA_keystore"
+        if [ ! -f $signingKeystore ]; then
+          signingKeystore="./test/configs/sign-jars/signingCA_keystore"
+        fi
+	jarsigner -keystore $signingKeystore -storepass keystore $1 privileged
 	mv $1 $2
 }
 
