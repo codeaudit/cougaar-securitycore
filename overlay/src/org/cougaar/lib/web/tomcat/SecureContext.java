@@ -35,24 +35,37 @@ import org.apache.catalina.core.StandardContext;
  * System property
  * <code>org.cougaar.lib.web.tomcat.enableAuth</code> 
  * is "true".
+ * <p>
+ * @property org.cougaar.lib.web.tomcat.context.manager.class
+ *   classname for manager of the context, which requires
+ *   a "setContext(Context)" method.
+ * @property org.cougaar.lib.web.tomcat.enableAuth 
+ *   enable default context manager if classname property is
+ *   not specified.
  */
 public class SecureContext extends StandardContext {
 
   private static final String PROP_ENABLE =
     "org.cougaar.lib.web.tomcat.enableAuth";
-  private static final String SPP_CLASS  = 
+  private static final String PROP_CLASS  =
+    "org.cougaar.lib.web.tomcat.context.manager.class";
+  private static final String DEFAULT_CONTEXT_MANAGER  = 
     "org.cougaar.core.security.provider.ServletPolicyServiceProvider";
 
   private Method _sppSetDualAuthenticator = null;
 
   public SecureContext() {
-    if (Boolean.getBoolean(PROP_ENABLE)) {
+    String contextManagerClass = System.getProperty(PROP_CLASS);
+    if (contextManagerClass == null && Boolean.getBoolean(PROP_ENABLE)) {
+      contextManagerClass = DEFAULT_CONTEXT_MANAGER;
+    }
+    if (contextManagerClass != null) {
       try {
-        Class c  = Class.forName(SPP_CLASS);
+        Class c  = Class.forName(contextManagerClass);
         Method m = c.getMethod("setContext", new Class[] { Context.class });
         m.invoke(null, new Object[] { this });
       } catch (ClassNotFoundException e) {
-        System.err.println("Error: Couldn't find " + SPP_CLASS);
+        System.err.println("Error: Couldn't find " + contextManagerClass);
         // don't worry about it
       } catch (Exception e) {
         e.printStackTrace();
