@@ -287,14 +287,16 @@ public class CryptoManagerServiceImpl
    */
   public SecretKey createSecretKey(String spec) 
     throws NoSuchAlgorithmException, NoSuchProviderException {
-    KeyGenerator kg;
+    KeyGeneratorEntry kge;
     String origSpec = spec;
     synchronized (_keyGenerators) {
-      kg = (KeyGenerator) _keyGenerators.get(spec);
-      if (kg == null) {
+      kge = (KeyGeneratorEntry) _keyGenerators.get(spec);
+
+      if (kge == null) {
         int keyLen;
         String alg;
         String provider;
+        KeyGenerator kg;
         SecureRandom random = new SecureRandom();
 
         int index = spec.indexOf(PROVIDER_DELIM_START);
@@ -305,6 +307,7 @@ public class CryptoManagerServiceImpl
         } else {
           provider = null;
         }
+
 
         index = spec.indexOf(KEY_LEN_DELIM);
         int jndex = spec.indexOf('/');
@@ -329,23 +332,56 @@ public class CryptoManagerServiceImpl
         } else {
           alg = spec;
         }
-        
-        
+
         if (provider != null) {
           kg = KeyGenerator.getInstance(alg, provider);
         } else {
           kg = KeyGenerator.getInstance(alg);
         }
 
+        if (log.isInfoEnabled()) {
+          log.info("key length: " + keyLen);
+        }
         if (keyLen != -1) {
           kg.init(keyLen, random);
         } else {
           kg.init(random);
         }
-        _keyGenerators.put(spec, kg);
+        kge = new KeyGeneratorEntry(kg, keyLen);
+        _keyGenerators.put(spec, kge);
       }
     }
-    return kg.generateKey();
+    if (log.isInfoEnabled()) {
+      log.info("Generating key using KeyGenerator:" + kge.getKeyGenerator()
+               + " - spec: " + spec);
+    }
+    SecretKey sk = null;
+    synchronized (kge.getKeyGenerator()) {
+      // It looks like some cryptographic providers are thread-safe when
+      // generating keys, but not all of them are.
+      sk = kge.getKeyGenerator().generateKey();
+    }
+    /*
+    int bits = sk.getEncoded().length * 8;
+    int kgKeyLength = kge.getKeyLength();
+    while ( (kgKeyLength != -1) && (bits != kgKeyLength)) {
+      // The KeyGenerator did not return the expected key length.
+      // A really odd problem occured. We need to investigate.
+      // Try to reinitialized the key.
+      if (log.isWarnEnabled()) {
+        log.warn("Key Generator did not return the right key size: "
+                 + bits + " instead of " + kgKeyLength
+                 + ". Reinitializing KeyGenerator");
+      }
+      synchronized (kge.getKeyGenerator()) {
+        SecureRandom random = new SecureRandom();
+        kge.getKeyGenerator().init(kgKeyLength, random);
+        sk = kge.getKeyGenerator().generateKey();
+      }
+      bits = sk.getEncoded().length * 8;
+    }
+    */
+    return sk;
   }
 
   public void returnCipher(String spec, Cipher cipher) {
@@ -1687,6 +1723,21 @@ public class CryptoManagerServiceImpl
       if (log.isDebugEnabled()) {
         log.debug("setReceiveSignatureValid(" + source + ") not SSL");
       }
+    }
+  }
+
+  private class KeyGeneratorEntry {
+    private KeyGenerator _kg;
+    private int _keyLength;
+    public KeyGeneratorEntry(KeyGenerator kg, int keyLength) {
+      _kg = kg;
+      _keyLength = keyLength;
+    }
+    public KeyGenerator getKeyGenerator() {
+      return _kg;
+    }
+    public int getKeyLength() {
+      return _keyLength;
     }
   }
 }
