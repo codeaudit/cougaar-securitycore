@@ -40,6 +40,11 @@
           <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="rtripath">http://pear:5560/$caAgent/CA/CertificateSigningRequest</CA_URL>
           <CA_URL role="junittest">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-1">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-2">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-3">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-4">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+
           <CA_URL role="asmt">http://u050:8800/$caAgent/CA/CertificateSigningRequest</CA_URL>
 
           <!-- Certificate directory service for certificate storage -->
@@ -52,6 +57,11 @@
           <CertDirectoryURL role="mluu">ldap://pear:389/dc=mluu,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="junittest">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-1">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-2">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-3">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-4">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+
           <CertDirectoryURL role="asmt">ldap://u050:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
 
           <!-- The type of the certificate directory service.
