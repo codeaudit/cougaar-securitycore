@@ -62,9 +62,6 @@ public class NamingCertDirectoryServiceClient {
     whitePagesService = (WhitePagesService)
       sb.getService(this, WhitePagesService.class, null);
 
-    keyRingService = (KeyRingService)
-      sb.getService(this, KeyRingService.class, null);
-
     // to poll naming if naming service does not handle updating objects
     /*
     NamingMonitorThread t = new NamingMonitorThread();
@@ -74,6 +71,9 @@ public class NamingCertDirectoryServiceClient {
 
   public boolean updateCert(X500Name dname) throws Exception {
     String cname = dname.getCommonName();
+    keyRingService = (KeyRingService)
+      sb.getService(this, KeyRingService.class, null);
+
     List l = keyRingService.getValidCertificates(dname);
     if (l == null || l.size() == 0) {
       if (log.isDebugEnabled()) {
