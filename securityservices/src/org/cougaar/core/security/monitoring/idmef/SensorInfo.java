@@ -20,9 +20,6 @@
  */
 package org.cougaar.core.security.monitoring.idmef;
 
-import edu.jhuapl.idmef.IDMEF_Node;
-import edu.jhuapl.idmef.IDMEF_Process;
-
 /**
  * All Cougaar sensors should implement this interface to provide
  * basic information about the sensor.
