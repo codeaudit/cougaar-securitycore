@@ -56,6 +56,11 @@
         <Key key="/*" value="PolicyAdministrator" />
       </KeySet>
     </RuleParam>
+    <RuleParam name="UMmrmanager">
+      <KeySet value="allow-role">
+        <Key key="/*" value="MonitorManager" />
+      </KeySet>
+    </RuleParam>
 <!--
     <RuleParam name="caAgent">
       <KeySet value="allow-role">
