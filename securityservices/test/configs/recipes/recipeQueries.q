@@ -444,6 +444,56 @@ SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
 #    AND CEA.ATTRIBUTE_VALUE = 'Member' 
 
 
+################################################################################################################
+# BEGIN Telcordia queries
+################################################################################################################
+
+################
+# For Telcordia. Find the Agents which are the Security Enclave
+# SecurityManagers. Do not grab the society-wide security manager
+# So for the 4 enclave set-up, it should get 4 Agents.
+# Used to add the 3 Adaptive Filter Plugins to each of those agents.
+# See recipe export AdaptiveFilterPlugins-export.sql
+#
+# Notes: This assumes (as does the recipe) that Security Manager
+# Agents have Role=SecurityManager
+# If this role name is not correct, edit it here, and in 
+# the recipe (parameter for the TranslatorPlugin)
+# Also, this assumes that the society-wide security community
+# (as opposed to the enclave communities) has a name that starts
+# with "Society". If this is not true, edit the last
+# line in this query.
+recipeQuerySecurityEnclaveManagerAgents=\
+SELECT DISTINCT AC.COMPONENT_ALIB_ID FROM \
+   alib_component AC, \
+   community_attribute CA, \
+   community_entity_attribute CEA, \
+   asb_component_hierarchy ACH, \
+   expt_trial ET, \
+   expt_trial_assembly ETA, \
+   asb_assembly AA \
+ WHERE \
+    ACH.ASSEMBLY_ID :assembly_match: \
+    AND (ACH.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+     ACH.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND AC.COMPONENT_NAME = CEA.ENTITY_ID \
+    AND CEA.COMMUNITY_ID = CA.COMMUNITY_ID \
+    AND ET.TRIAL_ID = ':trial_id:' \
+    AND ET.TRIAL_ID = ETA.TRIAL_ID \
+    AND AA.ASSEMBLY_TYPE = 'COMM' \
+    AND AA.ASSEMBLY_ID = ETA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CA.ASSEMBLY_ID \
+    AND ETA.ASSEMBLY_ID = CEA.ASSEMBLY_ID \
+    AND AC.COMPONENT_TYPE = 'agent' \
+    AND CEA.ATTRIBUTE_ID = 'Role' \
+    AND CEA.ATTRIBUTE_VALUE like 'SecurityManager%' \
+    AND CA.ATTRIBUTE_ID = 'CommunityType' \
+    AND CA.ATTRIBUTE_VALUE = 'Security' \
+    AND CA.COMMUNITY_ID not like 'Society%'
+
+################################################################################################################
+# END Telcordia queries
+################################################################################################################
 
 # All Not ManagementAgents 
 recipeQueryNotManagementAgent=\

@@ -1353,3 +1353,5 @@ Enclave4-COMM,OSC,Role,Member
 Enclave4-COMM,OSC,MemberType,Agent
 Enclave4-COMM,FORSCOM,Role,Member
 Enclave4-COMM,FORSCOM,MemberType,Agent
+DisallowedCommunication-COMM,FORSCOM,Role,Member
+DisallowedCommunication-COMM,FORSCOM,MemberType,Agent

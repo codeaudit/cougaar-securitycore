@@ -31,3 +31,4 @@ Enclave1-COMM,CommunityType,Scalability
 Enclave2-COMM,CommunityType,Scalability
 Enclave3-COMM,CommunityType,Scalability
 Enclave4-COMM,CommunityType,Scalability
+DisallowedCommunication-COMM,CommunityType,Security

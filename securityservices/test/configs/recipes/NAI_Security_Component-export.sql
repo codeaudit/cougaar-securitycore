@@ -42,7 +42,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-NAI_Security_Component','RCP','NAI_Security_Component-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0002-NAI_Security_Component','RCP','NAI_Security_Component-cpy');
 UNLOCK TABLES;
 
 #
@@ -50,10 +50,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory','Enclave1Security-COMM',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Enclave2Security-COMM',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Enclave3Security-COMM',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Enclave4Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory','Enclave1Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','Enclave2Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','Enclave3Security-COMM',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','Enclave4Security-COMM',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -61,10 +61,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory','NAI_Security_Component-cpy','HIGH',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAI_Security_Component-cpy','HIGH',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAI_Security_Component-cpy','HIGH',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAI_Security_Component-cpy','HIGH',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory','NAI_Security_Component-cpy','HIGH',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave2Security-COMM','NAI_Security_Component-cpy','HIGH',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave3Security-COMM','NAI_Security_Component-cpy','HIGH',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0002-NAI_Security_Component','NAI_Security_Component|org.cougaar.core.security.provider.SecurityComponentFactory|Enclave4Security-COMM','NAI_Security_Component-cpy','HIGH',3.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
