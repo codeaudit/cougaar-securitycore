@@ -15,7 +15,7 @@ clean:
 	@echo +++++++ Removing jarfiles
 	rm -rf ${COUGAARCLASSES}/com ${COUGAARCLASSES}/org 
 	@echo +++++++ Removing jarfiles
-	rm -i ${COUGAARCLASSES}/bootstrap.jar
+	rm -i ${COUGAARCLASSES}/bootstrapper.jar
 	rm -i ${COUGAARCLASSES}/securityservices.jar
 # We use the -i option just in case you don't really want to delete everything
 
