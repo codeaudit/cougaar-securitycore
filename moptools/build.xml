@@ -75,6 +75,15 @@
         <echo message="+++++ Built security services blabboard test files"/>
     </target>
 
+    <!-- Build the java patch -->
+    <target name="build-java-patch" depends="init">
+        <echo message="+++++ Building java patch"/>
+        <javac classpathref="moptools.class.path" debug="true" 
+            deprecation="true" destdir="${moptools.classes}"
+            includes="java/**" srcdir="${moptools.src}"/>          
+        <echo message="+++++ Built java patch"/>
+    </target>
+
     <!-- Build the moptools library -->
     <target name="build-mopconfidentiality" depends="init, checkversion-mopconfidentiality">
         <echo message="+++++ Building moptools"/>
@@ -109,6 +118,18 @@
         <echo message="+++++ Built jar files"/>
     </target>
 
+   <target name="jar-java-patch" depends="build-java-patch">
+        <echo message="+++++ Building java patch jar files"/>
+    	<jar jarfile="${moptools.classes}/buffer-java-patch.jar">
+            <fileset dir="${moptools.classes}"
+                includes="java/**/*.class"/>
+            <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+            </manifest>
+        </jar>
+        <echo message="+++++ Built jar files"/>
+    </target>
+
     <!-- sign moptools -->
     <target name="sign-mopconfidentialityjar" depends="jar-mopconfidentiality">
         <echo message="+++++ Signing jar files"/>
@@ -128,10 +149,19 @@
         <echo message="+++++ Signed jar files"/>
     </target>
 
+    <target name="sign-java-patch" depends="jar-java-patch">
+        <echo message="+++++ Signing java patch jar files"/>
+        <signjar jar="${moptools.classes}/buffer-java-patch.jar" alias="privileged" 
+            signedjar="${moptools.signed}/buffer-java-patch.jar"
+            keystore="${moptools.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <echo message="+++++ Signed jar files"/>
+    </target>
+
     <!-- For now, don't build mopconfidentialityjar as it requires
          JDK 1.4.2
     -->
-    <target name="sign-jars" depends="sign-mopblackboardjar">
+    <target name="sign-jars" depends="sign-mopblackboardjar, sign-java-patch">
     </target>
     
     <!-- install moptools -->
@@ -139,6 +169,11 @@
         <echo message="+++++ Installing signed jar files"/>
         <copy file="${moptools.signed}/mopblackboard.jar" 
             todir="${cougaar.install.path}/lib"/>
+        <!--
+         Enable only when testing buffers. Use caution
+        <copy file="${moptools.signed}/buffer-java-patch.jar" 
+            todir="${cougaar.install.path}/lib"/>
+        -->
         <copy file="${moptools.lib}/csiutil-1.0.jar" 
             todir="${cougaar.install.path}/lib"/>
         <echo message="+++++ Installed signed jar files"/>
