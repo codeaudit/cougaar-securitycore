@@ -92,6 +92,7 @@ import org.cougaar.util.TriggerModel;
 import org.cougaar.util.SyncTriggerModelImpl;
 import org.cougaar.core.blackboard.SubscriptionWatcher;
 import org.cougaar.core.blackboard.SubscriberException;
+import org.cougaar.core.service.EventService;
 
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
@@ -704,11 +705,28 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
     if(cacheService!=null) {
       cacheService.revokeStatus(bigint,actualIssuerDN,subjectDN);
+
+      event("newCRL", actualIssuerDN, subjectDN);
     }
     else {
       log.warn("Unable to revoke status in certificate Cache as  Certificate cache Service is null");
     }
 
+  }
+
+  private EventService _eventService = null;
+  private void event(String status, String issuerDN, String subjectDN) {
+    if (_eventService == null) {
+      _eventService = (EventService)serviceBroker.getService(this, EventService.class, null);
+      if (_eventService == null) {
+        log.warn("Fail to obtain event service");
+        return;
+      }
+    }
+
+    _eventService.event("[STATUS] " + status 
+	+ " Issuer(" + issuerDN  
+	+ ") subject(" + subjectDN + ")");
   }
 
   public void setSleeptime(long sleeptime){
