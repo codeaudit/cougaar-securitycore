@@ -57,6 +57,17 @@ public class KAoSOntologyConnection extends OntologyConnection
 
 
   /*
+   * This routine is disabled.  It isn't my job.  If one day this
+   * messed up safe.jar it would take a lot of looking to find this guy.
+   */
+  protected void installOntologyConnection()
+  {
+    ;
+  }
+
+
+
+  /*
    * Implementation of abstract methods from OntologyConnection
    */
 
