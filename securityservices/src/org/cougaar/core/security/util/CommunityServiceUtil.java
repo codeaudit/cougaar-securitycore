@@ -668,7 +668,7 @@ public class CommunityServiceUtil {
       };
     */
     CommunityChangeListener   ccl =  new GetAgentInCommunity (listener, ws, communityName, role);
-    CommunityResponseListener crl =  new ResultListener(listener, ws, ccl, role,true);
+    CommunityResponseListener crl =  new ResultListener(listener, ws, ccl);
     String filter = "(Role=" + role +")";
     ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if(_log.isDebugEnabled()){
