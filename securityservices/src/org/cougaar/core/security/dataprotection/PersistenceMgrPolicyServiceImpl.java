@@ -350,11 +350,15 @@ public class PersistenceMgrPolicyServiceImpl
     }
     public void execute(Response resp) {
       if (!(resp instanceof Response.Get)) {
+        
 	if (_log.isErrorEnabled()) {
 	  _log.error("Unexpected response: " + resp.getClass().getName()
 	    + " - Should be a Response.Get");
 	  return;
 	}
+      }
+
+      if (resp.isSuccess()) {
 	AddressEntry entry = ((Response.Get) resp).getAddressEntry();
 	if(_debug) {
 	  _log.debug("address entry = " + entry);
@@ -394,6 +398,9 @@ public class PersistenceMgrPolicyServiceImpl
 	    }
 	  }
 	}
+      }
+      else {
+        _log.warn("Response failed for " + _agent);
       }
     }
   }
