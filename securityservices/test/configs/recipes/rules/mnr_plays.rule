@@ -89,12 +89,12 @@ PERCEIVED_THREAT_LEVEL == 1
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 10
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 60
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_FAILURES
-    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW";
+    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
 PERCEIVED_THREAT_LEVEL == 2
     : org.cougaar.core.security.monitoring.MAX_LOGIN_FAILURES = 3
     : org.cougaar.core.security.monitoring.LOCKOUT_DURATION = 600
     : com.telcordia.mode.AdaptiveFilterOperatingModeScope = LOGIN_JAR_SECURITYMGR_CRYPTO_FAILURES
-    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH";
+    : [agent.#{enclave.capitalize}PolicyDomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE <= 100
 //    : com.telcordia.mode.AdaptiveFilterOperatingModeReportingRate = RAPID;
 //org.cougaar.core.security.crypto.CRYPTO_EVENT_RATE > 100
