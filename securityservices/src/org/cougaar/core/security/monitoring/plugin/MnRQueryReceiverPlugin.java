@@ -105,6 +105,28 @@ class RemoteQueryRelayPredicate implements  UnaryPredicate{
   }
 }
 
+class AllQueryRelayPredicate implements  UnaryPredicate{
+   MessageAddress myAddress;
+  public AllQueryRelayPredicate(MessageAddress myaddress) {
+    myAddress = myaddress;
+  }
+   public boolean execute(Object o) {
+    boolean ret = false;
+    if (o instanceof CmrRelay ) {
+      CmrRelay relay = (CmrRelay)o;
+      if(relay.getContent() instanceof MRAgentLookUp) {
+        if(relay.getTargets().contains(myAddress)) {
+          ret=true;
+        }
+        if(!relay.getSource().equals(myAddress)){
+          ret=true;
+        }
+      }
+    }
+    return ret;
+   }
+}
+
 class LocalQueryRelayPredicate implements  UnaryPredicate{
   MessageAddress myAddress;
   public LocalQueryRelayPredicate(MessageAddress myaddress) {
@@ -253,6 +275,9 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
               loggingService.debug(myAddress + " Sensor Registration HAS CHANGED Root is READY & I'M ROOT in MnRQueryReceiver");
               loggingService.debug(myAddress + " Processing remote persistent query ");
             }
+            /*
+              Since I'm the root security manager i should process both local as well as remote queries 
+             */
             processPersistantQueries(capabilities,false);
           }
           else {
@@ -355,10 +380,17 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     Collection relaystoProcess=null;
     if(local){
       relaystoProcess= getBlackboardService().query(new LocalQueryRelayPredicate(myAddress));
+      if(loggingService.isDebugEnabled()){
+        loggingService.debug(" size LocalQueryRelayPredicate is :"+ relaystoProcess.size());
+      }
     }
     else {
-      relaystoProcess=getBlackboardService().query(new RemoteQueryRelayPredicate(myAddress));
+      relaystoProcess=getBlackboardService().query(new AllQueryRelayPredicate(myAddress));
+      if(loggingService.isDebugEnabled()){
+        loggingService.debug(" size AllQueryRelayPredicate is :"+ relaystoProcess.size());
+      }
     }
+    
     if(relaystoProcess.isEmpty()) {
       if (loggingService.isDebugEnabled()) {
         if(local) {
