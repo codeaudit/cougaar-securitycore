@@ -69,7 +69,7 @@ public class CryptoClientPolicyHandler
 
   // Certificate Attributes
   public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
-  public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
+  //public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
   public static final String OU_ELEMENT           = "ou";
   public static final String O_ELEMENT            = "o";
   public static final String L_ELEMENT            = "l";
@@ -113,13 +113,20 @@ public class CryptoClientPolicyHandler
     if (localName.equals(CERTIFICATE_ATTR_ELEMENT)) {
     // default cert attribute
       currentCertAttr = new CertificateAttributesPolicy();
-      cryptoClientPolicy.setCertificateAttributesPolicy(currentCertAttr);
+      if (currentTrustedCa != null) {
+        currentTrustedCa.setCertificateAttributesPolicy(currentCertAttr);
+      }
+      else {
+        cryptoClientPolicy.setCertificateAttributesPolicy(currentCertAttr);
+      }
     }
+    /*
     if (localName.equals(CACERTIFICATE_ATTR_ELEMENT)) {
     // cert attribute for specific CA
       currentCertAttr = new CertificateAttributesPolicy();
       currentTrustedCa.setCertificateAttributesPolicy(currentCertAttr);
     }
+    */
 
   }
 
@@ -280,6 +287,10 @@ public class CryptoClientPolicyHandler
     else if (localName.equals(CA_REQUESTURL_ELEMENT)) {
       String value = getContents();
       cryptoClientPolicy.setRequestURL(value);
+    }
+    if (localName.equals(TRUSTED_CA_ELEMENT)) {
+    // reset TrustedCaPolicy
+      currentTrustedCa = null;
     }
   }
 }
