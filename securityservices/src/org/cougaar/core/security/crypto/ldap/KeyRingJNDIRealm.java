@@ -56,12 +56,14 @@ import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.core.ContainerBase;
 
 // IDMEF
+import edu.jhuapl.idmef.Address;
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Analyzer;
 import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.DetectTime;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.IDMEF_Process;
+import edu.jhuapl.idmef.Service;
 import edu.jhuapl.idmef.Source;
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.User;
@@ -126,6 +128,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private String                     _certComponent = "CN";
   private LdapUserService            _userService;
+
+  private Hashtable                  _errors = new Hashtable();
 
   private static BlackboardService   _blackboardService;
   private static IdmefMessageFactory _idmefFactory;
@@ -277,9 +281,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
       return getPrincipal(attrs);
     } catch (NameNotFoundException e) {
-      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
+      setLoginError(LF_USER_DOESNT_EXIST, username);
     } catch (NamingException e) {
-      alertLoginFailure(LF_LDAP_ERROR, username);
+      setLoginError(LF_LDAP_ERROR, username);
       e.printStackTrace();
     }
     return null;
@@ -305,9 +309,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       try {
         certs[i].checkValidity();
       } catch (Exception e) {
-        alertLoginFailure(LF_CERTIFICATE_INVALID, null);
         if (debug >= 2) super.log("  Validity exception", e);
-        System.err.println("Error with validity: " + e);
+        setLoginError(LF_CERTIFICATE_INVALID, null);
         return null;
       }
     }
@@ -317,7 +320,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     String user = getUserName(userdn);
     if (user == null) {
       // certificate is bad, bad, bad!
-      alertLoginFailure(LF_BAD_CERTIFICATE_SUBJECT, userdn);
+      setLoginError(LF_BAD_CERTIFICATE_SUBJECT, userdn);
       return null;
     }
 
@@ -325,19 +328,19 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 //       log.debug("Getting attributes for user: " + user);
       Attributes attrs = _userService.getUser(user);
       if (attrs == null) {
-        alertLoginFailure(LF_USER_DOESNT_EXIST, user);
+        setLoginError(LF_USER_DOESNT_EXIST, user);
         return null; // user isn't in the database
       }
       if (!userDisabled(attrs)) {
         return getPrincipal(attrs);
       } else {
-        alertLoginFailure(LF_USER_DISABLED, user);
+        setLoginError(LF_USER_DISABLED, user);
       }
     } catch (NameNotFoundException nnfe) {
-      alertLoginFailure(LF_USER_DOESNT_EXIST, user);
+      setLoginError(LF_USER_DOESNT_EXIST, user);
       nnfe.printStackTrace();
     } catch (NamingException ne) {
-      alertLoginFailure(LF_LDAP_ERROR, user);
+      setLoginError(LF_LDAP_ERROR, user);
       ne.printStackTrace();
     }
     return null;
@@ -378,8 +381,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Attributes userAttrs = _userService.getUser(username);
       Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
       if (pwdAttr == null || pwdAttr.size() == 0) {
-        alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
-//         log.debug("Password attribute: " + pwdAttr);
+        setLoginError(LF_LDAP_PASSWORD_NULL, username);
         return null;
       }
       String md5a1;
@@ -400,12 +402,12 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
       
-      alertLoginFailure(LF_PASSWORD_MISMATCH, username);
+      setLoginError(LF_PASSWORD_MISMATCH, username);
     } catch (NameNotFoundException nnfe) {
-      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
+      setLoginError(LF_USER_DOESNT_EXIST, username);
       nnfe.printStackTrace();
     } catch (NamingException ne) {
-      alertLoginFailure(LF_LDAP_ERROR, username);
+      setLoginError(LF_LDAP_ERROR, username);
       ne.printStackTrace();
     }
     return null;
@@ -488,9 +490,8 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (username != null) {
         return new CougaarPrincipal(this, username, null, authFields);
       }
-      alertLoginFailure(LF_LDAP_ERROR, username);
-//       log.debug("Caught exception: ");
       e.printStackTrace();
+      setLoginError(LF_LDAP_ERROR, username);
     }
     return null;
   }
@@ -513,26 +514,24 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     throws NamingException {
     boolean match = false;
     if (attrs == null) {
-      alertLoginFailure(LF_USER_DOESNT_EXIST, username);
+      setLoginError(LF_USER_DOESNT_EXIST, username);
       return false;
     }
 
     if (userDisabled(attrs)) {
-//       log.debug("Password login isn't ok.");
-      alertLoginFailure(LF_USER_DISABLED, username);
+      setLoginError(LF_USER_DISABLED, username);
       return false;
     }
     Attribute  attr  = attrs.get(_userService.getPasswordAttribute());
-//     log.debug("attr = " + attr);
     if (attr == null || attr.size() < 1) {
-      alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
+      setLoginError(LF_LDAP_PASSWORD_NULL, username);
       return false;
     }
 
     Object     attrVal = attr.get();
 //     log.debug("attrVal = " + attrVal);
     if (attrVal == null) {
-      alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
+      setLoginError(LF_LDAP_PASSWORD_NULL, username);
       return false;
     }
 
@@ -551,7 +550,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     if (!match) {
-      alertLoginFailure(LF_PASSWORD_MISMATCH, username);
+      setLoginError(LF_PASSWORD_MISMATCH, username);
     }
     // in the future log a password match failure in a finally block
     return match;
@@ -653,12 +652,10 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     return (_idmefFactory != null);
   }
 
-  public void alertLoginFailure(int failureType, String userName) {
-    alertLoginFailure(failureType, userName, null);
-  }
-
   public void alertLoginFailure(int failureType, String userName1, 
-                                String userName2) {
+                                String userName2, String remoteAddr,
+                                int serverPort, String protocol,
+                                String url) {
     if (!isAlertInitialized()) {
       log.debug("Couldn't alert about " + 
                          REASONS[failureType][0].getAdditionalData() +
@@ -671,41 +668,64 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     DetectTime dt = new DetectTime();
     Alert alert = _idmefFactory.createAlert(_sensor, new DetectTime(),
                                             null, null, cfs, null);
-
     
     alert.setAdditionalData(REASONS[failureType]);
-    Analyzer      a       = alert.getAnalyzer();
+
+    // set the source
+    Source src = new Source();
+    Address addr = new Address();
+    addr.setAddress(remoteAddr);
+    IDMEF_Node node = new IDMEF_Node();
+    node.setAddresses(new Address[] { addr });
+    src.setNode(node);
+    alert.setSources(new Source[] { src });
+
+    // set the target
+    node = _idmefFactory.getNodeInfo();
+    Address addrs[];
+    if (node.getAddresses() != null) {
+      addrs = new Address[node.getAddresses().length + 1];
+      System.arraycopy(node.getAddresses(), 0, addrs, 0, addrs.length - 1);
+    } else {
+      addrs = new Address[1];
+    } // end of else
+    addrs[addrs.length - 1] = new Address(url, null, null,
+                                          Address.URL_ADDR, null, null);
     
-    if (a != null) {
-      IDMEF_Node    node    = a.getNode();
-      IDMEF_Process process = a.getProcess();
+    node = new IDMEF_Node(node.getLocation(), node.getName(),
+                          addrs, node.getIdent(),
+                          node.getCategory());
+
+    IDMEF_Process process = _idmefFactory.getProcessInfo();
+    Service service = new Service("Cougaar Web Server", 
+                                  new Integer(serverPort),
+                                  null, protocol, null);
       
-      User user = null;
-      UserId uid1 = null;
-      UserId uid2 = null;
-      int uidCount = 0;
-      if (userName1 != null) {
-        uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
-        uidCount++;
-      }
-      if (userName2 != null) {
-        uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
-        uidCount++;
-      }
-      if (uidCount > 0) {
-        UserId uids[] = new UserId[uidCount];
-        if (uid2 != null) {
-          uids[--uidCount] = uid2;
-        }
-        if (uid1 != null) {
-          uids[--uidCount] = uid1;
-        }
-        user = new User( uids, null, User.UNKNOWN );
-      }
-      Target t = new Target(node, user, process, null, null, null,
-                            Target.UNKNOWN, null);
-      alert.setTargets( new Target[] {t} );
+    User user = null;
+    UserId uid1 = null;
+    UserId uid2 = null;
+    int uidCount = 0;
+    if (userName1 != null) {
+      uid1 = new UserId( userName1, null, null, UserId.TARGET_USER );
+      uidCount++;
     }
+    if (userName2 != null) {
+      uid2 = new UserId( userName2, null, null, UserId.TARGET_USER );
+      uidCount++;
+    }
+    if (uidCount > 0) {
+      UserId uids[] = new UserId[uidCount];
+      if (uid2 != null) {
+        uids[--uidCount] = uid2;
+      }
+      if (uid1 != null) {
+        uids[--uidCount] = uid1;
+      }
+      user = new User( uids, null, User.UNKNOWN );
+    }
+    Target t = new Target(node, user, process, service, null, null,
+                          Target.UNKNOWN, null);
+      alert.setTargets( new Target[] {t} );
 
     NewEvent event = _cmrFactory.newEvent(alert);
     
@@ -726,6 +746,15 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   public boolean triggerEvent(Object event) {
     return false;
+  }
+
+  private void setLoginError(int err, String userName) {
+    _errors.put(Thread.currentThread(), 
+                new Object[] { new Integer(err), userName} );
+  }
+
+  public Object[] getLoginError() {
+    return (Object[]) _errors.remove(Thread.currentThread());
   }
 
   static {

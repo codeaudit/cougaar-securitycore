@@ -52,6 +52,10 @@ import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 
+import edu.jhuapl.idmef.Source;
+import edu.jhuapl.idmef.IDMEF_Node;
+import edu.jhuapl.idmef.IDMEF_Process;
+
 /**
  * This class must be placed in the Node ini file to allow
  * Tomcat to report login failures. This class reports the sensor
@@ -150,8 +154,13 @@ public class LoginFailureSensor extends ComponentPlugin {
       idmefFactory.createRegistrationAlert( sensor, capabilities,
                                             idmefFactory.newregistration ,
                                             idmefFactory.SensorType);
+    
+    IDMEF_Node node = idmefFactory.getNodeInfo();
+    IDMEF_Process process = idmefFactory.getProcessInfo();
+    Source source = new Source(node, null, process, null, null, null, null);
+    reg.setSources(new Source[] { source });
+    
     NewEvent regEvent = cmrFactory.newEvent(reg);
-
     Collection communities = cs.listParentCommunities(agentName);
     Iterator iter = communities.iterator();
     boolean addedOne = false;

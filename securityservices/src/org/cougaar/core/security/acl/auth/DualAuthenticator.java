@@ -117,11 +117,32 @@ public class DualAuthenticator extends ValveBase {
     int userConstraint = CONST_NONE;
     int pathConstraint = getConstraint(hreq.getRequestURI());
 
-    _primaryAuth.invoke(request,tmpRes, dummyValveContext);
+    String remoteAddr = hreq.getRemoteAddr();
+    int serverPort = hreq.getServerPort();
+    Realm realm = _context.getRealm();
+    if (realm instanceof SecureRealm) {
+      realm = ((SecureRealm) realm).getRealm();
+    }
+    KeyRingJNDIRealm krjr = null;
+    if (realm instanceof KeyRingJNDIRealm) {
+      krjr = (KeyRingJNDIRealm) realm;
+    } // end of if (realm instanceof KeyRingJNDIRealm)
+    
+    String protocol = ( hreq.isSecure() ?
+                        "https" :
+                        "http" );
+    String url = hreq.getRequestURL().toString();
 
+    _primaryAuth.invoke(request,tmpRes, dummyValveContext);
+    
     Principal certPrincipal = hreq.getUserPrincipal();
     Principal passPrincipal = null;
-
+    Object    certError[]   = null;
+    Object    passError[]   = null;
+    if (krjr != null) {
+      certError = krjr.getLoginError();
+    } // end of if (krjr != null)
+    
     if (certPrincipal instanceof CougaarPrincipal) {
       userConstraint = convertConstraint( ((CougaarPrincipal)certPrincipal).
                                           getLoginRequirements() );
@@ -139,26 +160,34 @@ public class DualAuthenticator extends ValveBase {
         (totalConstraint & CONST_PASSWORD) != 0) {
       _secondaryAuth.invoke(request, response, dummyValveContext);
       passPrincipal = hreq.getUserPrincipal();
+      if (krjr != null) {
+        passError = krjr.getLoginError();
+      } // end of if (krjr != null)
       if (certPrincipal == null && 
           passPrincipal instanceof CougaarPrincipal) {
-        userConstraint = convertConstraint(( (CougaarPrincipal)passPrincipal).
+        userConstraint = convertConstraint(((CougaarPrincipal)passPrincipal).
                                            getLoginRequirements() );
         totalConstraint = pathConstraint | userConstraint;
       }
     }
 
     passInvoked = (dummyValveContext.getInvokeCount() > 0);
-    Realm realm = _context.getRealm();
 
     if (authOk(certPrincipal, passPrincipal, totalConstraint, 
-               certInvoked, passInvoked, hres, realm)) {
+               certInvoked, passInvoked, hres, krjr, remoteAddr,
+               serverPort, protocol, url, certError, passError)) {
       context.invokeNext(request,response);
-    } else if (certPrincipal == null) {
-      try {
-        Thread.sleep(_failSleep);
-      } catch (InterruptedException e) {
-        // no sweat
-      }
+      return;
+    } else if (certPrincipal != null) {
+      // certificate authentication ok, so we really believe they
+      // are who they say they are.
+      return;
+    }
+
+    try {
+      Thread.sleep(_failSleep);
+    } catch (InterruptedException e) {
+      // no sweat
     }
   }
 
@@ -168,7 +197,11 @@ public class DualAuthenticator extends ValveBase {
                                 boolean certInvoked,
                                 boolean passInvoked,
                                 HttpServletResponse hres,
-                                Realm realm) 
+                                KeyRingJNDIRealm realm, String remoteAddr,
+                                int serverPort, String protocol,
+                                String url, 
+                                Object[] certError,
+                                Object[] passError) 
     throws ServletException, IOException {
 //     System.out.println("certPrincipal:   " + certPrincipal);
 //     System.out.println("passPrincipal:   " + passPrincipal);
@@ -185,7 +218,8 @@ public class DualAuthenticator extends ValveBase {
                      "in your certificate.");
       sendFailureMessage(realm, KeyRingJNDIRealm.LF_USER_MISMATCH,
                          certPrincipal.getName(),
-                         passPrincipal.getName() );
+                         passPrincipal.getName(),
+                         remoteAddr, serverPort, protocol, url);
       return false;
     } else if ( ( certInvoked && passInvoked ) ||
                 ( passInvoked && (totalConstraint & CONST_CERT) == 0 ) ||
@@ -206,14 +240,25 @@ public class DualAuthenticator extends ValveBase {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You must provide a client certificate in order " +
                        "to access this URL");
+        String name = null;
+        if (passPrincipal != null) {
+          name = passPrincipal.getName();
+        } else if (certError != null) {
+          name = (String) certError[1];
+        } else if (passError != null) {
+          name = (String) passError[1];
+        }           
+        
         sendFailureMessage(realm,KeyRingJNDIRealm.LF_REQUIRES_CERT,
-                           passPrincipal.getName(), null);
+                           name, null,
+                           remoteAddr, serverPort, protocol, url);
         return false;
       } else if (!certInvoked && !passInvoked) {
         hres.sendError(hres.SC_UNAUTHORIZED,
                        "You do not have the required role to access this URL");
         sendFailureMessage(realm, KeyRingJNDIRealm.LF_REQUIRES_ROLE,
-                           certPrincipal.getName(), null);
+                           certPrincipal.getName(), null,
+                           remoteAddr, serverPort, protocol, url);
         return false;
       } else {
 //         System.out.println("user is granted");
@@ -223,11 +268,21 @@ public class DualAuthenticator extends ValveBase {
       // nobody authenticated this user and therefore we must deny them.
       // the password authentication has already given a response.
       String name = null;
-      if (certPrincipal != null) name=certPrincipal.getName();
-      else if (passPrincipal != null) name=passPrincipal.getName();
+      int    errno = KeyRingJNDIRealm.LF_REQUIRES_ROLE;
+      if (certError != null) {
+        name = (String) certError[1];
+        errno = ((Integer) certError[0]).intValue();
+      } else if (passError != null) {
+        name = (String) passError[1];
+        errno = ((Integer) passError[0]).intValue();
+      } else if (certPrincipal != null) {
+        name=certPrincipal.getName();
+      } else if (passPrincipal != null) {
+        name=passPrincipal.getName();
+      }
       if (name != null) {
-        sendFailureMessage(realm, KeyRingJNDIRealm.LF_REQUIRES_ROLE,
-                           name, null);
+        sendFailureMessage(realm, errno, name, null,
+                           remoteAddr, serverPort, protocol, url);
       }
       return false;
     } else {
@@ -237,16 +292,15 @@ public class DualAuthenticator extends ValveBase {
     }
   }
 
-  private static void sendFailureMessage(Realm realm, int messageID, 
-                                  String user1, String user2) {
-    if (realm instanceof SecureRealm) {
-      realm = ((SecureRealm) realm).getRealm();
-    }
-
-    if (realm instanceof KeyRingJNDIRealm) {
-      KeyRingJNDIRealm krjr = (KeyRingJNDIRealm) realm;
-      krjr.alertLoginFailure( messageID, user1, user2 );
-    }
+  private static void sendFailureMessage(KeyRingJNDIRealm realm, 
+                                         int messageID, 
+                                         String user1, String user2, 
+                                         String remoteAddr, int serverPort,
+                                         String protocol, String url) {
+    if (realm != null) {
+      realm.alertLoginFailure( messageID, user1, user2, remoteAddr,
+                               serverPort, protocol, url);
+    }    
   }
   /**
    * Sets an authentication constraints. It allows
