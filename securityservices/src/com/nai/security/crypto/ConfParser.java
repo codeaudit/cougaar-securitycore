@@ -160,18 +160,10 @@ public class ConfParser {
       return null;
     }
     for (int i = 0 ; i < nodes.getLength() ; i++) {
-      /*
-	System.out.println("Node: " + nodes.item(i).getNodeName()
-			   + " Type: " + nodes.item(i).getNodeType()
-			   + " Val: "
-			   + nodes.item(i).getFirstChild().getNodeValue()
-			   );
-      */
       if (nodes.item(i).getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
 	return (Element) nodes.item(i);
       }
     }
-
     return null;
   }
 
@@ -243,16 +235,16 @@ public class ConfParser {
     }
     for (int i = 0 ; i < conf.getLength() ; i++) {
       Element element = (Element) conf.item(i);
-      String val = element.getFirstChild().getNodeValue();
+      Node child = element.getFirstChild();
+      String val = null;
 
-      /*
-      if (debug) {
-	System.out.println("text:" + element.getNodeName()
-			   + " - role: " + element.getAttribute("role")
-			   + " - val:" + val
-			   + element.toString());
+      if (child != null) {
+	val = child.getNodeValue();
       }
-      */
+      else {
+	val = "";
+      }
+
       if (element.getAttribute("role") == "") {
 	defaultValue = val;
       }
@@ -299,12 +291,21 @@ public class ConfParser {
 					CA_CLIENT_POLICY_ELEMENT);
       
       caPolicy = new CaPolicy();
-      caPolicy.keyStoreFile      = getElementValue(caPolicyElement, CA_KEYSTORE_ELEMENT, role);
-      caPolicy.keyStorePassword  = getElementValue(caPolicyElement, CA_KEYSTORE_PWD_ELEMENT, role);
-      caPolicy.caCommonName      = getElementValue(caPolicyElement, CA_CN_ELEMENT, role);
-      caPolicy.ldapURL           = getElementValue(caPolicyElement, CA_LDAP_URL_ELEMENT, role);
+      caPolicy.keyStoreFile      = getElementValue(caPolicyElement,
+						   CA_KEYSTORE_ELEMENT,
+						   role);
+      caPolicy.keyStorePassword  = getElementValue(caPolicyElement,
+						   CA_KEYSTORE_PWD_ELEMENT,
+						   role);
+      caPolicy.caCommonName      = getElementValue(caPolicyElement,
+						   CA_CN_ELEMENT,
+						   role);
+      caPolicy.ldapURL           = getElementValue(caPolicyElement,
+						   CA_LDAP_URL_ELEMENT,
+						   role);
 
-      String type = getElementValue(caPolicyElement, CA_LDAP_TYPE_ELEMENT, role);
+      String type = getElementValue(caPolicyElement,
+				    CA_LDAP_TYPE_ELEMENT, role);
 
       if (type != null) {
 	if (type.equalsIgnoreCase("NetTools")) {
