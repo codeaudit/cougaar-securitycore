@@ -32,9 +32,9 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
-import org.jdom.input.*;
+import org.cougaar.util.*;
+
+import org.w3c.dom.*;
 
 public class CertificateSigningRequest extends  HttpServlet
 {
@@ -43,33 +43,46 @@ public class CertificateSigningRequest extends  HttpServlet
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
-    String file= config.getInitParameter("configfile");;
-    try
-      {
-	SAXBuilder builder = new SAXBuilder();
-	Document doc = builder.build(new File(file));
-	Element root = doc.getRootElement();
-	setjavaproperty(root);
-      }
-    catch(org.jdom.JDOMException jdexp)
-      {
-	jdexp.printStackTrace();
-      }
+    String file= config.getInitParameter("configfile");
+    ConfigFinder confFinder = new ConfigFinder();
+    try {
+      Document doc = confFinder.parseXMLConfigFile(file);
+      Element root = doc.getDocumentElement();
+      setjavaproperty(root);
+    }
+    catch (IOException e) {
+      System.out.println("Unable to read configFile: " + e);
+    }
   }
+
+  /** This convenience method returns the textual content of the named
+      child element, or returns an empty String ("") if the child has no
+      textual content. */
+  private String getChildText(Element e, String tagName)
+  {
+    NodeList nodes = e.getElementsByTagName(tagName);
+    if (nodes == null || nodes.getLength() == 0) {
+      return null;
+    }
+    // Get first element
+    return nodes.item(0).getFirstChild().getNodeValue();
+  }
+
   public void setjavaproperty(Element root)
   {
     javax.servlet.ServletContext context=null;
     context=getServletContext();
-    List Children = root.getContent();
-    Iterator propertyIterator = Children.iterator();
+    NodeList children = root.getChildNodes();
     // Iterate through javaproperty
-    while (propertyIterator.hasNext()) {
-      Object o = propertyIterator.next();
+    for (int i = 0 ; i < children.getLength() ; i++) {
+      Node o = children.item(i);
       if (o instanceof Element &&
-	  ((Element)o).getName().equals("servletjavaproperties")) {
+	  ((Element)o).getTagName().equals("servletjavaproperties")) {
 	Element propertyelement = (Element)o;
-	String propertyName =  propertyelement.getChildText("propertyname");
-	String propertyValue = propertyelement.getChildText("propertyvalue");
+	String propertyName =  getChildText(propertyelement,
+					    "propertyname");
+	String propertyValue = getChildText(propertyelement,
+					    "propertyvalue");
 	if((propertyName==null )||(propertyValue==null)) {
 	  System.out.println("wrong xml format error");
 	  return;
