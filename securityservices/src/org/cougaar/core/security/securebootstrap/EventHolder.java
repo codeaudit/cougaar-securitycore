@@ -36,10 +36,12 @@ public class EventHolder extends Observable  {
 
   private ArrayList events=null;
   private static EventHolder _instance;
-  private boolean atleastoneObserver=false;
+  //private boolean atleastoneObserver=false;
+  //private LoggingService log=null; 
 
 
   protected EventHolder() {
+    //this.log=ls;
     events =new ArrayList(); 
   }
 
@@ -58,11 +60,16 @@ public class EventHolder extends Observable  {
 
   public synchronized void   register (Observer o) {
     //System.out.println(" Observer is being added :"+o.toString());
+    /*
+    if(loggingService!=null) {
+      loggingService.debug(" Observer is being added :"+o.toString());
+    }
+    */
     addObserver(o);
     //System.out.println(" No of observers is :"+ this.countObservers());
-    if(!atleastoneObserver)
-      atleastoneObserver=true;
-    if((atleastoneObserver)&&(events.size()>0)){
+    //if(!atleastoneObserver)
+    //atleastoneObserver=true;
+    if((_instance.countObservers()>0)&&(events.size()>0)){
        ArrayList eventList=new ArrayList();
       Iterator iterator=events.iterator();
       while(iterator.hasNext()) {
@@ -76,6 +83,12 @@ public class EventHolder extends Observable  {
       // System.out.println(" clearing events in register:");
     }
     else {
+      /*
+      if(loggingService!=null) {
+	 loggingService.debug(" No Observer to notify :");
+	 loggingService.debug("Size of event queue :"+_instance.events.size());
+       }
+      */
       //System.out.println(" One of the conditions to notify observers has failed:");
       //System.out.println(" atleast one observer condition :"+atleastoneObserver);
       //System.out.println(" size of event queue :"+_instance.events.size());
@@ -88,18 +101,38 @@ public class EventHolder extends Observable  {
   
   public void addEvent(BootstrapEvent o) {
     events.add(o);
+    /*
+    if(loggingService!=null) {
+      loggingService.debug("Event are being added :");
+    }
+    */
     //System.out.println(" event are being added :"+ o.toString());
     //System.out.println(" event length after event is added is :"+events.size());
-    if(atleastoneObserver)  {
+    if(_instance.countObservers()>0)  {
+      
       ArrayList eventList=new ArrayList();
       Iterator iterator=_instance.events.iterator();
       while(iterator.hasNext()) {
 	eventList.add((BootstrapEvent)iterator.next());
       }
+      /*
+      if(loggingService!=null) {
+	loggingService.debug("Notifying Observers  :");
+       }
+      */
+      setChanged();
       //System.out.println("Going to notify observers :");
       notifyObservers(eventList);
       //System.out.println(" clearing events in add event:");
       events.clear();
+    }
+    else {
+      /*
+       if(loggingService!=null) {
+	loggingService.debug("No  Observers to notify   :");
+       }
+      */
+      
     }
     //System.out.println(" No observers to Notify");
   }
