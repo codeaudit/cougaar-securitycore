@@ -223,7 +223,8 @@ society.each_host do |host|
     # MTS RMI over SSL
     # The certificates need to be created first before this feature is turned on.
     #
-    node.override_parameter("-Dorg.cougaar.message.protocol.classes", "org.cougaar.core.mts.SSLRMILinkProtocol")
+# this is installed in a different rule now
+#    node.override_parameter("-Dorg.cougaar.message.protocol.classes", "org.cougaar.core.mts.SSLRMILinkProtocol")
     
     # You can also turn on/off http/s. Turn of by setting the port to -1
     # Note that HTTPS is off by default, and HTTP is at 8800

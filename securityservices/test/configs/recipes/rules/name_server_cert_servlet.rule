@@ -6,20 +6,55 @@ servletComp = "org.cougaar.core.security.certauthority.CaServletComponent"
 servlet = "org.cougaar.core.security.certauthority.servlet.NameServerCertificateServlet"
 uri = "NameServerCertificateServlet"
 
-society.each_node do |node|
-  node.add_component do |c|
-      c.classname = plugin
-      c.add_argument(uri)
+sslRMILinkProtocol = "org.cougaar.core.mts.SSLRMILinkProtocol"
+protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
+
+# comment out the following small section to remove SSLRMILinkProtocol
+society.each_node do |node_agent|
+  node_agent.add_component do |c|
+    c.classname = sslRMILinkProtocol
+    c.insertionpoint = protocolInsertion
   end
 end
 
-society.each_agent() do |agent|
-  if agent.name =~ /CaManager/
-    agent.add_component do |c|
-      c.classname = servletComp
-      c.add_argument(servlet)
-      c.add_argument("/CA/" + uri)
+# check the node for protocols other than SSLRMILinkProtocol
+use_ssl = false;
+society.each_node do |node|
+  node.each_component do |comp_element|
+    if comp_element.insertionpoint == protocolInsertion
+      if comp_element.classname == sslRMILinkProtocol
+        use_ssl = true
+      else
+        use_ssl = false
+        break # we know that at least one non-SSL protocol exists
+      end
     end
   end
+  break # don't need to see more than one node
 end
+
+if !use_ssl
+# add NameServerCeritificateComponent to each node
+  society.each_node do |node|
+    node.add_component do |c|
+      c.classname = plugin
+      c.add_argument(uri)
+    end
+  end
+
+  society.each_agent() do |agent|
+    if agent.name =~ /CaManager/
+      agent.add_component do |c|
+        c.classname = servletComp
+        c.add_argument(servlet)
+        c.add_argument("/CA/" + uri)
+      end
+    end
+  end
+else
+  society.each_node do |node|
+    node.remove_component(plugin)
+  end
+end
+
 
