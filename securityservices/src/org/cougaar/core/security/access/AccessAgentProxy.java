@@ -33,7 +33,6 @@ import org.cougaar.core.agent.AgentBinder;
 import org.cougaar.core.mts.MessageTransportClient;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageEnvelope;
 import org.cougaar.core.mts.MisdeliveredMessageException;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.planning.ldm.plan.Directive;
