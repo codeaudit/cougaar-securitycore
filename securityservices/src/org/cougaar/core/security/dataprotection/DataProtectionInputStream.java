@@ -182,9 +182,19 @@ public class DataProtectionInputStream extends FilterInputStream {
   {
     // clean up?
     if(debug) {
-      log.debug("Closing inputStream " + new Date());
+      log.debug("Closing inputStream for " + agent + " at " + new Date());
     }
-    verifyDigest();
+
+    try {
+      verifyDigest();
+    } catch (IOException iox) {
+      if (theis == null) {
+        log.error("Closing stream that is either corrupted or before the entire input is read: " + iox.toString());
+      }
+      else {
+        throw iox;
+      }
+    }
     if (ci != null)
       encryptionService.returnCipher(policy.symmSpec, ci);
     super.close();
@@ -280,6 +290,10 @@ public class DataProtectionInputStream extends FilterInputStream {
     throws IOException
   {
     if (dobj != null) {
+      if (theis == null) {
+        throw new IOException("Expecting digest stream.");
+      }
+
       md = ((DigestInputStream)theis).getMessageDigest();
       // reset so that digest does not get updated
       theis = null;
