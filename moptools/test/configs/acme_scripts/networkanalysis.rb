@@ -16,10 +16,39 @@ module Cougaar
                                 @run = run
                      end
                      def perform
+                        #get list of nfs hosts
+                        nfsHosts=[]
+                        @run.society.each_host do |host|
+				puts "HOST #{host.name}"
+                        	host.each_facet do |facet|
+					valuelist =facet.[]("service")
+					if not valuelist.nil?  
+					valuelist.each{|facetvalue|
+						if facetvalue=="nfs-software" or facetvalue=="nfs-shared"
+						inlist = "FALSE"
+						nfsHosts.each{ |nhost|
+							if nhost==host.name
+				  				inlist="TRUE" 
+							end 
+						}		
+						if inlist=="FALSE"			
+							nfsHosts.push("#{host.name}")
+						end
+						end
+					}		
+					end		  
+				 end
+                        end
+			nfsHosts.each{|nhost|
+				puts "NFS HOST:#{nhost}"
+			}
                         outputfilename="#{@run.name}_analysis.in"
                         puts "Output of raw network data #{outputfilename}"
                         puts "Removing old file if present"
                         commandsyntax="ssh #{@hostname} ./runTethereal.sh #{outputfilename}"
+			nfsHosts.each{|nhost|
+				commandsyntax = "#{commandsyntax} #{nhost}"
+			}
                         puts "Executing #{commandsyntax}"
                         $pid = fork{
                                  puts "Executing #{commandsyntax}"
