@@ -66,8 +66,8 @@ public class TestAgent extends TestIdmef {
     }
   
     public void compare( Agent agent1, Agent agent2 ){
-      String refIdents1[] = agent1.getReferenceIdents();
-      String refIdents2[] = agent2.getReferenceIdents();
+      String refList1[] = agent1.getRefIdents();
+      String refList2[] = agent2.getRefIdents();
       Address address1 = agent1.getAddress();
       Address address2 = agent2.getAddress();
         if( !( agent1.getName().equals( agent2.getName() ) ) ){
@@ -96,20 +96,20 @@ public class TestAgent extends TestIdmef {
             System.out.println( "Agent1.address.category = " + address1.getCategory() );
             System.out.println( "Agent2.address.category = " + address2.getCategory() );
         }
-        if( refIdents1.length == refIdents2.length ){
-            int len = refIdents1.length;
+        if( refList1.length == refList2.length ){
+            int len = refList1.length;
             for( int i = 0; i < len; i++ ){
-                if( !( refIdents1[ i ].equals( refIdents2[ i ] ) ) ){
-                  System.out.println(" Agent.refIdents[ " + i + " ] is inconsistent!" );
-                  System.out.println(" Agent.refIdents1[ " + i + " ] = " + refIdents1[ i ] );
-                  System.out.println(" Agent.refIdents2[ " + i + " ] = " + refIdents2[ i ] );
+                if( !( refList1[ i ].equals( refList2[ i ] ) ) ){
+                  System.out.println(" Agent.refList[ " + i + " ] is inconsistent!" );
+                  System.out.println(" Agent.refList1[ " + i + " ] = " + refList1[ i ] );
+                  System.out.println(" Agent.refList2[ " + i + " ] = " + refList2[ i ] );
                 }
             }
         }
         else{
-            System.out.println(" Agent.refIdents lengths NOT EQUAL!" );
-            System.out.println(" Agent.refIdents1.length = " + refIdents1.length );
-            System.out.println(" Agent.refIdents2.length = " + refIdents2.length );
+            System.out.println(" Agent.refList length NOT EQUAL!" );
+            System.out.println(" Agent.refList1.length = " + refList1.length );
+            System.out.println(" Agent.refList2.length = " + refList2.length );
         }
     }
     public void run(){
