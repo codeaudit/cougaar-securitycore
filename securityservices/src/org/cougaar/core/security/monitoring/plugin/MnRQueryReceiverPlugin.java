@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -181,6 +181,12 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     Collection newQueryCollection;
     Collection removedRemoteQueryCol;
     boolean removedRelays=false;
+
+    if (remoteQueryRelays == null) {
+      // Configuration problem. Did not go through setupSubscription.
+      // Issue should have already reported during setupSubscription()
+      return;
+    }
     if(remoteQueryRelays.hasChanged()) {
       removedRemoteQueryCol=remoteQueryRelays.getRemovedCollection();
       if(removedRemoteQueryCol.size()>0) {
