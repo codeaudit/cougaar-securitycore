@@ -50,40 +50,45 @@ public L(InputBuffer ib) {
 public L(LexerSharedInputState state) {
 	super(state);
 	literals = new Hashtable();
-	literals.put(new ANTLRHashString("a", this), new Integer(25));
-	literals.put(new ANTLRHashString("role", this), new Integer(34));
-	literals.put(new ANTLRHashString("use", this), new Integer(43));
-	literals.put(new ANTLRHashString("access", this), new Integer(35));
-	literals.put(new ANTLRHashString("must", this), new Integer(42));
-	literals.put(new ANTLRHashString("one", this), new Integer(30));
+	literals.put(new ANTLRHashString("a", this), new Integer(26));
+	literals.put(new ANTLRHashString("role", this), new Integer(39));
+	literals.put(new ANTLRHashString("use", this), new Integer(48));
+	literals.put(new ANTLRHashString("access", this), new Integer(40));
+	literals.put(new ANTLRHashString("must", this), new Integer(47));
+	literals.put(new ANTLRHashString("one", this), new Integer(31));
 	literals.put(new ANTLRHashString("Priority", this), new Integer(9));
-	literals.put(new ANTLRHashString("All", this), new Integer(40));
-	literals.put(new ANTLRHashString("authorized", this), new Integer(19));
-	literals.put(new ANTLRHashString("users", this), new Integer(41));
-	literals.put(new ANTLRHashString("named", this), new Integer(37));
+	literals.put(new ANTLRHashString("All", this), new Integer(45));
+	literals.put(new ANTLRHashString("authorized", this), new Integer(20));
+	literals.put(new ANTLRHashString("users", this), new Integer(46));
+	literals.put(new ANTLRHashString("named", this), new Integer(42));
 	literals.put(new ANTLRHashString("Policy", this), new Integer(4));
-	literals.put(new ANTLRHashString("accessing", this), new Integer(46));
-	literals.put(new ANTLRHashString("of", this), new Integer(23));
-	literals.put(new ANTLRHashString("user", this), new Integer(32));
-	literals.put(new ANTLRHashString("least", this), new Integer(29));
-	literals.put(new ANTLRHashString("A", this), new Integer(31));
-	literals.put(new ANTLRHashString("at", this), new Integer(28));
-	literals.put(new ANTLRHashString("in", this), new Integer(33));
-	literals.put(new ANTLRHashString("when", this), new Integer(45));
-	literals.put(new ANTLRHashString("servlet", this), new Integer(36));
-	literals.put(new ANTLRHashString("not", this), new Integer(20));
-	literals.put(new ANTLRHashString("subset", this), new Integer(26));
-	literals.put(new ANTLRHashString("authentication", this), new Integer(44));
-	literals.put(new ANTLRHashString("long", this), new Integer(16));
-	literals.put(new ANTLRHashString("as", this), new Integer(15));
-	literals.put(new ANTLRHashString("can", this), new Integer(38));
-	literals.put(new ANTLRHashString("perform", this), new Integer(14));
-	literals.put(new ANTLRHashString("value", this), new Integer(22));
-	literals.put(new ANTLRHashString("is", this), new Integer(12));
-	literals.put(new ANTLRHashString("cannot", this), new Integer(39));
-	literals.put(new ANTLRHashString("to", this), new Integer(13));
-	literals.put(new ANTLRHashString("the", this), new Integer(21));
-	literals.put(new ANTLRHashString("contains", this), new Integer(27));
+	literals.put(new ANTLRHashString("accessing", this), new Integer(51));
+	literals.put(new ANTLRHashString("of", this), new Integer(25));
+	literals.put(new ANTLRHashString("user", this), new Integer(37));
+	literals.put(new ANTLRHashString("element", this), new Integer(32));
+	literals.put(new ANTLRHashString("least", this), new Integer(30));
+	literals.put(new ANTLRHashString("A", this), new Integer(36));
+	literals.put(new ANTLRHashString("at", this), new Integer(29));
+	literals.put(new ANTLRHashString("in", this), new Integer(38));
+	literals.put(new ANTLRHashString("from", this), new Integer(33));
+	literals.put(new ANTLRHashString("when", this), new Integer(50));
+	literals.put(new ANTLRHashString("servlet", this), new Integer(41));
+	literals.put(new ANTLRHashString("and", this), new Integer(22));
+	literals.put(new ANTLRHashString("not", this), new Integer(21));
+	literals.put(new ANTLRHashString("subset", this), new Integer(27));
+	literals.put(new ANTLRHashString("authentication", this), new Integer(49));
+	literals.put(new ANTLRHashString("long", this), new Integer(17));
+	literals.put(new ANTLRHashString("as", this), new Integer(16));
+	literals.put(new ANTLRHashString("can", this), new Integer(43));
+	literals.put(new ANTLRHashString("perform", this), new Integer(15));
+	literals.put(new ANTLRHashString("complement", this), new Integer(35));
+	literals.put(new ANTLRHashString("value", this), new Integer(24));
+	literals.put(new ANTLRHashString("is", this), new Integer(13));
+	literals.put(new ANTLRHashString("cannot", this), new Integer(44));
+	literals.put(new ANTLRHashString("to", this), new Integer(14));
+	literals.put(new ANTLRHashString("the", this), new Integer(23));
+	literals.put(new ANTLRHashString("set", this), new Integer(34));
+	literals.put(new ANTLRHashString("contains", this), new Integer(28));
 caseSensitiveLiterals = true;
 setCaseSensitive(true);
 }
@@ -318,6 +323,11 @@ tryAgain:
 			case '.':
 			{
 				match('.');
+				break;
+			}
+			case '#':
+			{
+				match('#');
 				break;
 			}
 			default:

@@ -59,26 +59,33 @@ throws PolicyCompilerException
     | pb = genericPolicy[pn]
     ;
 
+/*
+ * The generic policy is not as neat as it could be.  It essentially breaks 
+ * into two sections, the construction of the DAMLPolicyBuilderImpl (done by
+ * PolicyCompiler.genericPolicyInit()) and the construction of the KAoSClassBuilderImpl
+ * (done by PolicyCompiler.genericPolicyStep() with lots of guidance from the parser.
+ * This is a little ugly because the parser must hold these two pieces together and 
+ * also guide the steps in the genericPolicyStep (there is one step for each target that is
+ * parsed.  Not a good example of separating the work of the parser and the PolicyCompiler.
+ */  
+
 genericPolicy[String pn]
 returns [PolicyBuilder pb]
 throws PolicyCompilerException
 {   pb = null;
     boolean modality = true; }        
     : "Priority" EQ priority:INT COMMA
-      subject:TOKEN "is" modality = genericAuth
-        "to" "perform" action:TOKEN "as" "long" "as"
+      subject:URI "is" modality = genericAuth
+        "to" "perform" action:URI "as" "long" "as"
   { pb = PolicyCompiler.genericPolicyInit(pn,
                                           PolicyCompiler.tokenToInt(priority),
                                           PolicyCompiler.tokenToURI(subject),
                                           modality,
                                           PolicyCompiler.tokenToURI(action));
-    KAoSClassBuilderImpl controls = 
-         new KAoSClassBuilderImpl(PolicyCompiler.tokenToURI(action));
         }
         LCURLY 
-        genericTargets[PolicyCompiler.tokenToURI(action), pb, controls]
+        genericTargets[PolicyCompiler.tokenToURI(action), pb]
         RCURLY
-        { pb.setControlsActionClass(controls); }
     ;
 
 genericAuth
@@ -88,44 +95,59 @@ returns [boolean modality]
     | "not" "authorized" { modality = false; }
     ;
 
-genericTargets[String action, PolicyBuilder pb, KAoSClassBuilderImpl controls]
+genericTargets[String action, PolicyBuilder pb]
 throws PolicyCompilerException
-    : ( genericTarget[action, pb, controls] )*
+    : genericTarget[action, pb] genericMoreTargets[action, pb]
     ;
 
-genericTarget[String action, PolicyBuilder pb, KAoSClassBuilderImpl controls]
+genericMoreTargets[String action, PolicyBuilder pb]
 throws PolicyCompilerException
-{  String resType = null; }
-    : "the" "value" "of" role:URI resType = genericRestrictionType
-        "of" genericRange[action, 
-                          pb,
-                          controls, 
-                          PolicyCompiler.tokenToURI(role), 
-                          resType]
+    : 
+    | "and" genericTarget[action, pb] genericMoreTargets[action, pb]
+    ;
+
+genericTarget[String action, PolicyBuilder pb]
+throws PolicyCompilerException
+{   String resType = null;
+    boolean complementedTarget = false; }
+    : "the" "value" "of" property:URI resType = genericRestrictionType
+        complementedTarget=genericTargetModality
+        genericRange[action, 
+                     pb,
+                     PolicyCompiler.tokenToURI(property), 
+                     resType,
+                     complementedTarget]
     ;
 
 genericRestrictionType
 returns [String resType]
 {  resType = null; }
-    : "is" "a" "subset" 
+    : "is" "a" "subset" "of" "the"
         { resType = kaos.ontology.jena.PolicyConcepts._toClassRestriction; }
-    | "contains" "at" "least" "one"
+    | "contains" "at" "least" "one" "element" "from" "the"
         { resType = kaos.ontology.jena.PolicyConcepts._hasClassRestriction; }
+    ;
+
+genericTargetModality
+returns [boolean complementedTarget]
+{  complementedTarget = false; }
+    : "set" { complementedTarget=false; }
+    | "complement" "of" "the" "set" { complementedTarget=true; }
     ;
 
 genericRange[String               action, 
              PolicyBuilder        pb,
-             KAoSClassBuilderImpl controls,
-             String               role,
-             String               resType]
+             String               property,
+             String               resType,
+             boolean              complementedTarget]
 throws PolicyCompilerException
     : range:URI 
   { PolicyCompiler.genericPolicyStep(action, 
                                      pb,
-                                     controls,
-                                     role,
+                                     property,
                                      resType,
-                                     PolicyCompiler.tokenToURI(range)); }
+                                     (Object) PolicyCompiler.tokenToURI(range),
+                                     complementedTarget); }
     | { List instances = new Vector(); }
         LCURLY
         ( instance:URI 
@@ -139,12 +161,16 @@ throws PolicyCompilerException
         RCURLY
         { PolicyCompiler.genericPolicyStep(action, 
                                            pb,
-                                           controls,
-                                           role,
+                                           property,
                                            resType,
-                                           instances); }
+                                           (Object) instances,
+                                           complementedTarget); }
     ;
 
+
+/*
+ * The Servlet Access template: (e.g. A user in role policyAdministrator is allowed to access a servlet named PolicyServlet)
+ */
 servletUserAccess [String pn] 
 returns [PolicyBuilder pb]
 throws PolicyCompilerException
@@ -165,6 +191,10 @@ servletUserAccessModality returns [boolean m] { m = true; }
     : "can" { m = true; }
     | "cannot" { m = false; }
    ;
+
+/*
+ * The servlet authentication servlet (e.g. All users must use CertificateSSL when accessing the servlet named PolicyServlet)
+ */
 
 servletAuthentication[String pn]
 returns [PolicyBuilder pb]
@@ -189,7 +219,7 @@ TOKEN:   ( 'a'..'z'|'A'..'Z' )+
 INT : ( '0'..'9' )+ 
     ;
 
-URI: '$' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.')+
+URI: '$' ( 'a'..'z'|'A'..'Z'|'/'|':'|'.'|'#')+
     ;
 
 EQ: '='

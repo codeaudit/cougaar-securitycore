@@ -21,9 +21,8 @@ class Main {
 
   public static void main(String[] args) {
     try {
+      PolicyCompiler.loadTheBrain();
       if (args.length == 1 && args[0].equals("jtp")) {
-        new PolicyBuilder();   // sorry bad form - this starts jtp and load ontologies
-                               // may not be necessary but that is even more of a hack...
         jtp.ui.DamlQueryAnswerer.main(args);
       } else {
         System.out.println("args.length = " + args.length);

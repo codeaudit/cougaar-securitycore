@@ -244,13 +244,13 @@ public P(ParserSharedInputState state) {
 			match(INT);
 			match(COMMA);
 			subject = LT(1);
-			match(TOKEN);
+			match(URI);
 			match(LITERAL_is);
 			modality=genericAuth();
 			match(LITERAL_to);
 			match(LITERAL_perform);
 			action = LT(1);
-			match(TOKEN);
+			match(URI);
 			match(LITERAL_as);
 			match(LITERAL_long);
 			match(LITERAL_as);
@@ -259,13 +259,10 @@ public P(ParserSharedInputState state) {
 			PolicyCompiler.tokenToURI(subject),
 			modality,
 			PolicyCompiler.tokenToURI(action));
-			KAoSClassBuilderImpl controls = 
-			new KAoSClassBuilderImpl(PolicyCompiler.tokenToURI(action));
 			
 			match(LCURLY);
-			genericTargets(PolicyCompiler.tokenToURI(action), pb, controls);
+			genericTargets(PolicyCompiler.tokenToURI(action), pb);
 			match(RCURLY);
-			pb.setControlsActionClass(controls);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
@@ -310,23 +307,13 @@ public P(ParserSharedInputState state) {
 	}
 	
 	public final void genericTargets(
-		String action, PolicyBuilder pb, KAoSClassBuilderImpl controls
+		String action, PolicyBuilder pb
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
 		
 		try {      // for error handling
-			{
-			_loop10:
-			do {
-				if ((LA(1)==LITERAL_the)) {
-					genericTarget(action, pb, controls);
-				}
-				else {
-					break _loop10;
-				}
-				
-			} while (true);
-			}
+			genericTarget(action, pb);
+			genericMoreTargets(action, pb);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
@@ -336,30 +323,62 @@ public P(ParserSharedInputState state) {
 	}
 	
 	public final void genericTarget(
-		String action, PolicyBuilder pb, KAoSClassBuilderImpl controls
+		String action, PolicyBuilder pb
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
-		Token  role = null;
+		Token  property = null;
 		String resType = null;
+		boolean complementedTarget = false;
 		
 		try {      // for error handling
 			match(LITERAL_the);
 			match(LITERAL_value);
 			match(LITERAL_of);
-			role = LT(1);
+			property = LT(1);
 			match(URI);
 			resType=genericRestrictionType();
-			match(LITERAL_of);
+			complementedTarget=genericTargetModality();
 			genericRange(action, 
-                          pb,
-                          controls, 
-                          PolicyCompiler.tokenToURI(role), 
-                          resType);
+                     pb,
+                     PolicyCompiler.tokenToURI(property), 
+                     resType,
+                     complementedTarget);
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
 			consumeUntil(_tokenSet_5);
+		}
+	}
+	
+	public final void genericMoreTargets(
+		String action, PolicyBuilder pb
+	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
+		
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case RCURLY:
+			{
+				break;
+			}
+			case LITERAL_and:
+			{
+				match(LITERAL_and);
+				genericTarget(action, pb);
+				genericMoreTargets(action, pb);
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_4);
 		}
 	}
 	
@@ -375,6 +394,8 @@ public P(ParserSharedInputState state) {
 				match(LITERAL_is);
 				match(LITERAL_a);
 				match(LITERAL_subset);
+				match(LITERAL_of);
+				match(LITERAL_the);
 				resType = kaos.ontology.jena.PolicyConcepts._toClassRestriction;
 				break;
 			}
@@ -384,6 +405,9 @@ public P(ParserSharedInputState state) {
 				match(LITERAL_at);
 				match(LITERAL_least);
 				match(LITERAL_one);
+				match(LITERAL_element);
+				match(LITERAL_from);
+				match(LITERAL_the);
 				resType = kaos.ontology.jena.PolicyConcepts._hasClassRestriction;
 				break;
 			}
@@ -401,12 +425,48 @@ public P(ParserSharedInputState state) {
 		return resType;
 	}
 	
+	public final boolean  genericTargetModality() throws RecognitionException, TokenStreamException {
+		boolean complementedTarget;
+		
+		complementedTarget = false;
+		
+		try {      // for error handling
+			switch ( LA(1)) {
+			case LITERAL_set:
+			{
+				match(LITERAL_set);
+				complementedTarget=false;
+				break;
+			}
+			case LITERAL_complement:
+			{
+				match(LITERAL_complement);
+				match(LITERAL_of);
+				match(LITERAL_the);
+				match(LITERAL_set);
+				complementedTarget=true;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			consume();
+			consumeUntil(_tokenSet_7);
+		}
+		return complementedTarget;
+	}
+	
 	public final void genericRange(
 		String               action, 
              PolicyBuilder        pb,
-             KAoSClassBuilderImpl controls,
-             String               role,
-             String               resType
+             String               property,
+             String               resType,
+             boolean              complementedTarget
 	) throws RecognitionException, TokenStreamException, PolicyCompilerException {
 		
 		Token  range = null;
@@ -420,10 +480,10 @@ public P(ParserSharedInputState state) {
 				match(URI);
 				PolicyCompiler.genericPolicyStep(action, 
 				pb,
-				controls,
-				role,
+				property,
 				resType,
-				PolicyCompiler.tokenToURI(range));
+				(Object) PolicyCompiler.tokenToURI(range),
+				complementedTarget);
 				break;
 			}
 			case LCURLY:
@@ -453,10 +513,10 @@ public P(ParserSharedInputState state) {
 				match(RCURLY);
 				PolicyCompiler.genericPolicyStep(action, 
 				pb,
-				controls,
-				role,
+				property,
 				resType,
-				instances);
+				(Object) instances,
+				complementedTarget);
 				break;
 			}
 			default:
@@ -500,7 +560,7 @@ public P(ParserSharedInputState state) {
 		catch (RecognitionException ex) {
 			reportError(ex);
 			consume();
-			consumeUntil(_tokenSet_7);
+			consumeUntil(_tokenSet_8);
 		}
 		return m;
 	}
@@ -519,6 +579,7 @@ public P(ParserSharedInputState state) {
 		"\"Priority\"",
 		"INT",
 		"COMMA",
+		"URI",
 		"\"is\"",
 		"\"to\"",
 		"\"perform\"",
@@ -528,16 +589,20 @@ public P(ParserSharedInputState state) {
 		"RCURLY",
 		"\"authorized\"",
 		"\"not\"",
+		"\"and\"",
 		"\"the\"",
 		"\"value\"",
 		"\"of\"",
-		"URI",
 		"\"a\"",
 		"\"subset\"",
 		"\"contains\"",
 		"\"at\"",
 		"\"least\"",
 		"\"one\"",
+		"\"element\"",
+		"\"from\"",
+		"\"set\"",
+		"\"complement\"",
 		"\"A\"",
 		"\"user\"",
 		"\"in\"",
@@ -563,15 +628,17 @@ public P(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_1 = new BitSet(_tokenSet_1_data_);
 	private static final long _tokenSet_2_data_[] = { 256L, 0L };
 	public static final BitSet _tokenSet_2 = new BitSet(_tokenSet_2_data_);
-	private static final long _tokenSet_3_data_[] = { 8192L, 0L };
+	private static final long _tokenSet_3_data_[] = { 16384L, 0L };
 	public static final BitSet _tokenSet_3 = new BitSet(_tokenSet_3_data_);
-	private static final long _tokenSet_4_data_[] = { 262144L, 0L };
+	private static final long _tokenSet_4_data_[] = { 524288L, 0L };
 	public static final BitSet _tokenSet_4 = new BitSet(_tokenSet_4_data_);
-	private static final long _tokenSet_5_data_[] = { 2359296L, 0L };
+	private static final long _tokenSet_5_data_[] = { 4718592L, 0L };
 	public static final BitSet _tokenSet_5 = new BitSet(_tokenSet_5_data_);
-	private static final long _tokenSet_6_data_[] = { 8388608L, 0L };
+	private static final long _tokenSet_6_data_[] = { 51539607552L, 0L };
 	public static final BitSet _tokenSet_6 = new BitSet(_tokenSet_6_data_);
-	private static final long _tokenSet_7_data_[] = { 34359738368L, 0L };
+	private static final long _tokenSet_7_data_[] = { 266240L, 0L };
 	public static final BitSet _tokenSet_7 = new BitSet(_tokenSet_7_data_);
+	private static final long _tokenSet_8_data_[] = { 1099511627776L, 0L };
+	public static final BitSet _tokenSet_8 = new BitSet(_tokenSet_8_data_);
 	
 	}
