@@ -247,14 +247,16 @@ public class CertificateRevokerPlugin extends ComponentPlugin {
       Alert alert = (Alert) e.getEvent();
       Source srcs[] = alert.getSources();
       AdditionalData data[] = alert.getAdditionalData();
-      for (int i = 0; i < srcs.length; i++) {
-        Agent agent = findAgent(srcs[i].getIdent(), data); 
-        if (agent != null) {
-          Address addr = agent.getAddress();
-          if (addr != null) {
-            m_failures.add(addr.getAddress());
-          }
-        }
+      if (srcs != null) {
+	for (int i = 0; i < srcs.length; i++) {
+	  Agent agent = findAgent(srcs[i].getIdent(), data); 
+	  if (agent != null) {
+	    Address addr = agent.getAddress();
+	    if (addr != null) {
+	      m_failures.add(addr.getAddress());
+	    }
+	  }
+	}
       }
     }
   }

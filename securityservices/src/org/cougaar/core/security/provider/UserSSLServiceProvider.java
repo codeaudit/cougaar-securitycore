@@ -77,9 +77,9 @@ public class UserSSLServiceProvider
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      if (log.isDebugEnabled())
-	e.printStackTrace();
-      log.debug("Failed to initialize UserSSLService!");
+      if (log.isWarnEnabled()) {
+	log.warn("Failed to initialize UserSSLService");
+      }
     }
     return sslservice;
   }

@@ -68,6 +68,11 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     }
     */
 
+    if (keyRing == null) {
+      log.warn("KeyRing service is not available. Unable to initialize the KeyManager.");
+      throw new RuntimeException("KeyRing service is not available");
+    }
+
     keystore = keyRing.getDirectoryKeyStore();
     if (!(this instanceof UserKeyManager)) {
       keyRing.checkOrMakeCert(getName());
