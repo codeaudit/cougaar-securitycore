@@ -142,14 +142,6 @@ public class UpdatePolicyPlugin
           doNotify = true;
         }
       }
-      for (Iterator threatIt = _threatAction.getAddedCollection().iterator();
-           threatIt.hasNext();) {
-        ThreatConActionInfo threatAction = (ThreatConActionInfo) threatIt.next();
-        _requestedThreatLevel = threatAction.getLevel();
-        if (threatAction.getDiagnosis().equals(ThreatConActionInfo.START)) {
-          doNotify = true;
-        }
-      }
       if (doNotify) {
         if (_log.isDebugEnabled()) {
           _log.debug("Coordinator requesting threat level set at " 
@@ -185,79 +177,102 @@ public class UpdatePolicyPlugin
   {
     public void run()
     {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Entering Policy thread");
-      }
       try {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Entering Policy thread");
+        }
         commitPolicy(BOOT_POLICY);
-      } catch (IOException ioe) {
-        _log.fatal("UpdatPolicyPlugin failed to commit boot policies - canot proceed", ioe);
-        return;
-      }
-      if (_log.isDebugEnabled()) {
-        _log.debug("Domain Manager has policies");
-      }
-      String myThreatLevel = null;
-      try {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Domain Manager has policies");
+        }
+        String myThreatLevel = null;
         while (true) {
           String level;
-          synchronized(_threatLock) {
-            while (_threatQueue.isEmpty()) {
-              _threatLock.wait();
-            }
-            if (_requestedThreatLevel.equals(myThreatLevel)) {
-              if (_log.isDebugEnabled()) {
-                _log.debug("I have responded to the coordinators request");
-                _log.debug("Proceeding to mark requests as active");
-              }
-              _bbs.openTransaction();
-              try {
-                for (Iterator threatIt = _threatQueue.iterator();
-                     threatIt.hasNext();) {
-                  ThreatConActionInfo tcai = (ThreatConActionInfo) threatIt.next();
-                  if (tcai.getLevel().equals(myThreatLevel)) {
-                    tcai.setDiagnosis(ThreatConActionInfo.ACTIVE);
-                    _bbs.publishAdd(tcai);
-                  }
-                  _threatQueue = new Vector();
-                } 
-              } finally {
-                _bbs.closeTransaction();
-              }
-              continue;
-            } else {
-              level = _requestedThreatLevel;
-            }
-          } // synchronized(_threatLock)
-
-          try {
-            if (level.equals(ThreatConActionInfo.LOWDiagnosis)) {
-              if (_log.isDebugEnabled()) {
-                _log.debug("committing low policy");
-              }
-              commitPolicy(LOW_POLICY);
-              myThreatLevel = ThreatConActionInfo.LOWDiagnosis;
-              if (_log.isDebugEnabled()) {
-                _log.debug("low policy committed");
-              }
-            } else {
-              if (_log.isDebugEnabled()) {
-                _log.debug("committing high policy");
-              }
-              commitPolicy(HIGH_POLICY);
-              myThreatLevel = ThreatConActionInfo.HIGHDiagnosis;
-              if (_log.isDebugEnabled()) {
-                _log.debug("high policy committed");
-              }
-            }
-          } catch(IOException ioe) {
-            _log.error("Exception trying to commit policies", ioe);
-            Thread.sleep(TIMEOUT);
+          level = getRequestedLevel(myThreatLevel);
+          if (changeToLevel(level)) {
+            myThreatLevel = level;
           }
-        }  // while(true)
-      } catch (InterruptedException  ie) {
-        _log.error("Inerrupted! - maybe I was thrashing?", ie);
+        }
+      } catch (Exception e) {
+        _log.error("Exception occured in policy update thread", e); 
       }
     } // public void run()
+
+    private String getRequestedLevel(String currentLevel)
+      throws InterruptedException
+    {
+      while (true) {
+        synchronized(_threatLock) {
+          while (_threatQueue.isEmpty()) {
+            _threatLock.wait();
+          }
+          if (_requestedThreatLevel.equals(currentLevel)) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("I have responded to the coordinators request");
+              _log.debug("Proceeding to mark requests as active");
+            }
+            _bbs.openTransaction();
+            try {
+              for (Iterator threatIt = _threatQueue.iterator();
+                   threatIt.hasNext();) {
+                ThreatConActionInfo tcai = (ThreatConActionInfo) threatIt.next();
+                if (tcai.getLevel().equals(currentLevel)) {
+                  tcai.setDiagnosis(ThreatConActionInfo.ACTIVE);
+                  _bbs.publishChange(tcai);
+                }
+                _threatQueue = new Vector();
+              } 
+            } finally {
+              _bbs.closeTransaction();
+            }
+            continue;
+          } else {
+            return _requestedThreatLevel;
+          }
+        } // synchronized(_threatLock)
+      }
+    }
+
+    private boolean changeToLevel(String level)
+    {
+      if (_log.isDebugEnabled()) {
+        _log.debug("changeToLevel received level " + level +
+                   "\nexpecting high = " + ThreatConActionInfo.HIGHDiagnosis +
+                   "\nor expecting low  = " + ThreatConActionInfo.LOWDiagnosis);
+      }
+      try {
+        if (level.equals(ThreatConActionInfo.LOWDiagnosis)) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("committing low policy");
+          }
+          commitPolicy(LOW_POLICY);
+          if (_log.isDebugEnabled()) {
+            _log.debug("low policy committed");
+          }
+        } else if (level.equals(ThreatConActionInfo.HIGHDiagnosis)) {
+          if (_log.isDebugEnabled()) {
+            _log.debug("committing high policy");
+          }
+          commitPolicy(HIGH_POLICY);
+          if (_log.isDebugEnabled()) {
+            _log.debug("high policy committed");
+          }
+        } else {
+          if (_log.isInfoEnabled()) {
+            _log.info("other level of policy");
+          }
+        }
+        return true;
+      } catch(IOException ioe) {
+        _log.error("Exception trying to commit policies", ioe);
+        try {
+          Thread.sleep(TIMEOUT);
+        } catch (InterruptedException ie) {
+          _log.error("why am i being interrupted here?", ie);
+        }
+        return false;
+      }
+    }
+
   }
 }
