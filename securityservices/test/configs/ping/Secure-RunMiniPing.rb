@@ -94,6 +94,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   do_action "StartJabberCommunications"
 
   # Uncomment the following line if working in the CSI testbed
+  do_action "SetAcmeParameters", { 'jvm_path' => '/usr/java/j2sdk1.4.2_03/bin/java' }
   do_action "SetAcmeUser" 
 
   do_action "CleanupSociety"
