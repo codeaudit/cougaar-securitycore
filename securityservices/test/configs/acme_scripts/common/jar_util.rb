@@ -59,8 +59,13 @@ if (defined? File.rm_all) == nil
   end # Dir
 end
 
-def createJar(contents_file, jar_file)
-  `jar cf #{jar_file} #{contents_file}`
+def createJar(contents_file, jar_file, jar_dir = nil)
+  if jar_dir != nil
+    arg = "-C #{jar_dir}"
+  else
+    arg = ""
+  end
+  `jar cf #{jar_file} #{arg} #{contents_file}`
   jar_file
 end
 
@@ -73,14 +78,11 @@ end
 @jar_lock = Mutex.new
 
 def createJarConfig(configName, configContents = 'config file text')
-  pwd = Dir.pwd
-  Dir.chdir("#{$CIP}/configs/security")
-  File.open(configName, "w") { |file|
+  File.open("#{$CIP}/configs/security#{configName}", "w") { |file|
     file.print(configContents)
   }
   jarName = "#{$CIP}/configs/security/#{configName}.jar"
   createJar(configName, jarName)
-  Dir.chdir(pwd)
   jarName
 end
 
@@ -101,14 +103,11 @@ COMPONENT
   File.open(javaFile, "w") { |file|
     file.print(componentContents)
   }
-  pwd = Dir.pwd
   jarDir = "/tmp/jar-#{componentName}"
-  Dir.chdir(jarDir)
   classpath = getClasspath
-  `javac -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
+  `javac -d #{jarDir} -classpath #{classpath.join(':')} -d #{dir} #{javaFile}`
   jarFile = "#{$CIP}/lib/#{componentName}.jar"
-  createJar("*", jarFile)
-  Dir.chdir(pwd)
+  createJar("*", jarFile, javaDir)
   File.rm_all(jarDir)
   return jarFile
 end
@@ -116,9 +115,7 @@ end
 def replaceFileInJar(jarFile, replacementFile)
   jarDir = "/tmp/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
-  pwd = Dir.pwd
-  Dir.chdir(jarDir)
-  files = `unzip -l #{jarFile}`.split
+  files = `jar tf #{jarFile}`.split
   baseFilename = File.basename(replacementFile)
   targetFile = nil
   files.each { |file|
@@ -128,12 +125,11 @@ def replaceFileInJar(jarFile, replacementFile)
     end
   }
   if targetFile != nil
-    `unzip -q #{jarFile} #{targetFile}`
+    `jar xf -C #{jarDir} #{jarFile} #{targetFile}`
   else
     targetFile = baseFilename
   end
   File.cp(replacementFile, targetFile)
-  `zip -qr #{jarFile} *`
-  Dir.chdir pwd
+  `jar -uMf #{jarFile} -C #{jarDir} .`
   File.rm_all(jarDir)
 end
