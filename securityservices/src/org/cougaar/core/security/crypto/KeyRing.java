@@ -1308,8 +1308,15 @@ try {
     if (cs != null) {
       certTable.put(source, cs.getCertificate());
     }
-    cs = findOrRefreshCert(target);
-    if (cs != null) {
+
+    // if source and target is the same no need to redo the whole thing
+    if (!source.equals(target)) {
+      cs = findOrRefreshCert(target);
+      if (cs != null) {
+        certTable.put(target, cs.getCertificate());
+      }
+    }
+    else {
       certTable.put(target, cs.getCertificate());
     }
 
