@@ -14,7 +14,7 @@ if !$disableKaosPolicy
   society.each_agent do |agent|
     agent.each_facet(:role) do |facet|
       if facet[:role] == $facetPolicyManagerAgent
-        enclave = agent.node.host.get_facet(:enclave)
+        enclave = agent.node.host.get_facet(:enclave).capitalize
         agent.add_component do |c|
           c.classname = "safe.policyManager.DomainManagerPlugin"
           c.add_argument("domainName=" + enclave + "Domain")
