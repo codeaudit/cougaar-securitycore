@@ -22,14 +22,14 @@
        verbosity="0" timestamp="true" prefix="webtomcat" directory="logs"/>
 
       <!-- Turn on memory realm. We will later be moving to the JNDIRealm
-      -->
+
       <Realm className="org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm" 
        connectionURL="ldaps://chump/"
        roleName="cn"
        userPassword="userPassword"
        certComponent="CN"
        debug="-1" /> 
-
+      -->
       <!-- set up the host. For cougaar there is only a single host -->
       <Host name="DEFAULT" appBase="webapps" unpackWARs="true">
 
