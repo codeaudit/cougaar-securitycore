@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/sh
 
 # This script may be used when upgrading to a new Cougaar version.
 # When Cougaar is shipped with a new database (either data or schema modification),
@@ -8,24 +8,29 @@
 #############################################
 # Configuration. You can edit those variables
 # Do not use '_' and '%' as these are wildcard characters in mysql
-set version=1020
-set db_1ad=cougaar${version}
-set db_csmart=csmart${version}
+version=1020
+db_1ad=cougaar${version}
+db_csmart=csmart${version}
 
 # Super user name and password to access the database server
-set db_superuser=root
-set db_spassword=ultralog
+db_superuser=root
+db_spassword=ultralog
 
 # Super user name and password to access the database server
-set db_user=ultralog
-set db_password=ul-password
+db_user=ultralog
+db_password=ul-password
 
 # Source location for the community files
-set community_file_attr=${CIP}/csmart/data/database/csv/community_attribute.csv
-set community_file_entity=${CIP}/csmart/data/database/csv/community_entity_attribute.csv
+#community_file_attr=${CIP}/csmart/data/database/csv/community_attribute.csv
+#community_file_entity=${CIP}/csmart/data/database/csv/community_entity_attribute.csv
+community_file_attr=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes/community_attribute.csv
+community_file_entity=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes/community_entity_attribute.csv
+
+# Source location for the security services recipes
+recipes_dir=${COUGAAR_SECURITY_SERVICES}/test/configs/recipes
 
 # Domain data file (from ZIP file)
-set db_sql_file=1ad_domain_data_dump.sql
+db_sql_file=1ad_domain_data_dump.sql
 
 #############################################
 # Script. 
@@ -37,49 +42,105 @@ echo "The following database will be removed and recreated if you continue:"
 echo "1: ${db_1ad}"
 echo "2: ${db_csmart}"
 
-echo "Press enter to continue or CTRL-C to stop the script now"
-set reply=$<
+echo -n "Do you want to continue (y/n) ?"
+read reply
+if [ ${reply} != "y" ]; then
+	exit
+fi
 
-echo "Dropping ${db_1ad}"
-mysqladmin drop ${db_1ad} -u ${db_superuser} --password=${db_spassword}
-echo "Dropping ${db_csmart}"
-mysqladmin drop ${db_csmart} -u ${db_superuser} --password=${db_spassword}
+#############################################
+# Functions used in this script
+drop_database () {
+	#echo "Dropping ${db_1ad}"
+	#mysqladmin drop ${db_1ad} -u ${db_superuser} --password=${db_spassword}
+	echo "Dropping ${db_csmart}"
+	mysqladmin drop ${db_csmart} -u ${db_superuser} --password=${db_spassword}
+}
 
-echo "Creating ${db_1ad}"
-mysqladmin create ${db_1ad} -u ${db_superuser} --password=${db_spassword}
-echo "Creating ${db_csmart}"
-mysqladmin create ${db_csmart} -u ${db_superuser} --password=${db_spassword}
+create_database () {
+	#echo "Creating ${db_1ad}"
+	#mysqladmin create ${db_1ad} -u ${db_superuser} --password=${db_spassword}
+	echo "Creating ${db_csmart}"
+	mysqladmin create ${db_csmart} -u ${db_superuser} --password=${db_spassword}
+}
 
-echo "Creating db user and setting privileges"
-echo 'GRANT ALL PRIVILEGES ON '${db_1ad}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' > /tmp/mysql.grant
-echo 'GRANT ALL PRIVILEGES ON '${db_csmart}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' >> /tmp/mysql.grant
-mysql -D mysql -u ${db_superuser} -p${db_spassword} < /tmp/mysql.grant
-#cat /tmp/mysql.grant
-#rm -f /tmp/mysql.grant
-# Reload grant table
-mysqladmin flush-privileges -u ${db_superuser} -p${db_spassword}
+user_privileges() {
+	echo "Creating db user and setting privileges"
+	#echo 'GRANT ALL PRIVILEGES ON '${db_1ad}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' > /tmp/mysql.grant
+	echo 'GRANT ALL PRIVILEGES ON '${db_csmart}'.* TO '${db_user}'@"%" IDENTIFIED BY "'${db_password}'";' >> /tmp/mysql.grant
+	mysql -D mysql -u ${db_superuser} -p${db_spassword} < /tmp/mysql.grant
+	#cat /tmp/mysql.grant
+	#rm -f /tmp/mysql.grant
+	# Reload grant table
+	mysqladmin flush-privileges -u ${db_superuser} -p${db_spassword}
 
-echo "Access privileges for user ultralog on ${db_1ad}:"
-#mysqlaccess \* ${db_user} ${db_1ad} --brief -U ${db_superuser} -P ${db_spassword}
-#mysqlaccess \* ${db_user} ${db_csmart} --brief -U ${db_superuser} -P ${db_spassword}
+	echo "Access privileges for user ultralog on ${db_1ad}:"
+	#mysqlaccess \* ${db_user} ${db_1ad} --brief -U ${db_superuser} -P ${db_spassword}
+	#mysqlaccess \* ${db_user} ${db_csmart} --brief -U ${db_superuser} -P ${db_spassword}
+}
 
-echo "Loading database"
-${CIP}/csmart/data/database/scripts/mysql/load_1ad_mysql.sh ${db_superuser} ${db_spassword} ${db_csmart}
-echo "Loading communities"
-/bin/cp -f ${community_file_attr} ${CIP}/csmart/data/database/scripts/mysql
-/bin/cp -f ${community_file_entity} ${CIP}/csmart/data/database/scripts/mysql
-# ${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_superuser} ${db_spassword} ${db_csmart}
+load_csmart_database() {
+	echo "Loading database"
+	${CIP}/csmart/data/database/scripts/mysql/load_1ad_mysql.sh ${db_superuser} ${db_spassword} ${db_csmart}
+}
 
-echo "Unzip  1AD database"
-rm -f /tmp/${db_sql_file}
-unzip -q ${CIP}/csmart/data/database/Domain-MySQL.ZIP -d /tmp
-# The ZIP file should contain the 1ad_domain_data_dump.sql file.
+load_communities() {
+	echo "Loading communities"
+	/bin/cp -f ${community_file_attr} ${CIP}/csmart/data/database/scripts/mysql
+	/bin/cp -f ${community_file_entity} ${CIP}/csmart/data/database/scripts/mysql
+	${CIP}/csmart/data/database/scripts/mysql/load_communities.sh ${db_superuser} ${db_spassword} ${db_csmart}
+}
 
-echo "Loading 1ad_domain_data_dump.sql to database"
-mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
+load_domain_database() {
+	echo "Unzip  1AD database"
+	rm -f /tmp/${db_sql_file}
+	unzip -q ${CIP}/csmart/data/database/Domain-MySQL.ZIP -d /tmp
+	# The ZIP file should contain the 1ad_domain_data_dump.sql file.
 
-# Import recipes to database
-echo "Import security services recipes to database"
-cd ${COUGAAR_SECURITY_SERVICES}/test/configs/recipes
-./recipesall.csh
-./recipesimport.csh
+	echo "Loading 1ad_domain_data_dump.sql to database"
+	#mysql -D ${db_1ad} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
+	mysql -D ${db_csmart} -p${db_spassword} -u ${db_superuser} < /tmp/${db_sql_file}
+}
+
+load_sec_recipes() {
+	# Import recipes to database
+	echo "Import security services recipes to database"
+	cd ${recipes_dir}
+	./recipesall.csh
+	./recipesimport.csh
+}
+
+#############################################
+# Main program
+
+echo
+echo "What do you want to do?"
+echo "1: Load communities from"
+echo "       ${community_file_attr}"
+echo "2: Load security recipes from"
+echo "       ${recipes_dir}"
+echo '3: Everything (drop and recreate db, set user privileges,'
+echo '       load csmart and domain database, load communities,'
+echo '       load security services recipes)'
+echo -n "Please enter your choice: "
+read reply
+
+if [ ${reply} == "1" ]; then
+	load_communities
+elif [ ${reply} == "2" ]; then
+	load_sec_recipes
+elif [ ${reply} == "3" ]; then
+	drop_database
+	create_database
+	user_privileges
+	load_csmart_database
+	load_communities
+	load_domain_database
+	load_sec_recipes
+elif [ ${reply} == "4" ]; then
+	load_domain_database
+else
+	echo "Nothing to do"
+fi
+
+
