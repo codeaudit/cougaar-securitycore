@@ -33,54 +33,60 @@ import org.cougaar.core.util.UID;
 import org.cougaar.core.domain.RootFactory;
 import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
-
+import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 public class CmrFactory
   implements Factory
 {
-  protected ClusterIdentifier selfClusterId;
-  protected UIDServer myUIDServer;
+    protected ClusterIdentifier selfClusterId;
+    protected UIDServer myUIDServer;
+    private  IdmefMessageFactory idmefmessagefactory;
 
-  /**
-   * Constructor for use by domain specific Factories
-   * extending this class
-   */
-  public CmrFactory() { }
+    /**
+     * Constructor for use by domain specific Factories
+     * extending this class
+     */
+    public CmrFactory() { }
 
-  public CmrFactory(LDMServesPlugin ldm) {
-    // Attach our factory to the M&R factory
-    RootFactory rf = ldm.getFactory();
-
-    /*
-      See org.cougaar.tools.csmart.runtime.ldm.CSMARTFactory for
-      an example of what to add here.
-      rf.addAssetFactory(
-      new org.cougaar.tools.csmart.runtime.ldm.asset.AssetFactory());
-      rf.addPropertyGroupFactory(
-      new org.cougaar.tools.csmart.runtime.ldm.asset.PropertyGroupFactory());
-    */
+    public CmrFactory(LDMServesPlugin ldm) {
+	System.out.println(" CMR factory is being initilized:");
+	// Attach our factory to the M&R factory
+	RootFactory rf = ldm.getFactory();
+	
+	/*
+	  See org.cougaar.tools.csmart.runtime.ldm.CSMARTFactory for
+	  an example of what to add here.
+	  rf.addAssetFactory(
+	  new org.cougaar.tools.csmart.runtime.ldm.asset.AssetFactory());
+	  rf.addPropertyGroupFactory(
+	  new org.cougaar.tools.csmart.runtime.ldm.asset.PropertyGroupFactory());
+	*/
     ClusterServesPlugin cspi = (ClusterServesPlugin)ldm;
     selfClusterId = cspi.getClusterIdentifier();
     myUIDServer = ((ClusterContext)ldm).getUIDServer();
+    idmefmessagefactory=new IdmefMessageFactory(ldm);
 
   }
   
-  /**
-   * @return a new <code>UID</code>
-   */
-  public UID getNextUID() {
-    return myUIDServer.nextUID();
-  }
+    /**
+     * @return a new <code>UID</code>
+     */
+    public UID getNextUID() {
+	return myUIDServer.nextUID();
+    }
 
-  public NewEvent newEvent(IDMEF_Message aMessage) {
-    return new EventImpl(getNextUID(),
+    public NewEvent newEvent(IDMEF_Message aMessage) {
+	return new EventImpl(getNextUID(),
 			 selfClusterId,
 			 aMessage);
-  }
+    }
 
-  public NewEventTransfer newEventTransfer(Event event,
+    public NewEventTransfer newEventTransfer(Event event,
 					   Asset target) {
-    return new EventTransferImpl(getNextUID(),
+	return new EventTransferImpl(getNextUID(),
 				 target,
 				 event);
-  }
+    }
+    public IdmefMessageFactory getIdmefMessageFactory(){
+	return idmefmessagefactory;
+    }
 }
