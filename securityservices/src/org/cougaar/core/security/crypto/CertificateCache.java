@@ -156,13 +156,15 @@ public class CertificateCache
 
   private ArrayList getCertificates(String distinguishedName)
   {
-    X500Name x500Name = null;
+    ArrayList list = null;
     try {
-      x500Name = new X500Name(distinguishedName);
-    } catch(Exception e) {
-      log.error("Unable to get Common Name - " + e);
+      list = (ArrayList) certsCache.get(distinguishedName);
     }
-    return getCertificates(x500Name);
+    catch (Exception e) {
+      log.warn("Unable to get list of certificates from cache for "
+	       + distinguishedName + ". Reason:" + e);
+    }
+    return list;
   }
 
   /** Return all the certificates associated with a given distinguished name */
@@ -171,15 +173,7 @@ public class CertificateCache
     if (x500Name == null) {
       throw new IllegalArgumentException("getCertificate: Argument is null");
     }
-    ArrayList list = null;
-    try {
-      list = (ArrayList) certsCache.get(x500Name);
-    }
-    catch (Exception e) {
-      log.warn("Unable to get list of certificates from cache for "
-	       + x500Name.toString() + ". Reason:" + e);
-    }
-    return list;
+    return getCertificates(x500Name.getName());
   }
 
   /** Change certificate status in the certificate cache */
@@ -216,7 +210,7 @@ public class CertificateCache
 	catch(IOException ioexp) {
 	  ioexp.printStackTrace();
 	}
-	certsCache.put((Principal)subjectname,list);
+	certsCache.put(subjectname.getName(),list);
 	log.debug("revoked status in cache:" + subjectDN);
 	break;
       }
@@ -423,7 +417,7 @@ public class CertificateCache
 		   + certEntry.getCertificateTrust());
       }
 
-      ArrayList list = (ArrayList)certsCache.get(principal);
+      ArrayList list = (ArrayList)certsCache.get(principal.getName());
       if (list == null) {
 	list = new ArrayList();
       }
@@ -431,7 +425,7 @@ public class CertificateCache
       if(log.isDebugEnabled())
 	log.debug("CertificateCache.addCertificate");
       addCertStatus(list, certEntry, null);
-      certsCache.put(principal, list);
+      certsCache.put(principal.getName(), list);
     }
   }
 
@@ -488,20 +482,14 @@ public class CertificateCache
 
   private ArrayList getPrivateKeys(String distinguishedName)
   {
-    X500Name x500Name = null;
-    try {
-      x500Name = new X500Name(distinguishedName);
-    } catch(Exception e) {
-      log.warn("Unable to get Common Name - " + e);
-    }
-    return getPrivateKeys(x500Name);
+    ArrayList list = (ArrayList) privateKeyCache.get(distinguishedName);
+    return list;
   }
 
   /** Return all the private keys associated with a given distinguished name */
   public ArrayList getPrivateKeys(X500Name x500Name)
   {
-    ArrayList list = (ArrayList) privateKeyCache.get(x500Name);
-    return list;
+    return getPrivateKeys(x500Name.getName());
   }
 
 
@@ -516,7 +504,7 @@ public class CertificateCache
     // Are there existing private keys for this principal?
     // If yes, add the new private key to the ArrayList. Otherwise, create a
     // new entry in the hash table.
-    ArrayList list = (ArrayList)privateKeyCache.get(principal);
+    ArrayList list = (ArrayList)privateKeyCache.get(principal.getName());
     if (list == null) {
       list = new ArrayList();
     }
@@ -525,7 +513,7 @@ public class CertificateCache
       log.debug("CertificateCache.addPrivateKey");
      addCertStatus(list, certEntry, privatekey);
 
-    privateKeyCache.put(principal, list);
+    privateKeyCache.put(principal.getName(), list);
   }
 
   public void printbigIntCache()
@@ -548,7 +536,7 @@ public class CertificateCache
     Enumeration e = certsCache.keys();
     log.debug("============== Certificates:");
     while (e.hasMoreElements()) {
-      X500Name name = (X500Name) e.nextElement();
+      String name = (String) e.nextElement();
       ArrayList list = (ArrayList) certsCache.get(name);
       ListIterator it = list.listIterator();
       log.debug("Certificates for: " + name);
@@ -562,7 +550,7 @@ public class CertificateCache
     e = privateKeyCache.keys();
     log.debug("============== Private keys:");
     while (e.hasMoreElements()) {
-      X500Name name = (X500Name) e.nextElement();
+      String name = (String) e.nextElement();
       ArrayList list = (ArrayList) privateKeyCache.get(name);
       ListIterator it = list.listIterator();
       log.debug("PrivateKeys for: " + name);
@@ -597,12 +585,16 @@ public class CertificateCache
       boolean buildChain, boolean changeStatus) {
     boolean isTrustedAndValid = false;
 
-    X500Name x500Name = null;
-    try {
-      x500Name = new X500Name(cs.getCertificate().getSubjectDN().getName());
-    } catch(Exception e) {
-      if (log.isWarnEnabled()) {
-	log.warn("Unable to get X500 Name - " + e);
+    // What is this for? If not important for every find then
+    // put it in operations performed during background thread
+    if (buildChain) {
+      X500Name x500Name = null;
+      try {
+        x500Name = new X500Name(cs.getCertificate().getSubjectDN().getName());
+      } catch(Exception e) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to get X500 Name - " + e);
+        }
       }
     }
 
