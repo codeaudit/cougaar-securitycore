@@ -13,7 +13,7 @@ class SecurityMop21 < AbstractSecurityMop
 
   def initialize(run)
     super(run)
-    @name = "2.1"
+    @name = "2-1"
     @descript = "Percentage of sensitive data elements in computer memory that were available to an unauthorized entity"
     @detail = []
     reset
@@ -80,12 +80,13 @@ class SecurityMop21 < AbstractSecurityMop
         end #each_agent
       end #end each node
     rescue Exception => e
-      puts "ERRR: Could not stop testBlackboardManager"
+      puts "ERROR: Could not stop testBlackboardManager"
       puts "#{e.class}: #{e.message}"
       puts e.backtrace.join("\n")
     end
     # sleep so the agents can save the results to the files
-    sleep 1.minutes
+    # (this sleep needs to occur elsewhere in parallel with other waits)
+#    sleep 1.minutes
   end
 
   def calculate
@@ -96,7 +97,7 @@ class SecurityMop21 < AbstractSecurityMop
 ####      @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
       @isCalculationDone = true
       success = false
-      if (@score == 100.0)
+      if (@score == 0.0)
 	success = true
       end
       saveResult(success, 'SecurityMop2.1', summary)
@@ -107,6 +108,23 @@ puts "error, probably in compileResults" if $VerboseDebugging
       puts "error in #{self.class.name}.calculate"
       puts "#{e.class}: #{e.message}"
       puts e.backtrace.join("\n")
+    end
+    # Remove tasks from blackboard
+    begin
+      @run.society.each_node do |node|
+        agent_count = 0
+        node.each_agent do |agent|
+          if agent_count > 1 then
+            break
+          end
+          agent_count += 1
+          url = "#{agent.uri}/testBlackboardManager?do=removeTasks&exp=#{@run.name}"
+          result = Cougaar::Communications::HTTP.get(url)
+          #puts "Remove MOP 2.1 tasks from blackboard on agent #{agent.name}"
+        end #each_agent
+      end #each_node
+    rescue Exception => e
+      puts "ERROR: Unable to remove MOP 2.1 tasks"
     end
   end
 
@@ -147,15 +165,14 @@ puts "error, probably in compileResults" if $VerboseDebugging
       @raw.push(Mop2_1.new(agent, type, successes, total))
     end # looping through files
 
-
-    @supportingData = {'malicioussuccesses'=>@malicioussuccesses, 'malicioustotal'=>@malicioustotal, 'legitsuccesses'=>@legitsuccesses, 'legittotal'=>@legitttotal}
+    @supportingData = {'malicioussuccesses'=>@malicioussuccesses, 'malicioustotal'=>@malicioustotal, 'legitsuccesses'=>@legitsuccesses, 'legittotal'=>@legittotal}
     totalruns = @legittotal + @malicioustotal
     totalsuccesses = @legitsuccesses + @malicioussuccesses
     if totalruns != 0
-      mop = 100 * (totalsuccesses.to_f / totalruns.to_f)
-      @summary = "Legitimate: #{@legitsuccesses} correct of out #{@legittotal}. Malicious: #{@malicioussuccesses} correct out of #{@malicioustotal}.  #{mop}% correct."
+      mop = 100.0 - (100 * (totalsuccesses.to_f / totalruns.to_f))
+      @summary = "Legitimate: #{@legitsuccesses} correct of out #{@legittotal}. Malicious: #{@malicioussuccesses} correct out of #{@malicioustotal}.  #{100-mop}% correct."
     else
-      mop = 100.0
+      mop = 0.0
       @summary = "There weren't any blackboard access attempts made, so 0% of the (non-existent) attempts were accessible to an unauthorized entity."
     end
     puts @summary if $VerboseDebugging
@@ -163,6 +180,9 @@ puts "error, probably in compileResults" if $VerboseDebugging
   end #compile results
 
   def scoreText
+    # the next line is for data that was stored with 'legitttotal' (3 t's).
+    @supportingData['legittotal'] = 0 unless @supportingData['legittotal']
+    @supportingData['malicioustotal'] = 0 unless @supportingData['malicioustotal']
     if @supportingData['malicioustotal'] + @supportingData['legittotal'] == 0
 #    if @summary =~ /^There weren/
       return noScore
@@ -187,7 +207,7 @@ end
 class SecurityMop22 < AbstractSecurityMop
   def initialize(run)
     super(run)
-    @name = "2.2"
+    @name = "2-2"
     @descript = "Percentage of sensitive data elements stored on disk that were available to an unauthorized entity"
   end
 
@@ -209,7 +229,7 @@ class SecurityMop22 < AbstractSecurityMop
     @isCalculationDone = true
 
     success = false
-    if (@score == 100.0)
+    if (@score == 0.0)
       success = true
     end
     saveResult(success, 'SecurityMop2.2', d.summary.join("\n"))
@@ -255,7 +275,7 @@ end
 class SecurityMop23 < AbstractSecurityMop
   def initialize(run)
     super(run)
-    @name = "2.3"
+    @name = "2-3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
 
     @scriptsdir = File.join(ENV['CIP'], "csmart", "lib", "security", "mop")
@@ -347,7 +367,6 @@ class SecurityMop23 < AbstractSecurityMop
       @supportingData = analysis.supportingData[3]
       @raw = analysis.raw[3]
       @score = analysis.scores[3]
-#self.doIrb
       saveAssertion "SecurityMop2.3", "postCalculate: #{analysis.scores[3]}\n#{info.inspect}"
       saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', @info)
     rescue Exception => e
