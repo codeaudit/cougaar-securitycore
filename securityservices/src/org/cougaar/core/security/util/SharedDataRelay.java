@@ -41,7 +41,8 @@ public class SharedDataRelay implements Relay.Source, Relay.Target {
     // UniqueObject interface
 
     public void setUID(UID uid) {
-        throw new RuntimeException("Attempt to change UID");
+//        throw new RuntimeException("Attempt to change UID");
+      this.uid = uid;
     }
 
     void setTargets(Set targets) {
