@@ -6,8 +6,6 @@ import kaos.core.util.UniqueIdentifier;
 import kaos.ontology.util.KAoSClassBuilderImpl;
 import kaos.policy.information.PolicyInformation;
 
-import safe.util.CougaarLog;
-
 import org.apache.log4j.Logger;
 
 import org.cougaar.core.security.policy.webproxy.WebProxyInstaller;
@@ -21,7 +19,6 @@ public class Main
     _proxyInstaller = new WebProxyInstaller();
     _proxyInstaller.install();
     _log = Logger.getLogger("org.cougaar.core.security.policy.builder");
-    //    kaos.core.util.Logger.setLog(new MyLog());
   }
 
   public static void main(String [] args)
