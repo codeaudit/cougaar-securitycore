@@ -186,14 +186,20 @@
     <target name="jar-configs">
         <echo message="+++++ Building configuration jar files"/>
         <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
-            basedir="${securityservices.configs}/common"
-            includes="*.xml,
-                      *.dtd,
-                      *.conf,
-                      *.ini,
-                      *.xsl,
-                      *.props,
-                      bootstrap_keystore"/>
+            basedir="${securityservices.configs}"
+            includes="common/*.xml,
+                      common/*.dtd,
+                      common/*.conf,
+                      common/*.ini,
+                      common/*.xsl,
+                      common/*.props,
+                      common/*.policy,
+                      common/bootstrap_keystore,
+                      adaptiveMnR/AMnR*.txt,
+                      adaptiveMnR/dummy*.txt"/>
+        <jar jarfile="${securityservices.classes}/log4j_config.jar" 
+            basedir="${securityservices.configs}/confnai"
+            includes="loggingConfig.conf"/>
         <echo message="+++++ Built configuration jar files"/>
     </target>
     
@@ -218,6 +224,10 @@
             storepass="keystore" verbose="false"/>
         <signjar jar="${securityservices.classes}/securityservices_config.jar" alias="privileged" 
             signedjar="${securityservices.signed}/securityservices_config.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/log4j_config.jar" alias="privileged" 
+            signedjar="${securityservices.signed}/log4j_config.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
         <echo message="+++++ Signed jar files"/>
@@ -298,16 +308,10 @@
     <target name="install-conf" depends="install-cougaarCA, install-daml">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
+        <!--
+            Do not copy files individually. Files are now stored in JAR files
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/common"/>
-        </copy>
-        <copy todir="${cougaar.install.path}/configs">
-            <fileset dir="${securityservices.configs}">
-                <patternset>
-                    <include name="small-135/*"/>
-                    <exclude name="**/CVS/**"/>
-                </patternset>
-            </fileset>
         </copy>
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/adaptiveMnR">
@@ -317,6 +321,31 @@
                 </patternset>
             </fileset>
         </copy>
+        <copy todir="${cougaar.install.path}/configs">
+            <fileset dir="${securityservices.configs}">
+                <patternset>
+                    <include name="small-135/*"/>
+                    <exclude name="**/CVS/**"/>
+                </patternset>
+            </fileset>
+        </copy>
+        -->
+        <!-- The bootstrap_keystore itself should be outside a Jar file
+             so that we can verify jar files.
+             The Java policy file must also be outside a jar file.
+        -->
+        <copy todir="${cougaar.install.path}/configs/security">
+            <fileset dir="${securityservices.configs}/common">
+                <patternset>
+                    <include name="bootstrap_keystore"/>
+                    <include name="*.policy"/>
+                </patternset>
+            </fileset>
+        </copy>
+        <copy file="${securityservices.classes}/securityservices_config.jar" 
+            todir="${cougaar.install.path}/configs/security"/>
+        <copy file="${securityservices.classes}/log4j_config.jar" 
+            todir="${cougaar.install.path}/configs/security"/>
         <copy todir="${cougaar.install.path}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
         <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
