@@ -22,7 +22,6 @@ module Cougaar
 	  @nodeInfoFile << "#{NodeInfo.header_string()}\n"
 	  @nodeInfoFile.flush
 	  getNodePids()
-	  getMemoryUsage()
 	  #@nodeInfoFile.close
         end
         
@@ -38,9 +37,12 @@ module Cougaar
 		  if (response != nil)
 		    parsePids(response.body).each { |node, pid|
 		      #saveAssertion "processInfo", "getNodePid: #{node}: #{host.name} - #{pid}"
-		      nodeInfo = NodeInfo.new(node, host, pid)
-		      getParam(nodeInfo, "-Xmx")		    
-		      @nodeInfoMap[node] = nodeInfo
+                      if !@nodeInfoMap.has_key?(node)
+		        nodeInfo = NodeInfo.new(node, host, pid)
+		        getParam(nodeInfo, "-Xmx")		    
+		        @nodeInfoMap[node] = nodeInfo
+	                getMemoryUsage(nodeInfo)
+                      end
 		    }
 		  end
 		}
@@ -74,9 +76,7 @@ module Cougaar
           return pidmap
         end
 
-        def getMemoryUsage
-          @nodeInfoMap.values.each { |nodeInfo|
-	    # use top if this value is incorrect, see printProcessInfo.rb in securityservices/test/bin
+        def getMemoryUsage(nodeInfo)
 	    # Doing the rexec takes a long time, so we launch one thread per host
 	    # to parallelize the actions.
 	    Thread.fork() {
@@ -111,7 +111,6 @@ module Cougaar
 		sleep sleep_time
               end # while
 	    }
-           }      
         end
               
         def getParam(nodeInfo, param)
@@ -175,7 +174,7 @@ module Cougaar
         end
 
         def NodeInfo.header_string
-	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\L15"
+	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
         end
        
         def to_s
