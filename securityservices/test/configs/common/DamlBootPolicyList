@@ -6,6 +6,9 @@ http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBoo
 #Temporary Policies
 http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyTempEnableServlet.info
 #
+#Temporary? Blackboard policy
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyAllowBlackboard.info
+#
 # Allow access to unrestricted servlets
 #http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUnrestServlet.sbj
 # Require a password or a certificate for restricted servlets.
