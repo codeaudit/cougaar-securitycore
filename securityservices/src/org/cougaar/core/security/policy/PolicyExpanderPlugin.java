@@ -128,22 +128,29 @@ public class PolicyExpanderPlugin
       Enumeration upuEnum = _upu.getAddedList();
       while (upuEnum.hasMoreElements()) {
 	UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
-	List policies = upu.getPolicies();
-	Iterator policyIt = policies.iterator();
-	while (policyIt.hasNext()) {
-	  PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
-	  try {
-	    expandPolicy (policyMsg);
-	  }
-	  catch (Exception xcp) {
-	    xcp.printStackTrace();
-	  }
-	}
+	expandListedPolicies(upu._addedPolicies);
+        expandListedPolicies(upu._changedPolicies);
+        expandListedPolicies(upu._removedPolicies);
 	blackboard.publishRemove (upu);
-	blackboard.publishAdd (new ProposedPolicyUpdate(upu.getUpdateType(),
-					     policies));
+	blackboard.publishAdd (new ProposedPolicyUpdate(upu._addedPolicies,
+                                                        upu._changedPolicies,
+                                                        upu._removedPolicies));
       }
     }
+
+  private void expandListedPolicies(List policies)
+  {
+    Iterator policyIt = policies.iterator();
+    while (policyIt.hasNext()) {
+      PolicyMsg policyMsg = (PolicyMsg) policyIt.next();
+      try {
+        expandPolicy (policyMsg);
+      }
+      catch (Exception xcp) {
+        xcp.printStackTrace();
+      }
+    }
+  }
 
   /**
    * This function expands a policy
