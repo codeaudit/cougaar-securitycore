@@ -8,7 +8,7 @@
   <nodeConfiguration>
     <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
-    <CA_URL role="rliao1">http://yew:8080/CAnew/servlet/certrequest</CA_URL>
+    <CA_URL role="rliao1">http://yew:8080/CA_rliao1/servlet/certrequest</CA_URL>
     <CA_URL role="srosset">http://pear:8080/CA_srosset/servlet/certrequest</CA_URL>
     <CA_URL role="isat">http://u041e:8080/CA/servlet/certrequest</CA_URL>
     <CA_keystore>keystoreNCA_CA</CA_keystore>
