@@ -431,7 +431,6 @@ class  SecurityMop2_4 < AbstractSecurityMop
           puts "error in runTests"
           puts "#{e.class}: #{e.message}"
           puts e.backtrace.join("\n")
-          exit
         end
       end # testSet.each
     end # tests.each

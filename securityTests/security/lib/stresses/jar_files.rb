@@ -22,7 +22,7 @@ class StressIdmefJar < SecurityStressFramework
   
   def postConditionalNextOPlanStage
     Thread.fork {
-      sleep 2.minutes # wait for url to be poked
+      sleep 5.minutes # wait for url to be poked
       @idmefWatcher.stop
     }
   end # postConditionalNextOPlanStage

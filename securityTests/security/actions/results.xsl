@@ -12,19 +12,24 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   </html>
 </xsl:template>
 
-<xsl:template match="securityEvents">
-    <h3>Security Planned Test Cases</h3>
+<xsl:template match="experimentTestList">
+    <h3>Missing Security Test Cases</h3>
+    This table lists security tests that were configured for this run.<br/>
+    Security Test Case Results should have been reported but were not.<br/>
+    This could be caused by a scripting error or a society error.<br/>
     <table border="1">
-    <tr bgcolor="#9acd32">
-      <th align="left">Test Case Name</th>
-    </tr>
-    <xsl:for-each select="plannedSecurityExperiments/plannedTest">
-      <tr>
-        <td><xsl:value-of select="."/></td>
+      <tr bgcolor="#9acd32">
+        <th align="left">Name</th>
       </tr>
-    </xsl:for-each>
+      <xsl:for-each select="missingTest">
+        <tr>
+          <td><xsl:value-of select="."/></td>
+        </tr>
+      </xsl:for-each>
     </table>
-    <br/>
+</xsl:template>
+
+<xsl:template match="securityEvents">
 
     <h3>Security Test Case Results</h3>
     <table border="1">
@@ -50,6 +55,19 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
       </xsl:otherwise>
       </xsl:choose>
     </tr>
+    </xsl:for-each>
+    </table>
+
+    <br/>
+    <h3>Security Planned Test Cases</h3>
+    <table border="1">
+    <tr bgcolor="#9acd32">
+      <th align="left">Test Case Name</th>
+    </tr>
+    <xsl:for-each select="plannedSecurityExperiments/plannedTest">
+      <tr>
+        <td><xsl:value-of select="."/></td>
+      </tr>
     </xsl:for-each>
     </table>
 
