@@ -71,6 +71,7 @@ public class CryptoClientPolicyHandler
   private static final String SIGALGNAME_ELEMENT   = "sigAlgName";
   private static final String KEYSIZE_ELEMENT      = "keysize";
   private static final String VALIDITY_ELEMENT     = "validity";
+  private static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
 
   public void collectPolicy(XMLReader parser,
@@ -202,6 +203,13 @@ public class CryptoClientPolicyHandler
     if (localName.equals(KEYSIZE_ELEMENT)) {
       String val = getContents();
       currentCertAttr.keysize = Integer.parseInt(val);
+    }
+    if (localName.equals(NODE_IS_SIGNER_ELEMENT)) {
+      String val = getContents();
+      currentCertAttr.nodeIsSigner = false;
+      if (val.equalsIgnoreCase("true")) {
+	currentCertAttr.nodeIsSigner = true;
+      }
     }
     if (localName.equals(VALIDITY_ELEMENT)) {
       Duration duration = new Duration();

@@ -74,6 +74,10 @@ public class CertificateAttributesPolicy {
    */
   public String sigAlgName;
 
+  /** Determines whether the node key is used to sign other keys in the node
+   */
+  public boolean nodeIsSigner;
+
   public String toString() {
     return "ou=" + ou + " - o=" + o + " - l=" + l + " - st=" + st
       + " - c=" + c + " - domain=" + domain

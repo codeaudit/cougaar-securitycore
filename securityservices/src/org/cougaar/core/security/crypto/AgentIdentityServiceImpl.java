@@ -34,8 +34,10 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
+import java.security.Principal;
 
 import java.lang.IllegalArgumentException;
+import sun.security.x509.*;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.ServiceBrokerSupport;
@@ -82,6 +84,19 @@ public class AgentIdentityServiceImpl
     throws PendingRequestException,
     IdentityDeniedException {
     keyRing.checkOrMakeCert(agentName);
+  }
+
+  public void CreateCryptographicIdentity(Principal p,
+					  RevocationCallBack clientCallBack)
+    throws PendingRequestException,
+    IdentityDeniedException {
+    try {
+      X500Name dname = new X500Name(p.getName());
+      keyRing.checkOrMakeCert(dname);
+    }
+    catch (IOException e) {
+      System.out.println("ERROR: Unable to create identity:" + e);
+    }
   }
 
   public void HoldCryptographicIdentity(String agentName) {

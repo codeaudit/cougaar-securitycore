@@ -175,27 +175,23 @@ public class DirectoryKeyStore
 	listKeyStoreAlias(caKeystore, param.caKeystorePath);
       }
 
-      if (!param.isCertAuth) {
-	// We running as part of Cougaar, this class may be used to support
-	// certificate authority services. In that cases, we need CA policy
-	role = secprop.getProperty(secprop.SECURITY_ROLE);
-	if (role == null && CryptoDebug.debug == true) {
-	  System.out.println("DirectoryKeystore warning: Role not defined");
-	}
-	try{
-	  configParser = (ConfigParserService)
-	    param.serviceBroker.getService(this,
-					   ConfigParserService.class,
-					   null);
+      try{
+	configParser = (ConfigParserService)
+	  param.serviceBroker.getService(this,
+					 ConfigParserService.class,
+					 null);
 
-	  cryptoClientPolicy = configParser.getCryptoClientPolicy();
-	} catch(Exception e) {
-	  System.out.println("Error: can't start CA client--"+e.getMessage());
-	  e.printStackTrace();
-	}
-     }
-      else {
-	// Certificate Authority
+	cryptoClientPolicy = configParser.getCryptoClientPolicy();
+      } catch(Exception e) {
+	System.out.println("Error: can't start CA client--"+e.getMessage());
+	e.printStackTrace();
+      }
+
+      // We running as part of Cougaar, this class may be used to support
+      // certificate authority services. In that cases, we need CA policy
+      role = secprop.getProperty(secprop.SECURITY_ROLE);
+      if (role == null && CryptoDebug.debug == true) {
+	System.out.println("DirectoryKeystore warning: Role not defined");
       }
 
       // Initialize certificate cache
@@ -434,14 +430,14 @@ public class DirectoryKeyStore
 
     }
     if(certs==null) {
-      System.out.println("Error !  searh for certs is null in  lookupCertInLDAP:");
+      System.out.println("Error! search for certs is null in lookupCertInLDAP:");
+      return;
     }
     else {
       if (certs.length == 0) {
 	if (CryptoDebug.debug) {
 	  System.err.println("Failed to get Certificate for " + filter);
 	}
-
       }
     }
 
@@ -516,7 +512,6 @@ public class DirectoryKeyStore
 			     + filter + " - " + certrevoked);
 	}
       }
-
     }
   }
 
@@ -1266,6 +1261,28 @@ public class DirectoryKeyStore
     return keyReply;
   }
 
+  protected synchronized PrivateKey addKeyPair(String commonName,
+					       String keyAlias)
+  {
+
+    String dn = "cn=" + commonName
+      + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
+      + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
+      + ",l=" + cryptoClientPolicy.getCertificateAttributesPolicy().l
+      + ",st=" + cryptoClientPolicy.getCertificateAttributesPolicy().st
+      + ",c=" + cryptoClientPolicy.getCertificateAttributesPolicy().c;
+    //    + "," + cryptoClientPolicy.getCertificateAttributesPolicy().domain;
+    X500Name dname = null;
+    try {
+      dname = new X500Name(dn);
+    }
+    catch (IOException e) {
+      System.out.println("Unable to add key pair for " + commonName);
+      return null;
+    }
+    return addKeyPair(dname, keyAlias);
+  }
+
   /**
    * Add a key pair to the key ring.
    * If needed, a new key pair is generated and stored in the keystore.
@@ -1288,7 +1305,7 @@ public class DirectoryKeyStore
    * @param keyAlias - the alias of the key in the keystore
    * @return - the private key of the entity
    */
-  protected synchronized PrivateKey addKeyPair(String commonName,
+  protected synchronized PrivateKey addKeyPair(X500Name dname,
 					       String keyAlias)
   {
     String request = "";
@@ -1296,10 +1313,19 @@ public class DirectoryKeyStore
 
     //is node?
     String nodeName = NodeInfo.getNodeName();
+    String commonName = null;
+    try {
+      commonName = dname.getCommonName();
+    }
+    catch (IOException e) {
+      System.out.println("Unable to add key pair:" + e);
+      return null;
+    }
 
     if (CryptoDebug.debug) {
       System.out.println("Creating key pair for "
-			 + commonName + " - Node name:" + nodeName);
+			 + dname + " - Node name:" + nodeName
+			 + " - Common Name=" + commonName);
     }
 
     if (nodeName == null && CryptoDebug.debug) {
@@ -1309,14 +1335,19 @@ public class DirectoryKeyStore
     String alias = null;
     PrivateKey privatekey = null;
     try {
-	/* */
-      if(commonName.equals(nodeName)){
-	// We are node
+      /* If the requested key is for the node, the key is self signed.
+       * If the requested key is for an agent, and the node is a signer,
+       *  then the agent key is signed by the node.
+       * If the node is not a signer, the requested key is self-signed.
+       */
+      if(commonName.equals(nodeName)
+	 || !cryptoClientPolicy.getCertificateAttributesPolicy().nodeIsSigner) {
+	// Create a self-signed key and send it to the CA.
 	if (keyAlias != null) {
 	  // Do not create key. There is already one in the keystore.
 	  alias = keyAlias;
 	  if (CryptoDebug.debug) {
-	    System.out.println("Using existing key: " + keyAlias + " for node.");
+	    System.out.println("Using existing key: " + keyAlias);
 	  }
 	  // First, go to the CA to see if the CA has already signed the key.
 	  // In that case, there is no need to send a PKCS10 request.
@@ -1326,20 +1357,25 @@ public class DirectoryKeyStore
 	  if (CryptoDebug.debug) {
 	    System.out.println("Creating key pair for node: " + nodeName);
 	  }
-	  alias = makeKeyPair(commonName);
+	  alias = makeKeyPair(dname);
 	}
 	// At this point, the key pair has been added to the keystore,
 	// but we don't have the reply from the certificate authority yet.
 	// Send the public key to the Certificate Authority (PKCS10)
-	request =
-	  generateSigningCertificateRequest((X509Certificate)
-					    keystore.getCertificate(alias),
-					    alias);
-	if (CryptoDebug.debug) {
-	  System.out.println("Sending PKCS10 request to CA");
+	if (!param.isCertAuth) {
+	  request =
+	    generateSigningCertificateRequest((X509Certificate)
+					      keystore.getCertificate(alias),
+					      alias);
+	  if (CryptoDebug.debug) {
+	    System.out.println("Sending PKCS10 request to CA");
+	  }
+	  reply = sendPKCS(request, "PKCS10");
 	}
-	reply = sendPKCS(request, "PKCS10");
-      } else {
+	else {
+	}
+      }
+      else {
         if (getNodeCert(nodeName) == null)
           return null;
 
@@ -1369,9 +1405,9 @@ public class DirectoryKeyStore
 	}
 	else {
 	  if (CryptoDebug.debug) {
-	    System.out.println("Creating key pair for agent: " + commonName);
+	    System.out.println("Creating key pair for agent: " + dname);
 	  }
-	  alias = makeKeyPair(commonName);
+	  alias = makeKeyPair(dname);
 	}
 	// Generate a pkcs10 request, then sign it with node's key
 	//String nodeAlias = findAlias(nodeName);
@@ -1380,18 +1416,18 @@ public class DirectoryKeyStore
 					    keystore.getCertificate(alias),
 					    alias);
 	// Sign PKCS10 request with node key and send agent cert to CA
-
 	reply = signPKCS(request, nodex509.getSubjectDN().getName());
       }
     } catch (Exception e) {
       if (CryptoDebug.debug) {
-	System.out.println("Unable to create key: " + commonName + " - Reason:" + e);
+	System.out.println("Unable to create key: " + dname
+			   + " - Reason:" + e);
 	e.printStackTrace();
       }
     }
 
     if (alias != null) {
-      privatekey = processPkcs7Reply(commonName, alias, reply);
+      privatekey = processPkcs7Reply(alias, reply);
     }
     return privatekey;
   }
@@ -1472,10 +1508,11 @@ public class DirectoryKeyStore
         }
         else {
           // get back the reply right away
-          return processPkcs7Reply(nodeName, nodeAlias, reply);
+          return processPkcs7Reply(nodeAlias, reply);
         }
       }
-      nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias, param.keystorePassword);
+      nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias,
+						    param.keystorePassword);
     }
     else {
 
@@ -1492,7 +1529,7 @@ public class DirectoryKeyStore
     return nodeprivatekey;
   }
 
-  private PrivateKey processPkcs7Reply(String commonName, String alias, String reply) {
+  private PrivateKey processPkcs7Reply(String alias, String reply) {
     PrivateKey privatekey = null;
     // Richard -- check whether pending
     String strStat = "status=";
@@ -1513,14 +1550,14 @@ public class DirectoryKeyStore
       if (CryptoDebug.debug) {
         Date d = new Date();
         System.err.println("Error: Certificate not yet valid for:"
-                           + commonName
+                           + alias
                            + " (" + e + ")"
                            + " Current date is " + d.toString());
         e.printStackTrace();
       }
     } catch(Exception e) {
       if (CryptoDebug.debug) {
-        System.err.println("Error: can't get certificate for " + commonName);
+        System.err.println("Error: can't get certificate for " + alias);
         e.printStackTrace();
       }
     }
@@ -1687,36 +1724,22 @@ public class DirectoryKeyStore
     return alias;
   }
 
-  public String makeKeyPair(String commonName)
+  public String makeKeyPair(X500Name dname)
     throws Exception
   {
     //generate key pair.
     if (CryptoDebug.debug) {
-      System.out.println("makeKeyPair: " + commonName);
+      System.out.println("makeKeyPair: " + dname);
     }
+    String commonName = dname.getCommonName();
 
-    /*
-    SecureRandom sr = new SecureRandom();
-    byte bytes[] = new byte[10];
-    sr.nextBytes(bytes);
-    String rdm = toHex(bytes);
-
-    String alias = commonName + "-" + rdm;
-    */
     String alias = getNextAlias(keystore, commonName);
-    String dn = "cn=" + commonName
-      + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
-      + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
-      + ",l=" + cryptoClientPolicy.getCertificateAttributesPolicy().l
-      + ",st=" + cryptoClientPolicy.getCertificateAttributesPolicy().st
-      + ",c=" + cryptoClientPolicy.getCertificateAttributesPolicy().c;
-    //    + "," + cryptoClientPolicy.getCertificateAttributesPolicy().domain;
 
     if (CryptoDebug.debug) {
-      System.out.println("Make key pair:" + alias + ":" + dn);
+      System.out.println("Make key pair:" + alias + ":" + dname.toString());
     }
-    X500Name dname = new X500Name(dn);
-    doGenKeyPair(alias, dname.getName(),
+    doGenKeyPair(alias,
+		 dname,
 		 cryptoClientPolicy.getCertificateAttributesPolicy().keyAlgName,
 		 cryptoClientPolicy.getCertificateAttributesPolicy().keysize,
 		 cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName,
@@ -1725,7 +1748,7 @@ public class DirectoryKeyStore
   }
 
   /** Generate a key pair and a self-signed certificate */
-  public void doGenKeyPair(String alias, String dname,
+  public void doGenKeyPair(String alias, X500Name dname,
 			   String keyAlgName, int keysize, String sigAlgName,
 			   long howLong)
     throws Exception
@@ -1740,18 +1763,16 @@ public class DirectoryKeyStore
 	  throw new Exception("Cannot derive signature algorithm");
     KeyCertGenerator certandkeygen = new KeyCertGenerator(keyAlgName,
 							  sigAlgName, null);
-    X500Name x500name;
-    x500name = new X500Name(dname);
     if (CryptoDebug.debug) {
       System.out.println("Generating " + keysize + " bit " + keyAlgName
 			 + " key pair and " + "self-signed certificate ("
 			 + sigAlgName + ")");
-      System.out.println("\tfor: " + x500name + " - alias:" + alias);
+      System.out.println("\tfor: " + dname + " - alias:" + alias);
     }
     certandkeygen.generate(keysize);
     PrivateKey privatekey = certandkeygen.getPrivateKey();
     X509Certificate ax509certificate[] = new X509Certificate[1];
-    ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, howLong);
+    ax509certificate[0] = certandkeygen.getSelfCertificate(dname, howLong);
     setKeyEntry(alias, privatekey, ax509certificate);
 
     // Add the certificate to the certificate cache. The key cannot be used
@@ -1765,29 +1786,49 @@ public class DirectoryKeyStore
     certCache.addCertificate(certstatus);
     certCache.addPrivateKey(privatekey, certstatus);
   }
+  
+  public void checkOrMakeCert(String commonName) {
+    String dn = "cn=" + commonName
+      + ", ou=" + cryptoClientPolicy.getCertificateAttributesPolicy().ou
+      + ",o=" + cryptoClientPolicy.getCertificateAttributesPolicy().o
+      + ",l=" + cryptoClientPolicy.getCertificateAttributesPolicy().l
+      + ",st=" + cryptoClientPolicy.getCertificateAttributesPolicy().st
+      + ",c=" + cryptoClientPolicy.getCertificateAttributesPolicy().c;
+    //    + "," + cryptoClientPolicy.getCertificateAttributesPolicy().domain;
 
-  public void checkOrMakeCert(String name) {
+    try {
+      X500Name dname = new X500Name(dn);
+      checkOrMakeCert(dname);
+    }
+    catch (IOException e) {
+      System.out.println("Unable to add key pair:" + e);
+    }
+  }
+
+  public void checkOrMakeCert(X500Name dname) {
     if (CryptoDebug.debug) {
-      System.out.println("CheckOrMakeCert: " + name);
+      System.out.println("CheckOrMakeCert: " + dname.toString());
     }
     //check first
     X509Certificate c = null;
     try{
-      c = findCert(name, LOOKUP_KEYSTORE);
+      c = findCert(dname.getCommonName(), LOOKUP_KEYSTORE);
       if(c!=null) {
 	return;
       }
     }
     catch(Exception e){
-      System.err.println("Can't locate the certificate for:"+name
+      System.err.println("Can't locate the certificate for:"
+			 + dname.toString()
 			 +"--"+e+".generating new one...");
       e.printStackTrace();
     }
     if (CryptoDebug.debug) {
-      System.out.println("checkOrMakeCert: creating key for " + name);
+      System.out.println("checkOrMakeCert: creating key for "
+			 + dname.toString());
     }
     //we'll have to make one
-    addKeyPair(name, null);
+    addKeyPair(dname, null);
   }
 
    public void setSleeptime(long sleeptime)

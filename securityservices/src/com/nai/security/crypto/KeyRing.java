@@ -324,6 +324,15 @@ final public class KeyRing
     return;
   }
 
+  public synchronized void checkOrMakeCert(X500Name dname)
+  {
+    if (keystore == null) {
+      return;
+    }
+    keystore.checkOrMakeCert(dname);
+    return;
+  }
+
   /** @param privKey        The private key to store in a PKCS#12 enveloppe
    *  @param cert           The certificate to store in a PKCS#12 enveloppe
    *  @param signerPrivKey  The private key of the signer
@@ -331,10 +340,10 @@ final public class KeyRing
    *  @param rcvrCert       The certificate of the intended receiver
    */
   public byte[] protectPrivateKey(PrivateKey privKey,
-					 Certificate cert,
-					 PrivateKey signerPrivKey,
-					 Certificate signerCert,
-					 Certificate rcvrCert)
+				  Certificate cert,
+				  PrivateKey signerPrivKey,
+				  Certificate signerCert,
+				  Certificate rcvrCert)
   {
     return pkcs12.protectPrivateKey(privKey,
 				    cert,

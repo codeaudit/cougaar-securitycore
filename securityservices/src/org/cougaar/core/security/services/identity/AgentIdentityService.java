@@ -26,6 +26,9 @@
 
 package org.cougaar.core.security.services.identity;
 
+import java.security.Principal;
+
+// Cougaar core services
 import org.cougaar.core.component.Service;
 
 public interface AgentIdentityService
@@ -73,7 +76,14 @@ public interface AgentIdentityService
   public void CreateCryptographicIdentity(String agentName,
 					  RevocationCallBack clientCallBack)
     throws PendingRequestException,
-	   IdentityDeniedException;
+    IdentityDeniedException;
+
+  /** 
+   */
+  public void CreateCryptographicIdentity(Principal p,
+					  RevocationCallBack clientCallBack)
+    throws PendingRequestException,
+    IdentityDeniedException;
 
   /**
    */

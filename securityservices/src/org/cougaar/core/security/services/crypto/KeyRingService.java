@@ -104,6 +104,7 @@ public interface KeyRingService extends Service {
    *  TODO: Remove these methods
    */
   void checkOrMakeCert(String name);
+  void checkOrMakeCert(X500Name dname);
   Vector getCRL();
   long getSleeptime();
   void setSleeptime(long sleeptime);

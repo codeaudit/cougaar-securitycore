@@ -32,7 +32,9 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
 import sun.security.x509.*;
+import javax.security.auth.x500.X500Principal;
 
+// Cougaar security services
 import com.nai.security.policy.CaPolicy;
 import com.nai.security.crypto.CertificateUtility;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
@@ -41,6 +43,7 @@ import com.nai.security.crypto.ldap.LdapEntry;
 import com.nai.security.certauthority.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.identity.*;
+import com.nai.security.util.CryptoDebug;
 
 public class CreateCaKeyServlet
   extends  HttpServlet
@@ -72,13 +75,40 @@ public class CreateCaKeyServlet
     throws ServletException,IOException
   {
     String caCN =(String)req.getParameter("CN");
-    PrintWriter out=res.getWriter();
+    String caOU =(String)req.getParameter("OU");
+    String caO  =(String)req.getParameter("O");
+    String caL  =(String)req.getParameter("L");
+    String caST =(String)req.getParameter("ST");
+    String caC  =(String)req.getParameter("C");
 
+    String caDN = "cn=" + caCN
+      + ", ou=" + caOU
+      + ", o=" + caO
+      + ", l=" + caL
+      + ", st=" + caST
+      + ", c=" + caC;
+    if (CryptoDebug.debug) {
+      System.out.println("Creating CA key for: " + caDN);
+    }
+    PrintWriter out=res.getWriter();
     try {
-      agentIdentity.CreateCryptographicIdentity(caCN, null);
+      X500Name dname = new X500Name(caDN);
+    }
+    catch (IOException e) {
+      out.println("Unable to create CA certificate: " + e);
+      e.printStackTrace(out);
+      out.flush();
+      out.close();
+      return;
+    }
+
+    X500Principal p = new X500Principal(caDN);
+    try {
+      agentIdentity.CreateCryptographicIdentity(p, null);
     }
     catch (Exception e) {
       out.println("Unable to generate CA key: " + e);
+      e.printStackTrace(out);
       out.flush();
       out.close();
       return;
