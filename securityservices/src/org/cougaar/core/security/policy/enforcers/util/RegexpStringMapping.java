@@ -53,7 +53,7 @@ public class RegexpStringMapping extends StringPairMapping
     }
   }
 
-  public String functionalGet(String key)
+  synchronized public String functionalGet(String key)
   {
     if (_log.isDebugEnabled()) {
       _log.debug("Attempting to map key " + key);
@@ -75,7 +75,7 @@ public class RegexpStringMapping extends StringPairMapping
   }
 
 
-  public List get(String key)
+  synchronized public List get(String key)
   {
     List values = new Vector();
     for (Iterator mappingIt = _regexpMapping.iterator();
