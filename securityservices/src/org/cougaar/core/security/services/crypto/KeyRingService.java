@@ -72,6 +72,14 @@ public interface KeyRingService extends Service {
   List findPrivateKey(String commonName, boolean validOnly);
   List findPrivateKey(X500Name x500name);
 
+  /**
+   * Check the the private key exists for the cert.  No  error
+   * is generated if no  private key exists
+   * @return - true = private  key exists.
+   */ 
+  boolean checkPrivateKey(final CertificateStatus cert);
+
+
   /** Get an array of certificates associated with a given entity.
    *  @param principal
    */
@@ -86,8 +94,12 @@ public interface KeyRingService extends Service {
   List findCert(X500Name dname, int lookupType, boolean validOnly);
 
 
-  Hashtable findCertPairFromNS(String source, String target) throws CertificateException, IOException;
-  Hashtable findCertStatusPairFromNS(String source, String target) throws CertificateException, IOException;
+  Hashtable findCertPairFromNS(String source, String target) 
+    throws CertificateException, IOException;
+  Hashtable findCertStatusPairFromNS(String source, 
+                                     String target,
+                                     boolean sourceNeedsPrivateKey) 
+    throws CertificateException, IOException;
   List findDNFromNS(String name) throws IOException;
 
 
