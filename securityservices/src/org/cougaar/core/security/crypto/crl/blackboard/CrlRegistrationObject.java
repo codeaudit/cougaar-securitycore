@@ -73,6 +73,23 @@ public class CrlRegistrationObject implements Serializable,Publishable {
       messageAddress.add(agentAddress);
     }
   }
+  
+  public void removeAgent(String agentAddress) throws CRLAgentRegistrationException{
+     if(agentAddress!=null) {
+      MessageAddress msgAddress=null;
+      Enumeration enum =messageAddress.elements();
+      while(enum.hasMoreElements()) {
+        msgAddress=(MessageAddress)enum.nextElement();
+        if(msgAddress.toString().equals(agentAddress)) {
+          messageAddress.remove(msgAddress);
+          break;
+        }
+      }
+     }
+     else {
+       throw new CRLAgentRegistrationException(" No  Agent are registered yet " );
+     }
+  }
 
   public void setModifiedTime(String modifiedTime){
     modifiedTimestamp=modifiedTime;
