@@ -290,6 +290,6 @@ WS	:	(	' '
 // I have been having trouble with comments - what is matchNot doing?
 COMMENT: '#' (~'\n')* '\n'
 //COMMENT: '#' ('0'..'9'|'a'..'z'|'A'..'Z'|'.'|','|'('|')'|';'|'-'|'\"'|'$'|'='|'['|']'|'{'|'}'|':'|'/'|'#'|'<'|'>'|'\''|' '|'\t')* '\n'
-		{$setType(Token.SKIP);}	//ignore this token
+		{$setType(Token.SKIP);  newline(); }	//ignore this token
     ;
 
