@@ -307,7 +307,7 @@ public class CommunityServiceUtil {
     if(_log.isDebugEnabled()){
       _log.debug("Adding Listener getCommunityWithUpdates with :"+ role + "Listener is :"+ ccl); 
     }
-    _cs.addListener(ccl);
+    //_cs.addListener(ccl);
     Collection communities = 
       _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
     
@@ -319,6 +319,7 @@ public class CommunityServiceUtil {
       Set commSet = withRole(communities, role, true);
       if (!commSet.isEmpty()) {
         listener.getResponse(commSet);
+        ws.cancel();
         return;
       }
       
@@ -967,6 +968,7 @@ public class CommunityServiceUtil {
           _log.debug(" Response in  is : "+ community);
         }
         _listener.getResponse(Collections.singleton(community));
+        _timerTask.cancel();
         return;
       }
       if (_log.isDebugEnabled()) {
@@ -1318,6 +1320,7 @@ public class CommunityServiceUtil {
         return; // not a change we care about
       }
       Community community = event.getCommunity();
+      
       if(_communityName!=null){
         if(!(community.getName().equals(_communityName))){
           if (_log.isDebugEnabled()) {
