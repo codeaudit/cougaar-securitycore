@@ -224,10 +224,10 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     RegistrationAlert registration=null;
     CapabilitiesObject capabilitiesobject=null;
     Collection  capabilities_col=completecapabilities.getCollection();
-    ArrayList list=new ArrayList(capabilities_col);
+    //ArrayList list=new ArrayList(capabilities_col);
     boolean modified=false;
 
-    if((list==null)||(list.size()==0)){
+    if(( capabilities_col==null)||( capabilities_col.size()==0)){
       if(loggingService.isDebugEnabled()) {
 	loggingService.debug("No capabilities object present in capabilities processing plugin:"+
 			     "RETURNING !"+ myAddress.toString());
@@ -235,7 +235,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       return;
     }
 
-    if(list.size()>1) {
+    if( capabilities_col.size()>1) {
       if(loggingService.isDebugEnabled()) {
 	loggingService.debug(" Error Multiple capabilities  object on blackboard"+
 			     "CapabilitiesprocessingPlugin in agent::"
@@ -245,8 +245,12 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       return;
    
     }
-		
-    capabilitiesobject=(CapabilitiesObject)list.get(firstobject);
+    Iterator iter= capabilities_col.iterator();
+    while (iter.hasNext()) {
+      capabilitiesobject=(CapabilitiesObject )iter.next();
+      break;
+    }
+    //capabilitiesobject=(CapabilitiesObject)list.get(firstobject);
     Enumeration capabilities_enum = capabilities.getAddedList();
     Collection subcol= subordinatecapabilities.getAddedCollection();
     loggingService.debug(" got collection size for sub is :"+subcol.size());
