@@ -7,10 +7,10 @@ plugin = "org.cougaar.core.security.crypto.RemotePolicyExceptionAspect"
 society.each_node do |node|
   node.add_component do |c|
     c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
-    c.priority = "INTERNAL"
+    c.priority = "COMPONENT"
     c.classname = plugin
     if defined? c.order
-      c.order = 120
+      c.order = 125
     end
   end
 end

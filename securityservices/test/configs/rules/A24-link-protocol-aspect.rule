@@ -7,7 +7,7 @@ plugin = "org.cougaar.core.security.crypto.LinkProtocolAspect"
 society.each_node do |node|
   node.add_component do |c|
       c.insertionpoint = "Node.AgentManager.Agent.MessageTransport.Aspect"
-      c.priority = "INTERNAL"
+      c.priority = "COMPONENT"
       c.classname = plugin
       c.order = 508
   end
