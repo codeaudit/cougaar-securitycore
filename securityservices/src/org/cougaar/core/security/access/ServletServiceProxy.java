@@ -140,7 +140,8 @@ class ServletServiceProxy extends SecureServiceProxy
           throw (IOException)o; 
         }
         else {
-          throw new RuntimeException("Unknown exception: " + o); 
+          throw new RuntimeException("Unhandled exception: " + o,
+				     (Exception) o); 
         }
       }
     } // end void service
