@@ -1,0 +1,20 @@
+<?xml version='1.0'?>
+<society name='MiniPing-layout' 
+  xmlns:xsi='http:/www.w3.org/2001/XMLSchema-instance' 
+  xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
+  <host name='HOST1'> 
+    <facet enclave='Conus'/> 
+    <node name='ROOT-CA-NODE'> 
+      <facet role="NameServer"/> 
+      <facet role="RootCertificateAuthority"/> 
+    </node> 
+    <node name='NodeA'> 
+      <facet role="AS-Management"/> 
+      <agent name='AgentA'> 
+        <facet org_id='OSD.GOV'/> 
+      </agent>
+      <agent name='AgentB'/> 
+    </node> 
+  </host> 
+</society>
+
