@@ -18,8 +18,8 @@ require 'framework/common_security_rules'
 
 opentag = "<QUERY-MnRMANAGER>"
 closetag = "</QUERY-MnRMANAGER>"
-mgrtag = "<MnRMANAGER_INFO mnr_id="
-attributecommunity = "community="
+mgrtag = "<MnRMANAGER_INFO mnr_id ="
+attributecommunity = " community = "
 attclostag = "/>"
 
 file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
