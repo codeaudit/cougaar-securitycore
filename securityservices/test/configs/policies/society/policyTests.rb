@@ -23,7 +23,7 @@ def irb(b)
         break
       end
       puts eval(input, b)
-    rescue => exception
+    rescue Exception => exception
       puts("#{exception} #{exception.backtrace.join("\n")}")
     end
   end

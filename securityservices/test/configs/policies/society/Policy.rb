@@ -1,13 +1,22 @@
 #!/usr/bin/ruby
 
 CIP = ENV['CIP'] 
- 
-$:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
-$:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
+
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'lib')
 
-require 'cougaar/scripting' 
+$:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
+$:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
+
+if File.exist?("#{CIP}/acme")
+  # Below is the path when using open-source ACME
+  $:.unshift File.join(CIP, 'acme', 'acme_scripting',  'src', 'lib')
+  $:.unshift File.join(CIP, 'acme', 'acme_service', 'src', 'redist')
+  require 'cougaar/scripting'
+  require 'security/actions/cleanup_society'
+else 
+  require 'cougaar/scripting'
+end
 
 require 'cougaar/communities' 
 require 'cougaar/experiment'
@@ -83,9 +92,7 @@ RULES = File.join(CIP, 'csmart','config','rules')
 #    "#{CIP}/csmart/config/rules/security/mts/http_mts.rule",
 #    "#{CIP}/csmart/config/rules/security/mts/https_mts.rule",
     "#{CIP}/csmart/config/rules/security/naming",
-#    "#{CIP}/csmart/config/rules/security/test/test-network-config.rule",
-    "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule",
-    "#{CIP}/csmart/config/rules/robustness/debug_rules/incarnation.rule"
+    "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
 
   do_action "TransformSociety", false,
     "#{CIP}/csmart/config/rules/security/communities"
