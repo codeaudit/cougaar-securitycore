@@ -34,9 +34,6 @@ Cougaar::Model::Society.new('ACME-PING-SOCIETY') do |society|
       node.add_agent('AgentB') do |agent|
         agent.classname='org.cougaar.core.agent.SimpleAgent'
       end
-      node.add_agent('AgentC') do |agent|
-        agent.classname='org.cougaar.core.agent.SimpleAgent'
-      end
     end
   end
 end
