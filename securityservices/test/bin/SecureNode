@@ -69,8 +69,39 @@ endif
 set MYDOMAINS=""
 set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0"
 
+# ########################################################
+# DEBUG properties
+
 # Debug property for the monitoring & response service
 set MYPROPERTIES="$MYPROPERTIES -Dcom.nai.security.monitoringdebug=true"
+
+# The java.security.debug property can be used to debug the
+# Security Manager.
+# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
+#set MYPROPERTIES="$MYPROPERTIES -Djava.security.debug=all"
+
+# Used to show bootstrapper debugging information
+# In particular, it will show information about the JAR file signature
+# verification process.
+# Acceptable values: true, shout, false
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
+
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
+
+# Enable Jaas trace debugging
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.jaasDebug=true"
+
+# Print crypto-related debug information about the security aspect
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
+
+# Print transport-related debug information about the security aspect
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
+
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
+
+# END DEBUG properties
+# ########################################################
 
 if ( "$useBootstrapper" == "true") then
         # The following property defines the keystore filename. It is used by
@@ -104,25 +135,10 @@ if ( "$useBootstrapper" == "true") then
 
 	# The following property can be set to false to disable the security Manager
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useSecurityManager=true"
-
-	# The java.security.debug property can be used to debug the
-	# Security Manager.
-	# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
-	#set MYPROPERTIES="$MYPROPERTIES -Djava.security.debug=all"
-
-	# Used to show bootstrapper debugging information
-	# In particular, it will show information about the JAR file signature
-	# verification process.
-	# Acceptable values: true, shout, false
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
 	
 	# This property specifies whether to use the authenticated class loader or
 	# the legacy class loader.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=true"
-
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
-
 else
 	#
 	# No bootstrapper
@@ -134,9 +150,6 @@ else
 	# the legacy class loader. Use legacy class loader
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=false"
 
-        #see debugging info for the bootstrapper
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=shout"
-
         #this property has to be set so that Node.launch() rather than Bootstrapper.launch() is used to launch the society
 	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.useBootstrapper=false"
 endif
@@ -144,20 +157,13 @@ endif
 if ( "$useJaas" == "true") then
 	# Enable/disable use of component execution using multiple subjects.
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useJaas=true"
-	# Enable Jaas trace debugging
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.jaasDebug=true"
 endif
 if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.CryptoAspect,com.nai.security.access.AccessControlAspect"
-	# Print transport-related debug information about the security aspect
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 
 	# Name of configuration file for cryptographic service provider
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
-
-	# Print crypto-related debug information about the security aspect
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 
 	# Role to take when making LDAP requests
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
@@ -176,7 +182,6 @@ endif
 
 if ( "$usePersistence" == "true") then
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.enable=true"
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.lazy=false"
 endif
 
