@@ -96,21 +96,25 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}*" {
 // Tomcat 4.0 requires these permissions and therefore we must grant
 // them to all classes in the call chain.
 
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar", signedBy "privileged"  {
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webserver.jar" signedBy "privileged"  {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 };
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" , signedBy "privileged" {
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}webtomcat.jar" signedBy "privileged" {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 };
-grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar", signedBy "privileged"  {
+grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar" signedBy "privileged"  {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 };
-grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar", signedBy "privileged" {
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.util.PropertyPermission "java.protocol.handler.pkgs", "read,write";
 };
 
 ////////////////////////////////////////////////////////////
