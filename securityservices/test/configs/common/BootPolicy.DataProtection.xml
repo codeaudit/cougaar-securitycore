@@ -19,7 +19,7 @@
 		
 		<!-- one of: plain, encrypt, sign, signAndEncrypt -->
 		<SecureMethod>signAndEncrypt</SecureMethod>
-		<SymmetricAlgorithm>AES</SymmetricAlgorithm>
+		<SymmetricAlgorithm>AES#128</SymmetricAlgorithm>
     		<AsymmetricAlgorithm>RSA</AsymmetricAlgorithm>
     		<SigningAlgorithm>MD2withRSA</SigningAlgorithm>
                 
