@@ -73,7 +73,6 @@ public class AccessAgentProxy
   private MessageAddress myID = null;
   private AccessControlPolicyService acps;
   private Set nodeList = null;
-  private Set agentList = null;
   private TopologyReaderService toporead = null;
   
   public AccessAgentProxy (MessageTransportService mymts,
@@ -101,11 +100,27 @@ public class AccessAgentProxy
     toporead = (TopologyReaderService) 
       sb.getService(this, TopologyReaderService.class, null);
     
-    nodeList = toporead.getAll(TopologyReaderService.NODE);
-    agentList = toporead.getAll(TopologyReaderService.AGENT);
+    if(toporead!=null) {
+      Thread t = new updateNodeList();
+      t.run();
+    }
     
     if(log.isDebugEnabled()) {
       log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
+    }
+  }
+  
+  private class updateNodeList extends Thread{
+    public void run(){
+      nodeList = toporead.getAll(TopologyReaderService.NODE); 
+      if(log.isDebugEnabled()) {
+        log.debug("updated NodeList, now contains: " 
+            + nodeList.size() + " nodes.");
+      }
+      try{
+        sleep(30000);
+      }catch(InterruptedException e){
+      }
     }
   }
   
@@ -115,7 +130,7 @@ public class AccessAgentProxy
       eventPublisher = publisher;
     }
   }
-  
+/*  
   private boolean checkNodeAgent(String name, boolean recheck){
     if(nodeList.contains(name)){
       //is NodeAgent
@@ -128,6 +143,8 @@ public class AccessAgentProxy
     return false;
  
   }
+ */
+
   /* ********************************************************
    *  BEGIN MessageTransportService implementation
    */
@@ -162,7 +179,7 @@ public class AccessAgentProxy
        *is addressed remember to take this out.
        */
       String target = message.getTarget().toString();
-      if(checkNodeAgent(target, true)){
+      if(nodeList.contains(target)){
         //isNode agent, no wrapping with trust
         mts.sendMessage(message);
         if(log.isDebugEnabled()){
