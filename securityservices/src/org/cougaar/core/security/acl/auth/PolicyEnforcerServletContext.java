@@ -23,6 +23,10 @@
 
 package org.cougaar.core.security.acl.auth;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 
@@ -49,26 +53,26 @@ public class PolicyEnforcerServletContext
   
   /*
   public void addConstraint(SecurityConstraint sc) {
-    System.out.println("Adding Security Constraint: ");
-    System.out.println("  AllRoles:       " + sc.getAllRoles());
-    System.out.println("  AuthConstraint: " + sc.getAuthConstraint());
-    System.out.println("  DisplayName:    " + sc.getDisplayName());
-    System.out.println("  UserConstraint: " + sc.getUserConstraint());
+    log.debug("Adding Security Constraint: ");
+    log.debug("  AllRoles:       " + sc.getAllRoles());
+    log.debug("  AuthConstraint: " + sc.getAuthConstraint());
+    log.debug("  DisplayName:    " + sc.getDisplayName());
+    log.debug("  UserConstraint: " + sc.getUserConstraint());
     String roles[] = sc.findAuthRoles();
     for (int j = 0 ; j < roles.length; j++) {
-      System.out.println("  Role:           " + roles[j]);
+      log.debug("  Role:           " + roles[j]);
     }
     SecurityCollection scn[] = sc.findCollections();
     for (int j = 0 ; j < scn.length; j++) {
-      System.out.println("  SecurityCollection: ");
-      System.out.println("    Name:         " + scn[j].getName());
+      log.debug("  SecurityCollection: ");
+      log.debug("    Name:         " + scn[j].getName());
       String[] methods = scn[j].findMethods();
       for (int k = 0; k < methods.length; k++) {
-        System.out.println("    Method:       " + methods[k]);
+        log.debug("    Method:       " + methods[k]);
       }
       String[] patterns = scn[j].findPatterns();
       for (int k = 0; k < patterns.length; k++) {
-        System.out.println("    Pattern:      " + patterns[k]);
+        log.debug("    Pattern:      " + patterns[k]);
       }
     }
     super.addConstraint(sc);

@@ -53,6 +53,7 @@ import org.cougaar.core.component.*;
 public class UserAuthenticatorImpl extends UserAuthenticator {
   protected Vector selectedHandlers = new Vector();
   protected String username = null;
+  ServiceBroker serviceBroker;
 
   public UserAuthenticatorImpl(String username) {
     this.username = username;
@@ -63,7 +64,7 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
    */
   public void init(SecurityServiceProvider secProvider) {
     if (secProvider != null) {
-      ServiceBroker serviceBroker = secProvider.getServiceBroker();
+      serviceBroker = secProvider.getServiceBroker();
       KeyRingService keyRing = (KeyRingService)
                                         secProvider.getService(serviceBroker,
                                                        this,
@@ -83,7 +84,8 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
     BasicAuthHandler passhandler = new BasicAuthHandler();
     registerHandler(passhandler);
     // handler for password authentication needs
-    UserPasswordAuthenticator pa = new UserPasswordAuthenticator();
+    UserPasswordAuthenticator pa =
+      new UserPasswordAuthenticator(serviceBroker);
     pa.setAuthHandler(passhandler);
   }
 

@@ -40,6 +40,9 @@ import java.lang.IllegalArgumentException;
 
 // Cougaar core infrastructure
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -53,11 +56,18 @@ import org.cougaar.core.service.identity.TransferableIdentity;
 public class KeyWrapping
 {
   private EncryptionService encryptionService;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public KeyWrapping()
+  public KeyWrapping(ServiceBroker sb)
   {
     // TODO: use service broker
     encryptionService = null;
+
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
   }
 
   /** @param privKey        The private keys to wrap
@@ -72,8 +82,8 @@ public class KeyWrapping
 						X509Certificate signerCert,
 						X509Certificate rcvrCert)
   {
-    if (CryptoDebug.debug) {
-      System.out.println("Wrapping keys");
+    if (log.isDebugEnabled()) {
+      log.debug("Wrapping keys");
     }
 
     KeyIdentity keyIdentity = null;

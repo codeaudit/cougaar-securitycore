@@ -29,6 +29,8 @@ package org.cougaar.core.security.provider;
 import java.lang.reflect.*;
 
 // Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.*;
 import org.cougaar.core.agent.*;
 import org.cougaar.core.mts.*;
@@ -40,12 +42,13 @@ public final class SecurityComponentFactory
 {
   protected BindingSite bindingSite = null;
   private Object param = null;
+  private LoggingService log;
 
   public SecurityComponentFactory() {
   }
 
   public void setParameter(Object o) {
-    System.out.println("Parameter: " + o.getClass().getName());
+    log.debug("Parameter: " + o.getClass().getName());
     param = o;
   }
 
@@ -56,6 +59,9 @@ public final class SecurityComponentFactory
   public void load() {
     super.load();
     final ServiceBroker sb = bindingSite.getServiceBroker();
+    log = (LoggingService)
+      sb.getService(this,
+		    LoggingService.class, null);
     SecurityServiceProvider ssp =
       new SecurityServiceProvider(sb);
   }

@@ -42,7 +42,8 @@ public class DummyEnforcer extends SimplePlugin {
   public DummyEnforcer() {
     super();		// SimplePlugin constructor...
     gr = new DummyGuardRegistration("org.cougaar.core.security.policy.CryptoPolicy",
-				    "DummyEnforcer");
+				    "DummyEnforcer",
+				    getBindingSite().getServiceBroker());
   }
 
   public void setupSubscriptions()

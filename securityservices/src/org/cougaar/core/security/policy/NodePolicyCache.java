@@ -25,8 +25,13 @@
  */
 package org.cougaar.core.security.policy;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
+
+// Kaos policy management
 import kaos.core.util.Msg;
 import safe.enforcer.NodeEnforcer;
+
 /**
  * A cache for storing node policies. 
  */
@@ -39,8 +44,8 @@ public class NodePolicyCache extends PolicyCache implements NodeEnforcer
    * @param type fully-qualified class name of Policy subsclass to receive
    * @param name the name of the node for policy to receive
    */
-  public NodePolicyCache(String type, String name) 
+  public NodePolicyCache(String type, String name, ServiceBroker sb) 
   {
-      super(type, name);
+      super(type, name, sb);
   }
 }

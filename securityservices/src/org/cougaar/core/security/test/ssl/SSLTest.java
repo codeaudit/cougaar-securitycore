@@ -37,8 +37,8 @@ import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.component.*;
 
 public class SSLTest {
-  SSLServiceImpl sslservice;
-  SecurityServiceProvider secProvider;
+  private SSLServiceImpl sslservice;
+  private SecurityServiceProvider secProvider;
 
   public static void main(String[] args) {
 
@@ -89,7 +89,7 @@ public class SSLTest {
                                         secProvider.getService(serviceBroker,
                                                        this,
                                                        KeyRingService.class);
-      sslservice = new SSLServiceImpl();
+      sslservice = new SSLServiceImpl(serviceBroker);
       sslservice.init(keyRing);
 
       System.out.println("=====> Successfully created SSLService.");

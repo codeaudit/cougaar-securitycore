@@ -31,7 +31,10 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Iterator;
 
-// Cougaar
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.planning.ldm.plan.Verb;
 
@@ -51,6 +54,8 @@ public class AccessControlPolicyServiceImpl
 {
   private KeyRingService keyRing = null;
   private SecurityPropertiesService secprop = null;
+  private LoggingService log;
+  private ServiceBroker serviceBroker;
 
   //named proxies
   HashSet proxies = new HashSet();
@@ -80,13 +85,26 @@ public class AccessControlPolicyServiceImpl
   protected boolean dbg = false;
 
     /** Creates new AccessControlPolicyServiceImpl */
-  public AccessControlPolicyServiceImpl(KeyRingService kr,
-					SecurityPropertiesService spr) {
-    keyRing = kr;
-    secprop = spr;
+  public AccessControlPolicyServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+    // Get keyring service
+    keyRing = (KeyRingService)
+      serviceBroker.getService(this,
+		    KeyRingService.class,
+		    null);
+
+    // Get Security Properties service
+    secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this,
+		    SecurityPropertiesService.class,
+		    null);
+
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
 
     //setup for default policy
-    AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT");
+    AccessPolicyProxy app = new AccessPolicyProxy("DEFAULT", serviceBroker);
     if(app!=null){
       pp.add(app);
     }
@@ -99,19 +117,19 @@ public class AccessControlPolicyServiceImpl
   private void checkOrMakeProxy(String agent){
     if(proxies.contains(agent)) return;
 
-    AccessPolicyProxy app = new AccessPolicyProxy(agent);
+    AccessPolicyProxy app = new AccessPolicyProxy(agent, serviceBroker);
 
     if(app!=null){
       pp.add(app);
       proxies.add(agent);
       if(dbg) {
-	System.out.println("Making proxy for agent " + agent);
+	log.debug("Making proxy for agent " + agent);
       }
     }
 
     // If we need to add proxy, there is a good chance we need
     // a new certificate too so check for it.
-    if(dbg) System.out.println("checking certs for agent " + agent);
+    if(dbg) log.debug("checking certs for agent " + agent);
     keyRing.checkOrMakeCert(agent);
 
     return;
@@ -136,7 +154,7 @@ public class AccessControlPolicyServiceImpl
       return null;
     }
     if(dbg) {
-      System.out.println("Msg IN:" + source + "->" + target
+      log.debug("Msg IN:" + source + "->" + target
 			 + ". Criticality:" + obj);
     }
 
@@ -151,7 +169,7 @@ public class AccessControlPolicyServiceImpl
     if(obj==null) return ts;
 
     if(dbg) {
-      System.out.println("Msg IN:" + source + "->" + target
+      log.debug("Msg IN:" + source + "->" + target
 			 +". Integrity:"+obj);
     }
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
@@ -169,7 +187,7 @@ public class AccessControlPolicyServiceImpl
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return null;
     if(dbg) {
-      System.out.println("Msg OUT:" + source + "->" + target
+      log.debug("Msg OUT:" + source + "->" + target
 			 + ". Criticality:"+obj);
     }
 
@@ -183,7 +201,7 @@ public class AccessControlPolicyServiceImpl
     if(obj==null) obj = h.get(":DEFAULT");
     if(obj==null) return ts;
     if(dbg) {
-      System.out.println("Msg OUT:" + source + "->" + target
+      log.debug("Msg OUT:" + source + "->" + target
 			 + ". Integrity:" + obj);
     }
     ts.addAttribute(new TrustAttribute(IntegrityAttribute.name, obj));
@@ -198,7 +216,7 @@ public class AccessControlPolicyServiceImpl
     if(h==null) return null;
     String r = (String)h.get("Criticality"+level+":");
     if(dbg) {
-      System.out.println("Msg IN: ->" + target 
+      log.debug("Msg IN: ->" + target 
 			 +". Action:" + r + " for level " + level);
     }
     return r;
@@ -213,7 +231,7 @@ public class AccessControlPolicyServiceImpl
     if(dbg) {
       String s = "Msg OUT:" + source + "-> . Action:" +
 	(r == null ? "No policy" : r) + " for level " + level;
-      System.out.println(s);
+      log.debug(s);
     }
     return r;
   }
@@ -225,7 +243,7 @@ public class AccessControlPolicyServiceImpl
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
       if(dbg) {
-	System.out.println("Msg IN: " + source + "->" + target
+	log.debug("Msg IN: " + source + "->" + target
 			   + "No AgentAction");
       }
       return null;
@@ -235,7 +253,7 @@ public class AccessControlPolicyServiceImpl
       r = (String)h.get("In:DEFAULT");
     }
     if(dbg) {
-      System.out.println("Msg IN:" + source + "->" + target +
+      log.debug("Msg IN:" + source + "->" + target +
 			 ". Agent action:" + r);
     }
     return r;
@@ -248,7 +266,7 @@ public class AccessControlPolicyServiceImpl
     HashMap h = (HashMap)agentActions.get(source);
     if(h == null)h = (HashMap)agentActions.get("DEFAULT");
     if(h == null) {
-      if(dbg)System.out.println("Msg OUT: " + source + "->" + target
+      if(dbg)log.debug("Msg OUT: " + source + "->" + target
 				+ "No AgentAction");
       return null;
     }
@@ -257,7 +275,7 @@ public class AccessControlPolicyServiceImpl
       r = (String)h.get("Out:DEFAULT");
     }
     if(dbg) {
-      System.out.println("Msg OUT: " + source + "->" + target
+      log.debug("Msg OUT: " + source + "->" + target
 			 +". Outgoing agent action:" + r);
     }
     return r;
@@ -273,7 +291,7 @@ public class AccessControlPolicyServiceImpl
 	h = (HashMap)verbs.get("DEFAULT");
       }
       if(h == null) {
-	if(dbg)System.out.println("Msg IN: " + source + "->" + target
+	if(dbg)log.debug("Msg IN: " + source + "->" + target
 				  + ". No verb");
 	return null;
       }
@@ -286,13 +304,13 @@ public class AccessControlPolicyServiceImpl
 			 + ". Verbs:");
 	for(int i = 0; i < r.size(); i++)
 	  System.out.print(r.get(i).toString() + " ");
-	System.out.println("");
+	log.debug("");
       }
       return r.toArray();
     }
     catch(Exception ex) {
       if(dbg){
-	System.out.println("Warning: bad verb list!");
+	log.debug("Warning: bad verb list!");
 	ex.printStackTrace();
       }
     }
@@ -304,7 +322,7 @@ public class AccessControlPolicyServiceImpl
     HashMap h = (HashMap)verbs.get(source);
     if(h == null)h = (HashMap)verbs.get("DEFAULT");
     if(h == null) {
-      if(dbg)System.out.println("Msg OUT: " + source + "->" + target
+      if(dbg)log.debug("Msg OUT: " + source + "->" + target
 				+ ". No verb");
       return null;
     }
@@ -314,7 +332,7 @@ public class AccessControlPolicyServiceImpl
       System.out.print("Msg OUT: " + source + "->" + target + ". Verbs:");
       while(keys.hasNext())
 	System.out.print(" " + keys.next().toString());
-      System.out.println("");
+      log.debug("");
     }
     Vector r = (Vector)h.get("Out:" + target);
     if(r == null) {
@@ -326,14 +344,14 @@ public class AccessControlPolicyServiceImpl
       for(int i = 0; i < r.size(); i++)
 	System.out.print(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
-      System.out.println("");
+      log.debug("");
     }
     Verb[] verbs = new Verb[0];
     try {
       return (Verb[])r.toArray(verbs);
     }
     catch(Exception ex) {
-      System.out.println("Warning: bad verb array:" + ex);
+      log.debug("Warning: bad verb array:" + ex);
     }
     return verbs;
   }
@@ -355,11 +373,12 @@ public class AccessControlPolicyServiceImpl
   {
     private String agent;
     //private boolean debug=this.debug;
-    public AccessPolicyProxy(String name) {
+    public AccessPolicyProxy(String name, ServiceBroker sb) {
       super("org.cougaar.core.security.policy.AccessControlPolicy",
-	    "AccessControlPolicyService");
+	    "AccessControlPolicyService",
+	    sb);
       agent = name;
-      if(debug) System.out.println("--adding AccessPolicyProxy for:"+ agent);
+      if(debug) log.debug("--adding AccessPolicyProxy for:"+ agent);
       try {
 	registerEnforcer();
       }
@@ -378,12 +397,12 @@ public class AccessControlPolicyServiceImpl
 				     String policyTargetID,
 				     String policyTargetName,
 				     String policyType) {
-      if(debug) System.out.println("--updating AccessPolicyProxy for:"
+      if(debug) log.debug("--updating AccessPolicyProxy for:"
 				   + agent);
 
       if(policy == null) {
 	if (debug) {
-	  System.out.println("AccessPolicyProxy: no policy");
+	  log.debug("AccessPolicyProxy: no policy");
 	}
 	return;
       }
@@ -391,7 +410,7 @@ public class AccessControlPolicyServiceImpl
       /*
       if((!policySubjectName.equals(agent)) && (!agent.equals("DEFAULT"))) {
 	if (debug) {
-	  System.out.println("policy not for:"+agent
+	  log.debug("policy not for:"+agent
 			     + " - Should be for " + policySubjectName);
 	}
 	return;
@@ -414,7 +433,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" ) {
 		if(debug)
-		  System.out.println("--default out verbs specified for:"
+		  log.debug("--default out verbs specified for:"
 				     + agent);
 		updateVerb("Out:DEFAULT",value);
 	      }
@@ -427,7 +446,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" ) {
 		if(debug) {
-		  System.out.println("--default agentAction specified for:"
+		  log.debug("--default agentAction specified for:"
 				     + agent);
 		}
 		updateVerb("In:DEFAULT", value);
@@ -441,7 +460,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" ) {
 		if(debug) {
-		  System.out.println("--default agentAction specified for:"
+		  log.debug("--default agentAction specified for:"
 				     + agent);
 		}
 		updateAgentAction("Out:DEFAULT",value);
@@ -455,7 +474,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" ) {
 		if(debug) {
-		  System.out.println("--default agentAction specified for:"
+		  log.debug("--default agentAction specified for:"
 				     + agent);
 		}
 		updateAgentAction("In:DEFAULT", value);
@@ -470,7 +489,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Outgoing")) {
 	      if(value!=null && value !="" )
 		if(debug) {
-		  System.out.println("--default messageAction specified for:"
+		  log.debug("--default messageAction specified for:"
 				     + agent);
 		}
 	      for(int i = 0; i < entry.length; i++) {
@@ -480,7 +499,7 @@ public class AccessControlPolicyServiceImpl
 	    if(name.startsWith("Incoming")) {
 	      if(value!=null && value !="" )
 		if(debug) {
-		  System.out.println("--default messageAction specified for:"
+		  log.debug("--default messageAction specified for:"
 				     + agent);
 		}
 	      for(int i = 0; i < entry.length; i++) {
@@ -548,13 +567,13 @@ public class AccessControlPolicyServiceImpl
       }
       catch(Exception ex) {
 	if(debug) {
-	  System.out.println("ACPS: Bad verbs for agent " + target);
+	  log.debug("ACPS: Bad verbs for agent " + target);
 	  ex.printStackTrace();
-	  System.out.println("ACPS: Bad verbs for agent " + target);
+	  log.debug("ACPS: Bad verbs for agent " + target);
 	}
       }
       h.put(target, verbs);
-      if(debug)System.out.println("updateAgentAction(" + target + ","
+      if(debug)log.debug("updateAgentAction(" + target + ","
 				  + verbList + ")");
     }
 
@@ -565,7 +584,7 @@ public class AccessControlPolicyServiceImpl
 	agentActions.put(agent, h);
       }
       h.put(target, action);
-      if(debug)System.out.println("updateAgentAction(" + target + ","
+      if(debug)log.debug("updateAgentAction(" + target + ","
 				  + action + ")");
     }
 
@@ -580,7 +599,7 @@ public class AccessControlPolicyServiceImpl
 	h.put(key,value);
 	actions.put(agent,h);
       }
-      if(debug)System.out.println("updateAction(" + key + "," + value + ")");
+      if(debug)log.debug("updateAction(" + key + "," + value + ")");
     }
 
     private void updateCriticality(String key, Object value){

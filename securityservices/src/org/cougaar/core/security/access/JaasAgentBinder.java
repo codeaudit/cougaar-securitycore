@@ -22,6 +22,10 @@
 
 package org.cougaar.core.security.access;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.component.BinderWrapper;
 import org.cougaar.core.component.BinderFactory;
 import org.cougaar.core.component.BindingSite;
@@ -38,12 +42,20 @@ import org.cougaar.core.security.securebootstrap.JaasClient;
  *
  */
 
-public class JaasAgentBinder extends BinderWrapper implements AgentManagerForBinder{
+public class JaasAgentBinder
+  extends BinderWrapper
+  implements AgentManagerForBinder
+{
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-    /** Creates new JassAgentBinder */
-    public JaasAgentBinder(BinderFactory bf, Object child) {
-        super(bf,child);
-    }
+  /** Creates new JassAgentBinder */
+  public JaasAgentBinder(BinderFactory bf, Object child) {
+    super(bf,child);
+    log = (LoggingService)
+      getServiceBroker().getService(this,
+				    LoggingService.class, null);
+  }
     //child binder
     protected final AgentBinder getAgentBinder() { 
         return (AgentBinder)getChildBinder(); 
@@ -60,7 +72,7 @@ public class JaasAgentBinder extends BinderWrapper implements AgentManagerForBin
     public String getName() {return getAgentManager().getName(); }
 /*    
     public void initialize() {
-        System.out.println("#####test:"+getAgentBinder().toString());
+        log.debug("#####test:"+getAgentBinder().toString());
         super.initialize();
     }
 */
@@ -78,7 +90,7 @@ public class JaasAgentBinder extends BinderWrapper implements AgentManagerForBin
         jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  System.out.println("Agent manager is loading: "
+                  log.debug("Agent manager is loading: "
                                      + getAgentName()
                                      + " security context is:");
                   JaasClient.printPrincipals();
@@ -94,7 +106,7 @@ public class JaasAgentBinder extends BinderWrapper implements AgentManagerForBin
         jc.doAs(getAgentName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  System.out.println("Agent manager is starting: "
+                  log.debug("Agent manager is starting: "
                                      + getAgentName()
                                      + " security context is:");
                   JaasClient.printPrincipals();

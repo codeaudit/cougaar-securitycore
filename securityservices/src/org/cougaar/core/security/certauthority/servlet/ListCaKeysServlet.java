@@ -34,6 +34,10 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 import javax.security.auth.x500.X500Principal;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.*;
@@ -52,6 +56,7 @@ public class ListCaKeysServlet
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
+  private LoggingService log;
 
   protected boolean debug = false;
 
@@ -59,6 +64,9 @@ public class ListCaKeysServlet
 
   public ListCaKeysServlet(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+      support.getServiceBroker().getService(this,
+					    LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -103,7 +111,7 @@ public class ListCaKeysServlet
       while (it.hasNext()) {
 	X509Certificate c = ((CertificateStatus)it.next()).getCertificate();
 
-	System.out.println("alias=" + a + " - cn=" + cn);
+	log.debug("alias=" + a + " - cn=" + cn);
 	if (c != null) {
 	  out.println("<TR>");
 	  out.println("<TD>" + c.getSubjectDN().getName() +"</TD>\n" );

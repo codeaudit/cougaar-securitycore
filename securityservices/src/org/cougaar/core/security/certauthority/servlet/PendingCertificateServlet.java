@@ -33,6 +33,10 @@ import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
@@ -46,6 +50,7 @@ public class PendingCertificateServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
+  private LoggingService log;
 
   private X500Name[] caDNs = null;
   //private String[] roles = null;
@@ -57,6 +62,9 @@ public class PendingCertificateServlet extends  HttpServlet
   private SecurityServletSupport support;
   public PendingCertificateServlet(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+      support.getServiceBroker().getService(this,
+			       LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -83,7 +91,7 @@ public class PendingCertificateServlet extends  HttpServlet
     cadnname =(String)req.getParameter("cadnname");
     //role =(String)req.getParameter("role");
     if (debug) {
-      System.out.println(cadnname);
+      log.debug(cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -94,10 +102,12 @@ public class PendingCertificateServlet extends  HttpServlet
 
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
-      nodeConfiguration = new NodeConfiguration(cadnname);
+      nodeConfiguration = new NodeConfiguration(cadnname,
+						support.getServiceBroker());
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
+				       caPolicy.ldapType, caPolicy.ldapURL,
+				       support.getServiceBroker());
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -129,7 +139,7 @@ public class PendingCertificateServlet extends  HttpServlet
     if (role == "")
       role = null;
     if (debug) {
-      System.out.println("calling create table will role:" + role);
+      log.debug("calling create table will role:" + role);
     }
     */
 

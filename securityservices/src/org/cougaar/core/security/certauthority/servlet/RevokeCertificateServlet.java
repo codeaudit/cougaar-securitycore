@@ -35,7 +35,9 @@ import sun.security.x509.*;
 
 import java.security.PrivateKey;
 
-// Cougaar core infrastructure
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateUtility;
@@ -57,10 +59,16 @@ public class RevokeCertificateServlet
 
   javax.servlet.ServletContext context=null;
   protected boolean debug = false;
+  private LoggingService log;
 
   private SecurityServletSupport support;
   public RevokeCertificateServlet(SecurityServletSupport support) {
     this.support = support;
+
+    this.log = (LoggingService)
+      support.getServiceBroker().getService(this,
+			       LoggingService.class, null);
+
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -72,7 +80,7 @@ public class RevokeCertificateServlet
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
     if(debug)
-      System.out.println(" context is :"+ context.toString());
+      log.debug(" context is :"+ context.toString());
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -194,13 +202,13 @@ public class RevokeCertificateServlet
       {
 	String propname=(String)enum.nextElement();
 	out.println(" Got propert name :"+propname);
-	System.out.println(" Got propert name :"+propname);
+	log.debug(" Got propert name :"+propname);
 	out.flush();
 	if((propname.startsWith("java"))||(propname.startsWith("org.apache"))) {
 	  continue;
 	}
 	String value=(String )context.getAttribute(propname);
-	System.out.println(" property value :"+ value);
+	log.debug(" property value :"+ value);
 	out.println(" property value :"+ value);
       }
   }

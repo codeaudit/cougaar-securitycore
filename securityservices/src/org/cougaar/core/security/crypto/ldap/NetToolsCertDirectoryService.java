@@ -30,17 +30,23 @@ import java.security.cert.X509Certificate;
 import java.security.cert.X509CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
+
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.crypto.CertificateType;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 public class NetToolsCertDirectoryService extends CertDirectoryService
   implements CertDirectoryServiceClient
 {
-  public NetToolsCertDirectoryService(String aURL) 
+
+  public NetToolsCertDirectoryService(String aURL, ServiceBroker sb) 
     throws IllegalArgumentException
   {
-    super(aURL);
+    super(aURL, sb);
   }
 
   public LdapEntry getCertificate(SearchResult result) {
@@ -91,8 +97,8 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       sz_uid = (String)att_uid.get();
     }
     catch (NamingException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get unique identifier: " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to get unique identifier: " + e);
 	e.printStackTrace();
       }
     }
@@ -110,8 +116,8 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
       sz_status = (String)att_status.get();
     }
     catch (NamingException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to check revocation status: " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to check revocation status: " + e);
 	e.printStackTrace();
       }
       return status;
@@ -129,8 +135,8 @@ public class NetToolsCertDirectoryService extends CertDirectoryService
 	status = CertificateRevocationStatus.UNKNOWN;
       }
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Certificate status:" + status);
+    if (log.isDebugEnabled()) {
+      log.debug("Certificate status:" + status);
     }
     return status;
   }  

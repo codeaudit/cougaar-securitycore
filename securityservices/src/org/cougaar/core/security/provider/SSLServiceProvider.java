@@ -29,6 +29,8 @@ package org.cougaar.core.security.provider;
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -46,11 +48,14 @@ public class SSLServiceProvider
 			   Object requestor,
 			   Class serviceClass) {
 
+    LoggingService log = (LoggingService)
+      sb.getService(this,
+			       LoggingService.class, null);
     if (sslservice != null)
       return sslservice;
 
-    //if (CryptoDebug.debug)
-      System.out.println("Creating SSLService.");
+    //if (log.isDebugEnabled())
+      log.debug("Creating SSLService.");
 
     // Retrieve KeyRing service
     ksr = (KeyRingService)
@@ -64,11 +69,11 @@ public class SSLServiceProvider
 		      });
 
     try {
-      sslservice = new SSLServiceImpl();
+      sslservice = new SSLServiceImpl(sb);
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      System.out.println("Failed to initialize SSLService! " + e.toString());
+      log.debug("Failed to initialize SSLService! " + e.toString());
       e.printStackTrace();
     }
     return sslservice;

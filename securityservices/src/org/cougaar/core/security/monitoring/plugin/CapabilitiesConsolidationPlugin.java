@@ -33,6 +33,8 @@ import java.util.Iterator;
 import edu.jhuapl.idmef.*;
 
 // Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
@@ -102,7 +104,8 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   private IncrementalSubscription modifiedcapabilities;
   private IncrementalSubscription capabilitiesRelays;
   private IncrementalSubscription agentRegistrations;
-    
+  private LoggingService log;
+
   private int firstobject=0;
   private MessageAddress mgrAddress;
   private MessageAddress myAddress;
@@ -130,7 +133,11 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
    * subscribe to tasks and programming assets
    */
   protected void setupSubscriptions() {
-    System.out.println("setupSubscriptions of CapabilitiesConsolidationPlug in called :"); 
+    log = (LoggingService)
+      getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
+
+    log.debug("setupSubscriptions of CapabilitiesConsolidationPlug in called :"); 
     
     //
     // This needs to be converted to make mgrAddress an AttributeBasedAddress.
@@ -158,10 +165,10 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     // Unwrap subordinate capabilities from new/changed/deleted relays
     updateRelayedCapabilities();
     
-    System.out.println(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!");
+    log.debug(" Execute of CapabilitiesConsolidation Plugin called !!!!!!!!");
      DomainService service=getDomainService();
     if(service==null) {
-      System.out.println(" Got service as null in Test Dummy Sensor  :");
+      log.debug(" Got service as null in Test Dummy Sensor  :");
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -170,12 +177,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     ArrayList list=new ArrayList(modifiedcapabilities_col);
     
     if((list==null)||(list.size()==0)){
-      System.out.println(" !!!! No modified capabilities currently present  !!!!!!! RETURNING  !!!!!!!!!!!!!!!!");
+      log.debug(" !!!! No modified capabilities currently present  !!!!!!! RETURNING  !!!!!!!!!!!!!!!!");
       return;
     }
     
     if(list.size()>1) {
-      System.out.println(" Error Multiple complete capabilities object on blackboard in Capabilities Consolidation plugin !!!!!!!!!!!!!!!!!!! CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:");
+      log.debug(" Error Multiple complete capabilities object on blackboard in Capabilities Consolidation plugin !!!!!!!!!!!!!!!!!!! CONFUSION CONFUSION CONFUSION  RETURNIG !!!!!!!:");
       return;
     }
 
@@ -191,17 +198,17 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	
     while(keys.hasMoreElements()) {
       key=(String)keys.nextElement();
-      System.out.println(" KEY IN CAPABILITIES OBJECT IS :"+key);
+      log.debug(" KEY IN CAPABILITIES OBJECT IS :"+key);
       registration=(RegistrationAlert)capabilitiesobject.get(key);
       regclassifications=registration.getClassifications();
       if(consclassifications==null){
-	//System.out.println("consclassifications was null Creating one :"); 
+	//log.debug("consclassifications was null Creating one :"); 
 	consclassifications=new Classification[regclassifications.length];
 	System.arraycopy(regclassifications,0,consclassifications,0,regclassifications.length);
 	//printConsolidation(consclassifications," First one added after creating cons obj:");
       }
       else {
-	//System.out.println("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
+	//log.debug("consclassifications was NOT NULL Consolidating !!!!!!!!!! :"); 
 	//printConsolidation(consclassifications," Already cons obj present before adding new %%%%%%%%%%%%%%%% :");
 	consclassifications=getConsolidatedClassification(regclassifications,consclassifications);
 	//printConsolidation(consclassifications," Already cons obj present added new $$$$$$$$$$$$$$$$$$ :");
@@ -209,7 +216,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	    
     }
     consCapabilities.setClassifications(consclassifications);
-    System.out.println(" consolidated classification is :");
+    log.debug(" consolidated classification is :");
     consclassifications=consCapabilities.getClassifications();
     printConsolidation(consclassifications," consolidated classification after processing is :");
     //converttoString(consclassifications);
@@ -227,7 +234,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   public ConsolidatedCapabilities createConsolidatedCapabilities() {
     DomainService service=getDomainService();
     if(service==null) {
-      System.out.println(" Got service as null in CapabilitiesConsolidationPlugin :");
+      log.debug(" Got service as null in CapabilitiesConsolidationPlugin :");
       return null;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -238,7 +245,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 
     
   public void printConsolidation(Classification[] classifications, String msg) {
-    System.out.println(msg);
+    log.debug(msg);
     Classification classification=null;
     for(int i=0;i<classifications.length;i++){
       classification= classifications[i];
@@ -271,7 +278,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 		
       }
       if(!found) {
-	System.out.println(" new  capabilities :");
+	log.debug(" new  capabilities :");
 	converttoString(newclas);
 	indexes.add(newclas);
       }
@@ -284,7 +291,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     for(int i=0;i<indexes.size();i++){
       clas = (Classification) indexes.elementAt(i);
       consolidate[i+index]=clas;
-      // System.out.println("New Classifications are :"+clas.toString());
+      // log.debug("New Classifications are :"+clas.toString());
     }
     return consolidate;
   }
@@ -299,9 +306,9 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
   }
     
   public void converttoString(Classification classification) {
-    System.out.println(" Classification origin :"+classification.getOrigin());
-    System.out.println(" Classification Name :"+classification.getName());
-    System.out.println(" Classification URL :"+classification.getUrl());
+    log.debug(" Classification origin :"+classification.getOrigin());
+    log.debug(" Classification Name :"+classification.getName());
+    log.debug(" Classification URL :"+classification.getUrl());
   }
   
   private void addOrUpdateRelay(Event event, CmrFactory factory) {

@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -47,7 +50,6 @@ class CapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof Event ) {
-      System.out.println(" Got object which is  instanceof Event");
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof Registration){
@@ -66,7 +68,6 @@ class CompleteCapabilitiesPredicate implements UnaryPredicate{
   public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof CapabilitiesObject ) {
-      System.out.println(" Got object which is  instanceof CapabilitiesObject");
       return true;
     }
     return ret;
@@ -81,7 +82,6 @@ class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
  public boolean execute(Object o) {
     boolean ret = false;
     if (o instanceof Event ) {
-      System.out.println(" Got object which is  instanceof Event");
       Event e=(Event)o;
       IDMEF_Message msg=e.getEvent();
       if(msg instanceof AgentRegistration){
@@ -96,7 +96,9 @@ class ConsolidatedCapabilitiesPredicate implements UnaryPredicate{
  *
  **/
 
-public class CapabilitiesProcessingPlugin extends ComponentPlugin {
+public class CapabilitiesProcessingPlugin
+  extends ComponentPlugin
+{
 
   // The domainService acts as a provider of domain factory services
   private DomainService domainService = null;
@@ -105,12 +107,12 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     
   private IncrementalSubscription completecapabilities;
   
-   private IncrementalSubscription subordinatecapabilities;
-
+  private IncrementalSubscription subordinatecapabilities;
+  
   private int firstobject=0;
-    
        
- 
+  private LoggingService log;
+
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -129,7 +131,11 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
    * subscribe to tasks and programming assets
    */
   protected void setupSubscriptions() {
-    System.out.println("setupSubscriptions of CapabilitiesProcessingPlugin called :"); 
+    log = (LoggingService)
+	getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
+
+    log.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"); 
     CapabilitiesObject object=new CapabilitiesObject();
 	
     getBlackboardService().publishAdd(object);
@@ -150,7 +156,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
    */
   protected void execute () {
     // process unallocated tasks
-    System.out.println("  execute of Capabilities processing plugin called @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    log.debug("  execute of Capabilities processing plugin called @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     Event event=null;
     RegistrationAlert registration=null;
     CapabilitiesObject capabilitiesobject=null;
@@ -159,13 +165,13 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
     boolean modified=false;
 
     if((list==null)||(list.size()==0)){
-      System.out.println("No capabilities object present in capabilities processing plugin : RETURNING !!!!!!!!!!!");
+      log.debug("No capabilities object present in capabilities processing plugin : RETURNING !!!!!!!!!!!");
       return;
     }
 
     if(list.size()>1) {
-      System.out.println(" Error Multiple capabilities  object on blackboard  CapabilitiesprocessingPlugin: :");
-      System.out.println("CONFUSION ......  CONFUSION!!!!!!!!!!!!! Exiting !!!!!!!!:");
+      log.debug(" Error Multiple capabilities  object on blackboard  CapabilitiesprocessingPlugin: :");
+      log.debug("CONFUSION ......  CONFUSION!!!!!!!!!!!!! Exiting !!!!!!!!:");
       return;
 	    
     }
@@ -183,13 +189,13 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
       registration=(RegistrationAlert)event.getEvent();  
       analyzer=registration.getAnalyzer();
       analyzer_id=analyzer.getAnalyzerid();
-      System.out.println(" Got analyzer id #####################"+ analyzer_id );
+      log.debug(" Got analyzer id #####################"+ analyzer_id );
 
       if(capabilitiesobject.containsKey(analyzer_id)) {
-	System.out.println("Analyzer is registered. registering Analyzer again :" + analyzer_id );
+	log.debug("Analyzer is registered. registering Analyzer again :" + analyzer_id );
 	RegistrationAlert existingregistartion=(RegistrationAlert)capabilitiesobject.get(analyzer_id);
 	if(registration.getOperation_type()==IdmefMessageFactory.addtoregistration)  {
-	  System.out.println(" registration type is add");
+	  log.debug(" registration type is add");
 	  // printConsolidation(existingregistartion.getClassifications(),"!!!!!before  adding add reg object"); 
 	  //printConsolidation(registration.getClassifications(),"!!!!!New  add reg object"); 
 	  existingregistartion= addtoRegistartion(existingregistartion,registration);
@@ -198,7 +204,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 		     
 	}
 	if(registration.getOperation_type()==IdmefMessageFactory.removefromregistration)  {
-	     System.out.println(" registration type is remove");
+	     log.debug(" registration type is remove");
 	     // printConsolidation(existingregistartion.getClassifications(),"!!!!!before removing  remove reg object"); 
 	     //printConsolidation(registration.getClassifications(),"!!!!!New remove  reg object"); 
 	     existingregistartion= removefromRegistartion(existingregistartion,registration); 
@@ -210,7 +216,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 	capabilitiesobject.put(analyzer_id,existingregistartion);
       }
       else {
-	System.out.println("Analyzer is not yet registered. registering Analyzer:" + analyzer_id);
+	log.debug("Analyzer is not yet registered. registering Analyzer:" + analyzer_id);
 	modified=true;
 	//printConsolidation(registration.getClassifications(),"!!!!!Classification before reg first time @@@@"); 
 	capabilitiesobject.put(analyzer_id,registration);
@@ -219,7 +225,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 
     }
     if(modified) {
-      System.out.println(" CAPABILITIES object is modified publishing change:");
+      log.debug(" CAPABILITIES object is modified publishing change:");
       getBlackboardService().publishChange(capabilitiesobject);
     }
     /*
@@ -237,10 +243,10 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 	Currently on receiving Consolidatecapabilities from subordinate agent it just prints to the screen
       */
       if(capabilitiesobject.containsKey(agent_id)) {
-	System.out.println(" Agent is already registered :");
+	log.debug(" Agent is already registered :");
       }
       else {
-	System.out.println(" Agent is not  registered :");
+	log.debug(" Agent is not  registered :");
       }
     } 
 	
@@ -248,7 +254,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 
 
   public void printConsolidation(Classification[] classifications, String msg) {
-    System.out.println(msg);
+    log.debug(msg);
     Classification classification=null;
     for(int i=0;i<classifications.length;i++){
       classification= classifications[i];
@@ -258,9 +264,9 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 
     
   public void converttoString(Classification classification) {
-    System.out.println(" Classification origin :"+classification.getOrigin());
-    System.out.println(" Classification Name :"+classification.getName());
-    System.out.println(" Classification URL :"+classification.getUrl());
+    log.debug(" Classification origin :"+classification.getOrigin());
+    log.debug(" Classification Name :"+classification.getName());
+    log.debug(" Classification URL :"+classification.getUrl());
   }
 
 
@@ -326,7 +332,7 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 	int newlength=classifications.length;
 	if(classifications!=null){
 	    
-	  //System.out.println("classifications is not null !!!!!!!!!!");
+	  //log.debug("classifications is not null !!!!!!!!!!");
 	     Classification newclassification=null;
 	     Classification existingclassification=null;
 	     Vector modifiedclassification=new Vector();
@@ -341,14 +347,14 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 		     if(!areClassificationsEqual(existingclassification,newclassification)){
 			 continue;
 		     }
-		     System.out.println("Found classification to remove:!!!!!!!!!!!!!!!!!");
+		     log.debug("Found classification to remove:!!!!!!!!!!!!!!!!!");
 		     found=true;
 		     foundindex=j;
 		     break;
 		 }
 		 
 		 if((found)&&(foundindex!=-1)) {
-		     System.out.println(" Found classification to remove at :"+foundindex);
+		     log.debug(" Found classification to remove at :"+foundindex);
 		     Classification modifiedClassifications[]=new Classification[existinglength-1];
 		     System.arraycopy(existingClassifications,0,modifiedClassifications,0,foundindex);
 		     /* doing an array copy till the index where classification is found and skiping 
@@ -386,13 +392,13 @@ public class CapabilitiesProcessingPlugin extends ComponentPlugin {
 
     public boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
     boolean equal=false;
-    /*System.out.println(" Existing classification:");
+    /*log.debug(" Existing classification:");
     converttoString(existingclassification);
-    System.out.println(" new classification:");
+    log.debug(" new classification:");
     converttoString(newclassification);
     */
     if((existingclassification.getOrigin().trim().equals(newclassification.getOrigin().trim()))&&(existingclassification.getName().trim().equals(newclassification.getName().trim()))) {
-      // System.out.println(" returning true  :");
+      // log.debug(" returning true  :");
 	return true;
 	
     }   

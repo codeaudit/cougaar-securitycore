@@ -30,6 +30,10 @@ import java.security.*;
 import java.security.cert.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -38,8 +42,14 @@ public class TrustManager implements X509TrustManager {
   protected KeyRingService keyRing = null;
   protected DirectoryKeyStore keystore = null;
   protected X509Certificate [] issuers;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public TrustManager(KeyRingService krs) {
+  public TrustManager(KeyRingService krs, ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     keyRing = krs;
     keystore = keyRing.getDirectoryKeyStore();
 
@@ -50,7 +60,7 @@ public class TrustManager implements X509TrustManager {
     try {
       issuers = keystore.getTrustedIssuers();
     } catch (Exception ex) {
-      if (CryptoDebug.debug)
+      if (log.isDebugEnabled())
         ex.printStackTrace();
       issuers = new X509Certificate[] {};
     }
@@ -66,8 +76,8 @@ public class TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
-    if (CryptoDebug.debug)
-      System.out.println("checkClientTrusted: " + chain);
+    if (log.isDebugEnabled())
+      log.debug("checkClientTrusted: " + chain);
 
     // check whether client is user or node
     if (chain.length == 0)
@@ -101,8 +111,8 @@ public class TrustManager implements X509TrustManager {
     throws CertificateException
   {
     // check whether cert is valid, then build the chain
-    if (CryptoDebug.debug)
-      System.out.println("checkServerTrusted: " + chain);
+    if (log.isDebugEnabled())
+      log.debug("checkServerTrusted: " + chain);
 
     // check whether cert is of type node or server
     // Need to check whether needAuth?
@@ -126,8 +136,8 @@ public class TrustManager implements X509TrustManager {
     // how about trusted CA?
     // since node configuration has only one CA, the issues will only
     // be one CA and the node itself
-    if (CryptoDebug.debug)
-      System.out.println("getAcceptedIssuers." + issuers.length);
+    if (log.isDebugEnabled())
+      log.debug("getAcceptedIssuers." + issuers.length);
     return issuers;
   }
 }

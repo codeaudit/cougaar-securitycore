@@ -31,6 +31,8 @@ import java.lang.*;
 // Cougaar core services
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -53,33 +55,15 @@ public class AccessControlPolicyServiceProvider
   public synchronized Object getService(ServiceBroker sb, 
 					Object requestor, 
 					Class serviceClass) {
-    // Get keyring service
-    keyRing = (KeyRingService)
-      sb.getService(requestor,
-		    KeyRingService.class,
-		    new ServiceRevokedListener() {
-			public void serviceRevoked(ServiceRevokedEvent re) {
-			  if (KeyRingService.class.equals(re.getService()))
-			    keyRing = null;
-			}
-		      });
-
-    // Get Security Properties service
-    sps = (SecurityPropertiesService)
-      sb.getService(requestor,
-		    SecurityPropertiesService.class,
-		    new ServiceRevokedListener() {
-			public void serviceRevoked(ServiceRevokedEvent re) {
-			  if (SecurityPropertiesService.class.equals(re.getService()))
-			    sps = null;
-			}
-		      });
+    LoggingService log = (LoggingService)
+      sb.getService(this,
+		    LoggingService.class, null);
     if (accessControlPolicyService == null) {
       accessControlPolicyService =
-	new AccessControlPolicyServiceImpl(keyRing, sps);
+	new AccessControlPolicyServiceImpl(sb);
     }
-    if (CryptoDebug.debug) {
-      System.out.println("AC policy Service Request: "
+    if (log.isDebugEnabled()) {
+      log.debug("AC policy Service Request: "
 			 + requestor.getClass().getName()
 			 + " - " + serviceClass.getName()
 			 + " - service: " + accessControlPolicyService);

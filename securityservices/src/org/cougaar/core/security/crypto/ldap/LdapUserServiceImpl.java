@@ -50,14 +50,21 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.directory.AttributeModificationException;
 
-import org.cougaar.core.security.services.crypto.LdapUserService;
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.RuleParameter;
-import org.cougaar.core.security.policy.GuardRegistration;
-import safe.enforcer.NodeEnforcer;
 import org.cougaar.planning.ldm.policy.Policy;
-import org.cougaar.core.security.policy.LdapUserServicePolicy;
 import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
 import org.cougaar.planning.ldm.policy.KeyRuleParameter;
+
+// Cougaar security services
+import org.cougaar.core.security.services.crypto.LdapUserService;
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.LdapUserServicePolicy;
+
+// KAoS
+import safe.enforcer.NodeEnforcer;
 
 public class LdapUserServiceImpl implements LdapUserService {
 
@@ -94,6 +101,9 @@ public class LdapUserServiceImpl implements LdapUserService {
   private static final DateFormat DF=new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
 
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
+
   protected LdapUserServiceConfigurer _configurer;
 
   private static final String[] STRING_ARR = new String[1];
@@ -102,8 +112,9 @@ public class LdapUserServiceImpl implements LdapUserService {
    * the guard's policy. If no policy exists, there will be no
    * connection to the user database.
    */
-  public LdapUserServiceImpl() {
-    _configurer = new LdapUserServiceConfigurer();
+  public LdapUserServiceImpl(ServiceBroker sb) {
+    _configurer = new LdapUserServiceConfigurer(sb);
+    setLogService(sb);
   }
 
   /**
@@ -111,8 +122,17 @@ public class LdapUserServiceImpl implements LdapUserService {
    * the guard's policy. If no policy exists, there will be no
    * connection to the user database.
    */
-  public LdapUserServiceImpl(LdapUserServiceConfigurer configurer) {
+  public LdapUserServiceImpl(LdapUserServiceConfigurer configurer,
+			     ServiceBroker sb) {
     _configurer = configurer;
+    setLogService(sb);
+  }
+
+  private void setLogService(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+	serviceBroker.getService(this,
+	LoggingService.class, null);
   }
 
   /**
@@ -203,7 +223,7 @@ public class LdapUserServiceImpl implements LdapUserService {
     try {
       _context = new InitialDirContext(env);
     } catch (NamingException e) {
-      System.out.println("LdapUserService: couldn't initialize connection to User LDAP database");
+      log.debug("LdapUserService: couldn't initialize connection to User LDAP database");
       e.printStackTrace();
     }
   }
@@ -614,8 +634,9 @@ public class LdapUserServiceImpl implements LdapUserService {
   public class LdapUserServiceConfigurer 
     extends GuardRegistration
     implements NodeEnforcer {
-    public LdapUserServiceConfigurer() {
-      super(LdapUserServicePolicy.class.getName(), "LdapUserService");
+    public LdapUserServiceConfigurer(ServiceBroker sb) {
+      super(LdapUserServicePolicy.class.getName(), "LdapUserService",
+	    sb);
       try {
         registerEnforcer();
       } catch (Exception ex) {
@@ -643,10 +664,10 @@ public class LdapUserServiceImpl implements LdapUserService {
       }
 
       if (debug) {
-        System.out.println("LdapUserService: Received policy message");
+        log.debug("LdapUserService: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {
-          System.out.println("Rule: " + param[i].getName() +
+          log.debug("Rule: " + param[i].getName() +
                              " - " + param[i].getValue());
         }
       }
@@ -707,7 +728,7 @@ public class LdapUserServiceImpl implements LdapUserService {
         } else if (PROP_ETATTR.equals(name)) {
           _enableAttr = value;
         } else {
-          System.out.println("LdapUserServiceImpl: Don't know how to handle configuration parameter: " + name);
+          log.debug("LdapUserServiceImpl: Don't know how to handle configuration parameter: " + name);
         }
       }
       if (reset) {

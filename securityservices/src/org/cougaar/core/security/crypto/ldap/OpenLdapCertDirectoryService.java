@@ -37,6 +37,11 @@ import java.lang.reflect.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CRLException;
 import javax.naming.NamingException;
+
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.CertificateType;
 import org.cougaar.core.security.crypto.MultipleEntryException;
@@ -48,11 +53,11 @@ public class OpenLdapCertDirectoryService
   implements CertDirectoryServiceClient, CertDirectoryServiceCA
 {
   public static final String issuingdpointname="IssuingDistibutionPoint";
-
   public static final String revoked="3";
-  public OpenLdapCertDirectoryService(String aURL)
+
+  public OpenLdapCertDirectoryService(String aURL, ServiceBroker sb)
   {
-    super(aURL);
+    super(aURL, sb);
   }
 
   public void setDirectoryServiceURL(String aURL) {
@@ -67,8 +72,8 @@ public class OpenLdapCertDirectoryService
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, "secret");
     }
     catch (Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to set directory service URL: " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to set directory service URL: " + e);
 	e.printStackTrace();
       }
     }
@@ -84,8 +89,8 @@ public class OpenLdapCertDirectoryService
       isCA= isCAEntry(attributes);
     }
     catch (NamingException nexp) {
-      if(CryptoDebug.debug) {
-	System.out.println("Could not retrieve the attributes for :"+bindingName);
+      if(log.isDebugEnabled()) {
+	log.debug("Could not retrieve the attributes for :"+bindingName);
 	nexp.printStackTrace();
       }
       return null;
@@ -98,8 +103,8 @@ public class OpenLdapCertDirectoryService
       crl=getCRL(attributes);
     }
     catch (Exception nexp) {
-      if(CryptoDebug.debug) {
-	System.out.println("Could not fetch CRL from ldap for ::"+ bindingName);
+      if(log.isDebugEnabled()) {
+	log.debug("Could not fetch CRL from ldap for ::"+ bindingName);
 	nexp.printStackTrace();
       }
     }
@@ -124,13 +129,13 @@ public class OpenLdapCertDirectoryService
 
     uniqueIdentifier = getUniqueIdentifier(attributes);
 
-    if (CryptoDebug.debug) {
-      System.out.println("look up:" + bindingName);
+    if (log.isDebugEnabled()) {
+      log.debug("look up:" + bindingName);
     }
 
     try {
-      if (CryptoDebug.debug) {
-	System.out.println("Context is:" + context.toString());
+      if (log.isDebugEnabled()) {
+	log.debug("Context is:" + context.toString());
       }
       isCA= isCAEntry(attributes);
       /*
@@ -152,7 +157,7 @@ public class OpenLdapCertDirectoryService
       certificate=getCertificate(attributes);
     }
     catch(Exception ex) {
-      if(CryptoDebug.debug) {
+      if(log.isDebugEnabled()) {
 	System.out.print("Unable to fetch ldap entry for " + bindingName);
 	ex.printStackTrace();
       }
@@ -240,8 +245,8 @@ public class OpenLdapCertDirectoryService
       sz_uid = (String)att_uid.get();
     }
     catch (NamingException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get unique identifier: " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to get unique identifier: " + e);
 	e.printStackTrace();
       }
     }
@@ -259,8 +264,8 @@ public class OpenLdapCertDirectoryService
       sz_status = (String)att_status.get();
     }
     catch (NamingException e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to check revocation status: " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to check revocation status: " + e);
 	e.printStackTrace();
       }
       return status;
@@ -278,8 +283,8 @@ public class OpenLdapCertDirectoryService
 	status = CertificateRevocationStatus.UNKNOWN;
       }
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Certificate status:" + status);
+    if (log.isDebugEnabled()) {
+      log.debug("Certificate status:" + status);
     }
     return status;
   }
@@ -303,8 +308,8 @@ public class OpenLdapCertDirectoryService
       }
     }
     catch (NamingException nexp) {
-      if(CryptoDebug.debug) {
-	System.out.println("could not find entry with filter in getCRL(String distingushName) function of OpenLdap  :"+ filter.toString());
+      if(log.isDebugEnabled()) {
+	log.debug("could not find entry with filter in getCRL(String distingushName) function of OpenLdap  :"+ filter.toString());
 	nexp.printStackTrace();
       }
       return null;
@@ -323,8 +328,8 @@ public class OpenLdapCertDirectoryService
   public void publishCertificate(X509Certificate cert,int type,PrivateKey privatekey)  {
     Attributes set = new BasicAttributes(true);
     String dnname = cert.getSubjectDN().getName();
-    if(CryptoDebug.debug) {
-      System.out.println("Publishing certificate, dn in publish certificate of OpenLdap :" + dnname);
+    if(log.isDebugEnabled()) {
+      log.debug("Publishing certificate, dn in publish certificate of OpenLdap :" + dnname);
     }
     try {
       setLdapAttributes(cert, set,type,privatekey);
@@ -339,8 +344,8 @@ public class OpenLdapCertDirectoryService
 	 CertificateUtility.base64encode(cert.getEncoded(),
 	 CertificateUtility.PKCS7HEADER,
 	 CertificateUtility.PKCS7TRAILER);
-	 if (CryptoDebug.debug) {
-	 System.out.println("About to publish LDAP entry:" + set.toString());
+	 if (log.isDebugEnabled()) {
+	 log.debug("About to publish LDAP entry:" + set.toString());
 	 }*/
       // if(type==CertificateUtility.CACert) {
       context.createSubcontext(dn,set);
@@ -350,8 +355,8 @@ public class OpenLdapCertDirectoryService
 	 }*/
     }
     catch(javax.naming.NameAlreadyBoundException nameexp) {
-      if(CryptoDebug.debug) {
-	System.out.println(" name  already exists  in ldap for dn name in publish certificate of OpenLdap : " +dnname);
+      if(log.isDebugEnabled()) {
+	log.debug(" name  already exists  in ldap for dn name in publish certificate of OpenLdap : " +dnname);
       }
 
     }
@@ -381,25 +386,25 @@ public class OpenLdapCertDirectoryService
     try {
       if(namingenum!=null) {
 	for(;namingenum.hasMore();) {
-	  if(CryptoDebug.debug)
-	    System.out.println(" inside for loop of  get ldap entry :");
+	  if(log.isDebugEnabled())
+	    log.debug(" inside for loop of  get ldap entry :");
 	  result=(SearchResult)namingenum.next();
 	  dump(result);
-	  System.out.println("result is " +result.toString());
+	  log.debug("result is " +result.toString());
 	  attributes =result.getAttributes();
 	  CertificateRevocationStatus status=getCertificateRevocationStatus(attributes);
 	  if(! status.equals(CertificateRevocationStatus.REVOKED)){
 	    activeentry.add(result);
 	  }
 	  else {
-	    if(CryptoDebug.debug){
-	      System.out.println(" cert is revoked  in get ldapentry object for filter :  "+filter.toString() +" status is :"+status.toString());
+	    if(log.isDebugEnabled()){
+	      log.debug(" cert is revoked  in get ldapentry object for filter :  "+filter.toString() +" status is :"+status.toString());
 	    }
 	  }
 	}
 	// result=(SearchResult)namingenum.next();
-	if(CryptoDebug.debug)
-	  System.out.println("Size of serch result  in getldapentry function qith filter "+ filter.toString()+ "  is :"+ activeentry.size() + " result is :"+result.toString());
+	if(log.isDebugEnabled())
+	  log.debug("Size of serch result  in getldapentry function qith filter "+ filter.toString()+ "  is :"+ activeentry.size() + " result is :"+result.toString());
 	if(activeentry.size()>1) {
 	  throw new MultipleEntryException("Found multiple active entries for filter : "+filter.toString());
 	}
@@ -411,7 +416,7 @@ public class OpenLdapCertDirectoryService
 	  result=null;
 	  result=(SearchResult)activeentry.elementAt(0);
 	}
-	//System.out.println("
+	//log.debug("
       }
       else {
 	return result;
@@ -419,8 +424,8 @@ public class OpenLdapCertDirectoryService
       return result;
     }
     catch (NamingException nexp) {
-      if(CryptoDebug.debug) {
-	System.out.println("could not find entry with filter :"+ filter.toString());
+      if(log.isDebugEnabled()) {
+	log.debug("could not find entry with filter :"+ filter.toString());
 	nexp.printStackTrace();
       }
       return result;
@@ -431,11 +436,11 @@ public class OpenLdapCertDirectoryService
     for (NamingEnumeration ae = answer.getAll(); ae.hasMore();)
       {
 	Attribute attr = (Attribute)ae.next();
-	System.out.println("attribute: " + attr.getID());
+	log.debug("attribute: " + attr.getID());
 	/* Print each value */
 	for (NamingEnumeration e = attr.getAll(); e.hasMore(); )
 	  {
-	    System.out.println("value: " + e.next());
+	    log.debug("value: " + e.next());
 	  }
 
       }
@@ -453,9 +458,9 @@ public class OpenLdapCertDirectoryService
 	   IOException,
 	   NamingException  {
 
-    if(CryptoDebug.debug) {
-      System.out.println(" Binding name for ca : :"+caBindingName);
-      System.out.println(" Binding name for user : :"+userBindingName);
+    if(log.isDebugEnabled()) {
+      log.debug(" Binding name for ca : :"+caBindingName);
+      log.debug(" Binding name for user : :"+userBindingName);
     }
     Attributes caAttributes=context.getAttributes(caBindingName);
     Attributes userAttributes=context.getAttributes(userBindingName);
@@ -484,8 +489,8 @@ public class OpenLdapCertDirectoryService
       }
     }
     crlentrys.trimToSize();
-    if(CryptoDebug.debug)
-      System.out.println(" size of crl entry object from crl in revoke certificate  is : "+crlentrys.size());
+    if(log.isDebugEnabled())
+      log.debug(" size of crl entry object from crl in revoke certificate  is : "+crlentrys.size());
     X509CRLImpl crlimpl=null;
     X509CRLEntry[] crlentryarray=new X509CRLEntry[crlentrys.size()+1];
     crlentrys.copyInto(crlentryarray);
@@ -509,8 +514,8 @@ public class OpenLdapCertDirectoryService
 
     if(issuerPublicKey.equals(caPublicKey)) {
 
-      if(CryptoDebug.debug) {
-	System.out.println(" Both issuer of certificate & Revoking CA are same for user dn : "+ userDN +" Revoking CA : "+ CA_DN);
+      if(log.isDebugEnabled()) {
+	log.debug(" Both issuer of certificate & Revoking CA are same for user dn : "+ userDN +" Revoking CA : "+ CA_DN);
       }
 
       crlentryimpl=new X509CRLEntryImpl(userCert.getSerialNumber(),current);
@@ -526,32 +531,32 @@ public class OpenLdapCertDirectoryService
 
     }
     else {
-      if(CryptoDebug.debug)
-	System.out.println(" Both issuer of certificate & Revoking CA are not *** same for user dn : "+ userDN +" Revoking CA : "+ CA_DN);
+      if(log.isDebugEnabled())
+	log.debug(" Both issuer of certificate & Revoking CA are not *** same for user dn : "+ userDN +" Revoking CA : "+ CA_DN);
       //boolean indirectcrl=isIndirectCRLset(crl);
       IssuingDistributionPointExtension idpext=null;
       if(extensions!=null) {
-	System.out.println ("^^^^ GOT  ext:");
+	log.debug ("^^^^ GOT  ext:");
 	idpext=getDistributionPointExtension(extensions);
       }
       if(idpext!=null) {
-	System.out.println ("^^^^ GOT  ext for idp:");
+	log.debug ("^^^^ GOT  ext for idp:");
 	Boolean indirectCRL=(Boolean)idpext.get(IssuingDistributionPointExtension.INDIRECT_CRL);
 	if(!indirectCRL.booleanValue()) {
 	  idpext.set(IssuingDistributionPointExtension.INDIRECT_CRL,new Boolean(true));
 	  extensions.delete(issuingdpointname);
-	  System.out.println("%%%%%%%%%%%   extension after deleting :"+extensions.toString());
+	  log.debug("%%%%%%%%%%%   extension after deleting :"+extensions.toString());
 	  extensions.set(idpext.getName(),idpext);
 	}
       }
       else {
 	if(extensions==null) {
-	  System.out.println("Extension was null creating new extension ");
+	  log.debug("Extension was null creating new extension ");
 	  extensions=new CRLExtensions();
 	}
 	idpext=new  IssuingDistributionPointExtension (false,false,true);
 	extensions.set(idpext.getName(),idpext);
-	System.out.println( " Issuing point extension created is :"+extensions.toString());
+	log.debug( " Issuing point extension created is :"+extensions.toString());
       }
       //CRLExtensions crlext=new CRLExtensions();//CertificateIssuerExtension
       X500Name username=new X500Name(userCert.getIssuerDN().getName());
@@ -559,17 +564,17 @@ public class OpenLdapCertDirectoryService
       gns.add(username);
       CertificateIssuerExtension certificateext=new  CertificateIssuerExtension(gns);
       CRLExtensions crlentryext =new CRLExtensions();
-      System.out.println(" going to set extension with name :"+certificateext.getName());
+      log.debug(" going to set extension with name :"+certificateext.getName());
       crlentryext.set(certificateext.getName(),certificateext);
 
-      if(CryptoDebug.debug)
-	System.out.println( "Certificate Issuer  extension created isCertificate issuer extension is  :"+crlentryext.toString());
+      if(log.isDebugEnabled())
+	log.debug( "Certificate Issuer  extension created isCertificate issuer extension is  :"+crlentryext.toString());
       crlentryimpl=new X509CRLEntryImpl(userCert.getSerialNumber(),current,crlentryext);
-      System.out.println(" CRL entry object created is :"+crlentryimpl.toString());
+      log.debug(" CRL entry object created is :"+crlentryimpl.toString());
       crlentryarray[crlentryarray.length-1]=crlentryimpl;
       crlimpl=new X509CRLImpl(new X500Name(caCert.getSubjectDN().getName()),current,next,crlentryarray,extensions);
-      if(CryptoDebug.debug)
-	System.out.println(" new crl is after adding extensions in revoke certificate of Openldap is  : "+crlimpl.toString());
+      if(log.isDebugEnabled())
+	log.debug(" new crl is after adding extensions in revoke certificate of Openldap is  : "+crlimpl.toString());
     }
 
 
@@ -604,8 +609,8 @@ public class OpenLdapCertDirectoryService
       filter = filter + "(" + tok1 + "=" + tok2 + ")";
     }
     filter = filter + ")";
-    if (CryptoDebug.debug) {
-      System.out.println("Search filter is " + filter);
+    if (log.isDebugEnabled()) {
+      log.debug("Search filter is " + filter);
     }
     return filter;
   }
@@ -614,7 +619,7 @@ public class OpenLdapCertDirectoryService
 
     IssuingDistributionPointExtension  ext =(IssuingDistributionPointExtension)crlextensions.get(issuingdpointname);
     if(ext!=null) {
-      System.out.println(" got extension Idp ext:");
+      log.debug(" got extension Idp ext:");
     }
     return ext;
   }
@@ -627,16 +632,16 @@ public class OpenLdapCertDirectoryService
     ModificationItem mit[]=new ModificationItem[1];
     ModificationItem miti=new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attr1);
     mit[0]=miti;
-    if(CryptoDebug.debug)
-      System.out.println("going to modify attribute in OpenLdap for user binding name :"+ bindingname_revokedcert);
+    if(log.isDebugEnabled())
+      log.debug("going to modify attribute in OpenLdap for user binding name :"+ bindingname_revokedcert);
     context.modifyAttributes(bindingname_revokedcert,mit);
     byte[] crldata=crl.getEncoded();
-    if(CryptoDebug.debug) {
-      System.out.println("!!!!!!!!!!!!!!!!!!!! Recreating crl from byte data before updating LDAP !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      System.out.println("");
-       System.out.println("");
-        System.out.println("");
-	 System.out.println("");
+    if(log.isDebugEnabled()) {
+      log.debug("!!!!!!!!!!!!!!!!!!!! Recreating crl from byte data before updating LDAP !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      log.debug("");
+       log.debug("");
+        log.debug("");
+	 log.debug("");
       X509CRL crl1=null;
        CertificateFactory cf = CertificateFactory.getInstance("X.509");
        ByteArrayInputStream bais=null ;
@@ -647,21 +652,21 @@ public class OpenLdapCertDirectoryService
        if (i.hasNext()) {
 	 crl1 = (X509CRL) i.next();
        }
-       System.out.println(" recreated cRL is :"+crl1.toString());
-        System.out.println("!!!!!!!!!!!!!!!!!!!! Recreation of crl from byte data before updating LDAP  over !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-	 System.out.println("");
-       System.out.println("");
-        System.out.println("");
-	 System.out.println("");
+       log.debug(" recreated cRL is :"+crl1.toString());
+        log.debug("!!!!!!!!!!!!!!!!!!!! Recreation of crl from byte data before updating LDAP  over !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	 log.debug("");
+       log.debug("");
+        log.debug("");
+	 log.debug("");
     }
 
     attr1=new BasicAttribute( CERTIFICATEREVOCATIONLIST_ATTRIBUTE,crldata);
     mit=new ModificationItem[1];
     miti=new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attr1);
     mit[0]=miti;
-    if(CryptoDebug.debug) {
-      System.out.println("going to modify attribute in OpenLdap  for CA "+bindingname );
-      System.out.println("$$$$$ new crl is :"+crl.toString());
+    if(log.isDebugEnabled()) {
+      log.debug("going to modify attribute in OpenLdap  for CA "+bindingname );
+      log.debug("$$$$$ new crl is :"+crl.toString());
     }
     context.modifyAttributes(bindingname,mit);
   }
@@ -677,8 +682,8 @@ public class OpenLdapCertDirectoryService
     byte[]extensiondata=null;
 
     if (critSet != null && !critSet.isEmpty()) {
-      if(CryptoDebug.debug)
-	System.out.println("Set of critical extensions:");
+      if(log.isDebugEnabled())
+	log.debug("Set of critical extensions:");
       for (Iterator i = critSet.iterator(); i.hasNext();) {
 	oid = (String)i.next();
 	String s1 = OIDMap.getName(new ObjectIdentifier(oid));
@@ -711,13 +716,13 @@ public class OpenLdapCertDirectoryService
 	      {
 		s3 = s1;
 	      }
-	    if(CryptoDebug.debug) {
-	      System.out.println(" ");
-	       System.out.println(" ");
-	        System.out.println(" ");
-	      System.out.println("!!!!!!!!!!!!!!!!  got extension :"+s3);
-	       System.out.println(" ");
-	        System.out.println(" ");
+	    if(log.isDebugEnabled()) {
+	      log.debug(" ");
+	       log.debug(" ");
+	        log.debug(" ");
+	      log.debug("!!!!!!!!!!!!!!!!  got extension :"+s3);
+	       log.debug(" ");
+	        log.debug(" ");
 	    }
 	    extensions.set(s3,ext);
 
@@ -731,13 +736,13 @@ public class OpenLdapCertDirectoryService
 	}
       }
     }
-    if(CryptoDebug.debug)
-      System.out.println(" Going to create non critical Extension");
+    if(log.isDebugEnabled())
+      log.debug(" Going to create non critical Extension");
     critSet =crl.getNonCriticalExtensionOIDs();
 
     if (critSet != null && !critSet.isEmpty()) {
-      if(CryptoDebug.debug)
-	System.out.println("Set non of critical extensions:");
+      if(log.isDebugEnabled())
+	log.debug("Set non of critical extensions:");
       for (Iterator i = critSet.iterator(); i.hasNext();) {
 	oid = (String)i.next();
 	String s1 = OIDMap.getName(new ObjectIdentifier(oid));
@@ -763,30 +768,30 @@ public class OpenLdapCertDirectoryService
 	    extensions.set(s1,ext);
 	  }
 	  else {
-	    if(CryptoDebug.debug)
-	      System.out.println(" Could not get class from oidmap for oid:"+oid);
+	    if(log.isDebugEnabled())
+	      log.debug(" Could not get class from oidmap for oid:"+oid);
 	    continue;
 	    //throw new IOException (" Cannot create Extension for oid :"+oid);
 	  }
 	}
 	catch (Exception exp) {
-	  if(CryptoDebug.debug) {
-	    System.out.println(" Could not get class from oidmap for oid:"+oid);
+	  if(log.isDebugEnabled()) {
+	    log.debug(" Could not get class from oidmap for oid:"+oid);
 	  }
 	  continue;
 	}
       }
     }
 
-    System.out.println("@@@@@@@@@@@ returning extensions :"+extensions.toString());
+    log.debug("@@@@@@@@@@@ returning extensions :"+extensions.toString());
     return extensions;
 
   }
 
   private void setLdapAttributes(X509Certificate cert, Attributes set,int type,PrivateKey privatekey ) {
 
-    if(CryptoDebug.debug)
-      System.out.println("+++++++ publish cert called  :"+type);
+    if(log.isDebugEnabled())
+      log.debug("+++++++ publish cert called  :"+type);
     Attribute objectclass = new BasicAttribute("objectclass");
     objectclass.add("top");;
     if(type==CertificateUtility.CACert) {
@@ -800,13 +805,13 @@ public class OpenLdapCertDirectoryService
       if(type==CertificateUtility.CACert) {
 	X509CRLEntry [] crlentry=new X509CRLEntry[1];
 	X500Name name=new X500Name(cert.getSubjectDN().getName());
-	System.out.println("got name as : "+name.toString());
+	log.debug("got name as : "+name.toString());
 	Calendar c = Calendar.getInstance();
 	Date current=c.getTime();
-	System.out.println("Current time is ::"+current.toString());
+	log.debug("Current time is ::"+current.toString());
 	c.set(2002,5,21);
 	Date next=c.getTime();
-	System.out.println("Current time is ::"+next.toString());
+	log.debug("Current time is ::"+next.toString());
 
 	X509CRLImpl crl=new X509CRLImpl(name,current,next,null);
 
@@ -845,8 +850,8 @@ public class OpenLdapCertDirectoryService
 		parser.nextToken());
       }
       catch(Exception ex) {
-	if(CryptoDebug.debug) {
-	  System.out.println("Error: DN=" + cert.getSubjectDN().getName()
+	if(log.isDebugEnabled()) {
+	  log.debug("Error: DN=" + cert.getSubjectDN().getName()
 			     + "ldapAttrib = " + ldapAttrib);
 	  ex.printStackTrace();
 	}

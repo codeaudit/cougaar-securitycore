@@ -21,48 +21,58 @@
 
 package org.cougaar.core.security.crypto.ldap;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.policy.*;
 
 public class CertDirectoryServiceFactory
 {
-  //private static boolean CryptoDebug.debug = false;
-
+  //private static boolean log.isDebugEnabled() = false;
 
   public static CertDirectoryServiceClient getCertDirectoryServiceClientInstance(
-					      int serverType, String serverUrl)
+					      int serverType, String serverUrl, ServiceBroker sb)
   {
+    LoggingService logStatic = (LoggingService)
+      sb.getService(null,
+		    LoggingService.class, null);
     CertDirectoryServiceClient ldapClient = null;
-    //System.out.println("%%%%%%%%%%%%  type found is : "+serverType);
+    //log.debug("%%%%%%%%%%%%  type found is : "+serverType);
     switch (serverType) {
     case TrustedCaPolicy.COUGAAR_OPENLDAP:
-      ldapClient = new OpenLdapCertDirectoryService(serverUrl);
+      ldapClient = new OpenLdapCertDirectoryService(serverUrl, sb);
       break;
     case TrustedCaPolicy.NETTOOLS:
-      ldapClient = new NetToolsCertDirectoryService(serverUrl);
+      ldapClient = new NetToolsCertDirectoryService(serverUrl, sb);
       break;
     default:
-      if (CryptoDebug.debug) {
-	System.out.println("Client: Unknown directory service type: " + serverType);
+      if (logStatic.isDebugEnabled()) {
+	logStatic.debug("Client: Unknown directory service type: " + serverType);
       }
     }
     return ldapClient;
   }
 
   public static CertDirectoryServiceCA getCertDirectoryServiceCAInstance(
-					      int serverType, String serverUrl)
+					      int serverType, String serverUrl,
+					      ServiceBroker sb)
   {
     CertDirectoryServiceCA instance = null;
+    LoggingService logStatic = (LoggingService)
+      sb.getService(null,
+		    LoggingService.class, null);
 
     switch (serverType) {
     case TrustedCaPolicy.COUGAAR_OPENLDAP:
-      instance = new OpenLdapCertDirectoryService(serverUrl);
+      instance = new OpenLdapCertDirectoryService(serverUrl, sb);
       break;
     default:
       // Net Tools does not support CA functions programmatically.
-      if (CryptoDebug.debug) {
-	System.out.println("CA: Unknown directory service type: " + serverType);
+      if (logStatic.isDebugEnabled()) {
+	logStatic.debug("CA: Unknown directory service type: " + serverType);
       }
     }
     return instance;

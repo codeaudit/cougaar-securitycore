@@ -26,6 +26,10 @@
 
 package org.cougaar.core.security.userauth;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import java.net.*;
 import org.cougaar.core.security.util.CryptoDebug;
 
@@ -33,8 +37,14 @@ public final class UserPasswordAuthenticator extends Authenticator
   implements AuthenticationListener {
   private PasswordAuthentication _pa = null;
   private AuthenticationHandler handler;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public UserPasswordAuthenticator() {
+  public UserPasswordAuthenticator(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     Authenticator.setDefault(this);
   }
 
@@ -69,8 +79,8 @@ public final class UserPasswordAuthenticator extends Authenticator
   */
 
   public PasswordAuthentication getPasswordAuthentication() {
-    if (CryptoDebug.debug)
-      System.out.println("password? " + _pa + " : " + handler);
+    if (log.isDebugEnabled())
+      log.debug("password? " + _pa + " : " + handler);
     //if (_pa == null && handler != null && trial < 3) {
     if (handler != null) {
       try {
@@ -80,8 +90,8 @@ public final class UserPasswordAuthenticator extends Authenticator
 
     // should have a table of password authentication based on
     // host, port, protocol, etc
-    if (CryptoDebug.debug)
-      System.out.println("password: " + _pa);
+    if (log.isDebugEnabled())
+      log.debug("password: " + _pa);
     return _pa;
   }
 }

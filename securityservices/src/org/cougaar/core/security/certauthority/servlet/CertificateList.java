@@ -34,6 +34,10 @@ import java.security.cert.X509Certificate;
 
 import sun.security.x509.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
@@ -53,10 +57,14 @@ public class CertificateList extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
+  private LoggingService log;
 
   private SecurityServletSupport support;
   public CertificateList(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+      support.getServiceBroker().getService(this,
+			       LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -74,7 +82,7 @@ public class CertificateList extends  HttpServlet
       //domains = configParser.getRoles();
     }
     catch (Exception e) {
-      System.out.println("Unable to initialize servlet:" + e);
+      log.error("Unable to initialize servlet:" + e);
     }
   }
 
@@ -88,7 +96,7 @@ public class CertificateList extends  HttpServlet
     cadnname =(String)req.getParameter("cadnname");
     //domain =(String)req.getParameter("domain");
     if (debug) {
-      System.out.println(cadnname);
+      log.debug(cadnname);
     }
     if((cadnname==null)||( cadnname=="")) {
       out.print("Error ---Unknown  type CA dn name :");
@@ -101,7 +109,8 @@ public class CertificateList extends  HttpServlet
       caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				      caPolicy.ldapType, caPolicy.ldapURL);
+				      caPolicy.ldapType, caPolicy.ldapURL,
+				      support.getServiceBroker());
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -138,7 +147,7 @@ public class CertificateList extends  HttpServlet
       domain = null;
     }
     if (debug) {
-      System.out.println("calling create table will domain:" + domain);
+      log.debug("calling create table will domain:" + domain);
     }
     */
     out.println(createtable(ldapentries,

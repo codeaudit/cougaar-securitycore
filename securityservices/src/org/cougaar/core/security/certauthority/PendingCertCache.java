@@ -34,6 +34,9 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 import java.security.cert.*;
 import java.security.PublicKey;
+
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
@@ -58,6 +61,7 @@ public class PendingCertCache
   private CertificateManagementService signer = null;
   private ServiceBroker serviceBroker;
   private ConfigParserService configParser = null;
+  private LoggingService log;
 
   // singleton
   // only started once
@@ -68,7 +72,8 @@ public class PendingCertCache
         thisCache = new PendingCertCache(cadnname, sb);
       }
       catch (Exception e) {
-        System.out.println("Error creating PendingCertCache: " + e.toString());
+        System.err.println("Error creating PendingCertCache: "
+			   + e.toString());
       }
     }
     return thisCache;
@@ -80,7 +85,10 @@ public class PendingCertCache
     configParser = (ConfigParserService)
       serviceBroker.getService(this,
 			       ConfigParserService.class,
-			       null); 
+			       null);
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
 
@@ -105,7 +113,8 @@ public class PendingCertCache
         thisCache = new PendingCertCache(aCaPolicy, aSigner);
       }
       catch (Exception e) {
-        System.out.println("Error creating PendingCertCache: " + e.toString());
+        System.err.println("Error creating PendingCertCache: "
+			   + e.toString());
         e.printStackTrace();
       }
     }
@@ -127,10 +136,10 @@ public class PendingCertCache
 						"false"))).booleanValue();
     caDN = caPolicy.caDnName.getName();
 
-    nodeConfiguration = new NodeConfiguration(caDN);
+    nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
     
-    if (CryptoDebug.debug) {
-      System.out.println("PendingCertCache: Top level directory is :"
+    if (log.isDebugEnabled()) {
+      log.debug("PendingCertCache: Top level directory is :"
 			 + nodeConfiguration.getNodeDirectory());
     }
     loadRequests();
@@ -176,8 +185,8 @@ public class PendingCertCache
 
   // using public key as key
   public Certificate getCertificate(String whichstate, PublicKey publicKey) {
-    if (CryptoDebug.debug) {
-      System.out.println("looking up key in " + whichstate);
+    if (log.isDebugEnabled()) {
+      log.debug("looking up key in " + whichstate);
     }
     Hashtable certtable = (Hashtable)get(whichstate);
     if (certtable == null)
@@ -185,26 +194,26 @@ public class PendingCertCache
 
     String pubkeyValue = new String(publicKey.getEncoded());
     if (debug) {
-      System.out.println("getting cert with pub key: ");
+      log.debug("getting cert with pub key: ");
     }
 
-    System.out.println("Looking public key:\n" + publicKey.toString());
+    log.debug("Looking public key:\n" + publicKey.toString());
 
     for (Enumeration en = certtable.elements(); en.hasMoreElements(); ) {
       Certificate certimpl = (Certificate)en.nextElement();
-      if (CryptoDebug.debug) {
-	System.out.println("Certificate in hash map:\n"
-			   + certimpl.getPublicKey().toString() );
+      if (log.isDebugEnabled()) {
+	log.debug("Certificate in hash map:\n"
+		  + certimpl.getPublicKey().toString() );
       }
       if (publicKey.equals(certimpl.getPublicKey())) {
-	if (CryptoDebug.debug) {
-	 System.out.println("Found a match");
+	if (log.isDebugEnabled()) {
+	 log.debug("Found a match");
        }
        return certimpl;
       }
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Found no match");
+    if (log.isDebugEnabled()) {
+      log.debug("Found no match");
     }
     return null;
   }
@@ -237,7 +246,7 @@ public class PendingCertCache
       if (fromfile.exists())
         fromfile.renameTo(new File(topath));
       if (debug) {
-        System.out.println("moving file: " + fromfile + " to: " + topath);
+        log.debug("moving file: " + fromfile + " to: " + topath);
       }
     }
   }
@@ -246,8 +255,8 @@ public class PendingCertCache
   public ArrayList getCertFileList(String certdir) {
     ArrayList ar = new ArrayList();
     File f = new File(certdir);
-    if (CryptoDebug.debug) {
-      System.out.println("Looking up certificates in " + certdir);
+    if (log.isDebugEnabled()) {
+      log.debug("Looking up certificates in " + certdir);
     }
     if (f.exists()) {
       File [] certfiles = f.listFiles();
@@ -262,8 +271,8 @@ public class PendingCertCache
 
       }
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Found " + ar.size() + " certificates in " + certdir);
+    if (log.isDebugEnabled()) {
+      log.debug("Found " + ar.size() + " certificates in " + certdir);
     }
     return ar;
   }
@@ -280,7 +289,7 @@ public class PendingCertCache
     catch(IOException ioexception1) {
     }
     catch(Exception e) {
-      System.out.println("Exception when loading certificate from file: " + certfile.getPath());
+      log.debug("Exception when loading certificate from file: " + certfile.getPath());
       e.printStackTrace();
     }
     return certlist;

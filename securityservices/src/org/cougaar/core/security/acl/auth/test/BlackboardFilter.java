@@ -33,6 +33,7 @@ import org.cougaar.core.security.policy.GuardRegistration;
 import safe.enforcer.NodeEnforcer;
 
 // Cougaar core infrastructure
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.component.ServiceBroker;
@@ -68,9 +69,22 @@ import org.cougaar.core.security.acl.auth.UserRoles;
  **/
 public class BlackboardFilter extends ServiceFilter {
 
-  static BlackboardGuard bbg = new BlackboardGuard();
+  private BlackboardGuard bbg;
+  private LoggingService log;
+
+  public BlackboardFilter() {
+    log = (LoggingService)
+	getBindingSite().getServiceBroker().
+      getService(this,
+		 LoggingService.class, null);
+    bbg = new BlackboardGuard(getBindingSite().getServiceBroker());
+  }
 
   public void setParameter(Object param) {
+  }
+
+  public BlackboardGuard getBlackboardGuard() {
+    return bbg;
   }
 
   /**
@@ -82,10 +96,16 @@ public class BlackboardFilter extends ServiceFilter {
   
 
   // This is a "Wrapper" binder which installs a service filter for plugins
-  public static class PluginServiceFilterBinder extends ServiceFilterBinder {
+  public class PluginServiceFilterBinder
+    extends ServiceFilterBinder {
+
+    private BlackboardGuard bbg;
 
     public PluginServiceFilterBinder(BinderFactory bf, Object child) {
       super(bf,child);
+      if (bf instanceof BlackboardFilter) {
+	bbg = ((BlackboardFilter) bf).getBlackboardGuard();
+      }
     }
 
     protected final PluginManagerForBinder getPluginManager() { 
@@ -100,7 +120,7 @@ public class BlackboardFilter extends ServiceFilter {
 
     // this method installs the "filtering" service broker
     protected ServiceBroker createFilteringServiceBroker(ServiceBroker sb) {
-      return new PluginFilteringServiceBroker(sb); 
+      return new PluginFilteringServiceBroker(sb, bbg); 
     }
 
     // this class implements a simple proxy for a plugin wrapper binder
@@ -121,8 +141,11 @@ public class BlackboardFilter extends ServiceFilter {
     // installs its own service proxy.
     protected class PluginFilteringServiceBroker 
       extends FilteringServiceBroker {
-      public PluginFilteringServiceBroker(ServiceBroker sb) {
+      private BlackboardGuard bbg;
+      public PluginFilteringServiceBroker(ServiceBroker sb,
+					  BlackboardGuard aBbg) {
         super(sb);
+	bbg = aBbg;
       }
 
       // here's where we catch the service request for Blackboard and proxy the
@@ -130,7 +153,7 @@ public class BlackboardFilter extends ServiceFilter {
       protected Object getServiceProxy(Object service, Class serviceClass, Object client) {
         if (service instanceof BlackboardService) {
           return new BlackboardServiceProxy((BlackboardService) service, 
-                                            BlackboardFilter.bbg);
+                                            bbg);
         } 
         return null;
       }
@@ -139,11 +162,12 @@ public class BlackboardFilter extends ServiceFilter {
 
   // this class is a proxy for the blackboard service which audits subscription
   // requests.
-  public static class BlackboardServiceProxy implements BlackboardService {
+  public class BlackboardServiceProxy
+    implements BlackboardService {
     BlackboardService _bbs;
     BlackboardGuard   _bbg;
 
-    public static class YouCantDoThatException extends RuntimeException {}
+    public class YouCantDoThatException extends RuntimeException {}
 
     public BlackboardServiceProxy(BlackboardService service,
                                   BlackboardGuard bbg) {
@@ -319,14 +343,15 @@ public class BlackboardFilter extends ServiceFilter {
 
   }
 
-  public static class BlackboardGuard 
+  public class BlackboardGuard 
     extends GuardRegistration 
     implements NodeEnforcer {
 
     HashMap _policies = new HashMap();
 
-    public BlackboardGuard() {
-      super(BlackboardPolicy.class.getName(), "BlackboardGuard");
+    public BlackboardGuard(ServiceBroker sb) {
+      super(BlackboardPolicy.class.getName(), "BlackboardGuard",
+	    sb);
       try {
         registerEnforcer();
       } catch (Exception ex) {
@@ -407,7 +432,7 @@ public class BlackboardFilter extends ServiceFilter {
     }
   }
 
-  public static class BlackboardPolicy extends TypedPolicy {
+  public class BlackboardPolicy extends TypedPolicy {
     public BlackboardPolicy() {
       super(BlackboardPolicy.class.getName());
     }

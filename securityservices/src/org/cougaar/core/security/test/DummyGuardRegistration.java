@@ -29,6 +29,7 @@ package org.cougaar.core.security.test;
 import java.util.*;
 
 // Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 
@@ -42,8 +43,9 @@ public class DummyGuardRegistration
   extends GuardRegistration 
   implements NodeEnforcer
 {
-  public DummyGuardRegistration(String aPolicyType, String enforcerName) {
-    super(aPolicyType, enforcerName);
+  public DummyGuardRegistration(String aPolicyType, String enforcerName,
+				ServiceBroker sb) {
+    super(aPolicyType, enforcerName, sb);
   }
 
   public void receivePolicyMessage(Policy policy,

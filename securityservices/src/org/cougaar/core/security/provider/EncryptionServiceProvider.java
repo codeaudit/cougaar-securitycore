@@ -60,7 +60,7 @@ public class EncryptionServiceProvider
 		      });
 
     if (encryptionService == null) {
-      encryptionService = new CryptoManagerServiceImpl(ksr);
+      encryptionService = new CryptoManagerServiceImpl(ksr, sb);
     }
     return encryptionService;
   }

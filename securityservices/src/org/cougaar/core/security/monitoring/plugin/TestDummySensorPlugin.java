@@ -21,6 +21,9 @@
 
 package org.cougaar.core.security.monitoring.plugin;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -40,7 +43,7 @@ import edu.jhuapl.idmef.*;
 
 
 public class TestDummySensorPlugin  extends  ComponentPlugin   {
-  
+  private LoggingService log;
   private DomainService domainService = null;
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -59,10 +62,14 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
 
     
   protected void setupSubscriptions() {
-    System.out.println("setupSubscriptions of Test dummy sensor called :"); 
+    log = (LoggingService)
+      getBindingSite().getServiceBroker().getService(this,
+			       LoggingService.class, null);
+
+    log.debug("setupSubscriptions of Test dummy sensor called :"); 
     DomainService service=getDomainService();
     if(service==null) {
-      System.out.println(" Got service as null in Test Dummy Sensor  :");
+      log.debug(" Got service as null in Test Dummy Sensor  :");
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -76,7 +83,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration);
     
     NewEvent event=factory.newEvent(reg);
-    System.out.println(" going to publish capabilities in Test Dummy sensor :");
+    log.debug(" going to publish capabilities in Test Dummy sensor :");
     getBlackboardService().publishAdd(event);
     getBlackboardService().closeTransaction();
     sensor=new TestDummySensor("sensor2");
@@ -89,7 +96,7 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     getBlackboardService().publishAdd(event);
     getBlackboardService().closeTransaction();
       
-    System.out.println("Success in publishing  capabilities in Test Dummy sensor  :");
+    log.debug("Success in publishing  capabilities in Test Dummy sensor  :");
    
     capabilities = new ArrayList();
     capabilities.add( imessage.createClassification( "POD", null  ) );

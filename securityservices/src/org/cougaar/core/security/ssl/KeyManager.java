@@ -31,6 +31,10 @@ import java.security.cert.*;
 import java.net.*;
 import java.util.List;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
@@ -43,16 +47,23 @@ public class KeyManager implements X509KeyManager {
   protected String nodealias = null;
   protected X509Certificate nodex509 = null;
   protected String nodename = null;
+  private ServiceBroker serviceBroker;
+  protected LoggingService log;
 
-  public KeyManager(KeyRingService krs) {
+  public KeyManager(KeyRingService krs, ServiceBroker sb) {
     keyRing = krs;
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     keystore = keyRing.getDirectoryKeyStore();
 
     // get nodename, nodealias, and node certificate
     updateKeystore();
 
-    if (CryptoDebug.debug)
-      System.out.println("SSLContext:KeyManager: nodealias is " + nodealias
+    if (log.isDebugEnabled())
+      log.debug("SSLContext:KeyManager: nodealias is " + nodealias
         + " and nodex509 is " + nodex509);
   }
 
@@ -78,8 +89,8 @@ public class KeyManager implements X509KeyManager {
   public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
     // node alias if opening socket for RMI... node service
     // if server is tomcat prompt for user certificate
-    //if (CryptoDebug.debug)
-    //  System.out.println("chooseClientAlias: " + socket);
+    //if (log.isDebugEnabled())
+    //  log.debug("chooseClientAlias: " + socket);
     return nodealias;
   }
 
@@ -90,8 +101,8 @@ public class KeyManager implements X509KeyManager {
    */
   public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
     // if tomcat return tomcat alias
-    //if (CryptoDebug.debug)
-    //  System.out.println("chooseServerAlias: " + nodealias);
+    //if (log.isDebugEnabled())
+    //  log.debug("chooseServerAlias: " + nodealias);
     return nodealias;
   }
 
@@ -100,20 +111,20 @@ public class KeyManager implements X509KeyManager {
    */
   public X509Certificate[] getCertificateChain(String alias) {
     // should be only asking for node's chain for now
-    if (CryptoDebug.debug)
-      System.out.println("getCertificateChain: " + alias);
+    if (log.isDebugEnabled())
+      log.debug("getCertificateChain: " + alias);
 
     if (nodex509 != null && alias.equals(nodealias)) {
       try {
         return keystore.checkCertificateTrust(nodex509);
       } catch (Exception e) {
-        if (CryptoDebug.debug)
+        if (log.isDebugEnabled())
           e.printStackTrace();
       }
     }
 
-    if (CryptoDebug.debug)
-      System.out.println("Failed to getCertificateChain");
+    if (log.isDebugEnabled())
+      log.debug("Failed to getCertificateChain");
 
     return new X509Certificate[] {};
   }
@@ -125,8 +136,8 @@ public class KeyManager implements X509KeyManager {
    */
   public String[] getClientAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
-    //if (CryptoDebug.debug)
-    //  System.out.println("getClientAliases: " + issuers);
+    //if (log.isDebugEnabled())
+    //  log.debug("getClientAliases: " + issuers);
     return new String [] {nodealias};
   }
 
@@ -138,8 +149,8 @@ public class KeyManager implements X509KeyManager {
     if (nodex509 == null || nodealias == null || !alias.equals(nodealias))
       return null;
 
-    if (CryptoDebug.debug)
-      System.out.println("getPrivateKey: " + alias);
+    if (log.isDebugEnabled())
+      log.debug("getPrivateKey: " + alias);
 
     // DirectoryKeyStore sends out request if key not found
     // Get the first key in the list
@@ -152,8 +163,8 @@ public class KeyManager implements X509KeyManager {
    */
   public String[] getServerAliases(String keyType, Principal[] issuers) {
     // node and agent aliases?
-    //if (CryptoDebug.debug)
-    //  System.out.println("getServerAliases: " + issuers);
+    //if (log.isDebugEnabled())
+    //  log.debug("getServerAliases: " + issuers);
     return new String [] {nodealias};
   }
 

@@ -40,6 +40,8 @@ import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.core.node.ArgTableIfc;
 import org.cougaar.core.service.UIDServer;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
@@ -171,13 +173,16 @@ final public class IdmefMessageFactory {
   public static final int newregistration=1;
   public static final int addtoregistration=2;
   public static final int removefromregistration=3;
-    
+
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
+
   /**
    * Constructor to create an IdmefMessageFactory instance
    *
    * @param ldm the LDMServesPlugin
    */
-  public IdmefMessageFactory( LDMServesPlugin ldm ){
+  public IdmefMessageFactory(LDMServesPlugin ldm ){
         
     String agentName = "unknown";
     Address agentAddress = null;
@@ -350,9 +355,9 @@ final public class IdmefMessageFactory {
 		  testClassification, testAssessment, ad, 
 		  "test_ident" );
     
-      System.out.println("=========================== Alert message:");
-      System.out.println(theAlert.toString());
-      System.out.println("===========================");
+      log.debug("=========================== Alert message:");
+      log.debug(theAlert.toString());
+      log.debug("===========================");
     
       return theAlert;
         

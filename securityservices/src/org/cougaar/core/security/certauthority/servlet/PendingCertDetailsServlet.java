@@ -33,6 +33,10 @@ import javax.servlet.http.*;
 import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.*;
@@ -51,9 +55,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
   private CaPolicy caPolicy = null;            // the policy of the CA
   protected boolean debug = false;
   private SecurityServletSupport support;
+  private LoggingService log;
 
   public PendingCertDetailsServlet(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+	support.getServiceBroker().getService(this,
+					      LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -76,20 +84,20 @@ public class PendingCertDetailsServlet extends  HttpServlet
     PrintWriter out=res.getWriter();
 
     if (debug) {
-      //System.out.println("getContextPath:" + req.getContextPath());
-      System.out.println("getPathInfo:" + req.getPathInfo());
-      System.out.println("getPathTranslated:" + req.getPathTranslated());
-      System.out.println("getRequestURI:" + req.getRequestURI());
-      System.out.println("getServletPath:" + req.getServletPath());
+      //log.debug("getContextPath:" + req.getContextPath());
+      log.debug("getPathInfo:" + req.getPathInfo());
+      log.debug("getPathTranslated:" + req.getPathTranslated());
+      log.debug("getRequestURI:" + req.getRequestURI());
+      log.debug("getServletPath:" + req.getServletPath());
     }
 
     alias=req.getParameter("alias");
     //role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
-    if (debug) {
-      System.out.println("PendingCertDetailsServlet. Search alias="
-			 + alias
-			 + " - cadnname: " + cadnname);
+    if (log.isDebugEnabled()) {
+      log.debug("PendingCertDetailsServlet. Search alias="
+		+ alias
+		+ " - cadnname: " + cadnname);
     }
     if((cadnname==null)||(cadnname=="")) {
       out.print("Error in dn name ");
@@ -103,11 +111,13 @@ public class PendingCertDetailsServlet extends  HttpServlet
 					      ConfigParserService.class,
 					      null);
       caPolicy = configParser.getCaPolicy(cadnname);
-      nodeConfiguration = new NodeConfiguration(cadnname);
+      nodeConfiguration = new NodeConfiguration(cadnname,
+						support.getServiceBroker());
     
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
+				       caPolicy.ldapType, caPolicy.ldapURL,
+				       support.getServiceBroker());
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -155,8 +165,8 @@ public class PendingCertDetailsServlet extends  HttpServlet
 		+ alias+"\">");
     /*
     if((role==null)||(role=="")) {
-      if (debug) {
-	System.out.println("got role as null or empty in certificate details:::::++++");
+      if (log.isDebugEnabled()) {
+	log.debug("got role as null or empty in certificate details:::::++++");
       }
     }
     else {

@@ -37,6 +37,10 @@ import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.BigInt;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar Security Services
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -56,6 +60,7 @@ public class CryptographicMessage
 {
   private KeyRingService keyRing = null;
   private SecurityServiceProvider secProvider = null;
+  private LoggingService log;
 
   public CryptographicMessage()
   {
@@ -63,6 +68,9 @@ public class CryptographicMessage
    keyRing = (KeyRingService)secProvider.getService(null,
 						    this,
 						    KeyRingService.class);
+   log = (LoggingService)
+     secProvider.getService(null, this,
+			    LoggingService.class);
   }
 
   public PKCS7 encryptData()
@@ -82,8 +90,8 @@ public class CryptographicMessage
     throws CertificateException
   {
     if (signerCertificate == null) {
-      if (CryptoDebug.debug) {
-	System.out.println("Error: Signer's certificate not provided");
+      if (log.isDebugEnabled()) {
+	log.debug("Error: Signer's certificate not provided");
       }
       throw new CertificateException("Signer's certificate not provided");
     }
@@ -184,7 +192,7 @@ public class CryptographicMessage
       signerSignatureAlgorithmId = AlgorithmId.get(sz_signatureAlgorithm);
     }
     catch (java.security.NoSuchAlgorithmException e) {
-      System.out.println("Error: no such algorithm. " + e);
+      log.debug("Error: no such algorithm. " + e);
       return null;
     }
 
@@ -198,15 +206,15 @@ public class CryptographicMessage
       signedMessage = signature.sign();
     }
     catch (java.security.NoSuchAlgorithmException e) {
-      System.out.println("Error: " + e);
+      log.debug("Error: " + e);
       return null;
     }
     catch (java.security.InvalidKeyException e) {
-      System.out.println("Error: " + e);
+      log.debug("Error: " + e);
       return null;
     }
     catch (java.security.SignatureException e) {
-      System.out.println("Error: " + e);
+      log.debug("Error: " + e);
       return null;
     }
 
@@ -230,8 +238,8 @@ public class CryptographicMessage
 
     PKCS7 pkcs7 = new PKCS7(digestAlgorithms, contentinfo,
 			    certificates, signerInfos);
-    if (CryptoDebug.debug) {
-      System.out.println("PKCS#7: " + pkcs7);
+    if (log.isDebugEnabled()) {
+      log.debug("PKCS#7: " + pkcs7);
     }
     return pkcs7;
   }
@@ -252,7 +260,7 @@ public class CryptographicMessage
 			     message);
     }
     catch (Exception e) {
-      System.out.println("Exception: " + e);
+      log.debug("Exception: " + e);
     }
   }
 

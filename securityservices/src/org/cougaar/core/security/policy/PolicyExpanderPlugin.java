@@ -37,6 +37,8 @@ import java.io.*;
 import org.w3c.dom.Document;
 
 // Core Cougaar
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
@@ -70,6 +72,7 @@ public class PolicyExpanderPlugin
   extends SimplePlugin
 {
   private SecurityPropertiesService secprop = null;
+  private LoggingService log;
 
   private UnaryPredicate _unexCondPolicyPredicate = new UnaryPredicate() {
       public boolean execute(Object o) {
@@ -86,6 +89,9 @@ public class PolicyExpanderPlugin
     {
       // TODO. Modify following line to use service broker instead
       secprop = SecurityServiceProvider.getSecurityProperties(null);
+      log = (LoggingService)
+	getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
 
       _ucpm = (IncrementalSubscription) subscribe(_unexCondPolicyPredicate);
       _upu = (IncrementalSubscription) subscribe (_unexPolicyUpdatePredicate);
@@ -99,7 +105,7 @@ public class PolicyExpanderPlugin
     
   public void execute()
     {
-      if (_debug) System.out.println("PolicyExpanderPlugIn::execute()");
+      if (_debug) log.debug("PolicyExpanderPlugIn::execute()");
       // check for added UnexpandedConditionalPolicyMsgs
       Enumeration ucpmEnum = _ucpm.getAddedList();
       while (ucpmEnum.hasMoreElements()) {
@@ -120,7 +126,7 @@ public class PolicyExpanderPlugin
 	  }                    
 	}
 	publishRemove (ucpm);
-	if (_debug) System.out.println("publishAdd ConditionalPolicyMsg");
+	if (_debug) log.debug("publishAdd ConditionalPolicyMsg");
 	publishAdd (condPolicyMsg);			
       }
         
@@ -162,7 +168,7 @@ public class PolicyExpanderPlugin
     throws Exception
     {
       if (_debug == true) {
-	System.out.println("Expanding policy message: " + policyMsg);
+	log.debug("Expanding policy message: " + policyMsg);
       }
 
       // get the attributes of the policy
@@ -181,7 +187,7 @@ public class PolicyExpanderPlugin
 	  Policy[] policies = policyCreator.getPolicies();
 
 	  if (_debug == true) {
-	    System.out.println("\n\nTHERE ARE " + policies.length
+	    log.debug("\n\nTHERE ARE " + policies.length
 			       + " POLICIES");
 	    PrintStream out = new PrintStream(System.out);
 	    DOMWriter xmlwriter = new DOMWriter(out);
@@ -200,7 +206,7 @@ public class PolicyExpanderPlugin
 				  policy.TypedPolicy.POLICY_OBJECT_KEY,
 				  policyObject);
 	      if (_debug == true) {
-		System.out.println("Adding policy object["+ i + "]: " +
+		log.debug("Adding policy object["+ i + "]: " +
 				   binderType + " - " + policyObject);
 	      }
 	    }

@@ -49,6 +49,10 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.security.certauthority.SecurityServletSupport;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
@@ -112,7 +116,7 @@ public class UserAdminServlet extends HttpServlet {
 //     String pathInfo = req.getPathInfo();
     String pathInfo = req.getParameter(UserInterface.PAGE);
     try {
-//       System.out.println("Servicing request for pathInfo = " + pathInfo);
+//       log.debug("Servicing request for pathInfo = " + pathInfo);
       /*
       if (pathInfo == null || 
           pathInfo.length() <= _servletPath.length() ||

@@ -28,13 +28,21 @@ package org.cougaar.core.security.ssl;
 import javax.net.*;
 import javax.net.ssl.*;
 
-import org.cougaar.core.security.util.CryptoDebug;
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.userauth.*;
 
-public class UserSSLServiceImpl extends SSLServiceImpl
-  implements UserSSLService {
+public class UserSSLServiceImpl
+  extends SSLServiceImpl
+  implements UserSSLService
+{
   private SSLContext usrcontext = null;
+
+  public UserSSLServiceImpl(ServiceBroker sb) {
+    super(sb);
+  }
 
   public synchronized void init(KeyRingService krs)
     throws Exception
@@ -43,8 +51,8 @@ public class UserSSLServiceImpl extends SSLServiceImpl
     SSLContext context = SSLContext.getInstance(protocol);
 
     // create keymanager and trust manager
-    km = new UserKeyManager(krs);
-    tm = new UserTrustManager(krs);
+    km = new UserKeyManager(krs, serviceBroker);
+    tm = new UserTrustManager(krs, serviceBroker);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
 
@@ -54,7 +62,7 @@ public class UserSSLServiceImpl extends SSLServiceImpl
     HttpsURLConnection.setDefaultSSLSocketFactory(
       (SSLSocketFactory)getUserSocketFactory());
 
-    System.out.println("Successfully initialize UserSSLService.");
+    log.debug("Successfully initialize UserSSLService.");
   }
 
   public SocketFactory getUserSocketFactory() {

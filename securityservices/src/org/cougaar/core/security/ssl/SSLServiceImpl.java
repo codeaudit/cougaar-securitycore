@@ -32,7 +32,10 @@ import java.net.*;
 import java.security.*;
 import javax.net.*;
 
-import org.cougaar.core.security.util.CryptoDebug;
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.SSLService;
 
@@ -44,9 +47,16 @@ public class SSLServiceImpl implements SSLService {
   protected static SSLContext sslcontext = null;
   protected KeyManager km = null;
   protected TrustManager tm = null;
+  protected
+ ServiceBroker serviceBroker;
+  protected LoggingService log;
 
-  public SSLServiceImpl()
+  public SSLServiceImpl(ServiceBroker sb)
   {
+    serviceBroker = sb;
+    log = (LoggingService)
+	serviceBroker.getService(this,
+	LoggingService.class, null);
   }
 
   public void setProtocol(String protocol) {
@@ -63,8 +73,8 @@ public class SSLServiceImpl implements SSLService {
     SSLContext context = SSLContext.getInstance(protocol);
 
     // create keymanager and trust manager
-    km = new KeyManager(krs);
-    tm = new TrustManager(krs);
+    km = new KeyManager(krs, serviceBroker);
+    tm = new TrustManager(krs, serviceBroker);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
     sslcontext = context;
@@ -76,8 +86,8 @@ public class SSLServiceImpl implements SSLService {
     HttpsURLConnection.setDefaultSSLSocketFactory(
       (SSLSocketFactory)KeyRingSSLFactory.getDefault());
 
-    if (CryptoDebug.debug)
-      System.out.println("Successfully created SSLContext.");
+    if (log.isDebugEnabled())
+      log.debug("Successfully created SSLContext.");
 
   }
 

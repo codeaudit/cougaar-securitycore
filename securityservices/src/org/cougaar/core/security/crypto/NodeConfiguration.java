@@ -36,6 +36,9 @@ import sun.security.x509.X500Name;
 
 // Cougaar core infrastructure
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -50,9 +53,15 @@ public class NodeConfiguration
   private SecurityPropertiesService secprop;
   private String nodeDirectory;
   private String nodeDomain;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public NodeConfiguration(String nodeDomain) {
-    System.out.println("Node Crypto Initializing");
+  public NodeConfiguration(String nodeDomain, ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+	serviceBroker.getService(this,
+				 LoggingService.class, null);
+    log.debug("Node Crypto Initializing");
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
@@ -123,17 +132,17 @@ public class NodeConfiguration
     String nodeName = secprop.getProperty("org.cougaar.node.name");
 
     String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
-    System.out.println("Cougaar workspace is :" + cougaarWsp);
+    log.debug("Cougaar workspace is :" + cougaarWsp);
 
     String topDirectory = cougaarWsp + File.separatorChar + "security"
       + File.separatorChar + "keystores" + File.separatorChar;
 
     nodeDirectory = topDirectory + nodeName + File.separatorChar;
-    System.out.println("Node-level directory: " + nodeDirectory);
+    log.debug("Node-level directory: " + nodeDirectory);
 
     try {
-      if (CryptoDebug.debug) {
-	System.out.println("Creating directory structure under "
+      if (log.isDebugEnabled()) {
+	log.debug("Creating directory structure under "
 			   + nodeDirectory);
       }
       
@@ -145,7 +154,7 @@ public class NodeConfiguration
       createDomainDirectories(aDomain);
     }
     catch (IOException e) {
-      System.out.println("Unable to create directory structure: " + e);
+      log.debug("Unable to create directory structure: " + e);
     }
   }
 
@@ -208,13 +217,13 @@ public class NodeConfiguration
 	String propertyValue = getChildText(propertyelement,
 					    "propertyvalue");
 	if((propertyName==null )||(propertyValue==null)) {
-	  System.out.println("wrong xml format error");
+	  log.debug("wrong xml format error");
 	  return;
 	}
 	try {
-	  System.out.println("setting property name in context  :"
+	  log.debug("setting property name in context  :"
 			     +propertyName);
-	  System.out.println("setting property value in context::"
+	  log.debug("setting property value in context::"
 			     +propertyValue);
 	  secprop.setProperty(propertyName,propertyValue);
 	}

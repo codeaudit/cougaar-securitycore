@@ -23,7 +23,7 @@
  * CHANGE RECORD
  * -
  */
-package org.cougaar.core.security.monitor.plugin;
+package org.cougaar.core.security.monitoring.plugin;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -33,6 +33,10 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import edu.jhuapl.idmef.IDMEFTime;
+
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.lib.aggagent.query.Alert;
@@ -120,6 +124,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     new ScriptSpec(Language.JPYTHON, XmlFormat.XMLENCODER, FORMAT_SCRIPT);
 
   private static final int OVERSIZE = 60;
+  private LoggingService log;
 
   protected int    _pollInterval    = 0;
   protected int    _window          = 0;
@@ -194,6 +199,10 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
   }
 
   protected void setupSubscriptions() {
+    log = (LoggingService)
+	getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
+
 //     _startTime = System.currentTimeMillis();
     AggregationQuery aq = createQuery();
     QueryResultAdapter qra = new QueryResultAdapter(aq);
@@ -231,9 +240,9 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
 
       QueryResultAdapter qra = getQueryAdapter();
       AggregationResultSet results = qra.getResultSet();
-//       System.out.println("Exception thrown:  " + results.exceptionThrown());
-//       System.out.println("Exception Summary: " + results.getExceptionSummary());
-//       System.out.println("XML: " + results.toXml());
+//       log.debug("Exception thrown:  " + results.exceptionThrown());
+//       log.debug("Exception Summary: " + results.getExceptionSummary());
+//       log.debug("XML: " + results.toXml());
       
       Iterator atoms = results.getAllAtoms();
       int count = 0;
@@ -245,7 +254,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
         }
       }
       long rate = count * SECONDSPERDAY / _window;
-      System.out.println("Rate = " + rate + " login failures/day");
+      log.debug("Rate = " + rate + " login failures/day");
       if (_lastRate != rate) {
         _lastRate = (int) rate;
         Condition cond = new LoginFailureRateCondition(_lastRate);

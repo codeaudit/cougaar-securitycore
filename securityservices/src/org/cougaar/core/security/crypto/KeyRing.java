@@ -119,7 +119,7 @@ final public class KeyRing
 			     defaultKeystorePath);
       */
       String nodeDomain = cryptoClientPolicy.getCertificateAttributesPolicy().domain;
-      nodeConfiguration = new NodeConfiguration(nodeDomain);
+      nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
       param.keystorePath = nodeConfiguration.getNodeDirectory()
 	+ cryptoClientPolicy.getKeystoreName();
       param.keystorePassword = cryptoClientPolicy.getKeystorePassword().toCharArray();
@@ -210,7 +210,7 @@ final public class KeyRing
 	param.caKeystoreStream.close();
       }
 
-      pkcs12 = new PrivateKeyPKCS12(keystore);
+      pkcs12 = new PrivateKeyPKCS12(keystore, serviceBroker);
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -38,15 +38,19 @@ import org.apache.catalina.deploy.SecurityCollection;
 // KAoS policy management
 import safe.enforcer.NodeEnforcer;
 
-// Cougaar security services
-import org.cougaar.core.security.policy.GuardRegistration;
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
-import org.cougaar.core.security.services.crypto.ServletPolicyService;
-import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.planning.ldm.policy.KeyRuleParameterEntry;
 import org.cougaar.planning.ldm.policy.KeyRuleParameter;
 import org.cougaar.planning.ldm.policy.LongRuleParameter;
+
+// Cougaar security services
+import org.cougaar.core.security.policy.GuardRegistration;
+import org.cougaar.core.security.services.crypto.ServletPolicyService;
+import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
 public class ServletPolicyEnforcer 
@@ -67,9 +71,9 @@ public class ServletPolicyEnforcer
   HashMap _constraints = new HashMap();
   long    _sleepTime   = 1000;
 
-  public ServletPolicyEnforcer() {
+  public ServletPolicyEnforcer(ServiceBroker sb) {
     super("org.cougaar.core.security.policy.ServletPolicy",
-          "ServletPolicyService");
+          "ServletPolicyService", sb);
     try {
       registerEnforcer();
     } catch (Exception ex) {
@@ -255,10 +259,10 @@ public class ServletPolicyEnforcer
     }
 
     if (debug) {
-      System.out.println("ServletPolicyEnforcer: Received policy message");
+      log.debug("ServletPolicyEnforcer: Received policy message");
       RuleParameter[] param = policy.getRuleParameters();
       for (int i = 0 ; i < param.length ; i++) {
-        System.out.println("Rule: " + param[i].getName() +
+        log.debug("Rule: " + param[i].getName() +
                            " - " + param[i].getValue());
       }
     }

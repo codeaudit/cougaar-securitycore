@@ -35,9 +35,16 @@ import sun.security.x509.*;
 import sun.security.util.*;
 import org.cougaar.core.security.util.CryptoDebug;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
+
 public final class KeyCertGenerator
 {
-  //private boolean CryptoDebug.debug = false;
+  //private boolean log.isDebugEnabled() = false;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   /** Initialize the key pair generator.
    *  @param algorithm      The standard string name of the algorithm.
@@ -59,9 +66,13 @@ public final class KeyCertGenerator
    *                        provider is ok.
    */
   public KeyCertGenerator(String algorithm, String signatureAlg,
-			  String provider)
+			  String provider, ServiceBroker sb)
     throws NoSuchAlgorithmException, NoSuchProviderException
   {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     if (provider == null || provider.equals("")) {
       keyGen = KeyPairGenerator.getInstance(algorithm);
     }
@@ -85,8 +96,8 @@ public final class KeyCertGenerator
       {
 	if(prng == null)
 	  prng = new SecureRandom();
-	if (CryptoDebug.debug) {
-	  System.out.println("Generate key pair. Using provider: " +
+	if (log.isDebugEnabled()) {
+	  log.debug("Generate key pair. Using provider: " +
 			     keyGen.getProvider().toString());
 	}
 	keyGen.initialize(keysize, prng);
@@ -119,9 +130,9 @@ public final class KeyCertGenerator
 	X500Signer x500signer = getSigner(x500name);
 	Date date = new Date();
 	Date date1 = new Date();
-	System.out.println("date: " + date.toString());
-	System.out.println("date1: " + date1.toString());
-	System.out.println("l: " + l);
+	log.debug("date: " + date.toString());
+	log.debug("date1: " + date1.toString());
+	log.debug("l: " + l);
 
 	date1.setTime(date1.getTime() + l * 1000L);
 	CertificateValidity certificatevalidity = new CertificateValidity(date, date1);

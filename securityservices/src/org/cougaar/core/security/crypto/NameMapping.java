@@ -32,16 +32,26 @@ import java.security.Principal;
 import sun.security.x509.*;
 import java.security.cert.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // Cougaar security services
 import org.cougaar.core.security.util.*;
 
 public class NameMapping {
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
   /** Key: a common name
    *  Value: an X500Principal
    */
   private Hashtable cn2dn;
 
-  public NameMapping() {
+  public NameMapping(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     cn2dn = new Hashtable(50);
   }
 
@@ -56,8 +66,8 @@ public class NameMapping {
   private void addName(Principal principal)
     throws IllegalArgumentException
   {
-    if (CryptoDebug.debug) {
-      System.out.println("Add name:" + principal.getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Add name:" + principal.getName());
     }
     X500Name x500Name = null;
     String cn = null;
@@ -68,12 +78,12 @@ public class NameMapping {
       x500Name = new X500Name(principal.getName());
       cn = x500Name.getCommonName();
     } catch(Exception e) {
-      if (CryptoDebug.debug) {
-	System.out.println("Unable to get Common Name - " + e);
+      if (log.isDebugEnabled()) {
+	log.debug("Unable to get Common Name - " + e);
       }
     }
-    if (CryptoDebug.debug) {
-      System.out.println("AddName: " + principal.getName());
+    if (log.isDebugEnabled()) {
+      log.debug("AddName: " + principal.getName());
     }
 
     /* Since the common name must currently be unique, it is a configuration

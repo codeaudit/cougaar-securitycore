@@ -22,6 +22,10 @@
 
 package org.cougaar.core.security.access;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 
@@ -33,21 +37,8 @@ import  org.cougaar.core.security.acl.trust.TrustSet;
 import java.io.*;
 
 public class MessageWithTrust extends Message {
-  private static boolean debug=false;
-  private static SecurityPropertiesService secprop = null;
   private Message message=null;
-  private static String SECURE_PROPERTY = 
-  "org.cougaar.message.transport.secure";
 
-  static {
-     secprop = SecurityServiceProvider.getSecurityProperties(null);
-
-    String db = secprop.getProperty(secprop.TRANSPORT_DEBUG);
-    if (db!=null &&
-	(db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) {
-      debug=true;
-    }
-  }
   private TrustSet[] trustset = null;
   public MessageWithTrust() {
     super();
@@ -64,9 +55,6 @@ public class MessageWithTrust extends Message {
     trustset = new TrustSet[ats.length];
     for(int i=0; i<ats.length; i++){
       trustset[i]=ats[i];
-    }
-    if(debug) {
-      System.out.println("Mesage access control: Building Message with trust");
     }
     
   }
@@ -122,8 +110,6 @@ public class MessageWithTrust extends Message {
     }
   
   public void writeExternal(ObjectOutput out) throws IOException {
-    if(debug)
-      System.out.println(" write external of Message with trust called :");
     out.writeObject(message);
     int length=0;
     if(trustset!=null) {
@@ -141,8 +127,6 @@ public class MessageWithTrust extends Message {
   }
 
   public void readExternal(ObjectInput in) throws ClassNotFoundException, IOException {
-    if(debug)
-      System.out.println(" read external called of message with trust  :");
     message=(Message)in.readObject();
     int length=0;
     length=in.readInt();

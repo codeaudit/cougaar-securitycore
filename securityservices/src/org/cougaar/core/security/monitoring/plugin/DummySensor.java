@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import edu.jhuapl.idmef.*;
 
 // Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.util.UnaryPredicate;
@@ -51,6 +52,8 @@ public class DummySensor
   implements SensorInfo
 {
   private DomainService domainService = null;
+  private LoggingService log;
+
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -66,15 +69,19 @@ public class DummySensor
   }
     
   protected void setupSubscriptions() {
-    System.out.println("setupSubscriptions of dummy sensor called :"); 
+    log = (LoggingService)
+	getBindingSite().getServiceBroker().getService(this,
+	LoggingService.class, null);
+
+    log.debug("setupSubscriptions of dummy sensor called :"); 
     DomainService service=getDomainService();
     if(service==null) {
-      System.out.println(" Got service as null in CapabilitiesConsolidationPlugin :");
+      log.debug(" Got service as null in CapabilitiesConsolidationPlugin :");
       return;
     }
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
     if (factory == null) {
-      System.out.println("Error: Unable to get Monitoring Factory");
+      log.debug("Error: Unable to get Monitoring Factory");
       return;
     }    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     DummySensor sensor=new DummySensor();
@@ -92,12 +99,12 @@ public class DummySensor
     RegistrationAlert reg=
       imessage.createRegistrationAlert(this,
 				       capabilities,IdmefMessageFactory.newregistration);
-    // System.out.println(" Registration object is :"+reg);
-    System.out.println("factory is :"+factory.toString());
+    // log.debug(" Registration object is :"+reg);
+    log.debug("factory is :"+factory.toString());
     NewEvent event=factory.newEvent(reg);
-    System.out.println(" going to publish capabilities :");
+    log.debug(" going to publish capabilities :");
     getBlackboardService().publishAdd(event);
-    System.out.println("Success in publishing  capabilities :");
+    log.debug("Success in publishing  capabilities :");
 
 
     /* ---------------------------------------------------------------- */
@@ -192,9 +199,9 @@ public class DummySensor
 				       sources, targets,
 				       classifications, data);
     Event e = factory.newEvent(alert);
-    System.out.println("Intrusion Alert:" + alert.toString());
+    log.debug("Intrusion Alert:" + alert.toString());
 
-    System.out.println("Publishing sensor Event :");
+    log.debug("Publishing sensor Event :");
     getBlackboardService().publishAdd(e);
 
   }

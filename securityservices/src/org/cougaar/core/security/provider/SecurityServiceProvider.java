@@ -30,8 +30,9 @@ import java.lang.*;
 import java.util.Hashtable;
 
 // Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.bootstrap.SystemProperties;
-
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 import org.cougaar.core.service.identity.*;
@@ -221,7 +222,7 @@ public class SecurityServiceProvider
 
     services = new SecurityServiceTable(log);
 
-    if (CryptoDebug.debug) {
+    if (log.isDebugEnabled()) {
       log.warn("Registering security services");
     }
 
@@ -295,7 +296,7 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(CryptoPolicyService.class, this);
 
     services.put(ServletPolicyService.class,
-		 new ServletPolicyServiceProvider());
+		 new ServletPolicyServiceProvider(serviceBroker));
     rootServiceBroker.addService(ServletPolicyService.class, this);
 
     SecurityPropertiesService secprop = (SecurityPropertiesService)
@@ -307,7 +308,7 @@ public class SecurityServiceProvider
     } catch (Exception ex) {}
     if (!standalone) {
       services.put(ServletPolicyService.class,
-                   new ServletPolicyServiceProvider());
+                   new ServletPolicyServiceProvider(serviceBroker));
       rootServiceBroker.addService(ServletPolicyService.class, this);
 
     /* ********************************

@@ -49,7 +49,7 @@ public class CryptoPolicyServiceProvider
 					Object requestor, 
 					Class serviceClass) {
     if (cryptoPolicyService == null) {
-      cryptoPolicyService = new CryptoPolicyServiceImpl();
+      cryptoPolicyService = new CryptoPolicyServiceImpl(sb);
     }
     return cryptoPolicyService;
   }

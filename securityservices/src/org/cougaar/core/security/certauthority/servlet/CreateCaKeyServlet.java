@@ -37,6 +37,8 @@ import javax.security.auth.x500.X500Principal;
 
 // Cougaar core infrastructure
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Overlay
 import org.cougaar.core.service.identity.*;
@@ -60,6 +62,7 @@ public class CreateCaKeyServlet
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
   private KeyRingService keyRingService= null;
+  private LoggingService log;
 
   protected boolean debug = false;
 
@@ -68,6 +71,9 @@ public class CreateCaKeyServlet
 
   public CreateCaKeyServlet(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+      support.getServiceBroker().getService(this,
+			       LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -107,8 +113,8 @@ public class CreateCaKeyServlet
       + ", l=" + caL
       + ", st=" + caST
       + ", c=" + caC;
-    if (CryptoDebug.debug) {
-      System.out.println("Creating CA key for: " + caDN);
+    if (log.isDebugEnabled()) {
+      log.debug("Creating CA key for: " + caDN);
     }
 
     // Build a hashtable of (attribute, value) pairs to replace
@@ -297,8 +303,8 @@ public class CreateCaKeyServlet
     }
 
     public String getName() {
-      if (CryptoDebug.debug) {
-	System.out.println("Creating key pair for "
+      if (log.isDebugEnabled()) {
+	log.debug("Creating key pair for "
 			   + principal.getName());
       }
       return principal.getName();

@@ -26,8 +26,11 @@
 
 package org.cougaar.core.security.policy;
 
+// Cougaar core services
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.Policy;
 
+// KAoS policy management
 import safe.enforcer.AgentEnforcer;
 import kaos.core.util.Msg;
 
@@ -35,9 +38,9 @@ public class AgentPolicyCache extends PolicyCache implements AgentEnforcer {
 
   private String agent;
     
-  public AgentPolicyCache(String type, String name)
+  public AgentPolicyCache(String type, String name, ServiceBroker sb)
   {
-    super(type, name);
+    super(type, name, sb);
     agent = name;
   }
 

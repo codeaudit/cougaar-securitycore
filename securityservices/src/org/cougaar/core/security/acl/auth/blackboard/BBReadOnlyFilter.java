@@ -37,6 +37,7 @@ import org.cougaar.core.security.policy.GuardRegistration;
 import safe.enforcer.NodeEnforcer;
 
 // Cougaar core infrastructure
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.component.ServiceBroker;
@@ -83,7 +84,7 @@ public class BBReadOnlyFilter extends BlackboardFilter {
   }
 
   // This is a "Wrapper" binder which installs a service filter for plugins
-  public static class BBReadOnlyFilterBinder 
+  public class BBReadOnlyFilterBinder 
     extends BlackboardFilter.PluginServiceFilterBinder {
 
     public BBReadOnlyFilterBinder(BinderFactory bf, Object child) {
@@ -93,20 +94,26 @@ public class BBReadOnlyFilter extends BlackboardFilter {
     protected BlackboardService getBlackboardServiceProxy(BlackboardService bbs,
                                                           Object child) {
       MessageAddress address = getPluginManager().getAgentIdentifier();
-      return new BBReadOnlyProxy(bbs, address.getAddress());
+      return new BBReadOnlyProxy(bbs, address.getAddress(),
+				 getServiceBroker());
     }
   }
 
   // this class is a proxy for the blackboard service which audits subscription
   // requests.
-  public static class BBReadOnlyProxy implements BlackboardService {
-    private static BlackboardGuard   _bbg = new BlackboardGuard();
-    private        BlackboardService _bbs;
-    private        String            _agentName;
+  public class BBReadOnlyProxy
+    implements BlackboardService {
+    private BlackboardGuard   _bbg;
+    private BlackboardService _bbs;
+    private String            _agentName;
+    private ServiceBroker     _serviceBroker;
 
-    public BBReadOnlyProxy(BlackboardService service, String agentName) {
+    public BBReadOnlyProxy(BlackboardService service, String agentName,
+      ServiceBroker sb) {
       _bbs = service;
       _agentName = agentName;
+      _serviceBroker = sb;
+      _bbg = new BlackboardGuard(_serviceBroker);
     }
 
     private void checkWrite(String method) {
@@ -301,7 +308,7 @@ public class BBReadOnlyFilter extends BlackboardFilter {
 
   }
 
-  public static class BlackboardGuard 
+  public class BlackboardGuard 
     extends GuardRegistration 
     implements NodeEnforcer {
 
@@ -314,8 +321,9 @@ public class BBReadOnlyFilter extends BlackboardFilter {
     HashSet _read  = new HashSet();
     HashSet _write = new HashSet();
 
-    public BlackboardGuard() {
-      super(BlackboardFilterPolicy.class.getName(), "BBReadOnlyFilter");
+    public BlackboardGuard(ServiceBroker sb) {
+      super(BlackboardFilterPolicy.class.getName(), "BBReadOnlyFilter",
+	    sb);
       try {
         registerEnforcer();
       } catch (Exception ex) {
@@ -344,10 +352,10 @@ public class BBReadOnlyFilter extends BlackboardFilter {
       }
 
       if (debug) {
-        System.out.println("ProxyBlackboard: Received policy message");
+        log.debug("ProxyBlackboard: Received policy message");
         RuleParameter[] param = policy.getRuleParameters();
         for (int i = 0 ; i < param.length ; i++) {
-          System.out.println("Rule: " + param[i].getName() +
+          log.debug("Rule: " + param[i].getName() +
                              " - " + param[i].getValue());
         }
       }
@@ -358,7 +366,7 @@ public class BBReadOnlyFilter extends BlackboardFilter {
           String ruleType = param[i].getName();
           if (RO_RULE.equals(ruleType)) {
             if (!(param[i] instanceof KeyRuleParameter)) {
-              System.out.println("Invalid parameter type for " + 
+              log.debug("Invalid parameter type for " + 
                                  RO_RULE + ". Expecting KeySet");
             } else {
               String aName = param[i].getValue().toString();

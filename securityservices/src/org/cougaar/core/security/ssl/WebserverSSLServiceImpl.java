@@ -28,14 +28,23 @@ package org.cougaar.core.security.ssl;
 import javax.net.*;
 import javax.net.ssl.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.identity.*;
 
 public class WebserverSSLServiceImpl
-  extends SSLServiceImpl implements WebserverIdentityService {
+  extends SSLServiceImpl
+  implements WebserverIdentityService {
 
   private static SSLContext srvcontext = null;
+
+  public WebserverSSLServiceImpl(ServiceBroker sb) {
+    super(sb);
+  }
 
   public synchronized void init(KeyRingService krs)
     throws Exception
@@ -47,8 +56,8 @@ public class WebserverSSLServiceImpl
     SSLContext context = SSLContext.getInstance(protocol);
 
     // create keymanager and trust manager
-    km = new ServerKeyManager(krs);
-    tm = new ServerTrustManager(krs);
+    km = new ServerKeyManager(krs, serviceBroker);
+    tm = new ServerTrustManager(krs, serviceBroker);
 
     context.init(new KeyManager[] {km}, new TrustManager[] {tm}, null);
 
@@ -58,8 +67,8 @@ public class WebserverSSLServiceImpl
     // flexible for any webservers
     WebtomcatSSLServerFactory.init(this);
 
-    if (CryptoDebug.debug)
-      System.out.println("Successfully created Webserver SSLContext.");
+    if (log.isDebugEnabled())
+      log.debug("Successfully created Webserver SSLContext.");
   }
 
   public ServerSocketFactory getWebServerSocketFactory() {

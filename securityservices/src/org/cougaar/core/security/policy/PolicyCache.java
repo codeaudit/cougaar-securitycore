@@ -29,6 +29,8 @@ package org.cougaar.core.security.policy;
 import java.util.*;
 
 // Cougaar core infrastructure
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
@@ -86,16 +88,16 @@ public class PolicyCache
    *   <LI> org.cougaar.core.security.policy.debug
    * </UL>
    */
-  public PolicyCache(String type, String enforcerName) 
+  public PolicyCache(String type, String enforcerName, ServiceBroker sb) 
   {
-    super(type, enforcerName);	// GuardRegistration constructor...
-    if(debug)System.out.println("new PolicyCache for type " + type);
+    super(type, enforcerName, sb);	// GuardRegistration constructor...
+    if(debug)log.debug("new PolicyCache for type " + type);
     try {
       registerEnforcer();
     }
     catch(Exception ex) {
       if(debug) {
-	System.out.println("PolicyCache: registration exception");
+	log.debug("PolicyCache: registration exception");
 	if(debug)ex.printStackTrace();
       }
     }
@@ -117,7 +119,7 @@ public class PolicyCache
     rule = new PolicyRuleBean(name, key, value);
     cache.put((Object)name, rule);
     if(debug) {
-      System.out.println("PolicyCache: added to cache - " + rule);
+      log.debug("PolicyCache: added to cache - " + rule);
     }
   }
 
@@ -147,7 +149,7 @@ public class PolicyCache
    */
   protected void createPolicyRuleBeans(KeyRuleParameter krp) {
     if(debug) {
-      System.out.println("PolicyCache: processing KeyRuleParameter");
+      log.debug("PolicyCache: processing KeyRuleParameter");
     }
     // if the key rule parameter has a non-null value
     if(krp.getValue()!= null && !((String)krp.getValue()).equals("")) {
@@ -164,7 +166,7 @@ public class PolicyCache
   protected void createPolicyRuleBeans(String name,
 				       KeyRuleParameterEntry[] entry) {
     if(debug) {
-      System.out.println("PolicyCache: processing KeyRuleParamEntry");
+      log.debug("PolicyCache: processing KeyRuleParamEntry");
     }
     for(int i = 0; i < entry.length; i++) {
       createPolicyRuleBean(name, entry[i].getKey(), 
@@ -176,7 +178,7 @@ public class PolicyCache
    */
   protected void createPolicyRuleBeans(RangeRuleParameter rrp){
     if(debug) {
-      System.out.println("PolicyCache: processing RangeRuleParameter");
+      log.debug("PolicyCache: processing RangeRuleParameter");
     }
     //if default value exists...
     if (rrp.getValue()!= null && !((String)rrp.getValue()).equals("")) {
@@ -192,7 +194,7 @@ public class PolicyCache
   {
     RangeRuleParameterEntry range = null; 
     if(debug) {
-      System.out.println("PolicyCache: processing RangeRuleParamEntry");
+      log.debug("PolicyCache: processing RangeRuleParamEntry");
     }
     for (int i=0; i < entries.length; i++) {
       range = entries[i];
@@ -202,7 +204,7 @@ public class PolicyCache
       else if(value instanceof RuleParameter)
 	createPolicyRuleBeans((RuleParameter)value);
       else 
-	System.out.println("PolicyCache: Range value isn't rule!");
+	log.debug("PolicyCache: Range value isn't rule!");
     }
   }
 
@@ -247,7 +249,7 @@ public class PolicyCache
 				   String policyTargetName,
 				   String policyType) {
     if (debug) {
-      System.out.println("PolicyCache.receivePolicyMessage");
+      log.debug("PolicyCache.receivePolicyMessage");
     }
     if(policy == null)return;
     RuleParameter[] ruleParameters = policy.getRuleParameters();

@@ -30,6 +30,10 @@ import java.security.MessageDigest;
 import javax.naming.*;
 import javax.naming.directory.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.Base64;
 
@@ -57,16 +61,22 @@ public abstract class CertDirectoryService
   protected boolean initializationOK = false;
   protected static String CONTEXT_FACTORY = 
     "com.sun.jndi.ldap.LdapCtxFactory";
+  protected ServiceBroker serviceBroker;
+  protected LoggingService log;
 
-  //protected boolean CryptoDebug.debug = false;
+  //protected boolean log.isDebugEnabled() = false;
 
   /** Creates new CertDirectoryService */
 
-  public CertDirectoryService(String aURL) 
+  public CertDirectoryService(String aURL, ServiceBroker sb) 
     throws IllegalArgumentException
   {
-    if (CryptoDebug.debug) {
-      System.out.println("Creating Directory Service for " + aURL);
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+    if (log.isDebugEnabled()) {
+      log.debug("Creating Directory Service for " + aURL);
     }
     if (aURL != null) {
       setDirectoryServiceURL(aURL);
@@ -103,8 +113,8 @@ public abstract class CertDirectoryService
     }
     ldapServerUrl = aURL;
     initializationOK = false;
-    if (CryptoDebug.debug) {
-      System.out.println("Using LDAP certificate directory: "
+    if (log.isDebugEnabled()) {
+      log.debug("Using LDAP certificate directory: "
 			 + ldapServerUrl);
     }
 
@@ -123,10 +133,10 @@ public abstract class CertDirectoryService
       initializationOK = true;
     }
     catch(NamingException nexp) {
-      if (CryptoDebug.debug) {
-	System.out.println("Warning:can't connect to LDAP server: "
-			   + ldapServerUrl);
-	System.out.println("Reason: " + nexp + ". Use local keystore only.");
+      if (log.isWarnEnabled()) {
+	log.warn("Warning:can't connect to LDAP server: "
+		 + ldapServerUrl);
+	log.warn("Reason: " + nexp + ". Use local keystore only.");
 	//nexp.printStackTrace();
       }
     }
@@ -141,8 +151,8 @@ public abstract class CertDirectoryService
 
   public synchronized LdapEntry[] searchWithFilter(String filter)
   {
-    if(CryptoDebug.debug) {
-      System.out.println("Search with filter called & filter is "+filter);
+    if(log.isDebugEnabled()) {
+      log.debug("Search with filter called & filter is "+filter);
     }
     NamingEnumeration search_results = internalSearchWithFilter(filter);
     ArrayList certList = new ArrayList();
@@ -164,8 +174,8 @@ public abstract class CertDirectoryService
       if (ldapEntry == null) {
 	continue;
       }
-      if (CryptoDebug.debug) {
-	System.out.println("Certificate status: "
+      if (log.isDebugEnabled()) {
+	log.debug("Certificate status: "
 			   + ldapEntry.getStatus()
 			   + " - uid: " + ldapEntry.getUniqueIdentifier());
       }
@@ -178,16 +188,16 @@ public abstract class CertDirectoryService
   public  NamingEnumeration internalSearchWithFilter(String filter)
   {
     if (!isInitialized()) {
-      if(CryptoDebug.debug)
-      System.out.println(" Ldap is not init");
+      if(log.isDebugEnabled())
+      log.debug(" Ldap is not init");
       return null;
     }
     NamingEnumeration results=null;
     SearchControls constraints=new SearchControls();
     constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    if (CryptoDebug.debug) {
-      System.out.println("Filter provided for search:" + filter);
-      System.out.println("LDAP server url:" + ldapServerUrl);
+    if (log.isDebugEnabled()) {
+      log.debug("Filter provided for search:" + filter);
+      log.debug("LDAP server url:" + ldapServerUrl);
     }
     try {
       if (context != null) {
@@ -195,14 +205,14 @@ public abstract class CertDirectoryService
       }
     }
     catch(NamingException searchexp) {
-      System.out.println("search failed");
+      log.debug("search failed");
       searchexp.printStackTrace();
     }
     catch(Exception exp) {
       exp.printStackTrace();
     }
-    if(CryptoDebug.debug) {
-      System.out.println("returning results for filter :"+filter);
+    if(log.isDebugEnabled()) {
+      log.debug("returning results for filter :"+filter);
     }
     return results;
   }
@@ -212,8 +222,8 @@ public abstract class CertDirectoryService
   public abstract LdapEntry getCertificate(SearchResult result);
 
   private boolean isInitialized() {
-    if (CryptoDebug.debug && !initializationOK) {
-      System.out.println("LDAP client not initialized");
+    if (log.isDebugEnabled() && !initializationOK) {
+      log.debug("LDAP client not initialized");
     }
     return initializationOK;
   }
@@ -248,7 +258,7 @@ public abstract class CertDirectoryService
       hash = toHex(certDigest.digest());
     }
     catch(Exception ex) {
-      if(CryptoDebug.debug) {
+      if(log.isDebugEnabled()) {
 	ex.printStackTrace();
       }
     }
@@ -266,7 +276,7 @@ public abstract class CertDirectoryService
       inStream.close();
     }
     catch(Exception ex) {
-      if(CryptoDebug.debug)ex.printStackTrace();
+      if(log.isDebugEnabled())ex.printStackTrace();
     }
     return cert;
   }
@@ -280,7 +290,7 @@ public abstract class CertDirectoryService
       inStream.close();
     }
     catch(Exception ex) {
-      if(CryptoDebug.debug)ex.printStackTrace();
+      if(log.isDebugEnabled())ex.printStackTrace();
     }
     return cert;
   }
@@ -288,18 +298,18 @@ public abstract class CertDirectoryService
   public void getContexts() {
     try {
       String name = initialContext.getNameInNamespace();
-      System.out.println("Directory (" + name + ") contains:");
+      log.debug("Directory (" + name + ") contains:");
       NamingEnumeration list = initialContext.list("");
 
       //NamingEnumeration list1 = initialContext.search("", null);
 
       while (list.hasMore()) {
 	NameClassPair nc = (NameClassPair)list.next();
-	System.out.println(nc);
+	log.debug(nc.toString());
       }
     }
     catch (Exception e) {
-      System.out.println("Exception: " + e);
+      log.debug("Exception: " + e);
       e.printStackTrace();
     }
   }

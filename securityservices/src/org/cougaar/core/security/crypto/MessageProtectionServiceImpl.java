@@ -33,6 +33,7 @@ import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
 
 // Cougaar core services
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.Message;
@@ -69,9 +70,13 @@ public class MessageProtectionServiceImpl
 
   private int infoLevel = 0;
   private boolean debug = false;
+  private LoggingService log;
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
 
     // Retrieve security properties service
     secprop = (SecurityPropertiesService)
@@ -83,7 +88,7 @@ public class MessageProtectionServiceImpl
     infoLevel = (Integer.valueOf(secprop.getProperty(secprop.SECURITY_DEBUG,
 						     "0"))).intValue();
     if (infoLevel > 0) {
-      System.out.println("Initializing MessageProtectionServiceImpl");
+      log.debug("Initializing MessageProtectionServiceImpl");
     }
     
     // Retrieve KeyRing service
@@ -95,7 +100,7 @@ public class MessageProtectionServiceImpl
     this.encryptService = (EncryptionService)
       serviceBroker.getService(this, EncryptionService.class, null);
     if (encryptService == null) {
-      System.out.println("Unable to get Encryption service");
+      log.debug("Unable to get Encryption service");
       throw new RuntimeException("MessageProtectionService. No encryption service");
     }
 
@@ -103,7 +108,7 @@ public class MessageProtectionServiceImpl
     cps = (CryptoPolicyService)
       serviceBroker.getService(this, CryptoPolicyService.class, null);
     if (cps == null) {
-      System.out.println("Unable to get crypto policy service");
+      log.debug("Unable to get crypto policy service");
       throw new RuntimeException("MessageProtectionService. No crypto policy service");
     }
   }

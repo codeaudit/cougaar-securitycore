@@ -42,17 +42,22 @@ public class ServletPolicyServiceProvider
   implements ServiceProvider
 {
   static private ServletPolicyEnforcer _servletPolicyService = null;
+  static private ServiceBroker serviceBroker;
+
+  public ServletPolicyServiceProvider(ServiceBroker sb) {
+    serviceBroker = sb;
+  }
 
   public static synchronized void setContext(Context context) {
     if (_servletPolicyService == null) {
-      _servletPolicyService = new ServletPolicyEnforcer();
+      _servletPolicyService = new ServletPolicyEnforcer(serviceBroker);
     }
     _servletPolicyService.setContext(context);
   }
 
   public static synchronized void setDualAuthenticator(DualAuthenticator da) {
     if (_servletPolicyService == null) {
-      _servletPolicyService = new ServletPolicyEnforcer();
+      _servletPolicyService = new ServletPolicyEnforcer(serviceBroker);
     }
     _servletPolicyService.setDualAuthenticator(da);
   }

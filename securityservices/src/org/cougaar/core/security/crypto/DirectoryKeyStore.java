@@ -97,9 +97,7 @@ public class DirectoryKeyStore
       LDAP directory service, indexed by distinguished name */
 
   protected  CertificateCache certCache = null;
-
   private CRLCache crlCache=null;
-
   private LoggingService log;
 
   /** A hash map to quickly find an alias given a common name */
@@ -135,8 +133,7 @@ public class DirectoryKeyStore
 
     }
     catch(CertificateException certexp) {
-      System.out.println(" Could not add OID Mapping :"+certexp.getMessage());
-
+      System.err.println(" Could not add OID Mapping :"+certexp.getMessage());
     }
   }
 
@@ -144,7 +141,7 @@ public class DirectoryKeyStore
   /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
     param = aParam;
-    nameMapping = new NameMapping();
+    nameMapping = new NameMapping(param.serviceBroker);
 
     secprop = (SecurityPropertiesService)
       param.serviceBroker.getService(this,
@@ -157,7 +154,8 @@ public class DirectoryKeyStore
     // LDAP certificate directory
     certificateFinder =
       CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-	param.ldapServerType, param.ldapServerUrl);
+	param.ldapServerType, param.ldapServerUrl,
+	param.serviceBroker);
     if(certificateFinder == null) {
       if (!param.isCertAuth) {
 	if (log.isErrorEnabled())
@@ -452,7 +450,7 @@ public class DirectoryKeyStore
     }
     else {
       if (certs.length == 0) {
-	if (CryptoDebug.debug) {
+	if (log.isDebugEnabled()) {
 	  System.err.println("Failed to get Certificate for " + filter);
 	}
       }
@@ -471,7 +469,8 @@ public class DirectoryKeyStore
 					     CertificateOrigin.CERT_ORI_LDAP,
 					     certs[i].getCertificateType(),
 					     CertificateTrust.CERT_TRUST_REVOKED_CERT,
-					     null);
+					     null,
+					     param.serviceBroker);
 	  // certstatus.setValidity(false);
 	}
 	else {
@@ -479,7 +478,8 @@ public class DirectoryKeyStore
 					     CertificateOrigin.CERT_ORI_LDAP,
 					     certs[i].getCertificateType(),
 					     CertificateTrust.CERT_TRUST_CA_SIGNED,
-					     null);
+					     null,
+					     param.serviceBroker);
 	}
 	if (log.isDebugEnabled()) {
 	  log.debug("Updating cert cache with LDAP entry:" + filter);
@@ -520,7 +520,8 @@ public class DirectoryKeyStore
 	certstatus = new CertificateStatus(certs[i].getCertificate(), true,
 					   CertificateOrigin.CERT_ORI_LDAP,
 					   certs[i].getCertificateType(),
-					   CertificateTrust.CERT_TRUST_CA_SIGNED, null);
+					   CertificateTrust.CERT_TRUST_CA_SIGNED,
+					   null, param.serviceBroker);
 	if (log.isDebugEnabled()) {
 	  log.debug("Updating cert cache with LDAP entry:" + filter);
 	}
@@ -656,7 +657,8 @@ public class DirectoryKeyStore
       new CertificateStatus(importCert, true,
                             CertificateOrigin.CERT_ORI_KEYSTORE,
                             CertificateType.CERT_TYPE_END_ENTITY,
-                            CertificateTrust.CERT_TRUST_CA_SIGNED, alias);
+                            CertificateTrust.CERT_TRUST_CA_SIGNED, alias,
+			    param.serviceBroker);
     if (log.isDebugEnabled()) {
       log.debug("Update cert status in hash map. AddPrivateKey");
     }
@@ -885,7 +887,7 @@ public class DirectoryKeyStore
 
    private void initCRLCache()
   {
-    crlCache=new CRLCache(this);
+    crlCache=new CRLCache(this, param.serviceBroker);
     try {
       if(caKeystore != null && caKeystore.size() > 0) {
 	if (log.isDebugEnabled()) {
@@ -1048,7 +1050,7 @@ public class DirectoryKeyStore
 	  new CertificateStatus(certificate, true,
 				CertificateOrigin.CERT_ORI_KEYSTORE,
 				certType,
-				trust, s);
+				trust, s, param.serviceBroker);
 	// Update certificate cache
 	if (log.isDebugEnabled()) {
 	  log.debug("addCertificate from keystore");
@@ -1919,7 +1921,8 @@ public class DirectoryKeyStore
 	else
 	  throw new Exception("Cannot derive signature algorithm");
     KeyCertGenerator certandkeygen = new KeyCertGenerator(keyAlgName,
-							  sigAlgName, null);
+							  sigAlgName, null,
+							  param.serviceBroker);
     if (log.isDebugEnabled()) {
       log.debug("Generating " + keysize + " bit " + keyAlgName
 		+ " key pair and " + "self-signed certificate ("
@@ -1967,7 +1970,8 @@ public class DirectoryKeyStore
       new CertificateStatus(ax509certificate[0], true,
 			    CertificateOrigin.CERT_ORI_KEYSTORE,
 			    certificateType,
-			    certificateTrust, alias);
+			    certificateTrust, alias,
+			    param.serviceBroker);
       certstatus.setPKCS10Date(new Date());
       if (log.isDebugEnabled()) {
 	log.debug("doGenKeyPair: add Private Key");
@@ -2114,7 +2118,8 @@ public class DirectoryKeyStore
    */
   public byte[] getPkcs12Envelope(String agentCN, String rcvrNode)
   {
-    PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this);
+    PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
+						       param.serviceBroker);
 
     String nodeName = NodeInfo.getNodeName();
     List signerCertificateList = findCert(nodeName);
@@ -2144,7 +2149,8 @@ public class DirectoryKeyStore
 
   public void installPkcs12Envelope(byte[] pfxBytes)
   {
-    PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this);
+    PrivateKeyPKCS12 pkcs12Mgmt = new PrivateKeyPKCS12(this,
+						       param.serviceBroker);
 
     String nodeName = NodeInfo.getNodeName();
 
@@ -2333,7 +2339,6 @@ public class DirectoryKeyStore
       // is it set in a system parameter?
       hostName = System.getProperty("org.cougaar.core.security.hostname");
       if (hostName != null && !hostName.equals("")) {
-	System.out.println("Using hostname from property: " + hostName);
         return hostName;
       }
       try {

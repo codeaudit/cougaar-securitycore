@@ -31,6 +31,8 @@ import org.w3c.dom.Document;
 import java.io.*;
 
 // Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.planning.ldm.policy.*;
 import org.cougaar.core.blackboard.*;
 import org.cougaar.core.plugin.*;
@@ -55,6 +57,8 @@ public abstract class GuardRegistration
 {
   public final String XML_KEY = "XMLContent";
   private SecurityPropertiesService secprop = null;
+  private ServiceBroker serviceBroker;
+  protected LoggingService log;
 
   /**
    * toggles debugging messages for a vebose mode
@@ -71,7 +75,13 @@ public abstract class GuardRegistration
   /** The name of the enforcer **/
   private String enforcerName = null;
 
-  public GuardRegistration(String aPolicyType, String enforcerName) {
+  public GuardRegistration(String aPolicyType, String enforcerName,
+			   ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
+
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
@@ -111,7 +121,7 @@ public abstract class GuardRegistration
 
     if (debug == true) {
       // Register the policy enforcer with the guard.
-      System.out.println("Registering PolicyEnforcer " +
+      log.debug("Registering PolicyEnforcer " +
 			 getName() + " to KAoS guard for " + getPolicyType());
     }
 
@@ -128,7 +138,7 @@ public abstract class GuardRegistration
     }
     guard.registerEnforcer(this, getPolicyType());
     if (debug) {
-      System.out.println("Registered for " + getPolicyType());
+      log.debug("Registered for " + getPolicyType());
     }
   }
 
@@ -145,7 +155,7 @@ public abstract class GuardRegistration
   //throws PolicyMessageException
   {
     if (debug == true) {
-      System.out.println("GuardRegistration. Received " +
+      log.debug("GuardRegistration. Received " +
 			 policies.size() + " policy messages. Type="
 			 + updateType);
     }
@@ -184,21 +194,21 @@ public abstract class GuardRegistration
     policyType =        (String) aMsg.getPolicyType();
 
     if (debug) {
-      System.out.println("Policy Message: " + aMsg.toString());
-      System.out.println("policyID:" + policyID);
-      System.out.println("policyName:" + policyName);
-      System.out.println("policyDescription:" + policyDescription);
-      System.out.println("policyScope:" + policyScope);
-      System.out.println("policySubjectID:" + policySubjectID);
-      System.out.println("policySubjectName:" + policySubjectName);
-      System.out.println("policyTargetID:" + policyTargetID);
-      System.out.println("policyTargetName:" + policyTargetName);
-      System.out.println("policyType:" + policyType);
+      log.debug("Policy Message: " + aMsg.toString());
+      log.debug("policyID:" + policyID);
+      log.debug("policyName:" + policyName);
+      log.debug("policyDescription:" + policyDescription);
+      log.debug("policyScope:" + policyScope);
+      log.debug("policySubjectID:" + policySubjectID);
+      log.debug("policySubjectName:" + policySubjectName);
+      log.debug("policyTargetID:" + policyTargetID);
+      log.debug("policyTargetName:" + policyTargetName);
+      log.debug("policyType:" + policyType);
     }
 
     if (attributes == null) {
       if (debug == true) {
-        System.out.println("GuardEnforcer. Empty policy vector");
+        log.debug("GuardEnforcer. Empty policy vector");
       }
       return;
     }
@@ -212,7 +222,7 @@ public abstract class GuardRegistration
       Object attrValue = attrMsg.getValue();
 
       if (debug) {
-	System.out.println("Attr: " + attrName + " - Attr class:"
+	log.debug("Attr: " + attrName + " - Attr class:"
 			   + attrValue.getClass().getName());
       }
 
@@ -229,7 +239,7 @@ public abstract class GuardRegistration
 	}
 	else {
 	  if (debug) {
-	    System.out.println("ERROR: unknown policy type");
+	    log.debug("ERROR: unknown policy type");
 	  }
 	}
       }
@@ -246,7 +256,7 @@ public abstract class GuardRegistration
 
       if (isPolicyProcessed == false) {
 	if (debug) {
-	  System.out.println("ERROR: No recognized policy");
+	  log.debug("ERROR: No recognized policy");
 	}
       }
     }
@@ -266,13 +276,13 @@ public abstract class GuardRegistration
     if (attribute instanceof SecurityPolicy) {
       SecurityPolicy policy = (SecurityPolicy) attribute;
       if (debug) {
-	System.out.println("policyTypeInMessage:" + attribute);
+	log.debug("policyTypeInMessage:" + attribute);
       }
       if (policyType != null && !policyType.equals("")
 	  && !policyType.equals(attribute)) {
 	// Inconsistency in policy type
 	if (debug == true) {
-	  System.out.println("GuardRegistration. ERROR. Inconsistent policy types");
+	  log.debug("GuardRegistration. ERROR. Inconsistent policy types");
 	}
 	return;
       }
@@ -286,7 +296,7 @@ public abstract class GuardRegistration
     else {
       // This is not a recognized policy message
       if (debug == true) {
-	System.out.println("GuardRegistration. ERROR. Unknown attribute:"
+	log.debug("GuardRegistration. ERROR. Unknown attribute:"
 			   + attribute.getClass().getName());
       }
     }
@@ -309,13 +319,13 @@ public abstract class GuardRegistration
       XMLPolicyCreator xpc = new XMLPolicyCreator(doc, "NodeGuard");
       Policy[] p = xpc.getPoliciesByType(policyType);
       if (debug) {
-	System.out.println("PolicyCreator.getPoliciesByType returned "
+	log.debug("PolicyCreator.getPoliciesByType returned "
 			   + p.length
 			   + " policy objects");
       }
       for(int j=0; j<p.length; j++) {
 	if (debug) {
-	  System.out.println("Calling receivePolicyMessage for "
+	  log.debug("Calling receivePolicyMessage for "
 			     + p[j]
 			     + " - Guard type:" + getClass().toString());
 	}

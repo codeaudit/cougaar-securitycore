@@ -44,6 +44,9 @@ import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.lang.reflect.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
@@ -64,19 +67,25 @@ public class CRLCache implements Runnable
   private DirectoryKeyStore keystore=null;
   private CertificateCache certcache=null;
   private CertDirectoryServiceClient certFinder;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   /** How long do we wait before retrying to send a certificate signing
    * request to a certificate authority? */
   private long crlrefresh = 10;
 
-  public CRLCache(DirectoryKeyStore dkeystore) 
+  public CRLCache(DirectoryKeyStore dkeystore, ServiceBroker sb) 
   {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
     this.keystore=dkeystore;
     if(CryptoDebug.crldebug) {
-      System.out.println("Crl cache being initialized:::++++++++++");
+      log.debug("Crl cache being initialized:::++++++++++");
     }
     long poll = 0;
     try {
@@ -94,7 +103,7 @@ public class CRLCache implements Runnable
   public void add(String dnname)
   {
     if(CryptoDebug.crldebug)
-      System.out.println(" dn name being added ::+++++++++++++++"+ dnname);
+      log.debug(" dn name being added ::+++++++++++++++"+ dnname);
     
     CRLWrapper wrapper=null;
     if(!entryExists(dnname)) {
@@ -103,15 +112,15 @@ public class CRLCache implements Runnable
     }
     else {
       if(CryptoDebug.crldebug) {
-	System.out.println("Warning !!! Entry already exists for dnname :" +dnname);
+	log.debug("Warning !!! Entry already exists for dnname :" +dnname);
       }
     }
   }
   
   public void setSleepTime(long sleeptime) {
     sleep_time=sleeptime;
-    if (CryptoDebug.debug) {
-      System.out.println("CRL polling interval set to " + (sleep_time / 1000) + "s");
+    if (log.isDebugEnabled()) {
+      log.debug("CRL polling interval set to " + (sleep_time / 1000) + "s");
     }
   }
 
@@ -128,7 +137,7 @@ public class CRLCache implements Runnable
   public void run() {
     while(true) {
       if(CryptoDebug.crldebug)
-	System.out.println("**************** CRL CACHE THREAD IS RUNNING ***********************************");
+	log.debug("**************** CRL CACHE THREAD IS RUNNING ***********************************");
       try {
 	Thread.sleep(sleep_time);
       }
@@ -151,7 +160,7 @@ public class CRLCache implements Runnable
 	  updateCRLInCertCache(dnname);
 	else { 
 	  if(CryptoDebug.crldebug)
-	    System.out.println("Warning !!! dn name is null in thread of crl cache :");
+	    log.debug("Warning !!! dn name is null in thread of crl cache :");
 	}
       }
     }
@@ -182,7 +191,7 @@ public class CRLCache implements Runnable
 
   private void updateCRLCache(String distingushname) {
     if(CryptoDebug.crldebug) {
-      System.out.println(" Updating crl cache for :"+distingushname);
+      log.debug(" Updating crl cache for :"+distingushname);
     }
     X509CRL crl=null;
     CRLWrapper wrapper=null;
@@ -207,12 +216,12 @@ public class CRLCache implements Runnable
     crlIssuerPublickey=crlIssuerCert.getPublicKey();
     if(keystore.certificateFinder== null) {
       if(CryptoDebug.crldebug)
-	System.out.println(" Error !!!!! No  certificateFinder present in Directory keystore in update CRL :"+distingushname); 
+	log.debug(" Error !!!!! No  certificateFinder present in Directory keystore in update CRL :"+distingushname); 
     }
     crl=keystore.certificateFinder.getCRL(distingushname);
     if(crl==null) {
       if(CryptoDebug.crldebug) {
-	System.out.println("Warning !!!!  No crl present for :"+distingushname);
+	log.debug("Warning !!!!  No crl present for :"+distingushname);
       }
       return;
     }
@@ -256,7 +265,7 @@ public class CRLCache implements Runnable
   
   private void updateCRLEntryInCertCache(X509CRLEntry crlentry,String Issuerdn)  {
     if(CryptoDebug.crldebug) {
-      System.out.println("crl enty in updateCRLEntryInCertCache is :"+crlentry.toString());
+      log.debug("crl enty in updateCRLEntryInCertCache is :"+crlentry.toString());
     }
     BigInteger bigint=crlentry.getSerialNumber();
     boolean hasextensions=crlentry.hasExtensions();
@@ -273,23 +282,23 @@ public class CRLCache implements Runnable
 	if(iter.hasNext()) {
 	  oid=(String)iter.next();
 	  if(CryptoDebug.crldebug)
-	    System.out.println(" Got oid for non critical extension in updateCRLEntryInCertCache is :"+oid);
+	    log.debug(" Got oid for non critical extension in updateCRLEntryInCertCache is :"+oid);
 	}
 	if(oid!=null) {
 	  issuerbytes=crlentry.getExtensionValue(oid);
 	  
 	  if(issuerbytes==null) {
 	    
-	    System.out.println(" Got issuerbytes as null for oid :" +oid );
+	    log.debug(" Got issuerbytes as null for oid :" +oid );
 	  }
 	  try
 	    {
 	      if(CryptoDebug.crldebug)
-		System.out.println(" going to get extension class in CRL Caches updateCRLEntryInCertCache :");
+		log.debug(" going to get extension class in CRL Caches updateCRLEntryInCertCache :");
 	      Class class1 = OIDMap.getClass(new ObjectIdentifier(oid));
 	      if(class1 == null) {
 		if(CryptoDebug.crldebug)
-		  System.out.println(" Class was null in CRL Caches updateCRLEntryInCertCache :");
+		  log.debug(" Class was null in CRL Caches updateCRLEntryInCertCache :");
 		return;
 	      }
 	      Class aclass[] = {
@@ -311,20 +320,20 @@ public class CRLCache implements Runnable
 	      if(certattrset instanceof CertificateIssuerExtension) {
 		GeneralNames gn=(GeneralNames) certattrset.get(CertificateIssuerExtension.ISSUERNAME);
 		if(CryptoDebug.crldebug)
-		  System.out.println(" gneral names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
+		  log.debug(" gneral names are in CRL Caches updateCRLEntryInCertCache  :"+gn.toString());
 		if(gn.size()==1){
 		  GeneralName  name=(GeneralName)gn.elementAt(0);
 		  if(name.getType()==4)  {
 		    if(CryptoDebug.crldebug)
-		      System.out.println("got actual data from extension in  CRL Caches updateCRLEntryInCertCache :"+name.toString());
+		      log.debug("got actual data from extension in  CRL Caches updateCRLEntryInCertCache :"+name.toString());
 		    actualIssuerDN=name.toString();
 		  }
 		  else
-		    System.out.println("Error !!!! not x500 name ");
+		    log.debug("Error !!!! not x500 name ");
 		}
 	      }
 	      else {
-		System.out.println("Warning !!!!!!  not instance of CertificateIssuerExtension");
+		log.debug("Warning !!!!!!  not instance of CertificateIssuerExtension");
 	      }
 	    }
 	  catch(InvocationTargetException invocationtargetexception)  {
@@ -340,7 +349,7 @@ public class CRLCache implements Runnable
       }
       else {
 	if(CryptoDebug.crldebug)
-	  System.out.println("Error in getting extensions for crlentry :"+crlentry.toString());
+	  log.debug("Error in getting extensions for crlentry :"+crlentry.toString());
       }
       
     }
@@ -350,13 +359,13 @@ public class CRLCache implements Runnable
     
     crlkey=new CRLKey(bigint,actualIssuerDN);
     if(CryptoDebug.crldebug) {
-      System.out.println("Going to look for key  in CRL Caches updateCRLEntryInCertCache  :"+crlkey.toString());
-      System.out.println(" cache contains  in CRL Caches updateCRLEntryInCertCache:");
+      log.debug("Going to look for key  in CRL Caches updateCRLEntryInCertCache  :"+crlkey.toString());
+      log.debug(" cache contains  in CRL Caches updateCRLEntryInCertCache:");
      
       //keystore.certCache.printbigIntCache();
-      System.out.println("");
-      System.out.println("");
-      System.out.println("");
+      log.debug("");
+      log.debug("");
+      log.debug("");
     }
     subjectDN=keystore.certCache.getDN(crlkey);
     if(subjectDN==null) {
@@ -364,7 +373,7 @@ public class CRLCache implements Runnable
       return;
     }
     if(CryptoDebug.crldebug)
-      System.out.println(" Got the dn for the revoked cert in CRL Caches updateCRLEntryInCertCache :"+subjectDN);
+      log.debug(" Got the dn for the revoked cert in CRL Caches updateCRLEntryInCertCache :"+subjectDN);
     keystore.certCache.revokeStatus(bigint,actualIssuerDN,subjectDN);
         
   }

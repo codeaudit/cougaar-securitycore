@@ -27,8 +27,9 @@ import java.util.Properties;
 import java.io.File;
 
 // Cougaar core services
-import org.cougaar.util.ConfigFinder;
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.util.ConfigFinder;
 
 // Cougaar security services
 import org.cougaar.core.security.services.util.ConfigParserService;
@@ -46,6 +47,7 @@ public class PolicyBootstrapper
   private ServiceBroker serviceBroker;
   private ConfigParserService cps;
   private boolean debug = false;
+  private LoggingService log;
 
   static String PolicyPath =
     System.getProperty("org.cougaar.core.security.BootPolicy",
@@ -53,11 +55,14 @@ public class PolicyBootstrapper
   
   public PolicyBootstrapper(ServiceBroker sb) {
     serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     debug = System.getProperty("org.cougaar.core.security.policy.debug",
 			       "false").equalsIgnoreCase("true");
 
     if (debug) {
-      System.out.println("Initializing Policy bootstrapper");
+      log.debug("Initializing Policy bootstrapper");
     }
 
     cps = (ConfigParserService)
@@ -72,7 +77,7 @@ public class PolicyBootstrapper
   public PolicyMsg getBootPolicy(Class type)
   {
     if (debug) {
-      System.out.println("getBootPolicy: " + type);
+      log.debug("getBootPolicy: " + type);
     }
     SecurityPolicy[] policies = cps.getSecurityPolicies(type);
     

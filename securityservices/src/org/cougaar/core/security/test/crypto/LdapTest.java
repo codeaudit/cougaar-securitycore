@@ -76,6 +76,11 @@ public class LdapTest {
   private CertDirectoryServiceCA caOperations = null;
   private CertDirectoryServiceClient certificateFinder=null;
   private SecurityPropertiesService secprop = null;
+  private SecurityServiceProvider secProvider;
+
+  public LdapTest() {
+    secProvider = new SecurityServiceProvider();
+  }
 
   public void runTest(String[] args) {
 
@@ -86,7 +91,9 @@ public class LdapTest {
     // TODO. Modify following line to use service broker instead
     secprop = SecurityServiceProvider.getSecurityProperties(null);
 
-    NodeConfiguration nodeConfiguration = new NodeConfiguration(caDN);
+    NodeConfiguration nodeConfiguration =
+      new NodeConfiguration(caDN,
+			    secProvider.getServiceBroker());
 
     String role = secprop.getProperty(secprop.SECURITY_ROLE);
     if (role == null && CryptoDebug.debug == true) {
@@ -95,12 +102,14 @@ public class LdapTest {
 
     caOperations =
       CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-	TrustedCaPolicy.COUGAAR_OPENLDAP, url);
+	TrustedCaPolicy.COUGAAR_OPENLDAP, url,
+	secProvider.getServiceBroker());
 
     certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				     TrustedCaPolicy.COUGAAR_OPENLDAP,
-				     url);
+				     url,
+	secProvider.getServiceBroker());
     certificateFinder.getContexts();
 
   }

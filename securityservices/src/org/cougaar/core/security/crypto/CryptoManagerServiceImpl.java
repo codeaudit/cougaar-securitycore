@@ -36,6 +36,9 @@ import java.security.cert.X509Certificate;
 import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 
 // Cougaar Security Services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -50,9 +53,15 @@ public class CryptoManagerServiceImpl
 {
   private boolean debug = false;
   private KeyRingService keyRing = null;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
-  public CryptoManagerServiceImpl(KeyRingService aKeyRing) {
+  public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
   }
 
   public SignedObject sign(final String name,
@@ -128,8 +137,8 @@ public class CryptoManagerServiceImpl
       ((CertificateStatus)certList.get(0)).getCertificate();
     PublicKey key = cert.getPublicKey();
     if (spec==""||spec==null) spec=key.getAlgorithm();
-    if (CryptoDebug.debug) {
-      System.out.println("Encrypting for " + name + " using " + spec);
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypting for " + name + " using " + spec);
     }
     /*init the cipher*/
     Cipher ci;
@@ -161,8 +170,8 @@ public class CryptoManagerServiceImpl
 	return obj.getObject(ci);
       }
       catch (Exception e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Warning: cannot recover message. " + e);
+	if (log.isDebugEnabled()) {
+	  log.debug("Warning: cannot recover message. " + e);
 	  e.printStackTrace();
 	}
 	continue;
@@ -185,8 +194,8 @@ public class CryptoManagerServiceImpl
   public Object symmDecrypt(SecretKey sk, SealedObject obj){
     Object o = null;
     if (sk == null) {
-      if (CryptoDebug.debug) {
-	System.out.println("Secret key not provided!");
+      if (log.isDebugEnabled()) {
+	log.debug("Secret key not provided!");
       }
       return o;
     }
@@ -196,20 +205,20 @@ public class CryptoManagerServiceImpl
     }
     catch(NullPointerException nullexp){
       boolean loop = true;
-      if (CryptoDebug.debug) {
-	System.out.println("in symmDecrypt" +nullexp);
+      if (log.isDebugEnabled()) {
+	log.debug("in symmDecrypt" +nullexp);
       }
       while(loop){
 	try{
 	  Thread.sleep(200);
 	  o = obj.getObject(sk);
 	  if (debug) {
-	    System.out.println("Workaround to Cougaar core bug. Succeeded");
+	    log.debug("Workaround to Cougaar core bug. Succeeded");
 	  }
 	  return o;
 	}
 	catch(NullPointerException null1exp){
-	  if (CryptoDebug.debug) {
+	  if (log.isDebugEnabled()) {
 	    System.err.println(
 			       "Workaround to Cougaar core bug (Context not known). Sleeping 200ms then retrying...");
 	  }
@@ -250,8 +259,8 @@ public class CryptoManagerServiceImpl
     }
 
     int method = policy.secureMethod;
-    if (CryptoDebug.debug) {
-      System.out.println("Protect object with policy: "
+    if (log.isDebugEnabled()) {
+      log.debug("Protect object with policy: "
 			 + method);
     }
     switch(method) {
@@ -300,8 +309,8 @@ public class CryptoManagerServiceImpl
 
     // Unprotect the message.
     int method = policy.secureMethod;
-    if (CryptoDebug.debug) {
-      System.out.println("Unprotect object with policy: "
+    if (log.isDebugEnabled()) {
+      log.debug("Unprotect object with policy: "
 			 + method);
     }
     switch(method) {
@@ -334,8 +343,8 @@ public class CryptoManagerServiceImpl
 				 MessageAddress target,
 				 SecureMethodParam policy)
     throws GeneralSecurityException, IOException {
-    if (CryptoDebug.debug) {
-      System.out.println("Sign object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Sign object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
     // Find source certificate
@@ -358,8 +367,8 @@ public class CryptoManagerServiceImpl
 				    MessageAddress target,
 				    SecureMethodParam policy)
     throws GeneralSecurityException, IOException {
-    if (CryptoDebug.debug) {
-      System.out.println("Encrypt object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypt object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
     PublicKeyEnvelope pke = null;
@@ -391,8 +400,8 @@ public class CryptoManagerServiceImpl
 					   MessageAddress target,
 					   SecureMethodParam policy)
     throws GeneralSecurityException, IOException {
-    if (CryptoDebug.debug) {
-      System.out.println("Sign&Encrypt object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Sign&Encrypt object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
 
@@ -402,7 +411,7 @@ public class CryptoManagerServiceImpl
     String a;
     a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
     if(debug) {
-      System.out.println("Secret Key Parameters: " + a);
+      log.debug("Secret Key Parameters: " + a);
     }
     SecureRandom random = new SecureRandom();
     KeyGenerator kg=KeyGenerator.getInstance(a);
@@ -448,8 +457,8 @@ public class CryptoManagerServiceImpl
 				  PublicKeyEnvelope envelope,
 				  SecureMethodParam policy)
     throws GeneralSecurityException {
-    if (CryptoDebug.debug) {
-      System.out.println("Decrypt&verify object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Decrypt&verify object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
 
@@ -460,7 +469,7 @@ public class CryptoManagerServiceImpl
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
       if (debug) {
-	System.out.println("Error: unable to retrieve secret key");
+	log.debug("Error: unable to retrieve secret key");
       }
       return null;
     }
@@ -484,8 +493,8 @@ public class CryptoManagerServiceImpl
 			 PublicKeyEnvelope envelope,
 			 SecureMethodParam policy)
     throws GeneralSecurityException {
-    if (CryptoDebug.debug) {
-      System.out.println("Decrypt object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Decrypt object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
 
@@ -496,7 +505,7 @@ public class CryptoManagerServiceImpl
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
       if (debug) {
-	System.out.println("Error: unable to retrieve secret key");
+	log.debug("Error: unable to retrieve secret key");
       }
       return null;
     }
@@ -511,8 +520,8 @@ public class CryptoManagerServiceImpl
 			PublicKeyEnvelope envelope,
 			SecureMethodParam policy)
     throws GeneralSecurityException {
-    if (CryptoDebug.debug) {
-      System.out.println("Verify object: " + source.toAddress()
+    if (log.isDebugEnabled()) {
+      log.debug("Verify object: " + source.toAddress()
 			 + " -> " + target.toAddress());
     }
     // Verify the signature

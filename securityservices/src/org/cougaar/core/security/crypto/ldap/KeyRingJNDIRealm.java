@@ -88,6 +88,7 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.coreservices.tomcat.AuthValve;
 import org.cougaar.core.agent.ClusterIdentifier;
 import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.service.LoggingService;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -115,6 +116,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private static ServiceBroker _nodeServiceBroker;
   private static String        _realmName = "Cougaar";
+  private LoggingService log;
 
   private static final DateFormat LDAP_TIME =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
@@ -173,7 +175,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     if (_nodeServiceBroker == null) {
       return false;
     }
-
+    log = (LoggingService)
+      _nodeServiceBroker.getService(this,
+			       LoggingService.class, null);
     if (_userService == null) {
       _userService = (LdapUserService) _nodeServiceBroker.
         getService(this, LdapUserService.class, null);
@@ -233,7 +237,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    * if the credentials match the database or <code>null</code> otherwise.
    */
   public Principal authenticate(String username, String credentials) {
-//     System.out.println("Authenticating " + username + " with " + credentials);
+//     log.debug("Authenticating " + username + " with " + credentials);
     if (!init() || username == null || credentials == null) {
       // don't alert that there was no credentials -- that happens
       // under normal opera1tion
@@ -263,7 +267,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    */
   public Principal authenticate(X509Certificate certs[]) {
 
-//     System.out.println("Trying to authenticate the certificates");
+//     log.debug("Trying to authenticate the certificates");
     if ( !init() || certs == null || certs.length < 1 ) {
       // don't log this -- there aren't any certificates and that's ok
       return null;
@@ -291,7 +295,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     try {
-//       System.out.println("Getting attributes for user: " + user);
+//       log.debug("Getting attributes for user: " + user);
       Attributes attrs = _userService.getUser(user);
       if (attrs == null) {
         alertLoginFailure(LF_USER_DOESNT_EXIST, user);
@@ -330,17 +334,17 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                 String qop, String realm,
                                 String md5a2) {
     /*
-      System.out.println("Digest : " + clientDigest);
+      log.debug("Digest : " + clientDigest);
       
-      System.out.println("************ Digest info");
-      System.out.println("Username:" + username);
-      System.out.println("ClientSigest:" + clientDigest);
-      System.out.println("nOnce:" + nOnce);
-      System.out.println("nc:" + nc);
-      System.out.println("cnonce:" + cnonce);
-      System.out.println("qop:" + qop);
-      System.out.println("realm:" + realm);
-      System.out.println("md5a2:" + md5a2);
+      log.debug("************ Digest info");
+      log.debug("Username:" + username);
+      log.debug("ClientSigest:" + clientDigest);
+      log.debug("nOnce:" + nOnce);
+      log.debug("nc:" + nc);
+      log.debug("cnonce:" + cnonce);
+      log.debug("qop:" + qop);
+      log.debug("realm:" + realm);
+      log.debug("md5a2:" + md5a2);
     */
     if (!init()) return null;
     try {
@@ -348,7 +352,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
       if (pwdAttr == null || pwdAttr.size() == 0) {
         alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
-//         System.out.println("Password attribute: " + pwdAttr);
+//         log.debug("Password attribute: " + pwdAttr);
         return null;
       }
       String md5a1;
@@ -359,12 +363,12 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         md5a1 = pwdVal.toString();
       }
 
-//       System.out.println("md5a1 = " + md5a1);
+//       log.debug("md5a1 = " + md5a1);
       String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":"
         + cnonce + ":" + qop + ":" + md5a2;
       String serverDigest = this.md5Encoder.
         encode(md5Helper.digest(serverDigestValue.getBytes()));
-//       System.out.println("Server digest : " + serverDigest);
+//       log.debug("Server digest : " + serverDigest);
       
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
@@ -386,7 +390,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
    */
   public static String encryptPassword(String username, String pwd) {
     String digestValue = username + ":" + _realmName + ":" + pwd;
-//     System.out.println("Getting password digest for " + digestValue);
+//     log.debug("Getting password digest for " + digestValue);
     byte[] digest =
       md5Helper.digest(digestValue.getBytes());
     return md5Encoder.encode(digest);
@@ -443,14 +447,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         }
       }
       NamingEnumeration ne = _userService.getRoles(username);
-//       System.out.println("Got roles for " + username);
+//       log.debug("Got roles for " + username);
       ArrayList roles = new ArrayList();
       while (ne.hasMore()) {
         SearchResult result = (SearchResult) ne.next();
         Attributes attrs = result.getAttributes();
         String role = attrs.get(_userService.getRoleIDAttribute()).get().toString();
         roles.add(role);
-//         System.out.println("  role: " + role);
+//         log.debug("  role: " + role);
       }
       return new CougaarPrincipal(this, username, roles, authFields);
     } catch (NamingException e) {
@@ -458,7 +462,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
         return new CougaarPrincipal(this, username, null, authFields);
       }
       alertLoginFailure(LF_LDAP_ERROR, username);
-//       System.out.println("Caught exception: ");
+//       log.debug("Caught exception: ");
       e.printStackTrace();
     }
     return null;
@@ -487,19 +491,19 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     if (userDisabled(attrs)) {
-//       System.out.println("Password login isn't ok.");
+//       log.debug("Password login isn't ok.");
       alertLoginFailure(LF_USER_DISABLED, username);
       return false;
     }
     Attribute  attr  = attrs.get(_userService.getPasswordAttribute());
-//     System.out.println("attr = " + attr);
+//     log.debug("attr = " + attr);
     if (attr == null || attr.size() < 1) {
       alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
       return false;
     }
 
     Object     attrVal = attr.get();
-//     System.out.println("attrVal = " + attrVal);
+//     log.debug("attrVal = " + attrVal);
     if (attrVal == null) {
       alertLoginFailure(LF_LDAP_PASSWORD_NULL, username);
       return false;
@@ -581,14 +585,14 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       DomainService ds = 
         (DomainService) sb.getService(this, DomainService.class, null);
       if (ds == null) {
-        System.out.println("Error: There is no DomainService. I cannot alert on login failures.");
-        System.out.println("Service Broker's services:");
+        log.error("Error: There is no DomainService. I cannot alert on login failures.");
+        log.error("Service Broker's services:");
         Iterator iter = sb.getCurrentServiceClasses();
         while (iter.hasNext()) {
           Object o = iter.next();
-          System.out.println("   " + o);
+          log.error("   " + o);
         }
-        System.out.println("-------------------------------------------");
+        log.error("-------------------------------------------");
       } else {
         _cmrFactory = (CmrFactory) ds.getFactory("cmr");
         _idmefFactory = _cmrFactory.getIdmefMessageFactory();
@@ -629,7 +633,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   public void alertLoginFailure(int failureType, String userName1, 
                                 String userName2) {
     if (!initAlert(_nodeServiceBroker)) {
-      System.out.println("Couldn't alert about " + 
+      log.debug("Couldn't alert about " + 
                          REASONS[failureType][0].getAdditionalData() +
                          ", userName1: " + userName1 + ", userName2: " +
                          userName2);

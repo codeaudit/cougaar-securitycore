@@ -31,6 +31,10 @@ import java.security.cert.*;
 import java.net.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.userauth.*;
 import org.cougaar.core.security.crypto.*;
@@ -52,8 +56,8 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   private PrivateKey privatekey = null;
   protected X509Certificate userx509 = null;
 
-  public UserKeyManager(KeyRingService krs) {
-    super(krs);
+  public UserKeyManager(KeyRingService krs, ServiceBroker sb) {
+    super(krs, sb);
   }
 
   public void setPasswordAuthentication(PasswordAuthentication pa) {}
@@ -112,8 +116,8 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
       if (socket != null) {
         InetAddress inetaddr = (InetAddress)socket.getInetAddress();
         String host = inetaddr.getHostName();
-        if (CryptoDebug.debug)
-          System.out.println("Connecting to host: " + host);
+        if (log.isDebugEnabled())
+          log.debug("Connecting to host: " + host);
 
         // match with the domain list
         alias = (String)domainTable.get(host);
@@ -143,21 +147,21 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   }
 
   public X509Certificate[] getCertificateChain(String alias) {
-    if (CryptoDebug.debug)
-      System.out.println("getCertificateChain: " + alias);
+    if (log.isDebugEnabled())
+      log.debug("getCertificateChain: " + alias);
 
     //X509Certificate userx509 = (X509Certificate)aliasTable.get(alias);
     if (alias.equals(nodealias) && userx509 != null) {
       try {
         return keystore.checkCertificateTrust(userx509);
       } catch (Exception e) {
-        if (CryptoDebug.debug)
+        if (log.isDebugEnabled())
           e.printStackTrace();
       }
     }
 
-    if (CryptoDebug.debug)
-      System.out.println("Failed to getCertificateChain");
+    if (log.isDebugEnabled())
+      log.debug("Failed to getCertificateChain");
 
     return new X509Certificate[] {};
   }
@@ -169,8 +173,8 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   }
 
   public PrivateKey getPrivateKey(String alias) {
-    if (CryptoDebug.debug)
-      System.out.println("getPrivateKey: " + alias);
+    if (log.isDebugEnabled())
+      log.debug("getPrivateKey: " + alias);
 
       /*
     PrivateKey privatekey = null;

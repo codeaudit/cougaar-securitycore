@@ -27,6 +27,10 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 // KAoS policy management
 import safe.enforcer.NodeEnforcer;
 
@@ -44,6 +48,8 @@ public class CryptoPolicyServiceImpl
 
   private boolean dbg = false;
   private SecurityPropertiesService secprop = null;
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
     //policy source
     CryptoPolicyProxy cpp;
@@ -52,15 +58,20 @@ public class CryptoPolicyServiceImpl
   static HashMap send_hm = new HashMap();
   static HashMap receive_hm = new HashMap();
 
-    /** Creates new CryptoPolicyServiceImpl */
-    public CryptoPolicyServiceImpl() {
-      // TODO. Modify following line to use service broker instead
-      secprop = SecurityServiceProvider.getSecurityProperties(null);
+  /** Creates new CryptoPolicyServiceImpl */
+  public CryptoPolicyServiceImpl(ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
 
-      dbg = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
-						"false"))).booleanValue();
-      cpp = new CryptoPolicyProxy();
-    }
+    // TODO. Modify following line to use service broker instead
+    secprop = SecurityServiceProvider.getSecurityProperties(null);
+
+    dbg = (Boolean.valueOf(secprop.getProperty(secprop.POLICY_DEBUG,
+					       "false"))).booleanValue();
+    cpp = new CryptoPolicyProxy(serviceBroker);
+  }
 
     public synchronized SecureMethodParam getSendPolicy(String name) {
         String tag = name;
@@ -86,7 +97,7 @@ public class CryptoPolicyServiceImpl
 	}
 
 	if(dbg) {
-	  System.out.println("CryptoPolicyService: outgoing policy for "
+	  log.debug("CryptoPolicyService: outgoing policy for "
 			     + tag);
 	}
         return (SecureMethodParam)obj;
@@ -108,7 +119,7 @@ public class CryptoPolicyServiceImpl
 	}
 	
 	if(dbg) {
-	  System.out.println("CryptoPolicyService: incoming policy for "
+	  log.debug("CryptoPolicyService: incoming policy for "
 			     + tag);
 	}
 
@@ -119,9 +130,9 @@ public class CryptoPolicyServiceImpl
       extends GuardRegistration
       implements NodeEnforcer{
 
-      public CryptoPolicyProxy() {
+      public CryptoPolicyProxy(ServiceBroker sb) {
 	super("org.cougaar.core.security.policy.CryptoPolicy",
-	      "CryptoPolicyService");
+	      "CryptoPolicyService", sb);
 	try {
 	  registerEnforcer();
 	}
@@ -145,10 +156,10 @@ public class CryptoPolicyServiceImpl
 				       String policyTargetName,
 				       String policyType) {
 	if (dbg) {
-	  System.out.println("CryptoPolicyServiceImpl: Received policy message");
+	  log.debug("CryptoPolicyServiceImpl: Received policy message");
 	  RuleParameter[] param = policy.getRuleParameters();
 	  for (int i = 0 ; i < param.length ; i++) {
-	    System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());
+	    log.debug("Rule: " + param[i].getName() + " - " + param[i].getValue());
 	  }
 	}
 
@@ -194,7 +205,7 @@ public class CryptoPolicyServiceImpl
 	    }
 	    else {
 	      if(dbg) {
-		System.out.println("Warning : No default value for KeyRule parameter "); 
+		log.debug("Warning : No default value for KeyRule parameter "); 
 	      }
 	    }
 		
@@ -436,14 +447,14 @@ public class CryptoPolicyServiceImpl
                                       String policyType) {
       
       if (dbg) {
-          System.out.println("CryptoPolicyServiceImpl: Received policy message");
+          log.debug("CryptoPolicyServiceImpl: Received policy message");
         }
 
       CryptoPolicy cp = null;
       try{
         cp = (CryptoPolicy)policy;
       }catch(Exception e){
-        System.out.println("CryptoPolicyServiceImpl:received unknown policy type");
+        log.debug("CryptoPolicyServiceImpl:received unknown policy type");
         return;
       }
 

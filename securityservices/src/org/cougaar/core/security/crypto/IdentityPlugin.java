@@ -29,6 +29,7 @@ import javax.security.auth.x500.X500Principal;
 import org.cougaar.core.service.identity.*;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.*;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -39,13 +40,14 @@ public class IdentityPlugin
   private AgentIdentityService ais;
   private AgentIdentificationService agentIdentification;
   private String agentName;
+  private LoggingService log;
 
   private String getAgentName() {
     return agentName;
   }
 
   private void acquireIdentity() {
-    System.out.println("ACQUIRE IDENTITY");
+    log.debug("ACQUIRE IDENTITY");
     agentIdentification = (AgentIdentificationService)
       getServiceBroker().getService(this,
 				    AgentIdentificationService.class, null);
@@ -59,13 +61,16 @@ public class IdentityPlugin
       ais.acquire(null);
     }
     catch (Exception e) {
-      System.out.println("Unable to get agent identity service: "
+      log.debug("Unable to get agent identity service: "
 			 + e);
       e.printStackTrace();
     }
   }
 
   protected void setupSubscriptions() {
+    log = (LoggingService)
+      getServiceBroker().getService(this,
+			       LoggingService.class, null);
     acquireIdentity();
   }
 
@@ -85,8 +90,8 @@ public class IdentityPlugin
     }
 
     public String getName() {
-      if (CryptoDebug.debug) {
-	System.out.println("Creating key pair for "
+      if (log.isDebugEnabled()) {
+	log.debug("Creating key pair for "
 			   + principal.getName());
       }
       return principal.getName();

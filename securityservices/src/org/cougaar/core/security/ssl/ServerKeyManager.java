@@ -31,15 +31,20 @@ import java.security.cert.*;
 import java.net.*;
 import java.util.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyManager {
-  public ServerKeyManager(KeyRingService krs) {
-    super(krs);
+public final class ServerKeyManager
+  extends org.cougaar.core.security.ssl.KeyManager {
+  public ServerKeyManager(KeyRingService krs, ServiceBroker sb) {
+    super(krs, sb);
   }
 
   public synchronized void updateKeystore() {
@@ -48,7 +53,7 @@ public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyMan
     String hostname = keystore.getHostName();
     nodename = hostname;
 
-    //System.out.println("=====> getHostName: " + hostname);
+    //log.debug("=====> getHostName: " + hostname);
 
     // node will generate host certificate
     //keyRing.checkOrMakeCert(hostname);
@@ -59,8 +64,8 @@ public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyMan
     }
     nodealias = keystore.findAlias(hostname);
 
-    if (CryptoDebug.debug)
-      System.out.println("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
+    if (log.isDebugEnabled())
+      log.debug("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
 			 + " and nodex509 is " + nodex509);
   }
 

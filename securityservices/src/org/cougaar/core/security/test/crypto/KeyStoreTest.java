@@ -224,7 +224,8 @@ public class KeyStoreTest
 	System.out.println("Trying RSA encryption using new key");
       }
       KeyCertGenerator kc = new KeyCertGenerator(spec, "MD5WithRSA",
-						 "IBMJCE");
+						 "IBMJCE",
+						 serviceBroker);
       kc.generate(512);
       testRSAencryption(kc.getPublicKey(), spec);
       if (CryptoDebug.debug) {

@@ -48,7 +48,7 @@ public class LdapUserServiceProvider
                                         Class serviceClass) {
 
     if (_service == null) {
-      _service = new LdapUserServiceImpl();
+      _service = new LdapUserServiceImpl(sb);
     }
     return _service;
   }

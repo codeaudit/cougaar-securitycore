@@ -34,6 +34,11 @@ import java.security.cert.*;
 import java.security.MessageDigest;
 import sun.security.x509.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
+// Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.CertificateUtility;
 import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
@@ -46,6 +51,7 @@ public class CertificateDetailsServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
+  private LoggingService log;
 
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
@@ -55,6 +61,9 @@ public class CertificateDetailsServlet extends  HttpServlet
   private SecurityServletSupport support;
   public CertificateDetailsServlet(SecurityServletSupport support) {
     this.support = support;
+    log = (LoggingService)
+      support.getServiceBroker().getService(this,
+			       LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -75,19 +84,19 @@ public class CertificateDetailsServlet extends  HttpServlet
 
     PrintWriter out=res.getWriter();
 
-    if (debug) {
-      //System.out.println("getContextPath:" + req.getContextPath());
-      System.out.println("getPathInfo:" + req.getPathInfo());
-      System.out.println("getPathTranslated:" + req.getPathTranslated());
-      System.out.println("getRequestURI:" + req.getRequestURI());
-      System.out.println("getServletPath:" + req.getServletPath());
+    if (log.isDebugEnabled()) {
+      //log.debug("getContextPath:" + req.getContextPath());
+      log.debug("getPathInfo:" + req.getPathInfo());
+      log.debug("getPathTranslated:" + req.getPathTranslated());
+      log.debug("getRequestURI:" + req.getRequestURI());
+      log.debug("getServletPath:" + req.getServletPath());
     }
 
     distinguishedName=req.getParameter("distinguishedName");
     role=req.getParameter("role");
     cadnname=req.getParameter("cadnname");
-    if (debug) {
-      System.out.println("CertificateDetailsServlet. Search DN="
+    if (log.isDebugEnabled()) {
+      log.debug("CertificateDetailsServlet. Search DN="
 			 + distinguishedName
 			 + " - role: " + role
 			 + " - cadnname: " + cadnname);
@@ -106,7 +115,8 @@ public class CertificateDetailsServlet extends  HttpServlet
       caPolicy = configParser.getCaPolicy(cadnname);
       certificateFinder = 
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
-				       caPolicy.ldapType, caPolicy.ldapURL);
+				       caPolicy.ldapType, caPolicy.ldapURL,
+				       support.getServiceBroker());
     }
     catch (Exception e) {
       out.print("Unable to read policy file: " + e);
@@ -163,8 +173,8 @@ public class CertificateDetailsServlet extends  HttpServlet
     out.println("<input type=\"hidden\" name=\"distinguishedName\" value=\""
 		+ ldapentries[0].getUniqueIdentifier()+"\">");
     if((role==null)||(role=="")) {
-      if (debug) {
-	System.out.println("got role as null or empty in certificate details:::::++++");
+      if (log.isWarnEnabled()) {
+	log.warn("got role as null or empty in certificate details:::::++++");
       }
     }
     else {

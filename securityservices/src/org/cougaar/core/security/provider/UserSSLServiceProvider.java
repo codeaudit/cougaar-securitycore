@@ -29,6 +29,8 @@ package org.cougaar.core.security.provider;
 // Cougaar core infrastructure
 import org.cougaar.core.component.*;
 import org.cougaar.util.*;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
@@ -47,6 +49,9 @@ public class UserSSLServiceProvider
 			   Object requestor,
 			   Class serviceClass) {
 
+   LoggingService log = (LoggingService)
+      sb.getService(this,
+		    LoggingService.class, null);
     if (sslservice != null)
       return sslservice;
 
@@ -62,13 +67,13 @@ public class UserSSLServiceProvider
 		      });
 
     try {
-      sslservice = new UserSSLServiceImpl();
+      sslservice = new UserSSLServiceImpl(sb);
       sslservice.init(ksr);
     }
     catch (Exception e) {
-      if (CryptoDebug.debug)
+      if (log.isDebugEnabled())
 	e.printStackTrace();
-      System.out.println("Failed to initialize UserSSLService!");
+      log.debug("Failed to initialize UserSSLService!");
     }
     return sslservice;
   }

@@ -29,13 +29,18 @@ import javax.net.ssl.*;
 import java.security.*;
 import java.security.cert.*;
 
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
-public class ServerTrustManager extends org.cougaar.core.security.ssl.TrustManager {
-  public ServerTrustManager(KeyRingService krs) {
-    super(krs);
+public class ServerTrustManager
+  extends org.cougaar.core.security.ssl.TrustManager {
+  public ServerTrustManager(KeyRingService krs, ServiceBroker sb) {
+    super(krs, sb);
   }
 
   public void checkServerTrusted(X509Certificate[] chain, String authType)

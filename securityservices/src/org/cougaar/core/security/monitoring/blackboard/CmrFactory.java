@@ -35,13 +35,19 @@ import org.cougaar.core.domain.LDMServesPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 
 public class CmrFactory
   implements Factory
 {
-    protected ClusterIdentifier selfClusterId;
-    protected UIDServer myUIDServer;
-    private  IdmefMessageFactory idmefmessagefactory;
+  protected ClusterIdentifier selfClusterId;
+  protected UIDServer myUIDServer;
+  private  IdmefMessageFactory idmefmessagefactory;
+
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
 
     /**
      * Constructor for use by domain specific Factories
@@ -50,7 +56,7 @@ public class CmrFactory
     public CmrFactory() { }
 
     public CmrFactory(LDMServesPlugin ldm) {
-	System.out.println(" CMR factory is being initilized:");
+	log.debug(" CMR factory is being initilized:");
 	// Attach our factory to the M&R factory
 	RootFactory rf = ldm.getFactory();
 	

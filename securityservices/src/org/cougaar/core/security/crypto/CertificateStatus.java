@@ -21,16 +21,15 @@
  * Created on September 12, 2001, 10:55 AM
  */
 
-/**
- *
- * @author  rtripath
- * @version 
- */
-
 package org.cougaar.core.security.crypto;
 
 import java.security.cert.*;
 import java.util.Date;
+
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
+
 import org.cougaar.core.security.util.CryptoDebug;
 
 public class CertificateStatus
@@ -64,12 +63,19 @@ public class CertificateStatus
    * the certificate cannot be used because other parties will not trust
    * the certificate. */
   private CertificateTrust certificateTrust;
-  
+  private ServiceBroker serviceBroker;
+  private LoggingService log;
+
   public CertificateStatus(X509Certificate cert,
 			   boolean isValid,
 			   CertificateOrigin origin, CertificateType type,
 			   CertificateTrust trust,
-			   String a) {
+			   String a,
+			   ServiceBroker sb) {
+    serviceBroker = sb;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
     certificate = cert;
     certificateIsValid = isValid;
     certificateOrigin = origin;
@@ -90,8 +96,8 @@ public class CertificateStatus
     throws CertificateExpiredException, CertificateNotYetValidException,
 	   CertificateRevokedException, CertificateNotTrustedException
   {
-    if (CryptoDebug.debug) {
-      System.out.println("Checking certificate validity for "
+    if (log.isDebugEnabled()) {
+      log.debug("Checking certificate validity for "
 			 + ((X509Certificate) getCertificate()).getSubjectDN());
     }
 
@@ -106,15 +112,15 @@ public class CertificateStatus
 	// 2- Certificate has not expired ("not after" date is not in the past)
       }
       else {
-	if (CryptoDebug.debug) {
-	  System.out.println("Certificate has been revoked");
+	if (log.isDebugEnabled()) {
+	  log.debug("Certificate has been revoked");
 	}
 	throw new CertificateRevokedException("Certificate has been revoked");
       }
     }
     else {
-      if (CryptoDebug.debug) {
-	System.out.println("Certificate not trusted: " + getCertificateTrust());
+      if (log.isDebugEnabled()) {
+	log.debug("Certificate not trusted: " + getCertificateTrust());
       }
       if(getCertificateTrust() == CertificateTrust. CERT_TRUST_REVOKED_CERT) {
 	certificateIsValid=false;

@@ -51,7 +51,8 @@ import sun.security.provider.*;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-// Cougaar
+// Cougaar core services
+import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceRevokedListener;
@@ -95,6 +96,7 @@ public class KeyManagement
   private CryptoClientPolicy cryptoClientPolicy;        // the policy of the Node
   private NodeConfiguration nodeConfiguration;
   private ServiceBroker serviceBroker;
+  private LoggingService log;
 
   private String caDN = null;                  /* the distinguished name of
 						* the CA */
@@ -110,6 +112,9 @@ public class KeyManagement
    */
   public KeyManagement(ServiceBroker serviceBroker) {
     this.serviceBroker = serviceBroker;
+    log = (LoggingService)
+      serviceBroker.getService(this,
+			       LoggingService.class, null);
   }
 
   /**  Set key management parameters
@@ -144,20 +149,20 @@ public class KeyManagement
 			       ConfigParserService.class,
 			       null);
 
-    if (CryptoDebug.debug) {
+    if (log.isDebugEnabled()) {
       if (configParser.isCertificateAuthority()) {
-	System.out.println("Running as CA");
+	log.debug("Running as CA");
       }
       else {
-	System.out.println("Running as Cougaar node");
+	log.debug("Running as Cougaar node");
       }
     }
 
-    nodeConfiguration = new NodeConfiguration(caDN);
+    nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
 
     role = secprop.getProperty(secprop.SECURITY_ROLE);
-    if (role == null && CryptoDebug.debug == true) {
-      System.out.println("warning: Role not defined");
+    if (role == null && log.isWarnEnabled() == true) {
+      log.warn("Role not defined");
     }
 
     try {
@@ -165,22 +170,23 @@ public class KeyManagement
       cryptoClientPolicy = configParser.getCryptoClientPolicy();
     }
     catch (Exception e) {
-      if(CryptoDebug.debug)
+      if(log.isErrorEnabled()) {
 	e.printStackTrace();
-      System.out.println("Error: Unable to read policy for DN="
-			 + caDN + ". Role="
-			 + role + " - " + e );
-      e.printStackTrace();
+	log.error("Error: Unable to read policy for DN="
+		  + caDN + ". Role="
+		  + role + " - " + e );
+	e.printStackTrace();
+      }
       throw new IllegalArgumentException("Error: Unable to get policy for DN="
 					 + caDN + ". Role="
 					 + role + " - " + e);
     }
-    if (CryptoDebug.debug) {
+    if (log.isDebugEnabled()) {
       if(caPolicy==null) {
-	System.out.println("Got Ca policy NULL");
+	log.debug("Got Ca policy NULL");
       }
       else {
-	System.out.println("Got Ca policy "+ caPolicy.toString());
+	log.debug("Got Ca policy "+ caPolicy.toString());
       }
     }
 
@@ -188,7 +194,7 @@ public class KeyManagement
       init();
     }
     catch (Exception e) {
-      System.out.println("Error. Unable to initialize KeyManagement: " + e);
+      log.error("Unable to initialize KeyManagement: " + e);
       e.printStackTrace();
     }
   }
@@ -198,7 +204,7 @@ public class KeyManagement
     if(configParser.isCertificateAuthority()) {
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
-	  caPolicy.ldapType, caPolicy.ldapURL);
+	  caPolicy.ldapType, caPolicy.ldapURL, serviceBroker);
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }
@@ -209,14 +215,14 @@ public class KeyManagement
 	caPolicy = configParser.getCaPolicy("");
       }
       catch (Exception e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Unable to read policy: " + e);
+	if (log.isErrorEnabled()) {
+	  log.error("Unable to read policy: " + e);
 	  e.printStackTrace();
 	}
 	throw new RuntimeException("Unable to read policy:" + e);
       }
-      if (CryptoDebug.debug) {
-	System.out.println("Running in Cougaar environment");
+      if (log.isDebugEnabled()) {
+	log.debug("Running in Cougaar environment");
       }
     }
     try {
@@ -233,7 +239,7 @@ public class KeyManagement
 
   private void publishCAinLdap()
   {
-    System.out.println("calling publish CA in ldap :");
+    log.debug("calling publish CA in ldap :");
     Certificate c=null;
     List certList = null;
      Enumeration enum=keyRing.getAliasList();
@@ -243,42 +249,42 @@ public class KeyManagement
 	 String cn=null;
 	 try {
 	   cn = keyRing.getCommonName(a);
-	   System.out.println("got common name from alias : " + a
-			      + " cn = " + cn);
+	   log.debug("got common name from alias : " + a
+		     + " cn = " + cn);
 	   certList = keyRing.findCert(cn, DirectoryKeyStore.LOOKUP_LDAP);
 
 	   if (certList != null && certList.size() > 0) {
 	     c = ((CertificateStatus)certList.get(0)).getCertificate();
 	   }
 	   if(c==null) {
-	     System.out.println("Found no certificate in LDAP for --> "
-				+ cn);
+	     log.debug("Found no certificate in LDAP for --> "
+		       + cn);
 	   }
 	   else {
-	     System.out.println("found CA cert in ldap for :"
-				+ cn
-				+ " going to try next from ca keyStore");
+	     log.debug("found CA cert in ldap for :"
+		       + cn
+		       + " going to try next from ca keyStore");
 	     continue;
 	   }
 	 }
 	 catch (Exception exp) {
-	   System.out.println("Found no certificate in LDAP for: " + cn
-			      + " - " + exp);
+	   log.warn("Found no certificate in LDAP for: " + cn
+		     + " - " + exp);
 
 	   //exp.printStackTrace();
 
 	 }
-	 System.out.println("trying to get with cn name :: "+ cn);
+	 log.debug("trying to get with cn name :: "+ cn);
 	 try {
 	   certList = keyRing.findCert(cn);
 	   c=((CertificateStatus)certList.get(0)).getCertificate();
-	   System.out.println("got certificate with cn ---> =" +cn);
+	   log.debug("got certificate with cn ---> =" +cn);
 	 }
 	 catch (Exception exp2) {
-	   System.out.println("got second exp while trying to find certificate for alias  : "+a + "in keystore");
+	   log.debug("got second exp while trying to find certificate for alias  : "+a + "in keystore");
 
 	 }
-	 System.out.println("going to call for publishing ca with ca  : "+cn);
+	 log.debug("going to call for publishing ca with ca  : "+cn);
 
 	 List pkc = keyRing.findPrivateKey(cn);
 	 PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
@@ -287,7 +293,7 @@ public class KeyManagement
        }
      }
      else {
-       System.out.println(" CA key store is empty ::");
+       log.debug(" CA key store is empty ::");
      }
   }
 
@@ -296,8 +302,8 @@ public class KeyManagement
     if(inputstream == null)
       return;
     try {
-      if (CryptoDebug.debug) {
-	System.out.println("X.509 Request is : ");
+      if (log.isDebugEnabled()) {
+	log.debug("X.509 Request is : ");
 	String s = "";
 	while (inputstream.available() > 0) {
 	  int len = 256;
@@ -305,7 +311,7 @@ public class KeyManagement
 	  int read = inputstream.read(bbuf, 0, len);
 	  s = s + new String(bbuf, 0, read);
 	}
-	System.out.println(s);
+	log.debug(s);
       }
       inputstream.reset();
 
@@ -334,7 +340,7 @@ public class KeyManagement
       }
     }
     catch(Exception e) {
-      System.out.println("Unable to process request: " + e);
+      log.debug("Unable to process request: " + e);
       e.printStackTrace();
     }
   }
@@ -348,8 +354,8 @@ public class KeyManagement
   public X509Certificate[] processPkcs10Request(InputStream request) {
     ArrayList ar = new ArrayList();
     try {
-      if (CryptoDebug.debug) {
-	System.out.println("processPkcs10Request");
+      if (log.isDebugEnabled()) {
+	log.debug("processPkcs10Request");
       }
       // First, get all the PKCS10 requests in an array list.
       ArrayList requests = getSigningRequests(request);
@@ -365,15 +371,15 @@ public class KeyManagement
 
 	if (configParser.isCertificateAuthority()) {
 	  // Publish certificate in LDAP directory
-	  if (CryptoDebug.debug) {
-	    System.out.println("Publishing cert to LDAP service");
+	  if (log.isDebugEnabled()) {
+	    log.debug("Publishing cert to LDAP service");
 	  }
 	  caOperations.publishCertificate(clientX509,CertificateUtility.EntityCert,null);
 	}
       }
     }
     catch (Exception e) {
-      System.out.println("Unable to process request: " + e);
+      log.debug("Unable to process request: " + e);
       e.printStackTrace();
     }
 
@@ -381,8 +387,8 @@ public class KeyManagement
     for (int i = 0 ; i < ar.size() ; i++) {
       reply[i] = (X509Certificate)ar.get(i);
     }
-    if (CryptoDebug.debug) {
-      System.out.println("Reply contains " + ar.size()
+    if (log.isDebugEnabled()) {
+      log.debug("Reply contains " + ar.size()
 			 + " certificates");
     }
     return reply;
@@ -413,21 +419,21 @@ public class KeyManagement
         else {
           out.print(URLEncoder.encode(reply, "UTF-8"));
         }
-	if (CryptoDebug.debug) {
-	  System.out.println("replyInHtml=" + replyInHtml + "\n"
+	if (log.isDebugEnabled()) {
+	  log.debug("replyInHtml=" + replyInHtml + "\n"
 	    + reply);
 	}
 
       }
       catch (CertificateEncodingException e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Unable to process PKCS10 request:" + e);
+	if (log.isDebugEnabled()) {
+	  log.debug("Unable to process PKCS10 request:" + e);
 	  e.printStackTrace();
 	}
       }
       catch (IOException e) {
-	if (CryptoDebug.debug) {
-	  System.out.println("Unable to process PKCS10 request:" + e);
+	if (log.isDebugEnabled()) {
+	  log.debug("Unable to process PKCS10 request:" + e);
 	  e.printStackTrace();
 	}
       }
@@ -436,8 +442,8 @@ public class KeyManagement
     }
 
     try {
-      if (CryptoDebug.debug) {
-	System.out.println("processPkcs10Request");
+      if (log.isDebugEnabled()) {
+	log.debug("processPkcs10Request");
       }
       // First, get all the PKCS10 requests in an array list.
       ArrayList requests = getSigningRequests(request);
@@ -477,8 +483,8 @@ public class KeyManagement
             break;
         }
 
-        if (CryptoDebug.debug) {
-          System.out.println("Certificate status is: " + status);
+        if (log.isDebugEnabled()) {
+          log.debug("Certificate status is: " + status);
         }
 
         if (status == PENDING_STATUS_NEW) {
@@ -510,7 +516,7 @@ public class KeyManagement
       }
     }
     catch (Exception e) {
-      System.out.println("Unable to process request: " + e);
+      log.debug("Unable to process request: " + e);
       e.printStackTrace();
     }
 
@@ -521,8 +527,8 @@ public class KeyManagement
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
     if (configParser.isCertificateAuthority()) {
-      if (CryptoDebug.debug) {
-	System.out.println("Saving X509 certificate:");
+      if (log.isDebugEnabled()) {
+	log.debug("Saving X509 certificate:");
       }
       String alias = keyRing.getAlias(clientX509);
       String filepath = null;
@@ -533,8 +539,8 @@ public class KeyManagement
 	filepath = nodeConfiguration.getX509DirectoryName(caDN);
       }
       filepath += File.separatorChar + alias + ".cer";
-      if (CryptoDebug.debug) {
-        System.out.println("Saving X509 certificate to: " + filepath);
+      if (log.isDebugEnabled()) {
+        log.debug("Saving X509 certificate to: " + filepath);
       }
 
       File f = new File(filepath);
@@ -554,12 +560,12 @@ public class KeyManagement
       FileInputStream is = new FileInputStream(filename);
       X509Factory x509factory = new X509Factory();
       Collection c = x509factory.engineGenerateCertificates(is);
-      System.out.println(c);
+      log.debug(c.toString());
       //BufferedReader is = new BufferedReader(new FileReader(filename));
       //printPkcs7Request(is);
    }
     catch (Exception e) {
-      System.out.println("Exception: " + e);
+      log.debug("Exception: " + e);
       e.printStackTrace();
     }
   }
@@ -604,10 +610,10 @@ public class KeyManagement
       byte der[] = Base64.decode(base64EncodeRequest.toCharArray());
       InputStream inputstream = new ByteArrayInputStream(der);
       PKCS7 pkcs7 = new PKCS7(inputstream);
-      System.out.println("PKCS7: " + pkcs7);
+      log.debug("PKCS7: " + pkcs7);
     }
     catch (Exception e) {
-      System.out.println("Exception: " + e);
+      log.debug("Exception: " + e);
       e.printStackTrace();
     }
   }
@@ -628,8 +634,8 @@ public class KeyManagement
     String sbuf = null;
     ArrayList pkcs10requests = new ArrayList();
 
-    if (CryptoDebug.debug) {
-      System.out.println("getSigningRequests");
+    if (log.isDebugEnabled()) {
+      log.debug("getSigningRequests");
     }
 
     while (reader.available() > 0) {
@@ -657,8 +663,8 @@ public class KeyManagement
 					 CertificateUtility.PKCS10HEADER.length(),
 					 ind_stop);
       sbuf = sbuf.substring(ind_stop + CertificateUtility.PKCS10TRAILER.length());
-      if (CryptoDebug.debug) {
-	System.out.println("base64pkcs: " + base64pkcs);
+      if (log.isDebugEnabled()) {
+	log.debug("base64pkcs: " + base64pkcs);
       }
 
       // Decode request and store it as a DER value
@@ -679,8 +685,8 @@ public class KeyManagement
     throws FileNotFoundException, IOException, SignatureException,
 	   NoSuchAlgorithmException, InvalidKeyException
   {
-    if (CryptoDebug.debug) {
-      System.out.println("PKCS10 file: " + filename);
+    if (log.isDebugEnabled()) {
+      log.debug("PKCS10 file: " + filename);
     }
     FileInputStream is = new FileInputStream(filename);
     return getSigningRequests(is);
@@ -695,8 +701,8 @@ public class KeyManagement
   {
     PKCS10 request = new PKCS10(bytes);
 
-    if (CryptoDebug.debug) {
-      System.out.println("PKCS10 request:" + request.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("PKCS10 request:" + request.toString());
       // pkcs10Request.print(dbgout);
     }
     return request;
@@ -707,8 +713,8 @@ public class KeyManagement
   {
     String serialNbFileName = nodeConfiguration.getNodeDirectory()
       + File.separatorChar + "serialNumber.txt";
-    if (CryptoDebug.debug) {
-      System.out.println("Serial Number file name: " + serialNbFileName);
+    if (log.isDebugEnabled()) {
+      log.debug("Serial Number file name: " + serialNbFileName);
     }
     File fserial = new File(serialNbFileName);
     FileWriter fOutSerial = null;
@@ -716,8 +722,8 @@ public class KeyManagement
     String serialNbString = null;
 
     if (!fserial.exists()) {
-      if (CryptoDebug.debug) {
-	System.out.println("Serial Number file (" + serialNbFileName +
+      if (log.isDebugEnabled()) {
+	log.debug("Serial Number file (" + serialNbFileName +
 			   ") does not exists. Creating...");
       }
       fserial = new File(serialNbFileName);
@@ -739,8 +745,8 @@ public class KeyManagement
     int byteRead = fInSerial.read(cbuf);
     fInSerial.close();
     serialNbString = new String(cbuf, 0, byteRead);
-    if (CryptoDebug.debug) {
-      System.out.println("Serial = " + serialNbString);
+    if (log.isDebugEnabled()) {
+      log.debug("Serial = " + serialNbString);
     }
     nextSerialNumber = new BigInteger(serialNbString);
 
@@ -766,8 +772,8 @@ public class KeyManagement
   {
     // Get X500 name of Certificate authority
     SignerInfo si = null;
-    if (CryptoDebug.debug) {
-      System.out.println("CA x509:" + caX509cert.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("CA x509:" + caX509cert.toString());
     }
 
     // does it have signing capability?
@@ -778,8 +784,8 @@ public class KeyManagement
         keyusage = (KeyUsageExtension)((X509CertImpl)caX509cert).get(s);
       }
     } catch (Exception ex) {
-      if (CryptoDebug.debug)
-        System.out.println("Exception in getKeyUsage: "
+      if (log.isDebugEnabled())
+        log.debug("Exception in getKeyUsage: "
           + ex.toString());
     }
     if (keyusage == null || keyusage.getBits().length < KEYUSAGE_CERT_SIGN_BIT
@@ -787,8 +793,8 @@ public class KeyManagement
       throw new CertificateException("Certificate is not authorized to sign.");
 
 
-    if (CryptoDebug.debug) {
-      //System.out.println("x500: " + caX500IssuerName.getCommonName());
+    if (log.isDebugEnabled()) {
+      //log.debug("x500: " + caX500IssuerName.getCommonName());
     }
 
     // Get Signature object for certificate authority
@@ -818,8 +824,8 @@ public class KeyManagement
 
     // Sign certificate
     clientCertificate.sign(caPrivateKey, caPolicy.algorithmId.getName());
-    if (CryptoDebug.debug) {
-      System.out.println("Signed certificate: " + clientCertificate.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("Signed certificate: " + clientCertificate.toString());
     }
 
     return clientCertificate;
@@ -849,8 +855,8 @@ public class KeyManagement
     while (bais.available() > 0) {
       Certificate cert = cf.generateCertificate(bais);
       certs.add(cert);
-      if (CryptoDebug.debug) {
-	System.out.println(cert.toString());
+      if (log.isDebugEnabled()) {
+	log.debug(cert.toString());
       }
     }
     return certs;
@@ -870,8 +876,8 @@ public class KeyManagement
     while (i.hasNext()) {
       Certificate cert = (Certificate)i.next();
       certs.add(cert);
-      if (CryptoDebug.debug) {
-	System.out.println(cert);
+      if (log.isDebugEnabled()) {
+	log.debug(cert.toString());
       }
     }
     return certs;
@@ -895,12 +901,12 @@ public class KeyManagement
 
     /* Retrieve attributes from the PKCS10 request */
     PKCS10Attributes attr = clientRequest.getAttributes();
-    if (CryptoDebug.debug) {
-      System.out.println("setX509CertificateFields. PKCS10 attributes:"
+    if (log.isDebugEnabled()) {
+      log.debug("setX509CertificateFields. PKCS10 attributes:"
 			 +clientRequest );
-      System.out.println(attr.toString());
+      log.debug(attr.toString());
       if(caPolicy==null) {
-	 System.out.println("in setX509CertificateFields. ca Policy is null");
+	 log.debug("in setX509CertificateFields. ca Policy is null");
       }
     }
 
@@ -930,8 +936,8 @@ public class KeyManagement
 
     // Set issuer
     CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500Name);
-    if (CryptoDebug.debug) {
-      System.out.println("Certificate issuer is " + caX500Name.toString());
+    if (log.isDebugEnabled()) {
+      log.debug("Certificate issuer is " + caX500Name.toString());
     }
     clientCertInfo.set("issuer", certIssuerName);
 
@@ -950,13 +956,13 @@ public class KeyManagement
     X500Name clientReqName = clientRequest.getSubjectName();
     String dname = clientReqName.getName();
     String title = CertificateUtility.findAttribute(dname, "t");
-    if (CryptoDebug.debug)
-      System.out.println("=====> Title from client request: " + title);
+    if (log.isDebugEnabled())
+      log.debug("=====> Title from client request: " + title);
 
     if (title == null) {
-      if (CryptoDebug.debug) {
-        System.out.println("setCertificateFields: receive a request without title: " + dname);
-        System.out.println("Setting title as user.");
+      if (log.isDebugEnabled()) {
+        log.debug("setCertificateFields: receive a request without title: " + dname);
+        log.debug("Setting title as user.");
       }
       dname += ",t=" + DirectoryKeyStore.CERT_TITLE_USER;
       title = DirectoryKeyStore.CERT_TITLE_USER;
@@ -981,7 +987,7 @@ public class KeyManagement
 
     if (caPolicy.certVersion >= 2) {
       String s = OIDMap.getName(new ObjectIdentifier("2.5.29.15"));
-          //System.out.println("=====> ObjectIdentifier: " + s);
+          //log.debug("=====> ObjectIdentifier: " + s);
 
       KeyUsageExtension keyusage = new KeyUsageExtension();
       keyusage.set("digital_signature", new Boolean(true));
@@ -1018,8 +1024,8 @@ public class KeyManagement
       throw new IOException(" Could not find PrivateKey for CA :"+caDN);
     }
     try {
-      if(CryptoDebug.debug) {
-	System.out.println(" found private key going to revoke certificate in caOperations :");
+      if(log.isDebugEnabled()) {
+	log.debug(" found private key going to revoke certificate in caOperations :");
       }
       String filter=keyRing.parseDN(caDN);
       SearchResult caresult=caOperations.getLdapentry(filter,false);

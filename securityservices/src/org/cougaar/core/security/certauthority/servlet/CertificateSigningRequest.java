@@ -35,6 +35,8 @@ import sun.security.x509.*;
 import org.w3c.dom.*;
 
 // Cougaar core infrastructure
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.util.*;
 
 // Cougaar security services
@@ -49,12 +51,16 @@ public class CertificateSigningRequest
 {
   private CertificateManagementService signer;
   private SecurityServletSupport support;
+  private LoggingService log;
 
   public CertificateSigningRequest(SecurityServletSupport support) {
     if (support == null) {
       throw new IllegalArgumentException("Support services null");
     }
     this.support = support;
+    log = (LoggingService)
+	support.getServiceBroker().getService(this,
+	LoggingService.class, null);
   }
 
   public void init(ServletConfig config) throws ServletException
@@ -72,8 +78,8 @@ public class CertificateSigningRequest
 
     String data;
 
-    if (CryptoDebug.debug) {
-      System.out.println("Received a certificate signing request");
+    if (log.isDebugEnabled()) {
+      log.debug("Received a certificate signing request");
     }
     ByteArrayInputStream bytestream=null;
     PrintStream printstream=new PrintStream(res.getOutputStream());
@@ -125,7 +131,7 @@ public class CertificateSigningRequest
       boolean replyhtml = replyformat.equalsIgnoreCase("html");
       if (replyhtml)
         printstream.println("<html>");
-      System.out.println("Replying with " + replyformat);
+      log.debug("Replying with " + replyformat);
 
       try  {
 	if(type.equalsIgnoreCase("pkcs7"))  {
@@ -142,7 +148,7 @@ public class CertificateSigningRequest
             String reply = signer.processPkcs10Request(
               printstream,(InputStream)bytestream, true);
 
-            System.out.println("reply: " + reply);
+            log.debug("reply: " + reply);
 
             // is it pending? then display pending msg
             String strStat = "status=";
@@ -197,12 +203,12 @@ public class CertificateSigningRequest
   protected void doGet(HttpServletRequest req,
 		       HttpServletResponse res)
     throws ServletException, IOException  {
-    if (CryptoDebug.debug) {
-      System.out.println("+++++ Certificate signing request: ");
-      System.out.println("method:" + req.getMethod());
-      System.out.println("authType:" + req.getAuthType());
-      System.out.println("pathInfo:" + req.getPathInfo());
-      System.out.println("query:" + req.getQueryString());
+    if (log.isDebugEnabled()) {
+      log.debug("+++++ Certificate signing request: ");
+      log.debug("method:" + req.getMethod());
+      log.debug("authType:" + req.getAuthType());
+      log.debug("pathInfo:" + req.getPathInfo());
+      log.debug("query:" + req.getQueryString());
     }
 
     res.setContentType("Text/HTML");
