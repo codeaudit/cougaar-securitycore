@@ -98,10 +98,6 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
     if (_log.isDebugEnabled()) {
       _log.debug("Comparing against cipher suite: " + cs);
     }
-    if (!cs.isCipherAvailable()) {
-      return CRYPTO_UNAVAILABLE;
-    }
-
     if (!ignoreEncryption) {
       boolean encrypt = policy.secureMethod == SecureMethodParam.ENCRYPT ||
         policy.secureMethod == SecureMethodParam.SIGNENCRYPT;
@@ -142,7 +138,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
    * available.
    */ 
   private static SecureMethodParam convertPolicy(CipherSuite cs) {
-    if (!cs.isCipherAvailable()) {
+    if (cs.getSymmetric() == null || cs.getAsymmetric() == null) {
       return null;
     }
 
