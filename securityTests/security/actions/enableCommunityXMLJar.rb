@@ -14,7 +14,7 @@ module Cougaar
           if !File.exists?("#{@communityJar}")
             File.rename("#{@communityJar}.orig", "#{@communityJar}")
           end
-	  if !File.exists?("#{@communityiXml}")
+	  if !File.exists?("#{@communityXml}")
             File.rename("#{@communityXml}.orig", "#{@communityXml}")
           end
 
