@@ -59,23 +59,23 @@ class TestReportChainReady < SecurityStressFramework
           badChains = getBadChains ["OSD.GOV"]
           if !(badChains.empty?)
             badChains.each do |chain|
-              saveAssertion stressid, 
+              saveAssertion @stressid, 
                             "ReportChainReady failed at subordinate #{chain.last}"
               explanation = "Subordinate chain = #{chain.join("->")}"
-              saveAssertion stressid, explanation
+              saveAssertion @stressid, explanation
             end
           end
         end
         logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script")
         if badChains.empty?
-          saveResult false, stressid, "ReportChainReady failed"
+          saveResult false, @stressid, "ReportChainReady failed"
         else
-          saveResult true, stressid, "ReportChainReady succeeded"
+          saveResult true, @stressid, "ReportChainReady succeeded"
         end 
       rescue => ex
 #        puts "error in afterReportChainReady"
         logInfoMsg("error in afterReportChainReady #{ex} #{ex.backtrace.join("\n")}")
-        saveAssertion stressid, "Exception = #{ex}\n #{ex.backtrace.join("\n")}"
+        saveAssertion @stressid, "Exception = #{ex}\n #{ex.backtrace.join("\n")}"
       end
     end
   end
