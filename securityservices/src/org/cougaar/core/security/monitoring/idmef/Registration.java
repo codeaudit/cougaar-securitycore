@@ -38,7 +38,7 @@ public class Registration extends Alert {
     
     public static String TYPE = "sensor-registration";
     /**
-     * Creates a message for an analyzer to register its capabilities.
+     * Creates a message for a sensor to register its capabilities.
      * Can only be create through IdmefMessageFactory
      */
     Registration( Analyzer analyzer,
@@ -56,5 +56,13 @@ public class Registration extends Alert {
                null,    // assessment 
                data, 
                null );  // ident 
+    }
+    
+    /**
+     * Creates an empty message for a sensor to register its capabilities.
+     * Can only be create through IdmefMessageFactory
+     */
+    Registration(){
+        super();
     }
 }
