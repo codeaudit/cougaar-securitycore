@@ -49,7 +49,7 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     } else {
       //failure
       this.failures++;
-      this.createIDMEFEvent(new LegitAnalyzer());
+      this.createIDMEFEvent(new LegitAnalyzer(),"Can't access OrgActivity object");
     }
   }
 

@@ -14,11 +14,10 @@
 package org.cougaar.core.security.test.blackboard;
 
 
-import java.io.Serializable;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -41,7 +40,7 @@ import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
-import org.cougaar.util.DBConnectionPool;
+import org.cougaar.servicediscovery.description.Classification;
 import org.cougaar.util.UnaryPredicate;
 
 import edu.jhuapl.idmef.Alert;
@@ -155,7 +154,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       logging.debug("Dumping test results to database");
     }
 
-    dumpSQLResults();
+    dumpCSVResults();
+    dumpHTMLResults();
     
   }
 
@@ -172,58 +172,69 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   }
 
 
-  /**
-   * Dump sql results
-   */
-  private void dumpSQLResults() {
-    Connection connection = null;
-    Statement stmt = null;
-    try {
-      //register driver
-      if (logging.isDebugEnabled()) {
-	logging.debug("Database details:" + driver + "," + databaseUrl
-		      + "," + username + "," + password);
-      }
+ 
+  private void dumpCSVResults() {
+		  try {
+			  String filename = dumpDir + File.separator + expName + ".csv";
+			  File file = new File(filename);
+			  FileWriter writer = new FileWriter(file);
+			  writer.write(
+				  "Experiment Name, Start Time, End Time, Successes, Failures, Total Tries, Agent Name, Plugin name");
+			  
+				  writer.write("\n");
+				  writer.write(expName + "," + startTime.toString()
+					  + "," + endTime.toString() + "," + successes
+					  + "," + failures + "," + totalRuns + ","
+					  + this.getAgentIdentifier().getAddress() + "," + pluginName);
+			  
 
-      DBConnectionPool.registerDriver(driver);
-      connection = DBConnectionPool.getConnection(databaseUrl, username,
-						  password);
-      stmt = connection.createStatement();
-      String sql =
-	"Insert into results (endtime,success,failure,total,plugin,agent,starttime,experimentName) values ("
-	+ "'" + new Date().toString() + "'" + "," + successes + ","
-	+ failures + "," + totalRuns + ",'" + pluginName + "'" + ",'"
-	+ getAgentIdentifier() + "'" + ",'" + startTime.toString()
-	+ "','" + expName + "')";
-      if (logging.isInfoEnabled()) {
-	logging.info(sql);
-      }
+			  writer.close();
+		
 
-      stmt.execute(sql);
-    } catch (SQLException sqlex) {
-      if (logging.isErrorEnabled()) {
-	logging.error("Error writing test result to databse", sqlex);
-      }
-    } catch (Exception e) {
-      if (logging.isErrorEnabled()) {
-	logging.error("Error registering driver " + driver, e);
-      }
-    } finally {
-      try {
-	if (stmt != null) {
-	  stmt.close();
-	}
+		  } catch (Exception e) {
+			  if (logging.isErrorEnabled()) {
+				  logging.error("error dumping test results to csv file", e);
+			  }
+		  }
+	  }
 
-	if (connection != null) {
-	  connection.close();
-	}
-      } catch (SQLException sqlex2) {
-	if (logging.isErrorEnabled()) {
-	  logging.error("Error closing db resourcses," + sqlex2);
-	}
-      }
-    }
-  }
+
+	  private void dumpHTMLResults() {
+		  try {
+			  String filename =  dumpDir + File.separator +expName + ".html";
+			  File file = new File(filename);
+			  FileWriter writer = new FileWriter(file);
+			  writer.write("<HTML><BODY><TABLE><TR>");
+			  writer.write("<TH>Experiment</TH>");
+			  writer.write("<TH>Start Time</TH>");
+			  writer.write("<TH>End Time</TH>");
+			  writer.write("<TH>Successes</TH>");
+			  writer.write("<TH>Failures</TH>");
+			  writer.write("<TH>Total</TH>");
+			  writer.write("<TH>Agent</TH>");
+			  writer.write("<TH>Plugin</TH>");
+			  writer.write("</TR>");
+			    writer.write("<TR>");
+				  writer.write("<TD>"+expName+"</TD>");
+				  writer.write("<TD>"+startTime+"</TD>");
+				  writer.write("<TD>"+endTime+"</TD>");
+				  writer.write("<TD>"+successes+"</TD>");
+				  writer.write("<TD>"+failures+"</TD>");
+				  writer.write("<TD>"+totalRuns+"</TD>");
+				  writer.write("<TD>"+this.getAgentIdentifier().getAddress()+"</TD>");
+				  writer.write("<TD>"+pluginName+"</TD>");
+				
+				  writer.write("</TR>");
+			 
+			  writer.write("</TABLE></BODY></HTML>");
+			  writer.close();
+		  } catch (Exception e) {
+			  if (logging.isErrorEnabled()) {
+				  logging.error("Error writing html results", e);
+			  }
+		  }
+	  }
+
 
   /**
    * Load Component
@@ -283,15 +294,17 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     try {
       File dumpDirFile = new File(dumpDir);
       if (!dumpDirFile.mkdirs()) {
-	if (logging.isWarnEnabled()) {
-	  logging.warn("Unable to create dump directory:");
-	}
+			if (logging.isWarnEnabled()) {
+	  			logging.warn("Unable to create dump directory:");
+			}
       }
     }
     catch (Exception e) {
      if (logging.isWarnEnabled()) {
        logging.warn("Unable to create dump directory:" + e);
     }
+    }
+    
   }
 
 
@@ -416,18 +429,23 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    *
    * @param a DOCUMENT ME!
    */
-  protected void createIDMEFEvent(Analyzer a) {
+  protected void createIDMEFEvent(Analyzer a, String classification) {
     DetectTime detectTime = new DetectTime();
     detectTime.setIdmefDate(new java.util.Date());
     CmrFactory cmrFactory = (CmrFactory) this.domainService.getFactory(
       "cmr");
+    ArrayList classifications = new ArrayList();
+    Classification c = (Classification)cmrFactory.getIdmefMessageFactory().createClassification(
+    	classification, null);
+    classifications.add(c);
     Alert alert = cmrFactory.getIdmefMessageFactory().createAlert(a,
-								  detectTime, null, null, null, null);
+								  detectTime, null, null, classifications, null);
     if (logging.isInfoEnabled()) {
       logging.info("*****************************Publishing IDMEF Event");
     }
 
     Event event = cmrFactory.newEvent(alert);
+    
     if (!(event instanceof Serializable)) {
       if (logging.isErrorEnabled()) {
 	logging.error("Event is not serializable");

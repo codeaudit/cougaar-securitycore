@@ -50,7 +50,7 @@ public class MaliciousBlackboardPlugin extends AbstractBlackboardPlugin {
                     + orgActivities.size() + " org activities");
             }
 
-            this.createIDMEFEvent(new MaliciousBlackboardPluginAnalyzer());
+            this.createIDMEFEvent(new MaliciousBlackboardPluginAnalyzer(), "Was able to access OrgActivity object");
             this.totalRuns++;
             this.failures++;
         }else{
