@@ -94,11 +94,16 @@ class TestReportChainReady < SecurityStressFramework
   def readEventsFromFile
     filename = File.join(ENV["CIP"], "workspace", "test", "acme_events.log")
     File.open(filename) do |file|
-      parseLine(file.readline)
-      getBadChains(["OSD.GOV"]).each do |chain|
-        puts "Found bad chain ending at #{chain.last}"
-        puts "Chain = " + chain.join(' -> ')
+      file.readlines.each do |line|
+        parseLine(line)
       end
+    end
+    puts("getting ready to calculate bad chains")
+    puts "subordinates for OSD.GOV = #{@foundSubordinates['OSD.GOV'].join(',')}"
+    puts "expected = #{@expectedSubordinates['OSD.GOV'].join(',')}"
+    getBadChains(['OSD.GOV']).each do |chain|
+      puts("Found bad chain ending at #{chain.last}")
+      puts("Chain = " + chain.join(' -> '))
     end
   end
 
