@@ -8,11 +8,14 @@ module Cougaar
         @hosts = BuildCsiHostFile::getHosts
         puts "ResetCsiAcme"
         @scriptName="#{CIP}/resetAcme.sh"
+        pid = Process.pid
         file = File.open(@scriptName ,"w") { |file|
           file.write <<END
 #!/bin/sh
-killall -9 java ; /etc/init.d/acme stop
+killall -9 java ; /etc/init.d/acme stop 
+killall -9 start_acme ; pkill -9 -u root /usr/bin/ruby
 rm -f /tmp/*.xml ; rm -f /tmp/*.sig ; rm -f /tmp/*.jar ; rm -f /tmp/*.sql
+sleep 3
 /etc/init.d/acme start
 END
         }
@@ -27,7 +30,7 @@ END
       end
       def invoke_remote(host, cmdstr)
         cmd = "ssh #{host} sudo \"#{cmdstr}\""
-        @run.info_message "#{cmd}"
+        #@run.info_message "#{cmd}"
         `#{cmd}`
       end
     end
