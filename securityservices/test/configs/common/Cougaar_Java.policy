@@ -373,7 +373,7 @@ grant signedBy "privileged" {
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.net";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 	permission java.lang.RuntimePermission "accessClassInPackage.sun.beans.infos";
-
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
 
 	///////////////////////////////////////////////////
 	// This permission is needed by the AgentManager to associate a JAAS
