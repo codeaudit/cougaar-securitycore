@@ -287,6 +287,9 @@ public class ConfParser {
     CaPolicy caPolicy = null;
 
     for (int i = 0 ; i < conf.getLength() ; i++) {
+      if (conf.item(i).getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+	continue;
+      }
       Element caPolicyElement = (Element) conf.item(i);
       X500Name aDN = new X500Name(caPolicyElement.getAttribute("name"));
       if (!dn.equals(aDN)) {
@@ -358,6 +361,9 @@ public class ConfParser {
       configDoc.getDocumentElement().getElementsByTagName(CA_POLICY_ELEMENT);
 
     for (int i = 0 ; i < conf.getLength() ; i++) {
+      if (conf.item(i).getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+	continue;
+      }
       Element element = (Element) conf.item(i);
       try {
 	X500Name aDN = new X500Name(element.getAttribute("name"));
@@ -388,7 +394,11 @@ public class ConfParser {
     }
     NodeList list = e.getChildNodes();
     for (int i = 0 ; i < list.getLength() ; i++) {
-      Element element = (Element) list.item(i);
+      Node aNode = list.item(i);
+      if (aNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+	continue;
+      }
+      Element element = (Element) aNode;
       addRole(element, set);
       String aRole = element.getAttribute("role");
       if (aRole != null) {
