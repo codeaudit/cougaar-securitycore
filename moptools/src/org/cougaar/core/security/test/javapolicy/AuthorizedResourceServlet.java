@@ -40,7 +40,7 @@ import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 
 import java.io.File;
 import java.io.FileWriter;

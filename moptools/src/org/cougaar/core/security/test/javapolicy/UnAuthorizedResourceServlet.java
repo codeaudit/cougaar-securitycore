@@ -41,7 +41,7 @@ import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
-import org.cougaar.core.security.test.AbstractServletComponent;
+import org.cougaar.core.security.servlet.AbstractServletComponent;
 
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Analyzer;
@@ -52,7 +52,7 @@ import edu.jhuapl.idmef.DetectTime;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {
