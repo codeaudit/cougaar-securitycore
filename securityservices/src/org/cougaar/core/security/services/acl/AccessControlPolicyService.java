@@ -33,40 +33,40 @@ import org.cougaar.core.security.acl.trust.*;
 public interface AccessControlPolicyService 
   extends Service
 {
-    TrustSet getIncomingTrust(String agent, String key);
-    TrustSet getOutgoingTrust(String agent, String key);
-    String getIncomingAction(String agent, String level);
-    String getOutgoingAction(String agent, String level);
+  TrustSet getIncomingTrust(String agent, String key);
+  TrustSet getOutgoingTrust(String agent, String key);
+  String getIncomingAction(String agent, String level);
+  String getOutgoingAction(String agent, String level);
 
-    /**
-     * Access control policy based on source agent.
-     * @param target The agent the message is being delivered to
-     * @param source The agent where the message originated
-     */
-    String getIncomingAgentAction(String target, String source);
+  /**
+   * Access control policy based on source agent.
+   * @param target The agent the message is being delivered to
+   * @param source The agent where the message originated
+   */
+  String getIncomingAgentAction(String target, String source);
 
-    /**
-     * Access control policy based on destination agent
-     * @param source The agent attempting to send a message
-     * @param target The inteded recipient of the message to be sent
-     */
-    String getOutgoingAgentAction(String source, String target);
+  /**
+   * Access control policy based on destination agent
+   * @param source The agent attempting to send a message
+   * @param target The inteded recipient of the message to be sent
+   */
+  String getOutgoingAgentAction(String source, String target);
 
-    /**
-     * Access control for directive verbs to target for inspection
-     * on incoming messages for a specified agent (or node in the future).
-     * @param target The message's intended recipient
-     * @param source The message's originator
-     */
-    Object[] getIncomingVerbs(String target, String source);
+  /**
+   * Access control for directive verbs to target for inspection
+   * on incoming messages for a specified agent (or node in the future).
+   * @param target The message's intended recipient
+   * @param source The message's originator
+   */
+  String[] getIncomingVerbs(String target, String source);
 
-    /**
-     * Access control for directive verbs to target for inspection
-     * on outgoing messages for a specified agent (or node in the future).
-     * @param source The message's originator
-     * @param target The message's intended recipient
-     */
-    Object[] getOutgoingVerbs(String source, String target);
+  /**
+   * Access control for directive verbs to target for inspection
+   * on outgoing messages for a specified agent (or node in the future).
+   * @param source The message's originator
+   * @param target The message's intended recipient
+   */
+  String[] getOutgoingVerbs(String source, String target);
 
 }
 

@@ -202,40 +202,75 @@ public class MessageProtectionServiceImpl
 			      MessageAddress target)
     throws GeneralSecurityException, IOException
   {
+//     return protectHeader(rawData, null, null, source, target, null);
     return rawData;
-    /*
-    if (!isInitialized) {
-      setPolicyService();
+  }
+
+  /**
+   * Sign and/or encrypt the header of an outgoing message.
+   *
+   * When a message is sent out:
+   * 1) The aspect calls protectHeader().
+   * 2) The data protection service encrypts/signs the header.
+   *    It uses the information provided in the source and destination
+   *    to decide how to encrypt and/or sign.
+   * 3) The encrypted header is returned.
+   * 4) The aspect calls getOuputStream.
+   *    - The source and destination should be the same as what was found
+   *      in the call to protectHeader().
+   * 5) The service returns an output stream where the MTS will serialize
+   *    the clear-text message.
+   * 6) The service encrypts the message and write the encrypte/signed
+   *    message to the output stream.
+   * 7) The encrypted message is actually sent over the network.
+   *
+   * @param rawData     The unencrypted header
+   * @param source      The source of the message
+   * @param destination The destination of the message
+   * @return the protected header (sign and/or encrypted)
+   */
+  public byte[] protectHeader(byte[] rawData,
+			      MessageAddress sourceAgent,
+			      MessageAddress targetAgent,
+                              MessageAddress sourceNode,
+                              MessageAddress targetNode,
+                              MessageAttributes attrs)
+    throws GeneralSecurityException, IOException
+  {
+    if (isEncrypted(attrs)) {
+      return rawData;
     }
 
-    String sourceName = source.toAddress();
-    String targetName = target.toAddress();
-    SecureMethodParam policy = cps.getSendPolicy(sourceName, targetName);
-    CryptoPolicy policy =
-       cps.getOutgoingPolicy(source.getAddress());
+    String sourceName = sourceNode.toAddress();
+    String targetName = targetNode.toAddress();
 
     // SR - 10/21/2002. UGLY & TEMPORARY FIX
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
-    if (destination.toAddress().endsWith("(MTS)")) {
-	log.info("Outgoing postmaster message. Skipping encryption");
+    if (targetName.endsWith("(MTS)")) {
+	log.info("Incoming postmaster message. Skipping encryption");
 	return rawData;
     }
 
-    log.debug("protectHeader 1");
+    if (!isInitialized) {
+      setPolicyService();
+    }
+    
+    SecureMethodParam policy = cps.getSendPolicy(sourceName, targetName);
+
     if (policy == null) {
-      log.debug("protectHeader 2");
       if (log.isWarnEnabled()) {
-        log.warn("protectHeader: " + source.toAddress()
-                 + " -> " + destination.toAddress()
-                 + " (No policy). No protection.");
+        log.warn("protectHeader: " + sourceName +
+                 " -> " + targetName + 
+                 " for agents " + sourceAgent + " -> " + targetAgent +
+                 " (No policy). No protection.");
       }
 
       GeneralSecurityException gse = 
         new GeneralSecurityException("Could not find message policy between " +
-                                     source.getAddress() +
-                                     " and " + destination.getAddress());
-      publishMessageFailure(source.toString(), destination.toString(),
+                                     sourceName +
+                                     " and " + targetName);
+      publishMessageFailure(sourceName, targetName,
                             MessageFailureEvent.INVALID_POLICY, 
                             gse.toString());
 
@@ -248,48 +283,38 @@ public class MessageProtectionServiceImpl
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("protectHeader: " + source.toAddress()
-		    + " -> " + destination.toAddress()
- 		    + " (" + policy.toString() + ")");
+      log.debug("protectHeader: " + sourceName +
+                " -> " + targetName +
+                " for agents " + sourceAgent + " -> " + targetAgent +
+                " (" + policy + ")");
     }
     ByteArrayOutputStream baos = null;
     try {
-      log.debug("protectHeader 3: " + rawData + ", " + source + ", " + destination + ", " + policy);
       ProtectedObject po =
-        encryptService.protectObject(rawData, source, destination, policy);
-      log.debug("protectHeader 3.1");
+        encryptService.protectObject(rawData, sourceNode, targetNode, policy);
       baos = new ByteArrayOutputStream();
-      log.debug("protectHeader 3.2");
   
       ObjectOutputStream oos = new ObjectOutputStream(baos);
-      log.debug("protectHeader 3.3");
       oos.writeObject(po);
-      log.debug("protectHeader 3.4");
   
       if (log.isDebugEnabled()) {
-        log.debug("protectHeader OK: " + source.toAddress()
-  		+ " -> " + destination.toAddress());
+        log.debug("protectHeader OK: " + sourceName +
+                  " -> " + targetName);
       }
     } catch(GeneralSecurityException gse) {
-      log.debug("protectHeader 4", gse);
-      publishMessageFailure(source.toString(),
-                            destination.toString(),
-                            gse);
-      log.debug("protectHeader 4.2");
+      publishMessageFailure(sourceName, targetName, gse);
       IOException ioex = 
-        new IOException("Unable to protect header:" + gse.getMessage());
-      log.debug("protectHeader 4.3");
+        new IOException("Unable to protect header:" + gse);
       ioex.initCause(gse);
       // Don't throw a security exception, otherwise the MTS will never
       // retry to send the message.
-      log.debug("protectHeader 4.4");
       throw ioex;
     } catch (Throwable t) {
       t.printStackTrace();
     }
     return baos.toByteArray();
-    */
   }
+
   /*
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
@@ -374,43 +399,68 @@ public class MessageProtectionServiceImpl
    */
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
-				MessageAddress destination)
+				MessageAddress target)
     throws GeneralSecurityException, IOException
   {
+//     return unprotectHeader(rawData, null, null, source, target, null);
     return rawData;
-    /*
-    if (!isInitialized) {
-      setPolicyService();
-    }
-     CryptoPolicy policy =
-       cps.getIncomingPolicy(destination.toAddress());
+  }
 
+  /**
+   * Verify the signed and/or encrypted header of an incoming message.
+   *
+   * @param rawData     The signed and/or encrypted header
+   * @param source      The source of the message
+   * @param destination The destination of the message
+   * @return the header in the clear
+   */
+  public byte[] unprotectHeader(byte[] rawData,
+				MessageAddress sourceAgent,
+				MessageAddress targetAgent,
+                                MessageAddress sourceNode,
+                                MessageAddress targetNode,
+                                MessageAttributes attrs)
+    throws GeneralSecurityException, IOException
+  {
+    if (isEncrypted(attrs)) {
+      return rawData;
+    }
+
+    String sourceName = sourceNode.toAddress();
+    String targetName = targetNode.toAddress();
+    
     // SR - 10/21/2002. UGLY & TEMPORARY FIX
     // The advance message clock uses an unsupported address type.
     // Since this is demo-ware, we are not encrypting those messages.
-    if (destination.toAddress().endsWith("(MTS)")) {
+    if (targetName.endsWith("(MTS)")) {
 	log.info("Incoming postmaster message. Skipping encryption");
 	return rawData;
     }
 
-    if (policy == null) {
+    if (!isInitialized) {
+      setPolicyService();
+    }
+
+    Collection policies = cps.getReceivePolicies(sourceName, targetName);
+
+    if (policies.isEmpty()) {
       if (log.isWarnEnabled()) {
-	      log.warn("unprotectHeader NOK: " + source.toAddress()
-		      + " -> " + destination.toAddress()
-		      + " (No policy)");
+        log.warn("unprotectHeader " + sourceName +
+                 " -> " + targetName +
+                 " (No policy)");
       }
-      GeneralSecurityException gse = new
-	      GeneralSecurityException("Could not find message policy between "
-				  + source.getAddress()
-				  + " and " + destination.getAddress());
-      publishMessageFailure(source.toString(), destination.toString(),
-        MessageFailureEvent.INVALID_POLICY, gse.toString());
+      GeneralSecurityException gse = 
+        new GeneralSecurityException("Could not find message policy between " +
+                                     sourceName + " and " + targetName);
+      publishMessageFailure(sourceName, targetName,
+                            MessageFailureEvent.INVALID_POLICY, 
+                            gse.toString());
       throw gse;
     }     
+
     if (log.isDebugEnabled()) {
-      log.debug("unprotectHeader: " + source.toAddress()
-		    + " -> " + destination.toAddress()
- 		    + " (" + policy.toString() + ")");
+      log.debug("unprotectHeader: " + sourceName + " -> " + targetName +
+                " (" + policies + ")");
     }
 
     ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
@@ -418,52 +468,62 @@ public class MessageProtectionServiceImpl
     try {
       ObjectInputStream ois = new ObjectInputStream(bais);
       po = (ProtectedObject) ois.readObject();
-    }
-    catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException e) {
       if (log.isWarnEnabled()) {
-	      log.warn("unprotectHeader NOK: " + source.toAddress()
-		      + " -> " + destination.toAddress()
-		      + " (Class not found)");
+        log.warn("unprotectHeader " + sourceName + " -> " + targetName +
+                 " (Class not found)");
       }
-      throw new IOException(e.toString());
+      throw new IOException("Can't unprotect header: " + e.getMessage());
     }
     Object o = null;
-    try {
-      o = encryptService.unprotectObject(source, destination, po, policy);
-      if (log.isDebugEnabled()) {
-        log.debug("unprotectHeader OK: " + source.toAddress()
-		      + " -> " + destination.toAddress());
+    Iterator iter = policies.iterator();
+    DecryptSecretKeyException dske = null;
+    GeneralSecurityException  gse  = null;
+    while (iter.hasNext()) {
+      SecureMethodParam policy = (SecureMethodParam) iter.next();
+      try {
+        o = encryptService.unprotectObject(sourceNode, targetNode, po, policy);
+        if (log.isDebugEnabled()) {
+          log.debug("unprotectHeader OK: " + sourceName + " -> " + targetName);
+        }
+        return (byte[]) o;
+      } catch(DecryptSecretKeyException e) {
+        dske = e;
+      } catch(GeneralSecurityException e) {
+        gse = e;
       }
     }
-    catch(DecryptSecretKeyException dske) {
+    if (dske != null) {
       // send the new certificate to the server
-      AttributedMessage msg = getCertificateMessage(source, destination);
+      AttributedMessage msg = getCertificateMessage(sourceNode, targetNode);
       if (msg != null) {
         SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
         if (sendQ != null) {
           sendQ.sendMessage(msg);
           if (log.isInfoEnabled()) {
-            log.info("Requesting that " + source.toAddress() + " use new certificate");
+            log.info("Requesting that " + sourceName + " use new certificate");
           } 
         } else if (log.isWarnEnabled()) {
-          log.warn("Could not send message to " + source + " to use a new certificate. Make sure that org.cougaar.core.security.crypto.MessageProtectionAspectImpl is used.");
+          log.warn("Could not send message to " + sourceName + 
+                   " to use a new certificate. Make sure that " +
+                   "org.cougaar.core.security.crypto.MessagePr" +
+                   "otectionAspectImpl is used.");
         }
       }
       
-      
       throw new RetryWithNewCertificateException(dske.getMessage());
     }
-    catch(GeneralSecurityException gse) {
-      publishMessageFailure(source.toString(),
-                            destination.toString(),
-                            gse);
+    if (gse != null) {
+      publishMessageFailure(sourceName, targetName, gse);
       throw gse;
     }
-    return (byte[])o;
-    */
+    throw new RuntimeException("Should never get here");
   }
 
   private boolean isEncrypted(MessageAttributes attrs) {
+    if (attrs == null) {
+      return false;
+    }
     Object encObj =
       attrs.getAttribute(AttributeConstants.ENCRYPTED_SOCKET_ATTRIBUTE);
     if (encObj == null) {
@@ -549,6 +609,11 @@ public class MessageProtectionServiceImpl
       if (log.isDebugEnabled()) {
         log.debug("Policy = " + policy);
       }
+      if (policy == null) {
+        log.error("Policy is null. The message cannot be protected. " +
+                  "Likely cause is DAML policy enforcer.");
+        throw new IOException("Protection policy is null");
+      }
       boolean encryptedSocket = isEncrypted(attrs);
       Object link = 
         attrs.getAttribute(MessageProtectionAspectImpl.TARGET_LINK);
@@ -556,6 +621,23 @@ public class MessageProtectionServiceImpl
       return encryptService.
         protectOutputStream(os, policy, source, destination, encryptedSocket,
                             link);
+    } catch (DecryptSecretKeyException e) {
+      AttributedMessage msg = getCertificateMessage(source, destination);
+      if (msg != null) {
+        SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
+        if (sendQ != null) {
+          sendQ.sendMessage(msg);
+          if (log.isInfoEnabled()) {
+            log.info("Requesting that " + source + " use new certificate");
+          } 
+        } else if (log.isWarnEnabled()) {
+          log.warn("Could not send message to " + source + 
+                   " to use a new certificate. Make sure that " +
+                   "org.cougaar.core.security.crypto.MessagePr" +
+                   "otectionAspectImpl is used.");
+        }
+      }
+      throw new RetryWithNewCertificateException(e.getMessage());
     } catch (GeneralSecurityException e) {
       log.debug("Got an error when protecting output stream", e);
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;

@@ -131,9 +131,45 @@ public class CryptoManagerServiceImpl
       if (log.isWarnEnabled()) {
         log.warn(message);
       }
-      throw new NoValidKeyException("Private key of " + name + " not found");
+      throw new NoValidKeyException(message);
     }
     return pkList;
+  }
+
+  private PrivateKey getPrivateKey(final String name, 
+                                   final X509Certificate cert) 
+    throws GeneralSecurityException, IOException {
+    PrivateKey pk = (PrivateKey) 
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run(){
+            // relieve messages to naming, for local keys
+            // do not need to go to naming
+//             List nameList = keyRing.getX500NameFromNameMapping(name);
+            List nameList = keyRing.findDNFromNS(name);
+            Iterator iter = nameList.iterator();
+            while (iter.hasNext()) {
+              X500Name dname = (X500Name) iter.next();
+              List pkCerts = keyRing.findPrivateKey(dname);
+              Iterator jter = pkCerts.iterator();
+              while (jter.hasNext()) {
+                PrivateKeyCert pkc = (PrivateKeyCert) jter.next();
+                if (cert.equals(pkc.cert.getCertificate())) {
+                  return pkc.pk;
+                }
+              }
+            }
+            return null;
+          }
+        });
+    if (pk == null) {
+      String message = "Unable to get private key of " + 
+        cert + " -- does not exist.";
+      if (log.isWarnEnabled()) {
+        log.warn(message);
+      }
+      throw new NoValidKeyException(message);
+    }
+    return pk;
   }
 
   public SignedObject sign(String name,
@@ -331,6 +367,23 @@ public class CryptoManagerServiceImpl
     finally {
       if (ci != null) {
         returnCipher(spec,ci);
+      }
+    }
+  }
+
+  private Object asymmDecrypt(PrivateKey key,
+                              SealedObject obj) 
+    throws GeneralSecurityException, IOException, ClassNotFoundException {
+    String spec = key.getAlgorithm();
+    Cipher ci = null;
+    try {
+      ci=getCipher(spec);
+      ci.init(Cipher.DECRYPT_MODE, key);
+      Object o = obj.getObject(ci);
+      return o;
+    } finally {
+      if (ci != null) {
+        returnCipher(spec, ci);
       }
     }
   }
@@ -1659,19 +1712,29 @@ public class CryptoManagerServiceImpl
     
     private void decryptStream(ProtectedMessageHeader header, 
                                String targetName) 
-      throws NoSuchAlgorithmException, InvalidKeyException, 
-      NoSuchPaddingException {
+      throws GeneralSecurityException, IOException {
       _encrypt = true;
       // first decrypt the secret key with my private key
       X509Certificate receiverCert = header.getReceiver();
       SealedObject encKey = header.getEncryptedSymmetricKey();
       SecureMethodParam policy = header.getPolicy();
-      SecretKey secret = (SecretKey) 
-        asymmDecrypt(targetName, policy.asymmSpec, encKey);
-      _symmSpec = policy.symmSpec;
-      _cipher = getCipher(policy.symmSpec);
-      _cipher.init(Cipher.DECRYPT_MODE, secret);
-      this.in = new CipherInputStream(this.in, _cipher);
+      PrivateKey key = getPrivateKey(targetName, header.getReceiver());
+      try {
+        SecretKey secret = (SecretKey) asymmDecrypt(key, encKey);
+//       SecretKey secret = (SecretKey) 
+//         asymmDecrypt(targetName, policy.asymmSpec, encKey);
+        if (secret == null) {
+          throw new DecryptSecretKeyException("Can't find secret key for " +
+                                              header.getReceiver());
+        }
+        _symmSpec = policy.symmSpec;
+        _cipher = getCipher(policy.symmSpec);
+        _cipher.init(Cipher.DECRYPT_MODE, secret);
+        this.in = new CipherInputStream(this.in, _cipher);
+      } catch (ClassNotFoundException e) {
+        log.error("Couldn't decrypt the header", e);
+        throw new IOException(e.getMessage());
+      }
     }
 
     private void unsignStream(ProtectedMessageHeader header) 

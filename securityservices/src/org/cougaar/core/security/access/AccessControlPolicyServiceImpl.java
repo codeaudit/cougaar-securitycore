@@ -277,7 +277,7 @@ public class AccessControlPolicyServiceImpl
     return r;
   }//getOutgoingAgentAction
 
-  public Object[] getIncomingVerbs(String source, String target)
+  public String[] getIncomingVerbs(String source, String target)
   {
     AccessControlPolicy acp = getIncomingPolicy(target);
     if(acp==null){
@@ -292,11 +292,10 @@ public class AccessControlPolicyServiceImpl
       for(int i = 0; i < r.size(); i++)
         log.debug(r.get(i).toString() + " ");
     }
-    Verb[] verbs = new Verb[r.size()];
+    String[] verbs = new String[r.size()];
     try {
       for(int i = 0; i < r.size(); i++){
-        Verb v = new Verb(r.get(i).toString());
-        verbs[i] = v;
+        verbs[i] = r.get(i).toString();
       }
     }
     catch(Exception ex) {
@@ -305,7 +304,7 @@ public class AccessControlPolicyServiceImpl
     return verbs;
   }
 
-  public Object[] getOutgoingVerbs(String source, String target) {
+  public String[] getOutgoingVerbs(String source, String target) {
     AccessControlPolicy acp = getOutgoingPolicy(source);
     if(acp==null){
       //no point to go on.
@@ -320,12 +319,10 @@ public class AccessControlPolicyServiceImpl
       log.debug(r.get(i).toString() + ":"
 			 + r.get(i).getClass().getName() + " ");
     }
-    Verb[] verbs = new Verb[r.size()];
+    String[] verbs = new String[r.size()];
     try {
-      //return (Verb[])r.toArray(verbs);
       for(int i = 0; i < r.size(); i++){
-        Verb v = new Verb(r.get(i).toString());
-        verbs[i] = v;
+        verbs[i] = r.get(i).toString();
       }
     }
     catch(Exception ex) {

@@ -181,7 +181,14 @@ public class AccessAgentProxy
     }
       
     if(mts!=null) {
-      checkOutVerbs(message);
+      boolean tossMessage = checkOutVerbs(message);
+      if (tossMessage) {
+        if (log.isWarnEnabled()) {
+          log.warn("Rejecting outgoing message: " + message);
+        }
+        return;
+      }
+
       /*
        *TODO: the following "if" test is a big kludge, due to the fact
        *node agents can have binders, so we are making exceptions--no 
@@ -196,11 +203,9 @@ public class AccessAgentProxy
 
       if(ts==null) {
         if(log.isWarnEnabled()) {
-        log.warn("Rejecting outgoing message: " + 
-      		     ((message != null)? message.toString():
-      		      "Null Message"));
+          log.warn("Rejecting outgoing message: " + message);
         }
-	      return;		// the message is rejected so we abort here
+        return;		// the message is rejected so we abort here
       }
       MessageWithTrust mwt;
       mwt = new MessageWithTrust(message, ts);
@@ -317,7 +322,17 @@ public class AccessAgentProxy
       }
 	
       // Check verb of incoming message
-      checkInVerbs(contents);
+      boolean tossMessage = checkInVerbs(contents);
+      if (tossMessage) {
+        publishMessageFailure(m.getOriginator().toString(),
+			      m.getTarget().toString(),
+			      MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
+			      m.toString());
+	if(log.isWarnEnabled()) {
+          log.warn("Rejecting incoming message: " + m);
+        }
+        return;
+      }
 
       // Update TrustSet of incoming message
       // The sender is allowed to provide a TrustSet, but the receiver
@@ -329,9 +344,8 @@ public class AccessAgentProxy
 			      MessageFailureEvent.INVALID_MESSAGE_CONTENTS,
 			      m.toString());
 	if(log.isWarnEnabled()) {
-	  log.warn("Rejecting incoming messagewithtrust. trust invalid."
-		   + m.toString());
-      }
+          log.warn("Rejecting incoming message: " + m);
+        }
       }
 
       String failureIfOccurred = null;
@@ -368,17 +382,7 @@ public class AccessAgentProxy
       return;
     }
     else {
-      //check to see if any node agent is involved.
-/*      if(nodeList.contains(m.getOriginator().toString())||
-          nodeList.contains(m.getTarget().toString())){
-        //no wrapping with trust
-        mtc.receiveMessage(m);
-        if(log.isDebugEnabled()){
-          log.debug("handling no wrapping with trust for node agent." + m);
-        }
-      return;
-      } else {
-*/        if (log.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
           log.debug("Wrapping trust, it is not wrapped in a MessageWithTrust: "
              + m.toString());
         }
@@ -439,48 +443,62 @@ public class AccessAgentProxy
    * Check verb-based policy
    * @param direction true: incoming message. false: outgoing message.
    */
-  private void checkMessage(Message msg, boolean direction) {
-    if(msg instanceof DirectiveMessage) {
-      Directive directive[] = ((DirectiveMessage)msg).getDirectives();
-      int len = directive.length;
-      for(int i = 0; i < len; i++) {
-        //if (debug) {
-          //System.out.println("Directive[" + i + "]:"
-          //       + directive[i].getClass().toString());
-        //}
-        if(!(directive[i] instanceof Task)) {
-          continue;
-	}
-        Task task = (Task)directive[i];
-        String address = null;
-        boolean match = false;
-        //if(debug) {
-          //System.out.println("Processing task " + task.getVerb());
-        //}
+  private boolean checkMessage(Message msg, boolean direction) {
+    String source = msg.getOriginator().toString();
+    String target = msg.getTarget().toString();
 
-        match = matchVerb(task.getSource().toString(),
-              task.getDestination().toString(),
-              task.getVerb(), direction);
-        if(match) {
-          if(removeDirective((DirectiveMessage)msg, i)) {
-	    return;
-	  }
-          directive = ((DirectiveMessage)msg).getDirectives();
-          len = directive.length;
-          i--;
+    if (!(msg instanceof DirectiveMessage)) {
+      return isMessageDenied(source, target, null, direction);
+    }
+
+    DirectiveMessage dmsg = (DirectiveMessage) msg;
+    Directive directive[] = dmsg.getDirectives();
+    int len = directive.length;
+    int newLen = len;
+
+    for (int i = 0; i < len; i++) {
+      if (!directive[i].getSource().toString().equals(source) ||
+          !directive[i].getDestination().toString().equals(target)) {
+        // the directives are bad!
+        directive[i] = null;
+        newLen--;
+      } else {
+        String verb = null;
+        if (directive[i] instanceof Task) {
+          Task task = (Task) directive[i];
+          Verb verbV = task.getVerb();
+          if (verbV != null) {
+            verb = verbV.toString();
+          }
+        }
+        boolean denied = isMessageDenied(source, target, verb, direction);
+        if (denied) {
+          directive[i] = null;
+          newLen--;
         }
       }
     }
-    else if (msg.getClass().getName().equals("safe.comm.SAFEMessage")) {
-       // Silently ignore these messages
+    if (newLen != len) {
+      Directive newDirectives[] = new Directive[newLen];
+      int j = 0;
+      for (int i = 0 ; i < len; i++) {
+        if (directive[i] != null) {
+          newDirectives[j++] = directive[i];
+        }
+      }
+      dmsg.setDirectives(newDirectives);
     }
-  
+    return false;
   }
 
-  private boolean matchVerb(String source, String target,
-			    Verb verb, boolean direction)  {
+  private boolean isMessageDenied(String source, String target, 
+                                  String verb, boolean direction) {
     if (USE_DAML) {
       return _enforcer.isActionAuthorized(source, target, verb.toString());
+    }
+    if (verb == null) {
+      // only DAML policy handles no verb case
+      return false;
     }
 
     Object[] verbs = null;
@@ -501,38 +519,24 @@ public class AccessAgentProxy
     }
 
     if( verbs[0].toString()=="ALL" ) {
-      if(log.isDebugEnabled()){
-	log.debug("ALL are kept.");
-      }
+      log.debug("ALL are kept.");
       return false;  //all allowed, no removal.
     }
 
-    boolean remove = true;
     for(int i = 0; i < verbs.length; i++) {
-      Verb v = null;
-      try {
-      	v = new Verb(verbs[i].toString());
-      }
-      catch(Exception e) {
-        //probably a cast error, quietly skip
+      if(verb.equals(verbs[i])) {
 	if(log.isDebugEnabled()){
-	  log.debug("Unable to construct verbs from policy:" + e.getMessage());
+	  log.debug("found verb to keep:" + verbs[i] + " for " + 
+                    source + "->" + target);
 	}
-      }
-      if (v==null) {
-	continue;
-      }
-      if(verb.equals(v)) {
-	remove = false;  // we don't want to remove the ones found.
-	if(log.isDebugEnabled()){
-	  log.debug("found verb to keep:" + v + " for " + source + "->" + target);
-	}
+        return false;
       }
     }
-    if(remove && log.isDebugEnabled()){
-      log.debug("found unwanted verb:" + verb + " for " + source + "->" + target);
+    if(log.isDebugEnabled()){
+      log.debug("found unwanted verb:" + verb + " for " + 
+                source + "->" + target);
     }
-    return remove;		 
+    return true;
   }
   
   private TrustSet[] checkOutgoing(Message msg) {
@@ -628,8 +632,8 @@ public class AccessAgentProxy
     return set;
   }  
 
-  private void checkOutVerbs(Message msg) {
-    checkMessage(msg, false);
+  private boolean checkOutVerbs(Message msg) {
+    return checkMessage(msg, false);
   }
       
   private boolean outgoingAgentAction(Message msg) {
@@ -753,8 +757,8 @@ public class AccessAgentProxy
     return (!act.equals(AccessControlPolicy.SET_ASIDE));
   }
   
-  private void checkInVerbs(Message msg) {
-    checkMessage(msg, true);
+  private boolean checkInVerbs(Message msg) {
+    return checkMessage(msg, true);
   }
 
   private boolean incomingTrust(Message msg, TrustSet[] set) {
