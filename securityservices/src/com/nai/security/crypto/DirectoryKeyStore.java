@@ -1284,8 +1284,11 @@ public class DirectoryKeyStore
             String nodeAlias = findAlias(nodeName);
 	    if (nodeAlias != null) {
 	      PrivateKey nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias, param.keystorePassword);
-	      X509Certificate [] certForImport = new X509Certificate[1];
-	      certForImport[0] = nodex509;
+	      X509Certificate certificate = (X509Certificate) keystore.getCertificate(nodeAlias);
+	      if (certificate == null) {
+		throw new CertificateException(alias + "has no certificate.");
+	      } 
+	      X509Certificate [] certForImport = establishCertChain(certificate, nodex509);
 	      if (nodeprivatekey != null)
 		setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
 	    }
