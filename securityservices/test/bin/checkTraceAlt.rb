@@ -306,6 +306,7 @@ def allowRepeats(logmsg, repeats)
       end
     end
   end
+  return false
 end
 
 def documentRepeats(repeats)
