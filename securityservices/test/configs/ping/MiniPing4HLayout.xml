@@ -15,6 +15,7 @@
     </node> 
   </host> 
   <host name='HOST2'> 
+    <facet enclave='Conus'/> 
     <node name='MGMT-NODE'> 
       <facet role="AS-Management"/> 
       <facet role="AS-RootManagement"/> 
@@ -30,6 +31,7 @@
     </node> 
   </host> 
   <host name='HOST4'> 
+    <facet enclave='Conus'/> 
     <node name='NodeB'> 
       <agent name='AgentB'/> 
     </node> 
