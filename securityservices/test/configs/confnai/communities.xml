@@ -1713,6 +1713,7 @@
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="TRANS-MGMT-NODE" >
+      <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
     <Entity Name="TRANSCOM" >
