@@ -39,7 +39,6 @@ society.each_enclave do |enclave|
   # BUILD CORE COMMUNITIES
   society.communities.add("#{enclave}-SECURITY-COMM") do |community|
     community.add_attribute("CommunityType", "Security")
-    added_society_mnr = false
     society.each_enclave_node(enclave) do |node|
       community.add_agent(node.name) do |entity|
         entity.add_role("Member")
@@ -54,19 +53,8 @@ society.each_enclave do |enclave|
             entity.add_role("PersistenceManager")
           when "#{enclave.capitalize}MnRManager"
             entity.add_role("Manager")
-          when "SocietySecurityMnRManager"
-            entity.add_role("Manager")
-            entity.add_role("Root")
-            added_society_mnr = true
           end
         end
-      end
-    end
-    unless added_society_mnr
-      community.add_agent("SocietySecurityMnRManager") do |entity|
-        entity.add_role("Member")
-        entity.add_role("Manager")
-        entity.add_role("Root")
       end
     end
   end
