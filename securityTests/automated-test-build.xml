@@ -2,6 +2,7 @@
 
 <project basedir="." default="all" name="Cougaar security services automated tests">
     <property name="base.directory.name" value="."/>
+    <property name="analysis.directory.name" value="${base.directory.name}/analysis"/>
 
     <!-- The branch name of the Cougaar Standard Edition -->
     <property name="cougaar.branch.name" value="${anthill.cougaar.branch.name}"/>
@@ -38,6 +39,8 @@
            <pathelement location="${base.directory.name}/build/lib/ant-contrib-1.0b1.jar"/>
         </classpath>
       </taskdef>
+      <delete dir="${analysis.directory.name}"/>
+      <mkdir dir="${analysis.directory.name}"/>
     </target>
 
     <target name="all" depends="init">
@@ -69,6 +72,7 @@
       <!-- Step 8: Run society-->
       <antcall target="run-society"/>
       <!-- Step 9: Retrieve log4j log files -->
+      <antcall target="retrieve-output-files"/>
     </target>
 
     <target name="get-overlays" depends="init">
@@ -94,6 +98,7 @@
     </target>
 
     <target name="zip-overlays">
+       <echo message="Preparing zip file containing all overlays and Cougaar SE"/>
        <zip destfile="cougaar-test.zip">
          <!-- Add Cougaar SE ZIP files -->
          <fileset dir="${org.cougaar.build.path}">
@@ -112,26 +117,55 @@
 
     <target name="scp-files-to-testbed">
       <!-- Step 4, 5 and 6 -->
+      <echo message="Delete CIP on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="mkdir ${testbed.cip.dir}"/>
+	command="rm -rf ${testbed.cip.dir}"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <echo message="Creating CIP on testbed machine..."/>
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="mkdir ${testbed.cip.dir}"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <echo message="Copying zip file to testbed machine..."/>
       <scp file="cougaar-test.zip"
            todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}"
            keyfile="${user.home}/.ssh/id_dsa"/>
+
+      <echo message="Unzip ZIP file on testbed machine..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
-	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"/>
+	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+
+      <echo message="Unzip overlay files on testbed machine..."/>
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="cd ${testbed.cip.dir} ; for f in *.zip ; do unzip $f ; done"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
     </target>
 
     <target name="run-society">
       <!-- Run society for 10 minutes 10 * 60 * 1000-->
+      <echo message="Running society..."/>
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
 	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
-        timeout="60000"/>
+        timeout="60000"
+        output="${analysis.directory.name}/sshexec.log" append="true"/>
+    </target>
+
+    <target name="retrieve-output-files">
+      <scp file="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}/workspace/log4jlogs/*.log"
+           todir="${analysis.directory.name}"
+           keyfile="${user.home}/.ssh/id_dsa"/>
     </target>
 </project>
 
