@@ -14,7 +14,7 @@ class AbstractSecurityMop < SecurityStressFramework
     @raw = []
   end
   def self.instance
-    return Stressors.getStressInstance(self.name, getRun)
+    return Cougaar::Actions::Stressors.getStressInstance(self.name, getRun)
   end
   def setup
     # default is to do nothing

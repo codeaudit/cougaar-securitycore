@@ -14,10 +14,12 @@ module Cougaar
 
       def perform
         # the first slot is a placehold so that mop 2.1 is at index 1.
+begin
+puts "in storemopinrunhashtable"
         run['mops'] = [
           AbstractSecurityMop.new(run),
-          SecuirtyMop21.instance,
-          SecuirtyMop22.instance,
+          SecurityMop21.instance,
+          SecurityMop22.instance,
           SecurityMop23.instance,
           SecurityMop2_4.instance,
           SecurityMop2_5.instance,
@@ -31,6 +33,11 @@ module Cougaar
           Stressors.getStressInstance('SecurityMop2_6', run),
 =end
           ]
+rescue Exception => e
+puts "#{e.class}: #{e.message}"
+puts e.backtrace.join("\n")
+exit
+end
       end
     end
 
