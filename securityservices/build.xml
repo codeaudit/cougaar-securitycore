@@ -204,6 +204,7 @@
                       common/*.sbj,
                       common/*.daml,
                       common/DamlBootPolicyList,
+                      common/DamlUriMap,
                       common/RoleComponentMap,
                       common/RoleAgentMap,
                       common/RoleUriMap,
