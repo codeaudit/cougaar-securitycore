@@ -6,7 +6,9 @@ script: $CIP/csmart/lib/isat/OPBaselineTemplate-ExtOplan.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/csmart/config/societies/ua/full-tc20-232a703v.plugins.rb
-  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-33H63N-layout.xml
+#  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-33H63N-layout.xml
+  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-40H77N-layout.xml
+# for 2 rack
 #  - layout_file: $CIP/operator/layouts/04-OP-layout.xml
   - archive_dir: $CIP/Logs
   
@@ -25,7 +27,7 @@ parameters:
    # ###
    # Redundant CA and persistence managers
 #    - $CIP/csmart/config/rules/security/redundancy
-#    - $CIP/csmart/config/rules/security/robustness
+    - $CIP/csmart/config/rules/security/robustness
    # Run with only redundant PM
 #    - $CIP/csmart/config/rules/security/redundancy/add_redundant_pm_facet.rule
 #    - $CIP/csmart/config/rules/security/redundancy/adjust_memory.rule
