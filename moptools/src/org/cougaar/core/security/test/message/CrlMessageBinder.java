@@ -152,6 +152,10 @@ public class CrlMessageBinder
       this._agent = agent;
     }
 
+    public long getIncarnationNumber() {
+      return (mtc == null ? 0 : mtc.getIncarnationNumber());
+    }
+
     /**
      * Enables or disables the queueing of CRLs.
      * If CRLs are queued, the node will not be able to process CRLs.
