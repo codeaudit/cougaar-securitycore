@@ -137,12 +137,6 @@ public class CollectionMonitorStatsImpl
   public void addStack(Stack s) {
     addElement(s, Stack.class);
   }
-  public void addLinkedHashMap(LinkedHashMap m) {
-    addElement(m, LinkedHashMap.class);
-  }
-  public void addLinkedHashSet(LinkedHashSet s) {
-    addElement(s, LinkedHashSet.class);
-  }
   public void addIdentityHashMap(IdentityHashMap m) {
     addElement(m, IdentityHashMap.class);
   }
