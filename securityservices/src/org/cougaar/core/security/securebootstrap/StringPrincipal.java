@@ -28,7 +28,8 @@ package org.cougaar.core.security.securebootstrap;
 
 import java.security.Principal;
 
-public final class StringPrincipal implements Principal
+public final class StringPrincipal
+  implements Principal
 {
   private final String name;
   
@@ -41,11 +42,11 @@ public final class StringPrincipal implements Principal
   public int hashCode() {
     return name.hashCode();
   }    
-  public java.lang.String getName() {
+  public String getName() {
     return name;
   }
-  public java.lang.String toString() {
-    return "StringPrincipal: " + name;
+  public String toString() {
+    return name;
   }
   public boolean equals(java.lang.Object obj) {
     if (obj == null) return false;

@@ -34,6 +34,8 @@ import java.security.AccessController;
 import java.security.AccessControlContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class JaasClient {
   private static int debug = 0;
@@ -115,6 +117,8 @@ public class JaasClient {
     }
   }
 
+  /** Add a principal to an existing chain of principals.
+   */
   private void addChainedPrincipal(Subject subject, Principal newPrincipal)
   {
     if (subject == null) {
@@ -140,11 +144,45 @@ public class JaasClient {
       Principal p = null;
       while (it.hasNext()) {
 	p = (Principal) it.next();
-	if (p instanceof ChainedPrincipal) {
-	  cp.addChainedPrincipals(((ChainedPrincipal)p).getChain());
+	if (debug > 0) {
+	  System.out.println("principal:" + p.getClass().getName()
+	    + " - " + p.toString());
+	}
+	// Do not use (p instanceof ChainedPrincipal) as 
+	// the class may have been loaded by a different class loader.
+	if (p.getClass().getName().
+	    equals("org.cougaar.core.security.securebootstrap.ChainedPrincipal")) {
+	  if (debug > 0) {
+	    System.out.println("Adding principals:" + p.toString());
+	  }
+
+	  /* In the JDK 1.4 (at least on Linux, not tested on other platforms),
+	   * the thread either hangs or dies when the following statement is executed:
+	   *   ChainedPrincipal newP = (ChainedPrincipal)p;
+	   * It must have something to do with the fact that p may be loaded
+	   * by a different class loader than newP.
+	   * Using introspection works.
+	   */
+	  try {
+	    Class c = p.getClass();
+	    Method m = c.getDeclaredMethod("getChain", null);
+	    ArrayList newp = (ArrayList) m.invoke(p, null);
+	    cp.addChainedPrincipals(newp);
+	  }
+	  catch (Exception e) {
+	    System.out.println("Unable to get principal: " + e);
+	  }
 	  break;
 	}
       }
+    }
+    else {
+      if (debug > 0) {
+	System.out.println("No parent principal");
+      }
+    }
+    if (debug > 0) {
+      System.out.println("Adding new principal:" + newPrincipal.toString());
     }
     cp.addPrincipal(newPrincipal);
     subject.getPrincipals().add(cp);
@@ -174,16 +212,27 @@ public class JaasClient {
     return s;
   }
 
+  private void printPrincipalsInSubject(Subject subj) {
+    System.out.print("Principals: ");
+    Iterator it = subj.getPrincipals().iterator(); 
+    while (it.hasNext()) 
+      System.out.print(it.next() + ". ");
+    try {
+      throw new Throwable();
+    }
+    catch (Throwable e) {
+      e.printStackTrace();
+    }
+    System.out.println("\nJaasClient. Calling doAs ");
+  }
+
   private Object doAs(Subject subj, java.security.PrivilegedAction action) {
     Object o = null;
+
     if (debug > 0) {
-      System.out.print("Principals: ");
-      Iterator it = subj.getPrincipals().iterator(); 
-      while (it.hasNext()) 
-        System.out.print(it.next() + ". ");
-      System.out.println("");
+      printPrincipalsInSubject(subj);
     }
-    
+
     /* 1- Retrieve the current Thread's AccessControlContext via
      *    AccessController.getContext
      * 2- Instantiates a new AccessControlContext using the retrieved
@@ -193,10 +242,8 @@ public class JaasClient {
      *    the provided PrivilegedAction, as well as the newly
      * constructed AccessControlContext. 
      */
-    if (debug > 0) {
-      System.out.println("JaasClient. Calling doAs ");
-    }
     o = Subject.doAs(subj, action);
+
     if (debug > 0) {
       System.out.println("JaasClient. doAs done ");
     }
@@ -209,10 +256,7 @@ public class JaasClient {
     Object o = null;
 
     if (debug > 0) {
-      System.out.println("Login assigned these principals: ");
-      Iterator it = subj.getPrincipals().iterator(); 
-      while (it.hasNext()) 
-        System.out.println("\t" + it.next());
+      printPrincipalsInSubject(subj);
     }
     
     /* 1- Retrieve the current Thread's AccessControlContext via
@@ -224,10 +268,8 @@ public class JaasClient {
      *    the provided PrivilegedAction, as well as the newly
      * constructed AccessControlContext.
      */
-    if (debug > 0) {
-      System.out.println("JaasClient. Calling doAs ");
-    }
     o = Subject.doAs(subj, action);
+
     if (debug > 0) {
       System.out.println("JaasClient. doAs done ");
     }

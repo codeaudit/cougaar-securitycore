@@ -30,7 +30,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public final class ChainedPrincipal implements Principal
+public final class ChainedPrincipal
+  implements Principal
 {
   private ArrayList chain;
   
@@ -38,11 +39,15 @@ public final class ChainedPrincipal implements Principal
     chain = new ArrayList(0);
   }
 
+  public ChainedPrincipal(ChainedPrincipal p) {
+    chain = new ArrayList(0);
+  }
+
   public int hashCode() {
     return chain.hashCode();
   }    
 
-  public java.lang.String getName() {
+  public String getName() {
     String s = "";
     Iterator it = chain.iterator();
     for (int i = 1 ; it.hasNext() ; i++) {
@@ -53,22 +58,23 @@ public final class ChainedPrincipal implements Principal
 
   }
 
-  public java.lang.String toString() {
+  public String toString() {
     String s = "";
-    Iterator it = chain.iterator();
-    for (int i = 1 ; it.hasNext() ; i++) {
-      Principal p = (Principal) it.next();
-      s = s + i + ":[" + p.toString() + "]\n";
+    for (int i = (chain.size() - 1) ; i >= 0 ; i--) {
+      Principal p = (Principal) chain.get(i);
+      s = s + (i + 1) + ":[" + p.toString() + "]\n";
     }
-    return "ChainedPrincipal: \n" + s;
+    return s;
   }
 
   public boolean equals(java.lang.Object obj) {
-    if (obj == null) return false;
-    if (!(obj instanceof ChainedPrincipal))
+    if (obj == null) {
       return false;
-    ChainedPrincipal other =
-      (ChainedPrincipal) obj;
+    }
+    if (!(obj instanceof ChainedPrincipal)) {
+      return false;
+    }
+    ChainedPrincipal other = (ChainedPrincipal) obj;
     return chain.equals(other.chain);
   }
 
