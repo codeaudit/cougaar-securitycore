@@ -78,7 +78,6 @@
       </certificateAttributes>
     </cryptoClientPolicy>
   </policy>
-
   <policy name="" type="certificateAuthorityPolicy">
     <!-- Configuration of Certificate Authority -->
     <certificateAuthority>
@@ -103,15 +102,16 @@
       <!-- Policy when issuing certificates -->
       <clientCertPolicy>
         <!-- The X509 version number to be created -->
-        <certVersion>0</certVersion>
+        <certVersion>2</certVersion>
         <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
         <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
         <keysize>1024</keysize>
         <!-- How long to certify for. This is the validity of a certificate
              signed by a node.  -->
-        <certValidity>1 y</certValidity>
-        <requirePending>true</requirePending>
+        <certValidity>1 M</certValidity>
+        <requirePending>false</requirePending>
       </clientCertPolicy>
     </certificateAuthority>
   </policy>
+
 </policies>
