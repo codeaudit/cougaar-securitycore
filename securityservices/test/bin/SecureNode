@@ -185,6 +185,32 @@ if ( "$usePersistence" == "true") then
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.lazy=false"
 endif
 
+
+# #####################
+# Servlet properties
+switch ( ${USER} )
+case 'ychen':
+	set servletport=5558	
+	breaksw
+case 'srosset':
+	set servletport=5561	
+	breaksw
+case 'rliao1':
+	set servletport=5556	
+	breaksw
+case 'gmount':
+	set servletport=5557	
+	breaksw
+case 'rtripath':
+	set servletport=5560	
+	breaksw
+default:
+	set servletport=8800	
+        breaksw
+endsw
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${servletport}"
+#################################
+
 if ($?COUGAAR_MYPROP) then
     set MYPROPERTIES="$MYPROPERTIES $COUGAAR_MYPROP"
 endif
