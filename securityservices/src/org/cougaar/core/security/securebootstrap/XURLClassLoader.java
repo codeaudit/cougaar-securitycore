@@ -640,7 +640,8 @@ public class XURLClassLoader extends SecureClassLoader {
   }
 
   private class JarFileGarbageCollector implements Runnable {
-    private static final int RELEASE_JAR_TIMER = 15 * 60 * 1000; // every 15 minutes
+    // every 30 minutes
+    private static final int RELEASE_JAR_TIMER = 30 * 60 * 1000;
 
     public void run() {
       while (true) {
@@ -651,6 +652,7 @@ public class XURLClassLoader extends SecureClassLoader {
 	}
 	synchronized(ucpLock) {
 	  if (ucp != null) {
+	    /*
 	    System.out.println("Running GC");
 	    System.gc();
 	    try {
@@ -660,12 +662,14 @@ public class XURLClassLoader extends SecureClassLoader {
 	    }
 	    
 	    System.out.println("Releasing ucp so that GC can garbage collect it");
+	    */
 	    if (_logger.isDebugEnabled()) {
 	      _logger.debug("Releasing ucp so that GC can garbage collect it");
 	    }
 	    ucpRef = new SoftReference(ucp);
 	    ucp = null;
 
+	    /*
 	    try {
 	      Thread.sleep(10 * 1000);
 	    }
@@ -674,6 +678,7 @@ public class XURLClassLoader extends SecureClassLoader {
 
 	    System.out.println("Running GC");
 	    System.gc();
+	    */
 	  }
 	}
       }
