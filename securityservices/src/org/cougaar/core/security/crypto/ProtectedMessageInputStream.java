@@ -439,11 +439,43 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
           "to the same value. Someone has modified the header! " +
           header.getSenderName() + " to " + header.getReceiverName();
         _log.warn(message);
+	_log.warn("Header: " + byteArray2String(headerBytes));
+	_log.warn("Computed with: " + digestSpec + " -> " + byteArray2String(digestComputed) +
+	  ", compared with read value: " + byteArray2String(digestRead));
         throw new SignatureException(message);
       }
     }
   }
-                     
+
+  private static String byteArray2String(byte[] arr) {
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < arr.length; i++) {
+      String s = Integer.toHexString(arr[i]);
+      if (s.length() == 1) {
+	buf.append('0');
+      }
+      buf.append(s);
+      buf.append(' ');
+      if (i % 8 == 7) {
+	buf.append(' ');
+      }
+      if (i % 16 == 15) {
+	for (int j = i - 15; j <= i; j++) {
+	  if (Character.isISOControl((char) arr[i]) || arr[i] < 0) {
+	    buf.append('.');
+	  } else {
+	    buf.append(arr[i]);
+	  }
+	  if (j % 8 == 7) {
+	    buf.append(' ');
+	  }
+	}
+	buf.append('\n');
+      }
+    }
+    return buf.toString();
+  }
+
   public void close() throws IOException {
     if (!_eom) {
       _log.error("can't close");

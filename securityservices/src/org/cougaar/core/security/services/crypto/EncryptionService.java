@@ -136,7 +136,7 @@ public interface EncryptionService extends Service {
    */
   public SealedObject asymmEncrypt(String targetName,
 				   String cipherAlgSpec,
-				   Serializable object,
+				   SecretKey skey,
 				   java.security.cert.Certificate cert)
     throws GeneralSecurityException, IOException;
 
@@ -151,7 +151,7 @@ public interface EncryptionService extends Service {
    *  @param sealedObject  the encrypted object.
    *  @return the decrypted object
    */
-  public Object asymmDecrypt(String targetName,
+  public SecretKey asymmDecrypt(String targetName,
 			     String cipherAlgSpec,
 			     SealedObject sealedObject)
     throws CertificateException;

@@ -257,6 +257,32 @@ public class CryptoManagerServiceImpl
                                   + name);
   }
 
+  public Object verify(X509Certificate cert, String spec, SignedObject obj, boolean expiredOk)
+    throws CertificateException {
+    ArrayList signatureIssues = new ArrayList();
+    if (obj == null) {
+      throw new IllegalArgumentException("Signed object with " + cert.getSubjectDN().getName()
+					 + " key is null. Unable to verify signature");
+    }
+
+    List certList = Collections.singletonList(cert);
+    Object o = verify(certList, obj, expiredOk, signatureIssues);
+    if (o != null) {
+      return o;
+    }
+
+    // No suitable certificate was found.
+    if (log.isWarnEnabled()) {
+      log.warn("Signature verification failed. Agent=" + cert.getSubjectDN().getName());
+	//+ " - Tried with " + certList.size() + " certificates");
+      for (int i = 0 ; i < signatureIssues.size() ; i++) {
+	log.warn((String) signatureIssues.get(i));
+      }
+    }
+    throw new NoValidKeyException("Unable to get certificate of "
+                                  + cert.getSubjectDN().getName());
+  }
+
   private Object verify(List certList, SignedObject obj, boolean expiredOk, ArrayList signatureIssues) 
     throws CertificateException {
     Iterator it = certList.iterator();
@@ -314,11 +340,14 @@ public class CryptoManagerServiceImpl
     return null;
   }
 
-  public SealedObject asymmEncrypt(String name, String spec, Serializable obj,
+  public SealedObject asymmEncrypt(String name, String spec, SecretKey skey,
 				   java.security.cert.Certificate cert)
     throws GeneralSecurityException, IOException {
     /*encrypt the secret key with receiver's public key*/
 
+    if (skey == null) {
+      throw new IllegalArgumentException("SecretKey is null. Cannot encrypt");
+    }
     PublicKey key = cert.getPublicKey();
 
     if (spec==""||spec==null) {
@@ -331,7 +360,7 @@ public class CryptoManagerServiceImpl
     Cipher ci = getCipher(spec);
     try {
       ci.init(Cipher.ENCRYPT_MODE,key);
-      SealedObject so = new SealedObject(obj,ci);
+      SealedObject so = new SealedObject(skey,ci);
       return so;
     }
     finally {
@@ -389,6 +418,9 @@ public class CryptoManagerServiceImpl
                                     String keySpec,
                                     X509Certificate cert)
     throws GeneralSecurityException {
+    if (cert == null) {
+      throw new IllegalArgumentException("Cannot decrypt secret key: Cert is null");
+    }
     Cipher ci = null;
     try {
       PrivateKey key = getPrivateKey(cert);
@@ -402,15 +434,15 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  public Object asymmDecrypt(String name,
-			     String spec,
-			     SealedObject obj) {
+  public SecretKey asymmDecrypt(String name,
+				String spec,
+				SealedObject obj) {
     // get secret keys
     List keyList;
     try {
       keyList = getPrivateKeys(name);
     } catch (Exception e) {
-      log.warn("Cannot recover message", e);
+      log.warn("Cannot recover message");
       return null;
     }
     Iterator it = keyList.iterator();
@@ -424,7 +456,7 @@ public class CryptoManagerServiceImpl
 	ci=getCipher(spec);
         ci.init(Cipher.DECRYPT_MODE, key);
         Object o = obj.getObject(ci);
-        return o;
+        return (SecretKey) o;
       } catch (Exception e) {
 	// That's OK. Maybe there is an old certificate which is not
 	// trusted anymore, but we may have a newer one too.
@@ -680,8 +712,8 @@ public class CryptoManagerServiceImpl
   }
 
   private SessionKeySet getSessionKeySet(MessageAddress source,
-				    MessageAddress target,
-				    SecureMethodParam policy)
+					 MessageAddress target,
+					 SecureMethodParam policy)
     throws GeneralSecurityException, IOException {
     skeyTry++;
     if (skeyTry != 0 && ((skeyTry % 50) == 0)) {
@@ -734,9 +766,9 @@ public class CryptoManagerServiceImpl
 
 
 	// Encrypt session key
-	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
-	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-	so = new SessionKeySet(secretSender, secret, sk, secret, secretSender,
+	byte[] secretReceiver = encryptSecretKey(policy.asymmSpec, sk, receiver);
+	byte[] secretSender = encryptSecretKey(policy.asymmSpec, sk, sender);
+	so = new SessionKeySet(sk, secretSender, secretReceiver,
                                sender, receiver);
 	targets.put(target.toAddress(), so);
       }
@@ -759,12 +791,12 @@ public class CryptoManagerServiceImpl
     PublicKeyEnvelope pke = null;
 
     SessionKeySet so = getSessionKeySet(source, target, policy);
-    SealedObject secret = so.receiver;
-    SealedObject secretSender = so.sender;
+    byte[] secretReceiver = so.receiverSecretKey;
+    byte[] secretSender = so.senderSecretKey;
     SecretKey sk = so.secretKey;
     SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
 
-    pke = new PublicKeyEnvelope(null, null, source, target, policy, secret, secretSender, sealedMsg);
+    pke = new PublicKeyEnvelope(so.senderCert, so.receiverCert, source, target, policy, secretReceiver, secretSender, sealedMsg);
     return pke;
   }
 
@@ -781,8 +813,8 @@ public class CryptoManagerServiceImpl
     PublicKeyEnvelope envelope = null;
 
     SessionKeySet so = getSessionKeySet(source, target, policy);
-    SealedObject secret = so.receiver;
-    SealedObject secretSender = so.sender;
+    byte[] secretReceiver = so.receiverSecretKey;
+    byte[] secretSender = so.senderSecretKey;
     SecretKey sk = so.secretKey;
 
     if(log.isDebugEnabled()) {
@@ -806,8 +838,8 @@ public class CryptoManagerServiceImpl
     }
 
     envelope =
-      new PublicKeyEnvelope(null, null, source, target, policy,
-			    secret, secretSender, sealedObject);
+      new PublicKeyEnvelope(so.senderCert, so.receiverCert, source, target, policy,
+			    secretReceiver, secretSender, sealedObject);
     return envelope;
   }
 
@@ -871,33 +903,64 @@ public class CryptoManagerServiceImpl
       if (envelope.getEncryptedSymmetricKey() == null) {
 	log.warn("EncryptedSymmetricKey of receiver null");
       }
-      sk = (SecretKey)
-	asymmDecrypt(target.toAddress(), policy.asymmSpec,
-		     envelope.getEncryptedSymmetricKey());
-      if (sk == null) {
-	// Try with the source address
-	if (envelope.getEncryptedSymmetricKeySender() == null) {
-	  log.warn("EncryptedSymmetricKey of sender null");
+      X509Certificate sender = envelope.getSender();
+      X509Certificate receiver = envelope.getReceiver();
+/*
+      if (sender == null || receiver == null) {
+        Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
+	sender = (X509Certificate)certTable.get(source.toAddress());
+	receiver = (X509Certificate)certTable.get(target.toAddress());
+      }
+*/
+      if (sender != null && receiver != null) {
+	try {
+	  sk = (SecretKey)
+	    decryptSecretKey(policy.asymmSpec,
+			     envelope.getEncryptedSymmetricKey(),
+			     policy.symmSpec,
+			     receiver);
+	} catch (GeneralSecurityException e) {
+	  // Try with the source address
+	  if (envelope.getEncryptedSymmetricKeySender() == null) {
+	    log.warn("EncryptedSymmetricKey of sender null");
+	  }
+	  try {
+	    sk = (SecretKey)
+	      decryptSecretKey(policy.asymmSpec,
+			       envelope.getEncryptedSymmetricKeySender(),
+			       policy.symmSpec,
+			       sender);
+	  } catch (GeneralSecurityException e2) {
+	    return null;
+	  }
 	}
-	sk = (SecretKey)
-	  asymmDecrypt(source.toAddress(), policy.asymmSpec,
-		       envelope.getEncryptedSymmetricKeySender());
       }
 
-      //X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
-      //X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
-        Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
-        X509Certificate sender = (X509Certificate)certTable.get(source.toAddress());
-        X509Certificate receiver = (X509Certificate)certTable.get(target.toAddress());
-
-      if (sk != null && sender != null && receiver != null) {
-	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
-	SealedObject secretSender = asymmEncrypt(source.toAddress(), policy.asymmSpec, sk, sender);
-	SessionKeySet sks = new SessionKeySet(secretSender, secret, sk, secret, secretSender, sender,  receiver);
+      if (sk != null) {
+// 	byte[] secretReceiver = encryptSecretKey(policy.asymmSpec, sk, receiver);
+// 	byte[] secretSender = encryptSecretKey(policy.asymmSpec, sk, sender);
+	SessionKeySet sks = new SessionKeySet(sk, envelope.getEncryptedSymmetricKeySender(),
+					      envelope.getEncryptedSymmetricKey(),
+					      sender,  receiver);
 	targets.put(target.toAddress(), sks);
       }
     }
     return sk;
+  }
+
+  private void clearSecretKey(MessageAddress source,
+			      MessageAddress target) {
+    Map targets;
+    synchronized (sessionKeys) {
+      targets = (Hashtable) sessionKeys.get(source.toAddress());
+      if (targets == null) {
+	return;
+      }
+    }
+    
+    synchronized (targets) {
+      targets.remove(target.toAddress());
+    }
   }
 
   private Object decryptAndVerify(MessageAddress source,
@@ -912,32 +975,41 @@ public class CryptoManagerServiceImpl
 
     // Retrieve the secret key, which was encrypted using the public key
     // of the target.
-    if(log.isDebugEnabled()) {
-      log.debug("Retrieving secret key");
-    }
-    SecretKey sk = null;
-    try {
-      sk = getSecretKey(source, target, envelope, policy);
-    }
-    catch (Exception ex) {
-      if (log.isWarnEnabled()) {
-        log.warn("DecryptAndVerify: " + ex);
+    SignedObject signedObject;
+    int tries = 0;
+    do {
+      if(log.isDebugEnabled()) {
+	log.debug("Retrieving secret key");
       }
-    }
-    if (sk == null) {
-      if (log.isErrorEnabled()) {
-        log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
-		  + " -> " + target.toAddress());
+      SecretKey sk = null;
+      try {
+	sk = getSecretKey(source, target, envelope, policy);
       }
-      throw new DecryptSecretKeyException("can't get secret key.");
-    }
+      catch (Exception ex) {
+	if (log.isWarnEnabled()) {
+	  log.warn("DecryptAndVerify: " + ex);
+	}
+      }
+      if (sk == null) {
+	if (log.isErrorEnabled()) {
+	  log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
+		    + " -> " + target.toAddress());
+	}
+	throw new DecryptSecretKeyException("can't get secret key.");
+      }
 
-    if(log.isDebugEnabled()) {
-      log.debug("Decrypting object");
-    }
-    // Decrypt the object
-    SignedObject signedObject =
-      (SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject());
+      if(log.isDebugEnabled()) {
+	log.debug("Decrypting object");
+      }
+      // Decrypt the object
+      signedObject =
+	(SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject());
+      if (signedObject == null) {
+	tries++;
+	// clear the cache
+ 	clearSecretKey(source, target);
+      }
+    } while (signedObject == null && tries < 3);
 
     if(log.isDebugEnabled()) {
       log.debug("Verifying signature");
@@ -945,7 +1017,7 @@ public class CryptoManagerServiceImpl
     // Verify the signature
     Object o = null;
     try {
-      o = verify(source.toAddress(), policy.signSpec, signedObject);
+      o = verify(envelope.getSender(), policy.signSpec, signedObject, false);
     }
     catch (CertificateException e) {
       if(log.isErrorEnabled()) {
@@ -1274,11 +1346,9 @@ public class CryptoManagerServiceImpl
   }//getProtection
 
   private class SessionKeySet {
-    public SessionKeySet(SealedObject snd, SealedObject rcv, SecretKey sk,
-			 SealedObject eskReceiver, SealedObject eskSender,
+    public SessionKeySet(SecretKey sk,
+			 byte[] eskSender, byte[] eskReceiver,
                          X509Certificate sndCert, X509Certificate rcvCert) {
-      sender = snd;
-      receiver = rcv;
       secretKey = sk;
       senderSecretKey = eskSender;
       receiverSecretKey = eskReceiver;
@@ -1286,12 +1356,25 @@ public class CryptoManagerServiceImpl
       receiverCert = rcvCert;
     }
 
-    public SealedObject sender;
-    public SealedObject receiver;
+    /**
+     * The unprotected SecretKey
+     */
     public SecretKey secretKey;
-    public SealedObject senderSecretKey;
-    public SealedObject receiverSecretKey;
+    /**
+     * The SecretKey protected with the public key of the sender
+     */
+    public byte[] senderSecretKey;
+    /**
+     * The SecretKey protected with the public key of the receiver
+     */
+    public byte[] receiverSecretKey;
+    /**
+     * The sender's X509Certificate containing the public key used to protect the SecretKey
+     */
     public X509Certificate senderCert;
+    /**
+     * The receiver's X509Certificate containing the public key used to protect the SecretKey
+     */
     public X509Certificate receiverCert;
   }
 

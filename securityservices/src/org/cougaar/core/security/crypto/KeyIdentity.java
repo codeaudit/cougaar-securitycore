@@ -49,8 +49,8 @@ public class KeyIdentity
 		     MessageAddress areceiverAddress,
 		     MessageAddress asenderAddress,
 		     SecureMethodParam policy,
-		     SealedObject sKey,
-		     SealedObject sKeySender,
+		     byte[] sKey,
+		     byte[] sKeySender,
 		     Object encObj) {
     super(asender, areceiver, areceiverAddress, asenderAddress, policy, sKey, sKeySender, encObj);
   }

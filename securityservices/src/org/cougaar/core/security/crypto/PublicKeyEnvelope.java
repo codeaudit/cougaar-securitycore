@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -41,7 +41,7 @@ public class PublicKeyEnvelope
   /** The encrypted symmetric key used to encrypt an object.
    *  This key is encrypted with the public key of the target.
    */
-  private SealedObject encryptedSymmetricKey;
+  private byte[] encryptedSymmetricKey;
 
   /** The encrypted symmetric key used to encrypt an object.
    *  This key is encrypted with the public key of the sender.
@@ -49,7 +49,7 @@ public class PublicKeyEnvelope
    *  however it is encrypted with the sender. This allows the
    *  sender to recover the object if necessary.
    */
-  private SealedObject encryptedSymmetricKeySender;
+  private byte[] encryptedSymmetricKeySender;
 
   /** The certificate used to encrypt the symmetric key.
    */
@@ -68,8 +68,8 @@ public class PublicKeyEnvelope
 			   MessageAddress asenderAddress,
 			   MessageAddress areceiverAddress,
 			   SecureMethodParam policy,
-			   SealedObject sKey,
-			   SealedObject sKeySender,
+			   byte[] sKey,
+			   byte[] sKeySender,
 			   Object encObj) {
     super(policy, encObj);
     encryptedSymmetricKey = sKey;
@@ -82,11 +82,11 @@ public class PublicKeyEnvelope
     senderAddress = asenderAddress;
   }
 
-  public SealedObject getEncryptedSymmetricKey() {
+  public byte[] getEncryptedSymmetricKey() {
     return encryptedSymmetricKey;
   }
 
-  public SealedObject getEncryptedSymmetricKeySender() {
+  public byte[] getEncryptedSymmetricKeySender() {
     return encryptedSymmetricKeySender;
   }
 
