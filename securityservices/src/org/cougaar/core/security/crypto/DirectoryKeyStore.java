@@ -133,7 +133,6 @@ public class DirectoryKeyStore
 
    static {
     try {
-
       OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension","2.5.29.28","x509.info.extensions.IssuingDistibutionPoint");
       OIDMap.addAttribute("org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension","2.5.29.29","x509.info.extensions.CertificateIssuer");
 
@@ -144,7 +143,7 @@ public class DirectoryKeyStore
   }
 
 
-  /** Initialize the directory key store */
+ /** Initialize the directory key store */
   public DirectoryKeyStore(DirectoryKeyStoreParameters aParam) {
     param = aParam;
     nameMapping = new NameMapping(param.serviceBroker);
@@ -360,20 +359,36 @@ public class DirectoryKeyStore
 		((x500name == null) ? "not assigned yet" : x500name.toString())
 		+ " lookup type=" + lookupType);
     }
-    if (x500name == null) {
-      return certificateList;
-    }
 
     CertDirectoryServiceClient certFinder = certificateFinder;
     if ((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0
-      || (lookupType & KeyRingService.LOOKUP_LDAP) != 0)
+	|| (lookupType & KeyRingService.LOOKUP_LDAP) != 0) {
+      if (log.isDebugEnabled()) {
+	log.debug("Retrieving LDAP client");
+      }
       certFinder = getCertDirectoryServiceClient(commonName);
+    }
 
     // Refresh from LDAP service if requested
-    if ((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0) {
+    if (((lookupType & KeyRingService.LOOKUP_FORCE_LDAP_REFRESH) != 0)
+      || (x500name == null)) {
+      if (log.isDebugEnabled()) {
+	log.debug("Looking up certificate in LDAP");
+      }
       // Update cache with certificates from LDAP.
       String filter = "(cn=" + commonName + ")";
       lookupCertInLDAP(filter, certFinder);
+
+      // Looking up x500 name again
+      x500name = nameMapping.getX500Name(commonName);
+      if (log.isDebugEnabled()) {
+	log.debug("X500 name mapping updated: "
+		  + ((x500name == null) ? "not assigned yet" : x500name.toString()));
+      }
+    }
+
+    if (x500name == null) {
+      return certificateList;
     }
 
     // Search in the local hash map.
@@ -499,8 +514,8 @@ public class DirectoryKeyStore
 
 	if(certs[i].getCertificateType().equals(CertificateType.CERT_TYPE_CA)) {
 	  if (log.isDebugEnabled()) {
-	    log.debug("Certificate type is CA certificate  ++++");
-	    log.debug(" Updating CRLCache  with CA entry ");
+	    log.debug("Certificate type is CA certificate");
+	    log.debug("Updating CRLCache  with CA entry ");
 	  }
 	  crlCache.add(((X509Certificate)certs[i].getCertificate()).getSubjectDN().getName());
 

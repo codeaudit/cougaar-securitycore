@@ -68,12 +68,20 @@ public class CertificateSigningRequest
   public void init(ServletConfig config) throws ServletException
   {
     super.init(config);
-
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
-    caDNs = configParser.getCaDNs();
+    try {
+      configParser = (ConfigParserService)
+	support.getServiceBroker().getService(this,
+					      ConfigParserService.class,
+					      null);
+      caDNs = configParser.getCaDNs();
+    }
+    catch (RuntimeException e) {
+      if (log.isErrorEnabled()) {
+	log.error("Unable to initialize servlet: " + e.toString());
+	e.printStackTrace();
+      }
+      throw e;
+    }
   }
 
   public void doPost (HttpServletRequest req, HttpServletResponse res)

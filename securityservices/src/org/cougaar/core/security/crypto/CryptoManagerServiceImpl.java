@@ -50,7 +50,6 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 public class CryptoManagerServiceImpl
   implements EncryptionService
 {
-  private boolean debug = false;
   private KeyRingService keyRing = null;
   private ServiceBroker serviceBroker;
   private LoggingService log;
@@ -215,7 +214,7 @@ public class CryptoManagerServiceImpl
 	try{
 	  Thread.sleep(200);
 	  o = obj.getObject(sk);
-	  if (debug) {
+	  if (log.isDebugEnabled()) {
 	    log.debug("Workaround to Cougaar core bug. Succeeded");
 	  }
 	  return o;
@@ -417,7 +416,7 @@ public class CryptoManagerServiceImpl
     int i = policy.symmSpec.indexOf("/");
     String a;
     a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
-    if(debug) {
+    if(log.isDebugEnabled()) {
       log.debug("Secret Key Parameters: " + a);
     }
     SecureRandom random = new SecureRandom();
@@ -429,35 +428,62 @@ public class CryptoManagerServiceImpl
     SealedObject sealedObject = null;
     SignedObject signedObject = null;
       
-      // Encrypt session key
+    if(log.isDebugEnabled()) {
+      log.debug("Encrypting session key");
+    }
+    // Encrypt session key
     sessionKey = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk);
 
+    if(log.isDebugEnabled()) {
+      log.debug("Signing object");
+    }
     // Sign object
     signedObject = sign(source.toAddress(), policy.signSpec, object);
 
+    if(log.isDebugEnabled()) {
+      log.debug("Encrypting object");
+    }
     // Encrypt object
     sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
       
+    if(log.isDebugEnabled()) {
+      log.debug("Looking up source certificate");
+    }
     // Find source certificate
     List senderList =
       keyRing.findCert(source.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (senderList.size() == 0) {
+      if(log.isErrorEnabled()) {
+	log.error("Unable to find sender certificate: " 
+		  + source.toAddress());
+      }
       throw new CertificateException("Unable to find sender certificate: " 
 				 + source.toAddress());
     }
     X509Certificate sender = ((CertificateStatus)senderList.get(0)).getCertificate();
 
+    if(log.isDebugEnabled()) {
+      log.debug("Looking up target certificate");
+    }
     // Find target certificate
     List receiverList =
       keyRing.findCert(target.toAddress(),
 		       KeyRingService.LOOKUP_LDAP | KeyRingService.LOOKUP_KEYSTORE);
     if (receiverList.size() == 0) {
+      if(log.isErrorEnabled()) {
+	log.error("Unable to find target certificate: " 
+		  + target.toAddress());
+      }
       throw new CertificateException("Unable to find target certificate: " 
 				 + target.toAddress());
     }
     X509Certificate receiver =
       ((CertificateStatus)receiverList.get(0)).getCertificate();
+
+    if(log.isDebugEnabled()) {
+      log.debug("Creating secure envelope");
+    }
 
     envelope = 
       new PublicKeyEnvelope(sender, receiver, policy, sessionKey, sealedObject);
@@ -476,26 +502,38 @@ public class CryptoManagerServiceImpl
 
     // Retrieving the secret key, which was encrypted using the public key
     // of the target.
+    if(log.isDebugEnabled()) {
+      log.debug("Retrieving secret key");
+    }
     SecretKey sk=(SecretKey)
       asymmDecrypt(target.toAddress(), policy.asymmSpec,
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
-      if (debug) {
-	log.debug("Error: unable to retrieve secret key");
+      if (log.isErrorEnabled()) {
+	log.error("Error: unable to retrieve secret key");
       }
       return null;
     }
 
+    if(log.isDebugEnabled()) {
+      log.debug("Decrypting object");
+    }
     // Decrypt the object
     SignedObject signedObject =
       (SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject());
 
+    if(log.isDebugEnabled()) {
+      log.debug("Verifying signature");
+    }
     // Verify the signature
     Object o = null;
     try {
       o = verify(source.toAddress(), policy.signSpec, signedObject);
     }
     catch (CertificateException e) {
+      if(log.isErrorEnabled()) {
+	log.error("Signature verification failed");
+      }
     }
     return o;
   }
@@ -516,8 +554,8 @@ public class CryptoManagerServiceImpl
       asymmDecrypt(target.toAddress(), policy.asymmSpec,
 		   envelope.getEncryptedSymmetricKey());
     if (sk == null) {
-      if (debug) {
-	log.debug("Error: unable to retrieve secret key");
+      if (log.isErrorEnabled()) {
+	log.error("Error: unable to retrieve secret key");
       }
       return null;
     }

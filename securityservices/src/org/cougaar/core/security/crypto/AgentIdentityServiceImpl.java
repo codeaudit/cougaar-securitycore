@@ -142,14 +142,14 @@ public class AgentIdentityServiceImpl
   public void acquire(TransferableIdentity transferableIdentity)
     throws PendingRequestException,
     IdentityDeniedException {
+    if (log.isDebugEnabled()) {
+      log.debug("acquire identity:"
+		+ requestorAddress.toAddress());
+    }
     if (transferableIdentity != null) {
       completeTransfer(transferableIdentity);
     }
     else {
-      if (log.isDebugEnabled()) {
-	log.debug("acquire identity:"
-		  + requestorAddress.toAddress());
-      }
       if (clientNameIsPrincipal) {
 	try {
 	  X500Name dname = null;

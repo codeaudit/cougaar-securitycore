@@ -172,34 +172,31 @@ public class ConfigParserServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("Requesting CA policy for " + aDN);
     }
-
-    CaPolicy[] policy =
-      (CaPolicy[])getSecurityPolicies(CaPolicy.class);
-
-    X500Name x500Name = null;
     try {
+      SecurityPolicy[] policy = getSecurityPolicies(CaPolicy.class);
+      X500Name x500Name = null;
       x500Name = new X500Name(aDN);
+
+      for (int i = 0 ; i < policy.length ; i++) {
+	if (log.isDebugEnabled()) {
+	  log.debug("Current policy: " + policy[i]);
+	}
+
+	/**
+	 * a fix for the node ca policy
+	 */
+	if (aDN.length() == 0 && ((CaPolicy)policy[i]).caDnName == null)
+	  return (CaPolicy)policy[i];
+
+	if (x500Name.equals(((CaPolicy)policy[i]).caDnName)) {
+	  return (CaPolicy)policy[i];
+	}
+      }
     }
-    catch (IOException e) {
+    catch (Exception e) {
       if (log.isErrorEnabled()) {
-	log.error("Unable to parse DN: " + aDN);
-      }
-      return null;
-    }
-
-    for (int i = 0 ; i < policy.length ; i++) {
-      if (log.isDebugEnabled()) {
-	log.debug("Current policy: " + policy[i]);
-      }
-
-      /**
-       * a fix for the node ca policy
-       */
-      if (aDN.length() == 0 && policy[i].caDnName == null)
-        return policy[i];
-
-      if (x500Name.equals(policy[i].caDnName)) {
-	return policy[i];
+	log.error("Unable to get CA policy: " + e.toString());
+	e.printStackTrace();
       }
     }
     return null;
@@ -244,10 +241,10 @@ public class ConfigParserServiceImpl
   {
     X500Name[] caDNs = new X500Name[0];
     ArrayList caList = new ArrayList();
-    CaPolicy[] policy = (CaPolicy[])getSecurityPolicies(CaPolicy.class);
+    SecurityPolicy[] policy = getSecurityPolicies(CaPolicy.class);
 
     for (int i = 0 ; i < policy.length ; i++) {
-      caList.add(policy[i].caDnName);
+      caList.add(((CaPolicy)policy[i]).caDnName);
     }
     caDNs = (X500Name[]) caList.toArray(caDNs);
     return caDNs;

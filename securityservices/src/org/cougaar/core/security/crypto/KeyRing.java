@@ -266,6 +266,9 @@ final public class KeyRing
    * @param lookupType - 
    */
   public synchronized List findCert(String cougaarName, int lookupType) {
+    if(log.isDebugEnabled())
+      log.debug("Looking for cougaar name " + cougaarName
+		+ " type = " + lookupType);
     List c = keystore.findCert(cougaarName, lookupType);
     return c;
   }
