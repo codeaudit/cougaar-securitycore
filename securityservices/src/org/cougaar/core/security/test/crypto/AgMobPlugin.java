@@ -129,12 +129,15 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
       aiService.transferTo(toNodeID);
 
     // create the move-message
+    /* as of 9.4.0, this cannot be used. I've removed it instead of
+     * trying to fix it since it is only test code. -- gmount
     MoveCryptoMessage moveMsg = 
       new MoveCryptoMessage(
 	thisNodeID,
 	toNodeID,
 	ti);
     mts.sendMessage(moveMsg);
+    */
   }
 
   public void execute()
@@ -143,6 +146,8 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 
   private void completeTransfer(Message msg) {
     System.out.println("Received a message: " + msg.getClass().getName());
+    /* as of 9.4.0, this cannot be used. I've removed it instead of
+     * trying to fix it since it is only test code. -- gmount
     if (msg instanceof MoveCryptoMessage) {
       String source = msg.getOriginator().toAddress();
       String target = msg.getTarget().toAddress();
@@ -157,6 +162,7 @@ public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin
 	e.printStackTrace();
       }
     }
+    */
   }
 
   /**

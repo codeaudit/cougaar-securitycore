@@ -136,19 +136,21 @@ public class MnRQueryReceiverPlugin extends ComponentPlugin {
     loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called :"+ myAddress.toString());
     //System.out.println("setupSubscriptions of MnRQueryReceiverPlugin called :"+ myAddress.toString());
     Collection col=getParameters();
-    if(col.size()>1) {
-      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called  too many parameters from:"
-			   + myAddress.toString()); 
-      /*
-      System.out.println("setupSubscriptions of MnRQueryReceiverPlugin called  too many parameters from:"
-			   + myAddress.toString()); 
-      */
-    }
-    if(col.size()!=0){
-      String params[]=new String[1];
-      String parameters[]=(String[])col.toArray(new String[0]);
-      mgrrole=parameters[0];
+    if (col != null) {
+      if(col.size()>1) {
+        loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called  too many parameters from:"
+                             + myAddress.toString()); 
+        /*
+          System.out.println("setupSubscriptions of MnRQueryReceiverPlugin called  too many parameters from:"
+          + myAddress.toString()); 
+        */
+      }
+      if(col.size()!=0){
+        String params[]=new String[1];
+        String parameters[]=(String[])col.toArray(new String[0]);
+        mgrrole=parameters[0];
       
+      }
     }
     capabilitiesobject= (IncrementalSubscription)getBlackboardService().subscribe
       (new CapabilitiesObjectPredicate());

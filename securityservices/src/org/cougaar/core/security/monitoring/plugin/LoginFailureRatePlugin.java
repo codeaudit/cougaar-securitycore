@@ -26,6 +26,7 @@
 package org.cougaar.core.security.monitoring.plugin;
 
 import java.util.List;
+import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -242,7 +243,7 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
 
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.schedule(ts.getTimerTask(this, new LoginFailureRateTask()),
+    ts.schedule(new LoginFailureRateTask(),
                 0, ((long)_pollInterval) * 1000);
   }
 
@@ -326,7 +327,7 @@ public class LoginFailureRatePlugin extends LoginFailureQueryPluginBase {
    * login failure rate. It relies on the ThreadService to trigger
    * its run() method.
    */
-  class LoginFailureRateTask implements Runnable {
+  class LoginFailureRateTask extends TimerTask {
     int  _lastCleared= (OVERSIZE + (int) 
                         (_startTime - 
                          System.currentTimeMillis())/1000)%_failures.length;

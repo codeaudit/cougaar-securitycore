@@ -75,6 +75,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.TimerTask;
 import java.util.Enumeration;
 import javax.naming.NamingException;
 
@@ -273,7 +274,7 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
 
     ThreadService ts = (ThreadService) getServiceBroker().
       getService(this, ThreadService.class, null);
-    ts.schedule(ts.getTimerTask(this, _failures),
+    ts.schedule(_failures,
                 0, ((long)_cleanInterval) * 1000);
   }
 
@@ -336,7 +337,7 @@ public class UserLockoutPlugin extends LoginFailureQueryPluginBase {
     }
   }
 
-  private class FailureCache implements Runnable {
+  private class FailureCache extends TimerTask {
     HashMap _failures = new HashMap();
     
     public FailureCache() {

@@ -166,17 +166,18 @@ public class CapabilitiesProcessingPlugin
     myAddress = getBindingSite().getAgentIdentifier();
     loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called :"+ myAddress.toString()); 
     Collection col=getParameters();
-    if(col.size()>1) {
-      loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters from:"
-			   + myAddress.toString()); 
-    }
-    if(col.size()!=0){
-      String params[]=new String[1];
-      String parameters[]=(String[])col.toArray(new String[0]);
-      mgrrole=parameters[0];
+    if (col != null) {
+      if(col.size()>1) {
+        loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters from:"
+                             + myAddress.toString()); 
+      }
+      if(col.size()!=0){
+        String params[]=new String[1];
+        String parameters[]=(String[])col.toArray(new String[0]);
+        mgrrole=parameters[0];
       
-    }
-    
+      }
+    }    
     //System.out.println(" got Role as  in cpp%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"+role);
     CapabilitiesObject object=new CapabilitiesObject();
     getBlackboardService().publishAdd(object);

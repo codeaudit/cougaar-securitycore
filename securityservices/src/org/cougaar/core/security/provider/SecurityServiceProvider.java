@@ -204,6 +204,7 @@ public class SecurityServiceProvider
      */
     // NodeAgent has not started the logging service at this point,
     // but we need it.
+    /* removed because the Logging service is started early in 9.4
     try {
       LoggingServiceProvider loggingServiceProvider =
         new LoggingServiceProvider(SystemProperties.getSystemPropertiesWithPrefix("org.cougaar.core.logging."));
@@ -214,6 +215,7 @@ public class SecurityServiceProvider
     } catch (java.io.IOException ioe) {
       throw new Error("Couldn't initialize LoggingService "+ioe);
     }
+    */
 
     this.log = (LoggingService)
       rootServiceBroker.getService(this,

@@ -35,8 +35,11 @@ import org.cougaar.core.node.*;
 // Cougaar overlay
 import org.cougaar.core.service.identity.*;
 
+/**
+ * This class can't be used since 9.4.0. I've removed the extends -- gmount
+ */
 public class MoveCryptoMessage
-  extends AgentManagementMessage
+//   extends AgentManagementMessage
 {
   private TransferableIdentity ti;
 
@@ -44,7 +47,7 @@ public class MoveCryptoMessage
     MessageAddress aSource,
     MessageAddress aTarget,
     TransferableIdentity ti) {
-    super(aSource, aTarget);
+//     super(aSource, aTarget);
 
     System.out.println("Creating message from " + aSource.toAddress()
 		       + " to " + aTarget.toAddress());

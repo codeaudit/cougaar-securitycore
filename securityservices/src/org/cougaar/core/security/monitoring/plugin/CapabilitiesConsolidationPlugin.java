@@ -162,21 +162,23 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 		+ myAddress.toAddress()); 
     }
     Collection col=getParameters();
-    if(col.size()>3) {
-      loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters :"
-		+ myAddress.toAddress());  
-    }
-    if(col.size()!=0){
-      String parameters[]=(String[])col.toArray(new String[0]);
-      mgrrole=parameters[0];
-      if(col.size()>1) {
-	dest_community=parameters[1];
+    if (col != null) {
+      if(col.size()>3) {
+        loggingService.debug("setupSubscriptions of CapabilitiesProcessingPlugin called  too many parameters :"
+                             + myAddress.toAddress());  
       }
-      if(col.size()>2) {
-	dest_agent=parameters[2];
-	 destcluster=new ClusterIdentifier(dest_agent); 
-	 if (loggingService.isDebugEnabled()) 
-	   loggingService.debug(" destination agent is :###"+dest_agent +" from "+ myAddress.toAddress());
+      if(col.size()!=0){
+        String parameters[]=(String[])col.toArray(new String[0]);
+        mgrrole=parameters[0];
+        if(col.size()>1) {
+          dest_community=parameters[1];
+        }
+        if(col.size()>2) {
+          dest_agent=parameters[2];
+          destcluster=new ClusterIdentifier(dest_agent); 
+          if (loggingService.isDebugEnabled()) 
+            loggingService.debug(" destination agent is :###"+dest_agent +" from "+ myAddress.toAddress());
+        }
       }
     }
    
