@@ -1409,6 +1409,11 @@ public class CryptoManagerServiceImpl
       _senderCert = (X509Certificate) certTable.get(_sender);
       X509Certificate receiverCert = (X509Certificate) 
           certTable.get(target.toAddress());
+      if (_senderCert == null || receiverCert == null) {
+        throw new CertificateException("No valid key pair found for the 2 message address " + _sender + " vs "
+          + target.toAddress());
+      }
+
       SecretKey secret = null;
       if (log.isDebugEnabled()) {
         log.debug("ProtectedMessageOutputStream: policy = " + policy);
