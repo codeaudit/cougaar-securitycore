@@ -38,6 +38,8 @@ public interface SecurityPropertiesService extends Service
   "org.cougaar.security.info";
   public static String CRYPTO_DEBUG =
   "org.cougaar.core.security.crypto.debug";
+  public static String CRYPTO_CRL_DEBUG =
+  "org.cougaar.core.security.crypto.crldebug";
   public static String POLICY_DEBUG =
   "org.cougaar.core.security.policy.debug";
   public static String MONITORING_DEBUG =

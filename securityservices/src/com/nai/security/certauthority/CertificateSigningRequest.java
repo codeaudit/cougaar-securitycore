@@ -37,6 +37,7 @@ import org.cougaar.util.*;
 import org.w3c.dom.*;
 
 import com.nai.security.util.SecurityPropertiesService;
+import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public class CertificateSigningRequest extends  HttpServlet
@@ -91,6 +92,8 @@ public class CertificateSigningRequest extends  HttpServlet
   {
     //javax.servlet.ServletContext context=null;
     context=getServletContext();
+    CryptoDebug.initContext(context);
+
     NodeList children = root.getChildNodes();
 
     // Iterate through javaproperty
@@ -108,15 +111,9 @@ public class CertificateSigningRequest extends  HttpServlet
 	  return;
 	}
 	try {
-	  if(propertyName.equalsIgnoreCase("org.cougaar.core.security.crypto.debug")) {
-	    System.setProperty(propertyName,propertyValue);
-	  }
-	  else {
-	     System.out.println("setting property name in context  :"+propertyName);
-	       System.out.println("setting property value in context::"+propertyValue);
-	    
-	       context.setAttribute(propertyName,propertyValue);
-	  }
+	  System.out.println("setting property name in context  :"+propertyName);
+	  System.out.println("setting property value in context::"+propertyValue);
+	  context.setAttribute(propertyName,propertyValue);
 	}
 	catch(SecurityException sexp) {
 	  sexp.printStackTrace();

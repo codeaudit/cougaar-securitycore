@@ -26,21 +26,33 @@
 
 package com.nai.security.util;
 
+import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
 public  class CryptoDebug {
   public static boolean debug =false;
   public static boolean crldebug =false;
 
+  private static SecurityPropertiesService secprop = null;
+
   static {
-     debug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.debug",
-				    "false"))).booleanValue();
-     crldebug =
-       (Boolean.valueOf(System.
-			getProperty("org.cougaar.core.security.crypto.crldebug",
-				    "false"))).booleanValue();
+    debug =
+      (Boolean.valueOf(System.getProperty(SecurityPropertiesService.CRYPTO_DEBUG,
+					   "false"))).booleanValue();
+    crldebug =
+      (Boolean.valueOf(System.getProperty(SecurityPropertiesService.CRYPTO_CRL_DEBUG,
+					   "false"))).booleanValue();
   }
-  
- 
+
+  public static void initContext(javax.servlet.ServletContext context) {
+    // TODO. Modify following line to use service broker instead
+    secprop = CryptoServiceProvider.getSecurityProperties(context);
+
+    debug =
+      (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
+					   "false"))).booleanValue();
+    crldebug =
+      (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_CRL_DEBUG,
+					   "false"))).booleanValue();
+  }
 } 
