@@ -101,21 +101,12 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     // use DirectoryKeyStore's functions (it assumes there is only one matching
     // between commonName and cert/alias)
     nodealias = keystore.findAlias(nodename);
-
-    PrivateKeyCert pkc = findPrivateKey(nodealias);
-    if (pkc == null) {
-      log.error("Could not find private key for " + nodealias);
-    }
-    else {
-      privatekey = pkc.getPrivateKey();
-      nodex509 = pkc.getCertificateStatus().getCertificate();
-    /*
     List certList = keyRing.findCert(nodename);
     if (certList != null && certList.size() > 0) {
       nodex509 = ((CertificateStatus)certList.get(0)).getCertificate();
       log.debug("update nodex509: " + nodex509);
-      */
 
+      privatekey = findPrivateKey(nodealias);
       certChain = findCertificateChain(nodealias);
     }
 
@@ -197,7 +188,7 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     return privatekey;
   }
 
-  protected PrivateKeyCert findPrivateKey(String alias) {
+  protected PrivateKey findPrivateKey(String alias) {
     // only find for node, why would agent certificate be asked?
     if (nodex509 == null || nodealias == null || !alias.equals(nodealias))
       return null;
@@ -218,7 +209,10 @@ public class KeyManager implements X509KeyManager, CertValidityListener {
     }
 
     PrivateKeyCert pkc = (PrivateKeyCert)keylist.get(0);
-    return pkc;
+    if (pkc == null) {
+      log.error("Could not find private key for " + alias);
+    }
+    return pkc.getPrivateKey();
   }
 
   /**

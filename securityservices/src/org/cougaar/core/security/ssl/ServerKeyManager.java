@@ -81,7 +81,8 @@ public final class ServerKeyManager
         // No need to get private key, it is not required to
         // start server, only cert and trusted chain are.
         //privatekey = (PrivateKey)keystore.getKeyStore().getKey(nodealias, new char[] {});
-        certChain = new X509Certificate [] {nodex509};
+        if (nodex509 != null)
+          certChain = new X509Certificate [] {nodex509};
       } catch (Exception kex) {
         if (log.isDebugEnabled())
           log.debug("Cannot retrieve server's self-signed cert. " + kex);
