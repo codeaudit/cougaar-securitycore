@@ -32,6 +32,7 @@ public class BasicAuthHandler extends AuthenticationHandler {
         */
       UserAliasPwdDialog dialog = new UserAliasPwdDialog();
       dialog.setAlias(username);
+      dialog.hideLookup();
       dialog.setPrompt("\nPlease enter the password to access the remote site.");
 
       boolean ok = dialog.showDialog();
