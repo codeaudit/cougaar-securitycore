@@ -51,7 +51,7 @@ public class CertificateDetailsServlet extends  HttpServlet
 
 
        }
-       ldapentry=ldapcert.getCertificate(hash);
+       //ldapentry=ldapcert.getCertificate(hash);
        if(ldapentry==null)
        {
            out.println("error in retrieving certificate from LDAP ");

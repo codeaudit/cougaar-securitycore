@@ -11,7 +11,7 @@ public class RevokeCertificateServlet extends  HttpServlet
 {
   private LDAPCert ldapcert=null;
   private LdapEntry ldapentry=null;
-  private KeyManagment keymanage=null;
+  private KeyManagement keymanage=null;
 
     public void init(ServletConfig config) throws ServletException
     {
@@ -31,7 +31,7 @@ public class RevokeCertificateServlet extends  HttpServlet
         {
                 out.println("Error in getting the certificate hash");
         }
-        ldapentry=ldapcert.getCertificate(hash);
+        //ldapentry=ldapcert.getCertificate(hash);
         keymanage=new KeyManagment(ldapentry.getCertificate().getIssuerDN().getName());
        boolean status= keymanage.revokeCertificate(ldapentry.getCertificate());
        if(status)
@@ -42,7 +42,7 @@ public class RevokeCertificateServlet extends  HttpServlet
         {
                 out.println("Error in  Revoking  certificate :"+ldapentry.getCertificate().getSubjectDN().getName() );
         }
-        out.println("<a href=\"../CertificateList\> Back to Certificate List ></a>");
+        out.println("<a href=\"../CertificateList\"> Back to Certificate List ></a>");
         out.println("</body>");
         out.println("</html>");
 

@@ -815,13 +815,15 @@ public class KeyManagement
   {
   }
 
-  public void revokeCertificate(X509Certificate cert)
+  public boolean revokeCertificate(X509Certificate cert)
   {
+    boolean reply = false;
     BigInteger serialNumber = cert.getSerialNumber();
     Date currentDate = new Date();
     X509CRLEntryImpl crlentry = new X509CRLEntryImpl(serialNumber, currentDate);
 
     certificateDirectory.publishCRLentry(crlentry);
+    return reply;
   }
 
   public static void main(String[] args) {
@@ -831,6 +833,8 @@ public class KeyManagement
     try {
       KeyManagement km = null;
       km = new KeyManagement(caDN);
+      System.out.println("Option is : " + option);
+
       if (option.equals("-10")) {
 	FileInputStream f = new FileInputStream(args[1]);
 	PrintStream ps = new PrintStream(System.out);
@@ -858,6 +862,12 @@ public class KeyManagement
 	FileInputStream is = new FileInputStream(args[1]);
 	km.printPkcs7Request(is);
 	// km.printPkcs7Request(args[1]);
+      }
+      else if (option.equals("-1")) {
+	System.out.println("Using keyring" );
+	PrivateKey pk = KeyRing.getPrivateKey(args[1]);
+	Certificate c = KeyRing.getCert(args[1]);
+	System.out.println("Certificate is : " + c);
       }
     } catch (Exception e) {
       System.out.println("Exception: " + e);
