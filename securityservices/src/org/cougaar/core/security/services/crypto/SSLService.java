@@ -24,7 +24,7 @@
  * -
  */
 
-package org.cougaar.core.security.services.identity;
+package org.cougaar.core.security.services.crypto;
 
 import org.cougaar.core.component.Service;
 
