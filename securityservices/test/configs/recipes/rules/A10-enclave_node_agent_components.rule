@@ -11,6 +11,9 @@ society.each_node do |node|
   community = nil
   
   facetval = node.host.get_facet(:enclave)
+  if facetval == nil
+    puts "Error: no facet for Node #{node.name} - Host #{node.host.name}"
+  end
   enclave = facetval[0..0] + facetval[1..facetval.length].downcase
   community = facetval + "-SECURITY-COMM"
 
