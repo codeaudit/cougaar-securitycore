@@ -153,6 +153,10 @@ public class PersistenceMgrPolicyServiceImpl
     else {
       addCommunityListener();
     }
+
+    if (_todo != null) {
+      _log.warn("testing community service " + _todo);
+    }
   }
 
   /*
@@ -181,7 +185,6 @@ public class PersistenceMgrPolicyServiceImpl
 
     // scenario 1: do not add listener 
     if (_todo != null && _todo.equals("1")) {
-      _log.warn("DataProtection community request turned off.");
       return;
     }
 
@@ -192,7 +195,6 @@ public class PersistenceMgrPolicyServiceImpl
 
       public void communityChanged(CommunityChangeEvent event) {
         if (_todo != null && _todo.equals("2")) {
-          _log.warn("DataProtection community request handling off.");
           return;
         }
 
