@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -78,7 +78,6 @@ public class CertificateList
 	support.getServiceBroker().getService(this,
 					      ConfigParserService.class,
 					      null);
-      caDNs = configParser.getCaDNs();
       search = (CACertDirectoryService)
         support.getServiceBroker().getService(this, CACertDirectoryService.class, null);
       search.refreshBlackboard();
@@ -180,6 +179,18 @@ public class CertificateList
     out.println("</head>");
     out.println("<body>");
     out.println("<H2>Certificate List</H2>");
+
+    caDNs = configParser.getCaDNs();
+    if (log.isDebugEnabled()) {
+      if (caDNs == null || caDNs.length == 0) {
+        log.debug("No CA DN");
+      }
+      else {
+        for (int i = 0 ; i < caDNs.length ; i++) {
+          log.debug("CA DN: " + caDNs[i].toString());
+        }
+      }
+    }
 
     if (caDNs == null) {
       out.println("No CA has been configured yet");

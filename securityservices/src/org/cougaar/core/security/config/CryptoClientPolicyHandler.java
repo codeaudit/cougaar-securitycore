@@ -292,6 +292,7 @@ public class CryptoClientPolicyHandler
     // reset TrustedCaPolicy
       currentTrustedCa = null;
     }
+    writerReset();
   }
 }
 

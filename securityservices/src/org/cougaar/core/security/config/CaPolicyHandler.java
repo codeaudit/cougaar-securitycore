@@ -141,6 +141,9 @@ public class CaPolicyHandler
     // Certificate Directory Service
     else if (localName.equals(CA_LDAP_URL_ELEMENT)) {
       caPolicy.ldapURL = getContents();
+      if (log.isDebugEnabled()) {
+        log.debug("Got LDAP:" + caPolicy.ldapURL);
+      }
     }
     else if (localName.equals(CA_LDAP_PRINCIPAL_ELEMENT)) {
       caPolicy.ldapPrincipal = getContents();
@@ -242,6 +245,7 @@ public class CaPolicyHandler
 	caPolicy.nodeIsSigner = true;
       }
     }
+    writerReset();
   }
 }
 

@@ -267,6 +267,6 @@ public class MsgAccessPolicyHandler
     }
     
     // Reset contents
-    contents.reset();
+    writerReset();
   }
 }

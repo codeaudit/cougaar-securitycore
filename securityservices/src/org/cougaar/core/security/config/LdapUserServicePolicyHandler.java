@@ -110,5 +110,6 @@ public class LdapUserServicePolicyHandler extends BaseConfigHandler {
     } else if (localName.equals("cert-special-attr")) {
       _policy.certOkAttr = getContents();
     }
+    writerReset();
   }
 }

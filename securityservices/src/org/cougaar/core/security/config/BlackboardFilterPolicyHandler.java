@@ -163,6 +163,7 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
     } else if (localName.equals("denied-role")) {
       _deniedRoles.add(getContents());
     }
+    writerReset();
   }
 
   private  BlackboardFilterPolicy.ReadOnlyRule createRORule() {

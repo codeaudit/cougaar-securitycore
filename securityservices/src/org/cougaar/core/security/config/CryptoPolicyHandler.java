@@ -200,7 +200,7 @@ public class CryptoPolicyHandler
     }
 
     // Reset contents
-    contents.reset();
+    writerReset();
   }
 
 }

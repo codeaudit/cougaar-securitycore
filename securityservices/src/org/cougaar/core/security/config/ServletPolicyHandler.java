@@ -150,5 +150,6 @@ public class ServletPolicyHandler extends BaseConfigHandler {
         log.error("The failure-delay element must contain a long integer");
       }
     }
+    writerReset();
   }
 }

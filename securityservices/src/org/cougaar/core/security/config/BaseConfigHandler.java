@@ -89,6 +89,12 @@ public class BaseConfigHandler
     return currentSecurityPolicy;
   }
 
+  protected void writerReset() {
+    contents.reset();
+    contents.write(0);
+    contents.reset();
+  }
+
   public void collectPolicy(XMLReader parser,
 			    ContentHandler parent,
 			    String topLevelTag) {
@@ -118,7 +124,7 @@ public class BaseConfigHandler
 			    String qName,
 			    Attributes attr )
     throws SAXException {
-    contents.reset();
+    writerReset();
     if (log.isDebugEnabled()) {
       log.debug("startElement: " + localName);
     }
@@ -152,7 +158,7 @@ public class BaseConfigHandler
       if (log.isDebugEnabled()) {
 	log.debug("Swapping to content handler back to parent");
       }
-      contents.reset();
+      writerReset();
       parser.setContentHandler(parent);
     }
   }
