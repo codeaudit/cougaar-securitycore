@@ -34,17 +34,21 @@ public class MRAgentLookUp implements java.io.Serializable {
   public Source source;
   public Target target;
   public Classification classification;
+  public String source_agent; //Agent name of Source of attack.
+  public String target_agent;//Agent name of Target of attack. 
 
   public MRAgentLookUp (String findcommunity,
 			String findrole,
 			Source findsource,
 			Target findtarget,
-			Classification findclassification) {
+			Classification findclassification,String sourceagent,String targetagent) {
     this.community=findcommunity;
     this.role=findrole;
     this.source=findsource;
     this.target=findtarget;
     this.classification=findclassification;
+    this.source_agent=sourceagent;
+    this.target_agent=targetagent;
   }
   
   public String toString() {
