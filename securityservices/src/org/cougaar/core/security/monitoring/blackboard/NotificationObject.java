@@ -22,8 +22,9 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
+import java.io.Serializable;
 
 
-public class NotificationObject  {
+public class NotificationObject implements Serializable {
   
 }
