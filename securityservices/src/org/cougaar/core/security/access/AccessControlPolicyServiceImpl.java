@@ -94,7 +94,7 @@ public class AccessControlPolicyServiceImpl
   private AccessControlPolicy getIncomingPolicy(String target){
     //try agent first
     AccessControlPolicy acp = (AccessControlPolicy)incoming_a.get(target);
-    
+/*    
     if(acp==null && commu!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commu.listParentCommunities(target);
@@ -109,7 +109,7 @@ public class AccessControlPolicyServiceImpl
         }
       }
     }
-    
+*/    
     if(acp==null){
       //last try
       acp = acp_in;
@@ -128,7 +128,7 @@ public class AccessControlPolicyServiceImpl
   private AccessControlPolicy getOutgoingPolicy(String source){
     //try agent first
     AccessControlPolicy acp = (AccessControlPolicy)outgoing_a.get(source);
-    
+    /*   
     if(acp==null && commu!=null){
       //find which community the agent belongs to and get the policy
       Collection c = commu.listParentCommunities(source);
@@ -143,7 +143,7 @@ public class AccessControlPolicyServiceImpl
         }
       }
     }
-    
+    */
     if(acp==null){
       //last try
       acp = acp_out;
