@@ -1,0 +1,8 @@
+#!/usr/bin/ruby
+#
+#
+
+# require is needed to redefine some of the classes,
+# in particular it redefines Cougaar::Node and Cougaar::Agent by adding a few methods.
+require 'security/lib/scripting'
+

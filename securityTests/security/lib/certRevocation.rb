@@ -66,7 +66,7 @@ class CertRevocation
     #saveUnitTestResult("Stress5k104", "revoking node #{node.name}")
     agent = node.agents[0]
     caDomains = run.society.agents[agent.name].caDomains
-    return revoke(node.name, caDomains)
+    return revoke(node, caDomains)
   end
   
   def revokeAgent(agent)
@@ -88,13 +88,7 @@ class CertRevocation
     ###              dnname = caDomains[0].distinguishedNames[agent]
     #puts agent
     #doIrb
-    if obj == nil
-      obj = run.society.nodes[agent]
-      if obj != nil
-        obj = obj.agent
-      end
-    end
-    dnname = obj.distinguishedName
+    dnname = agent.distinguishedName
     #puts "dnname #{dnname}"
     if dnname == nil
       logWarningMsg "WARNING:  no dnname, returning"
@@ -110,11 +104,11 @@ class CertRevocation
     #puts "response.code #{response.code}, body #{response.body}"
     #              puts "revocation response #{response.body.to_s}"
     if response.body.to_s =~ /Success/
-      saveAssertion("Stress5k104", "successfully revoke agent: #{agent}")
+      saveAssertion("Stress5k104", "successfully revoke agent: #{agent.name}")
       #puts "Successfully revoked #{agent}"
       return true
     else
-      saveAssertion("Stress5k104", "Unable to revoke agent: #{agent}")
+      saveAssertion("Stress5k104", "Unable to revoke agent: #{agent.name}")
       #puts "Revoke #{agent} failed"
     end
     return false
@@ -139,7 +133,7 @@ class CertRevocation
     port = getParameter(node, /http.port/, nil)
     url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
     logInfoMsg "setCAExpirationAttrib #{url}"
-    params = ["identifier=#{node.name}"]
+    params = ["identifier=#{agent.name}"]
     logInfoMsg "Invoking #{url} #{params}"
     response = postHtml(url, params)
     raise "Failed to get new certificate. Error #{response.body.to_s}" unless response.body.to_s =~ /Success/
@@ -180,7 +174,7 @@ class CertRevocation
            "setCAExpirationAttrib: Unable to find agent: #{agent.name}")
       raise "setCAExpirationAttrib: Unable to find agent: #{agent.name}"
     end
-    caDomains = agent1.caDomains
+    caDomains = agent.caDomains
     caManager = caDomains[0].signer
     cadn = caDomains[0].cadn
     #puts "cadn #{cadn}"
