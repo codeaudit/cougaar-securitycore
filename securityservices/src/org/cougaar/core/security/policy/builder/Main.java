@@ -48,6 +48,7 @@ import kaos.core.util.PolicyMsg;
 import kaos.core.util.SymbolNotFoundException;
 import kaos.kpat.util.OperatingModeCondition;
 import kaos.ontology.repository.OntologyRepository;
+import kaos.policy.information.OntologyConditionContainer;
 import kaos.policy.information.OntologyPolicyContainer;
 import kaos.policy.util.KAoSPolicyBuilderImpl;
 
@@ -196,6 +197,9 @@ class Main
         _cmdLineAuth     = true;
         _cmdLineUser     = args[counter++];
         _cmdLinePassword = args[counter++].toCharArray();
+      } else if (args[counter].equals("--checkDepth")) {
+        counter++;
+        _checkDepth=true;
       } else {
         break;
       }
@@ -425,6 +429,15 @@ class Main
       PolicyUtils.autoGenerateGroups(parsed.declarations(), 
                                      parsed.agentGroupMap());
 
+      if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
+        System.out.println
+          ("Reasoning depth insufficient. Try setting a larger value with the");
+        System.out.println
+          ("--maxdepth option");
+        System.out.println
+          ("Policies not built as they would be incorrect");
+        System.exit(-1);
+      }
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
@@ -692,7 +705,8 @@ class Main
       if (attrib.getName().equals(AttributeMsg.ONTOLOGY_CONTENT)) {
         // first read the policy specific data
         OntologyPolicyContainer dpc = (OntologyPolicyContainer) attrib.getValue();
-        OntModelImpl       model = null;
+        OntologyConditionContainer condition = null;
+        OntModelImpl               model     = null;
 
         System.out.println("Policy Model = ");
         dpc.getPolicyModel().write(new PrintWriter(System.out),
@@ -704,7 +718,8 @@ class Main
           System.out.println("trigger = ");
           model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
         }
-        if ((model = dpc.getConditionActionModel()) != null) {
+        if (((condition = dpc.getCondition()) != null) &&
+            (model = condition.getConditionModel()) != null) {
           System.out.println("Condition = ");
           model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
         }
