@@ -366,8 +366,8 @@ end
 
 society.each_node do |node|
   if node.name == 'FWD-CA-NODE' \
-	or node.name == 'REAR-CA-NODE'
-	or node.name == 'CONUS-CA-NODE'
+	or node.name == 'REAR-CA-NODE' \
+	or node.name == 'CONUS-CA-NODE' \
 	or node.name == 'TRANS-CA-NODE'
     httpport = 8810
     httpsport = 9810
