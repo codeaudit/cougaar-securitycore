@@ -1189,7 +1189,7 @@ final public class KeyRing  implements KeyRingService  {
 
     Hashtable certTable = new Hashtable();
 
-    List srcdns = findDNFromNS(target);
+    List srcdns = findDNFromNS(source);
     List tgtdns = findDNFromNS(target);
     if (tgtdns.size() == 0 || srcdns.size() == 0) {
       if (log.isDebugEnabled()) {
