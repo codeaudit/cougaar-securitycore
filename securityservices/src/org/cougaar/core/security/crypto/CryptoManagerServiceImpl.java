@@ -983,7 +983,6 @@ public class CryptoManagerServiceImpl
     }
 
     PublicKeyEnvelope envelope = null;
-    try {
     SessionKeySet so = getSessionKeySet(source, target, policy);
     byte[] secretReceiver = so.receiverSecretKey;
     byte[] secretSender = so.senderSecretKey;
@@ -1004,18 +1003,7 @@ public class CryptoManagerServiceImpl
     }
     // Encrypt object
     SealedObject sealedObject;
-    try {
     sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
-    } catch (GeneralSecurityException e) {
-      log.shout("error!", e);
-      throw e;
-    } catch (RuntimeException e) {
-      log.shout("error!", e);
-      throw e;
-    } catch (Throwable e) {
-      log.shout("error!", e);
-      sealedObject = null;
-    }
     if(log.isDebugEnabled()) {
       log.debug("Looking up source & target certificate");
     }
@@ -1029,10 +1017,6 @@ public class CryptoManagerServiceImpl
     }
 
     return envelope;
-    } catch (Throwable e) {
-      log.shout("error!", e);
-      return null;
-    }
   }
 
   int cipherTry = 0;
@@ -1205,12 +1189,13 @@ public class CryptoManagerServiceImpl
 	log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
 		  + " -> " + target.toAddress());
       }
+      throw new DecryptSecretKeyException("can't get secret key.");
+    }
 
     if(log.isDebugEnabled()) {
       log.debug("Decrypting object");
     }
     // Decrypt the object
-    log.shout("decrypting " + sk.getAlgorithm() + " with " + policy.symmSpec);
     signedObject =
       (SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject(), 
                                 policy.symmSpec);
