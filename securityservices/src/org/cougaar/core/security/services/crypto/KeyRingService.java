@@ -68,6 +68,7 @@ public interface KeyRingService extends Service {
   /**
    */
   List findCert(String commonName, int lookupType);
+  List findCert(String commonName, int lookupType, boolean validOnly);
 
   /**
    */
@@ -93,12 +94,12 @@ public interface KeyRingService extends Service {
    * @return A list of PrivateKeyCert
    */
   List findPrivateKey(String commonName);
+  List findPrivateKey(String commonName, boolean validOnly);
 
   /**
    * @return A list of PrivateKeyCert
    */
   List findPrivateKey(X500Name x500name);
-
 
   Enumeration getAliasList();
 

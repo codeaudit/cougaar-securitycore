@@ -236,10 +236,14 @@ final public class KeyRing
   }
 
   public synchronized List findPrivateKey(String cougaarName) {
+    return findPrivateKey(cougaarName, true);
+  }
+
+  public synchronized List findPrivateKey(String cougaarName, boolean validOnly) {
     if (keystore == null) {
       return null;
     }
-    return keystore.findPrivateKey(cougaarName);
+    return keystore.findPrivateKey(cougaarName, validOnly);
   }
 
   public synchronized List findPrivateKey(X500Name x500name) {
@@ -266,10 +270,14 @@ final public class KeyRing
    * @param lookupType -
    */
   public synchronized List findCert(String cougaarName, int lookupType) {
+    return findCert(cougaarName, lookupType, true);
+  }
+
+  public synchronized List findCert(String cougaarName, int lookupType, boolean validOnly) {
     if(log.isDebugEnabled())
       log.debug("Looking for cougaar name " + cougaarName
 		+ " type = " + lookupType);
-    List c = keystore.findCert(cougaarName, lookupType);
+    List c = keystore.findCert(cougaarName, lookupType, validOnly);
     return c;
   }
 
