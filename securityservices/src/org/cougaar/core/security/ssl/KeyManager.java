@@ -57,7 +57,22 @@ public class KeyManager implements X509KeyManager {
       serviceBroker.getService(this,
 			       LoggingService.class, null);
 
+    /*
+    // create node cert in advance
+    AgentIdentityService ais = (AgentIdentityService)
+      serviceBroker.getService(this, AgentIdentityService.class, null);
+    try {
+      // user application will return null here.
+      if (ais != null)
+        ais.acquire(null);
+    } catch (Exception ex) {
+      log.warn("Exception in acquiring identity: " + ex.toString());
+    }
+    */
+
     keystore = keyRing.getDirectoryKeyStore();
+    if (!(this instanceof UserKeyManager))
+      keyRing.checkOrMakeCert(getName());
 
     // get nodename, nodealias, and node certificate
     updateKeystore();
@@ -69,7 +84,7 @@ public class KeyManager implements X509KeyManager {
 
   public synchronized void updateKeystore() {
     // is the nodeinfo way of retrieving nodename from system property appropriate?
-    nodename = NodeInfo.getNodeName();
+    nodename = getName();
 
     // get the certificates for the nodename
     // get the last valid certificate
@@ -172,5 +187,8 @@ public class KeyManager implements X509KeyManager {
     return new String [] {nodealias};
   }
 
+  public String getName() {
+    return NodeInfo.getNodeName();
+  }
 
 }

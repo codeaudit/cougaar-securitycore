@@ -43,14 +43,19 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public final class ServerKeyManager
   extends org.cougaar.core.security.ssl.KeyManager {
-  public ServerKeyManager(KeyRingService krs, ServiceBroker sb) {
+  public ServerKeyManager(KeyRingService krs, ServiceBroker sb)
+    throws CertificateException
+  {
     super(krs, sb);
+
+    if (nodex509 == null || nodealias == null)
+      throw new CertificateException("No valid server certificate.");
   }
 
   public synchronized void updateKeystore() {
     // find the valid hostname, get key alias and server certificate
     // use nodealias to set server alias which is the hostname
-    String hostname = keystore.getHostName();
+    String hostname = getName();
     nodename = hostname;
 
     //log.debug("=====> getHostName: " + hostname);
@@ -78,5 +83,8 @@ public final class ServerKeyManager
     return new String [] {};
   }
 
+  public String getName() {
+    return keystore.getHostName();
+  }
 
 }

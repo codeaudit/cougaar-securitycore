@@ -92,8 +92,10 @@ public class SSLServiceImpl implements SSLService {
   }
 
   public void updateKeystore() {
-    km.updateKeystore();
-    tm.updateKeystore();
+    if (km != null && tm != null) {
+      km.updateKeystore();
+      tm.updateKeystore();
+    }
   }
 
 }

@@ -30,6 +30,7 @@ import java.io.IOException;
 import javax.net.ssl.*;
 import java.net.*;
 import javax.net.*;
+import java.security.cert.*;
 
 import org.apache.catalina.net.*;
 
@@ -49,15 +50,19 @@ public class WebtomcatSSLServerFactory
    * Integrate into tomcat socket factory
    * Use socketfactory from securityservices
    */
-  public WebtomcatSSLServerFactory() {
+  public WebtomcatSSLServerFactory()
+    throws CertificateException {
     // check permission
+
+    // if not initialized throws runtime exception
+    if (socfac == null)
+      throw new CertificateException("SSL socket factory is not initialized.");
   }
 
   public synchronized static void init(WebserverIdentityService webssl) {
     socfac = (javax.net.ssl.SSLServerSocketFactory)
       webssl.getWebServerSocketFactory();
-    if (needAuth)
-      ((KeyRingSSLServerFactory)socfac).setNeedClientAuth(true);
+    ((KeyRingSSLServerFactory)socfac).setNeedClientAuth(needAuth);
   }
 
   // all the keystore related functions will not be supported
