@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.cougaar.core.security.services.network.NetworkConfigurationService;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.log.Logger;
@@ -110,15 +111,17 @@ public class CipherSuiteMapping
     } catch (SAXException sxe) {
            // Error generated during parsing)
       Exception  x = sxe;
-      if (sxe.getException() != null)
+      if (sxe.getException() != null) {
         x = sxe.getException();
-      x.printStackTrace();
+      }
+      _log.error("Exception getting encryption configuration", x);
     } catch (ParserConfigurationException pce) {
       // Parser with specified options can't be built
-      pce.printStackTrace();
+      _log.error("Exception getting encryption configuration", pce);
     } catch (IOException ioe) {
       // I/O error
-      ioe.printStackTrace();
+      _log.error("Exception getting encryption configuration", ioe);
+
     }
   }
 
@@ -157,17 +160,25 @@ public class CipherSuiteMapping
       _log.debug("Modification of a cipher");
     }
     printNode(update);
-    if (_log.isDebugEnabled()) {
-      _log.debug("showing the children of the cipher update");
-    }
     if (update.getNodeType() != Node.ELEMENT_NODE) {
       if (_log.isDebugEnabled()) {
         _log.debug("Not  an element node - returning");
       }
       return;
     }
+
     String modType = update.getNodeName();
     String text    = null;
+    int condition = getConditionFromUpdate(update);
+
+    if (condition == -1) {
+      _log.debug("invalid condition - skipping");
+      return;
+    }
+
+    if (_log.isDebugEnabled()) {
+      _log.debug("working the children of the cipher update");
+    }
     for (Node child = update.getFirstChild(); 
          child != null;
          child = child.getNextSibling()) {
@@ -191,20 +202,48 @@ public class CipherSuiteMapping
     }
     if (modType.equals(SYMMETRIC)) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Adding symmetric alg " + text);
+        _log.debug("Adding symmetric alg " + text 
+                   + " with condition = " + condition);
       }
-      cs.addSymmetric(text);
+      cs.addSymmetric(condition, text);
     } else if (modType.equals(ASYMMETRIC)) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Adding asymmetric alg " + text);
+        _log.debug("Adding asymmetric alg " + text
+                   + " with condition = " + condition);
       }
-      cs.addAsymmetric(text);
+      cs.addAsymmetric(condition, text);
     } else if (modType.equals(SIGNATURE)) {
       if (_log.isDebugEnabled()) {
-        _log.debug("Adding signature alg " + text);
+        _log.debug("Adding signature alg " + text
+                   + " with condition = " + condition);
       }
-      cs.addSignature(text);
+      cs.addSignature(condition, text);
     }
+  }
+
+  private  int getConditionFromUpdate(Node update)
+  {
+    NamedNodeMap nnm = update.getAttributes();
+    if (nnm == null) {
+      return NetworkConfigurationService.ConnectNormal;
+    }
+    Node c = nnm.getNamedItem("condition");
+    if (c == null) {
+      return NetworkConfigurationService.ConnectNormal;
+    }
+    return getConnectCondition(c.getNodeValue());
+  }
+
+
+  private int getConnectCondition(String name)
+  {
+    String names[] = NetworkConfigurationService.connectNames;
+    for (int i = 0; i < names.length; i++) {
+      if (names[i].equals(name)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private static void printNode(Node node)
