@@ -323,6 +323,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
     return false
   end
 
+  def doRunPeriodically
+    return true
+  end
+
   def perform
     Thread.fork {
       begin

@@ -1,4 +1,6 @@
+require 'singleton'
 require 'security/lib/AbstractSecurityMop'
+require 'security/lib/securityMopAnalysis'
 
 #snortDir = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/data"
 
@@ -79,7 +81,7 @@ class SecurityMop21 < AbstractSecurityMop
       puts "compiledResults #{@score}" if $VerboseDebugging
       @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br/>\n" + @info.join("<br/>\n")
       @calculationDone = true
-      sucess = false
+      success = false
       if (@score == 100.0)
 	success = true
       end
@@ -155,6 +157,9 @@ end # SecurityMop2_1
 
 class SecurityMop2_1 < SecurityMop21
   include Singleton
+  def initialize
+    super(getRun)
+  end
 end
 
 
@@ -179,7 +184,7 @@ class SecurityMop22 < AbstractSecurityMop
     @info = d.mopHtml
     @calculationDone = true
 
-    sucess = false
+    success = false
     if (@score == 100.0)
       success = true
     end
@@ -205,20 +210,22 @@ end
 
 class SecurityMop2_2 < SecurityMop22
   include Singleton
+  def initialize
+    super(getRun)
+  end
 end
     
 ################################################
+
 
 class SecurityMop23 < AbstractSecurityMop
   def initialize(run)
     super(run)
     @name = "2.3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
-    @logfilename = "#{ENV['CIP']}/workspace/security/data/snort.log"
-    Dir.mkdir("#{CIP}/workspace") unless File.exist?("#{CIP}/workspace") 
-    Dir.mkdir("#{CIP}/workspace/security") unless File.exist?("#{CIP}/workspace/security") 
-    Dir.mkdir("#{CIP}/workspace/security/data") unless File.exist?("#{CIP}/workspace/security/data") 
-    Dir.mkdir(@logfilename) unless File.exist?(@logfilename) 
+    @logfilename = File.join("#{ENV['CIP']}", "workspace", "security", "data", "snort.log")
+    # @logfilename = "#{ENV['CIP']}/workspace/security/data/snort.log"
+    Dir.mkdirs(@logfilename) unless File.exist?(@logfilename) 
     #aFile = File.new(@logfilename, File::RDWR | File::APPEND | File::CREAT)
     #afile.close
   end
@@ -236,9 +243,11 @@ class SecurityMop23 < AbstractSecurityMop
   end
 
   def startTcpCapture(agentnames)
+puts "startTcpCapture"
+puts agentnames
     # executable attribute not set when first unzipped.
     %w(runsnort runsnort-aux analyzesnort analyzesnort-aux).each do |file|
-      f = "#{ENV['CIP']}/csmart/assessment/lib/framework/#{file}"
+      f = "#{ENV['CIP']}/csmart/lib/security/mop/#{file}"
       `chmod a+x #{f}`
     end
     hosts = []
@@ -257,9 +266,10 @@ class SecurityMop23 < AbstractSecurityMop
     @hosts = hosts.uniq
 
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
+puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/assessment/lib/framework/runsnort #{ENV['CIP']} #{@logfilename}" )
+      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/runsnort #{ENV['CIP']} #{@logfilename}" )
     end
   end
 
@@ -270,8 +280,10 @@ class SecurityMop23 < AbstractSecurityMop
   def stopTcpCapture
     return unless @hosts
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
+    `chmod a+rwx #{ENV['CIP']}/workspace/security`
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/assessment/lib/framework/analyzesnort #{ENV['CIP']} #{@logfilename}")
+#      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/analyzesnort #{ENV['CIP']} #{@logfilename}")
+      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/lib/security/mop/analyzesnort #{ENV['CIP']} #{@logfilename}")
     end
   end
 
@@ -288,10 +300,25 @@ class SecurityMop23 < AbstractSecurityMop
     @raw = []
     @info = ''
   end
+
+  def postCalculate
+    begin
+      analysis = PostSecurityMopAnalysis.new("#{ENV['CIP']}/workspace/security/mops")
+      analysis.mops = run['mops']
+      info = analysis.getXMLDataForMop(3)
+      saveResult(analysis.scores[3] <= 0.0, 'SecurityMop2.3', info)
+    rescue Exception => e
+      logInfoMsg "Error: #{e.class}: #{e.message}"
+      puts e.backtrace.join("\n")
+    end
+  end
 end
-    
+
 class SecurityMop2_3 < SecurityMop23
   include Singleton
+  def initialize
+    super(getRun)
+  end
 end
 
 ################################################
@@ -305,9 +332,13 @@ def doRemoteCmd(hostname, cmd, timeout=30)
   end
   cmd = "command[rexec]#{cmd}"
   logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}" if $VerboseDebugging
+
+logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}"
+
   begin
     answer = run.comms.new_message(host).set_body(cmd).request(timeout)
     logInfoMsg "doRemoteCmd answer #{hostname}: #{answer.class}, #{answer}" if $VerboseDebugging
+puts answer
     if answer
       return getRexecBody(answer.to_s).chomp
     else

@@ -181,7 +181,7 @@ class UserDomain
       c =  userCollection.collect {|u| u[0]}
       return c
     else
-      logInfoMsg ("WARNING:  userDomainAux.users getHtml request did not succeed (status=#{response.status})")
+      logInfoMsg("WARNING:  userDomainAux.users getHtml request did not succeed (status=#{response.status})")
     end
   end
 

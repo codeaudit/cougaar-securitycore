@@ -39,83 +39,6 @@ end
 module Cougaar
   module Actions
 
-    class StopSecurityMopCollection < Cougaar::Action
-      def perform
-        `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
-        Dir.mkdirs(SecurityMopDir)
-        `chmod a+rwx #{SecurityMopDir}`
-        logInfoMsg "Halting security MOPs" if $VerboseDebugging
-        mops = run['mops']
-        InitiateSecurityMopCollection.halt
-        sleep 1.minutes
-        logInfoMsg "Shutting down security MOPs" if $VerboseDebugging
-        mops.each do |mop|
-          begin
-            mop.shutdown
-          rescue Exception => e
-            logInfoMsg "WARNING: Error while shutting down #{mop.class}, #{e.class} #{e.message}"
-            puts e.backtrace.join("\n")
-          end
-        end
-        sleep 1.minutes
-      end
-    end
-
-    class SendSecurityMopRequest < Cougaar::Action
-      def perform
-        logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
-        mops = run['mops']
-        result = ''
-        mops.each {|mop| mop.calculate}
-        retries=50
-        mops.each do |mop|
-          startTime = Time.now
-          while (!mop.calculationDone) do
-            retries -= 1
-            break if Time.now - startTime > 5.minutes
-            puts "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
-            sleep 30.seconds
-          end
-          result += "#{makeMopXml(mop)}\n"
-        end
-
-#        html = (mops.collect {|mop| makeMopXml(mop)}).join("\n")
-
-logInfoMsg "num security mops: #{mops.size}" if $VerboseDebugging
-
-        db = PStore.new(DbFilename)
-        db.transaction do |db|
-          db['datestring'] = "#{Time.now}"
-          db['date'] = Time.now
-          db['html'] = ''
-          db['info'] = mops.collect {|mop| mop.info}
-          db['summary'] = mops.collect {|mop| mop.summary}
-          db['scores'] = mops.collect {|mop| mop.score}
-          db['raw'] = mops.collect {|mop| mop.raw}
-          db.commit
-        end
-
-html = ''
-puts html if $VerboseDebugging
-puts (mops.collect {|mop| mop.score}).inspect if $VerboseDebugging
-        return html
-      end
-
-      def makeMopXml(mop)
-        x = "<Report>\n"
-        x +=  "<metric>MOP #{mop.name}</metric>\n"
-        x +=  "<id>#{Time.now}</id>\n"
-        x +=  "<description>#{mop.descript}</description>\n"
-        x +=  "<score>#{mop.score}</score>\n"
-        x +=  "<info><analysis><para>#{mop.info}</para></analysis></info>\n"
-        x +="</Report>\n"
-        return x
-      end # makeMopXml
-    end
-
-
-
-  
     # Action which runs the six security mops every five minutes
     class InitiateSecurityMopCollection < Cougaar::Action
       attr_accessor :mops, :frequency, :thread
@@ -173,6 +96,7 @@ puts "halting security mops" if $VerboseDebugging
           sleep 2.minutes
         end
 
+        firstTime = true
         @thread = Thread.new do
           while !halted? do
             puts "performing security mops" if $VerboseDebugging
@@ -180,7 +104,7 @@ puts "halting security mops" if $VerboseDebugging
               begin
                 puts "performing #{mop.class.name}" if $VerboseDebugging
                 break if halted?
-                mop.perform
+                mop.perform if firstTime or mop.doRunPeriodically
               rescue Exception => e
                 puts "error in InitiateSecurityMopCollection's thread"
                 puts "#{e.class}: #{e.message}"
@@ -189,6 +113,7 @@ puts "halting security mops" if $VerboseDebugging
             end
             puts "done performing this set of security mops" if $VerboseDebugging
             sleep @frequency unless halted?
+            firstTime = false
           end
         end
         puts "security mops thread now completed" if $VerboseDebugging
@@ -212,6 +137,87 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         end
       end
     end # class InitiateSecurityMopCollection
+
+
+
+    class StopSecurityMopCollection < Cougaar::Action
+      def perform
+        `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
+        Dir.mkdirs(SecurityMopDir)
+        `chmod a+rwx #{SecurityMopDir}`
+        logInfoMsg "Halting security MOPs" if $VerboseDebugging
+#b
+#run['mops'] = [SecurityMop2_3.instance]
+#b
+        mops = run['mops']
+        InitiateSecurityMopCollection.halt
+        sleep 1.minutes
+        logInfoMsg "Shutting down security MOPs" if $VerboseDebugging
+        mops.each do |mop|
+          begin
+            mop.shutdown
+          rescue Exception => e
+            logInfoMsg "WARNING: Error while shutting down #{mop.class}, #{e.class} #{e.message}"
+            puts e.backtrace.join("\n")
+          end
+        end
+        sleep 1.minutes
+      end
+    end
+
+
+
+    class SendSecurityMopRequest < Cougaar::Action
+      def perform
+        logInfoMsg "Pre-processing security MOPs" if $VerboseDebugging
+        mops = run['mops']
+        result = ''
+        mops.each {|mop| mop.calculate}
+        retries=50
+        mops.each do |mop|
+          startTime = Time.now
+          while (!mop.calculationDone) do
+            retries -= 1
+            break if Time.now - startTime > 5.minutes
+            puts "waiting for mop calculation in #{mop.class.name} (#{retries})" if $VerboseDebugging
+            sleep 30.seconds
+          end
+          result += "#{makeMopXml(mop)}\n"
+        end
+
+#        html = (mops.collect {|mop| makeMopXml(mop)}).join("\n")
+
+logInfoMsg "num security mops: #{mops.size}" if $VerboseDebugging
+
+        db = PStore.new(DbFilename)
+        db.transaction do |db|
+          db['datestring'] = "#{Time.now}"
+          db['date'] = Time.now
+          db['html'] = ''
+          db['info'] = mops.collect {|mop| mop.info}
+          db['summary'] = mops.collect {|mop| mop.summary}
+          db['scores'] = mops.collect {|mop| mop.score}
+          db['raw'] = mops.collect {|mop| mop.raw}
+          db.commit
+        end
+
+html = ''
+puts html if $VerboseDebugging
+puts (mops.collect {|mop| mop.score}).inspect if $VerboseDebugging
+        return html
+      end
+
+      def makeMopXml(mop)
+        x = "<Report>\n"
+        x +=  "<metric>MOP #{mop.name}</metric>\n"
+        x +=  "<id>#{Time.now}</id>\n"
+        x +=  "<description>#{mop.descript}</description>\n"
+        x +=  "<score>#{mop.score}</score>\n"
+        x +=  "<info><analysis><para>#{mop.info}</para></analysis></info>\n"
+        x +="</Report>\n"
+        return x
+      end # makeMopXml
+    end
   end # module Actions
 end # module Cougaar
 

@@ -19,6 +19,9 @@ class AbstractSecurityMop < SecurityStressFramework
   def perform
     # default is to do nothing
   end
+  def doRunPeriodically
+    return false
+  end
   def shutdown
     # default is to do nothing
   end

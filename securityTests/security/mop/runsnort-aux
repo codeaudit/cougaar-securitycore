@@ -9,7 +9,7 @@ sourcePortExclusion='(tcp[0]!=34 or (tcp[0]=34 and (tcp[1]<96 or tcp[1]>116)))'
 destPortExclusion='(tcp[2]!=34 or (tcp[2]=34 and (tcp[3]<96 or tcp[3]>116)))'
 
 # restrict to only this computer (the -p option isn't foolproof)
-hostIpaddr=`ifconfig eth0 | grep 'inet ' | cut -d ':' -f 2 | cut -d ' ' -f 1`
+hostIpaddr=`/sbin/ifconfig eth0 | grep 'inet ' | cut -d ':' -f 2 | cut -d ' ' -f 1`
 onlyThisHost="(host $hostIpaddr)"
 
 notNIS="!(host 192.168.2.12)"

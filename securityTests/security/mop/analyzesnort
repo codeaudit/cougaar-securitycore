@@ -4,4 +4,4 @@ echo "analyzing snort"
 killall -9 snort
 echo "running analyzesnort-aux in the background"
 #$1/csmart/assessment/lib/framework/analyzesnort-aux /mnt/shared/socB
-nohup $1/csmart/assessment/security/mop/analyzesnort-aux $1 >snortanalysis.log &
+nohup $1/csmart/lib/security/mop/analyzesnort-aux $1 >snortanalysis.log &

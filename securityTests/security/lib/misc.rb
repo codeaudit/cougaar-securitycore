@@ -344,6 +344,7 @@ class Dir
       stat = File.stat(dir)
     rescue Exception
       Dir.mkdir(dir)
+      `chmod a+rwx #{dir}`
     end
   end # mkdirs
 end # Dir
