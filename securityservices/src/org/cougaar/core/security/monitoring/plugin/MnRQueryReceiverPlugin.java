@@ -261,7 +261,9 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         }
       }
       else {
-        loggingService.warn(myAddress + " Registration has changed but query to bb returned empty collection:");
+        if( loggingService.isInfoEnabled()){
+          loggingService.info(myAddress + " Registration has changed but query to bb returned empty collection:");
+        }
       }
     }
     capabilitiesCollection=capabilitiesobject.getCollection();
