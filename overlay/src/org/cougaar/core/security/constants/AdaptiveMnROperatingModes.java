@@ -47,6 +47,12 @@ public class AdaptiveMnROperatingModes {
   public final static String LOCKOUT_DURATION = 
     "org.cougaar.core.security.monitoring.LOCKOUT_DURATION";
   /**
+   * threat con level 
+   * possible values: { LOW | HIGH }
+   */
+  public final static String THREATCON_LEVEL = 
+    "org.cougaar.core.security.monitoring.THREATCON_LEVEL";
+  /**
    * policy preventive measure
    * possible values: { LOW | HIGH }
    */
