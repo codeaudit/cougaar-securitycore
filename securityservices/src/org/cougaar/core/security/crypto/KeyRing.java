@@ -253,10 +253,12 @@ final public class KeyRing
     }
     if(param.isCertAuth) {
       X500Name [] caDNs=configParser.getCaDNs();
-      String caDN=caDNs[0].getName();
-      CaPolicy capolicy=configParser.getCaPolicy(caDN);
-      param.ldapServerUrl =capolicy.ldapURL;
-      param.ldapServerType =capolicy.ldapType;
+      if (caDNs.length > 0) {
+        String caDN=caDNs[0].getName();
+        CaPolicy capolicy=configParser.getCaPolicy(caDN);
+        param.ldapServerUrl =capolicy.ldapURL;
+        param.ldapServerType =capolicy.ldapType;
+      }
     }
     
 
