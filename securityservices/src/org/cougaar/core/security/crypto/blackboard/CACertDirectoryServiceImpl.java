@@ -55,6 +55,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.io.IOException;
 
 import javax.naming.NameAlreadyBoundException;
 
@@ -264,6 +265,24 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
     }
     List certList = (List)_certStore.get(distinguishedName);
     return certList;
+  }
+
+  public List findCertByCN(String cname) {
+    List allAgents = new ArrayList();
+    for (Enumeration en = _certStore.keys(); en.hasMoreElements(); ) {
+      Object o = en.nextElement();
+      Object v = _certStore.get(o);
+      if (v instanceof List) {
+        X500Name x500name = null;
+        try {
+          x500name = new X500Name((String)o);
+          if (cname.equals(x500name.getCommonName())) {
+            allAgents.add((List)v);
+          }
+        } catch (IOException iox) {}
+      }
+    }
+    return allAgents;
   }
 
   /**

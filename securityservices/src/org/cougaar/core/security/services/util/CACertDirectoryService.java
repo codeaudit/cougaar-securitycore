@@ -47,6 +47,11 @@ public interface CACertDirectoryService
   CertificateEntry findCertByIdentifier(String uniqueIdentifier);
 
   /**
+   * Find certificates with the same CN issued by the CA
+   */
+  List findCertByCN(String cname);
+
+  /**
    * Find a list of certificates matching a distinguished name.
    * @param identifier - The distinguished name of the certificate to look for.
    */
