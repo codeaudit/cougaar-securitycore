@@ -28,11 +28,17 @@
 
 ;; ###################
 
-; Make <TAB> in C mode just insert a tab if point is in the middle of a line
-(setq c-tab-always-indent nil)
+; Make <TAB> in C mode just insert a tab if point is in the middle
+; of a line
+;(setq c-tab-always-indent nil)
 
 ; Bind the key C-x g to goto-line
 (global-set-key "\C-x\C-g" 'goto-line)
+
+; Identation: 2 spaces by default
+(setq c-default-style "user"
+      c-basic-offset 2)
+(add-hook 'java-mode-hook (lambda () (c-set-style "user")))
 
 ; Background color
 (set-background-color "linen")
