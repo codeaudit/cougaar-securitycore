@@ -3,7 +3,9 @@
 # ihmc_policy_domain_mgr_agents.rule
 # Adds PolicyDomainManagers 
 
-CIP = ENV['CIP']
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
 require 'framework/common_security_rules'

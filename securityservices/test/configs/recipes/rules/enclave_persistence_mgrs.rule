@@ -2,7 +2,9 @@
 ####################################################
 # enclave_persistence_mgrs.rule
 
-CIP = ENV['CIP']
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
 require 'framework/common_security_rules'

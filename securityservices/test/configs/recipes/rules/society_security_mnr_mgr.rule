@@ -3,7 +3,9 @@
 # society_security_mnr_mgr.rule
 # Adds SocietyMnRManager complete agent recipe
 
-CIP = ENV['CIP']
+if ! defined? CIP
+  CIP = ENV['CIP']
+end
 $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 
 require 'framework/common_security_rules'
