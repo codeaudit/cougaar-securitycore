@@ -52,7 +52,7 @@ public class ServletAuthenticationParsedPolicy extends ParsedAuthenticationPolic
           3,
           false,
           ActorConcepts.Person(),
-          ActionConcepts.AccessAction());
+          UltralogActionConcepts.ServletAccess());
     _description = "All users must use ";
     {
       Iterator authIt = auths.iterator();

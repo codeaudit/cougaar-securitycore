@@ -50,7 +50,7 @@ public class ServletUserParsedPolicy extends ParsedAuthenticationPolicy
           modality ? 2 : 3,
           modality,
           ULOntologyNames.personActorClassPrefix + userRole,
-          ActionConcepts.AccessAction());
+          UltralogActionConcepts.ServletAccess());
     _description = "A user in role " + userRole + (modality? " can":" cannot")
                          + "  access a servlet named " + servletName;
     _userClass = ULOntologyNames.personActorClassPrefix + userRole;

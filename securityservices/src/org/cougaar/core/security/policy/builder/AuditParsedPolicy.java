@@ -50,7 +50,7 @@ class AuditParsedPolicy extends ParsedAuthenticationPolicy
           false,
           userRole == null ? ActorConcepts.Person()
                            : ULOntologyNames.personActorClassPrefix + userRole,
-          ActionConcepts.AccessAction());
+          UltralogActionConcepts.ServletAccess());
     if (servletNames != null) {
       _servlets = new HashSet();
       for (Iterator  servletIt = servletNames.iterator(); 
