@@ -13,23 +13,23 @@
 	
 	<!-- action on message criticality, either ACCEPT or SET_ASIDE -->
 	<MessageAction>
-		<CriticalityLevel>Criticality1</CriticalityLevel>
+		<CriticalityLevel>1</CriticalityLevel>
 		<MsgAction>SET_ASIDE</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
-		<CriticalityLevel>Criticality2</CriticalityLevel>
+		<CriticalityLevel>2</CriticalityLevel>
 		<MsgAction>SET_ASIDE</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
-		<CriticalityLevel>Criticality3</CriticalityLevel>
+		<CriticalityLevel>3</CriticalityLevel>
 		<MsgAction>ACCEPT</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
-		<CriticalityLevel>Criticality4</CriticalityLevel>
+		<CriticalityLevel>4</CriticalityLevel>
 		<MsgAction>ACCEPT</MsgAction> 
 	</MessageAction> 
 	<MessageAction>
-		<CriticalityLevel>Criticality5</CriticalityLevel>
+		<CriticalityLevel>5</CriticalityLevel>
 		<MsgAction>ACCEPT</MsgAction> 
 	</MessageAction> 
 
@@ -60,12 +60,12 @@
 
 	<MessageIntegrity>
 		<MsgParty>DEFAULT</MsgParty>
-		<Integrity>Integrity3</Integrity>
+		<Integrity>3</Integrity>
 	</MessageIntegrity>
 
 	<MessageCriticality>
 		<CritParty>DEFAULT</CritParty>
-		<Criticality>Criticality3</Criticality>
+		<Criticality>3</Criticality>
 	</MessageCriticality>
 
     </AccessControlPolicy >
