@@ -34,4 +34,6 @@ public interface CertValidityListener {
   /** update certificate after checkOrMakeCert
    */
   public void updateCertificate();
+
+  public void invalidate(String cname);
 }
