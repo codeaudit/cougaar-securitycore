@@ -465,6 +465,7 @@ public class AccessControlPolicyServiceImpl
           incoming_a.put(acp.Name,acp);
           outgoing_a.put(acp.Name,acp);
         }
+        break;
       case  AccessControlPolicy.COMMUNITY:
         if(acp.Direction == AccessControlPolicy.INCOMING){
           incoming_c.put(acp.Name,acp);
@@ -474,6 +475,7 @@ public class AccessControlPolicyServiceImpl
           incoming_c.put(acp.Name,acp);
           outgoing_c.put(acp.Name,acp);
         }
+        break;
       case  AccessControlPolicy.SOCIETY:
         if(acp.Direction == AccessControlPolicy.INCOMING){
           acp_in = acp;
