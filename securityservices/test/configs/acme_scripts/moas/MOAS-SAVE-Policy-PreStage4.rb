@@ -105,7 +105,7 @@ include_scripts:
       - dbHost: cougaar-db
       - dbPassword: s0c0nfig
       - db: cougaar104
-      - wait: true
+      - wait: false
 
 #################################################################
 
