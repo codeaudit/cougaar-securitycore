@@ -30,9 +30,12 @@ import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
 import java.security.GeneralSecurityException;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
@@ -49,7 +52,6 @@ import java.util.ListIterator;
 import java.util.Vector;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
 import org.cougaar.core.security.crlextension.x509.extensions.IssuingDistributionPointExtension;
 import org.cougaar.core.security.naming.CertificateEntry;
@@ -61,6 +63,7 @@ import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.crypto.CRLCacheService;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.CertificateRequestorService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
 import org.cougaar.core.security.services.util.CertificateSearchService;
@@ -72,6 +75,9 @@ import org.cougaar.core.security.ssl.UserKeyManager;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
+
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.KeyUsageExtension;
@@ -86,7 +92,7 @@ final public class KeyRing  implements KeyRingService  {
   // keystore stores private keys and well-know public keys
   // private DirectoryKeyStore directoryKeystore;
   private CertificateSearchService search;
-  private CertificateRequestor certRequestor;
+  private CertificateRequestorService certRequestor;
   private NamingCertDirectoryServiceClient namingService;
   /*
     private SearchServiceParameters searchParam;
@@ -260,7 +266,18 @@ final public class KeyRing  implements KeyRingService  {
     search = (CertificateSearchService) serviceBroker.getService(this,
                                                                  CertificateSearchService.class,
                                                                  null);
-    certRequestor=new CertificateRequestor(serviceBroker,configParser,role);
+    //certRequestor=new CertificateRequestor(serviceBroker,configParser,role);
+    certRequestor = (CertificateRequestorService)serviceBroker.getService(this,
+        CertificateRequestorService.class,
+        null);
+    if (certRequestor == null) {
+      if (log.isDebugEnabled()) {
+        log.debug("adding service listener for Certificate Requestor");
+      }
+      ServiceAvailableListener listener = new ListenForServices();
+      serviceBroker.addServiceListener(listener);      
+    }
+
     namingService = new NamingCertDirectoryServiceClient(serviceBroker);
     //directoryKeystore = new DirectoryKeyStore(param);
     pkcs12 = new PrivateKeyPKCS12( serviceBroker);
@@ -284,6 +301,22 @@ final public class KeyRing  implements KeyRingService  {
       CACertDirectoryService caOperations = (CACertDirectoryService)
 	serviceBroker.getService(this,CACertDirectoryService.class, null);
       serviceBroker.releaseService(this, CACertDirectoryService.class, caOperations);
+    }
+  }
+
+  private class ListenForServices implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      Class sc = ae.getService();
+      final ServiceBroker sb = ae.getServiceBroker();
+      if ( (sc == CertificateRequestorService.class) &&(certRequestor==null) ) {
+        if(log.isInfoEnabled()){
+          log.info("CertificateRequestorService is available now.");
+        }
+        certRequestor = (CertificateRequestorService)
+          serviceBroker.getService(this, CertificateRequestorService.class, null);
+        if (certRequestor != null) {
+        }
+      }
     }
   }
 
@@ -386,7 +419,7 @@ final public class KeyRing  implements KeyRingService  {
 	  }
 	}
         // get CA certificate if it is not yet obtained
-        certRequestor.getNodeCert(name,null);
+        certRequestor.generateKeyPair(name,true,null);
         // update to naming
         //updateNS(name);
       } catch (Exception ex) {
@@ -538,7 +571,7 @@ final public class KeyRing  implements KeyRingService  {
       if (!isValidated) {
         try {
           // need to verify chain if it is not build using buildchain
-          certRequestor.validateReply(null, acertificate[0], acertificate);
+          validateReply(null, acertificate[0], acertificate);
         } catch (CertificateException cex) {
           throw new CertificateChainException(cex.toString(), CertificateTrust.CERT_TRUST_UNKNOWN);
         }
@@ -572,8 +605,8 @@ try {
             }
           }
           if (keyusage == null
-              || keyusage.getBits().length < KeyManagement.KEYUSAGE_CERT_SIGN_BIT
-              || !keyusage.getBits()[KeyManagement.KEYUSAGE_CERT_SIGN_BIT]) {
+              || keyusage.getBits().length < KeyManagementConstants.KEYUSAGE_CERT_SIGN_BIT
+              || !keyusage.getBits()[KeyManagementConstants.KEYUSAGE_CERT_SIGN_BIT]) {
             log.warn("Certificate does not have signing capability."
                      + acertificate[i].getSubjectDN().getName());
             throw new CertificateChainException("Certificate does not have signing capability.",
@@ -668,7 +701,7 @@ try {
 	// Authority, then a self-signed certificate is OK.
 	// Self-signed certificate should only be valid if it is type CA
 	String title = CertificateUtility.findAttribute(principalSigner.getName(), "t");
-	if (title != null && !title.equals(CertificateType.CERT_TITLE_CA)) {
+	if (title != null && !title.equals(CertificateCacheConstants.CERT_TITLE_CA)) {
 	  return false;
 	}
 	else{
@@ -1541,7 +1574,7 @@ try {
           if (log.isDebugEnabled()) {
             log.debug("Creating self signed host key");
           }
-          certRequestor.makeKeyPair(dname, false, cap);
+          certRequestor.generateKeyPair(dname, false, cap);
         }
       } catch (Exception ex) {
         if (log.isWarnEnabled()) {
@@ -1577,11 +1610,11 @@ try {
 
   public void checkOrMakeCert(X500Name dname, boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
 
-  if (log.isInfoEnabled()) {
+  if (log.isDetailEnabled()) {
     try {
       throw new Throwable();
     } catch (Throwable t) {
-      log.info("Stack : ", t);
+      log.detail("Stack : ", t);
     }
   }
 
@@ -2015,8 +2048,8 @@ try {
     if (title == null) {
       return;
     }
-    if (!title.equals(CertificateType.CERT_TITLE_AGENT)
-	&& !title.equals(CertificateType.CERT_TITLE_NODE)) {
+    if (!title.equals(CertificateCacheConstants.CERT_TITLE_AGENT)
+	&& !title.equals(CertificateCacheConstants.CERT_TITLE_NODE)) {
       if (log.isDebugEnabled()) {
         log.debug("Not publishing " + x500Name + " to naming, because it is not an agent.");
       }
@@ -2174,7 +2207,7 @@ try {
 
     // TODO: get the certificate that is expiring, get the trusted CA
     // from signer, then find the TrustedCaPolicy.
-    certRequestor.addKeyPair(commonName,null, trustedCaPolicy);
+    addKeyPair(commonName,null, trustedCaPolicy);
     // Problem: If a certificate has been revoked, the CA should not regenerate a certificate
     // automatically. However, this is what the CA is doing right now.
     // In the checkExpiry method, we call findCert() first, which returns null if the certificate
@@ -2217,7 +2250,7 @@ try {
       CertificateStatus cs =null;
       if(cacheservice!=null) {
 	commonName=cacheservice.getCommonName(dname);
-	alias = certRequestor.getNextAlias(commonName);
+	alias = getNextAlias(commonName);
 	cacheservice.setKeyEntry(alias, key, certificateChain);
 	// Updating certificate cache
 	cs = cacheservice.addKeyToCache(cert, key, alias, CertificateType.CERT_TYPE_END_ENTITY);
@@ -2490,5 +2523,254 @@ try {
     return clientSSLkm;
   }
 
+  public boolean isManagerReady() {
+  	return ServerKeyManager.isManagerReady();
+  }
+  
+  /**
+   * DOCUMENT ME!
+   *
+   * @param commonName DOCUMENT ME!
+   * @param keyAlias DOCUMENT ME!
+   * @param trustedCaPolicy DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
+
+  protected synchronized PrivateKey addKeyPair(String commonName,
+      String keyAlias, TrustedCaPolicy trustedCaPolicy) {
+      CertificateAttributesPolicy certAttribPolicy = cryptoClientPolicy
+        .getCertificateAttributesPolicy(trustedCaPolicy);
+      X500Name dname = CertificateUtility.getX500Name(CertificateUtility
+          .getX500DN(commonName, CertificateCache.getTitle(commonName),
+            certAttribPolicy));
+      return certRequestor.addKeyPair(dname, keyAlias, false, trustedCaPolicy);
+    }
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param alias DOCUMENT ME!
+   * @param certificateChain DOCUMENT ME!
+   *
+   * @throws CertificateException DOCUMENT ME!
+   * @throws KeyStoreException DOCUMENT ME!
+   * @throws NoSuchAlgorithmException DOCUMENT ME!
+   * @throws UnrecoverableKeyException DOCUMENT ME!
+   */
+  public void installCertificate(String alias,
+    X509Certificate[] certificateChain)
+    throws CertificateException, KeyStoreException, NoSuchAlgorithmException, 
+      UnrecoverableKeyException {
+    X509Certificate[] certificateForImport;
+
+    X509Certificate certificate = null;
+    PrivateKey privatekey = null;
+    if (cacheservice != null) {
+      certificate = cacheservice.getCertificate(alias);
+      privatekey = cacheservice.getKey(alias);
+    }
+
+    if (certificate == null) {
+      log.error(alias
+        + " has no certificate. Cannot install certificate signed by CA.");
+      throw new CertificateException(alias + " has no certificate");
+    }
+
+    if (privatekey == null) {
+      log.error(alias
+        + " has no Private key . Cannot install certificate signed by CA.");
+      throw new CertificateException(alias + " has no Private Key ");
+    }
+
+    if (certificateChain.length == 1) {
+      // There is no certificate chain.
+      // We have to construct the chain first.
+      if (log.isDebugEnabled()) {
+        log.debug("Certificate for alias :" + alias + "does not contain chain");
+      }
+
+      certificateForImport = establishCertChain(certificate, certificateChain[0]);
+      if (log.isDebugEnabled()) {
+        if (certificateForImport == null) {
+          log.debug("certificate for import is null:");
+        }
+
+        log.debug(" successfullly established chain");
+      }
+    } else {
+      // The PKCS7 reply contains the certificate chain.
+      // Validate the chain before proceeding.
+      certificateForImport = validateReply(alias, certificate, certificateChain);
+    }
+
+    if (certificateForImport != null) {
+      if (cacheservice != null) {
+        cacheservice.setKeyEntry(alias, privatekey, certificateForImport);
+        log.debug(" adding certificate to certificate cache:" + alias);
+        // The reply contains a certificate chain and it is valid
+        cacheservice.addCertificateToCache(alias, certificateForImport[0],
+          privatekey);
+      }
+    }
+  }
+
+
+  /** */
+  public X509Certificate[] validateReply(String alias,
+    X509Certificate certificate, X509Certificate[] certificateReply)
+    throws CertificateException {
+    java.security.PublicKey publickey = certificate.getPublicKey();
+    int i;
+
+    for (i = 0; i < certificateReply.length; i++) {
+      if (publickey.equals(certificateReply[i].getPublicKey())) {
+        break;
+      }
+    }
+
+    if (i == certificateReply.length) {
+      String s = "Certificate reply does not contain public key for <" + alias
+        + ">";
+      log.warn(s);
+      throw new CertificateException(s);
+    }
+
+    X509Certificate certificate1 = certificateReply[0];
+    certificateReply[0] = certificateReply[i];
+    certificateReply[i] = certificate1;
+    Principal principal = certificateReply[0].getIssuerDN();
+    for (int j = 1; j < (certificateReply.length - 1); j++) {
+      int l;
+      for (l = j; l < certificateReply.length; l++) {
+        Principal principal1 = certificateReply[l].getSubjectDN();
+        if (!principal1.equals(principal)) {
+          continue;
+        }
+
+        X509Certificate certificate2 = certificateReply[j];
+        certificateReply[j] = certificateReply[l];
+        certificateReply[l] = certificate2;
+        principal = certificateReply[j].getIssuerDN();
+        break;
+      }
+
+      if (l == certificateReply.length) {
+        log.warn("Incomplete certificate chain in reply for " + alias);
+        throw new CertificateException("Incomplete certificate chain in reply");
+      }
+    }
+
+    for (int k = 0; k < (certificateReply.length - 1); k++) {
+      java.security.PublicKey publickey1 = certificateReply[k + 1].getPublicKey();
+      try {
+        certificateReply[k].verify(publickey1);
+      } catch (Exception exception) {
+        log.warn("Certificate chain in reply does not verify: "
+          + exception.getMessage());
+        throw new CertificateException(
+          "Certificate chain in reply does not verify: "
+          + exception.getMessage());
+      }
+    }
+
+    return certificateReply;
+  }
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param certificate Contains the self-signed certificate
+   * @param certificateReply Contains the certificate signed by the CA
+   *
+   * @return DOCUMENT ME!
+   *
+   * @throws CertificateException DOCUMENT ME!
+   * @throws KeyStoreException DOCUMENT ME!
+   */
+  public X509Certificate[] establishCertChain(X509Certificate certificate,
+    X509Certificate certificateReply)
+    throws CertificateException, KeyStoreException {
+    if (certificate == null) {
+      log.error("establishCertChain: null certificate");
+    }
+
+    if (certificateReply == null) {
+      log.error("establishCertChain: null certificate reply");
+    }
+
+    if (certificate != null) {
+      java.security.PublicKey publickey = certificate.getPublicKey();
+      java.security.PublicKey publickey1 = certificateReply.getPublicKey();
+      if (!publickey.equals(publickey1)) {
+        String s = "Public keys in reply and keystore don't match";
+        log.warn(s);
+        throw new CertificateException(s);
+      }
+
+      if (certificateReply.equals(certificate)) {
+        String s1 = "Certificate reply and certificate in keystore are identical";
+        log.debug(s1);
+        throw new CertificateException(s1);
+      }
+    }
+
+    return checkCertificateTrust(certificateReply);
+  }
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param name DOCUMENT ME!
+   *
+   * @return DOCUMENT ME!
+   */
+  public String getNextAlias(String name) {
+    String alias = name.toLowerCase() + "-";
+    int nextIndex = 1;
+    int ind;
+
+    try {
+      Enumeration list = null;
+      if (cacheservice != null) {
+        list = cacheservice.getAliasList();
+      }
+
+      while (list.hasMoreElements()) {
+        //build up the hashMap
+        String a = (String) list.nextElement();
+        if (a.startsWith(alias)) {
+          //Extract index
+          try {
+            ind = Integer.valueOf(a.substring(alias.length())).intValue();
+          } catch (NumberFormatException e) {
+            continue;
+          }
+
+          if (log.isDebugEnabled()) {
+            log.debug("Alias: " + alias + " - val: " + ind);
+          }
+
+          if (ind >= nextIndex) {
+            nextIndex = ind + 1;
+          }
+        }
+      }
+    } catch (Exception e) {
+      log.error("Unable to get next alias:" + e.toString());
+    }
+
+    alias = alias + nextIndex;
+    if (log.isDebugEnabled()) {
+      log.debug("Next alias for " + name + " is " + alias);
+    }
+
+    return alias;
+  }
+
+
+
+
+  
 }
 
