@@ -6,6 +6,7 @@ agentBinder = "org.cougaar.core.security.access.AccessAgentBinderFactory"
 society.each_node do |node|
   node.add_component do |c|
       c.insertionpoint = "Node.AgentManager.Binder"
+      c.priority = "BINDER"
       c.classname = agentBinder
   end
 end
