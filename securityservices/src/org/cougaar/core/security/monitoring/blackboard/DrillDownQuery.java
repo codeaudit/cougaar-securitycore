@@ -44,4 +44,5 @@ public interface DrillDownQuery
 
   void  setOriginatorsUID(UID originatorUID);
   UID getOriginatorsUID();
+  boolean isPersistent();
 }
