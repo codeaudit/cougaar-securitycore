@@ -108,11 +108,11 @@ public class AgentIdentityServiceImpl
 			       null);
 
     // Get crypto policy service
-    cps = (CryptoPolicyService)
+/*    cps = (CryptoPolicyService)
       serviceBroker.getService(requestor,
 			       CryptoPolicyService.class,
 			       null);
-
+*/
     // Get keyring service
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
@@ -138,10 +138,10 @@ public class AgentIdentityServiceImpl
     if (encryptionService == null) {
        throw new RuntimeException("Encryption service not available");
     }
-    if (cps == null) {
+/*    if (cps == null) {
        throw new RuntimeException("Policy service not available");
     }
-    if (keyRing == null) {
+*/    if (keyRing == null) {
        throw new RuntimeException("KeyRing service not available");
     }
 
