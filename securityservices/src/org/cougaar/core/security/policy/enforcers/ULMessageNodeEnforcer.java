@@ -24,8 +24,12 @@ package org.cougaar.core.security.policy.enforcers;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.builder.VerbBuilder;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 
@@ -37,9 +41,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.ServiceFailure;
+
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
+import kaos.ontology.vocabulary.ActionConcepts;
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;
@@ -55,13 +62,11 @@ public class ULMessageNodeEnforcer
   private CommunityService _communityService;
 
   private final String _enforcedActionType 
-    = kaos.ontology.jena.ActionConcepts._EncryptedCommunicationAction_;
+    = ActionConcepts.EncryptedCommunicationAction();
   private final String _verbGetLogSupport = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "GetLogSupport";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "GetLogSupport";
   private final String _verbGetWater = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "GetWater";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "GetWater";
 
   private List                   _agents;
   private EnforcerManagerService _guard;
@@ -74,7 +79,7 @@ public class ULMessageNodeEnforcer
   {
     Vector result = new Vector();
     result.add(_enforcedActionType);
-    result.add(kaos.ontology.jena.ActionConcepts._CommunicationAction_);
+    result.add(ActionConcepts.CommunicationAction());
     return result;
   }
 
@@ -148,6 +153,7 @@ public class ULMessageNodeEnforcer
       _log.fatal("Could not register with the Enforcer Manager Service");
       throw new RuntimeException("Cannot register with Enforcer Manager Service");
     }
+    //    bigloop();
   }
 
 
@@ -213,7 +219,7 @@ public class ULMessageNodeEnforcer
           out.println("</ul>");
         }
         for (Iterator verbsIt = 
-               HardWired.readDamlDecls("Ontology-EntityInstances.daml", 
+               HardWired.readDamlDecls("Ontology-EntityInstances.owl", 
                                        "<ultralogEntity:ULContentValue rdf:ID=")
                .iterator();
              verbsIt.hasNext();) {
@@ -226,6 +232,35 @@ public class ULMessageNodeEnforcer
 
   //George's interfaces...
 
+  static boolean bigLoopRunning=false;
+
+  private void bigloop()
+  {
+    if (!bigLoopRunning) {
+      bigLoopRunning=true;
+      (new Thread() {
+          public void run() {
+            int i = 0;
+            System.out.println("Starting infinite mediation loop");
+            while (true) {
+              String sender = "EnclaveOnePolicyDomainManager";
+              String receiver = "EnclaveOneWorkerNode";
+              boolean auth = isActionAuthorized(sender,
+                                                receiver,
+                                                null);
+              if (!auth && _log.isDebugEnabled()) {
+                _log.debug("Communication not allowed");
+              }
+              getAllowedCipherSuites(sender, receiver);
+              if (i++ % 10000 == 0) {
+                System.out.println("\n" + i + " iterations of the "
+                                   + "communications mediation loop");
+              }
+            }
+          }
+        }).start();
+    }
+  }
 
   /**
    * This function determines if an action is authorized.  
@@ -255,32 +290,41 @@ public class ULMessageNodeEnforcer
         //        System.out.println("Found a verb!!! (" + verb + ")");
       }
     }
-    String kaosVerb = HardWired.kaosVerbFromVerb(verb);
+    String kaosVerb = VerbBuilder.kaosVerbFromVerb(verb);
     if (_log.isDebugEnabled()) {
       _log.debug("Verb has been Damlized and has become " + kaosVerb);
     }
 
     Set targets = new HashSet();
-    targets.add(new TargetInstanceDescription
-                (kaos.ontology.jena.ActionConcepts._hasDestination_, 
-                 receiver));
+    targets.add(new TargetInstanceDescription(ActionConcepts.hasDestination(), 
+                                              ULOntologyNames.agentPrefix + receiver));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
-                                    sender,
+                                    ULOntologyNames.agentPrefix + sender,
                                     targets);
-    Set verbs = 
-      _guard.getAllowableValuesForActionProperty(
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._hasSubject_,
-                      action,
-                      HardWired.hasSubjectValues,
-                      false);
-    if (verbs == null) { return false; }
-    else { 
-      _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
-      _log.debug("end of isactionauthorized: verbs = " + verbs);
-      return verbs.contains(kaosVerb); 
+    boolean allowed = false;
+    Set verbs = null;
+    try {
+      verbs = _guard.getAllowableValuesForActionProperty(
+                           UltralogActionConcepts.hasSubject(),
+                           action,
+                           VerbBuilder.hasSubjectValues(),
+                           false);
+      allowed  = ((verbs != null) && verbs.contains(kaosVerb));
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen", sf);
+      }
+      allowed=false;
     }
+    if (!allowed & _log.isErrorEnabled()) {
+      _log.error("isActionAllowed returns false - permission denied");
+      _log.error("AID = " + action);
+    }
+    _log.debug("end of isactionauthorized: kaosverb = " + kaosVerb);
+    _log.debug("end of isactionauthorized: verbs = " + verbs);
+
+    return allowed;
   }
 
   /**
@@ -299,20 +343,27 @@ public class ULMessageNodeEnforcer
                  receiver);
     }
     Set targets = new HashSet();
-    targets.add(new TargetInstanceDescription
-                (kaos.ontology.jena.ActionConcepts._hasDestination_, 
-                 receiver));
+    targets.add(new TargetInstanceDescription(ActionConcepts.hasDestination(), 
+                                              ULOntologyNames.agentPrefix 
+                                                   + receiver));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
-                                    sender,
+                                    ULOntologyNames.agentPrefix + sender,
                                     targets);
-    Set ciphers = 
-      _guard.getAllowableValuesForActionProperty(
-                   org.cougaar.core.security.policy.enforcers.ontology.jena.
-                   UltralogActionConcepts._usedProtectionLevel_,
-                   action,
-                   HardWired.usedProtectionLevelValues,
-                   false);
+    Set ciphers = null;
+    try {
+      ciphers = 
+        _guard.getAllowableValuesForActionProperty(
+                       UltralogActionConcepts.usedProtectionLevel(),
+                       action,
+                       HardWired.usedProtectionLevelValues,
+                       false);
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen",  sf);
+      }
+      return HardWired.ulCiphersFromKAoSProtectionLevel(new HashSet());
+    }
     if (_log.isDebugEnabled()) {
       for (Iterator ciphersIt = ciphers.iterator(); ciphersIt.hasNext();) {
         String cipher = (String) ciphersIt.next();

@@ -22,6 +22,9 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.ontology.ActorClassesConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.ConfigFinder;
 
@@ -49,57 +52,49 @@ public class HardWired {
    * Ontology name for very weak crypto
    */
   public static final String WEAK_CRYPTO = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "WeakProtection";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "WeakProtection";
 
   /**
    * Ontology name for secret crypto
    */
   public static final String SECRET_CRYPTO = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "SecretProtection";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "SecretProtection";
 
   /**
    * Ontology name for strong crypto
    */
   public static final String STRONG_CRYPTO = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "NSAApprovedProtection";
 
   /**
    * Ontology name for authorization with no credentials and weak protection
    */
   public static final String NO_AUTH = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuth";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "NoAuth";
 
   /**
    * Ontology name for authorization with no credentials and strong protection
    */
   public static final String NO_AUTH_SSL = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuthSSL";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "NoAuthSSL";
 
   /**
    * Ontology name for authorization with password and weak protection
    */
   public static final String PASSWORD_AUTH = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "Password";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "Password";
 
   /**
    * Ontology name for authorization with password and strong protection
    */
   public static final String PASSWORD_AUTH_SSL = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "PasswordSSL";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "PasswordSSL";
 
   /**
    * Ontology name for authorization with certificate and strong protection
    */
   public static final String CERT_AUTH_SSL = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "CertificateSSL";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "CertificateSSL";
 
   /**
    * The string of users is so that the Servlet Enforcer can say
@@ -112,9 +107,9 @@ public class HardWired {
    * a role.
    */
   public final static String [] users
-    = {"http://localhost/~redmond/Extras/Names.daml#Tom",
-       "http://localhost/~redmond/Extras/Names.daml#Dick",
-       "http://localhost/~redmond/Extras/Names.daml#Harry"};
+    = {"http://localhost/~redmond/Extras/Names.owl#Tom",
+       "http://localhost/~redmond/Extras/Names.owl#Dick",
+       "http://localhost/~redmond/Extras/Names.owl#Harry"};
 
   private static LoggingService _log;
 
@@ -135,30 +130,9 @@ public class HardWired {
 
   public final static String kaosRoleFromRole(String role)
   {
-    return org.cougaar.core.security.policy.enforcers.ontology.jena.
-      ActorClassesConcepts.ActorClassesDamlURL + role;
+      return ActorClassesConcepts.ActorClassesOwlURL() + role;
   }
 
-  /**
-   * This one actually might not be too bad.  But there will need to be some
-   * scheme for translating verbs as detected in messages to verbs defined by 
-   * the ontologies.
-   */
-  public final static String  kaosVerbFromVerb(String verb)
-  {
-    if (verb == null) {
-      verb = "NoVerb";
-    }
-    verb = org.cougaar.core.security.policy.enforcers.ontology.jena.
-      EntityInstancesConcepts.EntityInstancesDamlURL
-      + verb;
-    if (hasSubjectValues.contains(verb)) {
-      return verb;
-    } else { 
-      return org.cougaar.core.security.policy.enforcers.ontology.jena.
-        EntityInstancesConcepts.EntityInstancesDamlURL + "OtherVerb";
-    }
-  }
 
   /**
    * We need to map high level names for encryption schemes to what
@@ -263,25 +237,6 @@ public class HardWired {
   /**
    * This will later be calculated by the directory service.
    */
-  public final static Set hasSubjectValues;
-  static {
-    hasSubjectValues = new HashSet();
-    Set rawVerbs = 
-      readDamlDecls("Ontology-EntityInstances.daml", 
-                    "<ultralogEntity:ULContentValue rdf:ID=");
-    for (Iterator rawVerbIt = rawVerbs.iterator();
-         rawVerbIt.hasNext();) {
-      String verb = (String) rawVerbIt.next();
-      hasSubjectValues.add(
-                    org.cougaar.core.security.policy.enforcers.ontology.jena.
-                    EntityInstancesConcepts.EntityInstancesDamlURL 
-                    + verb);
-    }
-  }
-
-  /**
-   * This will later be calculated by the directory service.
-   */
   public final static HashSet usedProtectionLevelValues;
   static {
     usedProtectionLevelValues = new HashSet();
@@ -336,8 +291,7 @@ public class HardWired {
       _log.debug("Adding to auth target: " + auth);
     }
     targets.add( new TargetInstanceDescription(
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._usedAuthenticationLevel_,
+                      UltralogActionConcepts.usedAuthenticationLevel(),
                       auth ) );
     return true;
   }

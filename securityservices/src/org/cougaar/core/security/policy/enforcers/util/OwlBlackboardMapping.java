@@ -22,7 +22,7 @@
 package org.cougaar.core.security.policy.enforcers.util;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
 import org.cougaar.core.service.LoggingService;
 
 import java.io.IOException;
@@ -37,16 +37,16 @@ import java.util.Set;
  * concepts and the UltraLog concepts.  For now I am using
  * configuration files but some of this will change later...
  */
-public class DAMLBlackboardMapping  {
+public class OwlBlackboardMapping  {
 
   public static final String otherBlackboardObjectDAML = 
-    EntityInstancesConcepts.EntityInstancesDamlURL + "otherBlackboardObjects";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "otherBlackboardObjects";
   private boolean            _initialized = false;
   private List                _objectMap;
   private ServiceBroker       _sb;
   private LoggingService      _log; 
 
-  public DAMLBlackboardMapping(ServiceBroker sb)
+  public OwlBlackboardMapping(ServiceBroker sb)
   {
     _sb = sb;
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
@@ -60,7 +60,7 @@ public class DAMLBlackboardMapping  {
   {
     try {
       _log.debug("loading daml blackboard object mappings...");
-      _objectMap = new StringPairMapping(_sb, "DamlBlackboardObjectMap")
+      _objectMap = new StringPairMapping(_sb, "OwlMapBlackboardObjects")
                                                        .buildPairList();
     } catch (IOException e) {
       _log.error("IO Exception reading DAML <-> " + 

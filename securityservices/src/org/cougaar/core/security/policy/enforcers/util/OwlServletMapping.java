@@ -24,7 +24,7 @@ package org.cougaar.core.security.policy.enforcers.util;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
 
 
 import java.io.IOException;
@@ -36,14 +36,14 @@ import java.util.List;
  * concepts and the UltraLog concepts.  For now I am using
  * configuration files but some of this will change later...
  */
-public class DAMLServletMapping 
+public class OwlServletMapping 
 {
   private boolean             _initialized = false;
   private RegexpStringMapping _uriMap;
   private ServiceBroker        _sb;
   private LoggingService       _log;
 
-  public DAMLServletMapping(ServiceBroker sb)
+  public OwlServletMapping(ServiceBroker sb)
   {
     _sb = sb;
     _log = (LoggingService) _sb.getService(this, LoggingService.class, null);
@@ -57,7 +57,7 @@ public class DAMLServletMapping
   {
     try {
       _log.debug("loading uri mappings...");
-      _uriMap = new RegexpStringMapping(_sb, "DamlUriMap");
+      _uriMap = new RegexpStringMapping(_sb, "OwlMapUri");
     } catch (Exception e) {
       _log.error("Exception reading DAML <-> uri configuration file", e);
     }
@@ -66,7 +66,7 @@ public class DAMLServletMapping
   public String ulUriToKAoSUri(String uri)
   {
     try {
-      return EntityInstancesConcepts.EntityInstancesDamlURL
+      return EntityInstancesConcepts.EntityInstancesOwlURL()
                          + _uriMap.functionalGet(uri);
     } catch (Exception e) {
       _log.warn("This is probably not good - " + 

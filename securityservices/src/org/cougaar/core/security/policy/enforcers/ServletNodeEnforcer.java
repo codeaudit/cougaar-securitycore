@@ -22,10 +22,10 @@
 package org.cougaar.core.security.policy.enforcers;
 
 import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActionConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
-import org.cougaar.core.security.policy.enforcers.util.DAMLServletMapping;
+import org.cougaar.core.security.policy.enforcers.util.OwlServletMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.RegexpStringMapping;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
@@ -40,9 +40,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.ServiceFailure;
+
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
+import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.policy.information.KAoSProperty;
 import safe.enforcer.NodeEnforcer;
 import safe.guard.EnforcerManagerService;
@@ -57,17 +60,15 @@ public class ServletNodeEnforcer
 {
   private ServiceBroker _sb;
   protected LoggingService _log;
-  private final String _enforcedActionType =
-    kaos.ontology.jena.ActionConcepts.actionDamlURL + "AccessAction";
+  private final String _enforcedActionType 
+    = ActionConcepts.ActionOwlURL() + "AccessAction";
   private final String _authWeak = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "Weak";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "Weak";
   private final String _authStrong = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
+    EntityInstancesConcepts.EntityInstancesOwlURL() + "NSAApprovedProtection";
   private List _people;
   private EnforcerManagerService _guard;
-  private DAMLServletMapping _uriMap;
+  private OwlServletMapping _uriMap;
   private RegexpStringMapping _userRoleMap;
 
   /**
@@ -103,10 +104,10 @@ public class ServletNodeEnforcer
     // FIXME!!
     HardWired.setServiceBroker(sb);
 
-    _uriMap = new DAMLServletMapping(sb);
+    _uriMap = new OwlServletMapping(sb);
     _uriMap.initializeUri();
     try {
-      _userRoleMap = new RegexpStringMapping(sb, "DamlUserRoleMap");
+      _userRoleMap = new RegexpStringMapping(sb, "OwlMapUserRole");
     } catch (Exception e) {
       _log.fatal("Could not initialize role mapping, servlet enforcement " +
                  "enforcer may deny valid access", e);
@@ -297,11 +298,8 @@ public class ServletNodeEnforcer
     }
 
     Set targets = new HashSet();
-    if (!targets.add(
-                     new TargetInstanceDescription
-                     (org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._accessedServlet_, 
-                      kaosuri))) {
+    if (!targets.add(new TargetInstanceDescription
+                        (UltralogActionConcepts.accessedServlet(), kaosuri))) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
       return null;
@@ -310,15 +308,22 @@ public class ServletNodeEnforcer
       new ActionInstanceDescription(_enforcedActionType,
                                     UserDatabase.anybody(),  
                                     targets);
-    action.removeProperty(kaos.ontology.jena.ActionConcepts._performedBy_);
+    action.removeProperty(ActionConcepts.performedBy());
     action.removeAllActorInstances();
-    Set cipherSuites = 
-      _guard.getAllowableValuesForActionProperty(
-                  org.cougaar.core.security.policy.enforcers.ontology.jena.
-                  UltralogActionConcepts._usedAuthenticationLevel_,
-                  action,
-                  HardWired.usedAuthenticationLevelValues,
-                  false);
+    Set cipherSuites = null;
+    try {
+      cipherSuites = 
+        _guard.getAllowableValuesForActionProperty(
+                         UltralogActionConcepts.usedAuthenticationLevel(),
+                         action,
+                         HardWired.usedAuthenticationLevelValues,
+                         false);
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen", sf);
+      }
+      return HardWired.ulAuthSuiteFromKAoSAuthLevel(new HashSet());
+    }
     return HardWired.ulAuthSuiteFromKAoSAuthLevel(cipherSuites);
   }
 
@@ -402,14 +407,14 @@ public class ServletNodeEnforcer
       Set targets = new HashSet();
       if (!targets.add(
                new TargetInstanceDescription
-                       (UltralogActionConcepts._accessedServlet_, kaosuri))) {
+                       (UltralogActionConcepts.accessedServlet(), kaosuri))) {
         _log.debug("Could not make list of targets - " +
                    "exiting with failure...");
         return true;
       }
       if (!targets.add(new TargetInstanceDescription
-                       (UltralogActionConcepts._usedAuditLevel_, 
-                        EntityInstancesConcepts.EntityInstancesDamlURL 
+                       (UltralogActionConcepts.usedAuditLevel(), 
+                        EntityInstancesConcepts.EntityInstancesOwlURL()
                         + "NoAudit"))) {
         _log.debug("Could not make list of targets - " +
                    "exiting with failure...");
@@ -429,6 +434,11 @@ public class ServletNodeEnforcer
           = new kaos.policy.guard.ActionPermission("foo", action);
         _guard.checkPermission(kap, null);
         ret = true;
+      }  catch (ServiceFailure sf) {
+        if (_log.isErrorEnabled()) {
+          _log.error("This shouldn't happen", sf);
+        }
+        ret = false;
       } catch (SecurityException e) {
         ret = false;
       }
@@ -490,10 +500,10 @@ public class ServletNodeEnforcer
         
     Set targets = new HashSet();
     if (!targets.add(new TargetInstanceDescription
-                     (UltralogActionConcepts._usedAuditLevel_, 
-                      audit ? EntityInstancesConcepts.EntityInstancesDamlURL
+                     (UltralogActionConcepts.usedAuditLevel(), 
+                      audit ? EntityInstancesConcepts.EntityInstancesOwlURL()
                                  + "Audit"            :
-                              EntityInstancesConcepts.EntityInstancesDamlURL
+                              EntityInstancesConcepts.EntityInstancesOwlURL()
                                  + "NoAudit"))) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
@@ -503,7 +513,7 @@ public class ServletNodeEnforcer
       return false;
     }
     if (!targets.add(new TargetInstanceDescription
-                     (UltralogActionConcepts._accessedServlet_, kaosuri)) ) {
+                     (UltralogActionConcepts.accessedServlet(), kaosuri)) ) {
       _log.debug("Could not make list of targets - " +
                  "exiting with failure...");
       return false;
@@ -512,22 +522,27 @@ public class ServletNodeEnforcer
       new ActionInstanceDescription(_enforcedActionType,
                                     user,  
                                     targets);
-    KAoSProperty userProp = action.getProperty(kaos.ontology.jena.
-                                               ActionConcepts._performedBy_);
+    KAoSProperty userProp = action.getProperty(ActionConcepts.performedBy());
     boolean result = false;
     try {
       kaos.policy.guard.ActionPermission kap 
         = new kaos.policy.guard.ActionPermission("foo", action);
       _guard.checkPermission(kap, null);
       result=true;
-    } catch (SecurityException e) {
-      if (_log.isWarnEnabled() && audit) {
-        _log.warn("Permission denied");
-        _log.warn("Action = " + action);
-        _log.warn("User " + user + " in roles " + policyRoles);
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen", sf);
       }
+      result = false;
+    }catch (SecurityException e) {
       result=false;
     }
+    if (!result && _log.isWarnEnabled() && audit) {
+      _log.warn("Permission denied");
+      _log.warn("Action = " + action);
+      _log.warn("User " + user + " in roles " + policyRoles);
+    }
+
     /*
      *{
      *_log.debug("Testing Obligation Code");

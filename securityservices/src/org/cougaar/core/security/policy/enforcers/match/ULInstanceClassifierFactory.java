@@ -35,7 +35,9 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
-import org.cougaar.core.security.policy.enforcers.ontology.jena.UltralogActorConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +46,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import kaos.ontology.jena.ActorConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
 import kaos.ontology.matching.InstanceClassifier;
 import kaos.ontology.matching.InstanceClassifierFactory;
 import kaos.ontology.matching.InstanceClassifierInitializationException;
@@ -53,8 +56,8 @@ import kaos.policy.information.KAoSProperty;
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory
 {
-  public static final String pluginPrefix
-    = PolicyUtils.pluginsInRoleClassPrefix;
+  public static final String pluginPrefix 
+    = ULOntologyNames.pluginsInRoleClassPrefix;
 
   private ServiceBroker _sb;
   private CommunityService _communityService;
@@ -107,10 +110,8 @@ public class ULInstanceClassifierFactory
   public  InstanceClassifier getInstance (String propertyName) 
     throws InstanceClassifierInitializationException
   {
-    if (propertyName.equals(kaos.ontology.jena.
-                            ActionConcepts._performedBy_) || 
-        propertyName.equals(kaos.ontology.jena.
-                            ActionConcepts._hasDestination_) ) {
+    if (propertyName.equals(ActionConcepts.performedBy()) || 
+        propertyName.equals(ActionConcepts.hasDestination()) ) {
       return _instClassifier;
     } else {
       return null;
@@ -147,9 +148,7 @@ public class ULInstanceClassifierFactory
   private class ULActorInstanceClassifier implements InstanceClassifier
   {
     private String communityPrefix  = "KAoS#MembersOfDomainCommunity";
-    private String personPrefix     = PolicyUtils.personActorClassPrefix;
-      //      org.cougaar.core.security.policy.enforcers.ontology.jena.
-      //      ActorClassesConcepts.ActorClassesDamlURL;
+    private String personPrefix     = ULOntologyNames.personActorClassPrefix;
     private Set    _loadAgents     = new HashSet();
 
     public void init ()
@@ -183,7 +182,7 @@ public class ULInstanceClassifierFactory
       /*
        *    Everybody is an actor
        */
-      if (className.equals(ActorConcepts._Actor_)) {
+      if (className.equals(ActorConcepts.Actor())) {
         _log.debug("Every actor matches Actor");
         return true;
       }
@@ -191,7 +190,7 @@ public class ULInstanceClassifierFactory
       /*
        * Classifying plugins (for blackboard access control at the moment)
        */
-      if (className.equals(UltralogActorConcepts._UltralogPlugins_)) {
+      if (className.equals(UltralogActorConcepts.UltralogPlugins())) {
         if (_log.isDebugEnabled()) {
           _log.debug("Is the instance an execution context for a plugin?");
           _log.debug("Class of instance = " + instance.getClass());
@@ -213,8 +212,7 @@ public class ULInstanceClassifierFactory
                        + "looking at short role name " + shortRoleName);
           }
           String damlRoleName 
-            = org.cougaar.core.security.policy.enforcers.ontology.jena.
-            EntityInstancesConcepts.EntityInstancesDamlURL + shortRoleName 
+            = EntityInstancesConcepts.EntityInstancesOwlURL() + shortRoleName 
             + "Role";
 
           if (_log.isDebugEnabled()) {
@@ -239,7 +237,7 @@ public class ULInstanceClassifierFactory
        */
       String actor = (String) instance;
       actor     = removeHashChar(actor);
-      if (className.equals(kaos.ontology.jena.ActorConcepts._Agent_)) {
+      if (className.equals(ActorConcepts.Agent())) {
         return !UserDatabase.isUser(actor);
       } else if (className.startsWith(communityPrefix)) {
         ensureCommunityServicePresent();
@@ -266,7 +264,7 @@ public class ULInstanceClassifierFactory
           _log.debug("Found roles " + roles + "for actor " + actor);
         }
         return roles.contains(role);
-      } else if (className.equals(kaos.ontology.jena.ActorConcepts._Person_)) {
+      } else if (className.equals(ActorConcepts.Person())) {
         return UserDatabase.isUser((String) instance);
       }
       return false;

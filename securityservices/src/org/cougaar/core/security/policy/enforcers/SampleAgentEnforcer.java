@@ -23,10 +23,11 @@ package org.cougaar.core.security.policy.enforcers;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 
 import java.util.Vector;
 
-import kaos.ontology.jena.ActionConcepts;
+import kaos.ontology.vocabulary.ActionConcepts;
 import safe.enforcer.AgentEnforcer;
 import safe.guard.EnforcerManagerService;
 import safe.guard.NodeGuard;
@@ -47,7 +48,7 @@ public class SampleAgentEnforcer
   // This action is a fake for now - though it seems likely that
   // there will be actions that are mediated by an enforcer that is
   // specific to an agent.
-  private String _action = ActionConcepts.actionDamlURL + "MobilityAction";
+  private String _action = ActionConcepts.ActionOwlURL() + "MobilityAction";
   private Vector _agents;
   private EnforcerManagerService _guard;
 
@@ -78,7 +79,7 @@ public class SampleAgentEnforcer
    */
   public String getAgentId()
   {
-    return _agentName;
+    return ULOntologyNames.agentPrefix + _agentName;
   }
 
   /*
@@ -103,7 +104,7 @@ public class SampleAgentEnforcer
     _agentName = agentName;
     _sb = sb;
     _agents=new Vector();
-    _agents.add(_agentName);
+    _agents.add("urn:KAoS#" + _agentName);
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);
   }

@@ -61,7 +61,7 @@ public class RoleMapping {
   private void initializeComponent() {
     try {
       _log.debug("loading component/role mappings...");
-      _componentMap = (new StringPairMapping(_sb, "RoleComponentMap")).buildMap();
+      _componentMap = (new StringPairMapping(_sb, "OwlMapRoleComponent")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading coponent -> role configuration file", e);
     }
@@ -70,7 +70,7 @@ public class RoleMapping {
   private void initializeAgent() {
     try {
       _log.debug("loading agent/role mappings...");
-      _agentMap = (new StringPairMapping(_sb, "RoleAgentMap")).buildMap();
+      _agentMap = (new StringPairMapping(_sb, "OwlMapRoleAgent")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading agent -> role configuration file", e);
     }
@@ -79,7 +79,7 @@ public class RoleMapping {
   private void initializeUri() {
     try {
       _log.debug("loading uri/role mappings...");
-      _uriMap = (new StringPairMapping(_sb, "RoleUriMap")).buildMap();
+      _uriMap = (new StringPairMapping(_sb, "OwlMapRoleUri")).buildMap();
     } catch (IOException e) {
       _log.error("IOException reading uri -> role configuration file", e);
     }
