@@ -1,11 +1,10 @@
-<!ELEMENT cryptoConfiguration (nodeConfiguration & certificateAuthority*)>
 
-<!ELEMENT nodeConfiguration (CA_DN & CA_URL &
-                             CA_keystore & CA_keystorePassword
-                             CertDirectoryURL & CertDirectoryType &
-                             ou & o & l & st & c &
-                             keyAlgName & keysize & sigAlgName &
-                             validity)>
+<!ENTITY % cryptoConfiguration.content "nodeConfiguration&certificateAuthority">
+<!ENTITY % nodeConfiguration.content "CA_DN&CA_URL&CA_keystore&CA_keystorePassword&CertDirectoryURL&CertDirectoryType&ou&o&l&st&c&keyAlgName&keysize&sigAlgName&validity">
+
+<!ELEMENT cryptoConfiguration (%cryptoConfiguration.content;)>
+
+<!ELEMENT nodeConfiguration (%nodeConfiguration.content;)>
 <!ELEMENT CA_DN CDATA>
 
 <!ELEMENT CA_URL CDATA>
@@ -30,9 +29,10 @@
 <!ELEMENT validity CDATA>
 
 
-<!ELEMENT certificateAuthority (serialNumberFile &
+<!ENTITY %certificateAuthority.content "serialNumberFile &
                                 pkcs10Directory & x509Directory &
-                                clientCertPolicy)>
+                                clientCertPolicy">
+<!ELEMENT certificateAuthority ()>
 <!ELEMENT serialNumberFile CDATA>
 <!ELEMENT pkcs10Directory CDATA>
 <!ELEMENT x509Directory CDATA>
