@@ -59,7 +59,7 @@ public class AdditionalData implements XMLSerializable{
     //element data
 
     protected String additionalData;
-    protected Object data;
+    protected XMLSerializable xmlData;
 
     //constants
 
@@ -95,6 +95,13 @@ public class AdditionalData implements XMLSerializable{
 	additionalData = inAdditionalData;
     }
 
+    public XMLSerializable getXMLData(){
+        return xmlData;
+    }
+    public void setXMLData( XMLSerializable inXMLData ){
+        xmlData = inXMLData;
+    }
+    
     /**Copies arguments into corresponding fields.
       */
     public AdditionalData(String inType, String inMeaning, 
@@ -102,8 +109,17 @@ public class AdditionalData implements XMLSerializable{
 	type = inType;
 	meaning = inMeaning;
 	additionalData = inAdditionalData;
-
     }
+    
+    /**
+     * constructor for creating additional xml data
+     */
+    public AdditionalData( XMLSerializable inXMLData, String inMeaning ){
+        type = XML;
+        meaning = inMeaning;
+        xmlData = inXMLData;
+    }
+    
     /**Creates an object with all fields null.
      */
     public AdditionalData(){
@@ -127,11 +143,11 @@ public class AdditionalData implements XMLSerializable{
 	if (meaningNode != null) meaning = meaningNode.getNodeValue();
 	else meaning = null;
 
-	if (type != null && type.equals(this.XML)){
+    if (type != null && type.equals(this.XML)){
 	    //read in xml additional data
-	} else {
+    } else {
 	    additionalData = XMLUtils.getAssociatedString(inNode);
-	}
+    }
 
     }
 
@@ -145,9 +161,12 @@ public class AdditionalData implements XMLSerializable{
 	if(meaning != null)
 	    additionalDataNode.setAttribute("meaning", meaning);
 
-
-	additionalDataNode.appendChild(parent.createTextNode(additionalData));
-
+    if( type.equals( XML ) ){
+        additionalDataNode.appendChild( xmlData.convertToXML( parent ) );
+    }
+    else{
+	    additionalDataNode.appendChild(parent.createTextNode(additionalData));
+    }
 	return additionalDataNode;
     }
     /** Method used to test this object...probably should not be called otherwise.
