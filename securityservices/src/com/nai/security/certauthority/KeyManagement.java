@@ -94,7 +94,7 @@ public class KeyManagement
     return reply;
   }
 
-  public X509CertImpl[] processPkcs10Request(InputStream request, String caDN) {
+  public X509Certificate[] processPkcs10Request(InputStream request, String caDN) {
     ArrayList ar = new ArrayList();
     try {
       // First, get all the PKCS10 requests in an array list.
@@ -123,9 +123,9 @@ public class KeyManagement
       e.printStackTrace();
     }
 
-    X509CertImpl[] reply = new X509CertImpl[ar.size()];
+    X509Certificate[] reply = new X509Certificate[ar.size()];
     for (int i = 0 ; i < ar.size() ; i++) {
-      reply[i] = (X509CertImpl)ar.get(i);
+      reply[i] = (X509Certificate)ar.get(i);
     }
     return reply;
   }
@@ -133,7 +133,7 @@ public class KeyManagement
   public void processPkcs10Request(PrintStream out, InputStream request, String caDN)
     throws CertificateEncodingException, IOException
   {
-    X509CertImpl[] certs = processPkcs10Request(request, caDN);
+    X509Certificate[] certs = processPkcs10Request(request, caDN);
     for (int i = 0 ; i < certs.length ; i++) {
       base64encode(out, certs[i].getEncoded(), PKCS7HEADER, PKCS7TRAILER);
     }
