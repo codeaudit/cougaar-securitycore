@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" [
-  <!ENTITY XCategory "org.log4j.xml.examples.XCategory">
-]>
-
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern"
@@ -13,6 +11,7 @@
     </layout>	    
   </appender>
 
+  <!--
   <appender name="FileAppender" class="org.apache.log4j.FileAppender">
     <param name="File" value="node.log"/>
     <param name="Append" value="false" />
@@ -21,15 +20,26 @@
 	    value="%d{ABSOLUTE} %-5p - %c{1} - %m%"/>
     </layout>
   </appender>
+  -->
 
-  <appender name="FileFailureAppender" class="org.apache.log4j.FileAppender">
-    <param name="File" value="node.log"/>
+  <appender name="FileLogAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="log.html"/>
     <param name="Append" value="false" />
     <layout class="org.apache.log4j.HTMLLayout"/>
+<!--
     <filter class="org.apache.log4j.varia.StringMatchFilter">
       <param name="" value=""/>
     </filter>
+-->
   </appender>
+
+<!--
+  <appender name="FileDebugAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="debugLog.html"/>
+    <param name="Append" value="false" />
+    <layout class="org.apache.log4j.HTMLLayout"/>
+  </appender>
+-->
 
   <appender name="SocketAppender" class="org.apache.log4j.net.SocketAppender">
      <param name="RemoteHost" value="localhost"/>
@@ -39,16 +49,22 @@
        <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p - %c{1} - %m%"/>
      </layout>
   </appender>
-	
+
+
+<!--
+  <category name="org.cougaar.core.security">
+     <priority value="debug"/>
+     <appender-ref ref="FileDebugAppender" />
+  </category>
+-->
   <category name="org.cougaar.core.security">
      <priority value="warn"/>
-     <param name="Suffix"   value=" (Freedom as in the capacity to exercise choice.)"/>
-     <appender-ref ref="FileHtmlWarnAppender" />
+     <appender-ref ref="FileLogAppender" />
   </category>
-	
+
   <root>
-    <priority value ="debug"/>
-    <appender-ref ref="FileHtmlDebugAppender" />
+    <priority value ="warn"/>
+    <appender-ref ref="FileLogAppender" />
   </root>
 
 </log4j:configuration>

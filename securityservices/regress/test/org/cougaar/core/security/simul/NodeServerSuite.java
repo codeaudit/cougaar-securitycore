@@ -159,6 +159,18 @@ public class NodeServerSuite
     for (int i = 0 ; i < nodeConfList.size() ; i++) {
       NodeConfiguration tcc = (NodeConfiguration) nodeConfList.get(i);
 
+      // Set log file name
+      tcc.setResultPath(getCanonicalPath(System.getProperty("junit.test.result.path")));
+      String logfile =
+	getCanonicalPath(System.getProperty("org.cougaar.workspace") + File.separator +
+			 "log4jlogs" + File.separator + tcc.getExperimentName() + File.separator
+			 + tcc.getNodeName() +  File.separator + "log4j.html");
+      File logf = new File(logfile);
+      File parent = logf.getParentFile();
+      parent.mkdirs();
+      tcc.setLog4jLogFile(logfile);
+
+      /*
       System.out.println("#####################################################");
       System.out.println("Test Case # " + i);
       System.out.print("Node Arguments:              ");
@@ -166,6 +178,7 @@ public class NodeServerSuite
 	System.out.print(tcc.getNodeArguments()[j] + " ");
       }
       System.out.println();
+      */
 
       // Create new test case
       NodeServerTest nst = new NodeServerTest("testRunNode");
@@ -310,7 +323,7 @@ public class NodeServerSuite
 	ri.hostName = tcc.getHostName();
 	ri.rmiPort = tcc.getRmiRegistryPort();
 
-	startRemoteControl(tcc, ri);
+	startRemoteControl(ri);
 	hostList.put(hostname, ri);
       }
     }
@@ -353,7 +366,7 @@ public class NodeServerSuite
     return nodeServer;
   }
 
-  private void startRemoteControl(NodeConfiguration tcc, RmiServerInfo rsi) {
+  private void startRemoteControl(RmiServerInfo rsi) {
     String classPath;
     String junitConfigPath;
     String userDir;
@@ -367,15 +380,15 @@ public class NodeServerSuite
     RemoteControl nodeServer = null;
     try {
       nodeServer =
-	(RemoteControl) getRemoteControl(tcc.getHostName(), tcc.getRmiRegistryPort());
+	(RemoteControl) getRemoteControl(rsi.hostName, rsi.rmiPort);
     }
     catch (Exception e) {
-      System.out.println("No server running on " + tcc.getHostName() + ". Will start it");
+      System.out.println("No server running on " + rsi.hostName + ". Will start it");
     }
 
     if (nodeServer != null) {
       // Kill the RMI server
-      System.out.println("Killing old remote RMI server on " + tcc.getHostName());
+      System.out.println("Killing old remote RMI server on " + rsi.hostName);
       try {
 	if (nodeServer != null) {
 	  nodeServer.killServer();
@@ -384,7 +397,7 @@ public class NodeServerSuite
 	Thread.sleep(2000);
       }
       catch (Exception e) {
-	System.out.println("Unable to kill old RMI server on " + tcc.getHostName() + ": " + e);
+	System.out.println("Unable to kill old RMI server on " + rsi.hostName + ": " + e);
 	e.printStackTrace();
       }
     }
@@ -393,17 +406,17 @@ public class NodeServerSuite
 
     try {
       InetAddress myHost = InetAddress.getLocalHost();
-      InetAddress otherHost = InetAddress.getByName(tcc.getHostName());
+      InetAddress otherHost = InetAddress.getByName(rsi.hostName);
       if (!myHost.equals(otherHost)) {
 	// Kill java process
-	System.out.println("Killing java processes on " + tcc.getHostName());
-	String commandLine = "/usr/bin/ssh " + tcc.getHostName() + " killall -w java";
+	System.out.println("Killing java processes on " + rsi.hostName);
+	String commandLine = "/usr/bin/ssh " + rsi.hostName + " killall -w java";
 	Process killJava = thisApp.exec(commandLine);
 	killJava.waitFor();
       }
     }
     catch (Exception e) {
-      Assert.fail("Unable to kill java processes on " + tcc.getHostName() + ": " + e);
+      Assert.fail("Unable to kill java processes on " + rsi.hostName + ": " + e);
     }
 
     classPath = System.getProperty("org.cougaar.securityservices.classes");
@@ -436,8 +449,12 @@ public class NodeServerSuite
 			  System.getProperty("org.cougaar.install.path")
 			  + File.separator
 			  + "sys" + File.separator + "log4j.jar");
+    jarFiles = addJarFile(jarFiles,
+			  System.getProperty("org.cougaar.install.path")
+			  + File.separator
+			  + "sys" + File.separator + "xerces.jar");
     
-    String commandLine = "/usr/bin/ssh " + tcc.getHostName() + " " +
+    String commandLine = "/usr/bin/ssh " + rsi.hostName + " " +
       System.getProperty("java.home") + File.separator + "bin" + File.separator
       + "java -classpath " + jarFiles;
 
@@ -479,16 +496,7 @@ public class NodeServerSuite
     //
     commandLine = commandLine
       + " test.org.cougaar.core.security.simul.NodeServer "
-      + tcc.getRmiRegistryPort() + "";
-
-    tcc.setResultPath(getCanonicalPath(System.getProperty("junit.test.result.path")));
-    String logfile = getCanonicalPath(System.getProperty("org.cougaar.workspace") + File.separator +
-				      "log4jlogs" + File.separator + tcc.getExperimentName() + File.separator
-				      + tcc.getNodeName() +  File.separator + "log4j.html");
-    File logf = new File(logfile);
-    File parent = logf.getParentFile();
-    parent.mkdirs();
-    tcc.setLog4jLogFile(logfile);
+      + rsi.rmiPort + "";
 
     try {
       System.out.println("Executing RMI server on " + rsi.hostName);
@@ -497,7 +505,7 @@ public class NodeServerSuite
       rsi.rmiServerProcess = nodeApp;
 
       ProcessGobbler pg = new ProcessGobbler(resultPath,
-					     "ssh-" + tcc.getHostName(), nodeApp);
+					     "ssh-" + rsi.hostName, nodeApp);
       pg.dumpProcessStream();
       experiment.addRmiServerLogFile(pg.getErrFile());
       experiment.addRmiServerLogFile(pg.getOutFile());
@@ -507,7 +515,7 @@ public class NodeServerSuite
 
     } catch (Exception e) { 
       e.printStackTrace();
-      Assert.fail("Unable to start RMI server on " + tcc.getHostName());
+      Assert.fail("Unable to start RMI server on " + rsi.hostName);
     }
   }
 

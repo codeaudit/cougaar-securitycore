@@ -68,7 +68,7 @@ public class PropertyFile
     return environmentVariables;
   }
 
-  public Properties readCustomPropertiesFile() {
+  public synchronized Properties readCustomPropertiesFile() {
     System.out.println("Reading custom property file...");
     String junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
@@ -115,7 +115,8 @@ public class PropertyFile
    *  @param tcc the configuration of a Cougaar node.
    *  @param socketLogPort the port number of a log4j socket appender.
    */
-  public void readPropertiesFile(NodeConfiguration tcc, int socketLogPort) {
+  public synchronized void readPropertiesFile(NodeConfiguration tcc,
+					      int socketLogPort) {
     File f = findPropertiesFile(tcc.getPropertyFile());
     if (f == null) {
       Assert.fail("Property file does not exist");
@@ -130,6 +131,9 @@ public class PropertyFile
       BufferedReader buffreader=new BufferedReader(filereader);
       String linedata=new String();
 
+      Properties unparsedProperties = new Properties();
+
+      // Read file properties
       while((linedata=buffreader.readLine())!=null) {
 	linedata.trim();
 	if(linedata.startsWith("#")) {
@@ -141,55 +145,66 @@ public class PropertyFile
 	  continue;
 	}
 	String property = st.nextToken();
-	String propertyValue = null;
+	String propertyValue = "";
 	if (st.hasMoreTokens()) {
-	  propertyValue = customizeProperty(st.nextToken(), tcc);
+	  propertyValue = st.nextToken();
 	}
+	unparsedProperties.setProperty(property, propertyValue);
+      }
 
-	if (property.startsWith("env.")) {
+      // Now, add (and potentially override) properties defined
+      // in the XML experiment file.
+      Properties props = tcc.getAdditionalVmProperties();
+      Enumeration enum = props.propertyNames();
+      while (enum.hasMoreElements()) {
+	String key = (String) enum.nextElement();
+	String val = props.getProperty(key);
+        unparsedProperties.setProperty(key, val);
+      }
+
+      // Override Log4j configuration parameters
+      if (tcc.getLog4jLogFile() == null) {
+	System.err.println("Log4j log file is not set for "
+	  + tcc.getNodeName());
+      }
+      unparsedProperties.setProperty("org.cougaar.core.logging.log4j.appender.SECURITY.File",
+				     tcc.getLog4jLogFile());
+      unparsedProperties.setProperty("org.cougaar.core.logging.log4j.appender.JUNITSOCKET.port",
+				     String.valueOf(socketLogPort));    
+
+      // Now, customize and parse the properties
+      enum = unparsedProperties.propertyNames();
+      while (enum.hasMoreElements()) {
+	String key = (String) enum.nextElement();
+	String value = unparsedProperties.getProperty(key);
+	value = customizeProperty(value, tcc);
+
+	if (key.startsWith("env.")) {
 	  // Environment variable
-	  property = property.substring(4);
-	  String ev = property + "=" + propertyValue;
+	  key = key.substring(4);
+	  String ev = key + "=" + value;
 	  env.add(ev);
 	}
-	else if (property.equals("java.jvm.program")) {
-	  javaBin = propertyValue;
+	else if (key.equals("java.jvm.program")) {
+	  javaBin = value;
 	}
-	else if (property.equals("java.class.name")) {
-	  mainClassName = propertyValue;
+	else if (key.equals("java.class.name")) {
+	  mainClassName = value;
 	}
 	else {
-	  if (property.equals("org.cougaar.core.logging.log4j.appender.SECURITY.File")) {
-	    // Override Log4j configuration file
-	    propertyValue = tcc.getLog4jLogFile();
-	  }
-	  else if (property.equals("org.cougaar.core.logging.log4j.appender.SECURITY-SOCKET.port")) {
-	    propertyValue = String.valueOf(socketLogPort);
-	  }
-	  StringTokenizer st1 = new StringTokenizer(makeProperty(property, propertyValue, tcc));
+	  StringTokenizer st1 = new StringTokenizer(makeProperty(key, value, tcc));
 	  while (st1.hasMoreTokens()) {
 	    String arg = st1.nextToken();
 	    properties.add(arg);
 	  }
 	}
       }
-      // Now, add properties defined in the XML experiment file
-      Properties props = tcc.getAdditionalVmProperties();
-      Enumeration enum = props.propertyNames();
-      while (enum.hasMoreElements()) {
-	String key = (String) enum.nextElement();
-	String val = props.getProperty(key);
-	StringTokenizer st1 = new StringTokenizer(makeProperty(key, val, tcc));
-	while (st1.hasMoreTokens()) {
-	  String arg = st1.nextToken();
-	  properties.add(arg);
-	}
-      }
 
     }
     catch(Exception e) {
       e.printStackTrace();
-      System.out.println("Unable to read configuration file: " + e);
+      System.out.println("Unable to read configuration file for "
+			 + tcc.getNodeName() + ": " + e);
       Assert.fail("Unable to read configuration file: " + e);
     }
     env.add("COUGAAR_INSTALL_PATH=" + System.getProperty("org.cougaar.install.path"));
@@ -267,12 +282,6 @@ public class PropertyFile
       "Xbootclasspath/p"
     };
 
-    // Now, override Linux.props values with properties in the XML experiment file
-    String val = tcc.getAdditionalVmProperties().getProperty(propertyName);
-    if (val != null) {
-      propertyValue = val;
-    }
-
     if (propertyName.startsWith("java.")) {
       boolean isConverted = false;
       for (int i = 0 ; i < convertFlagsFrom.length ; i++) {
@@ -316,7 +325,7 @@ public class PropertyFile
 
       if (!isConverted) {
 	propertyName = propertyName.substring("java.".length());
-	if (propertyValue != null) {
+	if (!propertyValue.equals("")) {
 	  argument = "-" + propertyName + "=" + propertyValue;
 	}
 	else {

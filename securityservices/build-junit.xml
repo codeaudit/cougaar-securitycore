@@ -50,9 +50,6 @@
             <fileset dir="${securityservices.classes}">
                 <include name="test/**/*.class"/>
 	    </fileset>
-             <fileset dir="${securityservices.regress}">
-               <include name="**/*.dtd"/>
-	    </fileset>
             <manifest>
               <attribute name="Built-By" value="${user.name}"/>
               <attribute name="Sealed" value="true"/>

@@ -32,6 +32,9 @@ import java.rmi.registry.LocateRegistry;
 
 import junit.framework.*;
 import org.apache.log4j.net.*;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
 
 public class NodeServer
   extends java.rmi.server.UnicastRemoteObject
@@ -39,10 +42,12 @@ public class NodeServer
 {
   private static int rmiRegistryPort;
   private static int nextLog4jSocketPort = 11000;
+  private Log4jSocketServer log4jSocketServer;
 
   public NodeServer()
     throws java.rmi.RemoteException {
     super();
+    log4jSocketServer = new Log4jSocketServer();
   }
 
   public void killServer()
@@ -57,6 +62,8 @@ public class NodeServer
     // The Sleep() is to allow the client to receive the ACK
     public void run() {
       try {
+	// Shutdown logger.
+	LogManager.shutdown();
 	Thread.sleep(2000);
       }
       catch (Exception e) {}
@@ -95,7 +102,7 @@ public class NodeServer
     propertyFile.readPropertiesFile(tcc, nextLog4jSocketPort);
 
     // Start log4j SocketServer
-    startLog4jSocketServer(nextLog4jSocketPort);
+    log4jSocketServer.startLog4jSocketServer(nextLog4jSocketPort, tcc);
     nextLog4jSocketPort++;
 
     // Construct command array
@@ -218,24 +225,6 @@ public class NodeServer
     }
   }
 
-  private void startLog4jSocketServer(final int portNumber) {
-    System.out.println("Starting simple socket server thread");
-    Thread socketServer = new Thread() {
-	public void run() {
-	  String junitConfigPath;
-	  junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
-	  Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
-	  String configFile = "loggingConfig.xml";
-	  String args[] = new String[2];
-	  args[0] = String.valueOf(portNumber);
-	  args[1] = junitConfigPath + File.separator + configFile;
-	  System.out.println("Starting simple socket server");
-	  SimpleSocketServer.main(args);
-	}
-      };
-    socketServer.start();
-  }
-
   /** Create an RMI registry.
    */
   private void createRMIRegistry(int rmiport)
@@ -275,4 +264,5 @@ public class NodeServer
       }
     }
   }
+
 }
