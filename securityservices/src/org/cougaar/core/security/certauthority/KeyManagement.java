@@ -272,8 +272,14 @@ public class KeyManagement
 	caX509cert = ((CertificateStatus)caX509certList.get(0)).getCertificate();
       }
     }
-    catch (java.io.IOException e) {
+    catch (Exception e) {
       throw new RuntimeException("Error: Unable to find CA cert: " + e);
+    }
+
+    if (caX509cert == null) {
+      if (log.isWarnEnabled()) {
+        log.warn("No CA cert found. CA key is not created yet.");
+      }
     }
   }
 
