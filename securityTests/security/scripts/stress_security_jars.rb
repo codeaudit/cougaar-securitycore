@@ -40,7 +40,7 @@ insert_before :society_running do
   do_action "InjectStress", "Stress5a23", "postConditionalNextOPlanStage"
 end
 
-insert_after :after_stage_1 do
+insert_after :end_of_run do
   do_action "InjectStress", "Stress5a1", "postStopSociety"
   do_action "InjectStress", "Stress5a2", "postStopSociety"
   do_action "InjectStress", "Stress5a3", "postStopSociety"

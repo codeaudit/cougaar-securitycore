@@ -35,7 +35,8 @@ insert_after :society_running do
   do_action  "InjectStress", "SecurityMop2_4", "perform"
 end
 
-insert_after :after_stage_1 do
+#insert_after :after_stage_1 do
+insert_after parameters[:calculate_mop_label] do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "shutdown"
 
@@ -62,7 +63,8 @@ insert_after :after_stage_1 do
   do_action  "InjectStress", "SecurityMop2_6", "calculate"
 end
 
-insert_before :before_stage_2 do
+#insert_before :before_stage_2 do
+insert_after parameters[:postCalculate_mop_label] do
   # Needed for MOP 2.3, 2.4-6 (should be at end of run, to prevent delays):
   do_action "WaitForCalculationCompletion"
 

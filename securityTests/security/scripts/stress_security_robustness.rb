@@ -6,7 +6,7 @@ insert_after :setup_run do
   do_action "InjectStress", "Security4a1Experiment", "postStartJabberCommunications"
 end
 
-insert_after :after_stage_1 do
+insert_after :society_running do
   do_action "InjectStress", "Security4a104Experiment", "postPublishNextStage"
   do_action "InjectStress", "Security4b104Experiment", "postPublishNextStage"
   do_action "InjectStress", "Security4a1Experiment", "postPublishNextStage"

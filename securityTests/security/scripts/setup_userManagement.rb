@@ -8,7 +8,8 @@ description: special initialization for security
 
 require 'security/lib/scripting'
 
-insert_after :society_running do
+#insert_after :society_running do
+insert_after parameters[:user_mgr_label] do
   # We set the agent name parameter to "nil", which instructs the
   # action to look for the agent that has "org_id" facet == "OSD.GOV"
   # This makes it easier to run the stresses with the PING society.

@@ -52,7 +52,9 @@ include_scripts:
 # Security rules
   - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
   - script: $CIP/csmart/lib/security/scripts/setup_acme_user.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_userManagementSAVE.rb
+  - script: $CIP/csmart/lib/security/scripts/setup_userManagement.rb
+    parameters:
+      - user_mgr_label: wait_for_initialization
   - script: $CIP/csmart/lib/security/scripts/security_archives.rb
   - script: $CIP/csmart/lib/security/scripts/saveAcmeEvents.rb
   # log_node_process_info should be BEFORE setup_society_ping
@@ -68,10 +70,15 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/threatcon_level_change.rb
   - script: $CIP/csmart/lib/security/scripts/invalid_community_request.rb
   - script: $CIP/csmart/lib/security/scripts/check_mop.rb
+    parameters:
+      - calculate_mop_label: after_stage_1
+      - postCalculate_mop_label: before_stage_2 
   - script: $CIP/csmart/lib/security/scripts/parseResults.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+    parameters:
+      - cleanup_label: transformed_society
 # ######################################################
-#  - script: setup_robustness.rb
+#  - script: $CIP/csmart/lib/robustness/objs/deconfliction.rb
 #  - script: network_shaping.rb
 #  - script: cnccalc_include.rb
 #  - script: standard_kill.rb

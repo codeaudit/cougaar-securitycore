@@ -4,6 +4,7 @@ require 'ultralog/scripting'
 include Cougaar
 
 HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
+puts "Host file #{HOSTS_FILE}"
 
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
@@ -18,7 +19,7 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   # on the TIC machines this can be replaced with the "HOSTS_FILE" 
   # rule, which looks in the operator directory.  The code below 
   # will work in a stand-alone ACME setup. 
-  host_file = nil 
+  host_file = HOSTS_FILE
   #host = @hostname unless host 
   Dir.glob(File.join(".", "example-hosts-secureMV.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
@@ -63,6 +64,10 @@ at :setup_run
 at :wait_for_initialization
 
 at :society_running
+ 
+  do_action "Sleep", 30.seconds 
+
+at :during_stage_1
 
   # Give some time to run the stresses
   # 1K society would do the initial planning phase here
@@ -83,6 +88,8 @@ at :after_stage_2
 at :before_stage_3
 at :before_stage_4
 at :during_stages_3_4
+
+at :end_of_run
 
   do_action "StopSociety"
   
