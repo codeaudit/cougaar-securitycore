@@ -23,6 +23,7 @@
 package org.cougaar.core.security.auth;
 
 import java.security.Permission;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -46,5 +47,11 @@ public final class BlackboardObjectPermission extends ServicePermission {
 
   protected String[] getAvailableActions() {
     return ACTIONS;
+  }
+
+  protected Set nameableObjects()
+  {
+    return org.cougaar.core.security.auth.role.
+      AuthServiceImpl.nameableBlackboardObjects();
   }
 }
