@@ -11,6 +11,7 @@ society.each_node do |node|
   node.each_facet(:role) do |facet|
     if facet[:role] == 'RootCertificateAuthority' \
      or facet[:role] == 'CertificateAuthority' \
+     or facet[:role] == 'RedundantRootCertificateAuthority' \
      or facet[:role] == 'RedundantCertificateAuthority'
       certAuthority = true
     end
