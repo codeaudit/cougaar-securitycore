@@ -76,6 +76,7 @@ UserRole SocietyAdmin
 # The mapping file for the following KAoS policy names is OwlMapUri
 #
 
+Servlet TestUserPolicyServlet
 Servlet AggegatorServlets
 Servlet NCAServlets
 Servlet SCmrmanagerServlets
@@ -90,6 +91,7 @@ Servlet PolicyServlet
 Servlet SocietyAdminServlet
 Servlet UserManagerServlets
 Servlet OtherServlets
+
 
 
 #
@@ -312,6 +314,21 @@ Policy PolicyServletAuth  = [
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named PolicyServlet
+]
+Policy TestPolicyServlet  = [ 
+  ServletUserAccessTemplate
+  A user in role Logistician can access a servlet named TestUserPolicyServlet
+]
+Policy TestPolicyServletAuth  = [ 
+      ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL, CertificateSSL
+  authentication when accessing the servlet named TestUserPolicyServlet
+]
+
+Policy SCmrManagerAuth  = [ 
+  ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL, CertificateSSL
+  authentication when accessing the servlet named SCmrmanagerServlets
 ]
 
 Policy SCmrManager  = [ 
