@@ -43,10 +43,10 @@ import org.cougaar.core.service.LoggingService;
  * and jndi protocols.  Documentation of the place of this factory in
  * the lifecycle of a URL can be found in the javadocs for the
  *
- *     URL(String protocol,
- *         String host,
- *         int port,
- *         String file)
+ *     URL(String protocol,
+ *         String host,
+ *         int port,
+ *         String file)
  *
  * constructor.  
  */
