@@ -75,15 +75,15 @@ public class LdapTest
 
     CertDirectoryServiceRequestor cdsr =
       new CertDirectoryServiceRequestorImpl(url,
-					    TrustedCaPolicy.COUGAAR_OPENLDAP,
-					    serviceBroker, caDN);
+					    TrustedCaPolicy.COUGAAR_OPENLDAP, caDN, "test",
+					    serviceBroker);
     caOperations = (CertDirectoryServiceCA)
       serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
 
     cdsr =
       new CertDirectoryServiceRequestorImpl(url,
-					    TrustedCaPolicy.COUGAAR_OPENLDAP,
-					    serviceBroker, caDN);
+					    TrustedCaPolicy.COUGAAR_OPENLDAP, caDN, "test",
+					    serviceBroker);
     certificateFinder = (CertDirectoryServiceClient)
       serviceBroker.getService(cdsr, CertDirectoryServiceClient.class, null);
 
