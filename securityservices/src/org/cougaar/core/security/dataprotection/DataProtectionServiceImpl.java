@@ -386,8 +386,8 @@ public class DataProtectionServiceImpl
           }
 
           // no key available to decrypt
-          if (log.isWarnEnabled())
-            log.warn("Cannot find a private key to decrypt Data Protection secret."
+          if (log.isDebugEnabled())
+            log.debug("Cannot find a private key to decrypt Data Protection secret."
               + " Try to get the secret from persistence manager for: " + agent);
 
           DataProtectionKeyUnlockRequest req =
