@@ -153,7 +153,7 @@ public class CertificateValidityMonitor
       }
 
       Vector list = new Vector();
-      checkExpiry(NodeInfo.getNodeName());
+      keyRing.checkExpiry(NodeInfo.getNodeName());
       // node in priority
       // CA cert should not be in validity checking, otherwise CA cert should be
       // checked first
@@ -166,12 +166,13 @@ public class CertificateValidityMonitor
             log.warn(commonName + " has been revoked, not generating request to renew certificate");
             return;
           }
-          checkExpiry(commonName);
+          keyRing.checkExpiry(commonName);
         }
       }
     }
   }
 
+/*
   private void checkExpiry(String commonName) {
     // if the first certificate is not generated yet, no need to checkExpiry
     List list = keyRing.findCert(commonName, KeyRingService.LOOKUP_KEYSTORE, false);
@@ -184,6 +185,7 @@ public class CertificateValidityMonitor
 
     keyRing.checkExpiry(commonName);
   }
+*/
 
   private class CertRequestMonitor implements Runnable {
     public void run() {
