@@ -1,9 +1,9 @@
 package org.cougaar.core.security.policy.enforcers;
 
-import dummy.ontology.*;
-import dummy.util.CypherSuite;
-import dummy.util.CypherSuiteWithAuth;
-import dummy.util.HardWired;
+import org.cougaar.core.security.policy.enforcers.ontology.*;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.HardWired;
 
 
 import java.io.IOException;

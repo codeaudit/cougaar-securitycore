@@ -1,9 +1,8 @@
 package org.cougaar.core.security.policy.enforcers;
 
-// import dummy.match.ComponentSemanticMatcherFactory;
-import dummy.ontology.*;
-import dummy.util.CypherSuite;
-import dummy.util.HardWired;
+import org.cougaar.core.security.policy.enforcers.ontology.*;
+import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
+import org.cougaar.core.security.policy.enforcers.util.HardWired;
 
 import java.io.IOException;
 import java.io.PrintWriter;
