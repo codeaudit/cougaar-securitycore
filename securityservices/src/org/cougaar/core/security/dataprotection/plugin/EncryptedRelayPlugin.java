@@ -1,6 +1,32 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2003 Cougaar Software, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * -
+ */
+
+
 package org.cougaar.core.security.dataprotection.plugin;
 
-import java.util.Enumeration;
 
 import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
@@ -10,71 +36,89 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
 
+import java.util.Enumeration;
+
+
 /**
  * Receives Encrypted keys through relay
- * @author ttschampel
  *
+ * @author ttschampel
  */
 public class EncryptedRelayPlugin extends ComponentPlugin {
-  /**Plugin name*/
-  private static final String pluginName="EncryptedRelayPlugin";
-  
-  /**Logging Service*/
+  /** Plugin name */
+  private static final String pluginName = "EncryptedRelayPlugin";
+  /** Logging Service */
   private LoggingService logging = null;
-  public void setLoggingService(LoggingService s){
-  	logging =s;
-  }
-  /**Subscription to Relay*/
+  /** Subscription to Relay */
   private IncrementalSubscription subs = null;
-  /**Predicate for relay*/
-  private UnaryPredicate predicate = new UnaryPredicate(){
-  	public boolean execute(Object o){
-  		if(o instanceof SharedDataRelay){
-  			SharedDataRelay sdr = (SharedDataRelay)o;
-  			return sdr.getContent()!=null && sdr.getContent() instanceof DataProtectionKey;
-  		}
-  		return false;
-  	}
+  /** Predicate for relay */
+  private UnaryPredicate predicate = new UnaryPredicate() {
+    public boolean execute(Object o) {
+      if (o instanceof SharedDataRelay) {
+        SharedDataRelay sdr = (SharedDataRelay) o;
+        return (sdr.getContent() != null) && sdr.getContent() instanceof DataProtectionKey;
+      }
+
+      return false;
+    }
   };
-  /**UIDService*/
+
+  /** UIDService */
   UIDService uidService = null;
-  
-  public void load(){
-  	super.load();
-  	uidService = (UIDService)this.getServiceBroker().getService(this, UIDService.class, null);
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param s DOCUMENT ME!
+   */
+  public void setLoggingService(LoggingService s) {
+    logging = s;
   }
-	/**
-	 * Setup subscriptions
-	 */
-	protected void setupSubscriptions() {
-		subs = (IncrementalSubscription)getBlackboardService().subscribe(predicate);
-		
-	}
 
-	/**
-	 * Process subscription
-	 */
-	protected void execute() {
-		if(logging.isDebugEnabled()){
-			logging.debug(pluginName + " executing");
-		}
-		Enumeration enumeration = subs.getAddedList();
-		while(enumeration.hasMoreElements()){
-			SharedDataRelay sdr = (SharedDataRelay)enumeration.nextElement();
-			DataProtectionKey key = (DataProtectionKey)sdr.getContent();
-			String agent = sdr.getSource().getAddress();
-			long timestamp = System.currentTimeMillis();
-			if(logging.isDebugEnabled()){
-				logging.debug("Got data protection key from " + agent);
-			}
-			DataProtectionKeyContainer container = new DataProtectionKeyContainer();
-			container.setAgentName(agent);
-			container.setTimestamp(timestamp);
-			container.setKey(key);
-			container.setUID(uidService.nextUID());
-			getBlackboardService().publishAdd(container);
-			getBlackboardService().publishRemove(sdr);
-		}
-	}
 
+  /**
+   * DOCUMENT ME!
+   */
+  public void load() {
+    super.load();
+    uidService = (UIDService) this.getServiceBroker().getService(this, UIDService.class, null);
+  }
+
+
+  /**
+   * Setup subscriptions
+   */
+  protected void setupSubscriptions() {
+    subs = (IncrementalSubscription) getBlackboardService().subscribe(predicate);
+
+  }
+
+
+  /**
+   * Process subscription
+   */
+  protected void execute() {
+    if (logging.isDebugEnabled()) {
+      logging.debug(pluginName + " executing");
+    }
+
+    Enumeration enumeration = subs.getAddedList();
+    while (enumeration.hasMoreElements()) {
+      SharedDataRelay sdr = (SharedDataRelay) enumeration.nextElement();
+      DataProtectionKey key = (DataProtectionKey) sdr.getContent();
+      String agent = sdr.getSource().getAddress();
+      long timestamp = System.currentTimeMillis();
+      if (logging.isDebugEnabled()) {
+        logging.debug("Got data protection key from " + agent);
+      }
+
+      DataProtectionKeyContainer container = new DataProtectionKeyContainer();
+      container.setAgentName(agent);
+      container.setTimestamp(timestamp);
+      container.setKey(key);
+      container.setUID(uidService.nextUID());
+      getBlackboardService().publishAdd(container);
+      getBlackboardService().publishRemove(sdr);
+    }
+  }
 }
