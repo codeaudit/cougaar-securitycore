@@ -52,7 +52,6 @@ import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.crypto.CertificateManagementServiceClient;
-import org.cougaar.core.security.crypto.ldap.CertificateRevocationStatus;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import  org.cougaar.core.security.certauthority.KeyManagement;
 
@@ -373,14 +372,14 @@ public class CertificateRequestor {
 	generatePKCS10Request(cert,
 			      alias));
 
-      // publish CA certificate to LDAP
-      km.publishCertificate(certImpl);
-
-      // install
-      installCertificate(alias, new X509Certificate[] {certImpl});
       if(cacheservice!=null){
 	privatekey = cacheservice.getKey(alias);
       }
+      // publish CA certificate to LDAP
+      km.publishCertificate(certImpl, CertificateUtility.CACert,privatekey);
+
+      // install
+      installCertificate(alias, new X509Certificate[] {certImpl});
     } catch (Exception e) {
       if (log.isDebugEnabled()) {
 	log.warn("Unable to create key: " + dname + " - Reason:", e);
