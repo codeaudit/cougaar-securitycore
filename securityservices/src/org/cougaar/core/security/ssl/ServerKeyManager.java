@@ -104,7 +104,7 @@ public final class ServerKeyManager
   }
 
   public String getName() {
-    return keystore.getHostName();
+    return NodeInfo.getHostName();
   }
 
 }
