@@ -998,8 +998,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient {
     }
     //_mySecurityCommunities = c;
     if (_mySecurityCommunities.isEmpty()) {
-      log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
-               myAddress);
+      if (log.isInfoEnabled()) {
+        log.info("Security community not found yet:" +
+                 myAddress);
+      }
     } else if (log.isDebugEnabled()) {
       log.debug("Agent " + myAddress + " security communities: " +
                 _mySecurityCommunities);
