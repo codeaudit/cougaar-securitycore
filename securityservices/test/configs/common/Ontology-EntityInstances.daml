@@ -37,6 +37,7 @@
     <ultralogEntity:Servlet rdf:ID="PolicyServlet"/>
     <ultralogEntity:Servlet rdf:ID="SocietyAdminServlet"/>
     <ultralogEntity:Servlet rdf:ID="UserManagerServlets"/>
+    <ultralogEntity:Servlet rdf:ID="OtherServlets"/>
 
     <ultralogEntity:AuthenticationLevel rdf:ID="NoAuth"/>
     <ultralogEntity:AuthenticationLevel rdf:ID="NoAuthSSL"/>
