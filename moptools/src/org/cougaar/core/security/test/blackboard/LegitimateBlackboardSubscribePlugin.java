@@ -44,7 +44,7 @@ import java.util.Iterator;
  *
  * @author ttschampel
  */
-public class LegitimateBlackboardSubcribePlugin extends AbstractBlackboardPlugin {
+public class LegitimateBlackboardSubscribePlugin extends AbstractBlackboardPlugin {
   private IncrementalSubscription orgSubs = null;
   private String ACTIVITY_NAME = "LegitimateBlackboardSubcribePlugin Activity";
   private UID modId = null;
