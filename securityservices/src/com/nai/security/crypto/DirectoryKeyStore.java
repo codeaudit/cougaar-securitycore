@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  */
 
 package com.nai.security.crypto;
@@ -67,7 +67,7 @@ public class DirectoryKeyStore implements Runnable
 
   private String provider_url=null;
   private CertificateFinder certificatefinder=null;
-  private long sleep_time=2000l; 
+  private long sleep_time=2000l;
   private boolean debug = false;
   private HashMap m = new HashMap();
 
@@ -92,8 +92,10 @@ public class DirectoryKeyStore implements Runnable
 			   boolean standalone) {
     this(stream, password, storepath, caStream, caPassword, caStorepath, standalone);
     // LDAP certificate directory
-    provider_url = ldapURL;
-    certificatefinder = new CertificateFinder(provider_url);
+    if(ldapURL.length()>5) {
+      provider_url = ldapURL;
+      certificatefinder = new CertificateFinder(provider_url);
+      }
   }
 
   public DirectoryKeyStore(InputStream stream, char[] password, String storepath,
@@ -145,7 +147,7 @@ public class DirectoryKeyStore implements Runnable
       if (!standalone) {
 	// We running as part of Cougaar, this class may be used to support
 	// certificate authority services. In that cases, we need CA policy
-	String role = System.getProperty("org.cougaar.security.role"); 
+	String role = System.getProperty("org.cougaar.security.role");
 	if (role == null && debug == true) {
 	  System.out.println("DirectoryKeystore warning: LDAP role not defined");
 	}
@@ -178,13 +180,13 @@ public class DirectoryKeyStore implements Runnable
     }
   }
 
-  public KeyStore getKeyStore() { 
+  public KeyStore getKeyStore() {
     // Check security permissions
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("getKeyStore"));
     }
-    return keystore; 
+    return keystore;
   }
 
   public synchronized PrivateKey findPrivateKey(String commonName) {
@@ -327,7 +329,8 @@ public class DirectoryKeyStore implements Runnable
 	    System.out.println("DirectoryKeyStore.findCert. Looking up ["
 			       + commonName + " ] in LDAP");
 	  }
-	  cert=certificatefinder.getCertificate(commonName);
+	  if(certificatefinder!=null)
+            cert=certificatefinder.getCertificate(commonName);
 	  if(cert!=null) {
 	    certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
 	    certsAlias.put(commonName, certstatus);
@@ -337,7 +340,7 @@ public class DirectoryKeyStore implements Runnable
 	      System.out.println("DirectoryKeyStore.findCert. Found cert in LDAP:"
 				 + commonName );
 	    }
-	  }	
+	  }
 	  else {
 	    if (debug) {
 	      System.err.println("Failed to get Certificate for " + commonName);
@@ -348,7 +351,8 @@ public class DirectoryKeyStore implements Runnable
     } catch (KeyStoreException e) {
       // Finally, look in certificate directory service
       if (lookupLDAP == true) {
-	cert=certificatefinder.getCertificate(commonName);
+	if(certificatefinder!=null)
+          cert=certificatefinder.getCertificate(commonName);
 	if(cert!=null) {
 	  certstatus=new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
 	  certsAlias.put(commonName,certstatus);
@@ -357,7 +361,7 @@ public class DirectoryKeyStore implements Runnable
 			       + commonName );
 	  }
 	}
-      }	
+      }
       else {
 	if (debug) {
 	  System.err.println("Failed to get Certificate for \""
@@ -370,6 +374,11 @@ public class DirectoryKeyStore implements Runnable
 
   /** Lookup Certificate Revocation Lists */
   public void run() {
+    if(certificatefinder==null){
+      System.err.println("Error: no vaild ldap path--" + provider_url + "--to search for cert/CRL.");
+      return;
+    }
+
     while(true) {
       try {
 	Thread.sleep(sleep_time);
@@ -418,6 +427,11 @@ public class DirectoryKeyStore implements Runnable
 
   public Vector getCRL()
   {
+    if(certificatefinder==null){
+      System.err.println("Error: no vaild ldap path--" + provider_url + "--to search for cert/CRL.");
+      return null;
+    }
+
     Hashtable crl=certificatefinder.getCRL();
     Enumeration enum=crl.keys();
     String alias=null;
@@ -936,7 +950,7 @@ public class DirectoryKeyStore implements Runnable
       }
     }
     if (alias != null) {
-      try{ 
+      try{
 	installPkcs7Reply(alias, new ByteArrayInputStream(reply.getBytes()));
 	privatekey = (PrivateKey) keystore.getKey(alias, keystorePassword);
       } catch(Exception e) {
@@ -949,14 +963,14 @@ public class DirectoryKeyStore implements Runnable
     return privatekey;
   }
 
-  public String getAlias(X509Certificate clientX509) 
+  public String getAlias(X509Certificate clientX509)
   {
     String alias = null;
     try {
       String alg = "MD5"; // TODO: make this dynamic
       MessageDigest md = createDigest(alg, clientX509.getTBSCertificate());
       byte[] digest = md.digest();
-      
+
       String prefix = getCommonName(clientX509);
       alias = prefix + "-" + toHex(digest);
     }
@@ -1078,7 +1092,7 @@ public class DirectoryKeyStore implements Runnable
     md.digest();
     return md;
   }
-    
+
   private String toHex(byte[] data) {
     StringBuffer buff = new StringBuffer();
     for(int i = 0; i < data.length; i++) {
@@ -1090,7 +1104,7 @@ public class DirectoryKeyStore implements Runnable
   }
 
   public String makeKeyPair(String commonName)
-    throws Exception 
+    throws Exception
   {
     //generate key pair.
     NodePolicy policy = caClient.getNodePolicy();
@@ -1101,7 +1115,7 @@ public class DirectoryKeyStore implements Runnable
     // TODO: find a better alias name
     String alias = commonName + "-" + rdm;
     if (debug) {
-      System.out.println("Make key pair for alias=" + alias + ", cn=" + commonName + ", ou=" 
+      System.out.println("Make key pair for alias=" + alias + ", cn=" + commonName + ", ou="
 			 + policy.ou + ",o=" +  policy.o + ",l=" + policy.l
 			 + ",st=" + policy.st + ",c=" + policy.c);
     }
@@ -1140,7 +1154,7 @@ public class DirectoryKeyStore implements Runnable
     ax509certificate[0] = certandkeygen.getSelfCertificate(x500name, validity * 24 * 60 * 60);
     setKeyEntry(alias, privatekey, ax509certificate);
   }
-  
+
   public void checkOrMakeCert(String name){
       //check first
       Certificate c = null;
