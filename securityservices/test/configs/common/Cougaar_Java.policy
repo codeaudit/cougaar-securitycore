@@ -84,8 +84,12 @@ grant signedBy "bootstrapper" {
 	permission javax.security.auth.AuthPermission "getPolicy";
 };
 
-grant codeBase "file:${org.cougaar.install.path}/lib/core.jar" {
+grant codeBase "file:${org.cougaar.install.path}/lib/core.jar" signedBy "privileged" {
 	permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant codeBase "file:${org.cougaar.install.path}/lib/securityservices.jar" signedBy "privileged" { 
+	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
 };
 
 ////////////////////////////////////////////////////////////

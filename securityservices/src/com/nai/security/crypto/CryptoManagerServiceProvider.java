@@ -40,7 +40,6 @@ public class CryptoManagerServiceProvider implements ServiceProvider {
       // Load cryptographic providers
       CryptoProviders.loadCryptoProviders();
 
-        KeyRing.getKeyStore();
 	String debug = System.getProperty("org.cougaar.message.transport.debug");
         if ( debug!=null && (debug.equalsIgnoreCase("true") || debug.indexOf("security")>=0) ) {
             Provider[] plist=Security.getProviders();

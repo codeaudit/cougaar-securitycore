@@ -30,49 +30,53 @@ import java.security.cert.CertificateException;
 import javax.crypto.*;
 
 public class CryptoManagerServiceImpl implements CryptoManagerService {
-    
+  public CryptoManagerServiceImpl() {
+  }
 
-    public CryptoManagerServiceImpl() {
+  public SignedObject sign(final String name, String spec, Serializable obj){
+    try {
+      PrivateKey pk = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
+	  public Object run(){
+	    return KeyRing.getPrivateKey(name);
+	  }
+	  
+	});
+      Signature se;
+      if(spec==null||spec=="")spec=pk.getAlgorithm();
+      se=Signature.getInstance(spec);
+      return new SignedObject(obj, pk, se);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e.toString());
     }
+  }
 
-    public SignedObject sign(String name, String spec, Serializable obj){
-        try {
-            PrivateKey pk = KeyRing.getPrivateKey(name);
-            Signature se;
-            if(spec==null||spec=="")spec=pk.getAlgorithm();
-            se=Signature.getInstance(spec);
-          return new SignedObject(obj, pk, se);
-        } catch (Exception e) {
-          e.printStackTrace();
-          throw new RuntimeException(e.toString());
-        }
-    }
-
-  public Object verify(String name, String spec, SignedObject obj) 
-  throws CertificateException {
-      java.security.cert.Certificate c=KeyRing.getCert(name);
-      if (c == null) {
-	throw new CertificateException("Verify. Unable to get certificate for " + name);
-      }
-      try {
-	PublicKey pk = c.getPublicKey();
-	Signature ve;
-	if(spec==null||spec=="")spec=pk.getAlgorithm();
-	ve=Signature.getInstance(spec);
-	if (obj.verify(pk,ve)) {
-	  return obj.getObject();
-	} else {
-	  return null;
-	}
-      } catch (Exception e) {
-	e.printStackTrace();
-	return null;
+   public Object verify(String name, String spec, SignedObject obj) 
+   throws CertificateException {
+       java.security.cert.Certificate c=KeyRing.getCert(name);
+       if (c == null) {
+	 throw new CertificateException("Verify. Unable to get certificate for " + name);
+       }
+       try {
+	 PublicKey pk = c.getPublicKey();
+	 Signature ve;
+	 if(spec==null||spec=="")spec=pk.getAlgorithm();
+	 ve=Signature.getInstance(spec);
+	 if (obj.verify(pk,ve)) {
+	   return obj.getObject();
+	 } else {
+	   return null;
+	 }
+       } catch (Exception e) {
+	 e.printStackTrace();
+	 return null;
       }
     }
     
   public SealedObject asymmEncrypt(String name, String spec, Serializable obj)
     throws CertificateException {
     /*encrypt the secretekey with receiver's public key*/
+
     java.security.cert.Certificate cert=KeyRing.getCert(name);
     if (cert == null) {
       throw new CertificateException("asymmEncrypt. Unable to get certificate for " + name);
@@ -92,21 +96,26 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
     }
   }
   
-    public Object asymmDecrypt(String name, String spec, SealedObject obj){
-        try{
-          /*get secretKey*/
-          PrivateKey key=KeyRing.getPrivateKey(name);
-          if(spec==null||spec=="") spec=key.getAlgorithm(); 
-          Cipher ci;
-          ci=Cipher.getInstance(spec);
-          ci.init(Cipher.DECRYPT_MODE,key);
-          return obj.getObject(ci);
-        }
-        catch(Exception e){
-          e.printStackTrace();
-          return null;
-        }
+  public Object asymmDecrypt(final String name, String spec, SealedObject obj){
+    try{
+      /*get secretKey*/
+      PrivateKey key = (PrivateKey) AccessController.doPrivileged(new PrivilegedAction() {
+	  public Object run(){
+	    return KeyRing.getPrivateKey(name);
+	  }
+	});
+      
+      if(spec==null||spec=="") spec=key.getAlgorithm(); 
+      Cipher ci;
+      ci=Cipher.getInstance(spec);
+      ci.init(Cipher.DECRYPT_MODE,key);
+      return obj.getObject(ci);
     }
+    catch(Exception e){
+      e.printStackTrace();
+      return null;
+    }
+  }
     
     public SealedObject symmEncrypt(SecretKey sk, String spec, Serializable obj){
       try{

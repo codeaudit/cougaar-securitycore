@@ -1,9 +1,13 @@
 #!/bin/tcsh
 
-setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:../../../classes
+#setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
+setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/sys/jdom.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:../../../classes
 
 java \
 	-Dorg.cougaar.security.keystore=signingCA_keystore \
 	-Dorg.cougaar.security.keystore.password=keystore \
+	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
 	com.nai.security.certauthority.KeyManagement  \
 	certSignReq-ROOT-CA-CONUS-3ID-HHC.cer

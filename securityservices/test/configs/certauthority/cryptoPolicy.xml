@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<cryptoConfiguration>
+
+  <!-- Configuration of Certificate Authority -->
+  <certificateAuthority name="Bootstrapper">
+    <!-- Alias of CA private key in the keystore -->
+    <alias>Bootstrapper</alias>
+
+    <!-- Name of keystore where to find private key of CA -->
+    <keystoreFile></keystoreFile>
+
+    <!-- Certificate directory service for certificate storage -->
+    <ldapURL>ldap://yew:389</ldapURL>
+
+    <!-- The name of a file where the next serial number is stored -->
+    <serialNumberFile></serialNumberFile>
+
+    <!-- Policy when issuing certificates -->
+    <clientCertPolicy>
+      <!-- The X509 version number to be created -->
+      <certVersion>0</certVersion>
+
+      <algorithmId>sha1WithDSA_oid</algorithmId>
+
+      <keysize>1024</keysize>
+
+      <!-- How long to certify for -->
+      <certValidity>720</certValidity>
+    </clientCertPolicy>
+  </certificateAuthority>
+
+</cryptoConfiguration>
