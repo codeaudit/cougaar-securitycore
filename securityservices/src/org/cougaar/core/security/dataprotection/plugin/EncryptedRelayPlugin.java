@@ -72,6 +72,7 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
 			container.setTimestamp(timestamp);
 			container.setKey(key);
 			container.setUID(uidService.nextUID());
+			getBlackboardService().publishAdd(container);
 			getBlackboardService().publishRemove(sdr);
 		}
 	}

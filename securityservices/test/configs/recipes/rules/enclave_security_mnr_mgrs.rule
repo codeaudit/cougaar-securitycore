@@ -61,6 +61,9 @@ society.each_node do |node|
           c.classname = "org.cougaar.core.security.monitoring.servlet.MnRRegistrationViewerComponent"
           c.add_argument("/monitoringRegistrationViewer")
         end
+        agent.add_component do |c|
+        	c.classname ="org.cougaar.core.security.monitoring.plugin.MnrCompromisePlugin"
+        end
       end
     end
   end

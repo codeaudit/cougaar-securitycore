@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert BlackboardCompromise Sensor
+
+plugin = "org.cougaar.core.security.monitoring.plugin.BlackboardCompromiseSensorPlugin"
+
+society.each_agent do |agent|
+  agent.add_component do |c|
+    c.classname = plugin
+  end
+end

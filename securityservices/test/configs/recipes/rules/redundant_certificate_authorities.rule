@@ -34,6 +34,7 @@ listCaKeysServlet = "org.cougaar.core.security.certauthority.servlet.ListCaKeysS
 caListCaKeysServlet = "/CA/ListCaKeysServlet"
 infoServlet = "org.cougaar.core.security.certauthority.servlet.CAInfoServlet"
 caInfoServlet = "/CA/CAInfoServlet"
+revokePlugin = "org.cougaar.core.security.certauthority.RevokeAgentCertificatePlugin"
  
 society.each_node do |node|
   agentname = ""
@@ -124,6 +125,9 @@ society.each_node do |node|
           	c.add_argument(infoServlet)
           	c.add_argument(caInfoServlet)
           end
+          agent.add_component do |c|
+      		c.classname=revokePlugin
+      	  end
         end
       end
     end

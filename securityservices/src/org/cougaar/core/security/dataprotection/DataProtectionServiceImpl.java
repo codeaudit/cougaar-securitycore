@@ -26,28 +26,6 @@
 
 package org.cougaar.core.security.dataprotection;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.monitoring.event.DataFailureEvent;
-import org.cougaar.core.security.monitoring.event.FailureEvent;
-import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
-import org.cougaar.core.security.policy.CryptoClientPolicy;
-import org.cougaar.core.security.policy.CryptoPolicy;
-import org.cougaar.core.security.policy.PersistenceManagerPolicy;
-import org.cougaar.core.security.policy.SecurityPolicy;
-import org.cougaar.core.security.services.crypto.CryptoPolicyService;
-import org.cougaar.core.security.services.crypto.EncryptionService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
-import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.service.DataProtectionKey;
-import org.cougaar.core.service.DataProtectionKeyEnvelope;
-import org.cougaar.core.service.DataProtectionService;
-import org.cougaar.core.service.DataProtectionServiceClient;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -65,11 +43,39 @@ import java.util.List;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
+import org.cougaar.core.blackboard.BlackboardClient;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.monitoring.event.DataFailureEvent;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
+import org.cougaar.core.security.policy.CryptoClientPolicy;
+import org.cougaar.core.security.policy.CryptoPolicy;
+import org.cougaar.core.security.policy.PersistenceManagerPolicy;
+import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.util.SharedDataRelay;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.DataProtectionKey;
+import org.cougaar.core.service.DataProtectionKeyEnvelope;
+import org.cougaar.core.service.DataProtectionService;
+import org.cougaar.core.service.DataProtectionServiceClient;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.UIDService;
+
 import sun.security.x509.X500Name;
 
 
 public class DataProtectionServiceImpl
-  implements DataProtectionService, PersistenceMgrAvailListener
+  implements DataProtectionService, PersistenceMgrAvailListener, BlackboardClient
 {
   private ServiceBroker serviceBroker;
   private EncryptionService encryptionService;
@@ -82,7 +88,9 @@ public class DataProtectionServiceImpl
   private String keygenAlg = "DES";
   private String digestAlg = "SHA";
   private CryptoClientPolicy cryptoClientPolicy;
-
+	private AgentIdentificationService agentIdService;
+	 private UIDService uidService;
+	 private BlackboardService bbs;
   // event publisher for data protection failures
   //private static EventPublisher eventPublisher;
   private Hashtable keyCache = new Hashtable();
@@ -117,7 +125,14 @@ public class DataProtectionServiceImpl
       serviceBroker.getService(requestor,
 			       CryptoPolicyService.class,
 			       null);
+//	Get UID Service
+			uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
 
+			//Get AgentIdentification Service
+			AgentIdentificationService agentIdService = (AgentIdentificationService) this.serviceBroker.getService(this, AgentIdentificationService.class, null);
+
+			//Get Blackboard Service
+			BlackboardService bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
     // Get keyring service
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
@@ -377,6 +392,18 @@ public class DataProtectionServiceImpl
       DataProtectionKeyImpl pmDPKey =
             new DataProtectionKeyImpl(skeyobj, digestAlg, policy,
                               keyRing.findCertChain(pmCert));
+//		TODO Is this the right place for this?
+				 MessageAddress source = agentIdService.getMessageAddress();
+				 String pmAgent = pmp.pmUrl.substring(pmp.pmUrl.indexOf("$") + 1, pmp.pmUrl.length());
+				 pmAgent = pmAgent.substring(0, pmAgent.indexOf("/"));
+				 MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
+
+				 SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
+
+				 //publish relay
+				 bbs.openTransaction();
+				 bbs.publishAdd(sdr);
+				 bbs.closeTransactionDontReset();
       keyCollection.add(pmDPKey);
     }
     catch (Exception iox) {
@@ -734,4 +761,18 @@ public class DataProtectionServiceImpl
     */
     DataProtectionSensor.publishEvent(event);
   }
+
+	/* (non-Javadoc)
+	 * @see org.cougaar.core.blackboard.BlackboardClient#getBlackboardClientName()
+	 */
+	public String getBlackboardClientName() {
+		return this.getClass().getName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.cougaar.core.blackboard.BlackboardClient#currentTimeMillis()
+	 */
+	public long currentTimeMillis() {
+		return System.currentTimeMillis();
+	}
 }
