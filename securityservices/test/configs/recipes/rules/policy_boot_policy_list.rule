@@ -153,11 +153,11 @@ Policy AllowCommunication = [
 ]
 
 
-#Policy EncryptCommunication = [ 
-#  MessageEncryptionTemplate
-#  Require NSAApprovedProtection on all messages from members of 
-#  $Actor.owl#Agent to members of $Actor.owl#Agent
-#]
+Policy EncryptCommunication = [ 
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $Actor.owl#Agent to members of $Actor.owl#Agent
+]
 
 
 #
