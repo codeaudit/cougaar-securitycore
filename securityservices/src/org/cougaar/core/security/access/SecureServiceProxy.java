@@ -29,6 +29,7 @@ import org.cougaar.util.UnaryPredicate;
 
 // security services
 import org.cougaar.core.security.auth.BlackboardPermission;
+import org.cougaar.core.security.auth.SecuredObject;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.services.auth.SecurityContextService;
@@ -41,6 +42,10 @@ class SecureServiceProxy {
   LoggingService _log;
   //Object _requestor;
   boolean _debug = false;
+  public static final String EFFICIENT_PROPERTY = 
+    "org.cougaar.core.security.access.efficientBBS";
+  public static final boolean EFFICIENT = 
+    Boolean.valueOf(System.getProperty(EFFICIENT_PROPERTY, "true")).booleanValue();
   
   SecureServiceProxy(ServiceBroker sb) {//, Object requestor) {
     _sb = sb;
@@ -59,6 +64,9 @@ class SecureServiceProxy {
   }
   
   private boolean allowQuery(Object o, ExecutionContext ec) {
+    if (EFFICIENT && !(o instanceof SecuredObject)) {
+      return true;
+    }
     SecurityManager sm = System.getSecurityManager();
     if(sm != null) {
       String object = o.getClass().getName();

@@ -221,10 +221,6 @@ public class AuthServiceImpl
     if (_log.isDebugEnabled()) {
       _log.debug("Checking if the permission is implied");
     }
-    // NOTE: FOR TESTING PURPOSES
-    if (_log.isDebugEnabled()) {
-      _log.debug("Checking if the permission is implied");
-    }
     
     RoleExecutionContext ec = getExecutionContextFromDomain(domain);
     if (ec != null) {

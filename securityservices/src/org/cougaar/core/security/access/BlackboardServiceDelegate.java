@@ -159,7 +159,7 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   }
 
   private Object protectObject(Object o, String perm) {
-    if (isProtected(o)) {
+    if (!EFFICIENT || isProtected(o)) {
       // check if the component has permission to add the object
       SecurityManager sm = System.getSecurityManager();
       if(sm != null) {
@@ -176,7 +176,7 @@ class BlackboardServiceDelegate extends SecureServiceProxy
           throw new SecurityException("You may not publish an object of " +
                                       "class " + o.getClass().getName());
         }
-      } else {
+      } else if (EFFICIENT || isProtected(o)) {
         o = protectObject(o);
       }
     }
