@@ -41,11 +41,12 @@ public class VerbBuilder
     = Logger.getLogger("org.cougaar.core.security.policy.builder.VerbBuilder");
   private static Set _ontVerbs;
 
+  static {
+    initializeVerbs();
+  }
+
   public final static Set hasSubjectValues()
   {
-    if (_ontVerbs == null) {
-      initializeVerbs();
-    }
     return _ontVerbs;
   }
 
