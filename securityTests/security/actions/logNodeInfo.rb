@@ -3,9 +3,13 @@ require 'security/lib/scripting.rb'
 module Cougaar
   module Actions
       class LogNodeInfo < Cougaar::Action
-        def initialize(run, args=nil)
+        # By default, we retrieve the process info every 60 seconds.
+        # However, the action can take two additional parameters which allows
+        # to get the process info faster on one specific node.
+        def initialize(run, nodename=nil, frequency=5.seconds)
           super(run)
-          @args = args
+          @nodename = nodename
+          @frequency = frequency
           @nodeInfoMap = {}
           dirname = "#{CIP}/workspace/test"
           Dir.mkdir("#{CIP}/workspace") unless File.exist?("#{CIP}/workspace")
@@ -83,6 +87,9 @@ module Cougaar
 	    # to parallelize the actions.
 	    Thread.fork() {
 	      sleep_time = 60.seconds
+              if (@nodename != nil && nodeInfo.name == @nodename)
+	        sleep_time = @frequency
+              end
               while (true)
 	        begin
 		  # -h   Do not display header
