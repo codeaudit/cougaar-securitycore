@@ -26,6 +26,7 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -36,9 +37,11 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
@@ -91,6 +94,7 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.thread.Schedulable;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.security.util.CrlUtility;
 
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
@@ -1267,6 +1271,24 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       }
       createCrlBlackBoard();
     }
+  }
+  
+  public X509CRL createCRL(X509Certificate caCert, X509CRL caCRL,
+      X509Certificate clientCert,
+      X509Certificate clientIssuerCert,
+      PrivateKey caPrivateKey,
+      String crlSignAlg ) 
+  throws NoSuchAlgorithmException, InvalidKeyException,
+	CertificateException, CRLException, NoSuchProviderException,
+	SignatureException,IOException {
+  	return CrlUtility.createCRL(caCert, caCRL, clientCert, 
+  			clientIssuerCert, caPrivateKey, crlSignAlg);
+  }
+  
+  public X509CRL createEmptyCrl(String caDN, PrivateKey privatekey,String algorithm) throws 
+  CRLException,NoSuchAlgorithmException, 
+  InvalidKeyException, NoSuchProviderException, SignatureException ,IOException{
+  	return CrlUtility.createEmptyCrl(caDN, privatekey, algorithm);
   }
 
   private class ListenForServices
