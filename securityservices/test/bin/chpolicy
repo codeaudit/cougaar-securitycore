@@ -1,0 +1,4 @@
+#!/bin/sh
+#./sarep -n 'requireSSL="false"' 'requireSSL="true"' $1
+./sarep -n 'auth="EITHER"' 'auth="CERT"' $1 
+mv $1.sarep $1.new
