@@ -1,0 +1,52 @@
+#!/usr/bin/ruby
+####################################################
+# create__mnr_managers_xml.rule
+# It creates mnr_managers.xml which has list of all MnR Managers in the society
+# This file is required by the Umemphis SecurityConsole.
+# If there is any modification in enclave_security_mnr_mgrs/society_security_mnr_mgr it should be reflected 
+# in this script too
+
+require 'cougaar/communities'
+require 'ultralog/enclaves'
+require 'framework/jar_util'
+
+
+opentag = "<QUERY-MnRMANAGER>"
+closetag = "</QUERY-MnRMANAGER>"
+mgrtag = "<MnRMANAGER_INFO mnr_id="
+attributecommunity = "community="
+attclostag = "/>"
+
+file = File.open("#{CIP}/configs/security/mnr_managers.xml" ,"w") { |file|
+  file << opentag
+  file << "\n"
+  society.each_node do |node|
+    node.each_facet(:role) do |facet|
+      if facet[:role] == "RootManagement"
+        agentname = "SocietyMnRManager"
+        file << mgrtag
+        file << "\"#{agentname}\""
+        file << attributecommunity
+        file << "\"ROOT-SECURITY-COMM\""
+        file << attclostag 
+        file << "\n"
+      end
+      if facet[:role] == 'Management'
+       enclave = node.host.get_facet(:enclave)
+       agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "EnclaveMnRManager"  
+       file << mgrtag
+       file << "\"#{agentname}\""
+       file << attributecommunity
+       file << "\"#{enclave}-SECURITY-COMM\""
+       file << attclostag 
+       file << "\n" 
+      end
+    end
+  end
+ file << closetag
+ file << "\n"
+}
+replaceFileInJar("#{CIP}/configs/security/securityservices_config.jar","#{CIP}/configs/security/mnr_managers.xml")
+
+
+ 
