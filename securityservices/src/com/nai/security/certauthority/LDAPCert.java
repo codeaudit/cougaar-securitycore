@@ -48,6 +48,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.InitialLdapContext;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -61,6 +62,9 @@ import java.security.Principal;
 
 import java.text.SimpleDateFormat;
 
+import sun.security.x509.X509CRLEntryImpl;
+
+
 import com.nai.security.crypto.Base64;
 
 public class LDAPCert //extends LdapContext
@@ -68,12 +72,14 @@ public class LDAPCert //extends LdapContext
     protected static String CONTEXT_FACTORY = 
 	"com.sun.jndi.ldap.LdapCtxFactory";
     protected static final String PEM_ATTRIBUTE = "pem_x509";
-    //protected static final String PEM_ATTRIBUTE = "userCertificate";
     protected static final String UID_ATTRIBUTE = "md5";
     protected static final String CA_UID_ATTRIBUTE = "ca_md5";
 
-    private static boolean debug = true;
+    protected static final int NETTOOLS = 1;
+    protected static final int OPENLDAP = 2;
+    protected static int ldapMode = OPENLDAP;
 
+    private static boolean debug = true;
     protected static DirContext ctx;
     protected static MessageDigest md5;
 
@@ -270,8 +276,8 @@ public class LDAPCert //extends LdapContext
 
 	cn = "cn=" + toHex(hash);
 	this.hash = toHex(hash);
-        //dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
-	dn = cert.getSubjectDN().getName();
+        dn = digestAlg.toLowerCase() + "=" +  toHex(hash);
+	//dn = cert.getSubjectDN().getName();
 	//set.put("md5", toHex(hash));
 	//set.put("ca_md5", toHex(ca_hash));
 	set.put("serialNumber",
@@ -338,6 +344,7 @@ public class LDAPCert //extends LdapContext
 
     public LdapEntry revokeCertificate(String cn)
     {
+	if( ! cn.startsWith("cn="))cn = "cn=" + cn;
 	try {
 	    certEntry = (LdapEntry)ctx.lookup(cn);
 	    certEntry.setStatus("3");
@@ -353,18 +360,26 @@ public class LDAPCert //extends LdapContext
     {
 	NamingEnumeration results = null;
 	Attributes set = null;
-	X509Certificate cert;
+	X509Certificate cert = null;
 	String status = null;
 
-	//hash = (hash.startsWith("md5"))? hash: "md5=" + hash;	
+	if(ldapMode == NETTOOLS)
+	    if(! hash.startsWith("md5="))hash = "md5=" + hash;	
+	if(ldapMode == OPENLDAP)
+	    if(! hash.startsWith("cn="))hash = "cn=" + hash;
 	try {
-	    set = ctx.getAttributes(hash);
-	    certEntry = (LdapEntry)ctx.lookup(hash); 
-	    cert = certEntry.getCertificate(); 
-	    status = certEntry.getStatus();
-	    //status = (String)set.get("cert_status").get();
-	    //cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
-	    if(debug) {
+	    if(ldapMode == OPENLDAP) {
+		set = ctx.getAttributes(hash);
+		certEntry = (LdapEntry)ctx.lookup(hash); 
+		cert = certEntry.getCertificate(); 
+		status = certEntry.getStatus();
+	    }
+	    if(ldapMode == NETTOOLS) {
+		status = (String)set.get("cert_status").get();
+		cert = createCert((String)set.get(PEM_ATTRIBUTE).get());
+		certEntry = new LdapEntry(cert, hash, status);
+	    }
+	    if(debug && cert != null) {
 		System.out.println("Retreived dn = " 
 				   + cert.getSubjectDN().getName());
 		//formatAttributes(set);
@@ -465,6 +480,13 @@ public class LDAPCert //extends LdapContext
 	    else if(arg[0].equals("revoke")) {
 		lcert.revokeCertificate(arg[2]);
 	    }
+	    else if(arg[0].equals("crl")) {
+		BigInteger serialNumber = new BigInteger(arg[2], 16);
+		Date currentDate = new Date();
+		X509CRLEntryImpl crlentry = new 
+		    X509CRLEntryImpl(serialNumber, currentDate);
+		lcert.publishCRLentry(crlentry);
+	    }
 	}
 	catch(Exception ex) {
 	    if(debug)ex.printStackTrace();
@@ -472,8 +494,28 @@ public class LDAPCert //extends LdapContext
 
     }
 
-  void publishCRLentry(X509CRLEntry crlEntry) {
-      //certEntry = new LdapEntry(cert, hash, "1");
-      //put();
+  public void publishCRLentry(X509CRLEntry crlEntry) {
+      String serialNo = crlEntry.getSerialNumber().toString(16).toUpperCase();
+      String filter = "(serialNumber=" + serialNo + ")";
+      String name;
+      SearchControls controls = new SearchControls();
+      controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+      try {
+	  name =(String)ctx.getEnvironment().get(Context.PROVIDER_URL);
+	  NamingEnumeration results = ctx.search(name, filter, controls);
+	  while(results.hasMoreElements()) {
+	      Object elm = results.nextElement();
+	      if(elm instanceof NameClassPair) {
+		  NameClassPair pair = (NameClassPair)elm;
+		  if(debug)System.out.println("+++" + pair.getName());
+		  //formatAttributes(ctx.getAttributes(pair.getName()));
+		  if(ctx.getAttributes(pair.getName()).get("objectClass").contains("top"))
+		      revokeCertificate(pair.getName());
+	      } 
+	  }
+      }
+      catch(Exception ex) {
+	  if(debug)ex.printStackTrace();
+      }
   }
 }
