@@ -134,7 +134,7 @@ module Cougaar
     end # CorrectURLs
 
     class TestWPRegistration < Cougaar::Action
-      def initialize(run, interval = 5.minutes, delay = 10.minutes)
+      def initialize(run, interval = 5.minutes, delay = 20.minutes)
         super(run)
         @interval = interval
         @delay = delay
