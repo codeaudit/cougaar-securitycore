@@ -20,9 +20,9 @@ def getSecurityManagersLayout(enclave)
     [$facetRootManagement,     "SocietyMnRManager",             [$facetRootMonitoringManagerAgent]],
     [$facetRootCaManagerAgent, "RootCaManager",                 [$facetRootCaManagerAgent]],
     [$facetCaManagerAgent,     "#{enclave}CaManager",           [$facetCaManagerAgent, $facetCrlManagerAgent]],
-    [$facetManagement,         "#{enclave}MonitoringManager",   [$facetUserManagerAgent, $facetMonitoringManagerAgent]],
+    [$facetManagement,         "#{enclave}MonitoringManager",   [$facetUserManagerAgent, $facetMonitoringManagerAgent, $facetPolicyServletManagerAgent]],
     [$facetManagement,         "#{enclave}PersistenceManager",  [$facetPersistenceManagerAgent]],
-    [$facetManagement,         "#{enclave}PolicyManager",       [$facetPolicyManagerAgent, $facetPolicyServletManagerAgent]],
+    [$facetManagement,         "#{enclave}PolicyManager",       [$facetPolicyManagerAgent]],
   ]
 end
 
