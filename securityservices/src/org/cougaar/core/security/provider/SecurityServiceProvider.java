@@ -123,7 +123,7 @@ public class SecurityServiceProvider
       // Removed because the Logging service is started early in 9.4
 
       LoggingServiceProvider loggingServiceProvider =
-	new LoggingServiceProvider();
+	      new LoggingServiceProvider();
       rootServiceBroker.addService(LoggingService.class,
 				   loggingServiceProvider);
       rootServiceBroker.addService(LoggingControlService.class,
@@ -360,6 +360,14 @@ public class SecurityServiceProvider
       org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
         setNodeServiceBroker(serviceBroker);
 
+      /**********************************
+       * Security context service
+       * NOTE: This service should only be accessible by the security services codebase
+       */
+      newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
+      services.put(SecurityContextService.class, newSP);
+      rootServiceBroker.addService(SecurityContextService.class, newSP);
+      
       /**
        * Authorization service
        */
@@ -375,15 +383,6 @@ public class SecurityServiceProvider
       AuthorizationService authServ = (AuthorizationService) rootServiceBroker.
         getService(this, AuthorizationService.class, null);
       DynamicPolicy.install(authServ);
-                            
-
-      /**********************************
-       * Security context service
-       * NOTE: This service should only be accessible by the security services codebase
-       */
-      newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(SecurityContextService.class, newSP);
-      rootServiceBroker.addService(SecurityContextService.class, newSP);
     }
     else {
       KeyRingService krs =
