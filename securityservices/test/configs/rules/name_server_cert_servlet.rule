@@ -4,7 +4,7 @@
 
 plugin = "org.cougaar.core.security.naming.servlet.NameServerCertificateComponent"
 servletComp = "org.cougaar.core.security.certauthority.CaServletComponent"
-servlet = "org.cougaar.core.security.certauthority.servlet.NameServerCertificateServlet"
+servlet = "org.cougaar.core.security.naming.servlet.NameServerCertificateServlet"
 uri = "NameServerCertificateServlet"
 
 sslRMILinkProtocol = "org.cougaar.mts.std.SSLRMILinkProtocol"
