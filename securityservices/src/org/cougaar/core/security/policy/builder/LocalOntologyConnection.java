@@ -151,6 +151,13 @@ public class LocalOntologyConnection extends OntologyConnection
     return _brains.getSuperPropertiesOf(propertyName);
   }
 
+
+  public Set getSubPropertiesOf(String propertyName) 
+    throws UnknownConceptException, DirectoryFailure
+  {
+    return _brains.getSubPropertiesOf(propertyName);
+  }
+
   /*
    * the following interfaces cannot be implemented without a domain manager.
    */

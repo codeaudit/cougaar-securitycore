@@ -136,6 +136,13 @@ public class KAoSOntologyConnection extends OntologyConnection
     return _kds.getSuperPropertiesOf(propertyName);
   }
 
+
+  public Set getSubPropertiesOf (String propertyName) 
+    throws UnknownConceptException, DirectoryFailure
+  {
+    return _kds.getSubPropertiesOf(propertyName);
+  }
+
   
   /*
    *  Methods requiring a domain manager.
