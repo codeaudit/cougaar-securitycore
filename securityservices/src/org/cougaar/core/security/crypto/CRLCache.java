@@ -113,6 +113,7 @@ final public class CRLCache
   private ConfigParserService configParser = null; 
   private NodeConfiguration nodeConfiguration;
   private ThreadService _threadService;
+  private CommunityTimerTask _communityTimerTask;
 
   protected String blackboardClientName;
   protected AlarmService alarmService;
@@ -128,7 +129,7 @@ final public class CRLCache
   private CertificateCacheService cacheservice=null;
   private KeyRingService keyRingService=null;
   
-  private Collection _mySecurityCommunities = null;
+  private Set _mySecurityCommunities = null;
   private final String CRL_Provider_Role="CrlProvider";
   private MessageAddress myAddress;
   private boolean _listening = false;
@@ -828,13 +829,13 @@ final public class CRLCache
     if (communities == null) {
       _listening = true;
     } else {
-      setMySecurityCommunity(communities);
+      setMySecurityCommunity((Set)communities);
     }
     CommunityChangeListener changeListener = new GetChangedCommunities();
     _communityService.addListener(changeListener);
   }
 
-  private void setMySecurityCommunity(Collection c) {
+  private void setMySecurityCommunity(Set c) {
     _mySecurityCommunities = c;
     if (_mySecurityCommunities.isEmpty()) {
       log.info("Security community information not found yet :" +
@@ -895,9 +896,10 @@ final public class CRLCache
     if (myAddress != null && blackboardService != null) {
       startCrlPoll();
     }
-    if (_threadService != null) {
+    if (_threadService != null && _communityTimerTask == null) {
+      _communityTimerTask = new CommunityTimerTask();
       _threadService.scheduleAtFixedRate(
-	new CommunityTimerTask(), 0L,
+	_communityTimerTask, 0L,
 	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
     }
   }
@@ -947,6 +949,10 @@ final public class CRLCache
 		  community.getName());
 	      }
 	      synchronized (_mySecurityCommunities) {
+		if (log.isDebugEnabled()) {
+		  log.debug("Community collection class: " +
+		    _mySecurityCommunities.getClass().getName());
+		}
 		_mySecurityCommunities.add(community);
 	      }
 	    }
