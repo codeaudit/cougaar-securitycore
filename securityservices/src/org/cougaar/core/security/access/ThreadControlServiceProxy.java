@@ -64,7 +64,7 @@ class ThreadControlServiceProxy extends SecureServiceProxy
   }
             
   public boolean setQualifier(UnaryPredicate predicate) {
-    UnaryPredicate sup = new SecureUnaryPredicate(predicate, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(predicate, _scs.getExecutionContext());
     return _tcs.setQualifier(sup);
   }
             

@@ -45,6 +45,6 @@ class BlackboardQueryServiceProxy extends SecureServiceProxy
   
   public Collection query(UnaryPredicate predicate) {
     ExecutionContext  ec = _scs.getExecutionContext();
-    return _bqs.query(new SecureUnaryPredicate(predicate, ec));
+    return _bqs.query(createSecurePredicate(predicate, ec));
   } 
 }

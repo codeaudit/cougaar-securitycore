@@ -49,7 +49,7 @@ class BlackboardMetricsServiceProxy extends SecureServiceProxy
   }
   public int getBlackboardCount(UnaryPredicate predicate) {
     ExecutionContext  ec = _scs.getExecutionContext();
-    return _bms.getBlackboardCount(new SecureUnaryPredicate(predicate, ec));
+    return _bms.getBlackboardCount(createSecurePredicate(predicate, ec));
   } 
    
   class ClassPredicate implements UnaryPredicate {
