@@ -4,6 +4,10 @@ RULES = File.join(CIP, 'csmart','config','rules')
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib') 
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist') 
 $:.unshift File.join(CIP, 'csmart', 'config', 'lib') 
+
+# Uncomment the following two lines if working in the CSI testbed
+#$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib') 
+#require 'framework/scripting'
  
 require 'cougaar/scripting' 
 #require './create_society.rb' 
@@ -63,6 +67,11 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   # load local rules (ping_env.rule) 
   do_action "TransformSociety", false, ".", 
     "#{RULES}/isat/nameserver.rule",
+    "#{RULES}/isat/default_servlets.rule",
+    "#{RULES}/isat/root_mobility_plugin.rule",
+    "#{RULES}/isat/logging_config_servlet.rule",
+    "#{RULES}/isat/community_plugin.rule",
+#    "#{RULES}/isat",
     "#{RULES}/security" 
  
   # Build the communities.xml file 
@@ -72,7 +81,10 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 
   do_action "SaveCurrentCommunities", "myCommunities.xml" 
- 
+
+  # Uncomment the following line if working in the CSI testbed
+  #do_action "SetAcmeUser" 
+
   # start jabber 
   # 
   # replace the last parameter with your jabber server's host name  
