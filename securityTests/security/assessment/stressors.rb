@@ -198,7 +198,7 @@ module Cougaar
       def initialize(run, percent, *nodes)
         super(run)
         @percent = percent
-        nodes = nodes[0] if nodes.kind_of?(Array)
+        nodes = nodes[0] if nodes[0].kind_of?(Array)
         @nodes = nodes
       end
 
