@@ -47,14 +47,15 @@ class TestReportChainReady < SecurityStressFramework
           explanation += "#{agent} -> "
         end
         explanation += "All good below"
+        saveAssertion stressid, explanation
       end
     end
   end
 
   def getBadChains stack
     superior  = stack.last
-    expected  = expectedSubordinates[superior]
-    found     = foundSubordinates[superior]
+    expected  = @expectedSubordinates[superior]
+    found     = @foundSubordinates[superior]
     badChains = []
     if expected == nil || expected.empty?
       return badChains
@@ -74,14 +75,16 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def eventCall(event)
-    match = /Interception: ReportForDuty: (.*) : (.*)/.match(event.data)
-    if match != nil
-      subordinate = match.to_a[1]
-      superior    = match.to_a[2]
+    regexp = /Interception: ReportForDuty with role : <(.*)> : <(.*)> : (.*)/
+    parsed = regexp.match(event.data)
+    if parsed != nil
+      subordinate = parsed.to_a[1].split(" ").last
+      superior    = parsed.to_a[2].split(" ").last
+      role        = parsed.to_a[3]
       if (@foundSubordinates[superior] == nil)
         @foundSubordinates[superior] = []
       end
-      @found[superior].push(subordinate)
+      @foundSubordinates[superior].push(subordinate)
     end
   end
 end
