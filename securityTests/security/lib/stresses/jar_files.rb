@@ -41,6 +41,10 @@ class CleanupJarFiles < SecurityStressFramework
     super(run)
   end
 
+  def getStressIds()
+    return []
+  end
+
   def cleanupJarFiles
     # restore the original keystore
     begin
@@ -79,7 +83,7 @@ class StressJarFile < SecurityStressFramework
     @cleanupJar = CleanupJarFiles.new(run)
   end
 
-  def postLoadSociety
+  def buildConfigFile
     # move the bootstrap keystore to a backup and copy the test keystore in
     if !$installedTestKeystore
       begin
@@ -98,6 +102,9 @@ class StressJarFile < SecurityStressFramework
       end
       $installedTestKeystore = true
     end
+  end
+
+  def postLoadSociety
   end
 
   def postStopSociety
@@ -130,10 +137,11 @@ class StressConfigJar < StressJarFile
     @cert = cert
   end
 
-  def postLoadSociety
+  def buildConfigFile
+    super
     @filename = "#{@attackNum}.txt"
     s = "Creating"
-    if keystore != nil
+    if @keystore != nil
       s = s + " and signing"
     end
     s = s + " config jar file containing #{@filename}"
@@ -142,20 +150,26 @@ class StressConfigJar < StressJarFile
     if (@keystore != nil)
       signJar(@jarFile, @keystore, @cert)
     end
+  end
 
+  def postLoadSociety
     super
     #installConfigReaderServlet()
   end
 
   def postStopSociety
     super
-    File.unlink(@jarFile)
+    begin
+      File.unlink(@jarFile)
+    rescue
+      logInfoMsg "#{@jarFile} has already been deleted"
+    end
   end
 
   def pokeUrl
     url = "#{@testAgent.uri}/readconfig?file=#{@attackNum}.txt"
     result, url = Cougaar::Communications::HTTP.get(url)
-    saveUnitTestResult(@attackName, "Result from looking #{url}: #{result}")
+    #saveUnitTestResult(@attackName, "Result from looking #{url}: #{result}")
 #    logInfoMsg("Result from looking = #{result}")
     return result == @attackName
   end
@@ -294,7 +308,11 @@ COMPONENT
 
   def postStopSociety
     super
-    File.unlink(@jarFile)
+    begin
+      File.unlink(@jarFile)
+    rescue
+      logInfoMsg "#{@jarFile} has already been deleted"
+    end
   end
 
   def pokeUrl

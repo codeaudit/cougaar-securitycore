@@ -134,17 +134,21 @@ class CertRevocation
 
   end
 
-  def setNodeExpiration(node, timeString)
-puts "expiring #{node.name}"
-
-    agent = node.agents[0]
+  #
+  def requestNewCertificate(node, agent, timeString)
     setCAExpirationAttrib(agent, timeString)
-
     port = getParameter(node, /http.port/, nil)
     url = "http://#{node.host.name}:#{port}/$#{node.name}/MakeCertificateServlet"
     params = ["identifier=#{node.name}"]
     response = postHtml(url, params)
     raise "Failed to get new certificate. Error #{response.body.to_s}" unless response.body.to_s =~ /Success/
+    
+  end
+
+  def setNodeExpiration(node, timeString)
+puts "expiring #{node.name}"
+    agent = node.agents[0]
+    requestNewCertificate(node, agent, timeString)
   end
 
   def setAgentExpiration(agent, timeString)

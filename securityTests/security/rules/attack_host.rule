@@ -26,6 +26,14 @@ if attackHost != nil
     node.add_agent("MessageAttacker") do |agent|
       agent.add_facet({"AgentAttacker" => "true"})
     end
+
+    # Install servlet to request new certificate
+    node.add_component do |c|
+      c.classname = 'org.cougaar.core.security.certauthority.CaServletComponent'
+      c.add_argument("org.cougaar.core.security.crypto.servlet.MakeCertificateServlet")
+      c.add_argument("/MakeCertificateServlet")
+    end
+
   end
 else
   raise "There are no hosts in the society"

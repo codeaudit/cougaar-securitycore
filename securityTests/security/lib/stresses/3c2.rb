@@ -32,6 +32,10 @@ class Security3c2 < SecurityStressFramework
 
    def postStartJabberCommunications
      #printDotsOnCougaarEvents
+     if (@certRevocation == nil)
+       @certRevocation = CertRevocation.new
+     end
+
      on_cougaar_event do |event|
        begin
 	 # puts "event: #{event.event_type}, #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}"
@@ -75,9 +79,6 @@ class Security3c2 < SecurityStressFramework
    def revokeNode(node)
       # Give the agents time to retrieve their certificates
       # user admin may not be started yet
-      if (@certRevocation == nil)
-        @certRevocation = CertRevocation.new
-      end
 
       if (node == nil)
         saveResult("Stress5k103", "Error: could not find node to revoke")
@@ -102,9 +103,6 @@ class Security3c2 < SecurityStressFramework
    def revokeAgent(agent)
       # Give the agents time to retrieve their certificates
       # user admin may not be started yet
-      if (@certRevocation == nil)
-        @certRevocation = CertRevocation.new
-      end
 
       result = @certRevocation.revokeAgent(agent)
       saveResult(result, "Stress5k104",
@@ -168,6 +166,17 @@ class Security3c2 < SecurityStressFramework
 	 revokeAgent(@revoked_agent.name)
 	 sleep(10.minutes)
 	 revokeNode(@revoked_node)
+
+	 sleep(5.minutes)
+	 # Request new certificates for the node and agent
+	 begin
+	   @certRevocation.requestNewCertificate(@revoked_node, @revoked_node.agent, "10 d")
+	   saveUnitTestResult('Stress3c2', "Requested new cert for #{@revoked_node}")
+	   @certRevocation.requestNewCertificate(@revoked_node, @revoked_agent, "10 d")
+	   saveUnitTestResult('Stress3c2', "Requested new cert for #{@revoked_agent}")
+	 rescue => ex2
+	   saveUnitTestResult('Stress3c2', "Unable to request new cert: #{ex2}")
+	 end
        rescue => ex
 	 saveUnitTestResult('Stress3c2', "Unable to run test: #{ex}\n#{ex.backtrace.join("\n")}" )
        end
