@@ -54,7 +54,7 @@ if (! $?COUGAAR3RDPARTY) then
 endif
 
 if ( "$useBootstrapper" == "true") then
-	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
+	set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrap.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
 	set LIBPATHS="${LIBPATHS}:${COUGAAR_INSTALL_PATH}/lib/CougaarCRLextensions.jar"
 	
 else
@@ -91,7 +91,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.coreservices.tomcat.
 # In particular, it will show information about the JAR file signature
 # verification process.
 # Acceptable values: true, shout, false
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=false"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.bootstrap.Bootstrapper.loud=false"
 #set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=all"
 
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=true"
@@ -111,7 +111,7 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 # ########################################################
 
 
-set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace.path=$COUGAAR_WORKSPACE"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_WORKSPACE"
 # Name of configuration file for cryptographic service provider
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
 
@@ -120,6 +120,9 @@ set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 
 # ########################################################
 if ( "$useBootstrapper" == "true") then
+
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper"
+
         # The following property defines the keystore filename. It is used by
 	# the authenticated class loader (to verify that jar files have been
 	# signed using trusted certificate(s), and by the security manager,
@@ -167,8 +170,6 @@ else
 	# the legacy class loader. Use legacy class loader
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=false"
 
-        #this property has to be set so that Node.launch() rather than Bootstrapper.launch() is used to launch the society
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.useBootstrapper=false"
 endif
 
 # This property is used to set the interval (in seconds) at which CRLs are checked
@@ -278,7 +279,6 @@ if ("$os" == "Linux") then
 endif
 
 set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
-#set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
 # See java.lang.System.java on why the bootstrapper needs to be on the bootclasspath
 # New security manager class is not on bootstrap classpath.
@@ -291,14 +291,12 @@ set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 # (in this case: the new security manager class) on the stack).
 
 set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar"
-set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar"
+set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/bootstrap.jar"
+set javaargs="$javaargs -Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar"
 
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
 
-#if ( "$usePersistence" == "true") then
-#    set javaargs="-Xbootclasspath/p:$COUGAAR_INSTALL_PATH/lib/javaiopatch.jar $javaargs"
-#endif
 
 if ($?COUGAAR_DEV_PATH) then
     echo java $javaargs org.cougaar.core.node.Node $args
@@ -307,11 +305,7 @@ endif
 
 # exec instead of eval
 if ( "$useBootstrapper" == "true") then
-	#exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.node.Node $args
-	#echo $****************************
-	#echo $javaargs
-	#echo $****************************
-	exec java $javaargs org.cougaar.core.security.securebootstrap.SecureBootstrapper org.cougaar.core.node.Node $args
+	exec java $javaargs org.cougaar.bootstrap.Bootstrapper org.cougaar.core.node.Node $args
 else
 	exec java $javaargs org.cougaar.core.node.Node $args
 endif

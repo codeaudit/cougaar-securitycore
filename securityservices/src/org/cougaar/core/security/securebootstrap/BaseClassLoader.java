@@ -24,7 +24,7 @@
  * - 
  */
 
-package org.cougaar.core.security.bootstrap;
+package org.cougaar.core.security.securebootstrap;
 
 import java.lang.*;
 import java.util.jar.*;
@@ -34,10 +34,16 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.*;
 
-//import org.cougaar.core.security.bootstrap.*;
+import org.cougaar.bootstrap.*;
 
-public class CougaarClassLoader extends XURLClassLoader {
+public class BaseClassLoader
+  extends XURLClassLoader
+{
+  private static final String PROP_EXCLUSIONS =
+  "org.cougaar.bootstrapper.exclusions";
   protected static List exclusions = new ArrayList();
+  protected int loudness;
+
   static {
     /* All classes in the excluded list will be loaded
        by system class loader. 
@@ -48,40 +54,13 @@ public class CougaarClassLoader extends XURLClassLoader {
     //exclusions.add("com.sun.");
     //exclusions.add("sun.");
     //exclusions.add("net.jini.");
-    String s = System.getProperty("org.cougaar.bootstrapper.exclusions");
+    String s = System.getProperty(PROP_EXCLUSIONS);
     if (s != null) {
-      List extras = explode(s, ':');
-      if (extras != null) {
-	exclusions.addAll(extras);
-	
+      String extras[] = s.split(":");
+      for (int i = 0; i<extras.length; i++) {
+        exclusions.add(extras[i]);
       }
     }
-  }
-  static  final List explode(String s, char sep) {
-    ArrayList v = new ArrayList();
-    int j = 0;                  //  non-white
-    int k = 0;                  // char after last white
-    int l = s.length();
-    int i = 0;
-    while (i < l) {
-      if (sep==s.charAt(i)) {
-        // is white - what do we do?
-        if (i == k) {           // skipping contiguous white
-          k++;
-        } else {                // last char wasn't white - word boundary!
-          v.add(s.substring(k,i));
-          k=i+1;
-        }
-      } else {                  // nonwhite
-        // let it advance
-      }
-      i++;
-    }
-    if (k != i) {
-      // leftover non-white chars
-      v.add(s.substring(k,i));
-    }
-    return v;
   }
 
   private boolean excludedP(String classname) {
@@ -94,9 +73,10 @@ public class CougaarClassLoader extends XURLClassLoader {
     return false;
   }
 
-  public CougaarClassLoader(URL urls[]) {
+  public BaseClassLoader(URL urls[], int loudness) {
     super(urls);
-    if (BaseBootstrapper.loudness>0) {
+    this.loudness = loudness;
+    if (loudness>0) {
       synchronized(System.err) {
 	System.err.println();
 	System.err.println("Bootstrapper URLs: ");
@@ -110,8 +90,7 @@ public class CougaarClassLoader extends XURLClassLoader {
   /*
    */
   protected synchronized Class loadClass(String name, boolean resolve)
-    throws ClassNotFoundException
-  {
+    throws ClassNotFoundException {
     // First, check if the class has already been loaded
     Class c = findLoadedClass(name);
     if (c == null) {
@@ -123,58 +102,57 @@ public class CougaarClassLoader extends XURLClassLoader {
 	try {
 	  c = findClass(name);
 	  checkPackageAccess(name);
-	  }
+	}
 	catch (ClassNotFoundException e) {
 	  // if(BaseBootstrapper.loudness>0) {
-	   System.err.println("Class not found  Exception:");
+	  System.err.println("Class not found  Exception:");
 	  // e.printStackTrace();
-	    // } 
+	  // } 
 	  // If still not found, then call findClass in order
 	  // to find the class.
 	}
 	catch (SecurityException sexp) {
-	  if(BaseBootstrapper.loudness>0) {
+	  if(loudness>0) {
 	    System.err.println("Security Exception:");
 	    sexp.printStackTrace();
 	  }
 	  checkSecurityException(sexp,name);
 	}
-	
       }
     }
-      if (c == null) {
-	ClassLoader parent = getParent();
-	if (parent == null) parent = getSystemClassLoader();
-	c = parent.loadClass(name);
-      }
-      if (BaseBootstrapper.loudness>1) {
-	if (c != null) {
-	  // Classes loaded by the bootstrapper shouldn't have
-	  // the privilege to get the protection domain (this should be
-	  // set in the Java policy file).
-	  // Therefore, we need to execute the following piece of code
-	  // in a doPrivileged() call.
-	  final Class c1 = c;
-	  AccessController.doPrivileged(new PrivilegedAction() {
-	      public Object run() {
-		ProtectionDomain p = c1.getProtectionDomain();
-		if (p != null) {
-		  java.security.CodeSource cs = p.getCodeSource();
-		  if (cs != null) {
-		    System.err.println("BCL: "+c1
-				       + " loaded from "+cs.getLocation()
-				       + " with "
-				       + c1.getClassLoader().toString());
-		  }
+    if (c == null) {
+      ClassLoader parent = getParent();
+      if (parent == null) parent = getSystemClassLoader();
+      c = parent.loadClass(name);
+    }
+    if (loudness>1) {
+      if (c != null) {
+	// Classes loaded by the bootstrapper shouldn't have
+	// the privilege to get the protection domain (this should be
+	// set in the Java policy file).
+	// Therefore, we need to execute the following piece of code
+	// in a doPrivileged() call.
+	final Class c1 = c;
+	AccessController.doPrivileged(new PrivilegedAction() {
+	    public Object run() {
+	      ProtectionDomain p = c1.getProtectionDomain();
+	      if (p != null) {
+		java.security.CodeSource cs = p.getCodeSource();
+		if (cs != null) {
+		  System.err.println("BCL: "+c1
+				     + " loaded from "+cs.getLocation()
+				     + " with "
+				     + c1.getClassLoader().toString());
 		}
-		return null;
 	      }
-	    });
-	}
-	else {
-	  System.out.println("Unable to find class: " + name);
-	}
+	      return null;
+	    }
+	  });
       }
+      else {
+	System.out.println("Unable to find class: " + name);
+      }
+    }
     if (resolve) {
       resolveClass(c);
     }
@@ -227,7 +205,8 @@ public class CougaarClassLoader extends XURLClassLoader {
     CodeSource cs = pd.getCodeSource();
     PermissionCollection pc = pd.getPermissions();
     Enumeration perm = pc.elements();
-    System.out.println("Class: " + c + " - Code Source:" + cs + " - Permissions:");
+    System.out.println("Class: " + c + " - Code Source:"
+		       + cs + " - Permissions:");
     while (perm.hasMoreElements()) {
       System.out.println(perm.nextElement());
     }

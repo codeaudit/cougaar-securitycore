@@ -37,7 +37,6 @@ import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.mts.MessageAddress;
 
 // Cougaar Security Services
-import org.cougaar.core.security.bootstrap.BaseBootstrapper;
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
@@ -84,7 +83,6 @@ public class CryptoManagerServiceImpl
       return new SignedObject(obj, pk, se);
     } catch (Exception e) {
       e.printStackTrace();
-      BaseBootstrapper.printProviderProperties();
       throw new RuntimeException(e.toString());
     }
   }

@@ -29,15 +29,16 @@ package org.cougaar.core.security.securebootstrap;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import org.cougaar.core.security.bootstrap.*;
 
 public class SecurityLog 
   implements Runnable
 {
-  PrintStream log=null;
-  public SecurityLog()
+  private PrintStream log;
+  private int loudness;
+  
+  public SecurityLog(int loudness)
   {
-    
+    this.loudness = loudness;
   }
   public void createLogFile(String nodeName) {
 
@@ -62,7 +63,7 @@ public class SecurityLog
       System.getProperty("org.cougaar.core.security.bootstrap.JarVerificationLogFile",
 			 defaultLogName);
 
-    if (BaseBootstrapper.loudness > 0) {
+    if (loudness > 0) {
       System.out.println("Creating Jar Verification Log " + logname);
     }
 
@@ -90,7 +91,7 @@ public class SecurityLog
       e.printStackTrace(log);
       log.print("</stack></securityEvent>\n");
     }
-    else if (BaseBootstrapper.loudness > 0) {
+    else if (loudness > 0) {
       System.out.println("Unable to log JAR file verification error:" + e);
     }
   }

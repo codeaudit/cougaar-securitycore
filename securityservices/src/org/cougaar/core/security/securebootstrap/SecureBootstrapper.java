@@ -36,8 +36,6 @@ import java.util.jar.*;
 import java.security.*;
 import java.security.cert.*;
 
-import org.cougaar.core.security.bootstrap.*;
-
 /**
  * A bootstrapping launcher, in particular, for a node.
  * <p>
@@ -87,38 +85,34 @@ import org.cougaar.core.security.bootstrap.*;
  * When set to "shout" will additionally print the location of the jar/zip file
  * used to load each and every class.
  **/
-public class SecureBootstrapper extends BaseBootstrapper
+
+public class SecureBootstrapper
+  extends BaseBootstrapper
 {
-  SecurityLog securelog=null;
-  private HashMap untrustedjars;
-  public static void main(String[] args) {
-    int argc = args.length;
-    String[] launchArgs = new String[argc - 1];
-    String className = args[0];
-    SecureBootstrapper bootstrapper=new SecureBootstrapper();
-    System.arraycopy(args, 1, launchArgs, 0, launchArgs.length);
+  private SecurityLog securelog=null;
 
-    bootstrapper.launch(className, launchArgs);
-  }
-
-  protected void launchNode(final Method main, final Object[] argv)
-    throws java.lang.IllegalAccessException,
-    java.lang.reflect.InvocationTargetException {
+  /** Find the primary application entry point for the application class
+   *  and call it.
+   *  The default implementation will look for
+   *  static void launch(String[]) and then 
+   *  static void main(String[]).
+   * This method contains all the reflection code for invoking the application.
+   **/
+  protected void launchMain(final ClassLoader cl, final String classname,
+			    final String[] args) {
     final String node = getNodeName();
     JaasClient jc = new JaasClient();
-
     try {
       jc.doAs(node,
 	      new java.security.PrivilegedExceptionAction() {
-		  public Object run()
-		    throws java.lang.IllegalAccessException,
-		    java.lang.reflect.InvocationTargetException {
+		  public Object run() {
 		    System.out.println("Node being loaded: "
-				     + node
+				       + node
 				       + " security context is:");
 		    JaasClient.printPrincipals();
-		    main.invoke(null,argv);
-		    return null;              }
+		    SecureBootstrapper.super.launchMain(cl, classname, args);
+		    return null;
+		  }
 		});
     }
     catch (Exception e) {
@@ -126,171 +120,104 @@ public class SecureBootstrapper extends BaseBootstrapper
     }
   }
 
-  protected void createJarVerificationLog(String nodeName) {
-    securelog=new SecurityLog();
-    securelog.createLogFile(nodeName);
-
- 
-  }
-  public SecureBootstrapper()
-  {
-    untrustedjars=new HashMap();
+  protected void createJarVerificationLog() {
+    securelog = new SecurityLog(loudness);
+    securelog.createLogFile(getNodeName());
+    if (loudness>0) {
+      System.out.println("Jar verification log created");
+    }
   }
 
-  /** verify each archive to be trusted */
-  protected URL[] getTrustedArchives(CodeArchive[] codeArchives)
-    throws IOException
+  public void setSecurityManager()
   {
-    for (int i=0; i<codeArchives.length; i++) {
-      if (codeArchives[i].getSignatureRequired() == false) {
-	if (loudness > 0) {
-	  System.out.println(codeArchives[i].getURL() + " signature will not be checked");
-	}
-	continue;
+    boolean useSecurityManager = 
+      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.useSecurityManager", "true"))).booleanValue();    
+    if (useSecurityManager == true) {
+      // Set Java Security Manager
+      if(getNodeName() != null){
+	System.setSecurityManager(new CougaarSecurityManager(getNodeName()));
       }
+      else{
+	System.out.println("node name is null");
+      }
+    }
+    if (loudness>0) {
+      System.out.println("Security Manager set");
+    }
+  }
+
+  protected ClassLoader createClassLoader(List l) {
+    ClassLoader cl = null;
+
+    if (loudness>0) {
+      System.out.println("SecureBootstrapper.createClassLoader");
+    }
+    URL urls[] = (URL[]) l.toArray(new URL[l.size()]);
+
+    boolean useAuthenticatedLoader =
+      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.useAuthenticatedLoader", "true"))).booleanValue();
+
+    if (useAuthenticatedLoader == true) {
+      if (loudness > 0) {
+	System.out.println("Using authenticated class loader");
+      }
+      URL[] trustedURLs = getTrustedArchives(urls);
+      cl = new SecureClassLoader(trustedURLs, securelog, loudness);
+    }
+    else {
+      if (loudness > 0) {
+	System.out.println("Using legacy class loader");
+      }
+      cl = new BaseClassLoader(urls, loudness);
+    }
+    return cl;
+  }
+  /** verify each archive to be trusted */
+  private URL[] getTrustedArchives(URL[] urls) {
+    CertificateVerifier cv = new CertificateVerifier();
+    ArrayList trustedJars = new ArrayList();
+
+    for (int i = 0 ; i < urls.length ; i++) {
       JarFile jf=null;
       try {
-
-	CertificateVerifier cv = new CertificateVerifier();
-
 	//create JarFile, set verification option to true
 	//will throw exception if cannot be verified
-	jf = new JarFile(codeArchives[i].getURL().getPath(), true);
+	jf = new JarFile(urls[i].getPath(), true);
 
 	//do certificate verification, throw an exception
 	//and exclude from urls if not trusted
 	cv.verify(jf);
 	//if (loudness > 0)
 	//System.out.println(codeArchives[i].getURL() + " has been verified");
+	trustedJars.add(urls[i]);
 
       } catch (Exception e) {
 	/* When the security services fail to be verified, we exit
 	   because the security services are a critical component. */
-	Enumeration en = jf.entries();
-	while (en.hasMoreElements()) {
-	  ZipEntry ze = (ZipEntry) en.nextElement();
-	  if (ze.getName().startsWith("org/cougaar/core/security")
-	      || ze.getName().startsWith("com\\nai\\security")
-	      || ze.getName().startsWith("org/cougaar/core/security")
-	      || ze.getName().startsWith("org\\cougaar\\core\\security")) {
-	    System.out.println("Cannot continue without security services:"
-			       + e);
-	    securelog.logJarVerificationError(e);
-	    System.exit(0);
-	  }
-	}
 	if (loudness > 0)
-	  System.out.println(codeArchives[i].getURL()
+	  System.out.println(urls[i]
 			     + " could not be verified. " + e);
 	if (e instanceof GeneralSecurityException
 	    || e instanceof SecurityException) {
-	  e.printStackTrace();
-	  codeArchives = excludeFromURLs(codeArchives, i);
-	  //urls[i] one more time -- it now contains a different URL
-	  i--;
-	  //report to the log
 	  securelog.logJarVerificationError(e);
 	  continue;
 	}
       }
+    }
+    URL trustedURLs[] =
+      (URL[]) trustedJars.toArray(new URL[trustedJars.size()]);
 
+    if(loudness > 0) {
+      printcodearchives(trustedURLs);
     }
-    //printcodearchives(codeArchives);
-    return getURLs(codeArchives);
-  }
-  protected void printcodearchives(CodeArchive[] arch)
-  {
-    if(BaseBootstrapper.loudness>0) {
-      CodeArchive carch=null;
-      System.out.println("trusted archive is :::");
-      for(int i=0;i<arch.length;i++) {
-	System.out.println(arch[i].getURL().toString());
-      }
-    }
+    return trustedURLs;
   }
 
-  /** helper method to remove urls that are not trusted */
-  protected CodeArchive[] excludeFromURLs(CodeArchive[] codeArchives, int index) {
-    CodeArchive[] newCodeArchives = new CodeArchive[codeArchives.length - 1];
-    System.arraycopy(codeArchives, 0, newCodeArchives, 0, index);
-    untrustedjars.put(codeArchives[index].getURL().toString(),codeArchives[index].getURL());
-    System.arraycopy(codeArchives, index + 1, newCodeArchives, index, newCodeArchives.length - index);
-    return newCodeArchives;
-  }
-  public HashMap getuntrustedpath()
-  {
-    return untrustedjars;
-    
-  }
-
-  protected void accumulateJars(List l, File f)
-  {
-    accumulateJars(l,f,true);
-  }
-
-  protected  void accumulateClasspath(List l, String path)
-  {
-    accumulateClasspath(l, path,true);
-  }
-  
-  protected ArrayList accumulateJarsandClasspath(String base)
-  {
-    ArrayList l=super.accumulateJarsandClasspath(base);
-    accumulateClasspath(l, System.getProperty("java.class.path"));
-    if(BaseBootstrapper.loudness>1)
-      {
-	System.out.println("classpath from secure bootstrapper::  "+ System.getProperty("java.class.path"));
-	printlist(l);
-      }
-    return l;
-    
-  }
-
-  public void setSecurityManager(String nodeName)
-  {
-    boolean useSecurityManager = 
-      (Boolean.valueOf(System.getProperty("org.cougaar.core.security.useSecurityManager", "true"))).booleanValue();    
-    if (useSecurityManager == true) {
-      // Set Java Security Manager
-      if(nodeName!=null){
-	System.setSecurityManager(new CougaarSecurityManager(nodeName));
-      }
-      else{
-	System.out.println("node name is null");
-      }
+  private void printcodearchives(URL[] arch) {
+    System.out.println("trusted archives:");
+    for(int i=0;i<arch.length;i++) {
+	System.out.println(arch[i].toString());
     }
   }
-  public void setClassLoader( CodeArchive[] codeArchives)
-  {
-    try {
-      boolean useAuthenticatedLoader =
-	(Boolean.valueOf(System.getProperty("org.cougaar.core.security.useAuthenticatedLoader", "true"))).booleanValue();
-      if (useAuthenticatedLoader == true) {
-	if (loudness > 0) {
-	  System.out.println("Using authenticated class loader");
-	}
-	baseclassloader = new SecureCougaarClassLoader(getTrustedArchives(codeArchives),getuntrustedpath(), securelog);
-      }
-      else {
-	if (loudness > 0) {
-	  System.out.println("Using legacy class loader");
-	}
-	baseclassloader = new CougaarClassLoader(getURLs(codeArchives));
-	 
-      }
-    }
-    catch (Exception e) {
-      System.err.println("Failed to launch startclassloader :  ");
-      e.printStackTrace();
-    }
-  }
+
 }
-
-
-
-
-
-
-
-
-
