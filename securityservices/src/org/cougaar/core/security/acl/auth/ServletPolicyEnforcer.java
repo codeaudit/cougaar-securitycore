@@ -72,8 +72,6 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
   public  static final String SET_AUTH_CONSTRAINT   = "auth-constraint";
   public  static final String SET_LOGIN_FAILURE_SLEEP_TIME = "login-failure-sleep";
 
-  static final String STR_ARRAY[] = new String[1];
-
   public ServletPolicyEnforcer(ServiceBroker sb) {
     _serviceBroker = sb;
     _servletGuard  = new ServletGuard();
@@ -235,7 +233,7 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         }
       }
     }
-    return (String[]) roles.toArray(STR_ARRAY);
+    return (String[]) roles.toArray(new String[roles.size()]);
   }
 
 
