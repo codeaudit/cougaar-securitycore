@@ -51,6 +51,8 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   private String agent;
   private SecureMethodParam policy;
   private DataProtectionKeyImpl dpKey;
+  private Cipher ci;
+  private ObjectOutputStream oos;
 
   public static final String strPrefix = "--SIGNATUREBEGIN--";
   public static final String strPostfix = "--SIGNATUREEND--";
@@ -58,9 +60,9 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   /**
    * buffer size, when reached will flush to output stream
    */
-  private static int buffersize = 10000;
+  private static int buffersize = 30000;
   private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-  private FilterOutputStream theos = null;
+  private OutputStream theos = null;
   private int totalBytes = 0;
 
   public DataProtectionOutputStream(OutputStream os,
@@ -91,18 +93,20 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     String digestAlg = dpKey.getDigestAlg();
 
     // encrypt stream
+    theos = bos;
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-      Cipher ci=Cipher.getInstance(policy.symmSpec);
+      //Cipher ci=Cipher.getInstance(policy.symmSpec);
+      ci = encryptionService.getCipher(policy.symmSpec);
       ci.init(Cipher.ENCRYPT_MODE,skey);
-      theos = new CipherOutputStream(bos, ci);
+      theos = new CipherOutputStream(theos, ci);
     }
 
     MessageDigest md = MessageDigest.getInstance(digestAlg);
-    if (theos != null)
-      theos = new DigestOutputStream(theos, md);
-    else
-      theos = new DigestOutputStream(bos, md);
+    theos = new DigestOutputStream(theos, md);
+    oos = new ObjectOutputStream(out);
+
+    System.out.println("Opening output stream " + agent + " : " + new Date());
   }
 
   private SecretKey getSecretKey()
@@ -113,7 +117,11 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   }
 
   public void close() throws IOException {
-    flushToOutput();
+    System.out.println("Closing output stream " + new Date());
+    flushToOutput(true);
+
+    if (ci != null)
+      encryptionService.returnCipher(policy.symmSpec, ci);
     super.close();
   }
 
@@ -121,34 +129,40 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     // data is stored in memory, does not get flushed out until limit reached
   }
 
-  public void flushToOutput() throws IOException {
+  public void flushToOutput(boolean genDigest) throws IOException {
     // close output stream so that cipher can be completed
     theos.close();
 
     // use this as a marker
     //out.write(strPrefix.getBytes());
-
-    // generate digest and sign
-    MessageDigest md = ((DigestOutputStream)theos).getMessageDigest();
-    try {
-      SignedObject sobj = encryptionService.sign(agent, policy.signSpec,
-        new DataProtectionDigestObject(md.digest(), /*totalBytes*/bos.size()));
-      SecretKey skey = getSecretKey();
-      SealedObject sealedObj = encryptionService.symmEncrypt(skey, policy.symmSpec, sobj);
-      ObjectOutputStream oos = new ObjectOutputStream(out);
-      oos.writeObject(sealedObj);
-      oos.flush();
-    } catch (GeneralSecurityException ex) {
-      throw new IOException("Cannot sign digest: " + ex.toString());
-    }
+    oos.writeInt(bos.size());
+    oos.writeInt(genDigest ? 1 : 0);
+    oos.flush();
 
     bos.writeTo(out);
     bos.reset();
-    totalBytes = 0;
-  }
 
-  private String getHeader(int totalSize, int signOffset) {
-    return new String(totalSize + "s" + signOffset);
+    if (genDigest) {
+      // generate digest and sign
+      MessageDigest md = ((DigestOutputStream)theos).getMessageDigest();
+      try {
+        Serializable sobj = new DataProtectionDigestObject(md.digest(), totalBytes);
+        if (policy.secureMethod == SecureMethodParam.SIGN
+          || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+          sobj = encryptionService.sign(agent, policy.signSpec, sobj);
+        }
+        if (policy.secureMethod == SecureMethodParam.ENCRYPT
+          || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
+          SecretKey skey = getSecretKey();
+          sobj = encryptionService.symmEncrypt(skey, policy.symmSpec, sobj);
+        }
+        oos.writeObject(sobj);
+        oos.flush();
+      } catch (GeneralSecurityException ex) {
+        throw new IOException("Cannot sign digest: " + ex.toString());
+      }
+
+    }
   }
 
   public void write(byte[] b) throws IOException {
@@ -156,7 +170,6 @@ public class DataProtectionOutputStream extends FilterOutputStream {
   }
 
   public void write(int b) throws IOException {
-    totalBytes++;
     theos.write(b);
   }
 
@@ -165,7 +178,7 @@ public class DataProtectionOutputStream extends FilterOutputStream {
     totalBytes += len;
     theos.write(b, off, len);
     if (bos.size() > buffersize)
-      flushToOutput();
+      flushToOutput(false);
   }
 
   public static int getBufferSize() {
