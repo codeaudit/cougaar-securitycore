@@ -144,11 +144,57 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     capabilities.add( imessage.createClassification( "POD", null  ) );
     capabilities.add( imessage.createClassification( "TCPSCAN", null  ) );
     capabilities.add( imessage.createClassification( "LOGINFAILURE", null  ) );
-   
-    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,
-							   IdmefMessageFactory.newregistration,
-							   IdmefMessageFactory.SensorType);
     
+    ArrayList sources=new ArrayList();
+    ArrayList targets=new ArrayList();
+    ArrayList addresslist=new ArrayList();
+    Address sourceaddress =imessage.createAddress("192.168.1.1",null, Address.IPV4_ADDR);
+    addresslist.add(sourceaddress);
+    IDMEF_Node node=imessage.createNode("Analyzer",addresslist);
+    ArrayList userlist=new ArrayList();
+    UserId userid =imessage.createUserId("rtripath");
+    userlist.add(userid);
+    User user=imessage.createUser(userlist);
+    Source source=imessage.createSource(node,user,null,null,null);
+    Target target=imessage.createTarget(node,user,null,null,null,null);
+    ArrayList ref=new ArrayList();
+    ref.add(source.getIdent());
+    ref.add(target.getIdent());
+    org.cougaar.core.security.monitoring.idmef.Agent agent=imessage.createAgent("Analyzer","testAnalyzer","CA",sourceaddress,ref);
+    AdditionalData adddata=imessage.createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agent);
+
+    //creating second source
+
+    Address sourceaddress1 =imessage.createAddress("192.168.1.2",null, Address.IPV4_ADDR);
+    ArrayList addresslist1=new ArrayList();
+    addresslist1.add(sourceaddress1);
+    IDMEF_Node node1=imessage.createNode("Analyzer1",addresslist1);
+     ArrayList userlist1=new ArrayList();
+    UserId userid1 =imessage.createUserId("rtripath");
+    userlist1.add(userid1);
+    User user1=imessage.createUser(userlist1);
+    Source source1=imessage.createSource(node1,user1,null,null,null);
+    Target target1=imessage.createTarget(node1,user1,null,null,null,null);
+    ArrayList ref1=new ArrayList();
+    ref1.add(source1.getIdent());
+    ref1.add(target1.getIdent());
+    org.cougaar.core.security.monitoring.idmef.Agent agent1=imessage.createAgent("Analyzer1","testAnalyzer","CA",sourceaddress1,ref1);
+    AdditionalData adddata1=imessage.createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agent1);
+    sources.add(source);
+    sources.add(source1);
+    targets.add(target);
+    targets.add(target1);
+    ArrayList  datas=new ArrayList();
+    datas.add(adddata);
+    datas.add(adddata1);
+    //Classification [] classification=(Classification[])capabilities.toArray(new Classification[0]);
+    //Target [] target=new Target[0];
+    RegistrationAlert reg=imessage.createRegistrationAlert(sensor,sources,targets,capabilities,datas,IdmefMessageFactory.newregistration,
+							    IdmefMessageFactory.SensorType,myAddress.toString());
+    /* RegistrationAlert reg=imessage.createRegistrationAlert(sensor,capabilities,
+       IdmefMessageFactory.newregistration,
+       IdmefMessageFactory.SensorType);
+    */
     NewEvent event=factory.newEvent(reg);
     if(log.isDebugEnabled()) {
     log.debug(" going to publish capabilities in Test Dummy sensorplugin  1:");
@@ -162,26 +208,73 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     getBlackboardService().publishAdd(relay);
     if(log.isDebugEnabled()) {
       log.debug("From testDummysensorPlugin :"+ myAddress.toString() +"  relay is :"+relay.toString());
+      /*
       log.debug(" Going to dump targets :");
-      Set targets =relay.getTargets();
-      Iterator iter=targets.iterator();
+      
+      Set stargets =relay.getTargets();
+      Iterator iter=stargets.iterator();
       while(iter.hasNext()) {
 	log.debug("!!!!!!!!!!!! Target :"+ iter.next().toString());
       }
+      */
     }
+    ArrayList sources1=new ArrayList();
+    ArrayList targets1=new ArrayList();
+
+    ArrayList addresslist2=new ArrayList();
+    Address sourceaddress2 =imessage.createAddress("192.168.1.3",null, Address.IPV4_ADDR);
+    addresslist2.add(sourceaddress2); 
+    IDMEF_Node node2=imessage.createNode("Analyzer2",addresslist2);
+     ArrayList userlist2=new ArrayList();
+    UserId userid2=imessage.createUserId("rtripath");
+    userlist2.add(userid2);
+    User user2=imessage.createUser(userlist2);
+    Source source2=imessage.createSource(node2,user2,null,null,null);
+    Target target2=imessage.createTarget(node2,user2,null,null,null,null);
+    sources1.add(source2);
+    targets1.add(target2);
+    ArrayList ref2=new ArrayList();
+    ref2.add(source2.getIdent());
+    ref2.add(target2.getIdent());
+    org.cougaar.core.security.monitoring.idmef.Agent agent2=imessage.createAgent("Analyzer2","testAnalyzer","CA",sourceaddress2,ref2);
+    AdditionalData adddata2=imessage.createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agent2);
+    ArrayList addresslist3=new ArrayList();
+    Address sourceaddress3 =imessage.createAddress("192.168.1.1",null, Address.IPV4_ADDR);
+    addresslist3.add(sourceaddress3);
+    IDMEF_Node node3=imessage.createNode("Analyzer",addresslist3);
+    ArrayList userlist3=new ArrayList();
+    UserId userid3 =imessage.createUserId("rtripath");
+    userlist3.add(userid3);
+    User user3=imessage.createUser(userlist3);
+    Source source3=imessage.createSource(node3,user3,null,null,null);
+    Target target3=imessage.createTarget(node3,user3,null,null,null,null);
+    ArrayList ref3=new ArrayList();
+    ref3.add(source3.getIdent());
+    ref3.add(target3.getIdent());
+    org.cougaar.core.security.monitoring.idmef.Agent agent3=imessage.createAgent("Analyzer3","testAnalyzer","CA",sourceaddress3,ref3);
+    AdditionalData adddata3=imessage.createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.SOURCE_MEANING,agent3);
+     sources1.add(source3);
+     targets1.add(target3);
+    ArrayList datas1=new ArrayList();
+    datas1.add(adddata2);
+    datas1.add(adddata3);
     sensor=new TestDummySensor (sensor_name+1);
     capabilities.add( imessage.createClassification( "SecurityException", null  ) );
     capabilities.add( imessage.createClassification( "JarException", null  ) );
-    reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration,
+    //classification=(Classification[])capabilities.toArray(new Classification[0]);
+    
+    RegistrationAlert reg1=imessage.createRegistrationAlert(sensor,sources1,targets1,capabilities,datas1,IdmefMessageFactory.newregistration,
+							   IdmefMessageFactory.SensorType,myAddress.toString());
+    /*reg=imessage.createRegistrationAlert(sensor,capabilities,IdmefMessageFactory.newregistration,
 					 IdmefMessageFactory.SensorType);
+    */
+    Event event1=factory.newEvent(reg1);
     
-    event=factory.newEvent(reg);
-    
-    relay = factory.newCmrRelay(event,mgrAddress);
+    CmrRelay relay1 = factory.newCmrRelay(event1,mgrAddress);
     if(log.isDebugEnabled())
-      log.debug("From testDummysensorPlugin with new Sensor  :"+ myAddress.toString() +"  relay is :"+relay.toString());
+      log.debug("From testDummysensorPlugin with new Sensor  :"+ myAddress.toString() +"  relay is :"+relay1.toString());
     //getBlackboardService().openTransaction();
-    getBlackboardService().publishAdd(relay);
+    getBlackboardService().publishAdd(relay1);
     log.debug("Publish DONE  ****************************************");
     //getBlackboardService().closeTransaction();
     //mgrAddress=new AttributeBasedAddress(dest_community,"Role",mgrrole);
