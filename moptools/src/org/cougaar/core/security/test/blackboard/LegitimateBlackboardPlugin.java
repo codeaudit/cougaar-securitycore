@@ -49,7 +49,7 @@ import org.cougaar.core.service.UIDService;
  * @author ttschampel
  */
 public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
-  private UIDService uidService;
+  private UID addUID = null;
 
   /**
    * DOCUMENT ME!
@@ -59,15 +59,6 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
     setPluginName("LegitimateBlackboardPlugin");
   }
 
-  /**
-   * set uid service
-   *
-   * @param service UIDService
-   */
-  public void setUIDService(UIDService service) {
-    uidService = service;
-  }
-  
   /**
    * Query for org activities and produce idmef event when  org activities
    * should be present, but can't get any through querying the blacboard
@@ -80,44 +71,62 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       //success	
       this.successes++;
     } else {
-      // Try to add OrgActivity objects to the blackboard
-      UID oplanId = uidService.nextUID();
-      OrgActivity oa = OplanFactory.newOrgActivity("foobarActivityType",
-						   "foobarActivityName",
-						   "foobarOrgId", 
-						   oplanId);
-      try {
-	this.totalRuns++;
-	getBlackboardService().publishAdd(oa);
-	this.successes++;
+      // Try to add OrgActivity objects to the blackboard with a fake OrgActivity
+      publishAddOrgActivity();
+    }
+  }
+
+  private void publishAddOrgActivity() {
+    OrgActivity oa = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
+    oa.setActivityName("LegitimatePlugingActivityName");
+    oa.setUID(uidService.nextUID());
+    MessageAddress ma = null;
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class, null);
+    if(ais != null) {
+      ma = ais.getMessageAddress(); 
+      getServiceBroker().releaseService(this, AgentIdentificationService.class, ais);
+    }
+    else {
+      if (logging.isWarnEnabled()) {
+	logging.warn("Unable to get AgentIdentificationService");
       }
-      catch (Exception e) {
-	if (logging.isWarnEnabled()) {
-	  logging.warn("Unable to publishAdd OrgActivity!");
-	}
-	this.failures++;
-	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+    }
+    ((OrgActivityImpl)orgActivity).setOwner(ma);
+    this.addUID = orgActivity.getUID();
+
+    try {
+      this.totalRuns++;
+      getBlackboardService().publishAdd(oa);
+      this.successes++;
+    }
+    catch (Exception e) {
+      if (logging.isWarnEnabled()) {
+	logging.warn("Unable to publishAdd OrgActivity!", e);
       }
-      // Try again
-      orgActivities = getBlackboardService().query(this.orgActivityPredicate);
-      iter = orgActivities.iterator();
-      if (!iter.hasNext()) {
-	//failure
-	this.failures++;
-	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+      this.failures++;
+      this.createIDMEFEvent(pluginName, "Can't access OrgActivity object: " + e);
+    }
+
+    // Try to query again
+    orgActivities = getBlackboardService().query(this.orgActivityPredicate);
+    iter = orgActivities.iterator();
+    if (!iter.hasNext()) {
+      //failure
+      this.failures++;
+      this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
+    }
+    try {
+      this.totalRuns++;
+      getBlackboardService().publishRemove(oa);
+      this.successes++;
+    }
+    catch (Exception e) {
+      if (logging.isWarnEnabled()) {
+	logging.warn("Unable to publishRemove OrgActivity!", e);
       }
-      try {
-	this.totalRuns++;
-	getBlackboardService().publishRemove(oa);
-	this.successes++;
-      }
-      catch (Exception e) {
-	if (logging.isWarnEnabled()) {
-	  logging.warn("Unable to publishRemove OrgActivity!");
-	}
-	this.failures++;
-	this.createIDMEFEvent(pluginName, "Can't access OrgActivity object");
-      }
+      this.failures++;
+      this.createIDMEFEvent(pluginName, "Can't access OrgActivity object: " + e);
     }
   }
 }

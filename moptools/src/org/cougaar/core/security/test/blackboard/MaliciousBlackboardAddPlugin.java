@@ -143,6 +143,16 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
     }
     ((OrgActivityImpl)orgActivity).setOwner(ma);
     this.addUID = orgActivity.getUID();
-    getBlackboardService().publishAdd(orgActivity);
+    try {
+      getBlackboardService().publishAdd(orgActivity);
+      if (logging.isWarnEnabled()) {
+	logging.warn("Could publishAdd OrgActivity - This plugin should NOT have the permission");
+      }
+    }
+    catch (SecurityException e) {
+      if (logging.isInfoEnabled()) {
+	logging.info("Unable to publishAdd OrgActivity - This is what we expected");
+      }
+    }
   }
 }

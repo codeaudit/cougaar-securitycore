@@ -115,7 +115,17 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
     if (iterator.hasNext()) {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       this.deleteUID = orgActivity.getUID();
-      getBlackboardService().publishRemove(orgActivity);
+      try {
+	getBlackboardService().publishRemove(orgActivity);
+	if (logging.isWarnEnabled()) {
+	  logging.warn("Could publishRemove OrgActivity - This plugin should NOT have the permission");
+	}
+      }
+      catch (SecurityException e) {
+	if (logging.isInfoEnabled()) {
+	  logging.info("Unable to publishRemove OrgActivity - This is what we expected");
+	}
+      }
 
     } else {
       this.deleteUID = null;

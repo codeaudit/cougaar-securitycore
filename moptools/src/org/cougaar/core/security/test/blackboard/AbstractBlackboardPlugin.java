@@ -147,7 +147,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
   /** Time interval between blackboard queries for org activity */
   protected long timeInterval = 0;
   /** Default polling interval for org activities */
-  protected final long DEFAULT_TIME_INTERVAL = 10000;
+  protected final long DEFAULT_TIME_INTERVAL = 10 * 1000;
 
   /**
    * DOCUMENT ME!
@@ -285,6 +285,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     Iterator iter = parameters.iterator();
 
     dumpDir = System.getProperty("org.cougaar.workspace") + File.separator + "security" + File.separator + "mopresults";
+    this.timeInterval = this.DEFAULT_TIME_INTERVAL;
 
     while (iter.hasNext()) {
       try {
@@ -307,10 +308,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       } catch (Exception nfe) {
         if (logging.isErrorEnabled()) {
           logging.error("Invalid format of plugin parameter should be PARAM=VALUE");
-
         }
-
-        this.timeInterval = this.DEFAULT_TIME_INTERVAL;
       }
     }
 
