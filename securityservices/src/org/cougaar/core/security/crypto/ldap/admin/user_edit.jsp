@@ -148,7 +148,10 @@ function updateName() {
           <input type="button" value="Disable" onClick="disableUser();">
 <%
         } else if (field == UserInterface.LDAP_USER_CERTOK) {
-          boolean certOk = Boolean.valueOf(val.toString()).booleanValue();
+          boolean certOk = false;
+          if (val != null) {
+            certOk = Boolean.valueOf(val.toString()).booleanValue();
+          }
 %>
           <input type="radio" name="<%=field%>" value="TRUE" <%
 if (certOk) { out.print("CHECKED"); }
