@@ -22,7 +22,7 @@
 
           <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
           <CA_DN role="srosset">CN=CONUS, OU=NAI Labs, O=NAI, L=Santa Clara, ST=CA, C=US</CA_DN>
-          <CA_DN role="JunitTest">CN=CONUS, OU=NAI Labs, O=NAI, L=Santa Clara, ST=CA, C=US</CA_DN>
+          <CA_DN role="JunitTest">CN=CONUS, OU=NAI Laboratories, O=NAI, L=Santa Clara, ST=CA, C=US</CA_DN>
           <CA_DN role="gmount">CN=GeorgeCA, OU=NAI Labs, O=NAI, L=Santa Clara, ST=California, C=US</CA_DN>
 
           <CA_URL>http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
