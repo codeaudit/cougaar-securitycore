@@ -214,25 +214,26 @@ class Main
     throws IOException, PolicyCompilerException
   {
     System.out.println("Parsing Policies");
-    List parsed = compile(_policyFile);
+    ParsedPolicyFile parsed = compile(_policyFile);
+    List          ppolicies = parsed.policies();
 
     System.out.println("Loading ontologies");
-    _ontology = new LocalOntologyConnection();
+    _ontology = new LocalOntologyConnection(parsed.declarations());
     System.out.println("Ontologies loaded");
 
     System.out.println("Writing Policies");
-    for(Iterator builtPolicyIt = buildUnconditionalPolicies(parsed).iterator();
+    for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies).iterator();
         builtPolicyIt.hasNext();) {
       DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
       PolicyUtils.writePolicyMsg(pb);
     }
       // build again for a new policy id.
-    for(Iterator builtPolicyIt = buildUnconditionalPolicies(parsed).iterator();
+    for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies).iterator();
         builtPolicyIt.hasNext();) {
       DAMLPolicyBuilderImpl pb = (DAMLPolicyBuilderImpl) builtPolicyIt.next();
       PolicyUtils.writePolicyInfo(pb);
     }
-    Vector builtConditionalPolicies = buildConditionalPolicies(parsed);
+    Vector builtConditionalPolicies = buildConditionalPolicies(ppolicies);
     for(Iterator condpmIt = builtConditionalPolicies.iterator();
         condpmIt.hasNext();) {
       ConditionalPolicyMsg condpm = (ConditionalPolicyMsg) condpmIt.next();
@@ -254,19 +255,22 @@ class Main
     throws IOException
   {
     try {
+      System.out.println("Parsing policies from grammar");
+      ParsedPolicyFile parsed = compile(_policyFile);
+      List parsedPolicies = parsed.policies();
+      System.out.println("Policies parsed");
       if (_cmdLineAuth) {
         _ontology = new TunnelledOntologyConnection(_url,
                                                     _cmdLineUser,
-                                                    _cmdLinePassword);
+                                                    _cmdLinePassword,
+                                                    parsed.declarations());
       } else {
-        _ontology = new TunnelledOntologyConnection(_url);
+        _ontology = new TunnelledOntologyConnection(_url, 
+                                                    parsed.declarations());
       }
-      System.out.println("Parsing policies from grammar");
-      List parsed = compile(_policyFile);
-      System.out.println("Policies parsed");
 
-      commitUnconditionalPolicies(parsed);
-      commitConditionalPolicies(parsed);
+      commitUnconditionalPolicies(parsedPolicies);
+      commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
       e.printStackTrace();
       System.out.println("Error Committing policies");
@@ -405,16 +409,15 @@ class Main
    * Essentially manages the IO portion of the compile and hands the
    * work off to the policy parser routines.
    */
-   public static List compile(String file)
+   public static ParsedPolicyFile compile(String file)
     throws IOException, PolicyCompilerException
   {
-    FileInputStream fis = new FileInputStream(file);
-    List policies       = null;
+    FileInputStream  fis = new FileInputStream(file);
+    ParsedPolicyFile ppf = null;
     try {
-      //      PolicyLexer lexer = new PolicyLexer(new DataInputStream(fis));
       PolicyLexer lexer = new PolicyLexer(fis);
       PolicyParser parser = new PolicyParser(lexer);
-      policies = parser.policies();
+      ppf = parser.policyFile();
     } catch (Exception e) {
       PolicyCompilerException pce 
         = new PolicyCompilerException("Compile failed");
@@ -423,7 +426,7 @@ class Main
     } finally {
       fis.close();
     }
-    return policies;
+    return ppf;
   }
 
   /**
