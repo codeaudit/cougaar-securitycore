@@ -54,7 +54,7 @@ class DataProtection
     end
     @numFailures = failure
     result = (failure==0)
-    @summary = "MOP2.2 (Protection of persisted data)", "There are #{100.0-mopvalue}% non-encrypted data files in #{size} persisted files"
+    @summary = "MOP2.2 (Protection of persisted data)", "MOP2.2 value=#{mopvalue}% - There are #{100.0-mopvalue}% non-encrypted data files in #{size} persisted files"
     saveResult(result, @summary) if showResults
     
     return mopvalue
