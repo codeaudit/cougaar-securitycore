@@ -168,7 +168,6 @@ public class RateCalculatorPlugin extends ComponentPlugin {
               msg instanceof ConsolidatedCapabilities) {
             return false;
           }
-          _log.debug("GOT ALERT: " + msg);
           if (msg instanceof Alert) {
             Alert alert = (Alert) msg;
             if (alert.getAssessment() != null) {
