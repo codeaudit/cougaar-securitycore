@@ -126,8 +126,10 @@ $okMessages = [
   [$startupDelay, "/unauthorizedTest write"],
   [$startupDelay, "Found cert in cert directory which has been revoked ! CN=MessageAttacker"],
   [$startupDelay, "blackboardOMSubscription.getChangedCollection"],
+  [$startupDelay, "blackboardOMPSubscription.getChangedCollection"],
   [$startupDelay, "Stress4a53.txt.jar!/Stress4a53.txt"],
   [$startupDelay, "LOGIN_FAILURE_REASON:WRONG_PASSWORD"],
+  [$startupDelay, "Caused by: java.security.cert.CertificateExpiredException"],
  
   # ############################################################### 
   # Robustness messages
