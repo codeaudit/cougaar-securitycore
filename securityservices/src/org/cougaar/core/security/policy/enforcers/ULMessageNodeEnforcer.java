@@ -64,7 +64,6 @@ public class ULMessageNodeEnforcer
   private ServiceBroker _sb;
   protected LoggingService _log;
   private CommunityService _communityService;
-  private SemanticMatcherFactory _semFactory;
 
   private final String _enforcedActionType 
     = ActionConcepts._EncryptedCommunicationAction_;
