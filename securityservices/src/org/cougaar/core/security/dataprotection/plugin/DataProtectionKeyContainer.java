@@ -1,13 +1,14 @@
 package org.cougaar.core.security.dataprotection.plugin;
 
 
+import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.service.DataProtectionKey;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
 
 public class DataProtectionKeyContainer implements UniqueObject{
 	private UID uid = null;
-	private DataProtectionKey key;
+	private DataProtectionKeyImpl key;
 	private String agentName;
 	private long timestamp;
 	
@@ -28,15 +29,15 @@ public class DataProtectionKeyContainer implements UniqueObject{
 	/**
 	 * @return
 	 */
-	public DataProtectionKey getKey() {
+	public DataProtectionKeyImpl getKey() {
 		return key;
 	}
 
 	/**
 	 * @param key
 	 */
-	public void setKey(DataProtectionKey key) {
-		this.key = key;
+	public void setKey(DataProtectionKeyImpl _key) {
+		this.key = _key;
 	}
 
 	/**
