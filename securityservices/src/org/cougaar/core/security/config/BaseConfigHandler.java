@@ -78,9 +78,11 @@ public class BaseConfigHandler
 
   public BaseConfigHandler(ServiceBroker sb) {
     serviceBroker = sb;
-    log = (LoggingService)
-      serviceBroker.getService(this,
-			       LoggingService.class, null);
+    if(sb != null) {
+      log = (LoggingService)
+        serviceBroker.getService(this,
+		  	       LoggingService.class, null);
+    }
   }
 
   public SecurityPolicy getSecurityPolicy() {
@@ -102,10 +104,15 @@ public class BaseConfigHandler
   public void setRole(String role) {
     this.role = role;
   }
+  public String getRole() {
+    return role;
+  }
   public void setSecurityCommunity(String community) {
     this.mySecurityCommunity = community;
   }
-
+  public String getSecurityCommunity() {
+    return mySecurityCommunity;
+  }
   public void startElement( String namespaceURI,
 			    String localName,
 			    String qName,

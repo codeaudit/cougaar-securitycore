@@ -52,9 +52,11 @@ import org.cougaar.core.security.coreservices.crypto.*;
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
+import org.cougaar.core.security.services.auth.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.services.ldap.*;
 import org.cougaar.core.security.services.identity.*;
+
 import org.cougaar.core.security.provider.SecurityServicePermission;
 import org.cougaar.core.security.ssl.JaasSSLFactory;
 
@@ -74,6 +76,9 @@ public class SecurityServiceProvider
   private boolean isExecutedWithinNode = true;
   private boolean initDone = false;
 
+  private ServiceBroker _serviceBrokerProxy;
+  private ServiceBroker _rootServiceBrokerProxy;
+  
   public SecurityServiceProvider() {
     setServiceBroker();
     registerServices();
@@ -144,6 +149,7 @@ public class SecurityServiceProvider
     else {
       serviceBroker = sb;
     }
+    
   }
 
   private void registerServices() {
@@ -365,6 +371,21 @@ public class SecurityServiceProvider
 
       org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
         setNodeServiceBroker(serviceBroker);
+      
+      /**
+       * Authorization service
+       */
+      newSP = new AuthorizationServiceProvider(serviceBroker, mySecurityCommunity);
+      services.put(AuthorizationService.class, newSP);
+      rootServiceBroker.addService(AuthorizationService.class, newSP);
+      
+      /**********************************
+       * Security context service
+       * NOTE: This service should only be accessible by the security services codebase
+       */
+      newSP = new SecurityContextServiceProvider(serviceBroker, mySecurityCommunity);
+      services.put(SecurityContextService.class, newSP);
+      rootServiceBroker.addService(SecurityContextService.class, newSP);
     }
     else {
       KeyRingService krs = 

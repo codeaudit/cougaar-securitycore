@@ -85,7 +85,8 @@ public class CmrDomain extends DomainAdapter {
   // You could create your own blackboard, but I'm honestly not
   // sure what's entailed with that, or what it buys you
   protected void loadXPlan() {
-/*
+    // no cmr specific plan
+    /*
     DomainBindingSite bindingSite = (DomainBindingSite) getBindingSite();
 
     if (bindingSite == null) {
@@ -94,10 +95,10 @@ public class CmrDomain extends DomainAdapter {
     } 
 
     Collection xPlans = bindingSite.getXPlans();
-    XPlanServesBlackboard logPlan = null;
+    BlackboardServesDomain logPlan = null;
     
     for (Iterator iterator = xPlans.iterator(); iterator.hasNext();) {
-      XPlanServesBlackboard  xPlan = (XPlanServesBlackboard) iterator.next();
+      BlackboardServesDomain  xPlan = (BlackboardServesDomain) iterator.next();
       if (xPlan instanceof LogPlan) {
         // Note that this means there are 2 paths to the plan.
         // Is this okay?
@@ -111,10 +112,11 @@ public class CmrDomain extends DomainAdapter {
     }
     
     setXPlan(logPlan);
-   */
+    */
   }
 
   protected void loadLPs() {
+    // no cmr domain LPs
    /*
     DomainBindingSite bindingSite = (DomainBindingSite) getBindingSite();
 
@@ -126,7 +128,9 @@ public class CmrDomain extends DomainAdapter {
     // Most LPs actually need a LogPlanServesLogicProvider. The only XPlan that implements
     // that (actually, the only one anywhere), is the LogPlan. So cast it.
     LogPlan logPlan = (LogPlan) getXPlan();
-   */
+
+    //addLogicProvider(new ImpactsLP(logPlan, cluster));;
+    */
   }
 
 }

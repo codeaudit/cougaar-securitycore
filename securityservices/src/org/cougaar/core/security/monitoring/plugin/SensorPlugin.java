@@ -321,19 +321,19 @@ public abstract class SensorPlugin extends ComponentPlugin {
     public void run() {
       boolean  tryAgain = true;
       try {
-        Thread.sleep(18*retryTime);
+        Thread.sleep(18 * retryTime);
       }
       catch(InterruptedException ix) {
         m_log.error("Was interrupted while delaying the polling of NS sleeping: " + ix);
         tryAgain = false;
       }
-      //boolean neverfalse=true;
+      
       while(tryAgain) {
         m_log.debug("Trying to register counter: " + counter++);
         tryAgain = registerCapabilities( m_agent);
         try {
           if(tryAgain) {
-            if(counter<6) { 
+            if(counter < 6) { 
               retryTime=counter* RETRY_TIME;
             }
             Thread.sleep(retryTime);

@@ -35,7 +35,7 @@ import org.cougaar.core.component.Service;
 // Cougaar core services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.config.CryptoPolicyUpdateException;
+import org.cougaar.core.security.config.PolicyUpdateException;
 
 /** Service for parsing security services configuration files
  */
@@ -58,10 +58,7 @@ public interface ConfigParserService extends Service {
   void parsePolicy(InputStream policy, String fileName);
   SecurityPolicy[] getSecurityPolicies();
   SecurityPolicy[] getSecurityPolicies(Class policyClass);
-  // update the crypto client policy on disk for a particular node
-  void updateCryptoClientPolicy(CryptoClientPolicy policy)  
-    throws CryptoPolicyUpdateException;
-  
+ 
   /** Get all the roles specified in the XML file
    */
   String[] getRoles();
@@ -72,7 +69,7 @@ public interface ConfigParserService extends Service {
   X500Name[] getCaDNs();
 
   void addSecurityPolicy(SecurityPolicy policy);
-  void updateSecurityPolicy(SecurityPolicy policy);
+  void updateSecurityPolicy(SecurityPolicy policy) throws PolicyUpdateException;
 
 }
 

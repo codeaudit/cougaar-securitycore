@@ -307,9 +307,9 @@ public class ConfigParserServiceImpl
     return handler.getSecurityPolicies(policyClass);
   }
 
-  public void updateCryptoClientPolicy(CryptoClientPolicy policy) 
-    throws CryptoPolicyUpdateException {
-    handler.updateCryptoClientPolicy(policy);
+  public void updateSecurityPolicy(SecurityPolicy policy) 
+    throws PolicyUpdateException {
+    handler.updateSecurityPolicy(policy);
   }
 
   public boolean isCertificateAuthority() {
@@ -373,9 +373,5 @@ public class ConfigParserServiceImpl
 
   public void addSecurityPolicy(SecurityPolicy policy) {
     handler.addSecurityPolicy(policy);
-  }
-
-  public void updateSecurityPolicy(SecurityPolicy policy) {
-    handler.updateSecurityPolicy(policy);
   }
 }

@@ -224,13 +224,20 @@ public class ConfigParserHandler
     }
     return s;
   }
+  
+  void updateSecurityPolicy(SecurityPolicy policy) 
+    throws PolicyUpdateException {
+    if(policy instanceof CryptoClientPolicy) {
+      CryptoClientPolicy ccp = (CryptoClientPolicy)policy;
+      cryptoClientHandler.updatePolicy(ccp); 
+    }
+    else {
+      throw new
+        PolicyUpdateException(policy.getName() + " updates not supported.");
+    }
+  }
 
   public void addSecurityPolicy(SecurityPolicy policy) {
     securityPolicies.add(policy);
-  }
-
-  /** Policy has been changed, needs to update storage - e.g. CryptoClientPolicy
-   */
-  public void updateSecurityPolicy(SecurityPolicy policy) {
   }
 }

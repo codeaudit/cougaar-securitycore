@@ -120,7 +120,6 @@ public class FailureEvent implements java.io.Serializable {
     sb.append("[target: " + getTarget() + "]\n");
     sb.append("[reason: " + getReason() + "]\n");
     sb.append("[data: " + getData() + "]\n");
-    
     return sb.toString();
   }
 }

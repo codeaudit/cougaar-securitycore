@@ -198,7 +198,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       CertificateStatus status = (CertificateStatus)certs.next();
       X509Certificate cert = status.getCertificate();
       if(_debug) {
-        _log.debug("Found certificate, dn = " + cert.getSubjectDN().getName()); 
+        _log.debug("Found certificate dn = " + cert.getSubjectDN().getName()); 
       }
       X509Certificate []certChain = _keyRing.findCertChain(cert);
       if(certChain != null) {
@@ -334,7 +334,9 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     // construct the revoke certificate servlet url
     revokeCertServletURL = caURL.substring(0, caURL.lastIndexOf('/')) +
       REVOKE_CERT_SERVLET_URI;
- 
+    if(_debug) {
+      _log.debug("Sending revoke certificate request to: " + revokeCertServletURL);
+    }
     try {
       URL url = new URL(revokeCertServletURL);
       huc = (HttpURLConnection)url.openConnection();
@@ -362,6 +364,9 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     }  
     catch(Exception e) {
       _log.warn("Unable to send revoke certificate request to CA: " + e);
+      if(_debug) {
+        e.printStackTrace();
+      }
       throw e;
     }
     try {

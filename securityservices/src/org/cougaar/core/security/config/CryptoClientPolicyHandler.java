@@ -93,6 +93,7 @@ public class CryptoClientPolicyHandler
 
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
+    
     // construct the crypto client policy file name.  should be of the form
     // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
@@ -104,6 +105,7 @@ public class CryptoClientPolicyHandler
     String nodeDirectory = topDirectory + nodeName;
     cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
     sb.releaseService(this, SecurityPropertiesService.class, sps);
+   
   }
 
   public void collectPolicy(XMLReader parser,
@@ -294,18 +296,19 @@ public class CryptoClientPolicyHandler
     }
   }
   
-  void updatePolicy(CryptoClientPolicy policy) 
-    throws CryptoPolicyUpdateException {
+  public void updatePolicy(CryptoClientPolicy policy) 
+    throws PolicyUpdateException {
     /*
     if(policy != cryptoClientPolicy) {
       throw new CryptoPolicyUpdateException("CryptoClientPolicy does not match internal CryptoClientPolicy"); 
     }
     */
+    log.debug("updating crypto client policy");
     saveCryptoClientPolicy(policy); 
   }
   
   private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
-    throws CryptoPolicyUpdateException {
+    throws PolicyUpdateException {
     String newPolicyFileName = cryptoPolicyFileName + ".new";
     File newPolicyFile = new File(newPolicyFileName);
     File policyFile = new File(cryptoPolicyFileName);
@@ -333,18 +336,18 @@ public class CryptoClientPolicyHandler
       fos.close();
     }
     catch(Exception e) {
-      throw new CryptoPolicyUpdateException(e);
+      throw new PolicyUpdateException(e);
     }
     // the file exist remove the old cryptoPolicy.xml
     if(policyFile.exists()) {
       if(!policyFile.delete()) {
-        throw new CryptoPolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
+        throw new PolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
       }
       log.debug("removed previous " + cryptoPolicyFileName);
     }
     // rename the updated temp file to cryptoPolicy.xml
     if(!newPolicyFile.renameTo(policyFile)) {
-      throw new CryptoPolicyUpdateException("Unable to rename " + newPolicyFileName);
+      throw new PolicyUpdateException("Unable to rename " + newPolicyFileName);
     }
     log.debug("Saved crypto client policy " + cryptoPolicyFileName);
   }

@@ -123,7 +123,7 @@ public class CertificateAttributesPolicy implements XMLSerializable {
     if(l != null) {
       innerNode = parent.createElement(CryptoClientPolicyHandler.L_ELEMENT);
       innerNode.appendChild(parent.createTextNode(l));
-      node.appendChild(node);
+      node.appendChild(innerNode);
     }
     // state
     if(st != null) {

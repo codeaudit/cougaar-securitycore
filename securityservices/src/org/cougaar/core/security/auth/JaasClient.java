@@ -53,6 +53,13 @@ public class JaasClient {
   public JaasClient(ExecutionContext context) {
     _context = context; 
   }
+  
+  public Object doAs(ExecutionContext ec, 
+    java.security.PrivilegedAction action, boolean displaySubject) {
+  
+    Subject subj = createSubject(ec);
+    return doAs(subj, action, displaySubject);  
+  }
     
   /**
    *  The doAs method should be called by any core component that wishes to run
@@ -236,6 +243,28 @@ public class JaasClient {
     return s;
   }
 
+  private Subject createSubject(ExecutionContext ec) {
+    final Subject s = new Subject();
+
+    /* Adding the cluster identifier string as a principal
+     * We could also add certificate credentials at this point.
+     */
+    Principal executionPrincipal = new ExecutionPrincipal(ec);
+    s.getPrincipals().add(executionPrincipal);
+ 
+    /* Modifications (additions and removals) to this Subject's Principal
+     * Set and credential Sets will be disallowed. The destroy operation
+     * on this Subject's credentials will still be permitted. 
+     */
+    AccessController.doPrivileged(new PrivilegedAction() {
+      	public Object run() {
+      	  s.setReadOnly();
+      	  return null; // nothing to return
+      	}
+    	});
+    return s;   
+  }
+  
   private void printPrincipalsInSubject(Subject subj) {
     System.out.print("Principals: ");
     Iterator it = subj.getPrincipals().iterator(); 

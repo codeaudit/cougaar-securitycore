@@ -130,7 +130,7 @@ public class IdmefEventPublisher implements EventPublisher {
     }
     if(m_blackboard != null) {
       if(m_logger.isDebugEnabled()) {
-          m_logger.debug("publishing message failure:\n" + event);
+        m_logger.debug("publishing message failure:\n" + event);
       }
       m_blackboard.openTransaction();
       m_blackboard.publishAdd(createIDMEFAlert(event));

@@ -22,6 +22,7 @@
 
 package org.cougaar.core.security.access;
 
+import java.security.PrivilegedAction;
 import java.util.*;
 import java.io.IOException;
 
@@ -45,6 +46,7 @@ import org.cougaar.core.service.SchedulerService;
 import org.cougaar.core.service.ServletService;
 
 import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.auth.JaasClient;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 
 public class PluginServiceFilter extends ServiceFilter {
@@ -221,7 +223,15 @@ public class PluginServiceFilter extends ServiceFilter {
       public void trigger() {
         _scs.setExecutionContext(_ec);
         // set the jaas context here
-        _trigger.trigger();
+         JaasClient jc = new JaasClient();
+         jc.doAs(_ec, 
+                 new java.security.PrivilegedAction() {
+                   public Object run() {
+                     _trigger.trigger();
+                     return null;
+                   }
+                 }, false);
+        //_trigger.trigger();
         _scs.resetExecutionContext();
       }
     } // end SecurityTrigger

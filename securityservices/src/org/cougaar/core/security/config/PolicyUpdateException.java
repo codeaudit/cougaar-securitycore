@@ -21,19 +21,16 @@
  */
 package org.cougaar.core.security.config;
 
-import java.security.GeneralSecurityException;
-
 /**
  * This exception is thrown when a component tries to update a crypto client policy
  * that is different than the internal crypto client policy
  */
-public class CryptoPolicyUpdateException extends GeneralSecurityException {
+public class PolicyUpdateException extends RuntimeException {
   
-  public CryptoPolicyUpdateException(Throwable cause) { 
-    super(cause.getMessage());
-    setStackTrace(cause.getStackTrace());
+  public PolicyUpdateException(Throwable cause) { 
+    super(cause);
   }
-  public CryptoPolicyUpdateException(String message) {
+  public PolicyUpdateException(String message) {
     super(message);
   }
 }

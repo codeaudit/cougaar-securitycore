@@ -136,7 +136,7 @@ public class TrustedCaPolicy implements XMLSerializable {
       }
     }
     node = parent.createElement(CryptoClientPolicyHandler.CERT_DIRECTORY_TYPE_ELEMENT);
-    node.appendChild(parent.createTextNode(certDirectoryCredential));
+    node.appendChild(parent.createTextNode(certDirType));
     trustedCANode.appendChild(node);
     if(certificateAttributesPolicy != null) {
       // cert attributes for this trusted CA

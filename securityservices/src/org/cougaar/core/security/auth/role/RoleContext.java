@@ -25,6 +25,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class RoleContext implements ExecutionContext, ObjectContext {
   private String[] _agentRoles;
@@ -66,5 +67,50 @@ public class RoleContext implements ExecutionContext, ObjectContext {
       return false;
     }
     return (Arrays.binarySearch(_userRoles, role) > 0); 
+  }
+  public boolean equals(Object o) {
+    if(this == o) {
+      return true;
+    }
+    if(o instanceof RoleContext) {
+      RoleContext rc = (RoleContext)o;
+      // this object's roles
+      List aRoles = Arrays.asList(_agentRoles);
+      List cRoles = Arrays.asList(_componentRoles);
+      List uRoles = Arrays.asList(_userRoles);
+      // object to compare 
+      List oARoles = Arrays.asList(rc._agentRoles);
+      List oCRoles = Arrays.asList(rc._componentRoles);
+      List oURoles = Arrays.asList(rc._userRoles);
+      // return true only if the agent, component, and user roles all match
+      return (aRoles.equals(oARoles) &&
+              cRoles.equals(oCRoles) &&
+              uRoles.equals(oURoles));     
+    }
+    return false;
+  }
+
+  public String toString() {
+    StringBuffer sb = new StringBuffer(256);
+    sb.append(formatRoleString("agent roles", _agentRoles));
+    sb.append("\n");
+    sb.append(formatRoleString("component roles", _componentRoles));
+    sb.append("\n");
+    sb.append(formatRoleString("user roles", _userRoles));
+    sb.append("\n");
+    return sb.toString();
+  }
+  
+   private String formatRoleString(String role, String []roles) {
+    StringBuffer sb = new StringBuffer();
+    sb.append(role + " (");
+    for(int i = 0; i < roles.length; i++) {
+      sb.append(roles[i]);
+      if((i + 1) < roles.length) {
+        sb.append(", ");
+      } 
+    }
+    sb.append(")");
+    return sb.toString();
   }
 }

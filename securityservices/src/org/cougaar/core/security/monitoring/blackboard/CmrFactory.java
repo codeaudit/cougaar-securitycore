@@ -21,41 +21,36 @@
 
 package org.cougaar.core.security.monitoring.blackboard;
 
-import edu.jhuapl.idmef.IDMEF_Message;
-
-// Cougaar core services
+// Cougaar core imports
+import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.domain.Factory;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.UIDServer;
 import org.cougaar.core.util.UID;
+// Cougaar planning imports
 import org.cougaar.planning.ldm.asset.Asset;
+// security services imports
 import org.cougaar.planning.ldm.LDMServesPlugin;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceBroker;
-
+// JavaIDMEF imports
+import edu.jhuapl.idmef.IDMEF_Message;
 
 public class CmrFactory
   implements Factory
 {
-  protected MessageAddress selfClusterId;
+  protected MessageAddress myAgent;
   protected UIDServer myUIDServer;
-  private  IdmefMessageFactory idmefmessagefactory;
-
-  private ServiceBroker serviceBroker;
+  private  IdmefMessageFactory msgFactory;
 
     /**
      * Constructor for use by domain specific Factories
      * extending this class
      */
-    public CmrFactory() { }
-// change the input parameter to an agent id service and uid service or just service broker
-    public CmrFactory(LDMServesPlugin ldm) {
-	// Attach our factory to the M&R factory
-	PlanningFactory pf = ldm.getFactory();
-	
+  public CmrFactory() { }
+
+  public CmrFactory(LDMServesPlugin ldm) {
+    PlanningFactory pf = ldm.getFactory();
 	/*
 	  See org.cougaar.tools.csmart.runtime.ldm.CSMARTFactory for
 	  an example of what to add here.
@@ -63,43 +58,42 @@ public class CmrFactory
 	  new org.cougaar.tools.csmart.runtime.ldm.asset.AssetFactory());
 	  pf.addPropertyGroupFactory(
 	  new org.cougaar.tools.csmart.runtime.ldm.asset.PropertyGroupFactory());
-	*/
-    selfClusterId = ldm.getMessageAddress();
+	  */
+    myAgent = ldm.getMessageAddress();
     myUIDServer = ldm.getUIDServer();
-    idmefmessagefactory=new IdmefMessageFactory(ldm);
-
+    msgFactory = new IdmefMessageFactory(ldm);
   }
   
     /**
      * @return a new <code>UID</code>
      */
     public UID getNextUID() {
-	return myUIDServer.nextUID();
+	    return myUIDServer.nextUID();
     }
 
     public NewEvent newEvent(IDMEF_Message aMessage) {
-	return new EventImpl(getNextUID(),
-			 selfClusterId,
-			 aMessage);
+	    return new EventImpl(getNextUID(),
+                    			 myAgent,
+                    			 aMessage);
     }
  
     public NewEventTransfer newEventTransfer(Event event,
 					   Asset target) {
-	return new EventTransferImpl(getNextUID(),
-				 target,
-				 event);
+    	return new EventTransferImpl(getNextUID(),
+                          				 target,
+                          				 event);
     }
     public IdmefMessageFactory getIdmefMessageFactory(){
-	return idmefmessagefactory;
+	    return msgFactory;
     }
     
     public CmrRelay newCmrRelay(Event event, MessageAddress dest) {
-        CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, event, null);
+        CmrRelay relay = new CmrRelay(getNextUID(), myAgent, dest, event, null);
         return relay;
     }
   
    public CmrRelay newCmrRelay(Object event, MessageAddress dest) {
-        CmrRelay relay = new CmrRelay(getNextUID(), selfClusterId, dest, event,null);
+        CmrRelay relay = new CmrRelay(getNextUID(), myAgent, dest, event,null);
         return relay;
     }
  
