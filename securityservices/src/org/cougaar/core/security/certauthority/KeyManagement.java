@@ -255,7 +255,7 @@ public class KeyManagement  implements CertificateManagementService {
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }
-      publishCA();
+      //publishCA();
     }
     else{
       // We are a node
@@ -302,94 +302,6 @@ public class KeyManagement  implements CertificateManagementService {
     }
   }
 
-
-  private synchronized void publishCA() {
-    CertificateCacheService cacheservice=(CertificateCacheService)
-      serviceBroker.getService(this,
-			       CertificateCacheService.class,
-			       null);
-
-    if(cacheservice==null) {
-      log.warn("Unable to get Certificate cache Service in publishCAinLdap");
-    }
-
-    Certificate c=null;
-    List certList = null;
-    Enumeration enum=null;
-    if(cacheservice!=null) {
-      enum=cacheservice.getAliasList();
-    }
-    if(enum==null) {
-      log.error("Alias list is null in Key management publishCAinLdap:");
-    }
-    if(enum!=null) {
-      for(;enum.hasMoreElements();) {
-        String a = (String)enum.nextElement();
-        String cn = cacheservice.getCommonName(a);
-        if(cn!=null) {
-          log.debug("Got common name for alias :"+ a + cn);
-        }
-        certList = keyRing.findCert(cn);
-        // is there any valid certificate here?
-        if (certList == null || certList.size() == 0){
-          log.debug(" Could not find cert in key ring for ca :"+cn);
-          continue;
-        }
-        // is it a CA certificate? (not node, server, agent ...)
-        c=((CertificateStatus)certList.get(0)).getCertificate();
-        if (((CertificateStatus)certList.get(0)).getCertificateType()
-            != CertificateType.CERT_TYPE_CA){
-          log.debug(" Certificate is not ca Type  :"+cn);
-          continue;
-        }
-        log.debug("got common name from alias : " + a
-                  + " cn = " + cn);
-         
-        /*
-          This is no longer required as we will not go to LDAP to get CA Cert
-
-          List ldapList = keyRing.findCert(cn, KeyRingService.LOOKUP_LDAP);
-          Certificate ldapcert = null;
-          if (ldapList != null && ldapList.size() > 0)
-          ldapcert = ((CertificateStatus)certList.get(0)).getCertificate();
-          if(ldapcert==null) {
-          log.debug("Found no certificate in LDAP for --> "
-          + cn);
-          }
-          else {
-          log.debug("found CA cert in ldap for :"
-          + cn
-          + " going to try next from ca keyStore");
-          continue;
-          }
-        */
-        List pkc = keyRing.findPrivateKey(cn);
-        PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
-        try {
-          publishCertificate((X509Certificate)c,
-                             CertificateUtility.CACert,pk);
-
-          // need to update CA to naming
-          X500Name dname = new X500Name(
-            ((X509Certificate)c).getSubjectDN().getName());
-          keyRing.updateNS(dname);
-        }
-        catch (Exception e) {
-          if (log.isWarnEnabled()) {
-            if (!(e instanceof NameAlreadyBoundException)){
-              log.warn("Unable to publish CA certificate to LDAP: ", e);
-            }
-          }
-        }
-      }
-    }
-    else {
-      log.debug(" CA key store is empty ::");
-    }
-    serviceBroker.releaseService(this,
-                                 CertificateCacheService.class,
-                                 cacheservice); 
-  }
 
   public synchronized void processX509Request(PrintStream out,
 					      InputStream inputstream) {
@@ -439,9 +351,11 @@ public class KeyManagement  implements CertificateManagementService {
 	  log.warn("Unable to publish Certificate. Certificate is null");
 	}
       }
+/*
       if (configParser.isCertificateAuthority()) {
         publishCA();
       }
+*/
     }
     catch(Exception e) {
       log.error("Unable to process request: ", e);
@@ -479,9 +393,11 @@ public class KeyManagement  implements CertificateManagementService {
 	  }
 	  publishCertificate(clientX509,
                              CertificateUtility.EntityCert,null);
+/*
           if (configParser.isCertificateAuthority()) {
             publishCA();
           }
+*/
 	}
       }
     }
@@ -655,9 +571,11 @@ public class KeyManagement  implements CertificateManagementService {
 	  }
 	  publishCertificate(clientX509,
                              CertificateUtility.EntityCert,null);
+/*
           if (configParser.isCertificateAuthority()) {
             publishCA();
           }
+*/
 	}
         return new CertificateResponse(PENDING_STATUS_APPROVED, clientX509);
       } catch (Exception e) {
@@ -975,12 +893,20 @@ public class KeyManagement  implements CertificateManagementService {
 
   public final static int KEYUSAGE_CERT_SIGN_BIT = 5;
 
+  public void publishCertificate(CertificateEntry certEntry) {
+    
+    caOperations.publishCertificate(certEntry);
+
+  }
+
   public  void publishCertificate(X509Certificate clientX509,
                                   int type, PrivateKey pk)   {
     
     CertificateEntry certEntry =null;
     CertificateRevocationStatus certStatus = CertificateRevocationStatus.VALID;
     CertificateType certType = null;
+    log.debug(" Got type:"+ type);
+    log.debug("got DN :"+ clientX509.getSubjectDN().getName());
     try {
       switch (type) {
       case CertificateUtility.CACert:
@@ -1349,7 +1275,8 @@ public class KeyManagement  implements CertificateManagementService {
             X509Certificate issuercertificate = null;
             issuercertificate = CertificateUtility.getX509Certificate(certchain[1]);
             X509CRL newCrl=null;
-            newCrl= CrlUtility.createCRL(caCert,newCrl,userCert,issuercertificate, caprivatekey,
+            X509CRL oldCrl=caCertEntry.getCRL();
+            newCrl= CrlUtility.createCRL(caCert,oldCrl,userCert,issuercertificate, caprivatekey,
                                          caPolicy.CRLalgorithmId.getName());
             caCertEntry.setCRL(newCrl);
             caOperations.publishCertificate(caCertEntry);
