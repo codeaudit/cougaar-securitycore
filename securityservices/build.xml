@@ -418,6 +418,7 @@
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
 	<mkdir dir="${cougaar.install.path}/configs/security/bin"/>
 	<mkdir dir="${cougaar.install.path}/configs/security/reference"/>
+	<mkdir dir="${cougaar.install.path}/csmart/scripts/definitions/security">
         <!--
             Do not copy files individually. Files are now stored in JAR files
         -->
@@ -469,7 +470,7 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/csmart/scripts/definitions">
+        <copy todir="${cougaar.install.path}/csmart/scripts/definitions/security">
             <fileset dir="${securityservices.configs}/acme_scripts/moas">
                 <patternset>
                     <include name="*.rb"/>
