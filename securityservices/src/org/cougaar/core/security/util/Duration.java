@@ -63,7 +63,9 @@ public class Duration {
     long val = 0;
     boolean expectNumber = true;
 
-    log.debug("duration:" + text);
+    if (log.isDebugEnabled()) {
+      log.debug("duration:" + text);
+    }
 
     while (tokens.hasMoreTokens()) {
       String s = tokens.nextToken();
@@ -100,7 +102,9 @@ public class Duration {
 	expectNumber = true;
       }
     }
-    log.debug("duration:" + duration);
+    if (log.isDebugEnabled()) {
+      log.debug("duration:" + duration);
+    }
   }
 
   public long getDuration()
