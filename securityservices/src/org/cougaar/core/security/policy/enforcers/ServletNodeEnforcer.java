@@ -317,7 +317,7 @@ public class ServletNodeEnforcer
     action.removeProperty(kaos.ontology.jena.ActionConcepts._performedBy_);
     action.removeAllActorInstances();
     Set cipherSuites = 
-      _guard.getAllowableValuesForProperty(
+      _guard.getAllowableValuesForActionProperty(
                   org.cougaar.core.security.policy.enforcers.ontology.jena.
                   UltralogActionConcepts._usedAuthenticationLevel_,
                   action,

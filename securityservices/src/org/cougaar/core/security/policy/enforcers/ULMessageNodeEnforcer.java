@@ -277,7 +277,7 @@ public class ULMessageNodeEnforcer
                                     sender,
                                     targets);
     Set verbs = 
-      _guard.getAllowableValuesForProperty(
+      _guard.getAllowableValuesForActionProperty(
                       org.cougaar.core.security.policy.enforcers.ontology.jena.
                       UltralogActionConcepts._hasSubject_,
                       action,
@@ -315,7 +315,7 @@ public class ULMessageNodeEnforcer
                                     sender,
                                     targets);
     Set ciphers = 
-      _guard.getAllowableValuesForProperty(
+      _guard.getAllowableValuesForActionProperty(
                    org.cougaar.core.security.policy.enforcers.ontology.jena.
                    UltralogActionConcepts._usedProtectionLevel_,
                    action,
