@@ -109,6 +109,22 @@ public class AnalyzerServlet extends BaseServletComponent
   }
 
 
+  /**
+   * DOCUMENT ME!
+   */
+  public void load() {
+    this.serviceBroker = this.bindingSite.getServiceBroker();
+    this.blackboardService = (BlackboardService) serviceBroker.getService(this,
+        BlackboardService.class, null);
+    this.logging = (LoggingService) serviceBroker.getService(this,
+        LoggingService.class, null);
+    this.domainService = (DomainService) serviceBroker.getService(this,
+        DomainService.class, null);
+
+    super.load();
+  }
+
+
   /* (non-Javadoc)
    * @see com.cougaarsoftware.common.servlet.AdvancedSimpleServletComponent#execute(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */

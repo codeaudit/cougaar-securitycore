@@ -33,10 +33,6 @@
 package org.cougaar.core.security.test;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +43,10 @@ import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.servlet.BaseServletComponent;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -121,6 +121,22 @@ public abstract class AbstractServletComponent extends BaseServletComponent
    */
   public Object getParameter() {
     return parameter;
+  }
+
+
+  /**
+   * DOCUMENT ME!
+   */
+  public void load() {
+    this.serviceBroker = this.bindingSite.getServiceBroker();
+    this.blackboardService = (BlackboardService) serviceBroker.getService(this,
+        BlackboardService.class, null);
+    this.logging = (LoggingService) serviceBroker.getService(this,
+        LoggingService.class, null);
+    this.domainService = (DomainService) serviceBroker.getService(this,
+        DomainService.class, null);
+
+    super.load();
   }
 
 
