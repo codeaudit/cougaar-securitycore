@@ -81,6 +81,7 @@ import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.security.provider.ServletPolicyServiceProvider;
+import org.cougaar.core.security.services.acl.UserService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.lib.web.tomcat.SecureRealm;
 
@@ -304,7 +305,7 @@ public class DualAuthenticator extends ValveBase {
     if (user != null) {
       userName = user.getName();
     }
-    getRealm().alertLoginFailure(KeyRingJNDIRealm.LF_REQUIRES_ROLE,
+    getRealm().alertLoginFailure(UserService.LF_REQUIRES_ROLE,
                                  userName, null /* exception */,
                                  req.getRemoteAddr(), req.getServerPort(),
                                  req.isSecure() ? "https" : "http",

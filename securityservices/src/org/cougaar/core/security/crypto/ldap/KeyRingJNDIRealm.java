@@ -101,16 +101,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
   */
   private Hashtable                  _servers = new Hashtable();
 
-  public static final int    LF_USER_DOESNT_EXIST       = 0;
-  public static final int    LF_LDAP_ERROR              = 1;
-  public static final int    LF_CERTIFICATE_INVALID     = 2;
-  public static final int    LF_BAD_CERTIFICATE_SUBJECT = 3;
-  public static final int    LF_USER_DISABLED           = 4;
-  public static final int    LF_LDAP_PASSWORD_NULL      = 5;
-  public static final int    LF_PASSWORD_MISMATCH       = 6;
-  public static final int    LF_REQUIRES_CERT           = 7;
-  public static final int    LF_REQUIRES_ROLE           = 8;
-
   /**
    * Default constructor. Uses <code>UserService</code>
    * given in the setDefaultLdapUserService call.
@@ -230,7 +220,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       }
       return getPrincipal(attrs);
     } catch (UserServiceException e) {
-      setLoginError(LF_LDAP_ERROR, username, e);
+      setLoginError(UserService.LF_LDAP_ERROR, username, e);
     }
     return null;
   }
@@ -255,7 +245,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       _keyRingService.checkCertificateTrust(certs);
     } catch (Exception e) {
       if (debug >= 2) super.log("  Validity exception", e);
-      setLoginError(LF_CERTIFICATE_INVALID, null, e);
+      setLoginError(UserService.LF_CERTIFICATE_INVALID, null, e);
       return BAD_CERT_USER;
     }
     /*
@@ -274,7 +264,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     String user = getUserName(userdn);
     if (user == null) {
       // certificate is bad, bad, bad!
-      setLoginError(LF_BAD_CERTIFICATE_SUBJECT, userdn, null);
+      setLoginError(UserService.LF_BAD_CERTIFICATE_SUBJECT, userdn, null);
       return BAD_CERT_USER;
     }
 
@@ -282,16 +272,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 //       log.debug("Getting attributes for user: " + user);
       Map attrs = _userService.getUser(user);
       if (attrs == null) {
-        setLoginError(LF_USER_DOESNT_EXIST, user, null);
+        setLoginError(UserService.LF_USER_DOESNT_EXIST, user, null);
         return BAD_CERT_USER; // user isn't in the database
       }
       if (!userDisabled(attrs, true)) {
         return getPrincipal(attrs);
       } else {
-        setLoginError(LF_USER_DISABLED, user, null);
+        setLoginError(UserService.LF_USER_DISABLED, user, null);
       }
     } catch (UserServiceException ne) {
-      setLoginError(LF_LDAP_ERROR, user, ne);
+      setLoginError(UserService.LF_LDAP_ERROR, user, ne);
     }
     return null;
   }
@@ -331,7 +321,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Map userAttrs = _userService.getUser(username);
       Object pwdVal = userAttrs.get(_userService.getPasswordAttribute());
       if (pwdVal == null) {
-        setLoginError(LF_LDAP_PASSWORD_NULL, username, null);
+        setLoginError(UserService.LF_LDAP_PASSWORD_NULL, username, null);
         return null;
       }
       String md5a1;
@@ -351,9 +341,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       if (serverDigest.equals(clientDigest))
         return getPrincipal(userAttrs);
 
-      setLoginError(LF_PASSWORD_MISMATCH, username, null);
+      setLoginError(UserService.LF_PASSWORD_MISMATCH, username, null);
     } catch (UserServiceException ne) {
-      setLoginError(LF_LDAP_ERROR, username, ne);
+      setLoginError(UserService.LF_LDAP_ERROR, username, ne);
     }
     return null;
   }
@@ -367,7 +357,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
       Map attrs = _userService.getUser(principal.getName());
       return getPrincipal(attrs);
     } catch (UserServiceException e) {
-      setLoginError(LF_LDAP_ERROR, principal.getName(), e);
+      setLoginError(UserService.LF_LDAP_ERROR, principal.getName(), e);
       return null;
     }
   }
@@ -467,18 +457,18 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     throws UserServiceException {
     boolean match = false;
     if (attrs == null) {
-      setLoginError(LF_USER_DOESNT_EXIST, username, null);
+      setLoginError(UserService.LF_USER_DOESNT_EXIST, username, null);
       return false;
     }
 
     if (userDisabled(attrs, false)) {
-      setLoginError(LF_USER_DISABLED, username, null);
+      setLoginError(UserService.LF_USER_DISABLED, username, null);
       return false;
     }
     Object attrVal = attrs.get(_userService.getPasswordAttribute());
 //     log.debug("attrVal = " + attrVal);
     if (attrVal == null) {
-      setLoginError(LF_LDAP_PASSWORD_NULL, username, null);
+      setLoginError(UserService.LF_LDAP_PASSWORD_NULL, username, null);
       return false;
     }
 
@@ -501,7 +491,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
 
     if (!match) {
-      setLoginError(LF_PASSWORD_MISMATCH, username, null);
+      setLoginError(UserService.LF_PASSWORD_MISMATCH, username, null);
     }
     // in the future log a password match failure in a finally block
     return match;
