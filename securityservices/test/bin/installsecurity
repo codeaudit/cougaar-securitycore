@@ -103,7 +103,6 @@ zip -qr AS_csi_secserv.zip \
 	operator/printProcessInfo.rb \
 	webtomcat/data/conf/server.xml \
 	webtomcat/data/webapps/ROOT/WEB-INF/web.xml \
-        sys/antlr.jar \
 	sys/bcprov-jdk*.jar \
         sys/commons-logging.jar \
 	sys/dl.jar \
