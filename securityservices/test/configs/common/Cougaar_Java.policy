@@ -128,6 +128,7 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "java.vm.info", "read";
 	// Swing properties
 	permission java.util.PropertyPermission "swing.*", "read";
+	permission java.util.PropertyPermission "javax.*", "read";
 	// FIX: thes properties should be renamed to org.cougaar...
 	permission java.util.PropertyPermission "UTILLdmXMLPlugIn.*", "read";
 	permission java.util.PropertyPermission "alpine.*", "read";
