@@ -1,4 +1,5 @@
 require 'security/lib/misc'
+require 'thread'
 
 MESSAGE_EVENTS = [ "Sent", "Received", "Responded", "ResponseReceived" ]
 
@@ -98,52 +99,7 @@ def testMessageIdmef(source, target,
   }
 end # testMessageIdmef
 
-=begin
-def testMessageFailure(source, target, 
-                       attackNum, attackName, 
-                       idmefNum, idmefName,
-                       responsesExpected, 
-                       stoppingAgent,
-                       maxWait = 2.minutes)
-  expected = {}
-  MESSAGE_EVENTS.each_index { |index|
-    expected[MESSAGE_EVENTS[index]] = responsesExpected[index]
-  }
-  idmefSrc = source
-  idmefTgt = target
-  if (expected["Received"])
-    idmefSrc = target
-    idmefTgt = source
-  end
-  shouldStop = true
-  if (stoppingAgent == nil)
-    shouldStop = false
-    stoppingAgent = "[-0-9a-zA-Z_]+"
-  end
 
-  #	puts "about to create idmef watcher"
-  idmefWatcher = 
-    IdmefWatcher.new(idmefNum, idmefName, shouldStop,
-                     "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\([^)]+\\) Target\\([^)]+\\) AdditionalData\\(([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target})),([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target}))(,[^,)]+)*\\)")
-  idmefWatcher.start
-
-  #	puts "started idmefWatcher"        
-  watcher = sendRelay(source, target);
-  Thread.fork {
-    #          puts "sleeping...."
-    sleep(maxWait)
-    #          puts "done sleeping"
-    idmefWatcher.stop
-    watcher.stop
-    #          puts ("stopped...")
-    saveResult(watcher.getHash() == expected,
-               attackNum, attackName + "\t" +
-               source + "\t" + target + "\t" + 
-               watcher.getArray().join("\t"))
-    #puts("saved result testMessageFailure ")
-  }
-end # testMessageFailure
-=end
 def testMessageSuccess(source, target, attackNum, attackName, 
                        maxWait = 2.minutes)
   testMessageFailure(source, target,
@@ -163,20 +119,23 @@ class MessageEventWatcher
     @events = []
     @source = source
     @target = target
+    @mutex = Mutex.new()
 
     @listener = run.comms.on_cougaar_event { |event|
-      if (@uid == nil)
-        if (event.data =~ /MessageTransport\(.+\) UID\(.+\) Source\(#{@source}\) Target\(#{@target}\)/)
-          @events.unshift(event)
-        end
-      else
-        event.data.scan(/MessageTransport\((.*)\) UID\(#{@uid}\) Source\(#{@source}\) Target\(#{@target}\)/) { |match|
-          @array << match[0]
-          @hash[match[0]] = true
-          if (match[0] == "ResponseReceived")
-            stop
+      @mutex.synchronize do
+        if (@uid == nil)
+          if (event.data =~ /MessageTransport\(.+\) UID\(.+\) Source\(#{@source}\) Target\(#{@target}\)/)
+            @events.unshift(event)
           end
-        }
+        else
+          event.data.scan(/MessageTransport\((.*)\) UID\(#{@uid}\) Source\(#{@source}\) Target\(#{@target}\)/) { |match|
+            @array << match[0]
+            @hash[match[0]] = true
+            if (match[0] == "ResponseReceived")
+              stop
+            end
+          }
+        end
       end
     }
   end
@@ -195,9 +154,11 @@ class MessageEventWatcher
   end
 
   def setUID(uid)
-    if (@uid == nil)
-      @uid = uid
-      parseOldEvents
+    @mutex.synchronize do
+      if (@uid == nil)
+        @uid = uid
+        parseOldEvents
+      end
     end
   end
   
