@@ -111,8 +111,9 @@ public class MessageFailureSensor extends ComponentPlugin {
   }
   
   /**
-   * Register this sensor's capabilities and subscribe to the message failure events
-   * that the AccessAgentProxy and CrytoManagerService generates
+   * Register this sensor's capabilities, and initialize the services that need to
+   * to publish message failure events to this plugin's blackboard.
+   * 
    */
   protected void setupSubscriptions() {
     SensorInfo sensorInfo = new MFSensorInfo();
