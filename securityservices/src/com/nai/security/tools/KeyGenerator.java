@@ -26,14 +26,14 @@
 
 package com.nai.security.tools;
 
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
-import org.jdom.input.*;
-
 import java.security.cert.*;
 import java.security.KeyStore;
 import java.util.*;
 import java.io.*;
+
+import org.w3c.dom.*;
+//import org.jdom.input.SAXBuilder;
+//import org.jdom.input.*;
 
 import com.nai.security.crypto.*;
 
@@ -83,39 +83,49 @@ public class KeyGenerator {
 
     confParser = new ConfParser();
 
-    Element root = confParser.getConfigDocument().getRootElement();
+    Element root = confParser.getConfigDocument().getDocumentElement();
     iterateKeyStore(root, action);
 
     System.out.println("Total number of certificates:        " + nbCertificates);
     System.out.println("Certificates successfully processed: " + nbCertificatesSucceed);
   }
 
+  /** This convenience method returns the textual content of the named
+      child element, or returns an empty String ("") if the child has no
+      textual content. */
+  private static String getChildText(Element e, String tagName)
+  {
+    NodeList nodes = e.getElementsByTagName(tagName);
+    if (nodes == null || nodes.getLength() == 0) {
+      return null;
+    }
+    // Get first element
+    return nodes.item(0).getFirstChild().getNodeValue();
+  }
 
   public static void iterateKeyStore(Element element, int action) {
     
-    List societyChildren = element.getContent();
-    Iterator keyStoreIterator = societyChildren.iterator();
+    NodeList societyChildren = element.getChildNodes();
     // Iterate through each key store
-    while (keyStoreIterator.hasNext()) {
-      Object o = keyStoreIterator.next();
+    for (int i = 0 ; i < societyChildren.getLength() ; i++) {
+      Node o = societyChildren.item(i);
       if (o instanceof Element
-	  && ((Element)o).getName().equals("keystorefile")) {
+	  && ((Element)o).getTagName().equals("keystorefile")) {
 	Element keyNode = (Element)o;
-	String keyStoreName =  keyNode.getChildText("keystore");
-	String keyStorePasswd = keyNode.getChildText("storepass");
+	String keyStoreName =  getChildText(keyNode, "keystore");
+	String keyStorePasswd = getChildText(keyNode, "storepass");
 		
 	System.out.println("keystore: " + keyStoreName);
 
-	List keyStoreChildren = keyNode.getContent();
-	Iterator keyIterator = keyStoreChildren.iterator();
+	NodeList keyStoreChildren = keyNode.getChildNodes();
 
 	// Iterate through keys
-	while (keyIterator.hasNext()) {
-	  Object keyo = keyIterator.next();
+	for (int j = 0 ; j < keyStoreChildren.getLength() ; j++) {
+	  Node keyo = keyStoreChildren.item(j);
 	  if (keyo instanceof Element) {
-	    if (((Element)keyo).getName().equals("key")) {
+	    if (((Element)keyo).getNodeName().equals("key")) {
 	      if (agentName != null) {
-		String alias = ((Element)keyo).getChildText("alias");
+		String alias = getChildText((Element)keyo, "alias");
 		if (alias.equals(agentName) == false) {
 		  System.out.println("Skipping " + alias + "...");
 		  continue;
@@ -145,7 +155,7 @@ public class KeyGenerator {
 	      }
 	    }
 
-	    if (((Element)keyo).getName().equals("trustedCA")) {
+	    if (((Element)keyo).getNodeName().equals("trustedCA")) {
 	      switch (action) {
 	      case 3: // Import trusted authority
 		importTrustedAuthorityWithKeyTool((Element)keyo, keyStoreName, keyStorePasswd);
@@ -203,24 +213,24 @@ public class KeyGenerator {
   public static void iterateKey(Element element,
 				String keyStoreName,
 				String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String keypass = element.getChildText("keypass");
-    String keyalg = element.getChildText("keyalg");
-    String sigalg = element.getChildText("sigalg");
-    String keysize = element.getChildText("keysize");
-    String dname = element.getChildText("dname");
+    String alias = getChildText(element, "alias");
+    String keypass = getChildText(element, "keypass");
+    String keyalg = getChildText(element, "keyalg");
+    String sigalg = getChildText(element, "sigalg");
+    String keysize = getChildText(element, "keysize");
+    String dname = getChildText(element, "dname");
 
   }
 
   public static void createKeyPairWithKeyTool(Element element,
 					      String keyStoreName,
 					      String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String keypass = element.getChildText("keypass");
-    String keyalg = element.getChildText("keyalg");
-    String sigalg = element.getChildText("sigalg");
-    String keysize = element.getChildText("keysize");
-    String dname = element.getChildText("dname");
+    String alias = getChildText(element, "alias");
+    String keypass = getChildText(element, "keypass");
+    String keyalg = getChildText(element, "keyalg");
+    String sigalg = getChildText(element, "sigalg");
+    String keysize = getChildText(element, "keysize");
+    String dname = getChildText(element, "dname");
 
     List genKeyCom = new ArrayList();
 
@@ -305,10 +315,10 @@ public class KeyGenerator {
   public static void createCertificateRequestWithKeyTool(Element element,
 							 String keyStoreName,
 							 String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String keypass = element.getChildText("keypass");
-    String dname = element.getChildText("dname");
-    String signingAuthority = element.getChildText("signingAuthority");
+    String alias = getChildText(element, "alias");
+    String keypass = getChildText(element, "keypass");
+    String dname = getChildText(element, "dname");
+    String signingAuthority = getChildText(element, "signingAuthority");
 
     List genKeyCom = new ArrayList();
 
@@ -341,9 +351,9 @@ public class KeyGenerator {
   public static void importSigneCertificateWithKeyTool(Element element,
 						       String keyStoreName,
 						       String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String keypass = element.getChildText("keypass");
-    String signingAuthority = element.getChildText("signingAuthority");
+    String alias = getChildText(element, "alias");
+    String keypass = getChildText(element, "keypass");
+    String signingAuthority = getChildText(element, "signingAuthority");
 
     List genKeyCom = new ArrayList();
 
@@ -377,8 +387,8 @@ public class KeyGenerator {
   public static void importTrustedAuthorityWithKeyTool(Element element,
 						       String keyStoreName,
 						       String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String fileName = element.getChildText("file");
+    String alias = getChildText(element, "alias");
+    String fileName = getChildText(element, "file");
 
     List genKeyCom = new ArrayList();
 
@@ -419,8 +429,8 @@ public class KeyGenerator {
   public static void exportCertificatesWithKeyTool(Element element,
 						   String keyStoreName,
 						   String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String signingAuthority = element.getChildText("signingAuthority");
+    String alias = getChildText(element, "alias");
+    String signingAuthority = getChildText(element, "signingAuthority");
 
     List genKeyCom = new ArrayList();
 
@@ -455,23 +465,23 @@ public class KeyGenerator {
   public static void importCertificatesWithKeyTool(Element element,
 						   String keyStoreName,
 						   String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String signingAuthority = element.getChildText("signingAuthority");
+    String alias = getChildText(element, "alias");
+    String signingAuthority = getChildText(element, "signingAuthority");
 
 
     // Iterate through all parents (keystores) and store public key in all keystores
     // Except for the current key store, since the key is already there.
 
-    List keyStore = element.getParent().getParent().getContent();
-    Iterator keyStoreIterator = keyStore.iterator();
+    NodeList keyStore =
+      element.getParentNode().getParentNode().getChildNodes();
 
-    while (keyStoreIterator.hasNext()) {
-      Object o = keyStoreIterator.next();
+    for (int i = 0 ; i < keyStore.getLength() ; i++) {
+      Node o = keyStore.item(i);
       if (o instanceof Element
-	  && ((Element)o).getName().equals("keystorefile")) {
+	  && ((Element)o).getNodeName().equals("keystorefile")) {
 	Element keyNode = (Element)o;
-	String otherKeyStoreName =  keyNode.getChildText("keystore");
-	String otherKeyStorePasswd = keyNode.getChildText("storepass");
+	String otherKeyStoreName =  getChildText(keyNode, "keystore");
+	String otherKeyStorePasswd = getChildText(keyNode, "storepass");
 	if (keyStoreName.equals(otherKeyStoreName)) {
 	  // Skipping
 	  System.out.println("Skipping " + otherKeyStoreName);
@@ -514,8 +524,8 @@ public class KeyGenerator {
   public static void removeCertificatesWithKeyTool(Element element,
 						   String keyStoreName,
 						   String keyStorePasswd) {
-    String alias = element.getChildText("alias");
-    String signingAuthority = element.getChildText("signingAuthority");
+    String alias = getChildText(element, "alias");
+    String signingAuthority = getChildText(element, "signingAuthority");
 
     List genKeyCom = new ArrayList();
 
