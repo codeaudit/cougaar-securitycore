@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+####################################################
+
+attackHost = nil
+
+society.each_host do |host|
+  if host.has_facet? "attacker"
+    attackHost = host
+    break
+  end
+end
+
+if attackHost == nil
+  # search for the first non-nameserver host and make it the attacker
+  society.each_host do |host|
+    host.each_facet("service") do |facet|
+      if (facet["service"] == "nameserver")
+        facet_ok = false
+        host.add_facet({"attack" => "true"})
+        attackHost = host
+        break
+      end
+    end
+  end
+end
+
+if attackHost == nil
+  # fine! we'll add it to the nameserver host
+  society.each_host do |host|
+    host.add_facet({"attack" => "true"})
+    attackHost = host
+    break
+  end
+end
+
+if attackHost != nil
+  attackHost.add_node("MESSAGE-ATTACK-NODE") do |node|
+    node.override_parameter('-Dorg.cougaar.lib.web.http.port', '8830');
+    node.add_facet({"attack" => "true"})
+    node.add_agent("MessageAttacker") do |agent|
+    end
+  end
+else
+  raise "There are no hosts in the society"
+end

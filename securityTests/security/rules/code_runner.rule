@@ -1,0 +1,9 @@
+#!/usr/bin/ruby
+#
+#
+
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.classname = "org.cougaar.core.security.test.RunCodeServlet"
+  end
+end

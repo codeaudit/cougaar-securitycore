@@ -102,7 +102,8 @@ This file provides rules to run against an already loaded society.
 
    alias onCougaarEvent on_cougaar_event
 
-
+=begin
+# The code below has been moved to a rule
    def installConfigReaderServlet
      run.society.each_agent(true) { |agent|
        agent.add_component { |c|
@@ -155,9 +156,9 @@ This file provides rules to run against an already loaded society.
      }
      raise "There are no hosts in the society"
    end
-     
 #end
 
+=end 
 
 #==============================================================#
 
