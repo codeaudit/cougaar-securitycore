@@ -36,7 +36,7 @@ import com.nai.security.access.IntegrityAttribute;
 import com.nai.security.access.MissionCriticality;
 import com.nai.security.access.TrustSet;
 import com.nai.security.access.TrustAttribute;
-import com.nai.security.policy.AccessControlPolicy;
+import org.cougaar.core.security.policy.AccessControlPolicy;
 
 import org.cougaar.domain.planning.ldm.plan.Directive;
 import org.cougaar.domain.planning.ldm.plan.Verb;
@@ -76,6 +76,15 @@ public class SecurityAspect extends StandardAspect
   public SecurityAspect() {
     String db = System.getProperty("org.cougaar.message.transport.debug");
     if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
+    
+    //add crypto related services:
+    sb = new ServiceBrokerSupport();
+//    setChildServiceBroker(sb);
+    CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
+    sb.addService(CryptoManagerService.class, cmsp);
+    sb.addService(CryptoPolicyService.class, cmsp);                
+    sb.addService(AccessControlPolicyService.class, cmsp); 
+
   }
 
     private static class SecurityEnvelope extends MessageEnvelope {
@@ -387,7 +396,7 @@ public class SecurityAspect extends StandardAspect
     
   private void init(){
     enabled = true;
-    sb = getServiceBroker();
+//    sb = getServiceBroker();
     if (sb != null){
       try{
 	cms = (CryptoManagerService)sb.getService(this, CryptoManagerService.class, null);
