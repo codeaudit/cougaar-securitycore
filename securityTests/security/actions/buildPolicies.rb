@@ -50,14 +50,16 @@ module Cougaar
 
       def packageAndSignJar
         jarFile="#{@cip}/configs/security/bootpolicies.jar"
-        signingKeystore="#{@cip}/configs/security/bin/signingCA_keystore"
+        signingKeystore="#{@cip}/operator/security/signingCA_keystore"
         begin 
           File.delete(jarFile)
         rescue
           # its ok - problems on the next one aren't.
         end
-        `cd #{@stagingdir} && jar cf #{jarFile} .`
-        `jarsigner -keystore #{signingKeystore} -storepass keystore #{jarFile} privileged`
+        result = `cd #{@stagingdir} && jar cf #{jarFile} .`
+        # puts "result of jar = #{result}"
+        result = `jarsigner -keystore #{signingKeystore} -storepass keystore #{jarFile} privileged`
+        # puts "result of jarsigner = #{result}"
       end # def packageAndSignJar
 
 
