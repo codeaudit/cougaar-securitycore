@@ -42,8 +42,11 @@
         <DefaultContext cookies="true" crossContext="false" reloadable="true"/>
 
         <!-- set up the default Context -->
+<!--
         <Context path="" docBase="ROOT" workDir="work"
          className="org.cougaar.core.security.acl.auth.PolicyEnforcerServletContext">
+-->
+        <Context path="" docBase="ROOT" workDir="work">
 
           <!-- Create a session manager. I don't like the seeding mechanism
                which seems to rely on a seed within the server.xml file as
