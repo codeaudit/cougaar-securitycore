@@ -6,6 +6,10 @@ include Cougaar
 HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
 #puts "Host file #{HOSTS_FILE}"
 
+CIP = ENV['CIP']
+$:.unshift File.join(CIP, 'csmart', 'lib')
+require 'security/actions/buildHostFile'
+
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
 
@@ -21,7 +25,8 @@ Cougaar.new_experiment().run(parameters[:run_count]) {
   # will work in a stand-alone ACME setup. 
   host_file = HOSTS_FILE
   #host = @hostname unless host 
-at :build_host_file
+
+  do_action "BuildCsiHostFile", "host-layout-file.xml"
 
   Dir.glob(File.join(".", "host-layout-file.xml")).each do |file| 
     ts = Cougaar::SocietyBuilder.from_xml_file(file).society 

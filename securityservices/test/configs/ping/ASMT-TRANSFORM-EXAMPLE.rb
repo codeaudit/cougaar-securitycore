@@ -26,12 +26,8 @@ parameters:
     - $CIP/csmart/config/rules/security/communities
 
 include_scripts:
-  - script: $CIP/csmart/lib/security/scripts/setup_scripting.rb
   - script: setup_ping.rb
 # ######################################################
-# Security rules
-  - script: $CIP/csmart/lib/security/scripts/build_config_jarfiles.rb
-  - script: $CIP/csmart/lib/security/scripts/setup_society_ping.rb
 
 =end
 
