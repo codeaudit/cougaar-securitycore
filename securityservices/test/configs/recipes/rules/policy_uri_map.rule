@@ -91,7 +91,8 @@ if !(@damlUriMapCompleted)
 /\\$.*/topology SocietyAdminServlet
 #
 /\\$.*/useradmin UserManagerServlets
-#
+/\\$.*/TestUserPolicy TestUserPolicyServlet
+
 /\\$.*/.* OtherServlets
 /.* OtherServlets
 
