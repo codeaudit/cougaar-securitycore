@@ -27,11 +27,13 @@ find src/com/ -depth -name CVS -type d -exec rm -rf {} \;
 find src/org/cougaar/core/security/securebootstrap/ -depth -name CVS -type d -exec rm -rf {} \;
 
 # Move bootstrap directory to securebootstrap
-mv src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
-
+mv -f src/com/nai/security/bootstrap/ src/org/cougaar/core/security/securebootstrap
 # Move monitoring directory to oldmonitoring
-mv src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitoring
-
+mv -f src/com/nai/security/monitoring/ src/org/cougaar/core/security/oldmonitoring
+# Move crypto directory to crypto
+mv -f src/com/nai/security/crypto/* src/org/cougaar/core/security/crypto
+# Move policy directory to policy
+mv -f src/com/nai/security/policy/* src/org/cougaar/core/security/policy
 # Move com directory to org directory
 mv -f src/com/nai/security/* src/org/cougaar/core/security
 
