@@ -15,7 +15,7 @@ import org.cougaar.core.security.util.SharedDataRelay;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.UIDService;
-
+import java.util.Collection;
 import java.util.TimerTask;
 
 
@@ -23,7 +23,7 @@ import java.util.TimerTask;
  * Plugin sends relay with the session key in it to the persistence manager
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SessionKeySenderPlugin extends ComponentPlugin {
     /** Plugin name */
@@ -88,7 +88,7 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
      * @param key SharedDataRelay
      * @param pmAgent PersistenceManager Agent
      */
-    protected void sendSessionKey(DataProtectionKeyImpl key, String pmAgent) {
+    protected void sendSessionKey(Collection keyCollection, String pmAgent) {
         if (logging.isDebugEnabled()) {
             logging.debug("Relaying session key....");
         }
@@ -96,7 +96,7 @@ public class SessionKeySenderPlugin extends ComponentPlugin {
         MessageAddress source = this.getAgentIdentifier();
         MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
         SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source,
-                target, key, null);
+                target, keyCollection, null);
         RelayTimerTask timerTask = new RelayTimerTask(sdr);
 		threadService.schedule(timerTask,1);
 

@@ -10,12 +10,12 @@ package org.cougaar.core.security.dataprotection;
 
 
 import java.util.HashMap;
-
+import java.util.Collection;
 
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author $author$
  */
 public class RelaySessionKey {
@@ -59,12 +59,12 @@ public class RelaySessionKey {
      * @param pmName DOCUMENT ME!
      * @param sourceAgent DOCUMENT ME!
      */
-    protected void relaySessionKey(DataProtectionKeyImpl key, String pmName,
+    protected void relaySessionKey(Collection keycollection, String pmName,
         String sourceAgent) {
         if (pluginMap.get(sourceAgent) != null) {
             SessionKeySenderPlugin plugin = (SessionKeySenderPlugin) pluginMap
                 .get(sourceAgent);
-            plugin.sendSessionKey(key, pmName);
+            plugin.sendSessionKey(keycollection, pmName);
         }
     }
 }

@@ -392,7 +392,7 @@ public class DataProtectionServiceImpl
 	if(log.isDebugEnabled()){
 		log.debug("trying to send session key using relay");
 	}
-	RelaySessionKey.getInstance().relaySessionKey(pmDPKey,commonName, agent);
+	RelaySessionKey.getInstance().relaySessionKey(keyCollection,commonName, agent);
 	
       keyCollection.add(pmDPKey);
     }

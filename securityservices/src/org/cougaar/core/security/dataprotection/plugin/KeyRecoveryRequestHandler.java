@@ -61,7 +61,7 @@ import sun.security.x509.X500Name;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class KeyRecoveryRequestHandler implements BlackboardClient {
   private ServiceBroker serviceBroker;
@@ -96,7 +96,11 @@ public class KeyRecoveryRequestHandler implements BlackboardClient {
         public boolean execute(Object o) {
         	if(o instanceof DataProtectionKeyContainer){
         		DataProtectionKeyContainer container = (DataProtectionKeyContainer)o;
-        		return container.getKey().equals(dpKey);
+        		Collection keyCollection = container.getKeyCollection();
+        		if(keyCollection!=null && keyCollection.size()>0){
+        			DataProtectionKeyImpl originalKey = (DataProtectionKeyImpl)keyCollection.iterator().next();
+        			return originalKey.equals(dpKey);
+        		}
         	}
           return false;
         }

@@ -34,7 +34,7 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.security.dataprotection.DataProtectionKeyImpl;
 import org.cougaar.core.security.util.SharedDataRelay;
-import org.cougaar.core.service.DataProtectionKey;
+import java.util.Collection;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
@@ -106,7 +106,7 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
     Enumeration enumeration = subs.getAddedList();
     while (enumeration.hasMoreElements()) {
       SharedDataRelay sdr = (SharedDataRelay) enumeration.nextElement();
-      DataProtectionKeyImpl key = (DataProtectionKeyImpl) sdr.getContent();
+      Collection keyCollection = (Collection) sdr.getContent();
       String agent = sdr.getSource().getAddress();
       long timestamp = System.currentTimeMillis();
       if (logging.isDebugEnabled()) {
@@ -116,7 +116,7 @@ public class EncryptedRelayPlugin extends ComponentPlugin {
       DataProtectionKeyContainer container = new DataProtectionKeyContainer();
       container.setAgentName(agent);
       container.setTimestamp(timestamp);
-      container.setKey(key);
+      container.setKeyCollection(keyCollection);
       container.setUID(uidService.nextUID());
       getBlackboardService().publishAdd(container);
       getBlackboardService().publishRemove(sdr);
