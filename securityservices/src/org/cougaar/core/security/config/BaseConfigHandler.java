@@ -104,6 +104,9 @@ public class BaseConfigHandler
 			    Attributes attr )
     throws SAXException {
     contents.reset();
+    if (log.isDebugEnabled()) {
+      log.debug("startElement: " + localName);
+    }
     String currentRole = attr.getValue("role");
     if (currentRole == null) {
       endElementAction = SET_DEFAULT;
@@ -120,8 +123,17 @@ public class BaseConfigHandler
 			  String localName,
 			  String qName )
     throws SAXException {
+    if (log.isDebugEnabled()) {
+      log.debug("endElement: " + localName
+		+ " - qName: " + qName
+		+ " - namespaceURI: " + namespaceURI);
+    }
     if (localName.equals(topLevelTag) && parent != null) {
       // swap content handler back to parent
+      if (log.isDebugEnabled()) {
+	log.debug("Swapping to content handler back to parent");
+      }
+      //contents.reset();
       parser.setContentHandler(parent);
     }
   }

@@ -134,6 +134,12 @@ public class LdapUserServiceImpl implements LdapUserService {
 	serviceBroker.getService(this,
 	LoggingService.class, null);
     if (log == null) {
+      try {
+	throw new RuntimeException("Logging service is not available");
+      }
+      catch (Exception e) {
+	e.printStackTrace();
+      }
       throw new RuntimeException("Logging service is not available");
     }
   }
@@ -226,7 +232,12 @@ public class LdapUserServiceImpl implements LdapUserService {
     try {
       _context = new InitialDirContext(env);
     } catch (NamingException e) {
-      log.debug("LdapUserService: couldn't initialize connection to User LDAP database");
+      if (log != null) {
+	log.debug("LdapUserService: couldn't initialize connection to User LDAP database");
+      }
+      else {
+	System.err.println("LdapUserService: couldn't initialize connection to User LDAP database");
+      }
       e.printStackTrace();
     }
   }

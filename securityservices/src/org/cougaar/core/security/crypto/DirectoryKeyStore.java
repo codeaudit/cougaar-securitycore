@@ -190,6 +190,11 @@ public class DirectoryKeyStore
 	  param.caKeystorePassword = null;
 	}
       }
+      else {
+	if (log.isErrorEnabled()) {
+	  log.error("Trusted CA keystore does not exist. Please configure a CA keystore");
+	}
+      }
       // Initialize commonName2alias hash map
       initCN2aliasMap();
 
@@ -1285,11 +1290,10 @@ public class DirectoryKeyStore
 	x509certificate.verify(publickey);
       }
       catch(Exception exception) {
-	if (log.isDebugEnabled()) {
-	  log.debug("Unable to verify signature: "
+	if (log.isWarnEnabled()) {
+	  log.warn("Unable to verify signature: "
 			     + exception + " - "
 			     + x509certificate1.getSubjectDN().toString());
-	  exception.printStackTrace();
 	}
 	continue;
       }
@@ -2426,9 +2430,8 @@ public class DirectoryKeyStore
 	}
 
       } catch(Exception e) {
-	log.warn("Error: sending PKCS request to CA failed--"
+	log.warn("Sending PKCS request to CA failed--"
 		 + e.getMessage());
-	e.printStackTrace();
       }
 
     return reply;
@@ -2461,6 +2464,12 @@ public class DirectoryKeyStore
 
   public X509Certificate[] getTrustedIssuers() {
     ArrayList list = new ArrayList();
+    if (caKeystore == null) {
+      if (log.isErrorEnabled()) {
+	log.error("Trusted CA keystore does not exist");
+      }
+      return null;
+    }
     try {
       for (Enumeration e = caKeystore.aliases(); e.hasMoreElements(); ) {
         String alias = (String)e.nextElement();

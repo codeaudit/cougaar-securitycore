@@ -107,14 +107,14 @@ public class CaPolicyHandler
 	try {
 	  aDN = new X500Name(getContents());
 	  if (log.isDebugEnabled()) {
-	    log.debug(" Got aDN is :"+ aDN.toString());
+	    log.debug(" Got aDN is :"+ aDN.toString() + ".");
 	  }
 	  caPolicy.caDnName = aDN;
 	  caPolicy.caCommonName = aDN.getCommonName();
 	}
 	catch (IOException e) {
 	  if (log.isErrorEnabled()) {
-	    log.error("Unable to parse DN: " + getContents());
+	    log.error("Unable to parse DN: " + getContents() + ".");
 	  }
 	}
       }

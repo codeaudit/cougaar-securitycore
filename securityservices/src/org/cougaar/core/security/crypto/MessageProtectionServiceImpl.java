@@ -69,6 +69,7 @@ public class MessageProtectionServiceImpl
   private MessageInputStream pis;
 
   private LoggingService log;
+  private boolean isInitialized = false;
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -96,7 +97,9 @@ public class MessageProtectionServiceImpl
       log.debug("Unable to get Encryption service");
       throw new RuntimeException("MessageProtectionService. No encryption service");
     }
+  }
 
+  private synchronized void setPolicyService() {
     // Retrieve policy service
     cps = (CryptoPolicyService)
       serviceBroker.getService(this, CryptoPolicyService.class, null);
@@ -107,6 +110,7 @@ public class MessageProtectionServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("Done initializing MessageProtectionServiceImpl");
     }
+    isInitialized = true;
   }
 
   /**
@@ -139,6 +143,9 @@ public class MessageProtectionServiceImpl
   {
     if (log.isDebugEnabled()) {
       log.debug("protectHeader");
+    }
+    if (!isInitialized) {
+      setPolicyService();
     }
     SecureMethodParam policy =
       cps.getSendPolicy(source.getAddress() + ":"
@@ -181,6 +188,9 @@ public class MessageProtectionServiceImpl
   {
     if (log.isDebugEnabled()) {
       log.debug("unprotectHeader");
+    }
+    if (!isInitialized) {
+      setPolicyService();
     }
     SecureMethodParam policy =
       cps.getReceivePolicy(source.toAddress()
@@ -248,6 +258,9 @@ public class MessageProtectionServiceImpl
       log.debug("getOutputStream: " + source.toAddress()
 		+ " -> " + destination.toAddress());
     }
+    if (!isInitialized) {
+      setPolicyService();
+    }
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination);
@@ -287,6 +300,9 @@ public class MessageProtectionServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("getInputStream: " + source.toAddress()
 		+ " -> " + destination.toAddress());
+    }
+    if (!isInitialized) {
+      setPolicyService();
     }
     pis =
       new MessageInputStream(is, encryptService, cps,
