@@ -171,10 +171,15 @@
     </target>
 
 
+    <!-- 
+         I am not using the antlr task because that would require
+         that people include antlr in the jakarta ant lib directory.
+      -->
     <target name="build-policyparser" depends="init, check-policyParserUptodate"
             unless="policyParserUptodate" >
       <java classname="antlr.Tool"
             fork="true"
+            failonerror="true"
             dir="${securityservices.src}/org/cougaar/core/security/policy/builder"
             classpathref="core.class.path" >
         <arg value="policyGrammar.g" />
@@ -259,7 +264,7 @@
         <!-- this is done before signing so I need an explicit path -->
         <classpath 
            path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="build --quiet DamlBootPolicyList" />
+        <arg line="build --quiet --info DamlBootPolicyList" />
       </java>
       <touch 
          file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
