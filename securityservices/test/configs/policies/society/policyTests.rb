@@ -26,47 +26,6 @@ module Cougaar
 # Utility Classes
 ########################################################################
 
-    class PolicyWaiter
-      def initialize(run, node)
-        @run = run
-        @node = node
-        @found = false
-        @run.info_message("Starting wait for policy commit at #{node}")
-        @thread = 
-          Thread.new() do
-          begin 
-            me = 
-             @run.comms.on_cougaar_event do |event|
-              if (event.data.include?("Guard on node " + node + 
-                                      " received policy update")) then
-                @found = true
-                @run.comms.remove_on_cougaar_event(me)
-              end
-            end
-          rescue => ex
-            @run.info_message("exception in waiter thread = #{ex}")
-            @run.info_message("#{ex.backtrace.join("\n")}")
-          end
-        end
-      end
-
-      def wait(timeout)
-        t = 0
-        while (!@found && timeout > t) do
-          t += 1
-          sleep 1
-        end
-        if (@found) then
-          @run.info_message("waited #{t} seconds for the policy")
-          return true
-        else
-          Thread.kill(@thread)
-          @run.info_message("Policy did not propagate")
-          return false
-        end
-      end      
-    end
-
     class WaitForUserManagerReady < Cougaar::Action
       def initialize(run)
         super(run)
@@ -100,7 +59,7 @@ module Cougaar
       def perform
         run.society.each_enclave { |enclave|
           ::Cougaar.logger.info "Publishing conditional policy to #{enclave} policy domain manager"
-          ensureBootPoliciesLoaded(enclave)
+          loadBootPolicies(enclave)
         }
       end
     end # InitDM
