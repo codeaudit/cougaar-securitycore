@@ -152,7 +152,10 @@ end
 
 $jarDir = "/tmp/config.#{rand(100000)}"
 $jarChanges = 0
-$createdJars=[]
+$jarCreated=false
+$tmpFilesDeleted=true
+$jarFile="#{CIP}/configs/security/securityservices_config.jar"
+$referenceJarFile="#{CIP}/configs/security/reference/securityservices_config.jar"
 
 def searchDir(dir, filename, dirok = true) 
   Dir.foreach(dir) { |file|
@@ -174,11 +177,26 @@ def searchDir(dir, filename, dirok = true)
   return nil
 end
 
-def getConfigFile(fileName = nil, jarFile="#{CIP}/configs/security/reference/securityservices_config.jar")
+def rebuildTempDir()
   if (!FileTest.exists?($jarDir)) 
     Dir.mkdirs($jarDir);
-    files = `cd #{$jarDir} && jar xvf #{jarFile}`.split
   end
+  # the invariant is that the tmp dir has the desired files in the jar file
+  # but we keep cleaning it up...
+  if ($tmpFilesDeleted) then
+    if ($jarCreated) then                     # get them from the latest jar file
+#      puts "cd #{$jarDir} && jar xvf #{$jarFile}"
+      `cd #{$jarDir} && jar xvf #{$jarFile}`
+    else                                      # get them from the reference file
+#      puts "cd #{$jarDir} && jar xvf #{$referenceJarFile}"
+      `cd #{$jarDir} && jar xvf #{$referenceJarFile}`
+    end
+  end
+  $tmpFilesDeleted = false
+end
+
+def getConfigFile(fileName = nil)
+  rebuildTempDir()
   if (fileName == nil)
     return nil;
   end
@@ -186,6 +204,7 @@ def getConfigFile(fileName = nil, jarFile="#{CIP}/configs/security/reference/sec
 end
 
 def scheduleConfigChange(fileName, contents=nil)
+#  puts("Schedule changes for  file #{fileName}")
   toFile = getConfigFile(File.basename(fileName))
   if (toFile == nil) 
     toFile = File.join($jarDir, File.basename(fileName));
@@ -200,22 +219,18 @@ def scheduleConfigChange(fileName, contents=nil)
   $jarChanges = $jarChanges + 1
 end
 
-def commitConfigChanges(jarFile="#{CIP}/configs/security/securityservices_config.jar")
+def commitConfigChanges()
   if ($jarChanges == 0)
     return nil
   end
-  getConfigFile() #force creating the jar directory
-  if $createdJars.include?(jarFile) then
-#    puts "cd #{$jarDir} && jar uf #{jarFile} ."
-    `cd #{$jarDir} && jar uf #{jarFile} .`
-  else
-#    puts "cd #{$jarDir} && jar cf #{jarFile} ."
-    `cd #{$jarDir} && jar cf #{jarFile} .`
-    $createdJars.push(jarFile)
-  end
-  signJar(jarFile, "#{CIP}/operator/signingCA_keystore",            
+  rebuildTempDir()
+#  puts "cd #{$jarDir} && jar cf #{$jarFile} ."
+  `cd #{$jarDir} && jar cf #{$jarFile} .`
+  $jarCreated=true
+  signJar($jarFile, "#{CIP}/operator/signingCA_keystore",            
           "privileged")
-
   File.rm_all($jarDir);
+  $tmpFilesDeleted=true
   $jarChanges = 0;
 end
+
