@@ -85,14 +85,23 @@ public abstract class GuardRegistration
       serviceBroker.getService(this,
 			       ConfigParserService.class, null);
 
+    if (log.isDebugEnabled()) {
+      log.debug(this.getClass().getName()
+		+ " trying to retrieve policy guard");
+    }
+    if (!serviceBroker.hasService(EnforcerManagerService.class)) {
+      log.fatal("Guard service is not registered");
+      throw new	RuntimeException("Guard service is not registered");
+    }
     guard =
-      (EnforcerManagerService) serviceBroker.getService(this, EnforcerManagerService.class,
-							null);
+      (EnforcerManagerService)
+      serviceBroker.getService(this, EnforcerManagerService.class,
+			       null);
     //guardRetriever = new GuardRetriever();
     //guard = guardRetriever.getGuard();
     if (guard == null) {
-      log.error("FATAL: Cannot continue without guard", new Throwable());
-      throw new RuntimeException("ERROR: Cannot continue without guard");
+      log.fatal("Cannot continue without guard", new Throwable());
+      throw new RuntimeException("Cannot continue without guard");
     }
 
     setPolicyType(aPolicyType);
