@@ -26,6 +26,8 @@
 
 package org.cougaar.security.mop.ethereal;
 
+import java.util.Map;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.BufferedReader;
@@ -37,11 +39,15 @@ import javax.swing.tree.TreeNode;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
+import org.cougaar.security.mop.swing.*;
+
 public class EtherealHierarchyParser
 {
   private BufferedReader _reader;
   private Logger _log;
   private TreeNode _protocolHierarchyTree;
+  private Map _protocolPolicy;
+  private GlobalStatistics _statistics = new GlobalStatistics();
 
   private final static String ANALYSIS_HEADER =
   "Protocol Hierarchy Statistics";
@@ -50,14 +56,21 @@ public class EtherealHierarchyParser
 
   public static void main(String args[]) {
     EtherealHierarchyParser ep = new EtherealHierarchyParser();
+    CryptoConfigParser pp = new CryptoConfigParser();
+    pp.parseConfigFile(null);
+
+    ep.setProtocolPolicy(pp.getProtocolPolicy());
     ep.parseResults(args[0]);
     ep.displayProtocolHierarchy();
   }
+
+  private void setProtocolPolicy(Map map) { _protocolPolicy = map; }
 
   private void displayProtocolHierarchy() { 
     ProtocolHierarchyFrame ph =
       new ProtocolHierarchyFrame(_protocolHierarchyTree);
     ph.displayFrame();
+    ph.displayGlobalStatistics(_statistics);
  }
 
   public EtherealHierarchyParser() {
@@ -110,8 +123,8 @@ public class EtherealHierarchyParser
 	int treeLevel = matcher.start(2) / 2;
 
 	String protocolName = matcher.group(2);
-	long frames = Long.parseLong(matcher.group(5));
-	long bytes = Long.parseLong(matcher.group(8));
+	Long frames = Long.decode(matcher.group(5));
+	Long bytes = Long.decode(matcher.group(8));
 	if (_log.isDebugEnabled()) {
 	  _log.debug("treeLevel: " + treeLevel + " - previous: " +
 		     previousTreeLevel + " - Protocol: " + protocolName
@@ -124,15 +137,19 @@ public class EtherealHierarchyParser
 	if (treeLevel == 0) {
 	  _protocolHierarchyTree = newNode;
 	  currentNode = newNode;
+	  _statistics.setTotalBytes(bytes.longValue());
+	  _statistics.setTotalFrames(frames.longValue());
 	}
 	else {
 	  // Insert node in the tree
 	  if (treeLevel > previousTreeLevel) {
 	    currentNode.add(newNode);
+	    updateProtocolStatistics(currentNode, newNode);
 	  }
 	  else if (treeLevel == previousTreeLevel) {
-	    ((DefaultMutableTreeNode)currentNode.getParent()).
-	      add(newNode);
+	    DefaultMutableTreeNode parent = ((DefaultMutableTreeNode)currentNode.getParent());
+	    parent.add(newNode);
+	    updateProtocolStatistics(parent, newNode);
 	  }
 	  else {
 	    // Move up
@@ -140,16 +157,76 @@ public class EtherealHierarchyParser
 	      currentNode = (DefaultMutableTreeNode)currentNode.getParent();
 	    }
 	    currentNode.add(newNode);
+	    updateProtocolStatistics(currentNode, newNode);
 	  }
 	  currentNode = newNode;
 	  previousTreeLevel = treeLevel;
 	}
+
+	// Build the protocol chain up to the root.
+	StringBuffer sb = new StringBuffer();
+	sb.append(ps.getProtocolName());
+	TreeNode tn = newNode;
+	while ((tn = tn.getParent()) != null) {
+	  ProtocolStatistics psParent = (ProtocolStatistics)
+	    ((DefaultMutableTreeNode)tn).getUserObject();
+	  sb.insert(0, ".");
+	  sb.insert(0, psParent.getProtocolName());
+	}
+	ps.setProtocolPath(sb.toString());
+	_log.debug("Path:" + ps.getProtocolPath());
+	ProtocolPolicy pp = (ProtocolPolicy) _protocolPolicy.get(ps.getProtocolPath());
+	if (pp == null) {
+	  // Create a default one
+	  pp = new ProtocolPolicy(ps.getProtocolPath(), null, null);
+	}
+	ps.setProtocolPolicy(pp);
       }
       _reader.close();
     }
     catch (IOException e) {
       _log.warn("Unable to read file:" + filename);
     }
+
+    Enumeration enum =
+      ((DefaultMutableTreeNode)_protocolHierarchyTree).breadthFirstEnumeration();
+    while (enum.hasMoreElements()) {
+      ProtocolStatistics ps = (ProtocolStatistics)
+	((DefaultMutableTreeNode)enum.nextElement()).getUserObject();
+      long bytes = ps.getBytes().longValue();
+      long frames = ps.getFrames().longValue();
+      if (ps.getProtocolPolicy().isEncrypted() == Boolean.TRUE) {
+	_statistics.setTotalEncryptedBytes(_statistics.getTotalEncryptedBytes() + bytes);
+	_statistics.setTotalEncryptedFrames(_statistics.getTotalEncryptedFrames() + frames);
+      }
+      else {
+	_statistics.setTotalUnencryptedBytes(_statistics.getTotalUnencryptedBytes() + bytes);
+	_statistics.setTotalUnencryptedFrames(_statistics.getTotalUnencryptedFrames() + frames);
+      }
+      if (ps.getProtocolPolicy().isOk() == Boolean.FALSE) {
+	if (ps.getProtocolPolicy().isEncrypted() == Boolean.TRUE) {
+	  // This should not happen.
+	  _log.error("Protocol marked as encrypted and policy says it's not OK");
+	}
+	_statistics.setTotalUnexpectedUnencryptedBytes(
+	  _statistics.getTotalUnexpectedUnencryptedBytes() + bytes);
+	_statistics.setTotalUnexpectedUnencryptedFrames(
+	  _statistics.getTotalUnexpectedUnencryptedFrames() + frames);
+      }
+    }
   }
 
+  private void updateProtocolStatistics(DefaultMutableTreeNode parent,
+					DefaultMutableTreeNode node) {
+    ProtocolStatistics parentStat = (ProtocolStatistics)parent.getUserObject();
+    ProtocolStatistics nodeStat = (ProtocolStatistics)node.getUserObject();
+
+    _log.debug("Updating stats: " + parentStat.getProtocolName()
+      + " - " + nodeStat.getProtocolName());
+    Long bytes = new Long(parentStat.getBytes().longValue() - nodeStat.getBytes().longValue());
+    Long frames = new Long(parentStat.getFrames().longValue() - nodeStat.getFrames().longValue());
+    parentStat.setBytes(bytes);
+    parentStat.setFrames(frames);
+  }
+					
 }

@@ -36,11 +36,21 @@
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
     </path>
     
-    <target name="tstamp">
+    <target name="tstamp" depends="checkversion">
         <tstamp>
             <format property="currentTime" pattern="MM/dd/yyyy hh:mm:ss"/>
         </tstamp>
         <echo message="Build started at ${currentTime}"/>
+    </target>
+
+    <target name="checkversion">
+        <condition property="vm.version.incorrect" value="true">
+          <not>
+            <contains string="${java.vm.version}" substring="1.4.2"/>
+          </not>
+        </condition>
+        <fail message="JDK 1.4.2 or above is required. Current version is ${java.vm.version}"
+              if="vm.version.incorrect"/>
     </target>
 
     <target name="init">

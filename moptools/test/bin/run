@@ -31,6 +31,8 @@ cargs="${cargs} -Dorg.cougaar.config.path=\".;${CIP}/configs/security;/mnt/share
 cargs="${cargs} -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
 cargs="${cargs} -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${CIP}/workspace/log4jlogs/ethereal.log"
 
+cargs="${cargs} -Dorg.cougaar.security.mop.protocolPolicy=test/configs/crypto/protocols.conf"
+
 # name of the bootstrapper class
 bootclass="org.cougaar.bootstrap.Bootstrapper"
 

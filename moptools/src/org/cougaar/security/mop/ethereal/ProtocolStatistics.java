@@ -35,46 +35,93 @@ public class ProtocolStatistics
    */
   private String _protocolName;
 
-  /** Number of frames for this protocol.
+  /** A dot-separated list of protocol names from the root
    */
-  private long _frames;
+  private String _protocolPath;
 
-  /** Number of bytes for this protocol.
+  /** Number of frames for this protocol, including lower-level protocols
    */
-  private long _bytes;
+  private Long _totalFrames;
+
+  /** Number of frames for this protocol only
+   */
+  private Long _frames;
+
+  /** Number of bytes for this protocol, including lower-level protocols
+   */
+  private Long _totalBytes;
+
+  /** Number of bytes for this protocol only
+   */
+  private Long _bytes;
+
+  /** The policy associated with this protocol.
+   */
+  private ProtocolPolicy _protocolPolicy;
 
   public ProtocolStatistics(String protocolName,
-			    long frames, long bytes) {
+			    Long totalframes, Long totalbytes) {
     _protocolName = protocolName;
-    _frames = frames;
-    _bytes = bytes;
+    _totalFrames = totalframes;
+    _totalBytes = totalbytes;
+    
+    // The bytes and frames are not available initially. We compute them as
+    // we add objects in the tree.
+    _bytes = _totalBytes;
+    _frames = _totalFrames;
   }
 
-  public String getProtocolName() {
-    return _protocolName;
-  }
+  public void setProtocolPolicy(ProtocolPolicy pp) { _protocolPolicy = pp; }
+  public ProtocolPolicy getProtocolPolicy() { return _protocolPolicy; }
 
-  public long getFrames() {
-    return _frames;
-  }
-  public void setFrames(long frames) {
-    _frames = frames;
-  }
+  public String getProtocolName() { return _protocolName; }
 
-  public long getBytes() {
-    return _bytes;
-  }
-  public void setBytes(long bytes) {
-    _bytes = bytes;
-  }
+  public String getProtocolPath() { return _protocolPath; }
+  public void setProtocolPath(String path) { _protocolPath = path; }
+
+  public Long getFrames() { return _frames; }
+  public void setFrames(Long frames) { _frames = frames; }
+
+  public Long getTotalFrames() { return _totalFrames; }
+  public void setTotalFrames(Long frames) { _totalFrames = frames; }
+
+  public Long getBytes() { return _bytes; }
+  public void setBytes(Long bytes) { _bytes = bytes; }
+
+  public Long getTotalBytes() { return _totalBytes; }
+  public void setTotalBytes(Long bytes) { _totalBytes = bytes; }
 
   public String toString() {
     return _protocolName;
   }
 
   public String getDetails() {
-    return "Name: " + _protocolName + "\n"
-      + "Frames: " + _frames + "\n"
-      + "Bytes: " + _bytes;
+    String s = "Name: " + _protocolPath + "\n"
+      + "Total frames: " + _totalFrames + " - Total Bytes: " + _totalBytes + "\n"
+      + "Frames: " + _frames + " - Bytes: " + _bytes + "\n";
+
+    if (_protocolPolicy != null) {
+      if (_protocolPolicy.isEncrypted() == Boolean.TRUE) {
+	s = s + "Encrypted";
+      }
+      else if (_protocolPolicy.isEncrypted() == Boolean.FALSE) {
+	s = s + "Unencrypted";
+      }
+      else {
+	s = s + "Unknown protection";
+      }
+      s = s + " - ";
+      
+      if (_protocolPolicy.isOk() == Boolean.TRUE) {
+	s = s + "OK";
+      }
+      else if (_protocolPolicy.isOk() == Boolean.FALSE) {
+	s = s + "Unexpected";
+      }
+      else {
+	s = s + "Unknown";
+      }
+    }
+    return s;
   }
 }
