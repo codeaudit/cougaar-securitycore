@@ -13,7 +13,6 @@ class TestReportChainReady < SecurityStressFramework
     super(run)
     @run = run
     @expectedSubordinates   = Hash.new
-    @foundSubordinatesCount = Hash.new
     @foundSubordinates      = Hash.new
     @stressid = "ReportChainReady_Detector"
     @cmdline  = false
@@ -57,16 +56,11 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def addFoundSubordinate(subordinate, superior)
-    if (@foundSubordinatesCount[[subordinate, superior]] == nil) then
-      @foundSubordinatesCount[[subordinate, superior]] = 0
+    #    puts "addFound - #{subordinate} / #{superior}"
+    if (@foundSubordinates[superior] == nil)
+      @foundSubordinates[superior] = []
     end
-    @foundSubordinatesCount[[subordinate, superior]] += 1
-    if (@foundSubordinatesCount[[subordinate, superior]] == 2) then
-      if (@foundSubordinates[superior] == nil)
-        @foundSubordinates[superior] = []
-      end
-      @foundSubordinates[superior].push(subordinate)
-    end
+    @foundSubordinates[superior].push(subordinate)
   end
 
   def afterReportChainReady
@@ -165,17 +159,16 @@ class TestReportChainReady < SecurityStressFramework
   def generateReport()
     badChains = getBadChains ["OSD.GOV"]
     if !(badChains.empty?)
-      badChains.each do |chain|
-        print "ReportChainReady failed at subordinate #{chain.last}"
-        explanation = "Subordinate chain = #{chain.join("->")}"
-        print explanation
+      explanation = "ReportChainReady failed at #{badChains.size()} subordinates:\n"
+      sortedBadChains = badChains.sort { |x, y|
+        x.last <=> y.last
+      }
+      sortedBadChains.each do |chain|
+        explanation += "#{chain.reverse.join("->")}\n"
       end
-    end
-    @foundSubordinatesCount.each do |pair, count|
-      if count == 1 then
-        subordinate, superior = pair
-        print "#{subordinate} reported for duty but #{superior} did not receive the report"
-      end
+      print explanation
+    else 
+      print "All agents reported for duty"
     end
     badChains.empty?
   end
