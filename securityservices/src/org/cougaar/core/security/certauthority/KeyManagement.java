@@ -122,8 +122,8 @@ public class KeyManagement  implements CertificateManagementService {
 						  of the CA */
   private X500Name caX500Name = null;          // the X.500 name of the CA
 
-  private CertDirectoryServiceCA caOperations = null;
-  private CACertDirectoryService crlOperations = null;
+  //private CertDirectoryServiceCA caOperations = null;
+  private CACertDirectoryService caOperations = null;
 
   private String role;
 
@@ -244,9 +244,10 @@ public class KeyManagement  implements CertificateManagementService {
                                               caPolicy.ldapPrincipal, caPolicy.ldapCredential,
 					      serviceBroker);
                               
-      crlOperations = (CACertDirectoryService)
+      caOperations = (CACertDirectoryService)
 	serviceBroker.getService(this,CACertDirectoryService.class, null);
-
+      
+      /*
       caOperations = (CertDirectoryServiceCA)
 	serviceBroker.getService(cdsr, CertDirectoryServiceCA.class, null);
 
@@ -254,6 +255,7 @@ public class KeyManagement  implements CertificateManagementService {
       if (caOperations == null) {
 	throw new RuntimeException("Unable to communicate with LDAP server");
       }
+      */
       publishCA();
     }
     else{
@@ -996,7 +998,7 @@ public class KeyManagement  implements CertificateManagementService {
                exp.getMessage());
     }
      
-    crlOperations.publishCertificate(certEntry);
+    caOperations.publishCertificate(certEntry);
         
   }
 
@@ -1283,9 +1285,9 @@ public class KeyManagement  implements CertificateManagementService {
     throws IOException, Exception, CertificateException
     {
       int status=1;
-      CertificateEntry userCertEntry=crlOperations.findCertByIdentifier(userUniqueIdentifier);
+      CertificateEntry userCertEntry=caOperations.findCertByIdentifier(userUniqueIdentifier);
       CACertificateEntry caCertEntry=null;
-      List list=crlOperations.findCertByDistinguishedName(caDN);
+      List list=caOperations.findCertByDistinguishedName(caDN);
       if(list.size()>1) {
         String msg = "Unable to revoke.Multiple CA CertificateEntry f dor CA DN :" +caDN;
         log.warn(msg);
@@ -1315,7 +1317,7 @@ public class KeyManagement  implements CertificateManagementService {
         }
         try {
           if(log.isDebugEnabled()) {
-            log.debug("Found private key going to revoke certificate in crlOperations :");
+            log.debug("Found private key going to revoke certificate in caOperations :");
           }
           CertificateRevocationStatus userstatus=userCertEntry.getCertificateRevocationStatus();
           if(userstatus.equals(CertificateRevocationStatus.REVOKED)) {
@@ -1348,10 +1350,10 @@ public class KeyManagement  implements CertificateManagementService {
             newCrl= CrlUtility.createCRL(caCert,newCrl,userCert,issuercertificate, caprivatekey,
                                          caPolicy.CRLalgorithmId.getName());
             caCertEntry.setCRL(newCrl);
-            crlOperations.publishCertificate(caCertEntry);
+            caOperations.publishCertificate(caCertEntry);
             keyRing.publishCertificate(caCertEntry);
             userCertEntry.setCertificateRevocationStatus(CertificateRevocationStatus.REVOKED);
-            crlOperations.publishCertificate(userCertEntry);
+            caOperations.publishCertificate(userCertEntry);
             
           }
           else {
