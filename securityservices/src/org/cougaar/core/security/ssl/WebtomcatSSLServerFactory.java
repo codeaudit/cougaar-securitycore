@@ -39,14 +39,25 @@ public class WebtomcatSSLServerFactory
   implements org.apache.catalina.net.ServerSocketFactory {
 
   protected static javax.net.ssl.SSLServerSocketFactory socfac = null;
+  protected static boolean needAuth = false;
+
+  public void setNeedClientAuth(boolean needClientAuth) {
+    needAuth = needClientAuth;
+  }
 
   /**
    * Integrate into tomcat socket factory
    * Use socketfactory from securityservices
    */
-  public WebtomcatSSLServerFactory(WebserverIdentityService webssl) {
+  public WebtomcatSSLServerFactory() {
+    // check permission
+  }
+
+  public synchronized static void init(WebserverIdentityService webssl) {
       socfac = (javax.net.ssl.SSLServerSocketFactory)
         webssl.getWebServerSocketFactory();
+      if (needAuth)
+        ((KeyRingSSLServerFactory)socfac).setNeedClientAuth(true);
   }
 
   // all the keystore related functions will not be supported
