@@ -65,7 +65,12 @@ public class CertificateSigningRequest extends  HttpServlet
       return null;
     }
     // Get first element
-    return nodes.item(0).getFirstChild().getNodeValue();
+    Node child = nodes.item(0).getFirstChild();
+    String val = null;
+    if (child != null) {
+      val = child.getNodeValue();
+    }
+    return val;
   }
 
   public void setjavaproperty(Element root)
