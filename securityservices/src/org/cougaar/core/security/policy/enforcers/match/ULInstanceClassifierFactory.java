@@ -55,6 +55,25 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.ULOntologyNames;
+import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+
+import kaos.ontology.vocabulary.ActionConcepts;
+import kaos.ontology.vocabulary.ActorConcepts;
+import kaos.ontology.matching.InstanceClassifier;
+import kaos.ontology.matching.InstanceClassifierFactory;
+import kaos.ontology.matching.InstanceClassifierInitializationException;
+import kaos.ontology.matching.InstanceClassifierClassCastException;
+import kaos.policy.information.KAoSProperty;
+
 
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory
@@ -113,6 +132,9 @@ public class ULInstanceClassifierFactory
   public  InstanceClassifier getInstance (String propertyName) 
     throws InstanceClassifierInitializationException
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Getting instance classifier instance for " + propertyName);
+    }
     if (propertyName.equals(ActionConcepts.performedBy()) || 
         propertyName.equals(ActionConcepts.hasDestination()) ) {
       return _instClassifier;
@@ -170,6 +192,30 @@ public class ULInstanceClassifierFactory
         ensureCommunityServicePresent();
         String community = className.substring(communityPrefix.length());
         loadAgentsInCommunity(community);
+      }
+    }
+
+    public boolean classify(Object className, 
+                            Object instance,
+                            Object classDesc,
+                            Object instDesc) 
+      throws InstanceClassifierInitializationException, 
+             InstanceClassifierClassCastException
+    {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Classifying + (" + className + ", " 
+                                     + instance + ", " 
+                                     + classDesc + ", "
+                                     + instDesc + ")");
+      }
+      if (className instanceof String) {
+        boolean ret = classify((String) className, instance);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Returning " + ret);
+        }
+        return ret;
+      } else {
+        return false;
       }
     }
 
@@ -231,18 +277,33 @@ public class ULInstanceClassifierFactory
           return false; 
         }
       }
+      /*
+       * This is the end of the cases where instance is not a String
+       */
       if (! (instance instanceof String)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Not a match because the instance is not a String");
+        }
         return false;
       }
 
       /*
-       * Classifying Agents
+       * Classifying Agents or People
        */
       String actor = (String) instance;
+      if (_log.isDebugEnabled()) {
+        _log.debug("Classifying agents  or people");
+      }
       actor     = removeHashChar(actor);
       if (className.equals(ActorConcepts.Agent())) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Looking for agents");
+        }
         return !UserDatabase.isUser(actor);
       } else if (className.startsWith(communityPrefix)) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Here's to hoping you aren't here...");
+        }        
         ensureCommunityServicePresent();
 
         String community 
@@ -273,43 +334,6 @@ public class ULInstanceClassifierFactory
       return false;
     }
 
-    public int classify(String className, Set instances)
-      throws InstanceClassifierInitializationException
-    {
-      if (_log.isDebugEnabled()) {
-        _log.debug(".ULInstanceClassifier: Entering with classname "
-                   + className + " and instances: ");
-        for (Iterator instancesIt = instances.iterator();
-             instancesIt.hasNext();) {
-          Object instance = instancesIt.next();
-          _log.debug(".ULInstanceClassifier: " + instance);
-        }
-      }
-      boolean someMatch     = false;
-      boolean someDontMatch = false;
-      for (Iterator actorIt = instances.iterator(); 
-           actorIt.hasNext();) {
-        Object actor = actorIt.next();
-        if (classify(className, actor)) {
-          _log.debug("ULInstanceClassifier: found match of " + className +
-                     " and " + actor);
-          someMatch = true;
-        } else {
-          _log.debug("ULInstanceClassifier: found non-match of " + className +
-                     " and " + actor);
-          someDontMatch = true;
-        }
-      }
-      if (someMatch && someDontMatch) {
-        return 1;
-      } else if (someMatch) {
-        return KAoSProperty._ALL_INST_PRESENT;
-      } else if (someDontMatch) {
-        return KAoSProperty._NO_INST_PRESENT;
-      } else {
-        return KAoSProperty._ALL_INST_PRESENT;
-      }
-    }
 
     private class Status
     {
