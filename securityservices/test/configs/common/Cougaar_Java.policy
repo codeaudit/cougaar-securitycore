@@ -83,6 +83,10 @@ grant signedBy "bootstrapper" {
 	permission javax.security.auth.AuthPermission "getPolicy";
 };
 
+grant codeBase "file:${org.cougaar.install.path}/lib/core.jar" {
+	permission java.util.PropertyPermission "*", "read, write";
+};
+
 ////////////////////////////////////////////////////////////
 // Permissions for core infrastructure package.
 grant signedBy "privileged" {
@@ -126,12 +130,17 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "glm_debug_messages", "read";
 	permission java.util.PropertyPermission "glm_output_stream", "read";
 	permission java.util.PropertyPermission "glm_log_file", "read";
+	permission java.util.PropertyPermission "SAFE.debug", "read";
 
 	permission java.util.PropertyPermission "com.nai.*", "read";
 	permission java.util.PropertyPermission "sun.*", "read";
 
 	// FIX: Required for KAoS. That property should really be renamed to org.cougaar....
 	// permission java.util.PropertyPermission "domainName", "read";
+
+	///////////////////////////////////////////////////
+	// "Cougaar" properies that can be read
+	permission java.util.PropertyPermission "org.cougaar.*", "read";
 
 	// This permission is needed by the AgentManager to associate a JAAS
 	// subject with an agent when it starts an agent.
@@ -194,10 +203,6 @@ grant signedBy "privileged" {
 	// code replace the service specification with another one, thereby specifying
 	// a different implementation.
 	permission java.security.SecurityPermission "putProviderProperty.CryptixCrypto";
-
-	///////////////////////////////////////////////////
-	// "Cougaar" properies that can be read
-	permission java.util.PropertyPermission "org.cougaar.*", "read";
 
 	///////////////////////////////////////////////////
 	permission java.lang.RuntimePermission "setFactory";
@@ -370,9 +375,12 @@ grant {
 	permission java.io.FilePermission "${user.home}${/}.alprc", "read";
 	permission java.io.FilePermission "${user.home}${/}.cougaarrc", "read";
 
+	// "Cougaar" properies that can be read
+	permission java.util.PropertyPermission "org.cougaar.*", "read";
+
 	// FIX - CRITICAL:
 	// The following permission is enabled because system properties are
 	// read at Node.java:79, but Node.java should really be fixed.
 	// Need to fix core/cluster/ClaimableImpl.java:95
-	// permission java.util.PropertyPermission "*", "read, write";
+	//permission java.util.PropertyPermission "*", "read, write";
 };

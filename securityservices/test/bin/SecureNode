@@ -141,7 +141,7 @@ if ( "$useJaas" == "true") then
 endif
 if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=org.cougaar.core.security.crypto.SecurityAspect"
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.SecurityAspect"
 	# Print transport-related debug information about the security aspect
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 

@@ -122,14 +122,14 @@ public class CougaarSecurityManager extends SecurityManager
       // This is a temporary solution.
       if (perm instanceof java.util.PropertyPermission) {
 	java.util.PropertyPermission p = (java.util.PropertyPermission) perm;
-	if (p.getName().equals("org.cougaar.security.keystore.password")) {
+	if (p.getName().equals("com.nai.security.keystore.password")) {
 	  boolean isAllowed = false;
 	  Class[] ct = getClassContext();
 	  for (int i = 0 ; i < ct.length ; i++) {
 	    if (debug > 0) {
 	      System.out.println(ct[i].getName());
 	    }
-	    if (ct[i].getName().equals("org.cougaar.core.security.crypto.KeyRing")) {
+	    if (ct[i].getName().equals("com.nai.security.crypto.KeyRing")) {
 	      isAllowed = true;
 	      break;
 	    }
