@@ -44,7 +44,7 @@ import org.cougaar.core.security.crypto.CertificateCache;
 public class TrustManager implements X509TrustManager {
   protected KeyRingService keyRing = null;
   //protected DirectoryKeyStore keystore = null;
-  protected X509Certificate [] issuers;
+  protected X509Certificate [] issuers = new X509Certificate [] {};
   private ServiceBroker serviceBroker;
   private LoggingService log;
 
@@ -79,14 +79,11 @@ public class TrustManager implements X509TrustManager {
 	if (log.isDebugEnabled()){
 	  log.warn("Unable to get Certificate cache service in updateKeystore");
 	 }
-	issuers = new X509Certificate[] {};
 	return;
       }
 	issuers = cacheservice.getTrustedIssuers();
     } catch (Exception ex) {
-      if (log.isDebugEnabled())
-        ex.printStackTrace();
-      issuers = new X509Certificate[] {};
+     	log.warn("Cannot update trusted keys: ", ex); 
     }
   }
 
