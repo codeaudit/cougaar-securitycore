@@ -1,0 +1,21 @@
+[Prototype]		Organization
+
+[UniqueId]      "UTC/CivilianOrg"
+
+[UIC]           "UIC/2nd-BRIGADE"
+
+[Relationship]
+Superior     "HEADQUARTERS"              "2nd-BRIGADE"
+
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "2nd-BRIGADE"
+AlternateTypeIdentification String  "SRC/2nd-BRIGADE"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "2nd-BRIGADE"
+
+[OrganizationPG]
+Roles                Collection<Role>   "Sensor-POD:SecurityException,Analyzer-POD:TCPSCAN:UDPSCAN"
+
+

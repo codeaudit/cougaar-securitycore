@@ -1,0 +1,21 @@
+[Prototype]		Organization
+
+[UniqueId]      "UTC/CivilianOrg"
+
+[UIC]           "UIC/MILITARY-LOGISTICS"
+
+[Relationship]
+Superior     "HEADQUARTERS"              "MILITARY-LOGISTICS"
+
+[TypeIdentificationPG]                      
+TypeIdentification          String  "UTC/RTOrg"
+Nomenclature                String  "MILITARY-LOGISTICS"
+AlternateTypeIdentification String  "SRC/MILITARY-LOGISTICS"
+
+[ClusterPG]
+ClusterIdentifier	ClusterIdentifier "MILITARY-LOGISTICS"
+
+[OrganizationPG]
+Roles                Collection<Role>   "Sensor-POD:TCPSCAN:UDPSCAN:SecurityException,Analyzer-POD:TCPSCAN"
+
+
