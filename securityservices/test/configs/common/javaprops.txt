@@ -1,0 +1,117 @@
+# George modified the path to be based on cougaar install path. Also, 
+# the name of the log file must be specified as well and should be the
+# same as the Node. I don't know how to do that and you don't want the
+# files to be different for each Node. Anyhow...
+#
+# Run this file through the following:
+# 
+#   sed -e "s#__CIP__#$COUGAAR_INSTALL_PATH#g" javaprops.txt > javaprops.out
+# 
+# things George added:
+# turn this on after you've created the certificates
+org.cougaar.core.naming.useSSL=false
+#org.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol
+
+org.cougaar.core.security.bootstrap.keystore=__CIP__/cougaar/configs/common/bootstrap_keystore
+org.cougaar.core.logging.log4j.appender.SECURITY.File=$HOST.log
+
+# Add the secure bootstrapper to the bootstrap class path
+# This is needed because of a bug in the SDK 1.4.
+# Internal Java runtime classes can create infinite recursive calls
+java.Xbootclasspath/a=__CIP__/cougaar/lib/securebootstrapper.jar:__CIP__/cougaar/lib/bootstrap.jar
+
+# Set the class path for starting the Node, which uses ":" separators.
+#
+# Typically only bootstrap.jar needs to be in here.
+java.class.path=__CIP__/cougaar/lib/CougaarCRLextensions.jar
+
+# Aspects
+# Do we need to add something here?
+#org.cougaar.message.transport.aspects=org.cougaar.core.mts.StatisticsAspect
+
+# Set the classname to the Bootstrapper. You must supply a command-line
+# argument for the class to run, usually org.cougaar.core.node.Node
+java.class.name=org.cougaar.bootstrap.Bootstrapper
+
+########################################################################
+# Security services
+########################################################################
+
+# Enable user authentication using security services
+org.cougaar.core.security.coreservices.tomcat.enableAuth=true
+
+# Role to take when making LDAP requests
+org.cougaar.security.role=srosset
+
+# The bootstrapper class
+org.cougaar.bootstrap.class=org.cougaar.core.security.securebootstrap.SecureBootstrapper
+
+# The java.security.policy property defines the name of the Java policy file,
+# which is used by the Security Manager.
+# Warning!!! Use JAR files ONLY when using this policy file.
+# If directories containing .class files are included in the CLASSPATH,
+# the .class files will not have sufficient privileges to be executed.
+#java.security.policy=__CIP__/cougaar/configs/common/Cougaar_Java.policy
+
+# User Java security manager
+org.cougaar.core.security.useSecurityManager=true
+
+# This property specifies whether to use the authenticated class loader or
+# the legacy class loader
+org.cougaar.core.security.useAuthenticatedLoader=true
+
+# This property is used to set the interval (in seconds) at which CRLs are checked
+org.cougaar.core.security.crypto.crlpoll=600
+
+# Enable/disable use of component execution using multiple subjects.
+#org.cougaar.core.security.useJaas=true
+
+# In the future, we need to store the name of the domain manager
+# in a configuration file.
+org.cougaar.core.security.Domain=NCADomain
+
+# You can also turn on/off http/s. Turn of by setting the port to -1
+# Note that HTTPS is off by default, and HTTP is at 8800
+# HTTP port number
+# Comment out following line if you don't want HTTP
+org.cougaar.lib.web.http.port=5561
+
+# HTTPS port number
+# Comment out following line if you don't want HTTPS
+org.cougaar.lib.web.https.port=6561
+org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
+
+# Logging
+org.cougaar.core.logging.config.filename=loggingConfig.conf
+org.cougaar.core.logging.log4j.appender.A1.File=log4jnode.log
+
+# ########################################################
+# DEBUG properties
+
+# The java.security.debug property can be used to debug the
+# Security Manager.
+# Acceptable values: all, access, jar, policy, scl, stack, domain, failure
+#java.security.debug=all
+
+# Used to show bootstrapper debugging information
+# In particular, it will show information about the JAR file signature
+# verification process.
+# Acceptable values: true, shout, false
+#org.cougaar.bootstrap.Bootstrapper.loud=false
+#org.cougaar.core.security.bootstrapper.policydebug=all
+
+#org.cougaar.core.security.policy.debug=true
+
+# Enable Jaas trace debugging
+#org.cougaar.core.security.jaasDebug=true
+
+# Print crypto-related debug information about the security aspect
+org.cougaar.core.security.crypto.debug=true
+
+# Print transport-related debug information about the security aspect
+org.cougaar.message.transport.debug=security
+
+#org.cougaar.core.cluster.persistence.debug=true
+
+# END DEBUG properties
+# ########################################################
