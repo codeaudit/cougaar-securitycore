@@ -182,7 +182,7 @@ module Cougaar
         end
 
         def NodeInfo.header_string
-	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tXMX\tPCPU\tPMEM\tRSS"
+	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\L15"
         end
        
         def to_s
@@ -202,6 +202,7 @@ module Cougaar
             end
           }
           s += "#{value}\t#{pcpu}\t#{pmem}\t#{rss}"
+          s += "\t#{load1min}\t#{load5min}\t#{load15min}"
         end
         
       end # end class NodeInfo
