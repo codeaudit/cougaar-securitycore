@@ -27,6 +27,8 @@ import org.cougaar.core.mts.AgentState;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageTransportClient;
+import org.cougaar.core.wp.resolver.WPQuery;
+import org.cougaar.core.security.policy.enforcers.WPEnforcer;
 import org.cougaar.core.security.acl.trust.IntegrityAttribute;
 import org.cougaar.core.security.acl.trust.MissionCriticality;
 import org.cougaar.core.security.acl.trust.TrustAttribute;
@@ -51,6 +53,7 @@ import org.cougaar.community.manager.Request;
 import org.cougaar.core.relay.RelayDirective;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -79,6 +82,8 @@ public class AccessAgentProxy implements MessageTransportService,
 
     private ULMessageNodeEnforcer _enforcer = null;
 
+    private WPEnforcer _wpEnforcer = null;
+
     //private Set nodeList = null;
     //private Set agentList = null;
     //private TopologyReaderService toporead = null;
@@ -92,6 +97,9 @@ public class AccessAgentProxy implements MessageTransportService,
         if (USE_DAML) {
             _enforcer = new ULMessageNodeEnforcer(sb, new LinkedList());
             _enforcer.registerEnforcer();
+
+            _wpEnforcer = new WPEnforcer(sb);
+            _wpEnforcer.registerEnforcer();
         }
 
         if (object instanceof Agent) {
@@ -435,14 +443,47 @@ public class AccessAgentProxy implements MessageTransportService,
      */
     private boolean checkMessage(Message msg, boolean direction) {
         if (log.isDebugEnabled()) {
-            log.debug("checkMessage(" + msg + ", " + direction);
+            log.debug("checkMessage(" + msg + "), class " + msg.getClass().getName() + ", direction " + direction);
         }
         String source = msg.getOriginator().toString();
         String target = msg.getTarget().toString();
-
-        if (!(msg instanceof DirectiveMessage)) {
-            return isMessageDenied(source, target, null, direction);
+        if (msg instanceof DirectiveMessage) {
+          return checkDirectiveMessage(source, target, msg, direction);
         }
+    
+        if (msg instanceof WPQuery) {
+          // first still need to know whether source and target are allowed to talk
+          if (!isMessageDenied(source, target, null, direction)) {
+            return checkWPQueryMessage(source, target, (WPQuery)msg);
+          }
+        }
+        return isMessageDenied(source, target, null, direction);
+    }
+
+  private boolean checkWPQueryMessage(String source,
+      String target, WPQuery wpMsg) {
+    // get where the agent really is, not from the source
+    Map map = wpMsg.getMap();
+    // the map contains (name, query)
+    Iterator it = map.keySet().iterator();
+    String agent = (String)it.next();
+    if (log.isDebugEnabled()) {
+      log.debug("checkWPQueryMessage: " + agent + " action: " + wpMsg.getAction());
+    }
+    // allowed if not using DAML
+    if (_wpEnforcer == null) {
+      return false;
+    }
+
+    String action = "Add";
+    if (wpMsg.getAction() != WPQuery.MODIFY) {
+      return false;
+    }
+    return !_wpEnforcer.isActionAuthorized(agent, agent, action);
+  }
+
+  private boolean checkDirectiveMessage(String source,
+      String target, Message msg, boolean direction) {
 
         DirectiveMessage dmsg = (DirectiveMessage) msg;
         Directive directive[] = dmsg.getDirectives();
