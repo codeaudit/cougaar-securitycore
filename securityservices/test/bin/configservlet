@@ -15,7 +15,7 @@ setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.6.1pre3
 
 ###################################################
 # Provide COUGAAR_SECURITY_SERVICES  if one is not defined
-setenv  COUGAAR_SECURITY_SERVICES /home/u/${USER}/UL/head/securityservices
+setenv  COUGAAR_SECURITY_SERVICES /home/u/${USER}/UL/securityservices
 
 ###################################################
 # Provide TOMCAT_HOME  if one is not defined

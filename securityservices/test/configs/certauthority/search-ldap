@@ -1,0 +1,11 @@
+#!/bin/tcsh
+set host=pear
+
+# -x: Use simple authentication instead of SASL.
+# -D: Use the Distinguished Name binddn to bind to the LDAP directory.
+# -w: Use bindpasswd as the password for simple authentication.
+# -H: Specify URI(s) referring to the ldap server(s). 
+# -L: Search  results  are  display  in LDAP Data Interchange Format detailed in ldif(5).
+echo "Searching in " "ldap://${host}:389/dc=${user}, dc=cougaar, dc=org" 
+#ldapsearch -v -u -x -LLL -D "cn=manager, dc=cougaar, dc=org" -w secret -H "ldap://${host}:389/dc=${user}, dc=cougaar, dc=org" "(c=US)" cn dn
+ldapsearch -x -LLL -D "cn=manager, dc=cougaar, dc=org" -w secret -h ${host} -b "dc=${user}, dc=cougaar, dc=org" "" cn

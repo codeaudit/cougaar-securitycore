@@ -1,44 +1,65 @@
 #!/bin/tcsh
 
+# Cougaar node simulation
+# Set the properties below
+set node = "TEST-ONE-NODE"
 
-setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/sys/jdom.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/jaas.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/jce1_2-do.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-api.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.jar
+###########################################
+# Choose one of the following exec classes:
 
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
-#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securebootstrapper.jar
-#setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/bootstrapper.jar
-setenv CLASSPATH ${CLASSPATH}:${COUGAAR_SECURITY_SERVICES}/classes
+# PKCS#12 test
+#set execclass = com.nai.security.crypto.PrivateKeyPKCS12
+#set args = "${node} testalias TEST-TWO-NODE"
+
+# keystore test
+set execclass = com.nai.security.certauthority.KeyManagement
+set args = "-1 srosset testalias RSA"
+#set args = "${args} -10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer"
+#set args = "${args} -7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer"
+
+##########################################
+set LIBPATHS=$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar
+
+if (! $?COUGAAR3RDPARTY) then
+    setenv COUGAAR3RDPARTY /opt/cougaar-jars
+endif
+
+set MYDOMAINS=""
+set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.cluster.startTime=08/10/2005 -Dorg.cougaar.domain.planning.ldm.lps.ComplainingLP.level=0 -Dorg.cougaar.core.cluster.SharedPlugInManager.watching=false"
+
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrap.keystore=$COUGAAR_INSTALL_PATH/configs/common/bootstrap_keystore"
+set MYPROPERTIES="$MYPROPERTIES -Djava.security.policy=$COUGAAR_INSTALL_PATH/configs/common/Cougaar_Java.policy"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useSecurityManager=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.useAuthenticatedLoader=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.SecurityAspect"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
+
+# debug properties
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.society.bootstrapper.loud=shout"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.bootstrapper.policydebug=false"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.policy.debug=false"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=false"
+
+###############33
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH}"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.keystore=keystoreTest"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=${node}"
+
+
+if ($?COUGAAR_MYPROP) then
+    set MYPROPERTIES="$MYPROPERTIES $COUGAAR_MYPROP"
+endif
+set MYMEMORY=""
+
+set javaargs="$MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
+set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
+
+java $javaargs \
+    -Dorg.cougaar.security.keystore.password="Ultra*Log" \
+    com.nai.security.bootstrap.SecureBootstrapper ${execclass} $args
 
 	#-Xdebug \
 	#-Xrunjdwp:transport=dt_socket,server=y,suspend=n \
-# Cougaar node simulation
-java \
-	-Dorg.cougaar.core.security.policy.debug=true \
-	-Dorg.cougaar.core.security.bootstrapper.policydebug=all \
-	-Dorg.cougaar.core.society.bootstrapper.loud=shout \
-	-Dorg.cougaar.core.security.crypto.debug=true \
-\
-	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
-	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
-	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
-	-Dorg.cougaar.security.keystore=keystoreTest \
-	-Dorg.cougaar.node.name=TEST-ONE-NODE \
-	-Dorg.cougaar.security.role=srosset \
-\
-	com.nai.security.certauthority.KeyManagement  \
-	-1 srosset testalias
-	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
-	#-7 SignedReq-ROOT-CA-THEATER-2-7-INFBN.cer
 
-	#-Dorg.cougaar.security.cakeystore.password="Ultra*Log" \
-
-exit
-# Certificate authority simulation
-java \
-	-Dorg.cougaar.security.CA.certpath=${COUGAAR_SECURITY_SERVICES}/test/configs/certauthority \

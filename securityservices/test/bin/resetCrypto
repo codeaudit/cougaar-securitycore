@@ -1,0 +1,17 @@
+#!/bin/tcsh
+
+# This script:
+# - Removes all certificates from the LDAP directory.
+# - Removes all keystores from the small-135 society (in COUGAAR_INSTALL_PATH)
+# - Removes all Crypto-" directories in the small-135 society
+# - Copies the BootPolicy-plain.ldm.xml file over BootPolicy.ldm.xml so
+#   that certificates will be generated during the next run.
+
+set host=pear
+ldapdelete -x -r -D "cn=manager, dc=cougaar, dc=org" -w secret -h ${host} "dc=${user}, dc=cougaar, dc=org"
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${COUGAAR_SECURITY_SERVICES}/test/configs/certauthority/${user}.ldif -w secret -h ${host}
+
+rm -f $COUGAAR_INSTALL_PATH/configs/small-135/keystore-*
+rm -rf $COUGAAR_INSTALL_PATH/configs/small-135/Crypto-*
+
+cp $COUGAAR_INSTALL_PATH/configs/common/BootPolicy-plain.ldm.xml $COUGAAR_INSTALL_PATH/configs/common/BootPolicy.ldm.xml
