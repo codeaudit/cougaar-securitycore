@@ -110,6 +110,56 @@ SELECT AC.COMPONENT_ALIB_ID \
     AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
+# Get the node where the RootCA agent is running
+recipeQueryNodeRootCA=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND COMPONENT_NAME='RootCANode'
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Get the node where the Enclave1CA agent is running
+recipeQueryNodeEnclave1CA=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND COMPONENT_NAME='Enclave1CANode'
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Get the node where the Enclave2CA agent is running
+recipeQueryNodeEnclave2CA=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND COMPONENT_NAME='Enclave2CANode'
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Get the node where the Enclave3CA agent is running
+recipeQueryNodeEnclave3CA=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND COMPONENT_NAME='Enclave3CANode'
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Get the node where the Enclave4CA agent is running
+recipeQueryNodeEnclave4CA=\
+ SELECT AC.COMPONENT_ALIB_ID \
+   FROM alib_component AC, asb_component_hierarchy H \
+  WHERE (AC.COMPONENT_TYPE='node') \
+    AND COMPONENT_NAME='Enclave4CANode'
+    AND (H.COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID OR \
+         H.PARENT_COMPONENT_ALIB_ID = AC.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
 ################################################################################################################
 # END M&R security manager queries
 ################################################################################################################
@@ -262,10 +312,10 @@ recipeQueryAGGAgent=\
 recipeQueryNotAGGAgent=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT WHERE (COMPONENT_TYPE = 'agent' OR COMPONENT_TYPE = 'node') AND \
    COMPONENT_NAME NOT IN ('AGG-Agent', 'UMmrmanager') 
-
+###########################################################
 # All Node Agents that are members of Enclave1Security-COMM
 recipeQueryEnclave1SecurityCommunityNodeAgents=\
- SELECT COMPONENT_ALIB_ID \
+SELECT COMPONENT_ALIB_ID \
 	FROM ALIB_COMPONENT, \
 	COMMUNITY_ENTITY_ATTRIBUTE \
  WHERE COMPONENT_TYPE = 'node' AND \
@@ -285,6 +335,44 @@ recipeQueryEnclave3SecurityCommunityNodeAgents=\
 recipeQueryEnclave4SecurityCommunityNodeAgents=\
  SELECT COMPONENT_ALIB_ID FROM ALIB_COMPONENT, COMMUNITY_ENTITY_ATTRIBUTE WHERE COMPONENT_TYPE = 'node' AND \
    COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave4Security-COMM'
+
+###########################################################
+
+###########################################################
+# All Node Agents that are members of Enclave1Security-COMM except CA
+recipeQueryEnclave1NodeAgentsExceptCA=\
+SELECT COMPONENT_ALIB_ID \
+	FROM ALIB_COMPONENT, \
+	COMMUNITY_ENTITY_ATTRIBUTE \
+ WHERE COMPONENT_TYPE = 'node' \
+   AND COMPONENT_NAME NOT IN ('Enclave1CANode', 'RootCANode') \
+   AND COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave1Security-COMM'
+
+# All Node Agents that are members of Enclave2Security-COMM except CA
+recipeQueryEnclave2NodeAgentsExceptCA=\
+ SELECT COMPONENT_ALIB_ID \
+   FROM ALIB_COMPONENT, COMMUNITY_ENTITY_ATTRIBUTE \
+   WHERE COMPONENT_TYPE = 'node' \
+   AND COMPONENT_NAME NOT IN ('Enclave2CANode', 'RootCANode') \
+   AND COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave2Security-COMM'
+
+# All Node Agents that are members of Enclave3Security-COMM except CA
+recipeQueryEnclave3NodeAgentsExceptCA=\
+ SELECT COMPONENT_ALIB_ID \
+   FROM ALIB_COMPONENT, COMMUNITY_ENTITY_ATTRIBUTE \
+   WHERE COMPONENT_TYPE = 'node' \
+   AND COMPONENT_NAME NOT IN ('Enclave3CANode', 'RootCANode') \
+   AND COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave3Security-COMM'
+
+# All Node Agents that are members of Enclave4Security-COMM except CA
+recipeQueryEnclave4NodeAgentsExceptCA=\
+ SELECT COMPONENT_ALIB_ID \
+   FROM ALIB_COMPONENT, COMMUNITY_ENTITY_ATTRIBUTE \
+   WHERE COMPONENT_TYPE = 'node' \
+   AND COMPONENT_NAME NOT IN ('Enclave4CANode', 'RootCANode') \
+   AND COMPONENT_NAME = ENTITY_ID and COMMUNITY_ID = 'Enclave4Security-COMM'
+
+###########################################################
 
 # All SPECIFIC Node Agents that are members of Enclave0 for now belong to Security-Mgmt-COMM
 recipeQueryEnclave0SecurityCommunityNodeAgents=\

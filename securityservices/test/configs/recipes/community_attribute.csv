@@ -21,7 +21,10 @@ TRANSCOM-COMM,CommunityType,Domain
 Security-Mgmt-COMM,CommunityType,SecurityMgmt
 Enclave1Security-COMM,CommunityType,Security
 Enclave2Security-COMM,CommunityType,Security
+Enclave2SecuritySub1-COMM,CommunityType,Security
+Enclave2SecuritySub2-COMM,CommunityType,Security
 Enclave3Security-COMM,CommunityType,Security
+Enclave3SecuritySub1-COMM,CommunityType,Security
 Enclave4Security-COMM,CommunityType,Security
 UserDomain1,CommunityType,User
 UserDomain2,CommunityType,User
