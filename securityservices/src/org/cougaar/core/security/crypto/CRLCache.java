@@ -822,14 +822,18 @@ final public class CRLCache
     if (communities == null) {
       _listening = true;
     } else {
-      mySecurityCommunities = communities;
-      if (mySecurityCommunities.isEmpty()) {
-        log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
-                 myAddress);
-      } else if (log.isDebugEnabled()) {
-        log.debug("Agent " + myAddress + " security communities: " +
-                  mySecurityCommunities);
-      }
+      setMySecurityCommunity(communities);
+    }
+  }
+
+  private void setMySecurityCommunity(Collection c) {
+    mySecurityCommunities = c;
+    if (mySecurityCommunities.isEmpty()) {
+      log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
+               myAddress);
+    } else if (log.isDebugEnabled()) {
+      log.debug("Agent " + myAddress + " security communities: " +
+                mySecurityCommunities);
     }
   }
 
@@ -896,14 +900,7 @@ final public class CRLCache
         throw new RuntimeException(errorString);
       }
 
-      mySecurityCommunities = (Set) resp;
-      if (mySecurityCommunities.isEmpty()) {
-        log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
-                 myAddress);
-      } else if (log.isDebugEnabled()) {
-        log.debug("Agent " + myAddress + " security communities: " +
-                  mySecurityCommunities);
-      }
+      setMySecurityCommunity((Set)resp);
       _listening = false;
       setServices(); // try that again...
     }
