@@ -63,8 +63,8 @@ public class NameServerCertificateComponent extends ComponentPlugin {
   private String _path;
 
   private static Hashtable _certCache = new Hashtable();
-  private static List _pendingCache = new ArrayList();
-  private static List _submitList = new ArrayList();
+  private static Hashtable _pendingCache = new Hashtable();
+  private static Hashtable _submitList = new Hashtable();
   private long _period = 10000;
 
   private CryptoClientPolicy cryptoClientPolicy;
@@ -84,10 +84,10 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       log.debug("Adding certs for " + nameserver);
     }
     _certCache.put(nameserver, nameCert);
-    _submitList.add(nameserver);
+    _submitList.put(nameserver, nameserver);
   }
 
-  public static List getPendingList() {
+  public static Hashtable getPendingList() {
     return _pendingCache;
   }
 
@@ -141,7 +141,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           new NameServerCertificate(agent, null));
       }
       else {
-        _pendingCache.add(agent);
+        _pendingCache.put(agent, agent);
       }
 
       nameserver = System.getProperty(nameString + ".WP-" + i, null);
@@ -196,7 +196,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           log.warn("Fail to update node certificate for " + agent);
         }
         else {
-          _submitList.add(agent);
+          _submitList.put(agent, agent);
         }
       }
     });
@@ -269,7 +269,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
           certURL = certURL.substring(0, certURL.lastIndexOf('/'));
           certURL += "/" + _path;
           synchronized (_submitList) {
-            for (Iterator it = _submitList.iterator(); it.hasNext(); ) {
+            for (Iterator it = _submitList.values().iterator(); it.hasNext(); ) {
               String nameserver = (String)it.next();
 
               try {
@@ -351,7 +351,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       if (_pendingCache.size() != 0) {
         try {
           String [] names = new String[_pendingCache.size()];
-          _pendingCache.toArray(names);
+          _pendingCache.values().toArray(names);
 
           ObjectInputStream ois = new ObjectInputStream(
             new ServletRequestUtil().sendRequest(certURL, names, _period));
