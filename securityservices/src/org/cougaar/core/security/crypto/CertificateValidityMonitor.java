@@ -47,6 +47,8 @@ public class CertificateValidityMonitor
 
   static Hashtable certListeners = new Hashtable();
   static List validityListeners = new ArrayList();
+  static List availListeners = new ArrayList();
+
   long sleep_time = 60L * 60L * 1000L; // checking every hour
 
   public CertificateValidityMonitor(ServiceBroker sb) {
@@ -134,7 +136,13 @@ public class CertificateValidityMonitor
     }
   }
 
+
   public void updateCertificate(String commonName) {
+    for (int i = 0; i < availListeners.size(); i++) {
+      CertValidityListener listener = (CertValidityListener)
+        availListeners.get(i);
+      listener.updateCertificate();
+    }
     Vector v = (Vector)certListeners.get(commonName);
     if (v == null) {
       return;
@@ -162,5 +170,9 @@ public class CertificateValidityMonitor
 
   public void addInvalidateListener(CertValidityListener listener) {
     validityListeners.add(listener);
+  }
+
+  public void addAvailabilityListener(CertValidityListener listener) {
+    availListeners.add(listener);
   }
 }
