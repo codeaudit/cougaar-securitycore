@@ -103,20 +103,11 @@ public class SecureBootstrapper
   protected void launchMain(final ClassLoader cl, final String classname,
 			    final String[] args) {
     final String node = getNodeName();
-    JaasClient jc = new JaasClient();
     try {
-      jc.doAs(node,
-	      new java.security.PrivilegedExceptionAction() {
-		  public Object run() {
-		    if (loudness > 0) {
-		      System.out.println("Node being loaded: " + node
-					 + " security context is:");
-		    }
-		    JaasClient.printPrincipals();
-		    SecureBootstrapper.super.launchMain(cl, classname, args);
-		    return null;
-		  }
-		}, true);
+      if(loudness > 0) {
+        System.out.println("Node being loaded: " + node);
+      }
+      SecureBootstrapper.super.launchMain(cl, classname, args);
     }
     catch (Exception e) {
       System.out.println("Unable to start application:" + e);
