@@ -2268,22 +2268,31 @@ try {
   return;
   }
 */
+  SearchCallback _callback = new SearchCallback() {
+    public void searchCallback(String cname, List l) {
+      updateSearchResult(l);
+    }
+  };
 
   public void searchCert(X500Name x500Name)
     {
       if (log.isDebugEnabled()) {
 	log.debug("searchCert called :" + x500Name);
       }
-      List certs = search.findCert(x500Name);
+      
+      List certs = search.findCert(x500Name, _callback);
       if (certs == null || certs.size() == 0) {
         if (log.isInfoEnabled()) {
           log.info("Failed to lookup certificate for " + x500Name);
         }
       }
+    }
+  
+  private void updateSearchResult(List certs) {
       CRLCacheService crlCacheservice=(CRLCacheService)
         serviceBroker.getService(this,
                                  CRLCacheService.class,
-                                 null);
+                                 null);      
       for (int i = 0 ; i < certs.size() ; i++) {
 	// Since the certificate comes from an LDAP server, it should be trusted
 	// (because only a CA should publish certificates to the directory service,
@@ -2291,13 +2300,22 @@ try {
 	// a particular CA is not trusted locally.
         CertificateEntry entry = (CertificateEntry)certs.get(i);
         CertificateStatus certstatus = null;
-	try {
 	  // Richard: need to check whether the certificate already exist in
 	  // cache. This happens with multiple CAs. When CRL is updated with
 	  // status, next time findCert will lookup the revoked CA cert (cannot
 	  // find any valid cert from cache) from LDAP and update it in the
 	  // cache as trusted
           X509Certificate certificate = entry.getCertificate();
+
+        X500Name x500Name = null;
+        try {
+          x500Name = new X500Name(certificate.getSubjectDN().getName());
+        } catch (IOException iox) {
+          log.warn("Illegal X500Name " + certificate.getSubjectDN();
+          return;
+        }
+
+	try {
 	  //X500Name x500Name = nameMapping.getX500Name(certificate.getSubjectDN().getName());
 	  //X500Name x500Name = CertificateUtility.getX500Name(certificate.getSubjectDN().getName());
 
