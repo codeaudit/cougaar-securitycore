@@ -128,6 +128,15 @@ public class CommunityServiceUtil {
     return !set.isEmpty();
   }
   
+  /**
+   * Searches whether the agent invoking this method has a specified role
+   * in a community.
+   * @param community - The community where the search is performed.
+   * @param role - The role that is being searched.
+   * @param contains - true: searches whether the community has the role 'role'
+   *                   false: searches whether the community does NOT have the role 'role'.
+   * @return true if the search was successful.
+   */
   public boolean hasRole(Community community, String role, boolean contains) {
     String filter = "(Role=" + role + ")";
     if (!contains) {
@@ -145,6 +154,13 @@ public class CommunityServiceUtil {
     return false;
   }
 
+  /**
+   * Returns a subset of communities where the current agent has specified roles. 
+   * @param communities - the collection of communities where the search is performed.
+   * @param role
+   * @param contains
+   * @return the subset of 'communities' that satisfies the search.
+   */
   public Set withRole(Collection communities, String role, boolean contains) {
     Set commSet = new HashSet();
     Iterator iter = communities.iterator();
@@ -406,6 +422,7 @@ public class CommunityServiceUtil {
         listener.getResponse(commSet);
         return;
       }
+      checkCsBug(communities, Community.COMMUNITIES_ONLY);
       if(_log.isDebugEnabled()){
         _log.debug("Adding Listener getCommunity with :"+ role + "Listener is :"+ ccl); 
       }
@@ -490,22 +507,24 @@ public class CommunityServiceUtil {
 
   /**
    * Checks the consistency of the community service.
-   * Logs an error if a set of entities contains at least one Community.
+   * Logs an error if a set of entities contains at least one entity
+   * of the wrong type.
    * @param agents
    */
-  private void checkCsBug(Collection agents, int searchType) {
-    // Double-check that we get agents only, no communities.
-    Iterator it = agents.iterator();
+  private void checkCsBug(Collection entities, int searchType) {
+    Iterator it = entities.iterator();
     while (it.hasNext()) {
       Entity e = (Entity)it.next();
       if (_log.isErrorEnabled()) { 
       	if (searchType == Community.COMMUNITIES_ONLY && e instanceof Agent) {
-        _log.error("Bug in the community service. Entity " + e.getName()
+          _log.error("Bug in the community service. Entity " + e.getName()
                 + " (which is an agent) has been returned by cs.search(... Community.COMMUNITIES_ONLY...)");
+          it.remove();
         }
         else if (searchType == Community.AGENTS_ONLY && e instanceof Community) {
           _log.error("Bug in the community service. Entity " + e.getName()
               + " (which is a community) has been returned by cs.search(... Community.AGENTS_ONLY...)");
+          it.remove();
         }
       }
     }
