@@ -263,16 +263,18 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     if(debug) {
       System.out.print("Agent:"+ target +" got outgoing verbs ( "); 
       for(int i = 0; i < r.size(); i++)
-	System.out.print(r.get(i).toString() + " ");
+	System.out.print(r.get(i).toString() + ":"
+			 + r.get(i).getClass().getName() + " ");
       System.out.println(")  for " + source);
     }
+    Verb[] verbs = new Verb[0];
     try {
-      return (Verb[])r.toArray();
+      return (Verb[])r.toArray(verbs);
     }
     catch(Exception ex) {
-      if(debug)System.out.println("Warning: bad verb array! ");
+      if(debug)System.out.println("Warning: bad verb array:" + ex);
     }
-    return new Verb[0];
+    return verbs;
   }
 
   public synchronized TrustSet getDirectiveTrust(String uid) {
