@@ -37,8 +37,13 @@ import org.cougaar.core.security.cm.message.VerifyResponse;
 import org.cougaar.core.security.cm.service.CMService;
 import org.cougaar.core.security.cm.service.CMServiceProvider;
 import org.cougaar.core.security.util.SharedDataRelay;
+import org.cougaar.core.service.DomainService;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.planning.ldm.PlanningFactory;
+import org.cougaar.planning.ldm.plan.NewPrepositionalPhrase;
+import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.UnaryPredicate;
 
 
@@ -138,6 +143,16 @@ public class CMTestPlugin extends ComponentPlugin {
       if (logging.isInfoEnabled()) {
         logging.info("CM Response:" + response.getValidRequest());
       }
+      DomainService ds = (DomainService)this.getServiceBroker().getService(this,DomainService.class, null);
+      PlanningFactory pf = (PlanningFactory)ds.getFactory("planning");
+      
+      NewTask resultTask = pf.newTask();
+      NewPrepositionalPhrase npp = pf.newPrepositionalPhrase();
+      npp.setPreposition(CMTestServlet.SUCCESS_PHRASE);
+      npp.setIndirectObject(new Boolean(response.getValidRequest()));
+      resultTask.addPrepositionalPhrase(npp);
+      resultTask.setVerb(Verb.getVerb(CMTestServlet.CM_TEST_VERB_RESPONSE));
+      getBlackboardService().publishAdd(resultTask);
     }
   }
 }
