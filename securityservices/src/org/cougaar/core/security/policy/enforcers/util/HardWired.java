@@ -24,7 +24,6 @@ package org.cougaar.core.security.policy.enforcers.util;
 import java.io.*;
 import java.util.*;
 
-import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
 import org.cougaar.core.security.policy.enforcers.util.AuthSuite;
 import org.cougaar.core.service.LoggingService;
@@ -46,48 +45,56 @@ public class HardWired {
    * Ontology name for very weak crypto
    */
   public static final String WEAK_CRYPTO = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "WeakProtection";
 
   /**
    * Ontology name for secret crypto
    */
   public static final String SECRET_CRYPTO = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "SecretProtection";
 
   /**
    * Ontology name for strong crypto
    */
   public static final String STRONG_CRYPTO = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
 
   /**
    * Ontology name for authorization with no credentials and weak protection
    */
   public static final String NO_AUTH = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuth";
 
   /**
    * Ontology name for authorization with no credentials and strong protection
    */
   public static final String NO_AUTH_SSL = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "NoAuthSSL";
 
   /**
    * Ontology name for authorization with password and weak protection
    */
   public static final String PASSWORD_AUTH = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "Password";
 
   /**
    * Ontology name for authorization with password and strong protection
    */
   public static final String PASSWORD_AUTH_SSL = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "PasswordSSL";
 
   /**
    * Ontology name for authorization with certificate and strong protection
    */
   public static final String CERT_AUTH_SSL = 
+    org.cougaar.core.security.policy.enforcers.ontology.jena.
     EntityInstancesConcepts.EntityInstancesDamlURL + "CertificateSSL";
 
   /**
@@ -139,7 +146,8 @@ public class HardWired {
 
   public final static String kaosRoleFromRole(String role)
   {
-    return ActorClassesConcepts.ActorClassesDamlURL + role;
+    return org.cougaar.core.security.policy.enforcers.ontology.jena.
+      ActorClassesConcepts.ActorClassesDamlURL + role;
   }
 
   /**
@@ -152,7 +160,8 @@ public class HardWired {
     if (verb == null) {
       verb = "NoVerb";
     }
-    return (EntityInstancesConcepts.EntityInstancesDamlURL
+    return (org.cougaar.core.security.policy.enforcers.ontology.jena.
+            EntityInstancesConcepts.EntityInstancesDamlURL
             + verb);
   }
 
@@ -268,8 +277,10 @@ public class HardWired {
     for (Iterator rawVerbIt = rawVerbs.iterator();
          rawVerbIt.hasNext();) {
       String verb = (String) rawVerbIt.next();
-      hasSubjectValues.add(EntityInstancesConcepts.EntityInstancesDamlURL 
-                           + verb);
+      hasSubjectValues.add(
+                    org.cougaar.core.security.policy.enforcers.ontology.jena.
+                    EntityInstancesConcepts.EntityInstancesDamlURL 
+                    + verb);
     }
   }
 
@@ -329,9 +340,10 @@ public class HardWired {
     if (_log.isDebugEnabled()) {
       _log.debug("Adding to auth target: " + auth);
     }
-    targets.add( new TargetInstanceDescription( UltralogActionConcepts.
-                                                _usedAuthenticationLevel_,
-                                                auth ) );
+    targets.add( new TargetInstanceDescription(
+                      org.cougaar.core.security.policy.enforcers.ontology.jena.
+                      UltralogActionConcepts._usedAuthenticationLevel_,
+                      auth ) );
     return true;
   }
 
