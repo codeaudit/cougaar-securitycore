@@ -20,6 +20,9 @@
     <symmetric>DES</symmetric>
     <asymmetric>RSA/ECB/PKCS1Padding</asymmetric>
     <signature>MD5withRSA</signature>
+    <symmetric condition="ProtectedLan">plain</symmetric>
+    <asymmetric condition="ProtectedLan">none</asymmetric>
+    <signature condition="ProtectedLan">none</signature>
   </cipher>
 
 </ciphers>
