@@ -55,6 +55,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.util.FailureEvent;
 import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.util.IdmefHelper;
+import org.cougaar.core.security.policy.CryptoPolicy;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -163,8 +164,8 @@ public class MessageProtectionServiceImpl
     if (!isInitialized) {
       setPolicyService();
     }
-    SecureMethodParam policy =
-      cps.getSendPolicy(source.getAddress(), destination.getAddress());
+     CryptoPolicy policy =
+       cps.getOutgoingPolicy(source.getAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("protectHeader NOK: " + source.toAddress()
@@ -183,7 +184,7 @@ public class MessageProtectionServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("protectHeader: " + source.toAddress()
 		    + " -> " + destination.toAddress()
-		    + " (" + policy.getSecureMethodToString() + ")");
+ 		    + " (" + policy.toString() + ")");
     }
 
     ProtectedObject po =
@@ -217,8 +218,8 @@ public class MessageProtectionServiceImpl
     if (!isInitialized) {
       setPolicyService();
     }
-    SecureMethodParam policy =
-      cps.getReceivePolicy(source.toAddress(), destination.toAddress());
+     CryptoPolicy policy =
+       cps.getIncomingPolicy(destination.toAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
 	      log.warn("unprotectHeader NOK: " + source.toAddress()
@@ -236,7 +237,7 @@ public class MessageProtectionServiceImpl
     if (log.isDebugEnabled()) {
       log.debug("unprotectHeader: " + source.toAddress()
 		    + " -> " + destination.toAddress()
-		    + " (" + policy.getSecureMethodToString() + ")");
+ 		    + " (" + policy.toString() + ")");
     }
 
     ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
