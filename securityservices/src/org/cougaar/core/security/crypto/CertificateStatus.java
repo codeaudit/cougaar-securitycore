@@ -29,6 +29,7 @@ import java.util.Date;
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.crypto.ldap.CertDirectoryServiceClient;
 
 public class CertificateStatus
 {
@@ -63,6 +64,7 @@ public class CertificateStatus
   private CertificateTrust certificateTrust;
   private ServiceBroker serviceBroker;
   private LoggingService log;
+  private CertDirectoryServiceClient certFinder;
 
   public CertificateStatus(X509Certificate cert,
 			   boolean isValid,
@@ -182,6 +184,14 @@ public class CertificateStatus
 
   public Date getPKCS10Date() {
     return lastTimeSigningRequest;
+  }
+
+  public void setCertFinder(CertDirectoryServiceClient certFinder) {
+    this.certFinder = certFinder;
+  }
+
+  public CertDirectoryServiceClient getCertFinder() {
+    return certFinder;
   }
 
   public String toString()
