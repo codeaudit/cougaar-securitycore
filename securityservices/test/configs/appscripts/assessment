@@ -32,6 +32,7 @@ SYS_PATH="${COUGAAR_INSTALL_PATH}/sys"
 DATA_PATH="../data/assessment"
 
 CP="${DEVELOPMENT_PATH}"
+CP="${CP}:${LIB_PATH}/securityservices.jar"
 CP="${CP}:${SYS_PATH}/xerces.jar"
 CP="${CP}:${SYS_PATH}/log4j.jar"
 CP="${CP}:${SYS_PATH}/ibmpkcs.jar"
@@ -42,13 +43,12 @@ CP="${CP}:${LIB_PATH}/util.jar"
 CP="${CP}:${LIB_PATH}/glm.jar"
 CP="${CP}:${LIB_PATH}/aggagent.jar"
 CP="${CP}:${LIB_PATH}/uiframework.jar"
-CP="${CP}:${LIB_PATH}/blackjack.jar"
+CP="${CP}:${LIB_PATH}/stoplight.jar"
 CP="${CP}:${LIB_PATH}/securebootstrapper.jar"
 CP="${CP}:${LIB_PATH}/CougaarCRLextensions.jar"
-CP="${CP}:${LIB_PATH}/securityservices.jar"
 
 DEFAULTORG="1-35-ARBN"
-NAMESERVER="http://localhost:8800"
+NAMESERVER="https://tea:6590"
 AGENTNAME="AGG-Agent"
 PSP="aggregator"
 KEEPALIVEPSP="aggregatorkeepalive"
@@ -64,12 +64,15 @@ MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.workspace=$COUGAAR_WORKSPACE"
 MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.node.name=$node"
 MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.config.path=.;${COUGAAR_INSTALL_PATH}/configs/security;"
 MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.standalone=true"
+MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH}"
 MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=${node}.log"
 MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.logging.config.filename=loggingConfig.conf"
+#MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.ui.userAuthClass=org.cougaar.core.security.userauth.UserAuthenticatorImpl"
+#MYPROPERTIES="$MYPROPERTIES -Djavax.net.debug=all"
 
 # LAUNCHER
-echo "java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentLauncher"
-java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentLauncher
+echo "java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper org.cougaar.logistics.ui.stoplight.client.BJAssessmentLauncher"
+java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -DTIMEOUT=${TIMEOUT} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper org.cougaar.logistics.ui.stoplight.client.BJAssessmentLauncher
 
 # DESKTOP
-# java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper mil.darpa.log.alpine.blackjack.assessui.client.BJAssessmentDesktop
+# java $MYPROPERTIES -Dcougaar.aggagent.NAMESERVER=${NAMESERVER} -Dcougaar.aggagent.AGENTNAME=${AGENTNAME} -Dcougaar.aggagent.PSP=${PSP} -Dcougaar.aggagent.KEEPALIVEPSP=${KEEPALIVEPSP} -DDEFAULTORG=${DEFAULTORG} -DDATAPATH=${DATA_PATH} -classpath ${CP} org.cougaar.bootstrap.Bootstrapper org.cougaar.logistics.ui.stoplight.client.BJAssessmentLauncher
