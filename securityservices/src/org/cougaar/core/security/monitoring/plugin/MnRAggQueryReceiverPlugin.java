@@ -333,10 +333,18 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
     ArrayList subQueries=new ArrayList();
     UID newUID=null;
     ThreadService ts=(ThreadService) getServiceBroker().getService(this, ThreadService.class, null);
-  
     while(iter.hasNext()) {
       queryrelay=(CmrRelay)iter.next();
       query=(DrillDownQuery)queryrelay.getContent();
+      if(query.getOriginatorsUID()==null) {
+         if( loggingService.isDebugEnabled()) {
+           loggingService.debug("Received Agg Query Relay DIRECTLY FROM SOURCE :"+queryrelay.getSource()); 
+         }
+         query.setOriginatorsUID(queryrelay.getUID());
+         if(loggingService.isDebugEnabled()) {
+           loggingService.debug("Setting originator UID : "+query.getOriginatorsUID() +" Received Relay ID : "+queryrelay.getUID()); 
+         }
+      }
       MnRAggRateCalculator ratecalculator=(MnRAggRateCalculator)query.getAggregationType();
       enumKeys=capabilitiesTable.keys();
       Vector alreadyPublished=new Vector();
@@ -347,20 +355,22 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       while(enumKeys.hasMoreElements()) {
         key=(String)enumKeys.nextElement();
         regAlert= (RegistrationAlert)capabilitiesTable.get(key);
-
+        if( loggingService.isDebugEnabled()) {
+          loggingService.debug("key is : "+ key + "Registration type :"+ regAlert.getType() );
+          loggingService.debug("Agent name from registration alert is  : "+ regAlert.getAgentName() ) ;
+        }
         if((regAlert.getType().equals(IdmefMessageFactory.SensorType))){
           UID publishedUID=publishAggToSensor(regAlert,alreadyPublished,query);
           if(publishedUID!=null) {
             alreadyPublished.add(regAlert.getAgentName());
             subQueries.add(new AggQueryResult(publishedUID));
             if( loggingService.isDebugEnabled()) {
-              loggingService.debug(" Published Agg Query in   processNewAggQuery to " +regAlert.getAgentName());
+              loggingService.debug(" Published Sensor Agg Query in  processNewAggQuery to " +regAlert.getAgentName());
             }
           }
         }// end of  if((regAlert.getType().equals(IdmefMessageFactory.SensorType)))
-
         if(regAlert.getType().equals(IdmefMessageFactory.SecurityMgrType)) {
-          UID publishedUID=publishAggToMnrMgr(key,query,queryrelay.getUID());
+          UID publishedUID=publishAggToMnrMgr(key,query);
           if(publishedUID!=null) {
             alreadyPublished.add(regAlert.getAgentName());
             subQueries.add(new AggQueryResult(publishedUID));
@@ -369,12 +379,7 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
         }//end of  if(regAlert.getType().equals(IdmefMessageFactory.SecurityMgrType))
         
       }// end of while(enumkeys.hasMoreElements())
-      if(query.getOriginatorsUID()!=null){
-        aggQueryMapping=new AggQueryMapping(query.getOriginatorsUID(),queryrelay.getUID(),subQueries);
-      }
-      else {
-        aggQueryMapping=new AggQueryMapping(queryrelay.getUID(),queryrelay.getUID(),subQueries);
-      }
+      aggQueryMapping=new AggQueryMapping(query.getOriginatorsUID(),queryrelay.getUID(),subQueries);
       getBlackboardService().publishAdd(aggQueryMapping);
       MnRAggRateCalculator newratecalculator=new MnRAggRateCalculator(ratecalculator);
       newratecalculator.setBlackboardService(getBlackboardService());
@@ -387,7 +392,7 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
   }
   
 
-  public UID publishAggToMnrMgr(String key,DrillDownQuery query,UID originatorUID){
+  public UID publishAggToMnrMgr(String key,DrillDownQuery query){
     UID newUID=null;
     CmrRelay forwardedrelay = null;
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");
@@ -395,22 +400,12 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
     if( loggingService.isDebugEnabled()) {
       loggingService.debug("Going to publish Agg query Relay to MnR manger :"+ key );
     }
-    if(query. getOriginatorsUID()!=null) {
-      if( loggingService.isDebugEnabled()) {
-        loggingService.debug("Received DrillQuery from some MnR Manager"+ query.getOriginatorsUID().toString());
-      }
-      forwardedrelay=factory.newDrillDownQueryRelay(query.getOriginatorsUID(),query.getAggQuery(),
+    if( loggingService.isDebugEnabled()) {
+      loggingService.debug("Received DrillQuery from some MnR Manager"+ query.getOriginatorsUID().toString());
+    }
+    forwardedrelay=factory.newDrillDownQueryRelay(query.getOriginatorsUID(),query.getAggQuery(),
                                                     query.getAggregationType(),query.wantDetails(), 
                                                     MessageAddress.getMessageAddress(key));
-    }
-    else {
-      if( loggingService.isDebugEnabled()) {
-        loggingService.debug("Received DrillQuery Directly from the originator"+originatorUID  );
-      }
-      forwardedrelay=factory.newDrillDownQueryRelay(originatorUID,query.getAggQuery(),
-                                                    query.getAggregationType(),query.wantDetails(), 
-                                                    MessageAddress.getMessageAddress(key));
-    }
     newUID=forwardedrelay.getUID();
     getBlackboardService().publishAdd(forwardedrelay);
     if( loggingService.isDebugEnabled()) {
@@ -420,7 +415,7 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
     return newUID;
   }
 
-  public UID publishAggToSensor(RegistrationAlert regAlert,Vector alreadPublished,DrillDownQuery query ) {
+  public UID publishAggToSensor(RegistrationAlert regAlert ,Vector alreadPublished,DrillDownQuery query ) {
     //boolean alreadyPublished=false;
     String aggQuery=null;
     AggregationQuery newaggQuery=null;
