@@ -115,7 +115,7 @@ public class AccessAgentProxy
     }
     */
     if(log.isDebugEnabled()) {
-      log.debug("Access agent proxy for " + myID.toAddress() + " initialized");
+      log.debug("Access agent proxy for " + myID + " initialized");
     }
   }
   /*
