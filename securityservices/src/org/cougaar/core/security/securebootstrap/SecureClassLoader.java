@@ -33,34 +33,89 @@ import java.security.ProtectionDomain;
 import java.util.Hashtable;
 import java.util.jar.JarFile;
 
-public class SecureClassLoader
-  extends BaseClassLoader
-{
+public class SecureClassLoader  extends BaseClassLoader{
+
   private static final Logger _logger = Logger.getInstance();
   private CertificateVerifier certificateVerifier;
   private Hashtable verifiedUrls;
   private boolean lazySignatureVerification;
-
+  
   /** Log file to store Jar verification errors */
   private static SecurityLog _securelog;
 
   public SecureClassLoader(URL urls[])
-  {
-    super(urls);
-    lazySignatureVerification = true;
-    // Instantiate certificate verifier is lazy signature verification is performed
-    certificateVerifier = CertificateVerifierImpl.getInstance();
-    verifiedUrls = new Hashtable();
-
-    _securelog = SecurityLogImpl.getInstance();
-  }
+    {
+      super(urls);
+      lazySignatureVerification = true;
+      // Instantiate certificate verifier is lazy signature verification is performed
+      certificateVerifier = CertificateVerifierImpl.getInstance();
+      verifiedUrls = new Hashtable();
+      _securelog = SecurityLogImpl.getInstance();
+    }
 
   /** calls findClass(String name) throws ClassNotFoundException
    *  of URLClassLoader.java
    */
   protected synchronized Class findClass(String classname)
-    throws ClassNotFoundException {
+    throws ClassNotFoundException, SecurityException {
     Class c = null;
+    // String sep =  System.getProperty("file.separator", "/");
+    String name=classname;
+    final String path = name.replace('.','/' ).concat(".class");
+    URL  urlForClass=null;
+    URL tempurlForClass=null;
+    tempurlForClass=  (URL) AccessController.doPrivileged(new PrivilegedAction() {
+        public Object run(){
+          URL url=(URL)findResource(path);
+          return url;
+        }
+      });
+    
+    if(tempurlForClass!= null) {
+      
+      String tempurl=tempurlForClass.getPath();
+      String newurl=tempurl.substring(0,tempurl.indexOf('!'));
+      try {
+        urlForClass=new URL(newurl);
+      }
+      catch (Exception exp1){
+        throw new ClassNotFoundException("Cannot Create URL  :",exp1);
+      }
+      if (lazySignatureVerification) {
+        if (urlForClass== null) {
+          System.out.println("Unknown URL for " + c.getName());
+        }
+        else {
+          Boolean isVerified = (Boolean) verifiedUrls.get(urlForClass);
+          if (isVerified == null) {
+            // The JAR file has not been verified yet. Verify it.
+            //System.out.println("Checking " + urlc.getPath());
+            try {
+              //create JarFile, set verification option to true
+              //will throw exception if cannot be verified
+              JarFile jf = new JarFile(urlForClass.getPath(), true);
+              
+              //do certificate verification, throw an exception
+              //and exclude from urls if not trusted
+              certificateVerifier.verify(jf);
+              verifiedUrls.put(urlForClass, Boolean.TRUE);
+            }
+            catch (Exception e) {
+              //e.printStackTrace();
+              verifiedUrls.put(urlForClass, Boolean.FALSE);
+              _securelog.logJarVerificationError(urlForClass, e);
+              c = null;
+              throw new ClassNotFoundException("Class cannot be Trusted ",e);
+            }
+          }
+          else if (isVerified == Boolean.FALSE) {
+            // The signature has already been checked and it is not correct
+            c = null;
+            throw new ClassNotFoundException("Class cannot be Trusted ");
+          }
+        }
+      }
+    }
     try {
       c = super.findClass(classname);             
     } catch (ClassNotFoundException e) {
@@ -69,65 +124,15 @@ public class SecureClassLoader
       // their fully qualified path in the .ini files
       // and are later looked up in multiple packages until found
     }
-    
-    if (c != null) {
-      // Classes loaded by the bootstrapper shouldn't have
-      // the privilege to get the protection domain (this should be
-      // set in the Java policy file).
-      // Therefore, we need to execute the following piece of code
-      // in a doPrivileged() call.
-     
-      final Class c1 = c;
-      URL urlc=(URL)
-	AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
-	      ProtectionDomain p = c1.getProtectionDomain();
-	      if (p != null) {
-		java.security.CodeSource cs = p.getCodeSource();
-		if (cs != null) {
-		  return cs.getLocation();
-		}
-	      }
-	      return null;
-	    }
-	  });
-
-      /* Check the jar file signature */
-      if (lazySignatureVerification) {
-	if (urlc == null) {
-	  //System.out.println("Unknown URL for " + c.getName());
-	}
-	else {
-	  Boolean isVerified = (Boolean) verifiedUrls.get(urlc);
-	  if (isVerified == null) {
-	    // The JAR file has not been verified yet. Verify it.
-	    //System.out.println("Checking " + urlc.getPath());
-	    try {
-	      //create JarFile, set verification option to true
-	      //will throw exception if cannot be verified
-	      JarFile jf = new JarFile(urlc.getPath(), true);
-	      
-	      //do certificate verification, throw an exception
-	      //and exclude from urls if not trusted
-	      certificateVerifier.verify(jf);
-	      verifiedUrls.put(urlc, Boolean.TRUE);
-	    }
-	    catch (Exception e) {
-	      verifiedUrls.put(urlc, Boolean.FALSE);
-	      _securelog.logJarVerificationError(urlc, e);
-	      c = null;
-	    }
-	  }
-	  else if (isVerified == Boolean.FALSE) {
-	    // The signature has already been checked and it is not correct
-	    c = null;
-	  }
-	}
+    catch (SecurityException securityexp){
+      if(urlForClass!=null) {
+        verifiedUrls.put(urlForClass, Boolean.FALSE);
+        _securelog.logJarVerificationError(urlForClass,securityexp);
       }
+      SecurityException sexp= new SecurityException("Jar file has been tampered :");
+      sexp.setStackTrace(securityexp.getStackTrace());
+      throw sexp;
     }
-    //if (c == null) {
-      //System.out.println("unknown class: " + classname);
-    //}
     if (_logger.isDebugEnabled()) {
       printPolicy(c);
     }
