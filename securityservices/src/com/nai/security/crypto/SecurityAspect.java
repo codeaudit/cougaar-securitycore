@@ -354,7 +354,8 @@ public class SecurityAspect extends StandardAspect
 	    if(action.equals(AccessControlPolicy.SET_ASIDE))
 		removeDirective((DirectiveMessage)msg, i);
 	}
-	return (msg.getDirectives().length > 0);
+	//return (msg.getDirectives().length > 0);
+	retrun true;
     }
 	
     private boolean incomingMessageAction(Message msg, TrustSet t) {
@@ -606,7 +607,8 @@ public class SecurityAspect extends StandardAspect
 	if(debug)System.out.println("SecurityAspect: DirectiveMessage now contains " + 
 				    msg.getDirectives().length + 
 				    " directives.");
-	return (msg.getDirectives().length > 0);
+	//return (msg.getDirectives().length > 0);
+	return true;
     }
 
     private boolean outgoingMessageAction(Message msg, TrustSet trust) {
