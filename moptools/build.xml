@@ -276,6 +276,10 @@
     		<param name="dependency.module.name" value="securityutils"/>
     		<param name="dependency.module.jar" value="secure_util.jar"/>
     	</antcall>
+    	<antcall target="update-dependency">
+    		<param name="dependency.module.name" value="securemonitoring"/>
+    		<param name="dependency.module.jar" value="secure_monitoring.jar"/>
+    	</antcall>
     </target>
     <target name="update-dependency">
        <property name="cvs.command" value="checkout"/>
