@@ -103,7 +103,6 @@ public class DualAuthenticator extends ValveBase {
 
     HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
     HttpServletResponse hres = (HttpServletResponse) request.getResponse();
-//     System.out.println("Auth header: " + hreq.getHeader("Authorization"));
 
     int userConstraint = CONST_NONE;
     int pathConstraint = getConstraint(hreq.getRequestURI());
@@ -123,9 +122,8 @@ public class DualAuthenticator extends ValveBase {
 
     int totalConstraint = pathConstraint | userConstraint;
 
-    if ((totalConstraint == CONST_NONE && certPrincipal == null) || 
+    if (totalConstraint == CONST_NONE || certPrincipal == null || 
         (totalConstraint & CONST_PASSWORD) != 0) {
-//       System.out.println("Trying secondary authentication....");
       _secondaryAuth.invoke(request, response, dummyValveContext);
       passPrincipal = hreq.getUserPrincipal();
       if (certPrincipal == null && 
@@ -136,13 +134,10 @@ public class DualAuthenticator extends ValveBase {
       }
     }
 
-//     System.out.println("Principal is: " + passPrincipal);
-
     Realm realm = _context.getRealm();
     
     if (authOk(certPrincipal, passPrincipal, totalConstraint, 
                dummyValveContext.getInvokeCount(), hres, realm)) {
-//       System.out.println("Going to invoke the next valve");
       context.invokeNext(request,response);
     } else if (certPrincipal == null) {
       try {
@@ -262,12 +257,10 @@ public class DualAuthenticator extends ValveBase {
   private synchronized int getConstraint(String path) {
     int constraint = 0;
     Iterator iter = _constraints.entrySet().iterator();
-//     System.out.println("--------- testing path: " + path);
     while (iter.hasNext()) {
       Map.Entry entry = (Map.Entry) iter.next();
       String wildPath = (String) entry.getKey();
       boolean match;
-//       System.out.println("-------- path: " + wildPath);
 
       if (wildPath.startsWith("*")) {
         match = path.endsWith(wildPath.substring(1));
@@ -277,7 +270,6 @@ public class DualAuthenticator extends ValveBase {
         match = path.equals(wildPath);
       }
       if (match) {
-//         System.out.println("match for " +path + " found: " + wildPath);
         String type = (String) entry.getValue();
         constraint |= convertConstraint(type);
         if ((constraint & CONST_BOTH) == CONST_BOTH) {
@@ -363,6 +355,7 @@ public class DualAuthenticator extends ValveBase {
   public String getRealmName() { return _loginConfig.getRealmName(); }
   public void setRealmName(String realmName) {
     _loginConfig.setRealmName(realmName);
+    KeyRingJNDIRealm.setRealmName(realmName);
   }
 
   public String getAuthMethod() { return _loginConfig.getAuthMethod(); }
