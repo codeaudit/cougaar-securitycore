@@ -66,7 +66,9 @@ public class CAClient {
     String reply = "";
     try {
       if (debug) {
-	System.out.println("Sending " + request + " request to " + policy.CA_URL);
+	System.out.println("Sending request to " + policy.CA_URL
+			   + ", DN= " + policy.CA_DN);
+	System.out.println(request);
 	System.out.println("DN= " + policy.CA_DN);
       }
       URL url = new URL(policy.CA_URL);

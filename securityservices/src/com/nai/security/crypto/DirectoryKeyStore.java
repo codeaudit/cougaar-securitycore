@@ -77,6 +77,8 @@ public class DirectoryKeyStore implements Runnable
 
   // A hash map to store public keys, indexed with common name
   private HashMap certsAlias = new HashMap(89);
+  private HashMap certsPrincipal = new HashMap(89);
+  private HashMap caCertsPrincipal = new HashMap(89);
 
   // A hash map to quickly find an alias given a common name
   private HashMap commonName2alias = new HashMap(89);
@@ -117,9 +119,6 @@ public class DirectoryKeyStore implements Runnable
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
       keystore.load(stream, password);
 
-      // Initialize commonName2alias hash map
-      initCN2aliasMap();
-
       // Open CA keystore
       if (caStream != null) {
 	caKeystorePassword = caPassword;
@@ -133,6 +132,10 @@ public class DirectoryKeyStore implements Runnable
 	  caKeystorePassword = null;
 	}
       }
+
+      // Initialize commonName2alias hash map
+      initCN2aliasMap();
+
       if (debug) {
 	listKeyStoreAlias(keystore, keystorePath);
 	listKeyStoreAlias(caKeystore, caKeystorePath);
@@ -238,16 +241,24 @@ public class DirectoryKeyStore implements Runnable
   /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
    * Otherwise, search in the keystore then in the LDAP directory service.
    */
-  public synchronized Certificate findCert(String commonName, boolean lookupLDAP) {
+  public synchronized Certificate findCert(String commonName, boolean lookupLDAP)
+  throws Exception
+  {
     Certificate cert = null;
     if (debug) {
-      System.out.println("CertificateFinder.getCert(" + commonName + ")");
+      System.out.println("DirectoryKeyStore.getCert(" + commonName + ")");
+    }
+    if (commonName == null) {
+      throw new Exception("Common Name is null");
     }
 
     CertificateStatus certstatus=null;
     String alias = (String) commonName2alias.get(commonName);
     if (alias == null) {
       // Key does not exist in keystore
+      if (debug) {
+	System.out.println("Certificate not in key store");
+      }
     }
 
     try {
@@ -264,7 +275,7 @@ public class DirectoryKeyStore implements Runnable
 	  cert = certstatus.getCertificate();
 	}
 	if (debug) {
-	  System.out.println("CertificateFinder.getCert. Found cert in local hash map:"
+	  System.out.println("DirectoryKeyStore.getCert. Found cert in local hash map:"
 			     + commonName );
 	}
       }
@@ -275,8 +286,17 @@ public class DirectoryKeyStore implements Runnable
 	  certstatus = new CertificateStatus(cert, true, CertificateStatus.CERT_KEYSTORE);
 	  certsAlias.put(commonName, certstatus);
 	  if (debug) {
-	    System.out.println("CertificateFinder.getCert. Found cert in keystore file:"
-			       + commonName );
+	    System.out.println("DirectoryKeyStore.getCert. Found cert in keystore file:" + commonName );
+	  }
+	  if (cert == null) {
+	    // Also lookup the CA keystore file.
+	    cert = caKeystore.getCertificate(alias);
+	    certstatus = new CertificateStatus(cert, true,
+					       CertificateStatus.CERT_KEYSTORE);
+	    certsAlias.put(commonName, certstatus);
+	    if (debug) {
+	      System.out.println("DirectoryKeyStore.getCert. Found cert in CA keystore file:" + commonName );
+	    }
 	  }
 	}
 	else if (lookupLDAP == true) {
@@ -288,7 +308,7 @@ public class DirectoryKeyStore implements Runnable
 	    X509Certificate x = (X509Certificate)cert;
 	    m.put(x.getSubjectDN(), commonName);
 	    if (debug) {
-	      System.out.println("CertificateFinder.getCert. Found cert in LDAP:"
+	      System.out.println("DirectoryKeyStore.getCert. Found cert in LDAP:"
 				 + commonName );
 	    }
 	  }	
@@ -305,7 +325,7 @@ public class DirectoryKeyStore implements Runnable
 	  certstatus=new CertificateStatus(cert, true, CertificateStatus.CERT_LDAP);
 	  certsAlias.put(commonName,certstatus);
 	  if (debug) {
-	    System.out.println("CertificateFinder.getCert. Found cert in LDAP:"
+	    System.out.println("DirectoryKeyStore.getCert. Found cert in LDAP:"
 			       + commonName );
 	  }
 	}
@@ -336,7 +356,7 @@ public class DirectoryKeyStore implements Runnable
 	certificate=(Certificate)crl.get(alias);
 	CertificateStatus wrapperobject = new CertificateStatus(certificate, false, 0);
 	if (debug) {
-	  System.out.println("CertificateFinder.run. Adding CRL for " + alias );
+	  System.out.println("DirectoryKeyStore.run. Adding CRL for " + alias );
 	}
 	certsAlias.put(alias, wrapperobject);
         //make sure keystore is updated
@@ -541,12 +561,14 @@ public class DirectoryKeyStore implements Runnable
 
     Hashtable hashtable = null;
     if(keystore.size() > 0) {
+      // Build a hash table that indexes keys in the keystore by DN
       hashtable = new Hashtable(11);
       keystorecerts2Hashtable(keystore, hashtable);
     }
 
     if(caKeystore != null && caKeystore.size() > 0) {
       if(hashtable == null)
+	// Build a hash table that indexes keys in the CA keystore by DN
 	hashtable = new Hashtable(11);
       keystorecerts2Hashtable(caKeystore, hashtable);
     }
@@ -580,6 +602,10 @@ public class DirectoryKeyStore implements Runnable
 	} else
 	  if(!vector.contains(certificate))
 	    vector.addElement(certificate);
+	if (debug) {
+	  System.out.println("keystorecerts2Hashtable: Adding principal : "
+			     + principal);
+	}
 	hashtable.put(principal, vector);
       }
     }
@@ -661,32 +687,65 @@ public class DirectoryKeyStore implements Runnable
     // the last time we tried to send it to the CA.
   }
 
+  /** Build a certificate chain.
+   *  On output, vector contains an array of certificates leading to
+   *  a trusted Certificate Authority, starting with the certificate itself.
+   *  Returns true if we could build a chain.
+   */
   private boolean buildChain(X509Certificate x509certificate, Vector vector,
 			     Hashtable hashtable)
   {
     Principal principal = x509certificate.getSubjectDN();
     Principal principal1 = x509certificate.getIssuerDN();
+    if (debug) {
+      System.out.println("Building chain for " + principal.getName()
+			 + " signed by " + principal1.getName());
+    }
     if(principal.equals(principal1)) {
+      // Self-signed certificate
       vector.addElement(x509certificate);
+      if (debug) {
+	System.out.println("buildChain. Certificate is self issued");
+      }
       return true;
     }
     Vector vector1 = (Vector)hashtable.get(principal1);
-    if(vector1 == null)
+    if(vector1 == null) {
+      if (debug) {
+	System.out.println("buildChain. Could not find signer certificate in hashtable");
+      }
       return false;
+    }
+
     Enumeration enumeration = vector1.elements();
+    // Loop through all the issuer keys
     while(enumeration.hasMoreElements()) {
-      X509Certificate x509certificate1 = (X509Certificate)enumeration.nextElement();
+      X509Certificate x509certificate1 =
+	(X509Certificate)enumeration.nextElement();
       java.security.PublicKey publickey = x509certificate1.getPublicKey();
       try {
 	x509certificate.verify(publickey);
       }
       catch(Exception exception) {
+	if (debug) {
+	  System.out.println("buildChain. Unable to verify signature: "
+			     + exception + " - " + x509certificate1.toString());
+	  exception.printStackTrace();
+	}
 	continue;
       }
+      if (debug) {
+	System.out.println("buildChain. Found acceptable key: "
+			   + x509certificate1.toString());
+      }
+
       if(buildChain(x509certificate1, vector, hashtable)) {
 	vector.addElement(x509certificate);
 	return true;
       }
+    }
+    if (debug) {
+      System.out.println("buildChain. Unable to ");
     }
     return false;
   }
@@ -723,18 +782,37 @@ public class DirectoryKeyStore implements Runnable
     }
     byte der[] = request.getEncoded();
     System.out.println("generateSigningCertificateRequest. der size:" + der.length);
+
     char base64req[] = Base64.encode(der);
-    String reply = KeyManagement.PKCS10HEADER
-      + new String(base64req) + KeyManagement.PKCS10TRAILER;
+    String reply = KeyManagement.PKCS10HEADER + "\n"
+      + new String(base64req) + "\n" + KeyManagement.PKCS10TRAILER;
     return reply;
   }
 
   /** Get a list of all the certificates in the keystore */
   private Key[] getCertificates()
   {
+    // Get the certificates from the keystore
+    Key [] k1 = getCertificates(keystore);
+
+    // Get the certificates from the CA keystore
+    Key [] k2 = getCertificates(caKeystore);
+
+    Key [] k = new Key[k1.length + k2.length];
+    System.arraycopy(k1, 0, k, 0, k1.length);
+    System.arraycopy(k2, 0, k, k1.length, k2.length);
+    return k;
+  }
+
+  /** Get a list of all the certificates in the keystore */
+  private Key[] getCertificates(KeyStore ks)
+  {
+    if (ks == null) {
+      return new Key[0];
+    }
     Enumeration en = null;
     try {
-      en = keystore.aliases();
+      en = ks.aliases();
     }
     catch (KeyStoreException e) {
       System.out.println("Unable to get list of aliases in keystore");
@@ -746,7 +824,7 @@ public class DirectoryKeyStore implements Runnable
     while(en.hasMoreElements()) {
       String alias = (String)en.nextElement();
       try {
-	Certificate c = keystore.getCertificate(alias);
+	Certificate c = ks.getCertificate(alias);
 	Key key = new Key(c, alias);
 	certificateList.add(key);
       }
@@ -768,6 +846,9 @@ public class DirectoryKeyStore implements Runnable
     String reply = "";
     //is node?
     String nodeName = System.getProperty("org.cougaar.core.society.Node.name");
+    if (nodeName == null) {
+      System.out.println("DirectoryKeyStore Error: Cannot get node name");
+    }
     String alias = null;
     PrivateKey privatekey = null;
     try {
@@ -788,7 +869,8 @@ public class DirectoryKeyStore implements Runnable
 	reply = caClient.sendPKCS(request, "PKCS10");
       } else {
 	// check if node cert exist
-	X509Certificate nodex509 = (X509Certificate) findCert(nodeName);
+	// Don't lookup in LDAP, the key should be in the local keystore
+	X509Certificate nodex509 = (X509Certificate) findCert(nodeName, false);
 	if(nodex509 == null) {
 	  //we don't have a node key pair, so make it
 	  if (debug) {
@@ -796,8 +878,9 @@ public class DirectoryKeyStore implements Runnable
 	  }
 	  addKeyPair(nodeName);
 	}
-	nodex509 = (X509Certificate) findCert(nodeName);
-	// Node key should exist now
+	// The Node key should exist now (we may have just added it
+	// recursively.
+	nodex509 = (X509Certificate) findCert(nodeName, false);
 	if (debug) {
 	  System.out.println("Creating key pair for agent: " + commonName);
 	}
@@ -845,11 +928,25 @@ public class DirectoryKeyStore implements Runnable
 
   public Certificate findCert(Principal p) {
     String a = (String) m.get(p);
-    return findCert(a, true);
+    Certificate c = null;
+    try {
+      c=findCert(a, true);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return c;
   }
 
   public Certificate findCert(String name) {
-    return findCert(name, true);
+    Certificate c = null;
+    try {
+      c = findCert(name, true);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return c;
   }
 
   /*

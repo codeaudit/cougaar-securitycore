@@ -916,7 +916,7 @@ public class KeyManagement
     String option = args[0];
     String role = args[1];
 
-    String caDN = "CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
+    String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
     try {
       KeyManagement km = null;
       km = new KeyManagement(caDN, role);

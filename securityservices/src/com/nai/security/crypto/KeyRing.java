@@ -177,7 +177,13 @@ final public class KeyRing {
    * Otherwise, search in the keystore then in the LDAP directory service.
    */
   public static Certificate findCert(String commonName, boolean lookupLDAP) {
-    return keystore.findCert(commonName, lookupLDAP);
+    Certificate c = null;
+    try {
+      c = keystore.findCert(commonName, lookupLDAP);
+    }
+    catch (Exception e) {
+    }
+    return c;
   }
 
   public static void setSleeptime(long sleeptime)

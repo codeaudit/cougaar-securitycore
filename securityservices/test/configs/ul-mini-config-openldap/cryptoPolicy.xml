@@ -6,7 +6,7 @@
     <!-- The following parameter must be changed according to the appropriate
          deployment configuration -->
     <CA_URL>http://yew:8080/CA/servlet/certrequest</CA_URL>
-    <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US</CA_DN>
+    <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
     <CA_keystore>keystoreNCA_CA</CA_keystore>
     <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
 
