@@ -86,7 +86,7 @@ public interface KeyRingService extends Service {
   List getValidPrivateKeys(X500Name x500Name);
 
   void updateNS(String commonName);
-  //void updateNS(X500Name x500name);
+  void updateNS(X500Name x500name);
   // String getCommonName(String alias);
 
   void removeEntry(String commonName);
