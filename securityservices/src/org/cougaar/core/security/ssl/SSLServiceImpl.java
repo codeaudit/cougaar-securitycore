@@ -26,14 +26,14 @@
 
 package org.cougaar.core.security.ssl;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.SSLService;
 import org.cougaar.core.service.LoggingService;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 
 public class SSLServiceImpl implements SSLService {
   // may need to move to crypto policy file?

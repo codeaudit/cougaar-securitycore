@@ -25,17 +25,15 @@
 package org.cougaar.core.security.policy.builder;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
 import org.cougaar.util.ConfigFinder;
-
-import org.apache.log4j.Logger;
 
 public class VerbBuilder
 {

@@ -27,15 +27,15 @@
 package org.cougaar.core.security.services.auth;
 
 // java classes
+import java.security.Permission;
+import java.security.ProtectionDomain;
+import java.util.List;
+
 import org.cougaar.core.component.ComponentDescription;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ObjectContext;
-
-import java.security.Permission;
-import java.security.ProtectionDomain;
-import java.util.List;
 
 /**
  *

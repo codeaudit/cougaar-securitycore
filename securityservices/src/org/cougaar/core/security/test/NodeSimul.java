@@ -26,9 +26,9 @@
 
 package org.cougaar.core.security.test;
 
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-
 import java.lang.reflect.Method;
+
+import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class NodeSimul
 {

@@ -26,15 +26,6 @@
 
 package org.cougaar.core.security.policy.enforcers.init;
 
-import org.cougaar.core.component.BindingSite;
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
-import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.service.ServletService;
-import org.cougaar.util.ConfigFinder;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -50,6 +41,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kaos.ontology.management.UnknownConceptException;
+
+import org.cougaar.core.component.BindingSite;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
+import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.ServletService;
+import org.cougaar.util.ConfigFinder;
 
 public class InitNodePlugin extends ComponentPlugin {
 

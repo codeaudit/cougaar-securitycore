@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.services.util;
 
-import org.cougaar.core.component.Service;
-
 import java.util.List;
 
 import kaos.core.util.PolicyMsg;
+
+import org.cougaar.core.component.Service;
 
 public interface PolicyBootstrapperService
   extends Service

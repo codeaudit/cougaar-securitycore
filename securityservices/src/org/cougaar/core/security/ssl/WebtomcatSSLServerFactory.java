@@ -26,12 +26,12 @@
 
 package org.cougaar.core.security.ssl;
 
-import org.cougaar.core.security.services.identity.WebserverIdentityService;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.security.cert.CertificateException;
+
+import org.cougaar.core.security.services.identity.WebserverIdentityService;
 
 public class WebtomcatSSLServerFactory
   implements org.apache.catalina.net.ServerSocketFactory {

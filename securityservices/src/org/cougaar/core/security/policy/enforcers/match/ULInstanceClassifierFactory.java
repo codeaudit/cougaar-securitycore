@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import kaos.ontology.matching.InstanceClassifier;
+import kaos.ontology.matching.InstanceClassifierClassCastException;
 import kaos.ontology.matching.InstanceClassifierFactory;
 import kaos.ontology.matching.InstanceClassifierInitializationException;
 import kaos.ontology.vocabulary.ActionConcepts;
@@ -54,7 +55,6 @@ import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
-import kaos.ontology.matching.InstanceClassifierClassCastException;
 
 
 public class ULInstanceClassifierFactory

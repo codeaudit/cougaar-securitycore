@@ -26,10 +26,9 @@
 
 package org.cougaar.core.security.test;
 
-import org.cougaar.util.ConfigFinder;
-
 import java.io.File;
 
+import org.cougaar.util.ConfigFinder;
 import org.w3c.dom.Document;
 
 

@@ -34,7 +34,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.node.NodeControlService;
-import org.cougaar.core.security.services.wp.WhitePagesProtectionServiceImpl;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.wp.WhitePagesProtectionService;

@@ -25,10 +25,10 @@
 
 package org.cougaar.core.security.naming;
 
-import org.cougaar.core.service.wp.Cert;
-
 import java.util.Collection;
 import java.util.Hashtable;
+
+import org.cougaar.core.service.wp.Cert;
 
 import sun.security.x509.X500Name;
 

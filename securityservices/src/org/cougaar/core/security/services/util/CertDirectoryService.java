@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.services.util;
 
-import org.cougaar.core.component.Service;
-
 import java.net.URI;
 import java.util.List;
+
+import org.cougaar.core.component.Service;
 
 import sun.security.x509.X500Name;
 

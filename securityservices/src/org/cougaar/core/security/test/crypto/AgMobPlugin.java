@@ -26,14 +26,6 @@
 
 package org.cougaar.core.security.test.crypto;
 
-import org.cougaar.core.mts.Message;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.mts.MessageTransportClient;
-import org.cougaar.core.node.NodeIdentificationService;
-import org.cougaar.core.service.MessageTransportService;
-import org.cougaar.core.service.identity.AgentIdentityService;
-import org.cougaar.core.service.identity.TransferableIdentity;
-
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -46,6 +38,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import org.cougaar.core.mts.Message;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageTransportClient;
+import org.cougaar.core.node.NodeIdentificationService;
+import org.cougaar.core.service.MessageTransportService;
+import org.cougaar.core.service.identity.AgentIdentityService;
+import org.cougaar.core.service.identity.TransferableIdentity;
 
 public class AgMobPlugin extends org.cougaar.core.plugin.ComponentPlugin
 {

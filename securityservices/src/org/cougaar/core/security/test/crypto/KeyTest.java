@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.test.crypto;
 
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-
-import java.util.List;
 
 public class KeyTest implements Runnable
 {

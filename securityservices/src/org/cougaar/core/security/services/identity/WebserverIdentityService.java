@@ -26,9 +26,9 @@
 
 package org.cougaar.core.security.services.identity;
 
-import org.cougaar.core.security.services.crypto.SSLService;
-
 import javax.net.ServerSocketFactory;
+
+import org.cougaar.core.security.services.crypto.SSLService;
 
 public interface WebserverIdentityService extends SSLService {
   /**

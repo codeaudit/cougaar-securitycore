@@ -109,7 +109,7 @@ public class CryptoManagerServiceImpl
     cacheService = (CertificateCacheService) 
       sb.getService(this, CertificateCacheService.class, null);
     try {
-      clientSSLKeyManager = keyRing.getClientSSLKeyManager();
+      clientSSLKeyManager = (KeyManager)keyRing.getClientSSLKeyManager();
     } catch (IllegalStateException ise) { 
       log.error("No client ssl key manager found - will always sign messages",
                 ise);

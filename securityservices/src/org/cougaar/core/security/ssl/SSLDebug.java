@@ -25,8 +25,9 @@
 
 package org.cougaar.core.security.ssl;
 
-import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
+
+import javax.security.auth.x500.X500Principal;
 
 public class SSLDebug {
   public static String getCertsDnNames(X509Certificate[] chain) {

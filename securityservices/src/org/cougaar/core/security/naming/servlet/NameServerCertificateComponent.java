@@ -48,11 +48,10 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.security.util.ServletRequestUtil;
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-
 import org.cougaar.core.service.wp.AddressEntry;
 import org.cougaar.core.wp.resolver.ConfigReader;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class NameServerCertificateComponent extends ComponentPlugin {
   private static Logger log;

@@ -25,11 +25,6 @@
 
 package org.cougaar.core.security.ssl;
 
-import org.cougaar.util.log.Logger;
-import org.cougaar.util.log.LoggerFactory;
-import org.cougaar.core.security.util.SSLServerSocketWrapper;
-import org.cougaar.core.security.util.SSLSocketWrapper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -40,14 +35,19 @@ import java.security.cert.X509Certificate;
 import java.util.WeakHashMap;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
+
+import org.cougaar.core.security.util.SSLServerSocketWrapper;
+import org.cougaar.core.security.util.SSLSocketWrapper;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
   private static KeyRingSSLServerFactory _default;

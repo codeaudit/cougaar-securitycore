@@ -25,6 +25,9 @@
 
 package org.cougaar.core.security.test.adaptivity;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.cougaar.core.adaptivity.OMCRange;
 import org.cougaar.core.adaptivity.OMCRangeList;
 import org.cougaar.core.adaptivity.OMCThruRange;
@@ -38,9 +41,6 @@ import org.cougaar.core.persist.PersistenceState;
 import org.cougaar.core.plugin.ServiceUserPlugin;
 import org.cougaar.core.service.ConditionService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Plugin to arbitrarily publish a LOGIN_FAILURE_RATE and LOGIN_LOCKOUTS condition,

@@ -24,14 +24,6 @@
  */ 
 package org.cougaar.core.security.test.crypto;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.DataProtectionKey;
-import org.cougaar.core.service.DataProtectionKeyEnvelope;
-import org.cougaar.core.service.DataProtectionService;
-import org.cougaar.core.service.DataProtectionServiceClient;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,6 +31,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.service.DataProtectionKey;
+import org.cougaar.core.service.DataProtectionKeyEnvelope;
+import org.cougaar.core.service.DataProtectionService;
+import org.cougaar.core.service.DataProtectionServiceClient;
 
 public class DataProtectionTest implements DataProtectionServiceClient {
   DataProtectionService dps;

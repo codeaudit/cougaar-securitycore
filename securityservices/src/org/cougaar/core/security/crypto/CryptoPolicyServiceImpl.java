@@ -26,6 +26,8 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.util.HashMap;
+
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -38,8 +40,6 @@ import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.ldm.policy.Policy;
-
-import java.util.HashMap;
 
 import safe.enforcer.NodeEnforcer;
 

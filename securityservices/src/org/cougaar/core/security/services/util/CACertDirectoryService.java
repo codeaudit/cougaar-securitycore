@@ -25,12 +25,12 @@
 
 package org.cougaar.core.security.services.util;
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.naming.CertificateEntry;
-
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.naming.CertificateEntry;
 
 public interface CACertDirectoryService
   extends Service

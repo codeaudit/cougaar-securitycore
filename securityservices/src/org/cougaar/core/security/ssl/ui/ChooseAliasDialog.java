@@ -25,8 +25,6 @@
 
 package org.cougaar.core.security.ssl.ui;
 
-import org.cougaar.core.security.util.UIUtil;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -51,6 +49,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.cougaar.core.security.util.UIUtil;
 
 
 public class ChooseAliasDialog extends JDialog {

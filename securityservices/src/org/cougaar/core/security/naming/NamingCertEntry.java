@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.naming;
 
-import org.cougaar.core.service.wp.Cert;
-
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+
+import org.cougaar.core.service.wp.Cert;
 
 final public class NamingCertEntry extends Cert
 {

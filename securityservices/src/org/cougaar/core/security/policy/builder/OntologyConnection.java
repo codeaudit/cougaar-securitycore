@@ -36,13 +36,12 @@ import java.util.Vector;
 import javax.agent.service.directory.DirectoryFailure;
 
 import jtp.ReasoningException;
-
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.util.SerializableOntModelImpl;
 import kaos.ontology.vocabulary.RDFConcepts;
 import kaos.ontology.vocabulary.RDFSConcepts;
-import kaos.policy.information.PolicyInformationManager;
 import kaos.policy.information.OntologyInterfaces;
+import kaos.policy.information.PolicyInformationManager;
 
 
 /*

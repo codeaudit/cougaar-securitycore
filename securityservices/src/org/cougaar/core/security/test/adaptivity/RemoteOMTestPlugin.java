@@ -26,6 +26,9 @@
 package org.cougaar.core.security.test.adaptivity;
 
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.cougaar.core.adaptivity.InterAgentOperatingMode;
 import org.cougaar.core.adaptivity.InterAgentOperatingModePolicy;
 import org.cougaar.core.adaptivity.OMCRangeList;
@@ -36,9 +39,6 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.plugin.ServiceUserPlugin;
 import org.cougaar.core.service.UIDService;
 import org.cougaar.util.UnaryPredicate;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Publishes an inter agent operating mode to be controlled by 

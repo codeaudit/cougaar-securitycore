@@ -24,8 +24,6 @@
  */ 
 package org.cougaar.core.security.ssl.ui;
 
-import org.cougaar.core.security.util.UIUtil;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -45,6 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.cougaar.core.security.util.UIUtil;
 
 public class UserAliasPwdDialog extends JDialog {
   BorderLayout borderLayout1 = new BorderLayout();

@@ -26,6 +26,12 @@
 
 package org.cougaar.core.security.naming;
 
+import java.net.URI;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -39,12 +45,6 @@ import org.cougaar.core.service.wp.Cert;
 import org.cougaar.core.service.wp.Request;
 import org.cougaar.core.service.wp.Response;
 import org.cougaar.core.service.wp.WhitePagesService;
-
-import java.net.URI;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import sun.security.x509.X500Name;
 

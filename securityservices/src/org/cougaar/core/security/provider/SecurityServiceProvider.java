@@ -85,6 +85,9 @@ public class SecurityServiceProvider
 
   private ServiceBroker _serviceBrokerProxy;
   private ServiceBroker _rootServiceBrokerProxy;
+  
+  private static final String DP_PROVIDER_CLASS = "org.cougaar.core.security.provider.DataProtectionServiceProvider";
+  private static final String PMP_PROVIDER_CLASS = "org.cougaar.core.security.provider.PersistenceMgrPolicyServiceProvider";
 
   public SecurityServiceProvider() {
     ServiceBroker sb = new ServiceBrokerSupport();
@@ -263,9 +266,25 @@ public class SecurityServiceProvider
     if (isExecutedWithinNode) {
       
       /* Persistence Manager Service */
-      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
-      services.put(PersistenceMgrPolicyService.class, newSP);
-      rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
+//      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+      newSP = null;
+      Class cls = null;
+      try {
+      	cls = Class.forName(PMP_PROVIDER_CLASS);
+      	newSP = (ServiceProvider)cls.newInstance();
+      } catch (Exception ex) {
+      	log.error("Exception while instantiating " + PMP_PROVIDER_CLASS + ": " + ex);
+      }
+//      newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(PMP_PROVIDER_CLASS);
+      
+      if (newSP != null) {
+      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
+        services.put(PersistenceMgrPolicyService.class, newSP);
+        rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
+      }
+      else {
+        log.error("No persistence policy service provider, the module is not installed.");
+      }
       
       /* Encryption Service */
       newSP = new EncryptionServiceProvider(serviceBroker, mySecurityCommunity);
@@ -276,9 +295,26 @@ public class SecurityServiceProvider
       boolean dataOn =
 	Boolean.valueOf(System.getProperty("org.cougaar.core.security.dataprotection", "true")).booleanValue();
       if (dataOn) {
-	newSP = new DataProtectionServiceProvider(serviceBroker, mySecurityCommunity);
+//	newSP = new DataProtectionServiceProvider(serviceBroker, mySecurityCommunity);
+        newSP = null;
+        cls = null;
+        try {
+        	cls = Class.forName(DP_PROVIDER_CLASS);
+        	newSP = (ServiceProvider)cls.newInstance();
+        } catch (Exception ex) {
+        	log.error("Exception while instantiating " + DP_PROVIDER_CLASS + ": " + ex);
+        }
+//        newSP = (BaseSecurityServiceProvider)SecurityServiceProviderCache.get(DP_PROVIDER_CLASS);
+       
+        if (newSP != null) {
+      	((BaseSecurityServiceProvider)newSP).init(serviceBroker, mySecurityCommunity);
 	services.put(DataProtectionService.class, newSP);
 	rootServiceBroker.addService(DataProtectionService.class, newSP);
+        }
+        else {
+          log.error("No data protection service provider, the module is not installed.");
+        }
+
       }
       else {
 	log.warn("Data protection service disabled");

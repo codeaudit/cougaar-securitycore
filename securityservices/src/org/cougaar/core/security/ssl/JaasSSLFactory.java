@@ -25,6 +25,25 @@
 
 package org.cougaar.core.security.ssl;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.security.auth.Subject;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ChainedPrincipal;
 import org.cougaar.core.security.auth.StringPrincipal;
@@ -33,28 +52,6 @@ import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.LoggingService;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.PrivilegedAction;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.security.auth.Subject;
 
 /**
  * KeyRingSSLFactory provides a mechanism for JNDI to use the KeyRingService

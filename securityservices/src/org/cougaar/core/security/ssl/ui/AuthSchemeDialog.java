@@ -25,10 +25,6 @@
 
 package org.cougaar.core.security.ssl.ui;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.userauth.ui.UserCertRequestDialog;
-import org.cougaar.core.security.util.UIUtil;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -43,6 +39,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.userauth.ui.UserCertRequestDialog;
+import org.cougaar.core.security.util.UIUtil;
 
 
 public class AuthSchemeDialog

@@ -26,13 +26,6 @@
 
 package org.cougaar.core.security.policy.enforcers.util;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.policy.ontology.ActorClassesConcepts;
-import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
-import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -43,6 +36,13 @@ import java.util.Iterator;
 import java.util.Set;
 
 import kaos.ontology.repository.TargetInstanceDescription;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.ontology.ActorClassesConcepts;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
 
 /**
  * By definition, everything in here is a temporary hack that should

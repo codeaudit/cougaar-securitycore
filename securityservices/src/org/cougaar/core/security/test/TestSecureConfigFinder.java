@@ -26,10 +26,6 @@
 
 package org.cougaar.core.security.test;
 
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.ConfigFinder;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,6 +35,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.ConfigFinder;
 
 import EDU.oswego.cs.dl.util.concurrent.CountDown;
 

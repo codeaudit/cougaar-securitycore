@@ -25,9 +25,9 @@
 
 package org.cougaar.core.security.test;
 
-import org.cougaar.core.plugin.ComponentPlugin;
-
 import java.io.FileReader;
+
+import org.cougaar.core.plugin.ComponentPlugin;
 
 public class MaliciousPlugin extends ComponentPlugin
 {

@@ -28,10 +28,10 @@
 package org.cougaar.core.security.services.wp;
 
 
-import org.cougaar.core.service.wp.WhitePagesProtectionService;
-
 import java.security.SignedObject;
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.service.wp.WhitePagesProtectionService;
 
 
 /**

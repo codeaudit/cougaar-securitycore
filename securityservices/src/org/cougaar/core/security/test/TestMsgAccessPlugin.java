@@ -25,6 +25,8 @@
 
 package org.cougaar.core.security.test;
 
+import java.util.Collection;
+
 import org.cougaar.core.blackboard.Directive;
 import org.cougaar.core.blackboard.DirectiveMessage;
 import org.cougaar.core.component.ServiceBroker;
@@ -41,8 +43,6 @@ import org.cougaar.planning.ldm.PlanningDomain;
 import org.cougaar.planning.ldm.PlanningFactory;
 import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Verb;
-
-import java.util.Collection;
 
 /**
  * This plugin tests the use of Message Access Control binder.

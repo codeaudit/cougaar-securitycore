@@ -27,12 +27,11 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
+import org.apache.catalina.Context;
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.cougaar.core.security.acl.auth.ServletPolicyEnforcer;
-
-import org.apache.catalina.Context;
 
 public class ServletPolicyServiceProvider 
   extends BaseSecurityServiceProvider

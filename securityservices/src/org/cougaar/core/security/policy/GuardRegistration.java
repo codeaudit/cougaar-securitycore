@@ -26,12 +26,6 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.services.util.ConfigParserService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.planning.ldm.policy.Policy;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
@@ -43,6 +37,11 @@ import kaos.policy.enforcement.Enforcer;
 import kaos.policy.guard.PolicyDistributor;
 
 import org.apache.xml.serialize.XMLSerializer;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.planning.ldm.policy.Policy;
 import org.w3c.dom.Document;
 
 import safe.guard.EnforcerManagerService;

@@ -25,12 +25,12 @@
 
 package org.cougaar.core.security.test;
 
+import java.io.Serializable;
+import java.util.List;
+
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.BlackboardService;
 import org.cougaar.core.service.LoggingService;
-
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * This class just adds some objects to the blackboard. 

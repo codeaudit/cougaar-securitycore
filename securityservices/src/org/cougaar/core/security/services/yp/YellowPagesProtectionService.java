@@ -34,12 +34,12 @@
 package org.cougaar.core.security.services.yp;
 
 
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
+
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.services.wp.ProtectedRequest;
 import org.cougaar.yp.YPMessage;
-
-import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
 
 
 /**

@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.test;
 
-import org.cougaar.bootstrap.SystemProperties;
-
 import java.util.Properties;
 
 import javax.naming.Context;
+
+import org.cougaar.bootstrap.SystemProperties;
 
 public class TestProperties {
         

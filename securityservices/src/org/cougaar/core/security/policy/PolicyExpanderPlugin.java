@@ -27,12 +27,6 @@
 
 package org.cougaar.core.security.policy;
 
-import org.cougaar.core.blackboard.IncrementalSubscription;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.service.LoggingService;
-import org.cougaar.util.UnaryPredicate;
-
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +34,13 @@ import java.util.Vector;
 
 import kaos.core.util.ConditionalPolicyMsg;
 import kaos.core.util.PolicyMsg;
+
+import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.service.LoggingService;
+import org.cougaar.util.UnaryPredicate;
+
 import safe.util.ProposedPolicyUpdate;
 import safe.util.UnexpandedConditionalPolicyMsg;
 import safe.util.UnexpandedPolicyUpdate;

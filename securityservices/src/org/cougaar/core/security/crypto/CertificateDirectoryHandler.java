@@ -24,13 +24,13 @@
  */ 
 package org.cougaar.core.security.crypto;
 
+import java.security.cert.X509CRL;
+import java.util.Date;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-
-import java.security.cert.X509CRL;
-import java.util.Date;
 
 public class CertificateDirectoryHandler implements CertDirectoryServiceClient {
 

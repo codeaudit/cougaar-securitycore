@@ -25,6 +25,15 @@
 
 package org.cougaar.core.security.ssl;
 
+import java.net.Socket;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+import javax.net.ssl.X509KeyManager;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertValidityListener;
 import org.cougaar.core.security.crypto.CertificateStatus;
@@ -33,14 +42,6 @@ import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.LoggingService;
-
-import java.net.Socket;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import javax.net.ssl.X509KeyManager;
-import java.security.cert.CertificateException;
 
 public class KeyManager implements X509KeyManager, CertValidityListener {
   protected KeyRingService keyRing = null;

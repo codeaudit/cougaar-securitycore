@@ -26,11 +26,11 @@
 
 package org.cougaar.core.security.services.identity;
 
+import java.security.cert.Certificate;
+
 import org.cougaar.core.component.Service;
 import org.cougaar.core.service.identity.IdentityDeniedException;
 import org.cougaar.core.service.identity.PendingRequestException;
-
-import java.security.cert.Certificate;
 
 public interface UserIdentityService
   extends Service

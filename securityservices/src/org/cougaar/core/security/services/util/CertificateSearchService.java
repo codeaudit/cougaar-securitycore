@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.services.util;
 
+import java.util.List;
+
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.naming.SearchCallback;
-
-import java.util.List;
 
 import sun.security.x509.X500Name;
 

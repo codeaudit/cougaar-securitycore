@@ -26,10 +26,6 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.certauthority.CertificateResponse;
-import org.cougaar.core.security.naming.CertificateEntry;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +40,10 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.certauthority.CertificateResponse;
+import org.cougaar.core.security.naming.CertificateEntry;
 
 import sun.security.pkcs.PKCS10;
 import sun.security.x509.X509CertImpl;

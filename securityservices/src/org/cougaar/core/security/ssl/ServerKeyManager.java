@@ -25,15 +25,15 @@
 
 package org.cougaar.core.security.ssl;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.crypto.CertificateCacheService;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.util.NodeInfo;
-
 import java.net.Socket;
 import java.security.Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.util.NodeInfo;
 
 public final class ServerKeyManager
   extends org.cougaar.core.security.ssl.KeyManager {

@@ -26,6 +26,8 @@
 
 package org.cougaar.core.security.policy;
 
+import java.util.Vector;
+
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.util.UID;
 import org.cougaar.planning.ldm.policy.BooleanRuleParameter;
@@ -43,9 +45,6 @@ import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.planning.ldm.policy.RuleParameterIllegalValueException;
 import org.cougaar.planning.ldm.policy.StringRuleParameter;
 import org.cougaar.util.ConfigFinder;
-
-import java.util.Vector;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

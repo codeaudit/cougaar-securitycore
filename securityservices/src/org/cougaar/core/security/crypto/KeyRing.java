@@ -26,6 +26,26 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Vector;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
@@ -40,10 +60,10 @@ import org.cougaar.core.security.services.crypto.CRLCacheService;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
 import org.cougaar.core.security.services.util.CertificateSearchService;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.ssl.KeyManager;
 import org.cougaar.core.security.ssl.ServerKeyManager;
 import org.cougaar.core.security.ssl.UserKeyManager;
@@ -51,28 +71,9 @@ import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.GeneralSecurityException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Vector;
-
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.KeyUsageExtension;
+import javax.net.ssl.X509KeyManager;
 import sun.security.x509.OIDMap;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
@@ -287,7 +288,8 @@ final public class KeyRing  implements KeyRingService  {
     }
   }
 
-  public synchronized void setKeyManager(KeyManager km) {
+  public synchronized void setKeyManager(X509KeyManager theKm) {
+  	KeyManager km = (KeyManager)theKm;
     if (!_initializing) {
       km.finishInitialization();
     } else {
@@ -2459,7 +2461,7 @@ try {
     throw new GeneralSecurityException("Requesting to ignore unrecognized agent " + cname);
   }
 
-  public KeyManager getClientSSLKeyManager()
+  public X509KeyManager getClientSSLKeyManager()
     throws IllegalStateException
   {
     KeyManager clientSSLkm = null;

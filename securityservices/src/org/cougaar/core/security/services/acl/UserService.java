@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.services.acl;
 
-import org.cougaar.core.component.Service;
-
 import java.util.Map;
 import java.util.Set;
+
+import org.cougaar.core.component.Service;
 
 public interface UserService
   extends Service

@@ -26,10 +26,10 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.security.cert.X509Certificate;
+
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.identity.TransferableIdentity;
-
-import java.security.cert.X509Certificate;
 
 public class KeyIdentity
   extends PublicKeyEnvelope

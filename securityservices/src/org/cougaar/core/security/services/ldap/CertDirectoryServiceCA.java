@@ -26,9 +26,6 @@
 
 package org.cougaar.core.security.services.ldap;
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
-
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -43,6 +40,9 @@ import java.security.cert.X509Certificate;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
 
 public interface CertDirectoryServiceCA
   extends Service

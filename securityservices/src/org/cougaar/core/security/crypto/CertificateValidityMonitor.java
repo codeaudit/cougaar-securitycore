@@ -26,25 +26,25 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import org.cougaar.core.component.ServiceAvailableEvent;
+import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.services.crypto.CertValidityService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.util.NodeInfo;
 import org.cougaar.core.service.LoggingService;
-import org.cougaar.core.component.ServiceAvailableEvent;
-import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.service.ThreadService;
-import org.cougaar.core.security.policy.TrustedCaPolicy;
 
 import sun.security.x509.X500Name;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 public class CertificateValidityMonitor
   implements CertValidityService/*, Runnable*/ {

@@ -26,16 +26,16 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.security.Principal;
+
+import javax.security.auth.x500.X500Principal;
+
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.identity.AgentIdentityClient;
 import org.cougaar.core.service.identity.AgentIdentityService;
 import org.cougaar.core.service.identity.CrlReason;
-
-import java.security.Principal;
-
-import javax.security.auth.x500.X500Principal;
 
 // Cougaar security services
 

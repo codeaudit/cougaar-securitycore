@@ -28,11 +28,6 @@
 package org.cougaar.core.security.test.crypto;
 
 // Cougaar core services
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.plugin.ComponentPlugin;
-import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.service.LoggingService;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +43,11 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.plugin.ComponentPlugin;
+import org.cougaar.core.security.provider.SecurityServiceProvider;
+import org.cougaar.core.service.LoggingService;
 
 public class CipherStreamPlugin
   extends ComponentPlugin

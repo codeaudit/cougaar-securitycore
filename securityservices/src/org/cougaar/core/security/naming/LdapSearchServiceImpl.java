@@ -26,6 +26,11 @@
 
 package org.cougaar.core.security.naming;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertDirectoryServiceRequestorImpl;
 import org.cougaar.core.security.crypto.CertificateUtility;
@@ -34,11 +39,6 @@ import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.util.CertDirectoryService;
 import org.cougaar.core.service.LoggingService;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
 
 import sun.security.x509.X500Name;
 

@@ -26,10 +26,6 @@
 
 package org.cougaar.core.security.naming;
 
-import org.cougaar.core.security.crypto.CertificateRevocationStatus;
-import org.cougaar.core.security.crypto.CertificateType;
-import org.cougaar.core.security.util.DateUtil;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -37,6 +33,10 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.security.crypto.CertificateRevocationStatus;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.util.DateUtil;
 
 public class CACertificateEntry extends CertificateEntry
   implements Serializable {

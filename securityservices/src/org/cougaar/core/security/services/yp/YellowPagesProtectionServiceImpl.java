@@ -34,6 +34,13 @@
 package org.cougaar.core.security.services.yp;
 
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.SignedObject;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.SecureMethodParam;
@@ -43,13 +50,6 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.wp.ProtectedRequest;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.yp.YPMessage;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.SignedObject;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.List;
 
 
 /**

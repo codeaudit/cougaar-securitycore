@@ -25,8 +25,6 @@
 
 package org.cougaar.core.security.ssl.ui;
 
-import org.cougaar.core.security.util.UIUtil;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -38,6 +36,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
+
+import org.cougaar.core.security.util.UIUtil;
 
 
 public class RequestIdentity

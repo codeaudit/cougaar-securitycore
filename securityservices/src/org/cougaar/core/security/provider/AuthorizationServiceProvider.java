@@ -26,15 +26,15 @@
 package org.cougaar.core.security.provider;
 
 // Cougaar core services
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.cougaar.core.component.Service;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ObjectContextUtil;
 import org.cougaar.core.security.auth.role.AuthServiceImpl;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.service.LoggingService;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 public class AuthorizationServiceProvider 
   extends BaseSecurityServiceProvider

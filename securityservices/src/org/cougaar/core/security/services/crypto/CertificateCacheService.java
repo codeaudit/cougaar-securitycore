@@ -26,12 +26,6 @@
 
 package org.cougaar.core.security.services.crypto;
 
-import org.cougaar.core.component.Service;
-import org.cougaar.core.security.crypto.CRLKey;
-import org.cougaar.core.security.crypto.CertificateStatus;
-import org.cougaar.core.security.crypto.CertificateType;
-import org.cougaar.core.security.ssl.TrustManager;
-
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -43,6 +37,12 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+
+import org.cougaar.core.component.Service;
+import org.cougaar.core.security.crypto.CRLKey;
+import org.cougaar.core.security.crypto.CertificateStatus;
+import org.cougaar.core.security.crypto.CertificateType;
+import org.cougaar.core.security.ssl.TrustManager;
 
 import sun.security.x509.X500Name;
 

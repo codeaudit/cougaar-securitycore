@@ -26,14 +26,14 @@
 
 package org.cougaar.core.security.crypto;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.service.LoggingService;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class BasicMessageOutputStream
   extends ProtectedOutputStream

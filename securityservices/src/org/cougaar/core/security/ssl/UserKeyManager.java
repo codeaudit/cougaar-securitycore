@@ -25,16 +25,16 @@
 
 package org.cougaar.core.security.ssl;
 
-import org.cougaar.core.component.ServiceBroker;
-import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.userauth.AuthenticationHandler;
-import org.cougaar.core.security.userauth.CertAuthListener;
-
 import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.userauth.AuthenticationHandler;
+import org.cougaar.core.security.userauth.CertAuthListener;
 
 public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManager
   implements CertAuthListener
