@@ -68,6 +68,8 @@ public class NamingCertDirectoryServiceClient {
     sb.addServiceListener(new NamingServiceAvailableListener());
   }
 
+  /**
+   */
   public boolean updateCert(CertificateEntry certEntry) throws Exception {
     X509Certificate c = (X509Certificate)certEntry.getCertificate();
     String dname = c.getSubjectDN().getName();
@@ -102,17 +104,8 @@ public class NamingCertDirectoryServiceClient {
       return false;
     }
 
-    // naming bug: naming service is enabled before naming thread is created
-    // so there is a problem updating naming even though naming service is available
-    // need to wait until we successfully updated naming for an entry (should happen
-    // after agents registers
-    if (updateCertEntry(certEntry)) {
-      if (!certCache.isEmpty()) {
-        updateCertEntryFromCache();
-      }
-      return true;
-    }
-    return false;
+    updateCertEntry(certEntry);
+    return true;
   }
 
   private void setNamingService() {
@@ -154,11 +147,10 @@ public class NamingCertDirectoryServiceClient {
     certCache.clear();
   }
 
-  private boolean updateCertEntry(CertificateEntry certEntry) throws Exception {
+  private void updateCertEntry(final CertificateEntry certEntry) throws Exception {
     X509Certificate c = (X509Certificate)certEntry.getCertificate();
-    String dname = c.getSubjectDN().getName();
-    String cname = new X500Name(dname).getCommonName();
-    NamingCertEntry entry = null;
+    final String dname = c.getSubjectDN().getName();
+    final String cname = new X500Name(dname).getCommonName();
 
     if (whitePagesService == null) {
       log.warn("Cannot get white page service.");
@@ -169,74 +161,110 @@ public class NamingCertDirectoryServiceClient {
       log.debug("updating NS for " + dname);
     }
 
-    AddressEntry ael = whitePagesService.get(cname,
-					     WhitePagesUtil.WP_CERTIFICATE_TYPE);
-    if (ael != null) {
-      Cert cert = ael.getCert();
-      if (cert instanceof NamingCertEntry) {
-        entry = (NamingCertEntry)cert;
-        if (log.isDebugEnabled()) {
-          log.debug("Cert type found in naming, updating");
-        }
-      }
-      else {
-        if (log.isDebugEnabled()) {
-          log.debug("Different Cert type in naming, replacing");
-        }
-      }
-    }
+    /** Callback to handle White page response.
+     */
+    Callback callback = new Callback() {
+	/** Handle a WhitePagesService response. */
+	public void execute(Response res) {
+	  NamingCertEntry entry = null;
 
-    List dnList = new ArrayList();
-    List certList = new ArrayList();
-    if (entry == null) {
-      if (log.isDebugEnabled()) {
-        log.debug("Creating new NamingCertEntry to update naming");
-      }
-      dnList.add(dname);
-      certList.add(certEntry);
-    }
-    else {
-      dnList = entry.getDNList();
-      if (!dnList.contains(dname)) {
-        dnList.add(dname);
-      }
+	  if (log.isDebugEnabled()) {
+	    log.debug("Class name:" + res.getResult().getClass().getName());
+	  }
 
-      certList = entry.getEntries();
-      boolean found = false;
-      PublicKey pubKey = certEntry.getCertificate().getPublicKey();
-      for (int i = 0; i < certList.size(); i++) {
-        CertificateEntry acertEntry = (CertificateEntry)certList.get(i);
-        if (acertEntry.getCertificate().getPublicKey().equals(pubKey)) {
-        // duplicate entry
-          certList.set(i, certEntry);
-          found = true;
-        }
-        break;
-      }
-      if (!found) {
-        certList.add(certEntry);
-      }
-    }
+	  AddressEntry ael = ((Response.Get)res).getAddressEntry();
 
-    entry = new NamingCertEntry(dnList, certList);
-    //entry.addEntry(dname, certEntry, true);
+	  if (ael != null) {
+	    Cert cert = ael.getCert();
+	    if (cert instanceof NamingCertEntry) {
+	      entry = (NamingCertEntry)cert;
+	      if (log.isDebugEnabled()) {
+		log.debug("Cert type found in naming, updating");
+	      }
+	    }
+	    else {
+	      if (log.isDebugEnabled()) {
+		log.debug("Different Cert type in naming, replacing");
+	      }
+	    }
+	  }
 
-    if (ael == null) {
-      URI certURI = URI.create("cert://"+cname);
-      ael = AddressEntry.getAddressEntry(
-	cname,
-	WhitePagesUtil.WP_CERTIFICATE_TYPE,
-	certURI,
-	entry);
-    }
+	  List dnList = new ArrayList();
+	  List certList = new ArrayList();
+	  if (entry == null) {
+	    if (log.isDebugEnabled()) {
+	      log.debug("Creating new NamingCertEntry to update naming");
+	    }
+	    dnList.add(dname);
+	    certList.add(certEntry);
+	  }
+	  else {
+	    dnList = entry.getDNList();
+	    if (!dnList.contains(dname)) {
+	      dnList.add(dname);
+	    }
 
-    whitePagesService.rebind(ael);
+	    certList = entry.getEntries();
+	    boolean found = false;
+	    PublicKey pubKey = certEntry.getCertificate().getPublicKey();
+	    for (int i = 0; i < certList.size(); i++) {
+	      CertificateEntry acertEntry = (CertificateEntry)certList.get(i);
+	      if (acertEntry.getCertificate().getPublicKey().equals(pubKey)) {
+		// duplicate entry
+		certList.set(i, certEntry);
+		found = true;
+	      }
+	      break;
+	    }
+	    if (!found) {
+	      certList.add(certEntry);
+	    }
+	  }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Successfully updated naming: " + cname);
-    }
+	  entry = new NamingCertEntry(dnList, certList);
+	  //entry.addEntry(dname, certEntry, true);
 
-    return true;
+	  if (ael == null) {
+	    URI certURI = URI.create("cert://"+cname);
+	    ael = AddressEntry.getAddressEntry(
+	      cname,
+	      WhitePagesUtil.WP_CERTIFICATE_TYPE,
+	      certURI,
+	      entry);
+	  }
+
+	  Callback callback = new Callback() {
+	      /** Handle a WhitePagesService response. */
+	      public void execute(Response res) {
+		if ( ((Response.Bind) res).didBind() ) {
+
+		  // naming bug: naming service is enabled before naming thread is created
+		  // so there is a problem updating naming even though naming service is available
+		  // need to wait until we successfully updated naming for an entry (should happen
+		  // after agents registers
+		  if (!certCache.isEmpty()) {
+		    updateCertEntryFromCache();
+		  }
+
+		  if (log.isDebugEnabled()) {
+		    log.debug("Successfully updated naming: " + cname);
+		  }
+		}
+		else {
+		  if (log.isWarnEnabled()) {
+		    log.warn("Unable to update naming: " + cname);
+		  }
+		}
+	      }
+	    };
+	  whitePagesService.rebind(ael, callback);
+
+	}
+      };
+
+    whitePagesService.get(cname,
+			  WhitePagesUtil.WP_CERTIFICATE_TYPE,
+			  callback);
   }
 
   private class NamingServiceAvailableListener implements ServiceAvailableListener {
