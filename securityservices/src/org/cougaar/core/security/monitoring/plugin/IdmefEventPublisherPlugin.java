@@ -34,6 +34,7 @@ import org.cougaar.util.UnaryPredicate;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.HashMap;
 
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Address;
@@ -51,6 +52,9 @@ extends ComponentPlugin
   private IncrementalSubscription _idmefevents;
   private LoggingService _log;
   private EventService _eventService;
+  private HashMap _eventCache = new HashMap();
+  private int _cacheSize = 100;
+  private int _cacheInterval = 600000;
 
   /**
    * A predicate that matches all "Event object which is not registration "
@@ -90,6 +94,12 @@ extends ComponentPlugin
 
  
   protected void setupSubscriptions() {
+    try {
+      String propString = System.getProperty("org.cougaar.core.security.idmef.eventsize");
+      _cacheSize = Integer.parseInt(propString);
+      propString = System.getProperty("org.cougaar.core.security.idmef.interval");
+      _cacheInterval = Integer.parseInt(propString);
+    } catch (Exception ex) {}
     _log = (LoggingService)getBindingSite().getServiceBroker().getService
       (this, LoggingService.class, null);
     _eventService = (EventService)getBindingSite().getServiceBroker().getService
@@ -110,18 +120,22 @@ extends ComponentPlugin
         Alert event = (Alert) foo.getEvent();
 // 	Alert event=(Alert)eventiterator.next();
         StringBuffer s = new StringBuffer("[STATUS] IDMEF(");
+        StringBuffer s2 = new StringBuffer();
         s.append(agentId.toAddress()).append(')');
 
         Classification cs[] = event.getClassifications();
         if (cs != null && cs.length != 0) {
           s.append(" Classification(");
+          s2.append("Classification(");
           for (int i = 0; i < cs.length; i++) {
             if (i != 0) {
               s.append(',');
+              s2.append(',');
             }
             s.append(cs[i].getName());
           }
           s.append(')');
+          s2.append(')');
         }
         Source [] srcs = event.getSources();
         if (srcs != null && srcs.length != 0) {
@@ -172,15 +186,19 @@ extends ComponentPlugin
         AdditionalData [] data = event.getAdditionalData();
         if (data != null && data.length != 0) {
           s.append(" AdditionalData(");
+          s2.append(" AdditionalData(");
           for (int i = 0; i < data.length; i++) {
             if (i != 0) {
               s.append(',');
+              s2.append(',');
             }
             s.append(data[i].getMeaning());
+            s2.append(data[i].getMeaning());
             if(data[i].getMeaning().equals("STACK_TRACE")) {
               stacktrace=true;
             }
             s.append(':');
+            s2.append(':');
             if (data[i].getAdditionalData() != null) {
               if(stacktrace) {
                 StringBuffer stackdata= new StringBuffer(data[i].getAdditionalData());
@@ -198,16 +216,43 @@ extends ComponentPlugin
               else {
                 s.append(data[i].getAdditionalData());
               }
+              s2.append(data[i].getAdditionalData());
             } else {
               XMLSerializable xml = data[i].getXMLData();
               if (xml instanceof Agent) {
                 Agent agent = (Agent) xml;
                 s.append(agent.getName());
+                s2.append(agent.getName());
               }
             }
           }
         }
         s.append(')');
+        s2.append(')');
+        String idmefString = s2.toString();
+        long lastPublished = System.currentTimeMillis();
+       	Long pTime = (Long)_eventCache.get(idmefString);
+        if (pTime != null) {
+          if (lastPublished - pTime.longValue() < _cacheInterval) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Idmef message already published for " + idmefString);
+            }
+            return;
+          }        
+        }
+        else {
+          if (_log.isDebugEnabled()) {
+            _log.debug("adding new entry: " + idmefString);
+          }
+        }
+
+        if (_eventCache.size() > _cacheSize) {
+          // lazy clean up, restart the cache over
+          _eventCache.clear();
+        } 
+
+        _eventCache.put(idmefString, new Long(lastPublished)); 
+
         _eventService.event(s.toString());
       }
     }
