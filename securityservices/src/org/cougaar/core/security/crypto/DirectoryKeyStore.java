@@ -214,9 +214,8 @@ public class DirectoryKeyStore
 
       } catch(Exception e) {
 	if (log.isErrorEnabled()) {
-	  log.error("Can't start CA client--"+e.getMessage());
+	  log.error("Can't start CA client--"+e.getMessage(), e);
 	}
-	e.printStackTrace();
       }
 
       // We running as part of Cougaar, this class may be used to support
@@ -233,7 +232,7 @@ public class DirectoryKeyStore
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error("Unable to initialize DirectoryKeyStore", e);
     }
 
     certCache.printbigIntCache();
@@ -247,7 +246,7 @@ public class DirectoryKeyStore
       alias =keystore.aliases();
     }
     catch (Exception exp) {
-      exp.printStackTrace();
+      log.error("Unable to get Alias list", exp);
       return null;
     }
     return alias;
@@ -261,8 +260,7 @@ public class DirectoryKeyStore
       cn=getCommonName(cert);
     }
     catch (Exception exp) {
-      exp.printStackTrace();
-      cn=null;
+      log.error("Unable to get Common name for " + alias, exp);
     }
     return cn;
 
@@ -285,8 +283,7 @@ public class DirectoryKeyStore
       }
     }
     catch(Exception e) {
-      log.debug(e.toString());
-      e.printStackTrace();
+      log.debug(e.toString(), e);
     }
   }
 
@@ -1102,7 +1099,6 @@ public class DirectoryKeyStore
 	  if(log.isInfoEnabled()) {
 	    log.info(" certificate is revoked for dn ="
 		     +((X509Certificate)certificate).getSubjectDN().getName());
-	    //certrevoked.printStackTrace();
 	  }
 	}
       } // END while(it.hasNext())
@@ -1373,7 +1369,6 @@ public class DirectoryKeyStore
 			     + exception + " - "
 			     + x509certificate1
                              + " - " + cs.getCertificateAlias());
-	  //exception.printStackTrace();
 	}
 	continue;
       }
@@ -1615,7 +1610,6 @@ public class DirectoryKeyStore
         if (log.isDebugEnabled()) {
           log.warn("Unable to create key: " + dname
                              + " - Reason:" + e);
-          e.printStackTrace();
         }
       }
 
@@ -1665,7 +1659,6 @@ public class DirectoryKeyStore
       if (log.isDebugEnabled()) {
         log.warn("Unable to create key: " + dname
                            + " - Reason:" + e);
-        e.printStackTrace();
       }
     }
     return privatekey;
@@ -1828,7 +1821,6 @@ public class DirectoryKeyStore
       if (log.isErrorEnabled()) {
 	log.error("Unable to create key: " + dname
 		  + " - Reason:" + e);
-	e.printStackTrace();
       }
     }
 
@@ -1966,12 +1958,10 @@ public class DirectoryKeyStore
 		  + alias
 		  + " (" + e + ")"
 		  + " Current date is " + d.toString());
-        //e.printStackTrace();
       }
     } catch(Exception e) {
       if (log.isWarnEnabled()) {
         log.warn("Error: can't get certificate for " + alias + " Reason: " + e);
-        //e.printStackTrace();
       }
     }
     return privatekey;
@@ -1990,7 +1980,6 @@ public class DirectoryKeyStore
     }
     catch (Exception e) {
       log.error("Unable to get alias: " + e);
-      e.printStackTrace();
     }
     return alias;
   }
@@ -2015,7 +2004,7 @@ public class DirectoryKeyStore
 	findCert(a, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to get certificate", e);
     }
     return certificateList;
   }
@@ -2027,7 +2016,7 @@ public class DirectoryKeyStore
 	findCert(name, KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.warn("Unable to get certificate", e);
     }
     return certificateList;
   }
@@ -2045,7 +2034,6 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.error("Unable to initialize commonName2alias:" + e);
-	  e.printStackTrace();
 	}
       }
     }
@@ -2075,7 +2063,6 @@ public class DirectoryKeyStore
 	}
 	catch (Exception e) {
 	  log.debug("Unable to find cert:"+ e);
-	  e.printStackTrace();
 	}
       }
     }
@@ -2135,7 +2122,6 @@ public class DirectoryKeyStore
       }
     } catch(Exception e) {
       log.error(e.toString());
-      e.printStackTrace();
     }
     alias = alias + nextIndex;
     if (log.isDebugEnabled()) {
@@ -2316,7 +2302,6 @@ public class DirectoryKeyStore
       log.warn("Can't locate the certificate for:"
 	       + dname.toString()
 	       +"--"+e+".generating new one...");
-      e.printStackTrace();
     }
     if (log.isDebugEnabled()) {
       log.debug("checkOrMakeCert: creating key for "
@@ -2510,8 +2495,8 @@ public class DirectoryKeyStore
 
   private String sendPKCS(String request, String pkcs) {
       String reply = "";
+      TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
       try {
-	TrustedCaPolicy[] trustedCaPolicy = cryptoClientPolicy.getTrustedCaPolicy();
 	if (log.isDebugEnabled()) {
 	  log.debug("Sending request to "
 		    + trustedCaPolicy[0].caURL
@@ -2557,9 +2542,10 @@ public class DirectoryKeyStore
 	}
 
       } catch(Exception e) {
-	log.warn("Error: sending PKCS request to CA failed--"
-		 + e.getMessage());
-	e.printStackTrace();
+	log.warn("Sending PKCS request to CA failed. Reason:"
+		 + e.getMessage() + " CA URL:" + trustedCaPolicy[0].caURL
+		 + ", CA DN= " + trustedCaPolicy[0].caDN,
+	  e);
       }
 
     return reply;
@@ -2585,7 +2571,6 @@ public class DirectoryKeyStore
     } catch(Exception e) {
       log.warn("Can't get the certificate signed--"
 	       + e.getMessage());
-      e.printStackTrace();
     }
     return baos.toString();
   }
@@ -2600,7 +2585,6 @@ public class DirectoryKeyStore
       }
     } catch (Exception e) {
       log.warn("Error: can't get the certificates from truststore. " + e.toString());
-      //e.printStackTrace();
     }
 
     X509Certificate[] trustedcerts = new X509Certificate[list.size()];
@@ -2644,7 +2628,7 @@ public class DirectoryKeyStore
       try {
         hostName = InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException ex) {
-        ex.printStackTrace();
+	System.err.println("Unable to get host name:" + ex);
       }
     }
     return hostName;

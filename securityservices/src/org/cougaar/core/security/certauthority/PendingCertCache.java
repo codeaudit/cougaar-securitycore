@@ -50,8 +50,6 @@ import org.cougaar.core.security.provider.SecurityServiceProvider;
 public class PendingCertCache
   extends Hashtable
 {
-  private SecurityPropertiesService secprop = null;
-
   private CaPolicy caPolicy = null;            // the policy of the CA
   private NodeConfiguration nodeConfiguration;
   private String caDN;
@@ -129,9 +127,6 @@ public class PendingCertCache
 
   private void init()
     throws Exception {
-    secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class, null);
     caDN = caPolicy.caDnName.getName();
 
     nodeConfiguration = new NodeConfiguration(caDN, serviceBroker);
