@@ -23,7 +23,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'IHMCPolicyDomainManagerAgent');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',0.000000000000000000000000000000,'IHMCPolicyDomainManagerAgent');
 UNLOCK TABLES;
 
 #
@@ -45,7 +45,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','RCP','IHMCPolicyDomainManagerAgent-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','RCP','IHMCPolicyDomainManagerAgent-cpy');
 UNLOCK TABLES;
 
 #
@@ -53,8 +53,8 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -62,12 +62,12 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgentRecipe-cpy','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','IHMCPolicyDomainManagerAgent','COMPONENT',4.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',3.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.ConditionMonitorPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.SetOperatingModeServletComponent','IHMCPolicyDomainManagerAgent','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent','IHMCPolicyDomainManagerAgentRecipe-cpy','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|org.cougaar.core.adaptivity.OperatingModePolicyManager','IHMCPolicyDomainManagerAgent','COMPONENT',4.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|org.cougaar.core.security.policy.PolicyExpanderPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.ConditionMonitorPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.DomainManagerPlugin','IHMCPolicyDomainManagerAgent','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0001-IHMCPolicyDomainManagerAgentRecipe','IHMCPolicyDomainManagerAgent|safe.policyManager.SetOperatingModeServletComponent','IHMCPolicyDomainManagerAgent','COMPONENT',2.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #

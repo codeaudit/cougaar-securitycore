@@ -27,7 +27,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent WRITE;
-INSERT INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager',0.000000000000000000000000000000,'SocietySecurityMnRManager');
+REPLACE INTO asb_agent (ASSEMBLY_ID, COMPONENT_ALIB_ID, COMPONENT_LIB_ID, CLONE_SET_ID, COMPONENT_NAME) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager',0.000000000000000000000000000000,'SocietySecurityMnRManager');
 UNLOCK TABLES;
 
 #
@@ -35,11 +35,11 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_agent_pg_attr WRITE;
-INSERT INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ClusterPG|ClusterIdentifier','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-INSERT INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|AlternateItemIdentification','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-INSERT INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|ItemIdentification','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-INSERT INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
-INSERT INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ClusterPG|ClusterIdentifier','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|AlternateItemIdentification','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|ItemIdentification','SocietySecurityMnRManager',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','ItemIdentificationPG|Nomenclature','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
+REPLACE INTO asb_agent_pg_attr (ASSEMBLY_ID, COMPONENT_ALIB_ID, PG_ATTRIBUTE_LIB_ID, ATTRIBUTE_VALUE, ATTRIBUTE_ORDER, START_DATE, END_DATE) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','TypeIdentificationPG|TypeIdentification','UTC/RTOrg',0.000000000000000000000000000000,'2000-01-01 00:00:00',NULL);
 UNLOCK TABLES;
 
 #
@@ -54,7 +54,7 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_assembly WRITE;
-INSERT INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','RCP','SocietySecurityMnRManager-cpy-cpy');
+REPLACE INTO asb_assembly (ASSEMBLY_ID, ASSEMBLY_TYPE, DESCRIPTION) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','RCP','SocietySecurityMnRManager-cpy-cpy');
 UNLOCK TABLES;
 
 #
@@ -62,10 +62,10 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_arg WRITE;
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.PlaybookManager','AMnRPlaysSocietyManager.txt',1.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','/aeviewer',2.000000000000000000000000000000);
-INSERT INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','org.cougaar.core.adaptivity.AEViewerServlet',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.PlaybookManager','AMnRPlaysSocietyManager.txt',1.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','/aeviewer',2.000000000000000000000000000000);
+REPLACE INTO asb_component_arg (ASSEMBLY_ID, COMPONENT_ALIB_ID, ARGUMENT, ARGUMENT_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','org.cougaar.core.adaptivity.AEViewerServlet',1.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #
@@ -73,16 +73,16 @@ UNLOCK TABLES;
 #
 
 LOCK TABLES asb_component_hierarchy WRITE;
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.PlaybookManager','SocietySecurityMnRManager','COMPONENT',8.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.OperatingModeServiceProvider','SocietySecurityMnRManager','COMPONENT',7.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','SocietySecurityMnRManager','COMPONENT',4.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.AdaptivityEngine','SocietySecurityMnRManager','COMPONENT',5.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.ConditionServiceProvider','SocietySecurityMnRManager','COMPONENT',6.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin','SocietySecurityMnRManager','COMPONENT',3.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','SocietySecurityMnRManager','COMPONENT',1.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin','SocietySecurityMnRManager','COMPONENT',2.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','SocietySecurityMnRManager','COMPONENT',0.000000000000000000000000000000);
-INSERT INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager-cpy-cpy','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.PlaybookManager','SocietySecurityMnRManager','COMPONENT',8.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.OperatingModeServiceProvider','SocietySecurityMnRManager','COMPONENT',7.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.servlet.BlackboardServletComponent','SocietySecurityMnRManager','COMPONENT',4.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.AdaptivityEngine','SocietySecurityMnRManager','COMPONENT',5.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.adaptivity.ConditionServiceProvider','SocietySecurityMnRManager','COMPONENT',6.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.MnRQueryResponderPlugin','SocietySecurityMnRManager','COMPONENT',3.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesConsolidationPlugin','SocietySecurityMnRManager','COMPONENT',1.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.MnRQueryReceiverPlugin','SocietySecurityMnRManager','COMPONENT',2.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager|org.cougaar.core.security.monitoring.plugin.CapabilitiesProcessingPlugin','SocietySecurityMnRManager','COMPONENT',0.000000000000000000000000000000);
+REPLACE INTO asb_component_hierarchy (ASSEMBLY_ID, COMPONENT_ALIB_ID, PARENT_COMPONENT_ALIB_ID, PRIORITY, INSERTION_ORDER) VALUES ('RCP-0010-SocietySecurityMnRManager-SocietySecurity','SocietySecurityMnRManager','SocietySecurityMnRManager-cpy-cpy','COMPONENT',0.000000000000000000000000000000);
 UNLOCK TABLES;
 
 #

@@ -190,7 +190,8 @@ public class LdapUserServiceImpl implements LdapUserService {
     try {
       _context = new InitialDirContext(env);
     } catch (NamingException e) {
-      _log.error("Couldn't initialize connection to User LDAP database");
+      _log.error("Couldn't initialize connection to User LDAP database. URL is "
+		 + env.get(Context.PROVIDER_URL));
       if (_log.isDebugEnabled()) {
         _log.debug("Exception caught", e);
       }

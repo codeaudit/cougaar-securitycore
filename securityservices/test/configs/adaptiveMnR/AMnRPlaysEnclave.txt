@@ -1,4 +1,4 @@
-# M&R enclave managers' playbook
+// M&R enclave managers' playbook
 org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE <= 25 : PERCEIVED_THREAT_LEVEL = 1;
 org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE in { 26 thru 50 } : PERCEIVED_THREAT_LEVEL = 2;
 org.cougaar.core.security.monitoring.MESSAGE_FAILURE_RATE > 50 : PERCEIVED_THREAT_LEVEL = 3;

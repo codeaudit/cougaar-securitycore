@@ -8,5 +8,5 @@ PERCEIVED_THREAT_LEVEL == 2
 PERCEIVED_THREAT_LEVEL == 3
     : org.cougaar.core.security.monitoring.DUMMY_OP = 1000
 
-#    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
-#    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
+//   : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = HIGH;
+//    : [agent.DomainManager]org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY = LOW;
