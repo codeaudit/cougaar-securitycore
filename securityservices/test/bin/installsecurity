@@ -14,6 +14,16 @@ if [ $? != 0 ]; then
   echo "$0: Can't create temp file, exiting..."
   exit 1
 fi
+
+COUGAAR_INSTALL_PATH=${tmpdir}
+export COUGAAR_INSTALL_PATH
+
+# Copy jar files from the real $CIP
+mkdir $COUGAAR_INSTALL_PATH/lib
+mkdir $COUGAAR_INSTALL_PATH/sys
+cp ${realCIP}/lib/*.jar $COUGAAR_INSTALL_PATH/lib
+cp ${realCIP}/sys/*.jar $COUGAAR_INSTALL_PATH/sys
+
 PATH=/mnt/shared/srosset/apache-ant-1.5.3-1/bin/:$PATH
 export PATH
 
@@ -24,11 +34,9 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-COUGAAR_INSTALL_PATH=${tmpdir}
-export COUGAAR_INSTALL_PATH
 ant install
 cd $COUGAAR_INSTALL_PATH
-tar cvf security.tar \
+tar cf security.tar \
 	log/bootstrap \
 	configs/daml \
 	configs/security \
@@ -54,7 +62,10 @@ tar cvf security.tar \
 	sys/iw.jar \
 	sys/jdom.jar
 
-#cp security.tar ${startupdir}
+cp security.tar ${startupdir}
+
+echo "\n"
+echo "Untar the file security.tar under $COUGAAR_INSTALL_PATH"
 #cd ${realCIP}
 #tar xvf ${startupdir}/security.tar
 rm -rf ${tmpdir}
