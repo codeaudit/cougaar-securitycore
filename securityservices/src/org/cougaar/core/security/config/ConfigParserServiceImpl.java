@@ -108,24 +108,22 @@ public class ConfigParserServiceImpl
    */
   public File findPolicyFile(String policyfilename) {
     File f = null;
-    String configFile = secprop.getProperty(secprop.CRYPTO_CONFIG, 
-            policyfilename);
 
     // 1) Search using the workspace
-    f = findWorkspacePolicyPath(configFile);
+    f = findWorkspacePolicyPath(policyfilename);
 
     if (!f.exists()) {
       // 2) Search using the config finder.
 
-      f = confFinder.locateFile(configFile);
+      f = confFinder.locateFile(policyfilename);
     
       if (f == null) {
 	if (CryptoDebug.debug) {
-	  System.out.println("Unable to read configFile: " + configFile);
+	  System.out.println("Unable to read policy filename: " + policyfilename);
 	}
 	// Cannot proceed without policy
 	System.err.println("ERROR: Cannot continue secure execution without policy");
-	System.err.println("ERROR: Could not find crypto configuration file: " + configFile);
+	System.err.println("ERROR: Could not find configuration file: " + policyfilename);
 	try {
 	  throw new RuntimeException("No policy available");
 	}
@@ -205,6 +203,13 @@ public class ConfigParserServiceImpl
   public void parsePolicy(InputStream policy) {
     if (CryptoDebug.debug) {
       System.out.println("Reading policy object");
+      /*
+      try {
+	throw new RuntimeException();
+      } catch (Exception e) {
+	e.printStackTrace();
+      }
+      */
     }
     try {
       // Parse the file...

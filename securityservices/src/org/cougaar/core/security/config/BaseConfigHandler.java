@@ -148,9 +148,9 @@ public class BaseConfigHandler
 
 
     if (replaceJavaProperties) {
-      if (CryptoDebug.debug) {
-	System.out.println("Looking up java property pattern in " + s);
-      }
+      //if (CryptoDebug.debug) {
+      //System.out.println("Looking up java property pattern in " + s);
+      //}
       /* Search for java properties patterns.
      * ${java_property} will be replaced by the value of the java property.
      * For example:
