@@ -285,20 +285,22 @@ public class ServletNodeEnforcer
               out.print("disallowed.</p>");
               _log.debug("..servlet...testEnforcer: disallowed.</p>");
             }
-            for (Iterator rolesIt2 = roles.iterator();
-                 rolesIt2.hasNext();) {
-              String role2 = (String) rolesIt2.next();
-              roleSet = new HashSet();
-              roleSet.add(role1);
-              roleSet.add(role2);
-              out.print("<p>A user in role " + role1 + " and "
-                        + role2 + " is ");
-              if (isActionAuthorized(roleSet, uri, sslCipher, authLevel)) {
-                out.print("allowed.</p>");
-                _log.debug("..servlet...testEnforcer: allowed.</p>");
-              } else {
-                out.print("disallowed.</p>");
-                _log.debug("..servlet...testEnforcer: disallowed.</p>");
+            if (false) {
+              for (Iterator rolesIt2 = roles.iterator();
+                   rolesIt2.hasNext();) {
+                String role2 = (String) rolesIt2.next();
+                roleSet = new HashSet();
+                roleSet.add(role1);
+                roleSet.add(role2);
+                out.print("<p>A user in role " + role1 + " and "
+                          + role2 + " is ");
+                if (isActionAuthorized(roleSet, uri, sslCipher, authLevel)) {
+                  out.print("allowed.</p>");
+                  _log.debug("..servlet...testEnforcer: allowed.</p>");
+                } else {
+                  out.print("disallowed.</p>");
+                  _log.debug("..servlet...testEnforcer: disallowed.</p>");
+                }
               }
             }
           }
@@ -402,8 +404,7 @@ public class ServletNodeEnforcer
     String user = UserDatabase.login(roles);
         
     Set targets = new HashSet();
-    if ( !targets.add(
-                      new TargetInstanceDescription
+    if ( !targets.add(new TargetInstanceDescription
                       (UltralogActionConcepts._accessedServlet_, 
                        kaosuri)) ) {
       _log.debug("Could not make list of targets - " +

@@ -151,7 +151,7 @@ public class InitNodePlugin extends ComponentPlugin {
                   "<body>\n" + 
                   "<H1>Message Passing Mediation Check</H1>\n");
         _msgEnf.testEnforcer(out,
-                             TestStringsFromFile("DamlAgents"));
+                             TestStringsFromFile("DamlTestAgents"));
         out.print("</body>\n" +
                   "</html>\n");
       } catch (UnknownConceptException e) {

@@ -292,7 +292,7 @@ public class HardWired {
     }
     targets.add( new TargetInstanceDescription( UltralogActionConcepts.
                                                 _usedAuthenticationLevel_,
-                                                authSet ) );
+                                                auth ) );
     return true;
   }
 

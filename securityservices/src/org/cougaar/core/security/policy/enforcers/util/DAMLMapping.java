@@ -53,24 +53,30 @@ public class DAMLMapping {
 
   public String ulUriToKAoSUri(String uri)
   {
-    _log.debug("Converting " + uri + " to KAoS uri");
-    AgentUri agUri = new AgentUri(uri);
-    for (Iterator uriIt = _uriMap.keySet().iterator();
-         uriIt.hasNext();) {
-      String pattern = (String) uriIt.next();
-      _log.debug("Matching against pattern " + pattern);
-      AgentUri agUriPattern = new AgentUri(pattern);
-      if (agUri.match(agUriPattern)) {
-        _log.debug("Found Match");
-        String ret = 
-          org.cougaar.core.security.policy.enforcers.ontology
-          .EntityInstancesConcepts.EntityInstancesDamlURL
-          + (String) (_uriMap.get((Object) pattern));
-        _log.debug("Returning " + ret);
-        return ret;
+    try {
+      _log.debug("Converting " + uri + " to KAoS uri");
+      AgentUri agUri = new AgentUri(uri);
+      for (Iterator uriIt = _uriMap.keySet().iterator();
+           uriIt.hasNext();) {
+        String pattern = (String) uriIt.next();
+        _log.debug("Matching against pattern " + pattern);
+        AgentUri agUriPattern = new AgentUri(pattern);
+        if (agUri.match(agUriPattern)) {
+          _log.debug("Found Match");
+          String ret = 
+            org.cougaar.core.security.policy.enforcers.ontology
+            .EntityInstancesConcepts.EntityInstancesDamlURL
+            + (String) (_uriMap.get((Object) pattern));
+          _log.debug("Returning " + ret);
+          return ret;
+        }
       }
+      return null;
+    } catch (Exception e) {
+      _log.warn("This is probably not good - " + 
+                "some URI is malformed...", e);
+      return null;
     }
-    return null;
   }
 
   /**
@@ -158,7 +164,7 @@ public class DAMLMapping {
       if (!matchAgentPart(pattern)) {
         _log.debug("agent match failed");
         return false;
-      } else if (pattern._uri.equals("*")) {
+      } else if (pattern._uri.equals("/*")) {
         _log.debug("matched because the uri is universal");
         return true;
       } else if (_uri.equals(pattern._uri)) {
