@@ -74,7 +74,7 @@ public class SecurityAspect extends StandardAspect
       "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
   private ServiceBroker sb=null;
-  
+
   public SecurityAspect() {
     String db = System.getProperty("org.cougaar.message.transport.debug");
     if ( db!=null && (db.equalsIgnoreCase("true") || db.indexOf("security")>=0) ) debug=true;
@@ -191,39 +191,71 @@ public class SecurityAspect extends StandardAspect
         }
 	}
 
+      //check if the secure method being used matches
+      //the content of message
+      private boolean policyMatch(int method)
+      {
+          if(method==SecureMethodParam.PLAIN){
+            if(msg != null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.ENCRYPT){
+            if(secret!=null && sealedMsg!=null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.SIGN){
+            if(signedMsg != null) {
+              return true;
+            }
+          }else if(method==SecureMethodParam.SIGNENCRYPT){
+            if(signedMsg!=null && secret!=null && sealedMsg!=null) {
+              return true;
+            }
+          }
+
+        return false;
+      }
+
       private Message unsecure()
         throws RuntimeException, CertificateException {
           String Origin = getOriginator().getAddress();
           String Target = getTarget().getAddress();
-          SecureMethodParam param = cps.getReceivePolicy(Origin+":"+Target);
+          SecureMethodParam param = null;
+          param = cps.getReceivePolicy(Origin+":"+Target);
+          if(!policyMatch(param.secureMethod)){
+            //try boot policy
+            if(debug) System.out.println("unmatching unsecuring method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
+            param = cps.getReceivePolicy("BOOT"+":"+"DEFAULT");
+            if(!policyMatch(param.secureMethod)){
+              if(debug) System.out.println("couldn't match unsecuring method "+smlist[param.secureMethod]+" for :"+Origin+"--"+Target);
+              //boot didn't match, quit.
+              return null;
+            }
+          }
+
           if(param==null) throw new RuntimeException("no policy available for un-securing the message:"+this);
           String keyName;
 
           if(debug) System.out.println("unsecuring message with method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
-          if(param.secureMethod==param.PLAIN){
+          if(param.secureMethod==SecureMethodParam.PLAIN){
             return msg;
-          }else if(param.secureMethod==param.ENCRYPT){
+
+          }else if(param.secureMethod==SecureMethodParam.ENCRYPT){
             keyName = Target;
-            //guard is taking node's key
-            if(Target.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
             SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
             return (Message)cms.symmDecrypt(sk,sealedMsg);
-          }else if(param.secureMethod==param.SIGN){
+
+          }else if(param.secureMethod==SecureMethodParam.SIGN){
             keyName = Origin;
-            //guard is taking node's key
-            if(Origin.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
             return (Message)cms.verify(keyName, param.signSpec, signedMsg);
-          }else if(param.secureMethod==param.SIGNENCRYPT){
+
+          }else if(param.secureMethod==SecureMethodParam.SIGNENCRYPT){
             keyName = Origin;
-            //guard is taking node's key
-            if(Origin.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
 
             // Verify the signature
             SealedObject so=(SealedObject)cms.verify(keyName, param.signSpec, signedMsg);
             if (so==null) return null;    //should we do something more???
             keyName = Target;
-            //guard is taking node's key
-            if(Target.endsWith("Guard")) keyName = keyName.substring(0,keyName.length()-5);
 
             // Retrieving the secret key, which was encrypted using the public key
             // of the target.
