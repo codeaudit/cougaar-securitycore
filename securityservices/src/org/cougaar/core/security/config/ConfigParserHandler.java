@@ -200,6 +200,10 @@ public class ConfigParserHandler
 	SecurityPolicy newSecPolicy = userdbHandler.getSecurityPolicy();
 	newSecPolicy.setName(attr.getValue("name"));
 	securityPolicies.add(newSecPolicy);
+      } else {
+	if (log.isWarnEnabled()) {
+	  log.warn("Cannot find handler for policy type: " + policyType);
+	}
       }
     }
   }
