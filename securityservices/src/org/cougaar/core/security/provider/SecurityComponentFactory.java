@@ -34,7 +34,6 @@ import org.cougaar.core.agent.*;
 import org.cougaar.core.mts.*;
 import org.cougaar.core.service.MessageTransportService;
 import org.cougaar.util.*;
-import org.cougaar.core.security.SecurityComponent;
 
 public final class SecurityComponentFactory
   extends SecurityComponent
