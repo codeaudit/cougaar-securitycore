@@ -46,6 +46,27 @@ public class  CertificateCacheServiceProvider
   
   public  CertificateCacheServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
+    createCertificateCache(sb);
+    
+  }
+  
+  public void createCertificateCache(ServiceBroker sb){
+    if (certificateCacheService == null) {
+      try {
+	certificateCacheService = new CertificateCache(sb);
+      }
+      catch (Exception e) {
+	boolean exec =
+	  Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
+	if (exec == true) {
+	  log.warn("Unable to initialize CertificateCache Service in Create CRL Cache : ", e);
+	}
+	else {
+	  log.info("Unable to initialize CertificateCache in create CRL cache  : " + e);
+	}
+      }
+    }
+
   }
 
   /**
