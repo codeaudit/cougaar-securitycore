@@ -37,6 +37,8 @@ import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
 import org.cougaar.core.security.services.ldap.LdapEntry;
+import org.cougaar.core.security.services.util.CACertDirectoryService;
+import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
 
 public class CertDirectoryServiceProvider
   extends BaseSecurityServiceProvider
@@ -72,17 +74,25 @@ public class CertDirectoryServiceProvider
       log.error("Service class is null");
       return null;
     }
-    if (!(requestor instanceof CertDirectoryServiceRequestor)) {
-      log.error("Unsupported requestor type:" + requestor.getClass().getName());
-      return null;
-    }
-    CertDirectoryServiceRequestor certRequestor = (CertDirectoryServiceRequestor) requestor;
 
     if (serviceClass.equals(CertDirectoryServiceClient.class)) {
+      if (!(requestor instanceof CertDirectoryServiceRequestor)) {
+        log.error("Unsupported requestor type:" + requestor.getClass().getName());
+        return null;
+      }
+      CertDirectoryServiceRequestor certRequestor = (CertDirectoryServiceRequestor) requestor;
       theService = getCertDirectoryServiceClientInstance(certRequestor, sb);
     }
     else if (serviceClass.equals(CertDirectoryServiceCA.class)) {
+      if (!(requestor instanceof CertDirectoryServiceRequestor)) {
+        log.error("Unsupported requestor type:" + requestor.getClass().getName());
+        return null;
+      }
+      CertDirectoryServiceRequestor certRequestor = (CertDirectoryServiceRequestor) requestor;
       theService = getCertDirectoryServiceCAInstance(certRequestor, sb);
+    }
+    else if (serviceClass.equals(CACertDirectoryService.class)) {
+      theService = new CACertDirectoryServiceImpl(sb);
     }
     else {
       log.error("Unsupported service:" + serviceClass.getName());
@@ -163,9 +173,11 @@ public class CertDirectoryServiceProvider
       }
       break;
 
+      /*
     case 0:
       ldapClient = new CertificateDirectoryHandler(requestor, theBroker);
       break;
+      */
 
     default:
       if (log.isWarnEnabled()) {

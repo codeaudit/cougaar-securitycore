@@ -78,7 +78,7 @@ public class SecurityServiceProvider
 
   private ServiceBroker _serviceBrokerProxy;
   private ServiceBroker _rootServiceBrokerProxy;
-  
+
   public SecurityServiceProvider() {
     setServiceBroker();
     registerServices();
@@ -149,7 +149,7 @@ public class SecurityServiceProvider
     else {
       serviceBroker = sb;
     }
-    
+
   }
 
   private void registerServices() {
@@ -241,6 +241,10 @@ public class SecurityServiceProvider
     newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertDirectoryServiceCA.class, newSP);
     rootServiceBroker.addService(CertDirectoryServiceCA.class, newSP);
+
+    newSP = new CertDirectoryServiceProvider(serviceBroker, mySecurityCommunity);
+    services.put(CACertDirectoryService.class, newSP);
+    rootServiceBroker.addService(CACertDirectoryService.class, newSP);
 
     newSP = new CertificateSearchServiceProvider(serviceBroker, mySecurityCommunity);
     services.put(CertificateSearchService.class, newSP);
@@ -379,14 +383,14 @@ public class SecurityServiceProvider
 
       org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
         setNodeServiceBroker(serviceBroker);
-      
+
       /**
        * Authorization service
        */
       newSP = new AuthorizationServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(AuthorizationService.class, newSP);
       rootServiceBroker.addService(AuthorizationService.class, newSP);
-      
+
       /**********************************
        * Security context service
        * NOTE: This service should only be accessible by the security services codebase
