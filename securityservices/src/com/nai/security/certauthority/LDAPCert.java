@@ -79,7 +79,7 @@ public class LDAPCert //extends LdapContext
     protected static final int OPENLDAP = 2;
     protected static int ldapMode = OPENLDAP;
 
-    private static boolean debug = true;
+    private static boolean debug = false;
     protected static DirContext ctx;
     protected static MessageDigest md5;
 
@@ -97,7 +97,8 @@ public class LDAPCert //extends LdapContext
     protected static SimpleDateFormat time = new SimpleDateFormat("hhmmss");
 
     static {
-
+	debug = System.getProperty
+	    ("org.cougaar.cert.auth.debug", "false").equalsIgnoreCase("true");
 	try {
 	    md5 = MessageDigest.getInstance("MD5");
 	}
