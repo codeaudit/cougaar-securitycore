@@ -83,8 +83,12 @@ rm -rf $TOMCAT_HOME/logs/*
 
 
 cp $COUGAAR_SECURITY_SERVICES/sys/*.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
-cp $COUGAAR_INSTALL_PATH/lib/core.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
 cp $COUGAARCLASSES/securityservices.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
+
+# Copy Cougaar files and third-party files from COUGAAR_INSTALL_PATH
+cp $COUGAAR_INSTALL_PATH/lib/core.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
+cp $COUGAAR_INSTALL_PATH/sys/xerces.jar $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/
+
 cd  $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/classes
 
 jar -xvf $TOMCAT_HOME/webapps/${APP_HOME}/WEB-INF/lib/securityservices.jar \
@@ -116,4 +120,4 @@ rm ${TOMCAT_HOME}/webapps/${APP_HOME}/servlet.tar
 /etc/rc.d/init.d/tomcat4 start
 
 wait
-sleep 4
+sleep 7
