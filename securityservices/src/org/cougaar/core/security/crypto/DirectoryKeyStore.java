@@ -623,7 +623,6 @@ public class DirectoryKeyStore
 	  log.warn("Found non trusted cert in LDAP directory! "
 		   + filter + " - " + e);
 	}
-	e.printStackTrace();
       }
       catch (CertificateExpiredException e) {
 	// The certificate is trusted but it has expired.
@@ -1190,8 +1189,8 @@ public class DirectoryKeyStore
 	}
       } // END while(it.hasNext())
       if (isTrusted == false) {
-	if (log.isWarnEnabled()) {
-	  log.warn("No trusted certificate was found for " + name.toString());
+	if (log.isInfoEnabled()) {
+	  log.info("No trusted certificate was found for " + name.toString());
 	}
       }
     } // END while(e.hasMoreElements()
@@ -2421,7 +2420,6 @@ public class DirectoryKeyStore
           testDataProtection(dname.getCommonName(), false);
           done = true;
         } catch (Exception ex) {
-          ex.printStackTrace();
         }
       }
     }
@@ -3013,7 +3011,6 @@ public class DirectoryKeyStore
       }
     } catch (Exception ex) {
       //System.out.println("Exception: " + ex.toString());
-      ex.printStackTrace();
     }
   }
   */
