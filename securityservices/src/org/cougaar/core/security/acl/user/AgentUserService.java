@@ -75,6 +75,9 @@ public class AgentUserService implements UserService, BlackboardClient {
   public  static final String COMMUNITY_TYPE = "User";
   public  static final String MANAGER_ROLE   = "UserManager";
   public final static long MAX_WAIT = 10000;
+  // signal to reset community service util
+  // need to handle community manager being changed
+  private boolean _resetcsu = false;
 
   private final UnaryPredicate MY_RELAYS = new UnaryPredicate() {
       public boolean execute(Object obj) {
@@ -148,7 +151,7 @@ public class AgentUserService implements UserService, BlackboardClient {
       if(_log.isDebugEnabled()){
         _log.debug("set communityService called ");
       }
-      setCommunityService(cs, false);
+      setCommunityService(cs);
 
       addCommunityListener(cs);
     }
@@ -190,7 +193,8 @@ public class AgentUserService implements UserService, BlackboardClient {
                   if (_log.isDebugEnabled()) {
                     _log.debug("Join community: " + community.getName());
                   }
-                  setCommunityService(cs, true);
+                  _resetcsu = true;
+                  setCommunityService(cs);
                 }
                 // change that might remove agent
                 if (event.getType() == CommunityChangeEvent.REMOVE_ENTITY
@@ -227,15 +231,12 @@ public class AgentUserService implements UserService, BlackboardClient {
     }
   }
 
-  private synchronized void setCommunityService(CommunityService cs,
-                                                boolean resetcsu) {
-    if (resetcsu) {
-      _csu = null;
-    }
+  private synchronized void setCommunityService(CommunityService cs) {
     if(_log.isDebugEnabled()){
       _log.debug("setCommunityService");
     }
-    if (_csu == null) {
+    if (_csu == null || _resetcsu) {
+      _resetcsu = false;
       _csu = new CommunityServiceUtil(_serviceBroker);
       CommunityServiceUtilListener listener = 
         new CommunityServiceUtilListener() {
@@ -758,7 +759,7 @@ public class AgentUserService implements UserService, BlackboardClient {
 	  if (_log.isDebugEnabled()) {
 	    _log.debug("Got Community service starting community search  for AgentUser service");
 	  }
-          setCommunityService(cs, false);
+          setCommunityService(cs);
           addCommunityListener(cs);
         }
       }
