@@ -131,57 +131,57 @@ public class UserLockoutPlugin extends ResponderPlugin {
     new Action(Action.OTHER, IdmefAssessments.USER_LOCKOUT)
   };
   private final static Confidence USER_LOCKOUT_CONFIDENCE =
-    new Confidence(Confidence.MEDIUM, null);
+  new Confidence(Confidence.MEDIUM, null);
 
   private final static Assessment USER_LOCKOUT_ASSESSMENT =
-    new Assessment(new Impact(Impact.MEDIUM, Impact.SUCCEEDED,
-                              Impact.USER, IdmefAssessments.USER_LOCKOUT),
-                   USER_LOCKOUT_ACTION,
-                   USER_LOCKOUT_CONFIDENCE);
+  new Assessment(new Impact(Impact.MEDIUM, Impact.SUCCEEDED,
+                            Impact.USER, IdmefAssessments.USER_LOCKOUT),
+                 USER_LOCKOUT_ACTION,
+                 USER_LOCKOUT_CONFIDENCE);
 
   public static final Classification LOGIN_FAILURE =
-    new Classification(IdmefClassifications.LOGIN_FAILURE, "",
-                       Classification.VENDOR_SPECIFIC);
+  new Classification(IdmefClassifications.LOGIN_FAILURE, "",
+                     Classification.VENDOR_SPECIFIC);
 
   /**
    * The predicate indicating that we should retrieve all new
    * login failures
    */
   private static final UnaryPredicate LOGIN_FAILURES_PREDICATE =
-    new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof Event) {
-          IDMEF_Message msg = ((Event) o).getEvent();
-	  if (msg instanceof RegistrationAlert ||
-              msg instanceof ConsolidatedCapabilities) {
-	    return false;
-	  }
-          if (msg instanceof Alert) {
-            Alert alert = (Alert) msg;
-            if (alert.getAssessment() != null) {
-              return false; // never look at assessment alerts
-            } // end of if (alert.getAssessment() != null)
-            Classification cs[] = alert.getClassifications();
-            if (cs != null) {
-              for (int i = 0; i < cs.length; i++) {
-                if (IdmefClassifications.LOGIN_FAILURE.equals(cs[i].getName())) {
-                  AdditionalData ad[] = alert.getAdditionalData();
-                  if (ad != null) {
-                    for (int j = 0; j < ad.length; j++) {
-                      if (LoginFailureEvent.FAILURE_REASON.equals(ad[j].getMeaning())) {
-                        return (LoginFailureEvent.FAILURE_REASONS[KeyRingJNDIRealm.LF_PASSWORD_MISMATCH].equals(ad[j].getAdditionalData()));
-                      }
+  new UnaryPredicate() {
+    public boolean execute(Object o) {
+      if (o instanceof Event) {
+        IDMEF_Message msg = ((Event) o).getEvent();
+        if (msg instanceof RegistrationAlert ||
+            msg instanceof ConsolidatedCapabilities) {
+          return false;
+        }
+        if (msg instanceof Alert) {
+          Alert alert = (Alert) msg;
+          if (alert.getAssessment() != null) {
+            return false; // never look at assessment alerts
+          } // end of if (alert.getAssessment() != null)
+          Classification cs[] = alert.getClassifications();
+          if (cs != null) {
+            for (int i = 0; i < cs.length; i++) {
+              if (IdmefClassifications.LOGIN_FAILURE.equals(cs[i].getName())) {
+                AdditionalData ad[] = alert.getAdditionalData();
+                if (ad != null) {
+                  for (int j = 0; j < ad.length; j++) {
+                    if (LoginFailureEvent.FAILURE_REASON.equals(ad[j].getMeaning())) {
+                      return (LoginFailureEvent.FAILURE_REASONS[KeyRingJNDIRealm.LF_PASSWORD_MISMATCH].equals(ad[j].getAdditionalData()));
                     }
                   }
-                  return false;
                 }
+                return false;
               }
             }
           }
         }
-        return false;
       }
-    };
+      return false;
+    }
+  };
 
   /**
    * For OperatingModes value range
@@ -194,7 +194,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
    * Lockout duration operating mode range
    */
   private static final OMCRangeList LOCKOUT_DURATION_RANGE =
-      new OMCRangeList(LD_VALUES);
+  new OMCRangeList(LD_VALUES);
 
   private static final String LOCKOUT_DURATION = AdaptiveMnROperatingModes.LOCKOUT_DURATION;
 
@@ -202,18 +202,18 @@ public class UserLockoutPlugin extends ResponderPlugin {
    * For the lockout duration OperatingMode
    */
   private static final UnaryPredicate LOCKOUT_DURATION_PREDICATE =
-    new UnaryPredicate() {
-      public boolean execute(Object o) {
-        if (o instanceof OperatingMode) {
-          OperatingMode om = (OperatingMode) o;
-          String omName = om.getName();
-          if (LOCKOUT_DURATION.equals(omName)) {
-            return true;
-          }
+  new UnaryPredicate() {
+    public boolean execute(Object o) {
+      if (o instanceof OperatingMode) {
+        OperatingMode om = (OperatingMode) o;
+        String omName = om.getName();
+        if (LOCKOUT_DURATION.equals(omName)) {
+          return true;
         }
-        return false;
       }
-    };
+      return false;
+    }
+  };
 
   private static class RegistrationPredicate implements UnaryPredicate {
     private String _agent;
@@ -269,7 +269,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
 
   private void setUserService() {
     _userService = (UserService)
-	getServiceBroker().getService(this, UserService.class, null);
+      getServiceBroker().getService(this, UserService.class, null);
   }
 
   protected void setupSubscriptions() {
@@ -294,7 +294,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
     ThreadService        ts           = (ThreadService)
       sb.getService(this, ThreadService.class, null);
-   
+    
     // get a thread to set up the community stuff for registration
     ts.getThread(this, new Runnable() {
         public void run() {
@@ -302,7 +302,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
           addCommunityListener(); 
         }
       }
-    ).start();
+      ).start();
+    sb.releaseService(this, ThreadService.class, ts);
   }
 
   private void addCommunityListener() {
@@ -310,49 +311,49 @@ public class UserLockoutPlugin extends ResponderPlugin {
     CommunityService cs = (CommunityService)
       sb.getService(this, CommunityService.class,null);
     cs.addListener(new CommunityChangeListener() {
-      public String getCommunityName() {
-        return null;
-      }
-
-      public void communityChanged(CommunityChangeEvent event) {
-        //setupCommunity();
-
-        Community community = event.getCommunity();
-        try {
-          if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
-            if (_log.isDebugEnabled()) {
-              _log.debug("Community changed: " + event);
-            }
-          }
-          // else we don't care
-          else {
-            return;
-          }
-
-          Attributes attrs = community.getAttributes();
-          Attribute attr = attrs.get("CommunityType");
-          if (attr != null) {
-            for (int i = 0; i < attr.size(); i++) {
-              Object type = attr.get(i);
-              if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
-                // so community being changed is a security community
-                // we only care about changed to a new one
-                Set comSet = new HashSet();
-                comSet.add(community);
-                configureCommunity(comSet);
-              }
-            }
-          }
-        } catch (NamingException e) {
-          throw new RuntimeException("This should never happen");
+        public String getCommunityName() {
+          return null;
         }
 
-      }
-    });
+        public void communityChanged(CommunityChangeEvent event) {
+          //setupCommunity();
+
+          Community community = event.getCommunity();
+          try {
+            if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY) {
+              if (_log.isDebugEnabled()) {
+                _log.debug("Community changed: " + event);
+              }
+            }
+            // else we don't care
+            else {
+              return;
+            }
+
+            Attributes attrs = community.getAttributes();
+            Attribute attr = attrs.get("CommunityType");
+            if (attr != null) {
+              for (int i = 0; i < attr.size(); i++) {
+                Object type = attr.get(i);
+                if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+                  // so community being changed is a security community
+                  // we only care about changed to a new one
+                  Set comSet = new HashSet();
+                  comSet.add(community);
+                  configureCommunity(comSet);
+                }
+              }
+            }
+          } catch (NamingException e) {
+            throw new RuntimeException("This should never happen");
+          }
+
+        }
+      });
     sb.releaseService(this, CommunityService.class, cs);
   }
   
-   /**
+  /**
    * method that takes an action against the culprit
    */
   protected void action(String culprit) throws Exception {
@@ -455,9 +456,9 @@ public class UserLockoutPlugin extends ResponderPlugin {
     	    _log.error(errorString);
     	    throw new RuntimeException(errorString);
     	  }
-        configureCommunity((Set)response);
+          configureCommunity((Set)response);
     	}
-    };
+      };
 
     String filter = "(CommunityType=Security)";
     Collection communities =
@@ -476,7 +477,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
       Community community = (Community) it.next();
       messageAddress = AttributeBasedAddress.
         getAttributeBasedAddress(community.getName(),
-			       "Role", _managerRole, null);
+                                 "Role", _managerRole, null);
       break;
     }
     if (messageAddress == null) {
