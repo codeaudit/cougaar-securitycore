@@ -94,6 +94,9 @@
         <pathelement location="${cougaar.install.path}/lib/kaos.jar"/>
         <pathelement location="${cougaar.install.path}/lib/safe.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpcsc.jar"/>
+
+        <!-- jakarta oro -->
+        <pathelement location="${cougaar.install.path}/sys/jakarta-oro-2.0.5.jar"/>
 	<!-- OWL libraries -->
         <pathelement location="${cougaar.install.path}/sys/jena.jar"/>
     </path>
@@ -553,9 +556,9 @@
 
     <target name="check-policiesUptodate">
       <uptodate property="policiesUptodate"
-                targetfile="${securityservices.configs}/common/DamlBootPoliciesCompleted" >
+                targetfile="${securityservices.configs}/common/OwlBootPoliciesCompleted" >
         <srcfiles dir="${securityservices.configs}/common"
-                  includes="DamlBootPolicyList, Ontology-*.daml" />
+                  includes="OwlBootPolicyList, Ontology-*.owl" />
         <srcfiles dir="${securityservices.lib}"
                   includes="kaos.jar" />
       </uptodate>
@@ -567,12 +570,12 @@
      <echo message="+++++ Removing old boot policies"/>
      <delete>
         <fileset dir="${securityservices.configs}/common"
-                 includes="DamlBootPolicy*.info, DamlBootPolicy*.msg" />
+                 includes="OwlBootPolicy*.info, OwlBootPolicy*.msg" />
      </delete>
      <echo message="++++++ Copying ontologies" />
       <copy todir="${cougaar.install.path}/configs/security">
         <fileset dir="${securityservices.configs}/common"
-                 includes="Ontology-*.daml" />
+                 includes="Ontology-*.owl" />
       </copy>
       <echo message="++++++ Building boot policies"/>
       <java classname="org.cougaar.core.security.policy.builder.Main" 
@@ -583,10 +586,10 @@
         <!-- this is done before signing so I need an explicit path -->
         <classpath 
            path="${securityservices.base}/classes/securityservices.jar" />
-        <arg line="build --quiet --info --checkDepth DamlBootPolicyList" />
+        <arg line="build --quiet --info --checkDepth OwlBootPolicyList" />
       </java>
       <touch 
-         file="${securityservices.configs}/common/DamlBootPoliciesCompleted" />
+         file="${securityservices.configs}/common/OwlBootPoliciesCompleted" />
     </target>
 
 
