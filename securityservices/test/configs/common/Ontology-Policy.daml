@@ -1,0 +1,132 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+         xmlns="http://ontology.coginst.uwf.edu/Policy.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Policy.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Action.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions--> 
+
+    <daml:DatatypeProperty rdf:ID="hasName">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/10/XMLSchema#string"/> 
+    </daml:DatatypeProperty>
+
+    <daml:ObjectProperty rdf:ID="controls">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.daml.org/2001/03/daml+oil#Class"/>
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="trigger">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#PosObligationPolicy"/>
+        <rdfs:range>
+            <daml:Class>
+                <daml:unionOf rdf:parseType="daml:collection">
+                    <rdfs:Class rdf:about="http://www.daml.org/2001/03/daml+oil#Class"/>
+                    <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Action.daml#Action"/>
+                </daml:unionOf>
+            </daml:Class>
+        </rdfs:range>
+    </daml:ObjectProperty>
+        
+    <daml:ObjectProperty rdf:ID="hasSiteOfEnforcement">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="#SiteOfEnforcement"/>
+    </daml:ObjectProperty>
+
+    <daml:DatatypeProperty rdf:ID="hasPriority">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/10/XMLSchema#nonNegativeInteger"/>
+    </daml:DatatypeProperty>
+
+    <daml:DatatypeProperty rdf:ID="hasUpdateTimeStamp">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/10/XMLSchema#nonNegativeInteger"/>
+    </daml:DatatypeProperty>
+
+    <daml:DatatypeProperty rdf:ID="hasDescription">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Policy"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/10/XMLSchema#string"/> 
+    </daml:DatatypeProperty>
+
+<!--Section with class definitions--> 
+
+    <daml:Class rdf:ID="Policy"/>
+    
+    <daml:Class rdf:ID="AuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </daml:Class>
+    
+    <daml:Class rdf:ID="ObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#Policy">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#AuthorizationPolicy"/> 
+            <daml:Class rdf:about="#ObligationPolicy"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PosAuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#AuthorizationPolicy"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="NegAuthorizationPolicy">
+        <rdfs:subClassOf rdf:resource="#AuthorizationPolicy"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#AuthorizationPolicy">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#PosAuthorizationPolicy"/> 
+            <daml:Class rdf:about="#NegAuthorizationPolicy"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PosObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#ObligationPolicy"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="NegObligationPolicy">
+        <rdfs:subClassOf rdf:resource="#ObligationPolicy"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#ObligationPolicy">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#PosObligationPolicy"/> 
+            <daml:Class rdf:about="#NegObligationPolicy"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <SiteOfEnforcement rdf:ID="ActorSite"/>
+    <SiteOfEnforcement rdf:ID="TargetSite"/>
+    <SiteOfEnforcement rdf:ID="AnySite"/>
+
+    <daml:Class rdf:ID="SiteOfEnforcement">
+        <daml:oneOf rdf:parseType="daml:collection">
+            <SiteOfEnforcement rdf:about="#ActorSite"/>
+            <SiteOfEnforcement rdf:about="#TargetSite"/>
+            <SiteOfEnforcement rdf:about="#AnySite"/>
+        </daml:oneOf>
+    </daml:Class>
+
+</rdf:RDF>

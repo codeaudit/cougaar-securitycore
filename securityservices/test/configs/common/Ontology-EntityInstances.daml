@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+	 xmlns:group="http://ontology.coginst.uwf.edu/Group.daml#"
+	 xmlns:ultralogEntity="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#"
+         xmlns="http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
+    </daml:Ontology>
+
+    <ultralogEntity:Servlet rdf:ID="PolicyServlet"/>
+    <ultralogEntity:Servlet rdf:ID="CAServlet"/>
+	            	
+    <ultralogEntity:AuthenticationLevel rdf:ID="Weak"/>
+    <ultralogEntity:AuthenticationLevel rdf:ID="NSAApproved"/>
+ 
+    <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
+    <ultralogEntity:ProtectionLevel rdf:ID="TopSecretProtection"/>
+    <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
+
+    <ultralogEntity:ULContentValue rdf:ID="GetLogSupport"/>
+    <ultralogEntity:ULContentValue rdf:ID="GetWater"/>
+</rdf:RDF>

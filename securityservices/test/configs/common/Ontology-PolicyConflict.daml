@@ -1,0 +1,73 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#" 
+         xmlns="http://ontology.coginst.uwf.edu/PolicyConflict.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/PolicyConflict.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created initially using OntoEdit, corrected and extended manually by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml"/>
+    </daml:Ontology>
+    
+<!--Section with property definitions--> 
+
+
+<!--Section with class definitions--> 
+
+    <daml:Class rdf:ID="AuthorizationPolicyConflict">
+        <daml:intersectionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#PosAuthorizationPolicy"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#NegAuthorizationPolicy"/> 
+        </daml:intersectionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ObligationPolicyConflict">
+        <daml:intersectionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#PosObligationPolicy"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#NegObligationPolicy"/> 
+        </daml:intersectionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="NegAuthorizationPosObligationPolicyConflict">
+        <daml:intersectionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#NegAuthorizationPolicy"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#PosObligationPolicy"/> 
+        </daml:intersectionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PolicyConflict">
+        <daml:unionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#AuthorizationPolicyConflict"/> 
+            <daml:Class rdf:about="#ObligationPolicyConflict"/> 
+            <daml:Class rdf:about="#NegAuthorizationPosObligationPolicyConflict"/> 
+        </daml:unionOf >
+    </daml:Class>
+
+    <daml:Class rdf:ID="InitialConflictFreePolicies">
+        <daml:intersectionOf rdf:parseType="daml:collection">
+          <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#Policy"/>
+          <daml:Class>
+                <daml:complementOf rdf:resource="#PolicyConflict"/> 
+            </daml:Class>
+        </daml:intersectionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="RemovedConflictedPolicies"/>
+
+    <daml:Class rdf:ID="FinalConflictFreePolicies">
+        <daml:intersectionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#Policy"/> 
+            <daml:Class>
+                <daml:complementOf rdf:resource="#RemovedConflictedPolicies"/> 
+            </daml:Class>
+        </daml:intersectionOf>
+    </daml:Class>
+
+</rdf:RDF>

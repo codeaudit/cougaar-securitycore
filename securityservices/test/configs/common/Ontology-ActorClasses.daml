@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+         xmlns="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml"/>
+    </daml:Ontology>
+
+    <daml:Class rdf:ID="Administrator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#AdministratorRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Guest">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#GuestRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="General">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#GeneralRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+</rdf:RDF>

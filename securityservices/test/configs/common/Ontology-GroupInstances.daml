@@ -1,0 +1,64 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+         xmlns:group="http://ontology.coginst.uwf.edu/Group.daml#"
+	 xmlns:ultralogGroup="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml#"
+         xmlns="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+	  <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml"/>
+    </daml:Ontology>
+
+    <ultralogGroup:Role rdf:ID="AdministratorRole"/>
+    <ultralogGroup:Role rdf:ID="GuestRole"/>
+    <ultralogGroup:Role rdf:ID="GeneralRole"/>
+
+    <ultralogGroup:Community rdf:ID="CommunityX"/>
+    <ultralogGroup:Community rdf:ID="CommunityY"/>
+
+    <ultralogGroup:Community rdf:ID="Community1-AD-DIV-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community1-BDE-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community16-CSG-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community2-BDE-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community21-TSC-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community29-SPTGP-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community3-BDE-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community3-SUPCOM-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community37-TRANSGP-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community5-CORPS-ARTY-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community5-CORPS-REAR-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community5-CORPS-COMM"/>
+    <ultralogGroup:Community rdf:ID="Community7-CSG-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityAVNBDE-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityDISCOM-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityDIVARTY-1-AD-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityNCA-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityTRANSCOM-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunitySecurity-Mgmt-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave1Security-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave2Security-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave3Security-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave4Security-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave1Robustness-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave2Robustness-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave3Robustness-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave4Robustness-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave1-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave2-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave3-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityEnclave4-COMM"/>
+    <ultralogGroup:Community rdf:ID="CommunityDisallowedCommunication-COMM"/>
+
+
+</rdf:RDF>

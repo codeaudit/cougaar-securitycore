@@ -1,0 +1,333 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#" 
+         xmlns="http://ontology.coginst.uwf.edu/Action.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Action.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Message.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Place.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions-->
+
+    <daml:ObjectProperty rdf:ID="performedBy">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Action"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Actor"/>
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="performedOn">
+        <rdfs:domain rdf:resource="#Action"/>
+        <rdfs:range rdf:resource="#Target"/>
+    </daml:ObjectProperty>
+       
+    <daml:ObjectProperty rdf:ID="carriesMessage">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:domain rdf:resource="#CommunicationAction"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Message.daml#Message"/>
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="hasDestination">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:domain rdf:resource="#CommunicationAction"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Actor"/>
+    </daml:ObjectProperty>
+
+   <daml:ObjectProperty rdf:ID="replyTo">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:domain rdf:resource="#ResponseAction"/>
+        <rdfs:range rdf:resource="#RequestAction"/>
+    </daml:ObjectProperty>
+        
+    <daml:ObjectProperty rdf:ID="movingTo">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:domain rdf:resource="#MobilityAction"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#Place"/>
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="accessedEntity">
+        <rdfs:subPropertyOf rdf:resource="#performedOn"/>
+        <rdfs:domain rdf:resource="#AccessAction"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity"/>
+    </daml:ObjectProperty>
+
+<!--Section with class definitions-->
+
+    <daml:Class rdf:ID="Target">
+        <daml:unionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Group.daml#Group"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#Actor"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Entity.daml#Entity"/> 
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#Policy"/>
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Message.daml#Message"/>
+            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Place.daml#Place"/> 
+            <daml:Class rdf:about="#Action"/> 
+        </daml:unionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Action"/>
+
+    <daml:Class rdf:ID="CommunicationAction">
+        <rdfs:subClassOf rdf:resource="#Action"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="EncryptedCommunicationAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="NonEncryptedCommunicationAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#CommunicationAction">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#EncryptedCommunicationAction"/> 
+            <daml:Class rdf:about="#NonEncryptedCommunicationAction"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="SignedCommunicationAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="NonSignedCommunicationAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#CommunicationAction">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#SignedCommunicationAction"/> 
+            <daml:Class rdf:about="#NonSignedCommunicationAction"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="RequestAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ResponseAction">
+        <rdfs:subClassOf rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ProposeAction">
+        <rdfs:subClassOf rdf:resource="#RequestAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ApproveAction">
+        <rdfs:subClassOf rdf:resource="#ResponseAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#replyTo"/>
+                <daml:toClass rdf:resource="#ProposeAction"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PolicyAction">
+        <rdfs:subClassOf rdf:resource="#Action"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedBy"/>
+                <daml:toClass>
+                    <daml:Class>
+                        <daml:unionOf rdf:parseType="daml:collection">
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#DomainManager"/> 
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#Guard"/> 
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#Person"/> 
+                         </daml:unionOf>
+                     </daml:Class>
+                </daml:toClass>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedOn"/>
+                <daml:hasClass rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml#Policy"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ProposePolicyAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#ProposeAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedBy"/>
+                <daml:toClass>
+                    <daml:Class>
+                        <daml:unionOf rdf:parseType="daml:collection">
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#Guard"/> 
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Actor.daml#Person"/> 
+                         </daml:unionOf>
+                     </daml:Class>
+                </daml:toClass>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+    
+    <daml:Class rdf:ID="ApprovePolicyAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#ApproveAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedBy"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#DomainManager"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#replyTo"/>
+                <daml:toClass rdf:resource="#ProposePolicyAction"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+    
+    <daml:Class rdf:ID="EnforcePolicyAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <daml:disjointWith rdf:resource="#CommunicationAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedBy"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Guard"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ProposeDelegateAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#ProposeAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedOn"/>
+                <daml:hasClass>
+                    <daml:Class>
+                        <daml:unionOf rdf:parseType="daml:collection">
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#PosAuthorizationPolicy"/> 
+                            <daml:Class rdf:about="http://ontology.coginst.uwf.edu/Policy.daml#PosObligationPolicy"/> 
+                         </daml:unionOf>
+                     </daml:Class>
+                </daml:hasClass>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+   </daml:Class>
+
+   <daml:Class rdf:ID="ApproveDelegateAction">
+        <rdfs:subClassOf rdf:resource="#PolicyAction"/>
+        <rdfs:subClassOf rdf:resource="#ApproveAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#replyTo"/>
+                <daml:toClass rdf:resource="#ProposeDelegateAction"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:about="#PolicyAction">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#ProposePolicyAction"/> 
+            <daml:Class rdf:about="#ApprovePolicyAction"/> 
+            <daml:Class rdf:about="#EnforcePolicyAction"/> 
+            <daml:Class rdf:about="#ProposeDelegateAction"/> 
+            <daml:Class rdf:about="#ApproveDelegateAction"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="OrdinaryAction">
+        <rdfs:subClassOf rdf:resource="#Action"/>
+    </daml:Class>
+
+    <daml:Class rdf:about="#Action">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#PolicyAction"/> 
+            <daml:Class rdf:about="#OrdinaryAction"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="MonitorAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <daml:disjointWith rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="QueryAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="MobilityAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <daml:disjointWith rdf:resource="#CommunicationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ResourceAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <daml:disjointWith rdf:resource="#CommunicationAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedOn"/>
+                <daml:hasClass rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity"/>
+            </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="AccessAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <daml:disjointWith rdf:resource="#CommunicationAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedOn"/>
+                <daml:hasClass rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#Entity"/>
+            </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ProposeRegistrationAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <rdfs:subClassOf rdf:resource="#ProposeAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#performedOn"/>
+                <daml:hasClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#DomainManager"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ApproveRegistrationAction">
+        <rdfs:subClassOf rdf:resource="#OrdinaryAction"/>
+        <rdfs:subClassOf rdf:resource="#ApproveAction"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#replyTo"/>
+                <daml:toClass rdf:resource="#ProposeRegistrationAction"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:about="#OrdinaryAction">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#MonitorAction"/> 
+            <daml:Class rdf:about="#MobilityAction"/> 
+            <daml:Class rdf:about="#ResourceAction"/> 
+            <daml:Class rdf:about="#AccessAction"/> 
+            <daml:Class rdf:about="#ProposeRegistrationAction"/> 
+            <daml:Class rdf:about="#ApproveRegistrationAction"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+</rdf:RDF>

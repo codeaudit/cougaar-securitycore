@@ -1,0 +1,46 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+         xmlns="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Message.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions--> 
+
+
+<!--Section with class definitions--> 
+
+    <daml:Class rdf:ID="UltralogEntity">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml#ComputingEntity"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Servlet">
+        <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ProtectionLevel">
+        <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ULContentValue">
+        <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="AuthenticationLevel">
+        <rdfs:subClassOf rdf:resource="#UltralogEntity"/>
+    </daml:Class>
+
+</rdf:RDF>

@@ -1,0 +1,107 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#" 
+         xmlns="http://ontology.coginst.uwf.edu/Actor.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Actor.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Place.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Action.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions--> 
+
+    <daml:DatatypeProperty rdf:ID="hasName">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/10/XMLSchema#string"/> 
+    </daml:DatatypeProperty>
+
+    <daml:ObjectProperty rdf:ID="guards">
+        <rdfs:domain rdf:resource="#Guard"/>
+        <rdfs:range rdf:resource="#Agent"/> 
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="isGuarded">
+        <daml:inverseOf rdf:resource="#guards"/>
+        <rdfs:domain rdf:resource="#Agent"/>
+        <rdfs:range rdf:resource="#Guard"/> 
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="capableOfPerforming">
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://www.daml.org/2001/03/daml+oil#Class"/> 
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="controlledBy">
+        <rdfs:domain rdf:resource="#Actor"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml#Policy"/> 
+    </daml:ObjectProperty>
+
+<!--Section with class definitions--> 
+
+    <daml:Class rdf:ID="Actor">
+        <rdfs:comment>
+            It is a thing capable of performing (initiating) an action. Because of that it is a subject of policies.
+        </rdfs:comment>
+    </daml:Class>
+    
+    <daml:Class rdf:ID="Agent">
+        <rdfs:subClassOf rdf:resource="#Actor"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
+             </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+    
+    <daml:Class rdf:ID="Person">
+        <rdfs:subClassOf rdf:resource="#Actor"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#PhysicalPlace"/>
+             </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:about="#Actor">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#Agent"/> 
+            <daml:Class rdf:about="#Person"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Guard">
+        <rdfs:subClassOf rdf:resource="#Agent"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
+             </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="DomainManager">
+        <rdfs:subClassOf rdf:resource="#Agent"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
+             </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+</rdf:RDF>

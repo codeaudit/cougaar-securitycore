@@ -1,0 +1,33 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+         xmlns:policy="http://ontology.coginst.uwf.edu/Policy.daml#"
+         xmlns="http://ontology.coginst.uwf.edu/Ultralog/UltralogDefaultPolicy.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Ultralog/UltralogDefaultPolicy.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu). 
+            This is the default policy for the Ultralog environment. It has the lowest possible priority.
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml"/>
+    </daml:Ontology>
+   
+    <policy:NegAuthorizationPolicy rdf:ID="DefaultPolicy">
+        <rdfs:comment>
+                 Actors are forbidden to perform any action.
+        </rdfs:comment> 
+
+        <policy:controls rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#Action"/>
+        
+        <policy:hasSiteOfEnforcement rdf:resource="http://ontology.coginst.uwf.edu/Policy.daml#AnySite"/>
+        <policy:hasPriority>0</policy:hasPriority>
+        <policy:hasUpdateTimeStamp>0</policy:hasUpdateTimeStamp>
+    </policy:NegAuthorizationPolicy>
+
+</rdf:RDF>

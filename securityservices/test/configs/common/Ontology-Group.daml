@@ -1,0 +1,213 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#" 
+         xmlns="http://ontology.coginst.uwf.edu/Group.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/Group.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions--> 
+
+    <daml:TransitiveProperty rdf:ID="hasMember">
+        <rdfs:domain rdf:resource="#Group"/>
+        <rdfs:range rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isMemberOf">
+        <daml:inverseOf rdf:resource="#hasMember"/>
+        <rdfs:domain rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+        <rdfs:range rdf:resource="#Group"/> 
+    </daml:TransitiveProperty>
+
+   <daml:TransitiveProperty rdf:ID="hasSubGroup">
+        <rdfs:subPropertyOf rdf:resource="#hasMember"/>
+        <rdfs:domain rdf:resource="#Group"/>
+        <rdfs:range rdf:resource="#Group"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isSubGroupOf">
+        <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
+        <daml:inverseOf rdf:resource="#hasSubGroup"/>
+        <rdfs:domain rdf:resource="#Group"/>
+        <rdfs:range rdf:resource="#Group"/> 
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="hasDomainMember">
+        <rdfs:subPropertyOf rdf:resource="#hasMember"/>
+        <rdfs:domain rdf:resource="#Domain"/>
+        <rdfs:range rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isDomainMemberOf">
+        <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
+        <daml:inverseOf rdf:resource="#hasDomainMember"/>
+        <rdfs:domain rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+        <rdfs:range rdf:resource="#Domain"/> 
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="hasSubDomain">
+        <rdfs:subPropertyOf rdf:resource="#hasSubGroup"/>
+        <rdfs:subPropertyOf rdf:resource="#hasDomainMember"/>
+        <rdfs:domain rdf:resource="#Domain"/>
+        <rdfs:range rdf:resource="#Domain"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isSubDomainOf">
+        <rdfs:subPropertyOf rdf:resource="#isSubGroupOf"/>
+        <rdfs:subPropertyOf rdf:resource="#isDomainMemberOf"/>
+        <daml:inverseOf rdf:resource="#hasSubDomain"/>
+        <rdfs:domain rdf:resource="#Domain"/>
+        <rdfs:range rdf:resource="#Domain"/> 
+    </daml:TransitiveProperty>
+
+    <daml:ObjectProperty rdf:ID="managedBy">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#Domain"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#DomainManager"/> 
+    </daml:ObjectProperty>
+
+    <daml:TransitiveProperty rdf:ID="hasTeamMember">
+        <rdfs:subPropertyOf rdf:resource="#hasMember"/>
+        <rdfs:domain rdf:resource="#Team"/>
+        <rdfs:range rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isTeamMemberOf">
+        <rdfs:subPropertyOf rdf:resource="#isMemberOf"/>
+        <daml:inverseOf rdf:resource="#hasDomainMember"/>
+        <rdfs:domain rdf:resource="http://www.daml.org/2001/03/daml+oil#Thing"/>
+        <rdfs:range rdf:resource="#Team"/> 
+    </daml:TransitiveProperty>
+
+   <daml:TransitiveProperty rdf:ID="hasSubTeam">
+        <rdfs:subPropertyOf rdf:resource="#hasSubDomain"/>
+        <rdfs:subPropertyOf rdf:resource="#hasTeamMember"/>
+        <rdfs:domain rdf:resource="#Team"/>
+        <rdfs:range rdf:resource="#Team"/>
+    </daml:TransitiveProperty>
+
+    <daml:TransitiveProperty rdf:ID="isSubTeamOf">
+        <rdfs:subPropertyOf rdf:resource="#isSubDomainOf"/>
+        <rdfs:subPropertyOf rdf:resource="#isTeamMemberOf"/>
+        <daml:inverseOf rdf:resource="#hasSubTeam"/>
+        <rdfs:domain rdf:resource="#Team"/>
+        <rdfs:range rdf:resource="#Team"/> 
+    </daml:TransitiveProperty>
+
+    <daml:ObjectProperty rdf:ID="hasMembershipRegistry">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#ExtensionalGroup"/>
+        <rdfs:range rdf:resource="#MembershipRegistry"/>
+    </daml:ObjectProperty>
+
+    <daml:ObjectProperty rdf:ID="hasPolicyMediator">
+        <rdf:type rdf:resource="http://www.daml.org/2001/03/daml+oil#UniqueProperty"/>
+        <rdfs:domain rdf:resource="#GroupActor"/>
+        <rdfs:range rdf:resource="#PolicyMediator"/>
+    </daml:ObjectProperty>
+
+<!--Section with class definitions--> 
+
+    <daml:Class rdf:ID="Group"/>
+
+   <daml:Class rdf:ID="IntensionalGroup">
+        <rdfs:comment>
+            This class defines groups, whose membership is defined by a commone property (properties) value(s) shared by its members.
+		The membership of the group does not have to be keept centraly and it may be necessary to either examine all the things for membership
+		or broadcast the request for declaring membership to all the things in order to determine the current status of the group.
+        </rdfs:comment>
+
+        <rdfs:subClassOf rdf:resource="#Group"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ExtensionalGroup">
+        <rdfs:comment>
+            This class defines groups, whose membership is determined by the registratio in the group registry. The registration of the member has to be
+		accepted by the registry. Thus the status of the membership is kept centraly and it is always known.
+        </rdfs:comment>
+
+        <rdfs:subClassOf rdf:resource="#Group"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="GroupActor">
+        <rdfs:comment>
+            This class defines groups, which can be a subject of policies. It needs a Policy Mediator to decompose such a coars-grain policy into the fine-grain
+		ones and mediate them to the members of the group.
+        </rdfs:comment>
+
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Actor"/>
+        <rdfs:subClassOf rdf:resource="#Group"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Domain">
+        <rdfs:comment>
+            This class defines groups of members which are a subject of policy.
+        </rdfs:comment>
+
+        <rdfs:subClassOf rdf:resource="#Group"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Team">
+        <rdfs:comment>
+            This class defines groups of actors sharing common goal(s).
+        </rdfs:comment>
+
+        <rdfs:subClassOf rdf:resource="#Domain"/>
+        <rdfs:subClassOf rdf:resource="#IntensionalGroup"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ActorGroup">
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#hasMember"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Actor"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="AgentGroup">
+        <rdfs:subClassOf rdf:resource="#ActorGroup"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#hasMember"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PersonGroup">
+        <rdfs:subClassOf rdf:resource="#ActorGroup"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="#hasMember"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:about="#ActorGroup">
+        <daml:disjointUnionOf rdf:parseType="daml:collection">
+            <daml:Class rdf:about="#AgentGroup"/> 
+            <daml:Class rdf:about="#PersonGroup"/> 
+        </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="MembershipRegistry">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="PolicyMediator">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent"/>
+    </daml:Class>
+</rdf:RDF>
