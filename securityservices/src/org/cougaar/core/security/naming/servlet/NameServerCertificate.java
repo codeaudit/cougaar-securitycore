@@ -29,11 +29,12 @@ import java.io.Serializable;
 import java.security.cert.X509Certificate;
 
 public class NameServerCertificate implements Serializable {
-  public String nameserver;
-  public X509Certificate [] certChain;
+  private String nameserver;
+  private X509Certificate [] certChain;
   String str;
 
-  public NameServerCertificate(String nameserver, X509Certificate [] certs) {
+  public NameServerCertificate(String nameserver, 
+      X509Certificate [] certs) {
     this.nameserver = nameserver;
     this.certChain = certs;
     str = nameserver + " &certChain: ";
@@ -42,6 +43,14 @@ public class NameServerCertificate implements Serializable {
 	str += certs[i];
       }
     }
+  }
+
+  public String getServer() {
+    return nameserver;
+  }
+
+  public X509Certificate [] getCertChain() {
+    return certChain;
   }
 
   public String toString() {

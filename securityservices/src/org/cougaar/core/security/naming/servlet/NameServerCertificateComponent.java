@@ -51,14 +51,15 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Enumeration;
 
 public class NameServerCertificateComponent extends ComponentPlugin {
   private static Logger log;
   private CertificateCacheService cacheservice;
+  private CertValidityService _validityService;
 
   private boolean _isNameServer = false;
-  private String _nameserver;
-  private String _certName;
+  private Hashtable _nameservers = new Hashtable();
   private String _path;
 
   private static Hashtable _certCache = new Hashtable();
@@ -77,11 +78,12 @@ public class NameServerCertificateComponent extends ComponentPlugin {
     return _certCache.get(nameserver);
   }
 
-  public static void addToNameCertCache(String nameserver, X509Certificate [] certs) {
+  public static void addToNameCertCache(NameServerCertificate nameCert) {
+    String nameserver = nameCert.getServer();
     if (log.isDebugEnabled()) {
       log.debug("Adding certs for " + nameserver);
     }
-    _certCache.put(nameserver, certs);
+    _certCache.put(nameserver, nameCert);
     _submitList.add(nameserver);
   }
 
@@ -95,71 +97,75 @@ public class NameServerCertificateComponent extends ComponentPlugin {
         getServiceBroker().getService(this,
                              CertificateCacheService.class, null);
 
-    _certName = NodeInfo.getNodeName();
+    _validityService = (CertValidityService)
+          AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+              return getServiceBroker().getService(this,
+                                   CertValidityService.class, null);
+            }
+          });
+
+    if (_validityService == null) {
+      throw new RuntimeException("Fail to obtain CertValidityService");
+    }
 
     // check whether this is a name server
-    String nameserver = System.getProperty("org.cougaar.name.server", null);
+    String nameString = "org.cougaar.name.server";
+    String nameserver = System.getProperty(nameString, null);
     if (nameserver == null) {
       log.warn("There is no property for name server, will NOT try to get name server certificate.");
       return;
     }
 
-    _nameserver = nameserver.substring(0, nameserver.indexOf(':'));
+    int i = 2;
+    while (true) {
+      nameserver = nameserver.substring(0, nameserver.indexOf(':'));
 
-    if (log.isDebugEnabled()) {
-      log.debug("Name server is " + _nameserver + " localhost: " +
-	NodeInfo.getHostName());
-    }
-    if (NodeInfo.getHostName().indexOf(_nameserver) != -1) {
-      _isNameServer = true;
-    }
+      int agentIndex = nameserver.indexOf('@');
+      String agent = null;
+      if (agentIndex != -1) {
+        agent = nameserver.substring(0, agentIndex);
+        nameserver = nameserver.substring(agentIndex + 1, nameserver.length());
+      }
 
       if (log.isDebugEnabled()) {
-        log.debug("isNameServer: " + _isNameServer);
+        log.debug("Name server is " + agent + ":" + nameserver);
       }
+      if (NodeInfo.getHostName().equals(nameserver)) {
+        _isNameServer = true;  
+        if (agent == null) {
+          agent = NodeInfo.getNodeName();
+        }
+
+        _nameservers.put(agent, 
+          new NameServerCertificate(agent, null));
+      }
+      else {
+        _pendingCache.add(new NameServerCertificate(agent, null));
+      }
+
+      nameserver = System.getProperty(nameString + ".WP-" + i, null);
+      if (nameserver == null) {
+        break;
+      }
+      i++;
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug("isNameServer: " + _isNameServer);
+    }
 
     // if so notify CA when naming certificate becomes available
     if (_isNameServer) {
-      if (!getNamingCert()) {
-        if (log.isDebugEnabled()) {
-          log.debug("Need to wait for node cert " + _certName + " generation");
+      for (Enumeration en = _nameservers.keys(); en.hasMoreElements(); ) {
+        String agent = (String)en.nextElement();
+        if (!getNamingCert(agent)) {
+          if (log.isDebugEnabled()) {
+            log.debug("Need to wait for cert " + agent + " generation");
+          }
+          addValidityListener(agent);
         }
-
-        CertValidityService validityService = (CertValidityService)
-        AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run() {
-            return getServiceBroker().getService(this,
-                                 CertValidityService.class, null);
-          }
-        });
-
-        if (validityService == null) {
-          log.warn("Fail to obtain CertValidityService");
-          return;
-        }
-        validityService.addValidityListener(new CertValidityListener() {
-          public String getName() {
-            return _certName;
-          }
-
-    public void invalidate(String cname) {}
-
-          public void updateCertificate() {
-            if (log.isDebugEnabled()) {
-              log.debug("node cert generated, next update CA naming server cert");
-            }
-            if (!getNamingCert()) {
-              log.warn("Fail to update node certificate for " + _certName);
-            }
-            else {
-              _submitList.add(_nameserver);
-            }
-          }
-        });
       }
-    }
-    else {
-      _pendingCache.add(_nameserver);
     }
 
     try {
@@ -172,6 +178,28 @@ public class NameServerCertificateComponent extends ComponentPlugin {
     NameServerCertificateThread thread = new NameServerCertificateThread();
     thread.start();
 
+  }
+
+  private void addValidityListener(final String agent) {
+    _validityService.addValidityListener(new CertValidityListener() {
+      public String getName() {
+        return agent;
+      }
+ 
+      public void invalidate(String cname) {}
+
+      public void updateCertificate() {
+        if (log.isDebugEnabled()) {
+          log.debug("node cert generated, next update CA naming server cert");
+        }
+        if (!getNamingCert(agent)) {
+          log.warn("Fail to update node certificate for " + agent);
+        }
+        else {
+          _submitList.add(agent);
+        }
+      }
+    });
   }
 
   private void getPolicy() {
@@ -188,18 +216,26 @@ public class NameServerCertificateComponent extends ComponentPlugin {
     }
   }
 
-  private boolean getNamingCert() {
+  private boolean getNamingCert(String agent) {
+    NameServerCertificate nameCert = (NameServerCertificate)
+      _nameservers.get(agent);
+    if (nameCert == null) {
+      log.warn("no entry found for " + agent);
+      return false; 
+    }
+
     KeyRingService keyRing = (KeyRingService)
       getServiceBroker().getService(this,
                              KeyRingService.class, null);
-    List l = keyRing.findCert(_certName);
+    List l = keyRing.findCert(agent);
     getServiceBroker().releaseService(this, KeyRingService.class, keyRing);
     if (l != null && l.size() != 0) {
       CertificateStatus cs = (CertificateStatus)l.get(0);
       X509Certificate [] certs = keyRing.buildCertificateChain(cs.getCertificate());
-      _certCache.put(_nameserver, certs);
+      
+      _certCache.put(agent, new NameServerCertificate(agent, certs));
       if (log.isDebugEnabled()) {
-        log.debug("registering name server cert for " + _nameserver + " : " +
+        log.debug("registering name server cert for " + agent + " : " +
           cs.getCertificate());
       }
       return true;
@@ -238,21 +274,21 @@ public class NameServerCertificateComponent extends ComponentPlugin {
 
               try {
                 if (log.isDebugEnabled()) {
-                  log.debug("submiting name server cert to " + certURL);
+                  log.debug("submiting " + nameserver + " cert to " + certURL);
                 }
                 new ServletRequestUtil().sendRequest(certURL,
-                  new NameServerCertificate(nameserver,
-                    (X509Certificate [])_certCache.get(nameserver)), _period);
+                    _certCache.get(nameserver), _period);
 
                 // as long as one as submitted upward, the cert will propagate to
                 // the top so that everyone will find it
-                _submitList.remove(nameserver);
+                
+                  _submitList.remove(nameserver);
                 break;
 
               } catch (Exception ex) {
                 if (ex instanceof IOException) {
                   if (log.isDebugEnabled()) {
-                    log.debug("Waiting to submit naming cert to " + certURL);
+                    log.debug("Waiting to " + nameserver + " cert to " + certURL);
                   }
                 }
                 else {
@@ -315,7 +351,11 @@ public class NameServerCertificateComponent extends ComponentPlugin {
       if (_pendingCache.size() != 0) {
         try {
           String [] names = new String[_pendingCache.size()];
-          _pendingCache.toArray(names);
+          for (int i = 0; i < _pendingCache.size(); i++) {
+            NameServerCertificate nameCert = (NameServerCertificate)
+              _pendingCache.get(i);
+            names[i] = nameCert.getServer();
+          }
 
           ObjectInputStream ois = new ObjectInputStream(
             new ServletRequestUtil().sendRequest(certURL, names, _period));
@@ -331,11 +371,14 @@ public class NameServerCertificateComponent extends ComponentPlugin {
               if (log.isDebugEnabled()) {
                 log.debug("Got cert for " + certs[i]);
               }
-              _certCache.put(certs[i].nameserver, certs[i].certChain);
-              _pendingCache.remove(names[i]);
+
+              // the returning array should be listed at the same sequence as 
+              // the sending array
+              _pendingCache.remove(i);
+              _certCache.put(certs[i].getServer(), certs[i]);
               // this is not SSL certificate but we borrow it
-              for (int j = 0; j < certs[i].certChain.length; j++) {
-                cacheservice.addSSLCertificateToCache(certs[i].certChain[j]);
+              for (int j = 0; j < certs[i].getCertChain().length; j++) {
+                cacheservice.addSSLCertificateToCache(certs[i].getCertChain()[j]);
               }
             }
           }
