@@ -10,7 +10,7 @@ module Cougaar
           packageAndSignJarFile("#{cip}/core/configs/common", "core_config_common.jar")
         end
         def packageAndSignJarFile(directory, fileName)
-          puts "Packaging and signing #{directory}/#{fileName}  with all files under #{directory}"
+          #puts "Packaging and signing #{directory}/#{fileName}  with all files under #{directory}"
 
           begin
             File.delete("#{directory}/#{fileName}")

@@ -6,9 +6,12 @@ This code provides for saving summary messages during the course of the experime
 #exit
 
 #class AbstractExperimentFramework
-   def summary(msg)
+
+   def resultSummary(msg)
       ensureSummaryMsgs
-      logInfoMsg msg
+      # Do not report to stdout. It takes too much space with so
+      # many stresses.
+      #logInfoMsg msg
       $SummaryMsgs << msg
    end
 

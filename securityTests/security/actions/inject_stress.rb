@@ -2,6 +2,8 @@
 module Cougaar
   module Actions
 
+    $Dbg_action = true
+
     class Stressors 
       # A hash map indexed by #{className}
       # Value is the instance of the stress class
@@ -13,13 +15,13 @@ module Cougaar
       @@stressesState = Hash.new
 
       def Stressors.setRunState(className, methodName, runstate)
-	#logInfoMsg "setRunState: #{className}.#{methodName}"
+	logInfoMsg "setRunState: #{className}.#{methodName}" if $Dbg_action
 	@@stressesState["#{className}.#{methodName}"] = runstate
       end
 
       def Stressors.getRunState(stressorClass, methodName)
 	ret =  @@stressesState["#{stressorClass}.#{methodName}"]
-	#logInfoMsg "getRunState: #{ret}"
+	logInfoMsg "getRunState: #{ret}"  if $Dbg_action
 	return ret
       end
 
@@ -33,7 +35,7 @@ module Cougaar
       end
     end
 
-   class InjectStress < Cougaar::Action
+   class InjectStress < Cougaar:1:Action
 
      def initialize(run, className, methodName)
 	super(run)
@@ -42,7 +44,6 @@ module Cougaar
 	begin
 	  #logInfoMsg "Starting stress1: #{className}.#{methodName}"
 	  @stressor = Stressors.getStressInstance(className, run)
-	  #logInfoMsg "Starting stress2: #{className}.#{methodName}"
 	  @aMethod = @stressor.method(methodName)
 	rescue => ex
 	  logWarningMsg "Unable to start stress: #{className}" + ex
@@ -51,17 +52,17 @@ module Cougaar
       end
 
       def perform()
-	#logInfoMsg "Starting stress: #{@stressorClassName}.#{@methodName}"
+	logInfoMsg "Starting stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
 	if @stressor == nil
 	  return
 	end
-	#logInfoMsg "Delay Invoke stress: #{@stressorClassName}.#{@methodName}"
 	logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
 	begin
 	  @aMethod.call()
 	rescue
 	  logWarningMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
 	end
+	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
       end
     end
 

@@ -20,8 +20,8 @@ class WpProtect < SecurityStressFramework
     end
     saveResult(success, "WPProtection", "All agents registered with WP protection enabled")
     if (!missing.empty?) 
-	summary("Missing Registered agents")
-        summary(missing.join("\n"))
+	resultSummary("Missing Registered agents")
+        resultSummary(missing.join("\n"))
     end
   end
 end

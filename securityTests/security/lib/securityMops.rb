@@ -5,12 +5,8 @@ NoScore = "0.0  (see details)"
     
 class AbstractSecurityMop
   attr_accessor :run, :date, :runid, :name, :descript, :score, :info, :calculationDone, :raw, :summary
-  def initialize
-    begin
-      @run = getRun
-    rescue Exception
-      # do nothing
-    end
+  def initialize(run)
+    @run = run
     @runid = ''
     @calculationDone = false
     @summary = ''
@@ -40,8 +36,8 @@ class SecurityMop21 < AbstractSecurityMop
   attr_accessor :legitsuccesses, :legittotal
   attr_accessor :malicioussuccesses, :malicioustotal
 
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     @name = "2-1"
     @descript = "Percentage of sensitive data elements in computer memory that were available to an unauthorized entity"
     @detail = []
@@ -86,24 +82,31 @@ class SecurityMop21 < AbstractSecurityMop
         url ="http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{run.name}"
 #        url ="#{agent.uri}/testBlackboardManager?do=end&exp=#{run.name}"
 #        puts "ending testBlackboardManager #{url}" if $VerboseDebugging
-        #puts url
+        puts url if $VerboseDebugging
         req=Cougaar::Communications::HTTP.get(url)
         #puts "mop 2.1 end #{agent.name}, #{url}, #{req}" if $VerboseDebugging
       end #end each agent
     rescue Exception => e
-      puts "ERRR: Could not activate testBlackboardManager"
+      puts "ERRR: Could not stop testBlackboardManager"
       puts "#{e.class}: #{e.message}"
       puts e.backtrace.join("\n")
     end
+    # sleep so the agents can save the results to the files
+    sleep 1.minutes
   end
 
   def calculate
     begin
-      sleep 1.minutes
       @score = compileResults
       puts "compiledResults #{@score}" if $VerboseDebugging
       @info = "MOP 2.1 (Blackboard access control): #{@score} - Legitimate successful tries: #{@legitsuccesses} / #{@legittotal}, malicious: #{@malicioussuccesses} / #{@malicioustotal}<br\>\n" + @info.join("<br/>\n")
       @calculationDone = true
+      sucess = false
+      if (@score == 100.0)
+	success = true
+      end
+      saveResult(success, '1d1',@info)
+
     rescue Exception => e
 puts "error, probably in compileResults" if $VerboseDebugging
       puts "error in #{self.class.name}.calculate"
@@ -118,10 +121,10 @@ puts "error, probably in compileResults" if $VerboseDebugging
     expname=run.name
     @raw = []
     @info = []
-    resultsdirectory = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/blackboardresults"
+    resultsdirectory = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/mopresults"
     files = Dir["#{resultsdirectory}/*csv"]
     files.each do |file|
-      #puts "Filename:#{file}"
+      puts "Filename:#{file}" if $VerboseDebugging
       lines= File.readlines(file)
       cols = lines[1].split(',')
       successes = cols[3].to_i
@@ -134,13 +137,17 @@ puts "error, probably in compileResults" if $VerboseDebugging
         type = "malicious"
         @malicioussuccesses += successes
         @malicioustotal += total
-      else
+      elsif plugin =~ /Legitimate/i
         type = "legit"
         @legitsuccesses += successes
         @legittotal += total
+      else
+	raise "Unexpected plugin type: #{plugin}"
       end
 
-      @info.push("#{type} plugin on #{agent}: #{successes} successes, #{total} total")
+      s = "#{type} plugin on #{agent}: #{successes} successes, #{total} total"
+      puts s if $VerboseDebugging
+      @info.push(s)
       #@raw.push([agent, type, successes, total])
       @raw.push(Mop2_1.new(agent, type, successes, total))
     end # looping through files
@@ -155,6 +162,7 @@ puts "error, probably in compileResults" if $VerboseDebugging
       mop = 100.0
       @summary = "There weren't any blackboard access attempts made, so 0% of the (non-existent) attempts were accessible to an unauthorized entity."
     end
+    puts @summary if $VerboseDebugging
     return mop
   end #compile results
 
@@ -175,8 +183,8 @@ end
 ################################################
 
 class SecurityMop22 < AbstractSecurityMop
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     @name = "2-2"
     @descript = "Percentage of sensitive data elements stored on disk that were available to an unauthorized entity"
   end
@@ -214,8 +222,8 @@ end
 ################################################
 
 class SecurityMop23 < AbstractSecurityMop
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     @name = "2-3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
   end
@@ -294,8 +302,8 @@ class SecurityMop24 < AbstractSecurityMop
   attr_accessor :numActionsLogged, :numLoggableActions, :actions
   attr_accessor :numPoliciesLogged, :numLoggablePolicies, :policies
 
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     reset
     removePemCertificates
     @name = "2-4"
@@ -713,8 +721,8 @@ end
 ################################################
 
 class SecurityMop25 < AbstractSecurityMop
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     @name = "2-5"
     @descript = "Percentage of all designated user actions that are recorded"
   end
@@ -768,8 +776,8 @@ end
 ################################################
 
 class SecurityMop26 < AbstractSecurityMop
-  def initialize
-    super
+  def initialize(run)
+    super(run)
     @name = "2-6"
     @descript = "Percentage of all designated user actions in violation of policy that are recorded as policy violations"
   end

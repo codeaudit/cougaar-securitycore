@@ -15,7 +15,7 @@ class Stress5f < SecurityStressFramework
     else
       success = false
     end
-    logInfoMsg description
+    #logInfoMsg description
     saveResult(success, '5f', description);
 
     # ####################
@@ -27,7 +27,7 @@ class Stress5f < SecurityStressFramework
     else
       success = false
     end
-    logInfoMsg description
+    #logInfoMsg description
     saveResult(success, '5f', description);
 
   end # postConditionalNextOPlanStage

@@ -420,7 +420,8 @@ def saveResult(pass, testnum, testname)
     success = "FAILURE"
   end
   saveResultsToFile(pass, success, testnum, testname)
-  summary([success, testnum, testname].join("\t"))
+  s = [success, testnum, testname].join("\t")
+  resultSummary(s)
   $TestResults << [ pass, testnum, testname ]
 end # saveResult
 
