@@ -78,6 +78,7 @@ public class MnrCompromisePlugin extends ComponentPlugin {
     private static final String RECOVER_VERB = "RecoverFromFailure";
     private static final String REVOKE_SESSION_KEYS_VERB = CompromiseBlackboard.REVOKE_SESSION_KEY_VERB;
     private static final String REVOKE_AGENT_CERT_VERB = CompromiseBlackboard.REVOKE_AGENT_CERT_VERB;
+    private ConfigParserService configParser = null;
     /** Subscription to appropriate IDMEF Events */
     private IncrementalSubscription eventSubscription = null;
     /** Subscription to shared data relay to the ca agent */
@@ -211,7 +212,10 @@ public class MnrCompromisePlugin extends ComponentPlugin {
 
         keyRingService = (KeyRingService) this.getServiceBroker().getService(this,
                 KeyRingService.class, null);
-
+			configParser = (ConfigParserService)
+						this.getServiceBroker().getService(this,
+										ConfigParserService.class,
+										null);
         this.domainService = (DomainService) this.getServiceBroker().getService(this,
                 DomainService.class, null);
         this.uidService = (UIDService) this.getServiceBroker().getService(this,
@@ -391,10 +395,7 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                     String caURL = trustedCaPolicy[i].caURL;
 
                     if (caURL != null) {
-                        ArrayList caDnList = (ArrayList) theTask.getPrepositionalPhrase(CompromiseBlackboard.CA_DN_PREP)
-                                                                .getIndirectObject();
-                        String caDn = (String) caDnList.get(0);
-						String caAgent = caURL.substring(caURL.indexOf("$")+1, caURL.length());
+                        String caAgent = caURL.substring(caURL.indexOf("$")+1, caURL.length());
 						caAgent = caAgent.substring(0, caAgent.indexOf("/"));
 						
                         String revokeCertServletURL = caURL.substring(0,
@@ -579,7 +580,7 @@ public class MnrCompromisePlugin extends ComponentPlugin {
                     caPrep.setPreposition(CompromiseBlackboard.CA_DN_PREP);
                     caPrep.setIndirectObject(caDNs);
                     caTask.addPrepositionalPhrase(caPrep);
-
+				
                     nwf.addTask(caTask);
                     taskList.add(pmTask);
                     taskList.add(caTask);
@@ -621,61 +622,14 @@ public class MnrCompromisePlugin extends ComponentPlugin {
      * @return DOCUMENT ME!
      */
     protected ArrayList getCaDNs(String agentName) {
-        ArrayList caDnList = new ArrayList();
-        if (logging.isDebugEnabled()) {
-            logging.debug("Gettng cadns for agent " + agentName);
-        }
-
-
-        List certList = keyRingService.findCert(agentName);
-        if ((certList == null) || (certList.size() == 0)) {
-            if (logging.isWarnEnabled()) {
-                logging.warn("Could not find cert list for " + agentName);
-            }
-
-            return caDnList;
-        }
-
-        Iterator certs = certList.iterator();
-        String caDN = null;
-
-        // for now there should only be one certificate signed by one CA
-        while (certs.hasNext()) {
-            CertificateStatus status = (CertificateStatus) certs.next();
-            X509Certificate cert = status.getCertificate();
-            if (logging.isDebugEnabled()) {
-                logging.debug("Found certificate dn = "
-                    + cert.getSubjectDN().getName());
-            }
-
-            X509Certificate[] certChain = keyRingService.findCertChain(cert);
-            if (certChain != null) {
-                // get the CA's dn from the certificate chain
-                caDN = getCADN(certChain);
-
-                if (caDN != null) {
-                    if (logging.isDebugEnabled()) {
-                        logging.debug("CA DN: " + caDN);
-                    }
-
-                    caDnList.add(caDN);
-
-                } else {
-                    if (logging.isWarnEnabled()) {
-                        logging.warn(
-                            "No CA dn(s) where found in certificate chain for: "
-                            + agentName);
-                    }
-                }
-            } else {
-                if (logging.isWarnEnabled()) {
-                    logging.warn("Can't get certificate chain for cert: "
-                        + cert.getSubjectDN().getName());
-                }
-            }
-        }
-
-        return caDnList;
+    		ArrayList list = new ArrayList();
+			CryptoClientPolicy policy = getCryptoClientPolicy();
+			TrustedCaPolicy[] trustedCaPolicy = policy.getTrustedCaPolicy();
+			for(int i=0;i<trustedCaPolicy.length;i++){
+				list.add(trustedCaPolicy[i].caDN);
+			}
+			return list;
+        
     }
 
 
