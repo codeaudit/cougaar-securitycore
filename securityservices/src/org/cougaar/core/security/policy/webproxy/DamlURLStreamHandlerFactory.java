@@ -37,6 +37,8 @@ class DamlURLStreamHandlerFactory implements URLStreamHandlerFactory
     if (protocol.equals("http")) {
       //System.out.println("Returning the proxy handler")
       return new DamlURLStreamHandler();
+    } else if (protocol.equals("jndi")) {
+      return new org.apache.naming.resources.DirContextURLStreamHandler();
     } else {
       if (_log != null && _log.isDebugEnabled()) {
         _log.debug("using the default handler");

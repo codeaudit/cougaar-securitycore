@@ -49,6 +49,9 @@ class DamlURLStreamHandler extends URLStreamHandler
        * Otherwise go to Howard Street in San Francisco...
        */
       if (_log != null && _log.isDebugEnabled()) {
+        _log.debug("Howard Street");
+      }
+      if (_log != null && _log.isDebugEnabled()) {
         _log.debug("Using original web client");
         _log.debug("++++++++++++++++++++++++++++++++++++++++++++++++");
       }

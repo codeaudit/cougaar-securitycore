@@ -45,7 +45,7 @@ public class DamlURLConnection extends URLConnection
     if (_log != null && _log.isDebugEnabled()) {
       _log.debug("Retrieved file name = " + filename);
     }
-    _damlFile = cf.locateFile(filename);
+    _damlFile = cf.locateFile("Ontology-" + filename);
   }
 
   public void connect() throws IOException
