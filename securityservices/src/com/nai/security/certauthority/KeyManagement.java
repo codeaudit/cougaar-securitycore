@@ -911,7 +911,7 @@ public class KeyManagement
 
   public int  revokeCertificate(String caDN ,String userUniqueIdentifier) throws IOException,Exception,CertificateException
   {
-    int status=0;
+    int status=1;
     X500Name x500name=new X500Name(caDN);
     PrivateKey caprivatekey=getPrivateKey(x500name);
     if(caprivatekey==null) {

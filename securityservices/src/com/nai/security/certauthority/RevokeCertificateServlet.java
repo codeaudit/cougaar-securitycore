@@ -129,7 +129,7 @@ public class RevokeCertificateServlet extends  HttpServlet
     }
     
  
-    if(status==0) {
+    if(status==1) {
       out.println("Successfully Revoked certificate :"
 		  + distinguishedName);
       out.println("<p>");
