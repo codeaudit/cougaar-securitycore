@@ -69,6 +69,7 @@ END
           file.write <<END
 </society>
 END
+          file.flush
         }
       end
     end
