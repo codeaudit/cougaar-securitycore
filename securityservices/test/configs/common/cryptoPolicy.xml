@@ -88,6 +88,8 @@
 
           <CertDirectoryURL role="csmart1">ldap://pear/dc=csmart1,dc=cougaar,dc=org</CertDirectoryURL>
           <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
 
           <!-- The type of the certificate directory service.
                Currently, either CougaarOpenLdap or NetTools -->
