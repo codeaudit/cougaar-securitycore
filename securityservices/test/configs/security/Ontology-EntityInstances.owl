@@ -25,11 +25,6 @@
  
     <ultralogEntity:AuditLevel rdf:ID="NoAudit"/>
 
-    <ultralogEntity:ProtectionLevel rdf:ID="NSAApprovedProtection"/>
-    <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
-    <ultralogEntity:ProtectionLevel rdf:ID="WeakProtection"/>
-
-
     <!--           ****Temporary Hack****                             -->
     <!--Sadly this file is scanned by a method that is looking for    -->
     <!--strings to match the following declarations.  This routine is -->
