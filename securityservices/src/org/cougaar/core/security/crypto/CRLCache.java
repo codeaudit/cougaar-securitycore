@@ -420,7 +420,10 @@ final public class CRLCache implements Runnable,CRLCacheService,BlackboardClient
       catch(Exception exp) {
 	log.warn("Unable to set crl in cache for :"+distingushname ,exp);
       }
-      wrapper.setLastModifiedTimestamp(wrapperFromDirectory.getLastModifiedTimestamp());
+      String lastmodified=wrapperFromDirectory.getLastModifiedTimestamp();
+      if(lastmodified !=null) {
+        wrapper.setLastModifiedTimestamp(lastmodified);
+      }
       crlsCache.put(distingushname,wrapper);
       updateCRLInCertCache(distingushname);
     }
