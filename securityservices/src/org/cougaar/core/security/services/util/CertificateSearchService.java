@@ -32,6 +32,8 @@ import sun.security.x509.*;
 // Cougaar core infrastructure
 import org.cougaar.core.component.Service;
 
+import org.cougaar.core.security.naming.SearchCallback;
+
 public interface CertificateSearchService
 extends Service
 {
@@ -44,4 +46,5 @@ extends Service
    */
   List findCert(X500Name dname);
 
+  List findCert(X500Name dname, SearchCallback callback);
 }
