@@ -168,7 +168,7 @@ public class XMLPolicyCreator {
 	  if (p != null){
 	    policyVector.addElement(p);
 	    if (debug) {
-	      System.out.println("XMLPolicyCreator: Adding policy " + p);
+	      System.out.println("XMLPolicyCreator: Adding new policy");
 	    }
 	  }
 	}
@@ -262,7 +262,8 @@ public class XMLPolicyCreator {
     try {
       String nodeType = child.getNodeName();
       if (debug) {
-	System.out.println("ParamName " + paramName + " paramType " + nodeType);
+	System.out.print("ParamName " + paramName
+			 + " paramType " + nodeType + " ");
       }
       
       if (nodeType.equals("Integer")) {

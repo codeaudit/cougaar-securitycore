@@ -87,8 +87,8 @@ final public class KeyRing {
       File file = new File(param.keystorePath);
       if (!file.exists()){
 	if (debug) {
-	  System.out.println("Could not find keystore in:" + param.keystorePath
-			     + ". Creating...");
+	  System.out.println(param.keystorePath +
+			     " keystore does not exist. Creating...");
 	}
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
         FileOutputStream fos = new FileOutputStream(param.keystorePath);

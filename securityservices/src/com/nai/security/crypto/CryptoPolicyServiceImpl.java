@@ -73,7 +73,8 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 	}
 
 	if(dbg) {
-	  System.out.println("CryptoPolicyService: outgoing policy for " + tag + " - Policy: " + obj);
+	  System.out.println("CryptoPolicyService: outgoing policy for "
+			     + tag);
 	}
         return (SecureMethodParam)obj;
     }
@@ -94,7 +95,8 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 	}
 	
 	if(dbg) {
-		System.out.println("CryptoPolicyService: incoming policy for " + tag + "--Policy: " + obj);
+	  System.out.println("CryptoPolicyService: incoming policy for "
+			     + tag);
 	}
 
         return (SecureMethodParam)obj;
@@ -128,7 +130,7 @@ public class CryptoPolicyServiceImpl implements CryptoPolicyService {
 				   String policyTargetName,
 				   String policyType) {
     if (dbg) {
-      System.out.println("CryptoPolicyServiceImpl: " + policy);
+      System.out.println("CryptoPolicyServiceImpl: Received policy message");
       RuleParameter[] param = policy.getRuleParameters();
       for (int i = 0 ; i < param.length ; i++) {
 	System.out.println("Rule: " + param[i].getName() + " - " + param[i].getValue());

@@ -44,7 +44,7 @@ import com.ibm.security.pkcsutil.PKCSException;
 
 public class PrivateKeyPKCS12
 {
-  private boolean debug = true;
+  private static boolean debug = true;
   private DirectoryKeyStore directory = null;
 
   public PrivateKeyPKCS12(DirectoryKeyStore aDirectory)
@@ -432,24 +432,59 @@ public class PrivateKeyPKCS12
     String pkcs12Alias = args[1];
     String receiverAlias = args[2];
 
+    if (debug) {
+      System.out.println("================================= Looking up key for sender node");
+    }
+    PrivateKey signerPrivKey = KeyRing.findPrivateKey(signerAlias);
+    if (debug) {
+      System.out.println("================================= Looking up certificate for sender node");
+    }
     X509Certificate signerCertificate =
       (X509Certificate)KeyRing.findCert(signerAlias);
-    PrivateKey signerPrivKey = KeyRing.findPrivateKey(signerAlias);
 
+    if (debug) {
+      System.out.println("================================= Looking up key for agent");
+    }
+    PrivateKey privKey = KeyRing.findPrivateKey(pkcs12Alias);
     X509Certificate cert =
       (X509Certificate)KeyRing.findCert(pkcs12Alias);
-    PrivateKey privKey = KeyRing.findPrivateKey(pkcs12Alias);
 
+    if (debug) {
+      System.out.println("================================= Looking up key for receiver node");
+    }
+    PrivateKey rcvrPrivKey = KeyRing.findPrivateKey(receiverAlias);
     X509Certificate rcvrCert =
       (X509Certificate)KeyRing.findCert(receiverAlias);
-    PrivateKey rcvrPrivKey = KeyRing.findPrivateKey(receiverAlias);
 
+    if (debug) {
+      System.out.println("================================= Encryption parameters:");
+
+      java.security.PublicKey pubKey = rcvrCert.getPublicKey();
+      String alg = rcvrCert.getPublicKey().getAlgorithm();
+      System.out.println(alg);
+      try {
+	javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(alg);
+	cipher.init(1, pubKey);
+	cipher.doFinal(privKey.getEncoded());
+      }
+      catch(Exception e) {
+	System.out.println("Key encryption error (" + e.toString() + ")");
+	e.printStackTrace();
+      }
+    }
+
+    if (debug) {
+      System.out.println("================================= Creating PKCS#12 envelope");
+    }
     byte[] pkcs12 = m.protectPrivateKey(privKey,
 					cert,
 					signerPrivKey,
 					signerCertificate,
 					rcvrCert);
 
+    if (debug) {
+      System.out.println("================================= Extracting PKCS#12 envelope");
+    }
     PrivateKeyCert[] pkey = m.getPfx(pkcs12,
 				     rcvrPrivKey,
 				     rcvrCert);
