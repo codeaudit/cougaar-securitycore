@@ -85,17 +85,6 @@
       <distinguishedName></distinguishedName>
       <!-- The name of a file where the next serial number is stored -->
       <serialNumberFile>SerialNumber_Node</serialNumberFile>
-      <!-- The name of directory where to store PKCS10 certificate requests -->
-      <pkcs10Directory>pkcs10requests</pkcs10Directory>
-      <!-- The name of directory where to store signed certificates -->
-      <x509CertDirectory>x509certificates</x509CertDirectory>
-      <!-- The name of directory where to store the pending certificates,
-           after it is approved it will be moved to the certificate storage
-           directory for approved certificates (ie. x509CertDirectory) -->
-      <CertPendingDirectory>pending</CertPendingDirectory>
-      <!-- The name of directory where to store the denial certificates,
-           this directory should be periodicly cleaned -->
-      <CertDeniedDirectory>denied</CertDeniedDirectory>
 
       <ldapURL></ldapURL>
       <ldapType></ldapType>
