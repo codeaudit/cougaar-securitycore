@@ -47,6 +47,9 @@ import org.cougaar.core.domain.RootFactory;
 // Cougaar security services
 import org.cougaar.core.security.services.identity.*;
 
+// Cougaar overlay
+import org.cougaar.core.security.coreservices.identity.*;
+
 public class AgMobPlugin extends org.cougaar.core.plugin.SimplePlugin 
 {
   private static final String moveCryptoVerb = "MoveCrypto";

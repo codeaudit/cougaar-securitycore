@@ -52,8 +52,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.catalina.Container;
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.core.ContainerBase;
-import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
+// IDMEF
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.Analyzer;
 import edu.jhuapl.idmef.Classification;
@@ -65,6 +65,8 @@ import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.User;
 import edu.jhuapl.idmef.UserId;
 
+// Cougaar security infrastructure
+import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.blackboard.NewEvent;
@@ -76,10 +78,11 @@ import org.cougaar.core.service.DomainService;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.util.NodeInfo;
-import org.cougaar.core.security.services.identity.AgentIdentityService;
-import org.cougaar.core.security.services.identity.PendingRequestException;
-import org.cougaar.core.security.services.identity.IdentityDeniedException;
 
+// Cougaar Overlay
+import org.cougaar.core.security.coreservices.identity.AgentIdentityService;
+import org.cougaar.core.security.coreservices.identity.PendingRequestException;
+import org.cougaar.core.security.coreservices.identity.IdentityDeniedException;
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to

@@ -35,6 +35,9 @@ import org.cougaar.core.node.*;
 // Cougaar security services
 import org.cougaar.core.security.services.identity.*;
 
+// Cougaar overlay
+import org.cougaar.core.security.coreservices.identity.*;
+
 public class MoveCryptoMessage
   extends AgentManagementMessage
 {

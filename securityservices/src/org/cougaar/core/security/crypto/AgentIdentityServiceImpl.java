@@ -43,6 +43,9 @@ import sun.security.x509.*;
 import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceBroker;
 
+// Overlay
+import org.cougaar.core.security.coreservices.identity.*;
+
 // Cougaar security services
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;

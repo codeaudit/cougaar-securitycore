@@ -41,8 +41,10 @@ import java.lang.IllegalArgumentException;
 import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.crypto.SecureMethodParam;
-import org.cougaar.core.security.services.identity.TransferableIdentity;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+
+// Cougaar Overlay
+import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
 
 public class KeyWrapping
 {

@@ -51,9 +51,11 @@ import org.cougaar.core.security.crypto.KeySet;
 import org.cougaar.core.security.crypto.KeyWrapping;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
-import org.cougaar.core.security.services.identity.TransferableIdentity;
-import org.cougaar.core.security.services.identity.AgentIdentityService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
+
+// Cougaar overlay
+import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
+import org.cougaar.core.security.coreservices.identity.AgentIdentityService;
 
 public class AgentMobility
 {

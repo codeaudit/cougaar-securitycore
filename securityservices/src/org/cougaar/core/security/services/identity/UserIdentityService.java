@@ -27,7 +27,12 @@
 package org.cougaar.core.security.services.identity;
 
 import java.security.cert.Certificate;
+
+// Cougaar core services
 import org.cougaar.core.component.Service;
+
+// Overlay
+import org.cougaar.core.security.coreservices.identity.*;
 
 public interface UserIdentityService extends Service {
   /** Create a cryptographic identity for an user.

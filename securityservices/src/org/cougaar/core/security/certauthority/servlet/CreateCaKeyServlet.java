@@ -34,6 +34,9 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 import javax.security.auth.x500.X500Principal;
 
+// Overlay
+import org.cougaar.core.security.coreservices.identity.*;
+
 // Cougaar security services
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.crypto.CertificateUtility;

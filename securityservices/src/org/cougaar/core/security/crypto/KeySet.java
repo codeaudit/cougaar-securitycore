@@ -30,7 +30,8 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 
-import org.cougaar.core.security.services.identity.TransferableIdentity;
+// Cougaar overlay
+import org.cougaar.core.security.coreservices.identity.TransferableIdentity;
 
 public class KeySet
   implements java.io.Serializable

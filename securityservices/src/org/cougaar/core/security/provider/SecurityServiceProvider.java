@@ -41,6 +41,10 @@ import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.*;
 
+// Cougaar overlay
+import org.cougaar.core.security.coreservices.crypto.*;
+import org.cougaar.core.security.coreservices.identity.*;
+
 public class SecurityServiceProvider
   extends ContainerSupport
   implements ContainerAPI, ServiceProvider, StateObject
