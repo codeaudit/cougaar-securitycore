@@ -87,6 +87,10 @@ public class BlackboardAccessControlAdaptor
   }
   */
 
+  public ABATranslation getABATranslation(AttributeBasedAddress aba) {
+    return service.getABATranslation(aba);
+  }
+
   // BlackboardService methods
 
   public void closeTransactionDontReset() {

@@ -57,7 +57,6 @@ import sun.security.util.ObjectIdentifier;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.core.service.*;
 import org.cougaar.core.naming.*;
-import org.cougaar.core.mts.*;
 import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services

@@ -30,6 +30,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.agent.AgentManagerForBinder;
 import org.cougaar.core.agent.Agent;
 import org.cougaar.core.agent.AgentBinder;
+import org.cougaar.core.mts.AgentState;
 import org.cougaar.core.mts.MessageTransportClient;
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;
@@ -54,7 +55,6 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.util.FailureEvent;
 import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.util.IdmefHelper;
-
 import java.util.*;
 
 public class AccessAgentProxy
@@ -108,6 +108,9 @@ public class AccessAgentProxy
     }
   }
   
+  /* ********************************************************
+   *  BEGIN MessageTransportService implementation
+   */
   public void sendMessage(Message message) {
     if(log.isDebugEnabled())
        log.debug(" Send message of access binder called :"+message.toString());
@@ -195,6 +198,18 @@ public class AccessAgentProxy
     return addressKnown;
   }
   
+  public AgentState getAgentState() {
+    AgentState as = null;
+    if(mts!=null) {
+      as = mts.getAgentState(); 
+    }
+    return as;
+  }
+
+  /* ********************************************************
+   *  END MessageTransportService implementation
+   */
+
   public MessageAddress getMessageAddress(){
     MessageAddress messageaddress=null;
     if(mtc!=null) {
