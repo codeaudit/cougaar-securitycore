@@ -67,7 +67,7 @@ public class DataProtectionInputStream extends FilterInputStream {
   private SecretKey skey = null;
   private ByteArrayOutputStream bos = new ByteArrayOutputStream();
   private boolean debug = false;
-  
+
   // used to publish data failures
   private EventPublisher eventPublisher;
 
@@ -94,28 +94,20 @@ public class DataProtectionInputStream extends FilterInputStream {
     if(log != null) {
       debug = log.isDebugEnabled();
     }
-    
+
     this.agent = agent;
-    try {
-      dpKey = (DataProtectionKeyImpl)pke.getDataProtectionKey();
-    } catch (Exception ex) {
-    }
-    if (dpKey == null) {
-      GeneralSecurityException gsx = 
-        new GeneralSecurityException("No data protection key present.");
-      publishDataFailure(DataFailureEvent.NO_KEYS, gsx.toString());
-      throw gsx;
-    }
+    DataProtectionKeyCollection keyCollection =
+      (DataProtectionKeyCollection)pke.getDataProtectionKey();
+    dpKey = (DataProtectionKeyImpl)keyCollection.get(0);
     policy = dpKey.getSecureMethod();
-    
-    try {
-      skey = getSecretKey();
+
+    skey = getSecretKey();
+    if (skey == null) {
+      publishDataFailure(DataFailureEvent.SECRET_KEY_FAILURE,
+			 "Cannot get data protection key");
+      throw new GeneralSecurityException("Cannot get data protection key");
     }
-    catch(CertificateException cx) {
-      publishDataFailure(DataFailureEvent.SECRET_KEY_FAILURE, cx.toString());
-      throw cx; 
-    }
-    
+
     md = MessageDigest.getInstance(dpKey.getDigestAlg());
     if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
@@ -125,14 +117,14 @@ public class DataProtectionInputStream extends FilterInputStream {
       }
       catch(GeneralSecurityException gsx) {
         publishDataFailure(DataFailureEvent.INVALID_POLICY, gsx.toString());
-        throw gsx; 
+        throw gsx;
       }
     }
 
     if(debug) {
       log.debug("Opening inputStream: " + agent + " : " + new Date());
     }
-    
+
     theis = processStream(is);
   }
 
@@ -146,7 +138,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox; 
+      throw iox;
     }
     return available;
   }
@@ -154,14 +146,14 @@ public class DataProtectionInputStream extends FilterInputStream {
   public int read()
     throws IOException
   {
-    
+
     int result = 0;
     try {
       result = theis.read();
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox; 
+      throw iox;
     }
     // getting next chunk of data
     if (result == -1) {
@@ -175,7 +167,7 @@ public class DataProtectionInputStream extends FilterInputStream {
           return -1;
         }
         result = theis.read();
-      } 
+      }
       catch (GeneralSecurityException gse) {
         // failure already published in processStream
         throw new IOException(gse.toString());
@@ -190,7 +182,7 @@ public class DataProtectionInputStream extends FilterInputStream {
   {
     // clean up?
     if(debug) {
-      log.debug("Closing inputStream " + new Date());  
+      log.debug("Closing inputStream " + new Date());
     }
     verifyDigest();
     if (ci != null)
@@ -229,7 +221,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox;      
+      throw iox;
     }
   }
 
@@ -252,7 +244,7 @@ public class DataProtectionInputStream extends FilterInputStream {
     }
     catch(IOException iox) {
       publishDataFailure(DataFailureEvent.IO_EXCEPTION, iox.toString());
-      throw iox; 
+      throw iox;
     }
 
     // getting next chunk of data
@@ -278,7 +270,7 @@ public class DataProtectionInputStream extends FilterInputStream {
   }
 
   private SecretKey getSecretKey()
-    throws CertificateException
+    throws GeneralSecurityException
   {
     return (SecretKey)encryptionService.asymmDecrypt(agent,
         policy.asymmSpec, (SealedObject)dpKey.getObject());
@@ -395,10 +387,38 @@ public class DataProtectionInputStream extends FilterInputStream {
       }
       if (policy.secureMethod == SecureMethodParam.SIGN
         || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-        sobj = encryptionService.verify(agent, policy.signSpec,
-          (SignedObject)sobj, true);
+        // is data recovered from lost agent keys?
+        X509Certificate c = dpKey.getOldSigner();
+        SignedObject obj = (SignedObject)sobj;
+        sobj = null;
+        if (c != null) {
+          if (log.isWarnEnabled()) {
+            log.warn("Old agent key found, use it to verify signature.");
+          }
+
+          try {
+            PublicKey pk = c.getPublicKey();
+            String spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
+            if (spec == null) {
+              log.warn("Unable to retrieve Algorithm specification from key");
+            }
+            else {
+              Signature ve=Signature.getInstance(spec);
+              if (obj.verify(pk,ve)) {
+                sobj = obj.getObject();
+              }
+            }
+          } catch (Exception vex) {
+            if (log.isWarnEnabled()) {
+              log.warn("Unable to verify signature, reason: ", vex);
+            }
+          }
+        }
+        else {
+          sobj = encryptionService.verify(agent, policy.signSpec, obj, true);
+        }
         if (sobj == null) {
-          GeneralSecurityException gsx = 
+          GeneralSecurityException gsx =
             new GeneralSecurityException("Cannot verify signature.");
           publishDataFailure(DataFailureEvent.VERIFICATION_FAILURE, gsx.toString());
           throw gsx;
@@ -406,7 +426,7 @@ public class DataProtectionInputStream extends FilterInputStream {
       }
       return sobj;
     } catch (ClassNotFoundException ex) {
-      IOException iox = 
+      IOException iox =
         new IOException("Cannot retrieve object" + ex.toString());
       publishDataFailure(DataFailureEvent.CLASS_NOT_FOUND, iox.toString());
       throw iox;
@@ -415,10 +435,10 @@ public class DataProtectionInputStream extends FilterInputStream {
 
    public void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
-      eventPublisher = publisher; 
+      eventPublisher = publisher;
     }
   }
-  
+
    /**
    * publish a data protection failure idmef alert
    */
@@ -428,14 +448,14 @@ public class DataProtectionInputStream extends FilterInputStream {
                                               reason,
                                               data);
     if(eventPublisher != null) {
-      eventPublisher.publishEvent(event); 
+      eventPublisher.publishEvent(event);
     }
     else {
       if(debug) {
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
-    }  
+    }
   }
-  
+
   public static String testFileName;
 }
