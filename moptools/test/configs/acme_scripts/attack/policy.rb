@@ -29,3 +29,11 @@ DONE
   
 end # NoAttackMessage
 
+class Security3a1Experiment < SecurityExperimentFramework
+  def initialize
+    super
+    @name = 'CSI-Security-3a1'
+    @stresses = [ NoAttackMessage ]
+  end
+end
+

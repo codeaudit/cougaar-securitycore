@@ -37,10 +37,10 @@ class RequireSSL < SecurityStressFramework
   end # postTransformSociety
 end # RequireSSL
 
-class Security3A1xperiment < SecurityExperimentFramework
+class Security3c1Experiment < SecurityExperimentFramework
   def initialize
     super
-    @name = 'CSI-Security-3A1'
+    @name = 'CSI-Security-3c1'
     @stresses = [ RequireSSL ]
   end
 end

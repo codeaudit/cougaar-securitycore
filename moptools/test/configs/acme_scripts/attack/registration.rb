@@ -251,18 +251,18 @@ class CountCrlRegistrations < CountRegistrationsBase
   end
 end #CountCrlRegistrations
 
-class Security2F102Experiment < SecurityExperimentFramework
+class Security2f102Experiment < SecurityExperimentFramework
   def initialize
     super
-    @name = 'CSI-Security-2F102'
+    @name = 'CSI-Security-2f102'
     @stresses = [ CountMRRegistrations ]
   end
 end
 
-class Security3C25Experiment < SecurityExperimentFramework
+class Security5j102Experiment < SecurityExperimentFramework
   def initialize
     super
-    @name = 'CSI-Security-3C25'
+    @name = 'CSI-Security-5j102'
     @stresses = [ CountCRLRegistrations ]
   end
 end
