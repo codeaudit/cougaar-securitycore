@@ -4,6 +4,8 @@ require 'ultralog/services'
 
 require 'security/lib/jar_util'
 require 'security/lib/misc'
+require 'security/lib/path_utility'
+require 'tmpdir'
 
 $VerboseDebugging=false
 
@@ -133,10 +135,14 @@ def getPolicyManager(enclave)
 end
 
 def getPolicyDir()
-  dir = "/tmp/bootPolicies-#{rand(1000000)}"
+  dir = "#{CIP}/workspace/bootPolicies-#{rand(1000000)}"
+  # On Windows, the tmp dir may include a space, and it's not clear
+  # what the shell interactions are between ruby, cygwin, and java on windows.
+  #dir = "#{Dir::tmpdir}/bootPolicies-#{rand(1000000)}"
   logInfoMsg "temporary policy dir = #{dir}" if $VerboseDebugging
   Dir.mkdir(dir)
-  `cd #{dir} && jar xf #{CIP}/configs/security/bootpolicies.jar`
+  f = "#{CIP}/configs/security/bootpolicies.jar"
+  `cd #{PathUtility.fixPath(dir)} && jar xf #{PathUtility.fixPath(f)}`
   dir
 end
 
@@ -149,14 +155,18 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
   # now commit the new policy
   classpath = getClasspath
 
+  logFile = PathUtility.fixPath("#{CIP}/workspace/log4jlogs/policyUtil-#{rand(1000000)}.log")
+  keystoreFile = PathUtility.fixPath("#{CIP}/configs/security/bootstrap_keystore")
+  logFileCfg = PathUtility.fixPath("#{CIP}/configs/security/cmdlineLoggingConfig.conf")
+  cfg = PathUtility.fixPath(File.join(CIP,'configs','security'))
   defs = [
     "-Xmx512m",
-    "-Dorg.cougaar.config.path=#{File.join(CIP,'configs','security')}",
+    "-Dorg.cougaar.config.path=#{cfg}",
     "-Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder",
-    "-Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore",
-    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=/tmp/policyUtil-#{rand(1000000)}.log",
-    "-Dlog4j.configuration=#{File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf')}",
-    "-Dorg.cougaar.core.logging.config.filename=${COUGAAR_INSTALL_PATH}/configs/security/cmdlineLoggingConfig.conf"
+    "-Dorg.cougaar.core.security.bootstrap.keystore=#{keystoreFile}",
+    "-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File=#{logFile}",
+    "-Dlog4j.configuration=#{PathUtility.fixPath(File.join(CIP, 'configs', 'security', 'cmdlineLoggingConfig.conf'))}",
+    "-Dorg.cougaar.core.logging.config.filename=#{logFileCfg}"
   ]
 
   if javaArgs != nil
@@ -165,9 +175,11 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
 
   cdCmd = ""
   if (execDir != nil)
-    cdCmd = "cd #{execDir} && "
+    cdCmd = "cd #{PathUtility.fixPath(execDir)} && "
   end
-  `#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{classpath.join(':')} org.cougaar.core.security.policy.builder.Main #{args}`
+  cmd ="#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{PathUtility.getClassPath(classpath)} org.cougaar.core.security.policy.builder.Main #{args}"
+  #puts cmd
+  `#{cmd}`
 end
 
 $policyLockLock = Mutex.new
@@ -219,7 +231,7 @@ def deltaPolicy(enclave, text)
   mutex = getPolicyLock(enclave)
   logInfoMsg " GOT LOCK TO POLICY FILE" if $VerboseDebugging
   mutex.synchronize {
-    policyFile = "/tmp/policyDelta"
+    policyFile = "#{Dir::tmpdir}/policyDelta"
     # now create the delta file
     File.open(policyFile, "w") { |file|
       file.write(text)

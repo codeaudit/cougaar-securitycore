@@ -6,6 +6,7 @@ require 'security/lib/jar_util'
 require 'security/lib/policy_util'
 require 'security/lib/path_utility'
 require 'security/lib/common_security_rules'
+require 'tmpdir'
 
 
 module Cougaar
@@ -23,7 +24,8 @@ module Cougaar
 
       def init
         @cip = ENV['COUGAAR_INSTALL_PATH']
-        @stagingdir = "/tmp/BootPolicies-#{rand(1000000)}"
+        @stagingdir = "#{CIP}/workspace/BootPolicies-#{rand(1000000)}"
+        #@stagingdir = "#{Dir::tmpdir}/BootPolicies-#{rand(1000000)}"
         @policyFile = "#{@stagingdir}/OwlBootPolicyList"
         @policies = []
         @enclaves = []
@@ -33,8 +35,9 @@ module Cougaar
       end
 
       def compilePolicies
-        output = policyUtil("--maxReasoningDepth 150 build --info #{@policyFile}",
-                            nil, "#{@stagingdir}")
+        output =
+            policyUtil("--maxReasoningDepth 150 build --info #{PathUtility.fixPath(@policyFile)}",
+                       nil, @stagingdir)
 # some hacky attempts to determine that there were no errors
 #  errors are pretty much fatal!  Running the society if the following fails
 #  is probably a waste of time
@@ -43,7 +46,7 @@ module Cougaar
             puts output
             puts "Fatal error making policies"
             puts "Possibly policy #{policy} is bad"
-            puts "try cd #{stagingDir}; policyUtil build --info OwlBootPolicyList to see what is happening"
+            puts "try cd #{@stagingdir}; policyUtil build --info OwlBootPolicyList to see what is happening"
             raise "Fatal Policy Build Error"
           end
         end
@@ -57,10 +60,10 @@ module Cougaar
         rescue
           # its ok - problems on the next one aren't.
         end
-        result = `cd #{@stagingdir} && jar cf #{jarFile} .`
-        # puts "result of jar = #{result}"
+        result = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+         #puts "result of jar = #{result}"
         result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
-        # puts "result of jarsigner = #{result}"
+         #puts "result of jarsigner = #{result}"
       end # def packageAndSignJar
 
 

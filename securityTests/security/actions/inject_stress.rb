@@ -1,4 +1,6 @@
 
+require 'security/lib/summary'
+
 # $configuredSecurityTests contains the list of tests that should be
 # executed during a given experiment.
 if !defined? $configuredSecurityTests

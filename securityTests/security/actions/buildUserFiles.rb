@@ -5,6 +5,7 @@ require 'ultralog/enclaves'
 require 'security/lib/jar_util'
 require 'security/lib/path_utility'
 require 'security/lib/common_security_rules'
+require 'tmpdir'
 
 module Cougaar
   module Actions
@@ -18,7 +19,7 @@ module Cougaar
 
       def init
         @cip = ENV['COUGAAR_INSTALL_PATH']
-        @stagingdir = "/tmp/UserFiles-#{rand(1000000)}"
+        @stagingdir = "#{Dir::tmpdir}/UserFiles-#{rand(1000000)}"
         Dir.mkdir(@stagingdir)
       end
 
@@ -34,14 +35,22 @@ module Cougaar
         end
         @domains.each do |domain|
           #puts "Generating User file for #{domain}"
-          cmdLine = "java -Dorg.cougaar.config.path=#{@cip}/configs/security\\;#{@cip}/configs/common"
-          cmdLine += " -Dorg.cougaar.install.path=#{@cip} "
+          bootcp = PathUtility.fixPath("#{@cip}/lib/bootstrap.jar")
+          cfgPath1 = PathUtility.fixPath("#{@cip}/configs/security")
+          cfgPath2 = PathUtility.fixPath("#{@cip}/configs/common")
+          if PathUtility::isWindows
+            cfgPath = "#{cfgPath1};#{cfgPath2}"
+          else
+            cfgPath = "#{cfgPath1}\\;#{cfgPath2}"
+          end
+          cmdLine = "java -Dorg.cougaar.config.path=#{cfgPath}"
+          cmdLine += " -Dorg.cougaar.install.path=#{PathUtility.fixPath(@cip)} "
           cmdLine += " -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.util.jar.JarConfigFinder"
-          cmdLine += " -Xbootclasspath/a:#{@cip}/lib/bootstrap.jar "
+          cmdLine += " -Xbootclasspath/a:#{bootcp} "
           cmdLine += " org.cougaar.bootstrap.Bootstrapper "
           cmdLine += " org.cougaar.core.security.acl.user.UserFileParser -d #{domain}"
           #puts cmdLine
-          `cd #{@stagingdir} && #{cmdLine}`
+          `cd #{PathUtility.fixPath(@stagingdir)} && #{cmdLine}`
         end
       end # def buildUserFiles
 
@@ -53,7 +62,7 @@ module Cougaar
         rescue
           # its ok - problems on the next one aren't.
         end
-        result = `cd #{@stagingdir} && jar cf #{jarFile} .`
+        result = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
         # puts "result of jar = #{result}"
         result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
         # puts "result of jarsigner = #{result}"

@@ -1,4 +1,6 @@
 
+require 'security/lib/path_utility'
+
 module Cougaar
    module Actions
       class BuildConfigJarFiles < Cougaar::Action
@@ -18,12 +20,22 @@ module Cougaar
             #puts detail.message
           end
           # do not include communities.xml file, as it is generated separately
-          cmd = "jar cf #{directory}/#{fileName} `ls #{directory}/* | grep -v \"communities.xml\"`"
-          #puts cmd
+          files = []
+          Dir.foreach(directory) do |entry|
+            if entry != "communities.xml" && entry != '.' && entry != '..' && entry != 'alpreg.ini'
+              f = "#{directory}/#{entry}"
+              files << "#{PathUtility.fixPath(f)}"
+            end
+          end
+          files = files.join(" ")
+          p1 = "#{directory}/#{fileName}"
+          cmd = "jar cf #{PathUtility.fixPath(p1)} #{files}"
+          #puts "Building config files: #{cmd}"
           system(cmd)
           cip = ENV['COUGAAR_INSTALL_PATH']
           signingKeystore="#{cip}/operator/security/signingCA_keystore"
-          cmd = "jarsigner -keystore #{signingKeystore} -storepass keystore #{directory}/#{fileName} privileged"
+          f1 = "#{directory}/#{fileName}"
+          cmd = "jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(f1)} privileged"
           #puts cmd
           system(cmd)
           #File.rename(fileName, "#{directory}

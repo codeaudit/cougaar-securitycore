@@ -60,7 +60,7 @@ class NodeConfigUtility
       convertToBatch(@arguments)
       convertToBatch(@env)
       convertToBatch(@jvm_props)
-      @commandLineDos = "@java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} > %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}.log"
+      @commandLineDos = "@java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} 2> %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stderr.log > %COUGAAR_INSTALL_PATH%\\workspace\\nodelogs\\#{@node_name}-stdout.log"
 
       saveCommandLineDos
     rescue

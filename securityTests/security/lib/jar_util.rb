@@ -78,6 +78,7 @@ end
 def signJar(jar_file, keystore, cert, password = 'keystore')
   #puts "jarsigner -keystore #{keystore} -storepass #{password} #{jar_file} #{cert}"
   `cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -keystore #{PathUtility.fixPath(keystore)} -storepass #{password} #{PathUtility.fixPath(jar_file)} #{cert}`
+  #puts `cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -verify -verbose #{PathUtility.fixPath(jar_file)} `
   jar_file
 end
 
@@ -117,7 +118,7 @@ COMPONENT
 end
 
 def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
-#  puts "replacing #{replacementFile} in #{jarFile}"
+  #puts "replacing #{replacementFile} in #{jarFile}"
   jarDir = "#{Dir::tmpdir}/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
   files = `jar tf #{PathUtility.fixPath(jarFile)}`.split
@@ -131,7 +132,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   }
 #  puts "========================"
   if targetFile != nil
-#    puts "found file: #{targetFile}"
+    #puts "found file: #{targetFile}"
     `cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} #{PathUtility.fixPath(targetFile)} 2&>1`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
@@ -227,11 +228,12 @@ def commitConfigChanges()
     return nil
   end
   rebuildTempDir()
-#  puts "cd #{$jarDir} && jar cf #{$jarFile} ."
+  #puts "cd #{$jarDir} && jar cf #{$jarFile} ."
   `cd #{PathUtility.fixPath($jarDir)} && jar cf #{PathUtility.fixPath($jarFile)} .`
   $jarCreated=true
-  signJar($jarFile, "#{CIP}/operator/signingCA_keystore",            
-          "privileged")
+
+  #puts "Signing JAR file: #{$jarFile}"
+  signJar($jarFile, "#{CIP}/operator/security/signingCA_keystore", "privileged")
   File.rm_all($jarDir);
   $tmpFilesDeleted=true
   $jarChanges = 0;

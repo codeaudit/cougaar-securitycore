@@ -3,6 +3,7 @@ require 'security/lib/jar_util'
 require 'security/lib/message_util'
 require 'thread'
 require 'ftools'
+require 'tmpdir'
 
 class StressIdmefJar < SecurityStressFramework
 
@@ -376,7 +377,7 @@ class Stress5a4 < StressComponentJar
            }
 COMPONENT
     createComponentJar(@component, componentContent)
-    jarDir = "/tmp/jar-#{@component}-new"
+    jarDir = "#{Dir::tmpdir}/jar-#{@component}-new"
     Dir.mkdirs(jarDir)
     #    puts "======================================================"
     foo = `cd #{jarDir} && jar xf #{@jarFile} org/cougaar/core/security/test/temp#{@component}/#{@component}.class META-INF/MANIFEST.MF`
