@@ -158,23 +158,23 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       serviceBroker.getService(this, LoggingService.class, null);
 
     AccessController.doPrivileged(new PrivilegedAction() {
-      public Object run() {
-        secprop = (SecurityPropertiesService)
+        public Object run() {
+          secprop = (SecurityPropertiesService)
             serviceBroker.getService(this, SecurityPropertiesService.class, null);
-        configParser = (ConfigParserService)
-             serviceBroker.getService(this, ConfigParserService.class, null);
-        _crlCacheService = (CRLCacheService)
-             serviceBroker.getService(this, CRLCacheService.class, null);
-        return null;
-      }
-    });
+          configParser = (ConfigParserService)
+            serviceBroker.getService(this, ConfigParserService.class, null);
+          _crlCacheService = (CRLCacheService)
+            serviceBroker.getService(this, CRLCacheService.class, null);
+          return null;
+        }
+      });
 
     _alarmService= (AlarmService)
-          serviceBroker.getService(this, AlarmService.class, null);
+      serviceBroker.getService(this, AlarmService.class, null);
     _threadService= (ThreadService)
-          serviceBroker.getService(this, ThreadService.class, null);
+      serviceBroker.getService(this, ThreadService.class, null);
     _blackboardService = (BlackboardService)
-          serviceBroker.getService(this, BlackboardService.class, null);
+      serviceBroker.getService(this, BlackboardService.class, null);
  
     if(_blackboardService == null) {
       if(log.isDebugEnabled()) {
@@ -215,7 +215,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
     cachecryptoClientPolicy = (CryptoClientPolicy) sp[0];
     if(cachecryptoClientPolicy==null) {
-      log.error(" cryptoClientPolicy is null in init of certificate cache :");
+      if(log.isErrorEnabled()) {
+        log.error(" cryptoClientPolicy is null in init of certificate cache :");
+      }
     }
     else {
       if (log.isInfoEnabled()) {
@@ -232,7 +234,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       boolean exec =
 	Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
       if (exec == true) {
-	log.warn("Unable to get crypto Client policy");
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to get crypto Client policy");
+        }
       }
       else {
 	if (log.isInfoEnabled()) {
@@ -247,7 +251,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     nodeConfiguration = new NodeConfiguration(nodeDomain, serviceBroker);
     param.keystorePath = nodeConfiguration.getNodeDirectory()
       + cachecryptoClientPolicy.getKeystoreName();
-    log.debug("going to use smart card: " + cachecryptoClientPolicy.getUseSmartCard());
+    if(log.isDebugEnabled()) {
+      log.debug("going to use smart card: " + cachecryptoClientPolicy.getUseSmartCard());
+    }
     if (cachecryptoClientPolicy.getUseSmartCard()) {
       try {
 	param.keystorePassword =
@@ -276,7 +282,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	fos.close();
       }
       catch (Exception e) {
-	log.warn("Unable to get keystore:" + e);
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to get keystore:" + e);
+        }
 	throw new RuntimeException("Unable to get keystore:" + e);
       }
     }
@@ -285,7 +293,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       //param.isCertAuth = configParser.isCertificateAuthority();
     }
     catch (Exception e) {
-      log.warn("Unable to open keystore:" + e);
+      if(log.isWarnEnabled()) {
+        log.warn("Unable to open keystore:" + e);
+      }
       throw new RuntimeException("Unable to open keystore:" + e);
     }
 
@@ -327,7 +337,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
           fos.close();
         }
         catch (Exception e) {
-          log.warn("Unable to create CA keystore:" + e);
+          if(log.isWarnEnabled()) {
+            log.warn("Unable to create CA keystore:" + e);
+          }
           throw new RuntimeException("Unable to create CA keystore:" + e);
         }
       }
@@ -389,7 +401,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	param.keystoreStream.close();
       }
       catch (Exception e) {
-	log.warn("Unable to close keystore:" + e);
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to close keystore:" + e);
+        }
 	throw new RuntimeException("Unable to close keystore:" + e);
       }
     }
@@ -398,7 +412,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	param.caKeystoreStream.close();
       }
       catch (Exception e) {
-	log.warn("Unable to close CA keystore:" + e);
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to close CA keystore:" + e);
+        }
 	throw new RuntimeException("Unable to close CA keystore:" + e);
       }
     }
@@ -491,16 +507,22 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     }
     try {
       Enumeration alias = ks.aliases();
-      log.debug("Keystore " + path + " contains:");
+      if(log.isDebugEnabled()) {
+        log.debug("Keystore " + path + " contains:");
+      }
       while (alias.hasMoreElements()) {
 	//build up the hashMap
 	String a = (String)alias.nextElement();
 	ks.getCertificate(a);
-	log.debug("  " + a);
+        if(log.isDebugEnabled()) {
+          log.debug("  " + a);
+        }
       }
     }
     catch(Exception e) {
-      log.warn("Unable to list keystore alias:" + e.toString());
+      if(log.isWarnEnabled()) {
+        log.warn("Unable to list keystore alias:" + e.toString());
+      }
     }
   }
 
@@ -511,8 +533,10 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	list = (List) certsCache.get(distinguishedName);
       }
       catch (Exception e) {
-	log.warn("Unable to get list of certificates from cache for "
-		 + distinguishedName + ". Reason:" + e);
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to get list of certificates from cache for "
+                   + distinguishedName + ". Reason:" + e);
+        }
       }
       return list;
     }
@@ -537,7 +561,6 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     String cacheString = issuerDN + "," + serialno;
     // printbigIntCache();
     if (log.isDebugEnabled()) {
-      
       log.debug("addToRevokedCache - " + cacheString);
     }
     revokedCache.put(cacheString, cacheString);
@@ -570,8 +593,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	invalidateSessions(c1);
 
 	aCertEntry.setCertificateTrust( CertificateTrust.CERT_TRUST_REVOKED_CERT);
-
-	log.debug("revoked status in cache:");
+        if(log.isDebugEnabled()) {
+          log.debug("revoked status in cache:");
+        }
 	X500Name subjectname=null;
 	try {
 	  subjectname= new X500Name(subjectDN);
@@ -583,14 +607,18 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 	  }
 	}
 	certsCache.put(subjectname.getName(),list);
-	log.debug("revoked status in cache:" + subjectDN);
+        if(log.isDebugEnabled()) {
+          log.debug("revoked status in cache:" + subjectDN);
+        }
 	break;
       }
 
     }
     //if(!found){
     if (cname == null) {
-      log.warn(" not found cert:");
+      if(log.isWarnEnabled()) {
+        log.warn(" not found cert:");
+      }
       return;
     }
 
@@ -601,7 +629,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
                                                                   KeyRingService.class,
                                                                   null);
     if(ks==null) {
-      log.warn(" Cannot revoke status as KeyRingService is null :") ;
+      if(log.isWarnEnabled()) {
+        log.warn(" Cannot revoke status as KeyRingService is null :") ;
+      }
       return ;
     }
     Enumeration allcerts = certsCache.elements();
@@ -617,9 +647,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     }
 
     // need to have certificate status set before informing other modules to reload
-        // inform validity listeners
+    // inform validity listeners
     CertValidityService validityService = (CertValidityService)
-          serviceBroker.getService(this, CertValidityService.class, null);
+      serviceBroker.getService(this, CertValidityService.class, null);
     validityService.invalidate(cname);
     serviceBroker.releaseService(this, CertValidityService.class, validityService);
     serviceBroker.releaseService(this,
@@ -794,7 +824,7 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
              // with the origin CERT_ORI_LDAP.
              */
             if (certEntry.getCertificateOrigin()
-              .equals(CertificateOrigin.CERT_ORI_KEYSTORE)) {  
+                .equals(CertificateOrigin.CERT_ORI_KEYSTORE)) {  
               if(log.isDebugEnabled()) {
                 log.debug("Changing the origin of the certificate cache entry from " + aCertEntry.getCertificateOrigin() + 
                           " to " + certEntry.getCertificateOrigin() + " for " + 
@@ -906,13 +936,19 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         }
         if(_crlCacheService!=null) {
           _crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
-          log.debug("Update CRL Cache with DN :"+ cert.getSubjectDN().getName());
+          if(log.isDebugEnabled()) {
+            log.debug("Update CRL Cache with DN :"+ cert.getSubjectDN().getName());
+          }
         }
         else {
-          log.debug("CRL Cache Service is NULL in addCertificate(CertificateStatus certEntry) .. cannot update CRL cache with DN:"+
-                    cert.getSubjectDN().getName()); 
+          if(log.isDebugEnabled()) {
+            log.debug("CRL Cache Service is NULL in addCertificate(CertificateStatus certEntry) .. cannot update CRL cache with DN:"+
+                      cert.getSubjectDN().getName()); 
+          }
           if(serviceAvailableListener==null) {
-            log.debug("Adding CRL cache Service Listner :");
+            if(log.isDebugEnabled()) {
+              log.debug("Adding CRL cache Service Listner :");
+            }
             serviceAvailableListener=new MyServiceAvailableListener();
             serviceBroker.addServiceListener(serviceAvailableListener);
           } 
@@ -967,16 +1003,22 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
     List list = (List) privateKeyCache.get(distinguishedName);
     if(list==null) {
-      log.debug(" Error in getting certificate for dn :"+distinguishedName);
+      if(log.isDebugEnabled()) {
+        log.debug(" Error in getting certificate for dn :"+distinguishedName);
+      }
       Set x=privateKeyCache.keySet();
       if(x!=null) {
         Iterator iter=x.iterator();
         while(iter.hasNext()){
-          log.debug(" Key in private Key cache is :"+(String)iter.next());
+          if(log.isDebugEnabled()) {
+            log.debug(" Key in private Key cache is :"+(String)iter.next());
+          }
         }
       }
-      else {
-        log.debug("Set in getPrivateKeysis null:");
+      else { 
+        if(log.isDebugEnabled()) {
+          log.debug("Set in getPrivateKeysis null:");
+        }
       }
 	
     }
@@ -1018,15 +1060,21 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     Enumeration e=bigint2dn.keys();
     CRLKey keys=null ;
     String dnname=null;
-    log.debug("Printing contents of bigint 2dn mapping in certcache");
+    if(log.isDebugEnabled()) {
+      log.debug("Printing contents of bigint 2dn mapping in certcache");
+    }
     int counter =0;
     while(e.hasMoreElements()) {
       keys=(CRLKey)e.nextElement();
-      log.debug(" counter :"+ counter);
-      log.debug("In bigint cache  Key is :"
-                +keys.toString() +" hash code is :"+keys.hashCode());
+      if(log.isDebugEnabled()) {
+        log.debug(" counter :"+ counter);
+        log.debug("In bigint cache  Key is :"
+                  +keys.toString() +" hash code is :"+keys.hashCode());
+      }
       dnname=(String)bigint2dn.get(keys);
-      log.debug("In bigint cache dn name is :: "+dnname);
+      if(log.isDebugEnabled()) {
+        log.debug("In bigint cache dn name is :: "+dnname);
+      }
       counter++;
     }
   }
@@ -1034,37 +1082,50 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
     // Certificates
     Enumeration e = certsCache.keys();
-    log.debug("============== Certificates:");
+    if(log.isDebugEnabled()) {
+      log.debug("============== Certificates:");
+    }
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
       List list = (List) certsCache.get(name);
       ListIterator it = list.listIterator();
-      log.debug("Certificates for: " + name);
+      if(log.isDebugEnabled()) {
+        log.debug("Certificates for: " + name);
+      }
       while (it.hasNext()) {
         CertificateStatus cs = (CertificateStatus) it.next();
-        log.debug(cs.toString());
+        if(log.isDebugEnabled()) {
+          log.debug(cs.toString());
+        }
       }
     }
 
     // Private keys
     e = privateKeyCache.keys();
-    log.debug("============== Private keys:");
+    if(log.isDebugEnabled()) {
+      log.debug("============== Private keys:");
+    }
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
       List list = (List) privateKeyCache.get(name);
       ListIterator it = list.listIterator();
-      log.debug("PrivateKeys for: " + name);
+      if(log.isDebugEnabled()) {
+        log.debug("PrivateKeys for: " + name);
+      }
       while (it.hasNext()) {
         PrivateKeyCert pcert = (PrivateKeyCert) it.next();
-        log.debug(pcert.toString());
+        if(log.isDebugEnabled()) {
+          log.debug(pcert.toString());
+        }
       }
     }
   }
 
   public String getDN(CRLKey crlkey)  {
 
-    if(log.isDebugEnabled())
+    if(log.isDebugEnabled()){
       log.debug("Going to find dn for key :"+crlkey.toString());
+    }
     String subjectDN=null;
     if(bigint2dn.containsKey(crlkey)) {
       subjectDN=(String)bigint2dn.get(crlkey);
@@ -1081,7 +1142,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
   
   public void deleteEntry(X500Name name) {
     if (name == null) {
-      log.warn("Unable to remove null entry from cache.");
+      if(log.isWarnEnabled()) {
+        log.warn("Unable to remove null entry from cache.");
+      }
       throw new IllegalArgumentException("Unable to remove null entry from cache.");
     }
     String distinguishedName = name.getName();
@@ -1169,8 +1232,10 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         try {
           key = (PrivateKey) aKeystore.getKey(alias, password);
         }
-        catch (Exception e) {
-          log.warn("Unable to update private keystore: " + e);
+        catch(Exception e) {
+          if (log.isWarnEnabled()) {
+            log.warn("Unable to update private keystore: " + e);
+          }
         }
         addKeyToCache(certificate, key, alias, certType);
       }
@@ -1191,7 +1256,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       cn=getCommonName(cert);
     }
     catch (Exception exp) {
-      log.warn("Unable to get common name for " + alias + ". Reason:" + exp);
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get common name for " + alias + ". Reason:" + exp);
+      }
     }
     return cn;
 
@@ -1289,7 +1356,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
     
 
     if (certificate == null) {
-      log.warn("Unable to add null certificate to cache");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to add null certificate to cache");
+      }
       throw new IllegalArgumentException("Unable to add null certificate to cache");
     }
     CertificateStatus certstatus = null;
@@ -1310,7 +1379,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       }
     }
     catch (java.security.KeyStoreException e) {
-      log.warn("Unable to get certificate from keystore: " + e);
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get certificate from keystore: " + e);
+      }
     }
     certstatus =
       new CertificateStatus(certificate,
@@ -1376,7 +1447,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
       alias =keystore.aliases();
     }
     catch (Exception exp) {
-      log.warn("Unable to get alias list: " + exp);
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get alias list: " + exp);
+      }
       return null;
     }
     return alias;
@@ -1684,7 +1757,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
         list.add(cert);
       }
     } catch (Exception e) {
-      log.warn("Error: can't get the certificates from truststore. " + e.toString());
+      if (log.isWarnEnabled()) {
+        log.warn("Error: can't get the certificates from truststore. " + e.toString());
+      }
     }
 
     X509Certificate[] trustedcerts = new X509Certificate[list.size()];
@@ -1698,7 +1773,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 			  Certificate[] certificate) throws KeyStoreException  {
     
     if(keystore==null) {
-      log.debug(" keystore is null:");
+      if (log.isDebugEnabled()) {
+        log.debug(" keystore is null:");
+      }
     }
     synchronized(keystore) {
       keystore.setKeyEntry(alias, privatekey, pwd, certificate);
@@ -1744,7 +1821,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
             _blackboardService.closeTransaction() ;
           }
           catch(SubscriberException subexep) {
-            log.warn(" Unable to publish  in InUseDNObject :"+ subexep.getMessage());
+            if(log.isWarnEnabled()) {
+              log.warn(" Unable to publish  in InUseDNObject :"+ subexep.getMessage());
+            }
             return;
           }
         }
@@ -1777,7 +1856,9 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
               break;
             }
             else {
-              log.warn("get certifcate with cs returned null for dn increateEvents  ="+name);
+              if(log.isWarnEnabled()) {
+                log.warn("get certifcate with cs returned null for dn increateEvents  ="+name);
+              }
             }
           }
         }
@@ -1810,12 +1891,16 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
                 break;
               }
               else {
-                log.warn("get certifcate with cs returned null for dn ="+name);
+                if(log.isWarnEnabled()) {
+                  log.warn("get certifcate with cs returned null for dn ="+name);
+                }
               }
             }
           }
-          else {
-            log.warn("Certificate Status is null for :"+ name);
+          else { 
+            if(log.isWarnEnabled()) {
+              log.warn("Certificate Status is null for :"+ name);
+            }
           }
         }//end of  while (it.hasNext())
       }//end of  while (e.hasMoreElements())
@@ -1827,22 +1912,26 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
 
   public void updateCRLCache()  {
     
-    log.debug(" UpdateCRLCache called from MyServiceAvailableListener");
+    if(log.isDebugEnabled()) {
+      log.debug(" UpdateCRLCache called from MyServiceAvailableListener");
+    }
     if (_crlCacheService == null) {
       AccessController.doPrivileged(new PrivilegedAction() {
-         public Object run() {
-           _crlCacheService=(CRLCacheService)
-               serviceBroker.getService(this, CRLCacheService.class, null);
-           return null;
-         }
-       });
+          public Object run() {
+            _crlCacheService=(CRLCacheService)
+              serviceBroker.getService(this, CRLCacheService.class, null);
+            return null;
+          }
+        });
     }
     Enumeration e = certsCache.keys();
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
       List list = (List) certsCache.get(name);
       ListIterator it = list.listIterator();
-      log.debug("Updating CRL Cache for: " + name);
+      if(log.isDebugEnabled()) {
+        log.debug("Updating CRL Cache for: " + name);
+      }
       while (it.hasNext()) {
         CertificateStatus cs = (CertificateStatus) it.next();
         if(cs!=null) {
@@ -1854,16 +1943,22 @@ final public class CertificateCache implements CertificateCacheService, Blackboa
                 break;
               }
               else {
-                log.warn("get certifcate with cs returned null for dn ="+name);
+                if(log.isWarnEnabled()) {
+                  log.warn("get certifcate with cs returned null for dn ="+name);
+                }
               }
             }
             else {
-              log.warn("CRL cache is null.. though MyServiceAvailableListener was called :");
+              if(log.isDebugEnabled()) {
+                log.warn("CRL cache is null.. though MyServiceAvailableListener was called :");
+              }
             }
           }
         }
         else {
-          log.warn("Certificate Status is null for :"+ name);
+          if(log.isDebugEnabled()) {
+            log.warn("Certificate Status is null for :"+ name);
+          }
         }
       }
     }

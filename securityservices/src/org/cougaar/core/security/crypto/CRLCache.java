@@ -144,22 +144,22 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       serviceBroker.getService(this, LoggingService.class, null);
 
     AccessController.doPrivileged(new PrivilegedAction() {
-      public Object run() {
-         secprop = (SecurityPropertiesService)
-             serviceBroker.getService(this, SecurityPropertiesService.class, null);
-         configParser = (ConfigParserService)
-             serviceBroker.getService(this, ConfigParserService.class, null);
-         cacheService = (CertificateCacheService)
-             serviceBroker.getService(this, CertificateCacheService.class, null);
-         keyRingService = (KeyRingService)
-             serviceBroker.getService(this, KeyRingService.class, null);
-         crlMgmtService=(CrlManagementService)
-             serviceBroker.getService(this, CrlManagementService.class, null);
-         _searchService = (CertificateSearchService)
-             serviceBroker.getService(this, CertificateSearchService.class, null);
-         return null;
-      }
-    });
+        public Object run() {
+          secprop = (SecurityPropertiesService)
+            serviceBroker.getService(this, SecurityPropertiesService.class, null);
+          configParser = (ConfigParserService)
+            serviceBroker.getService(this, ConfigParserService.class, null);
+          cacheService = (CertificateCacheService)
+            serviceBroker.getService(this, CertificateCacheService.class, null);
+          keyRingService = (KeyRingService)
+            serviceBroker.getService(this, KeyRingService.class, null);
+          crlMgmtService=(CrlManagementService)
+            serviceBroker.getService(this, CrlManagementService.class, null);
+          _searchService = (CertificateSearchService)
+            serviceBroker.getService(this, CertificateSearchService.class, null);
+          return null;
+        }
+      });
 
     if (secprop == null) {
       throw new RuntimeException("unable to get security properties service");
@@ -169,7 +169,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
 
     //this.keystore=dkeystore;
-    log.debug("Crl cache being initialized");
+    if (log.isDebugEnabled()) {
+      log.debug("Crl cache being initialized");
+    }
     long poll = 0;
     try {
       poll = (Long.valueOf(secprop.getProperty(SecurityPropertiesService.CRL_POLLING_PERIOD))).longValue() * 1000;
@@ -194,10 +196,14 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       boolean exec =
         Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
       if (exec == true) {
-        log.warn("Unable to get crypto Client policy");
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to get crypto Client policy");
+        }
       }
       else {
-        log.info("Unable to get crypto Client policy");
+        if (log.isInfoEnabled()) {
+          log.info("Unable to get crypto Client policy");
+        }
       }
       throw new RuntimeException("Unable to get crypto Client policy");
     }
@@ -237,16 +243,21 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
 
     if (enableCRLUpdates != null) {
-      log.warn("enableCRLUpdates for community service test set to " + enableCRLUpdates);
+      if (log.isWarnEnabled()) {
+        log.warn("enableCRLUpdates for community service test set to " + enableCRLUpdates);
+      }
     }
   }
 
   public void startThread() {
-    
-    log.debug("Start Thread called _crlcacheInitilized  :" + _crlcacheInitilized+
-              "threadService :"+threadService);
+    if (log.isDebugEnabled()) {
+      log.debug("Start Thread called _crlcacheInitilized  :" + _crlcacheInitilized+
+                "threadService :"+threadService);
+    }
     if(threadService!=null && _crlcacheInitilized && _searchService !=null) {
-      log.debug("Starting CRL Poller thread with Sleep time :"+ getSleepTime());
+      if (log.isDebugEnabled()) {
+        log.debug("Starting CRL Poller thread with Sleep time :"+ getSleepTime());
+      }
       threadService.getThread(this, new CrlPoller()).
         schedule(0,getSleepTime());
     }
@@ -294,13 +305,17 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
                   for(int i=0;i<relays.size();i++) {
                     relay=(CrlRelay)relays.elementAt(i);
                     blackboardService.publishAdd(relay);
-                    log.debug(" CRL relay being published from addToCRLCache :"+relay.toString());
+                    if(log.isDebugEnabled()){
+                      log.debug(" CRL relay being published from addToCRLCache :"+relay.toString());
+                    }
                   }
                   try {
                     blackboardService.closeTransaction() ;
                   }
                   catch(SubscriberException subexep) {
-                    log.warn(" Unable to publish CRl registration in addToCRLCachec :"+ subexep.getMessage());
+                    if (log.isWarnEnabled()) {
+                      log.warn(" Unable to publish CRl registration in addToCRLCachec :"+ subexep.getMessage());
+                    }
                     return;
                   }
                 }
@@ -316,10 +331,12 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         }
       }
       else {
-        log.debug("blackboardService / crlMgmtService / threadService  is NULL:"+
-                  "blackboardService :"+blackboardService+
-                  "crlMgmtService:" +crlMgmtService+
-                  "threadService:"+threadService );
+        if (log.isDebugEnabled()) {
+          log.debug("blackboardService / crlMgmtService / threadService  is NULL:"+
+                    "blackboardService :"+blackboardService+
+                    "crlMgmtService:" +crlMgmtService+
+                    "threadService:"+threadService );
+        }
         
       }
     }
@@ -370,7 +387,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           updateCRLInCertCache(dnname);
         }
         else {
-          log.warn("Dn name is null in thread of crl cache :");
+          if (log.isWarnEnabled()) {
+            log.warn("Dn name is null in thread of crl cache :");
+          }
         }
       }
     }
@@ -404,7 +423,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   public void updateCRLCache(CRLWrapper wrapperFromDirectory) {
 
     String distingushname=wrapperFromDirectory.getDN();
-    log.debug("Update CRLCache is called from CRLCache BlackBoard Component :");
+    if (log.isDebugEnabled()) {
+      log.debug("Update CRLCache is called from CRLCache BlackBoard Component :");
+    }
     if(log.isDebugEnabled()) {
       log.debug(" Updating crl cache for :"+distingushname);
     }
@@ -422,7 +443,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
 
     if(keyRingService==null) {
-      log.warn("Unable to get  Ring Service in updateCRLCache");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get  Ring Service in updateCRLCache");
+      }
       return;
     }
     List certList = keyRingService.getValidCertificates(name);
@@ -479,7 +502,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         keyRingService.checkCertificateTrust(crlIssuerCert);
       }
       else {
-        log.warn("Unable to check certificate trust as keyring service is null");
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to check certificate trust as keyring service is null");
+        }
       }
     }
     catch(Exception exp) {
@@ -498,7 +523,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         wrapper.setCRL(crl.getEncoded());
       }
       catch(Exception exp) {
-        log.warn("Unable to set crl in cache for :"+distingushname ,exp);
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to set crl in cache for :"+distingushname ,exp);
+        }
       }
       String lastmodified=wrapperFromDirectory.getLastModifiedTimestamp();
       if(lastmodified !=null) {
@@ -544,7 +571,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     PublicKey crlIssuerPublickey =null;
     X509Certificate crlIssuerCert=null;
     if(keyRingService==null) {
-      log.warn("Unable to get  Ring Service in updateCRLCache");
+      if(log.isWarnEnabled()) {
+        log.warn("Unable to get  Ring Service in updateCRLCache");
+      }
       return;
     }
     List certList = keyRingService.getValidCertificates(name);
@@ -626,7 +655,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         keyRingService.checkCertificateTrust(crlIssuerCert);
       }
       else {
-        log.warn("Unable to check certificate trust as keyring service is null");
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to check certificate trust as keyring service is null");
+        }
       }
     }
     catch(Exception exp) {
@@ -639,7 +670,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         wrapper.setCRL(crl.getEncoded());
       }
       catch(Exception exp) {
-        log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
+        if(log.isWarnEnabled()) {
+          log.warn("Unable to encode crl in CRL cache :"+ distingushname + " message :"+exp.getMessage());
+        }
       }
       if (log.isDebugEnabled()) {
         log.debug("Got crl for: " + distingushname);
@@ -675,7 +708,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           issuerbytes=crlentry.getExtensionValue(oid);
 
           if(issuerbytes==null) {
-            log.debug(" Got issuerbytes as null for oid :" +oid );
+            if(log.isDebugEnabled()){
+              log.debug(" Got issuerbytes as null for oid :" +oid );
+            }
           }
           try{
             if(log.isDebugEnabled())
@@ -762,7 +797,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       //keystore.certCache.printbigIntCache();
     }
     if(cacheService==null) {
-      log.warn("Unable to get Certificate cache Service in updateCRLEntryInCertCache");
+      if(log.isWarnEnabled()){
+        log.warn("Unable to get Certificate cache Service in updateCRLEntryInCertCache");
+      }
     }
     subjectDN=null;
     if(cacheService!=null) {
@@ -786,7 +823,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       event("newCRL", actualIssuerDN, subjectDN);
     }
     else {
-      log.warn("Unable to revoke status in certificate Cache as  Certificate cache Service is null");
+      if(log.isWarnEnabled()){
+        log.warn("Unable to revoke status in certificate Cache as  Certificate cache Service is null");
+      }
     }
 
   }
@@ -796,7 +835,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     if (_eventService == null) {
       _eventService = (EventService)serviceBroker.getService(this, EventService.class, null);
       if (_eventService == null) {
-        log.warn("Fail to obtain event service");
+        if(log.isWarnEnabled()){
+          log.warn("Fail to obtain event service");
+        }
         return;
       }
     }
@@ -827,7 +868,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     //String s=null;
     X509Certificate certificate=null;
     String dnname=null;
-    log.debug("initCRLCacheFromKeystore called :");
+    if(log.isDebugEnabled()){
+      log.debug("initCRLCacheFromKeystore called :");
+    }
     if(cacheService==null) {
       log.error("Unable to get  cache Service in initCRLCacheFromKeystore.  initCRLCacheFromKeystore should not have been called   ");
       return;
@@ -852,7 +895,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         }
         else {
       */
-      log.debug("Adding Dn to CRL Cache  " + dnname) ;
+      if(log.isDebugEnabled()){
+        log.debug("Adding Dn to CRL Cache  " + dnname) ;
+      }
       addToCRLCache(dnname);
       //}
     }
@@ -892,7 +937,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 
 
   public boolean triggerEvent(Object event) {
-    log.debug("trigger event is called in CRL Cache "+ event.toString());
+    if(log.isDebugEnabled()){
+      log.debug("trigger event is called in CRL Cache "+ event.toString());
+    }
     return false;
   }
 
@@ -903,7 +950,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     CRLWrapper wrapper=null;
     CRLAgentRegistration crlagentregistartion=null;
     if(crlsCache.isEmpty()) {
-      log.debug("crlsCache is empty :");
+      if(log.isDebugEnabled()){
+        log.debug("crlsCache is empty :");
+      }
     }
     CrlRelay crlregrelay=null;
     Vector crls=new Vector();
@@ -946,26 +995,30 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     Schedulable crlThread = threadService.getThread(CRLCache.this, new Runnable( ) {
         public void run(){
           //if(enableCRLUpdates){
-            synchronized (_blackboardLock){
-              blackboardService.openTransaction();
-              for(int i=0;i<crlrelays.size();i++) {
-                Vector crlRelays=(Vector)crlrelays.elementAt(i);
-                CrlRelay relay=null;
-                for(int j=0;j<crlRelays.size();j++) {
-                  relay=(CrlRelay)crlRelays.elementAt(j);
-                  blackboardService.publishAdd(relay);
+          synchronized (_blackboardLock){
+            blackboardService.openTransaction();
+            for(int i=0;i<crlrelays.size();i++) {
+              Vector crlRelays=(Vector)crlrelays.elementAt(i);
+              CrlRelay relay=null;
+              for(int j=0;j<crlRelays.size();j++) {
+                relay=(CrlRelay)crlRelays.elementAt(j);
+                blackboardService.publishAdd(relay);
+                if(log.isDebugEnabled()){
                   log.debug(" CRL relay being published :"+relay.toString() + "Source :" + relay.getTarget());
                 }
               }
-              try {
-                blackboardService.closeTransaction() ;
-              }
-              catch(SubscriberException subexep) {
-                log.warn(" Unable to publish CRl registration :"+ subexep.getMessage());
-                return;
-              }
             }
-            _crlRegistered=true;
+            try {
+              blackboardService.closeTransaction() ;
+            }
+            catch(SubscriberException subexep) {
+              if(log.isWarnEnabled()){
+                log.warn(" Unable to publish CRl registration :"+ subexep.getMessage());
+              }
+              return;
+            }
+          }
+          _crlRegistered=true;
           //}
         }
       },"CRLPushRegistrationThread");
@@ -974,14 +1027,17 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   }
 
   public void createCrlBlackBoard () {
-    
-    log.debug("In create CrlBlackBoard method ");
+    if(log.isDebugEnabled()){
+      log.debug("In create CrlBlackBoard method ");
+    }
     SchedulerService schedulerService= 
       (SchedulerService) serviceBroker.getService(this,
                                                   SchedulerService.class,
                                                   null);
     if(schedulerService!=null){
-      log.debug("schedulerService is NOT NULL in createCrlBlackBoard");
+      if(log.isDebugEnabled()){
+        log.debug("schedulerService is NOT NULL in createCrlBlackBoard");
+      }
     }
 
     AlarmService alarmService=
@@ -989,7 +1045,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
                                               AlarmService.class,
                                               null);
     if(alarmService!=null){
-      log.debug("salarmService is NOT NULL in createCrlBlackBoard");
+      if(log.isDebugEnabled()){
+        log.debug("salarmService is NOT NULL in createCrlBlackBoard");
+      }
     }
 
     if(blackboardService!=null) {
@@ -1022,15 +1080,19 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     CRLWrapper wrapper=null;
     CRLAgentRegistration crlagentregistartion=null;
     if(crlsCache.isEmpty()) {
-      log.debug("crlsCache is empty :");
+      if(log.isDebugEnabled()){
+        log.debug("crlsCache is empty :");
+      }
     }
     CrlRelay crlregrelay=null;
     if(crlMgmtService==null ||  blackboardService==null ||communityname==null  || threadService==null ){
-      log.debug(" one of the service is NULL:"+
-                "crlMgmtService "+crlMgmtService+"\n"+
-                "blackboardService"+blackboardService+"\n"+
-                "communityname"+communityname+"\n"+
-                "threadService"+threadService);
+      if(log.isDebugEnabled()){
+        log.debug(" one of the service is NULL:"+
+                  "crlMgmtService "+crlMgmtService+"\n"+
+                  "blackboardService"+blackboardService+"\n"+
+                  "communityname"+communityname+"\n"+
+                  "threadService"+threadService);
+      }
       return ;
     }
     Vector regrelays=new Vector();
@@ -1063,13 +1125,17 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
             for(int i=0;i<crlrelays.size();i++) {
               relay=(CrlRelay)crlrelays.elementAt(i);
               blackboardService.publishAdd(relay);
-              log.debug(" CRL relay being published from publishCRLRegistrationToAddedCommunity :"+relay.toString());
+              if(log.isDebugEnabled()){
+                log.debug(" CRL relay being published from publishCRLRegistrationToAddedCommunity :"+relay.toString());
+              }
             }
             try {
               blackboardService.closeTransaction() ;
             }
             catch(SubscriberException subexep) {
-              log.warn(" Unable to publish CRl registration in publishCRLRegistrationToAddedCommunity  :"+ subexep.getMessage());
+              if(log.isWarnEnabled()){
+                log.warn(" Unable to publish CRl registration in publishCRLRegistrationToAddedCommunity  :"+ subexep.getMessage());
+              }
               return;
             }
           }
@@ -1080,7 +1146,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   }
 
   private synchronized void setSecurityCommunity() {
-    log.debug("Setting Security Communities");
+    if(log.isDebugEnabled()){
+      log.debug("Setting Security Communities");
+    }
     // new Throwable().printStackTrace();
     final CommunityServiceUtil csu = 
       new CommunityServiceUtil(serviceBroker);
@@ -1093,8 +1161,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           if (enableCRLUpdates != null && enableCRLUpdates.equals("2")) {
             return;
           }
-
-          log.debug(" call back for community is called :" + resp );
+          if(log.isDebugEnabled()){
+            log.debug(" call back for community is called :" + resp );
+          }
           setMySecurityCommunity((Set)resp);
           csu.releaseServices();
           //  setServices(); // try that again...
@@ -1105,7 +1174,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
   }
 
   private void setMySecurityCommunity(Collection c) {
-    log.debug(" setMySecurityCommunity called ");
+    if(log.isDebugEnabled()){
+      log.debug(" setMySecurityCommunity called ");
+    }
     boolean newCommunity=false;
     Vector addedCommunities=new Vector();
     if(!c.isEmpty()) {
@@ -1172,7 +1243,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
     }
     
     if (_communityService != null && isEmpty && !_listening) {
-      log.info("Calling setSecurityCommunity");
+      if(log.isInfoEnabled()){
+        log.info("Calling setSecurityCommunity");
+      }
       setSecurityCommunity();
     }
 
@@ -1182,12 +1255,16 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
 
     if ((!_crlRegistered) && (crlMgmtService != null) &&
         (blackboardService != null) && (!isEmpty) && (threadService != null)) {
-      log.info("Calling publishCrlRegistration");
+      if(log.isInfoEnabled()){
+        log.info("Calling publishCrlRegistration");
+      }
       publishCrlRegistration(true);
     }
     if ((!_createdCRLBlackboard) && (myAddress != null) &&
         (blackboardService != null) ) {
-      log.info("createCrlBlackBoard");
+      if(log.isInfoEnabled()){
+        log.info("createCrlBlackBoard");
+      }
       createCrlBlackBoard();
     }
   }
@@ -1200,7 +1277,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       final ServiceBroker sb = ae.getServiceBroker();
       log.info(" serviceAvailable Listener called :");
       if ( (sc == AgentIdentificationService.class) &&(myAddress==null) ) {
-        log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
+        if(log.isInfoEnabled()){
+          log.info(" AgentIdentification Service is available now in CRL Cache going to call setmyCommunity");
+        }
         AgentIdentificationService ais = (AgentIdentificationService)
           sb.getService(this, AgentIdentificationService.class, null);
         if(ais!=null){
@@ -1209,24 +1288,24 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         sb.releaseService(this, AgentIdentificationService.class, ais);
       } else if ( (sc == CertificateCacheService.class ) && (cacheService==null)) {
         AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run() {
-            cacheService = (CertificateCacheService)
-              sb.getService(CRLCache.this, CertificateCacheService.class, null);
-            return null;
-          }
-        });
+            public Object run() {
+              cacheService = (CertificateCacheService)
+                sb.getService(CRLCache.this, CertificateCacheService.class, null);
+              return null;
+            }
+          });
         if(cacheService!=null) {
           initCRLCacheFromKeystore();
         }
         settingServices=true; 
       } else if ((sc == KeyRingService.class ) && (keyRingService==null)) {
         AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run() {
-            keyRingService = (KeyRingService)
-              sb.getService(CRLCache.this, KeyRingService.class, null);
-            return null;
-          }
-        });
+            public Object run() {
+              keyRingService = (KeyRingService)
+                sb.getService(CRLCache.this, KeyRingService.class, null);
+              return null;
+            }
+          });
         settingServices=true;
       } else if (( sc == BlackboardService.class )&& (blackboardService==null )) {
         blackboardService = (BlackboardService)
@@ -1237,17 +1316,19 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
         settingServices=true;
       } else if (( sc == CrlManagementService.class )&&(crlMgmtService==null)) {
         AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run() {
-            crlMgmtService=(CrlManagementService)
-              sb.getService(CRLCache.this, CrlManagementService.class, null);
-            return null;
-          }
-        });
+            public Object run() {
+              crlMgmtService=(CrlManagementService)
+                sb.getService(CRLCache.this, CrlManagementService.class, null);
+              return null;
+            }
+          });
         settingServices=true;
       } else if ( sc == ThreadService.class) {
         ThreadService currentthreadService = (ThreadService) sb.getService(this, ThreadService.class, null);
         if(currentthreadService!=null) {
-          log.info(" Got Thread service in Service Available Listener  --  "+ currentthreadService);
+          if(log.isInfoEnabled()){
+            log.info(" Got Thread service in Service Available Listener  --  "+ currentthreadService);
+          }
           //startThread();
         }
         if(threadService==null) {
@@ -1262,11 +1343,11 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       }
       else if((sc == CertificateSearchService.class) &&(_searchService == null)) {
         AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run() {
-            _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
-            return null;
-          }
-        });
+            public Object run() {
+              _searchService=(CertificateSearchService) sb.getService(this, CertificateSearchService.class, null);
+              return null;
+            }
+          });
         startThread();
       }
       //log.info(" Got Called in Service Listner for "+ sc.getName());
@@ -1337,7 +1418,10 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       agentId=address;
     }
     protected void setupSubscriptions(){
-      log.debug("setupSubscriptions called :");
+      
+      if(log.isDebugEnabled()){
+        log.debug("setupSubscriptions called :");
+      }
       //log.debug("setupSubscriptions of CrlCacheBlackboardComponent called :");
       crlresponse=(IncrementalSubscription)getBlackboardService().subscribe(new CrlResponsePredicate());
       unRegister =(IncrementalSubscription)getBlackboardService().subscribe(new CrlUnRegisterPredicate());
@@ -1348,7 +1432,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
      * Called every time this component is scheduled to run.
      */
     protected void execute(){
-      log.debug("Execute of CrlCacheBlackboardComponent called :");
+      if(log.isDebugEnabled()){
+        log.debug("Execute of CrlCacheBlackboardComponent called :");
+      }
       Iterator resiterator=null;
       Collection responsecollection=null;
       CrlRelay responserelay=null;
@@ -1366,7 +1452,9 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
       resiterator=responsecollection.iterator();
       while(resiterator.hasNext()) {
         responserelay=(CrlRelay)resiterator.next();
-        log.debug("Received response :"+ responserelay.toString());
+        if(log.isDebugEnabled()){
+          log.debug("Received response :"+ responserelay.toString());
+        }
         if(responserelay.getResponse()!=null) {
           receivedcrl=(CRLWrapper) responserelay.getResponse();
           dn=receivedcrl.getDN();
@@ -1376,24 +1464,34 @@ final public class CRLCache implements CRLCacheService, BlackboardClient, Search
           String currentModifiedInCache=getLastModifiedTime(dn);
           Date cacheLastModified=DateUtil.getDateFromUTC(currentModifiedInCache);
           if(cacheLastModified!=null){
-            log.debug(" Crl cache last modified date ="+cacheLastModified.toString());
+            if(log.isDebugEnabled()){
+              log.debug(" Crl cache last modified date ="+cacheLastModified.toString());
+            }
           }
           if(cacheLastModified!=null) {
             if(currentLastmodified.after(cacheLastModified)) {
-              log.debug("Updating CRL Cache for DN :"+ dn);
+              if(log.isDebugEnabled()){
+                log.debug("Updating CRL Cache for DN :"+ dn);
+              }
               updateCRLCache(receivedcrl);
             }
             else {
-              log.debug("Received dates are equal in response plugin:");
+              if(log.isDebugEnabled()){
+                log.debug("Received dates are equal in response plugin:");
+              }
             }
           }
           else{
-            log.debug("Updating CRL Cache for DN :"+ dn);
+            if(log.isDebugEnabled()){
+              log.debug("Updating CRL Cache for DN :"+ dn);
+            }
             updateCRLCache(receivedcrl);
           }
         }
         else{
-          log.debug("Received response for crl update but response was null:");
+          if(log.isDebugEnabled()){
+            log.debug("Received response for crl update but response was null:");
+          }
         }
       }
 

@@ -93,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -120,31 +120,31 @@ public class CertificateRequestor {
    * @param irole DOCUMENT ME!
    */
   public CertificateRequestor(ServiceBroker sb,
-    ConfigParserService configparser, String irole) {
+                              ConfigParserService configparser, String irole) {
     serviceBroker = sb;
     configParser = configparser;
     SecurityPolicy[] sp = configParser.getSecurityPolicies(CryptoClientPolicy.class);
     cryptoClientPolicy = (CryptoClientPolicy) sp[0];
     log = (LoggingService) serviceBroker.getService(this, LoggingService.class,
-        null);
+                                                    null);
 
     role = irole;
-      try {
-        String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
-        _waittime = Integer.parseInt(waitPoll);
+    try {
+      String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
+      _waittime = Integer.parseInt(waitPoll);
 
-        waitPoll = System.getProperty("org.cougaar.core.security.waitrepeat", "6");
-        _waitrepeat = Integer.parseInt(waitPoll);
+      waitPoll = System.getProperty("org.cougaar.core.security.waitrepeat", "6");
+      _waitrepeat = Integer.parseInt(waitPoll);
 
-        waitPoll = System.getProperty("org.cougaar.core.security.pollThreshold", "180000");
-        _pollThreshold = Integer.parseInt(waitPoll);
-      } catch (Exception ex) {
-        if (log.isWarnEnabled()) {
-          log.warn("Unable to parse configpoll property: " + ex.toString());
-        }
+      waitPoll = System.getProperty("org.cougaar.core.security.pollThreshold", "180000");
+      _pollThreshold = Integer.parseInt(waitPoll);
+    } catch (Exception ex) {
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to parse configpoll property: " + ex.toString());
       }
+    }
 
-      _pollStart = System.currentTimeMillis();
+    _pollStart = System.currentTimeMillis();
   }
 
   /**
@@ -157,12 +157,12 @@ public class CertificateRequestor {
    * @return DOCUMENT ME!
    */
   protected synchronized PrivateKey addKeyPair(String commonName,
-    String keyAlias, TrustedCaPolicy trustedCaPolicy) {
+                                               String keyAlias, TrustedCaPolicy trustedCaPolicy) {
     CertificateAttributesPolicy certAttribPolicy = cryptoClientPolicy
       .getCertificateAttributesPolicy(trustedCaPolicy);
     X500Name dname = CertificateUtility.getX500Name(CertificateUtility
-        .getX500DN(commonName, CertificateCache.getTitle(commonName),
-          certAttribPolicy));
+                                                    .getX500DN(commonName, CertificateCache.getTitle(commonName),
+                                                               certAttribPolicy));
     return addKeyPair(dname, keyAlias, false, trustedCaPolicy);
   }
 
@@ -190,16 +190,18 @@ public class CertificateRequestor {
    * @return - the private key of the entity
    */
   protected synchronized PrivateKey addKeyPair(X500Name dname, String keyAlias,
-    boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
+                                               boolean isCACert, TrustedCaPolicy trustedCaPolicy) {
     String request = "";
     String reply = "";
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
     KeyRingService keyRing = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+                                                                       KeyRingService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate Cache in  addKeyPair");
+      if(log.isWarnEnabled()){
+        log.warn("Unable to get Certificate Cache in  addKeyPair");
+      }
     }
 
     //is node?
@@ -211,7 +213,7 @@ public class CertificateRequestor {
 
     if (log.isDebugEnabled()) {
       log.debug("Creating key pair for " + dname + " - Node name:" + nodeName
-        + " - Common Name=" + commonName);
+                + " - Common Name=" + commonName);
     }
 
     if (nodeName == null) {
@@ -243,12 +245,12 @@ public class CertificateRequestor {
       CertificateAttributesPolicy certAttribPolicy = cryptoClientPolicy
         .getCertificateAttributesPolicy(trustedCaPolicy);
       X500Name nodex500name = CertificateUtility.getX500Name(CertificateUtility
-          .getX500DN(nodeName, title, certAttribPolicy));
+                                                             .getX500DN(nodeName, title, certAttribPolicy));
 
 
       if (commonName.equals(nodeName) /* || commonName.equals(NodeInfo.getHostName())*/
-        || ((title != null) && title.equals(CertificateType.CERT_TITLE_USER))
-        || !certAttribPolicy.nodeIsSigner) {
+          || ((title != null) && title.equals(CertificateType.CERT_TITLE_USER))
+          || !certAttribPolicy.nodeIsSigner) {
         // Create a self-signed key and send it to the CA.
         if (keyAlias != null) {
           // Do not create key. There is already one in the keystore.
@@ -284,7 +286,7 @@ public class CertificateRequestor {
           }
 
           if ((title != null)
-            && title.equals(CertificateType.CERT_TITLE_AGENT)) {
+              && title.equals(CertificateType.CERT_TITLE_AGENT)) {
             String[] requestResult = this
               .generateSigningCertificateRequestForAgent(cert, alias);
             request = requestResult[0];
@@ -338,7 +340,7 @@ public class CertificateRequestor {
         List nodex509List = null;
         if (keyRing != null) {
           nodex509List = keyRing.findCert(nodex500name,
-              KeyRingService.LOOKUP_KEYSTORE, true);
+                                          KeyRingService.LOOKUP_KEYSTORE, true);
         }
 
         X509Certificate nodex509 = null;
@@ -391,12 +393,12 @@ public class CertificateRequestor {
 
         // Sign PKCS10 request with node key and send agent cert to CA
         reply = this.signPKCS(request, nodex509.getSubjectDN().getName(),
-            trustedCaPolicy);
+                              trustedCaPolicy);
       }
     } catch (Exception e) {
       if (log.isErrorEnabled()) {
         log.error("Unable to create key in addKeyPair: " + dname + " - Reason:",
-          e);
+                  e);
       }
     }
 
@@ -418,10 +420,12 @@ public class CertificateRequestor {
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
     KeyRingService keyRing = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+                                                                       KeyRingService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate Cache service in addKeyPairOn");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate Cache service in addKeyPairOn");
+      }
     }
 
     try {
@@ -430,10 +434,8 @@ public class CertificateRequestor {
         .getCertificateAttributesPolicy();
       if (caDNs.length == 0) {
         if (log.isDebugEnabled()) {
-          log.debug(
-            "No CA key created yet, the certificate can not be created.");
+          log.debug("No CA key created yet, the certificate can not be created.");
         }
-
         return null;
       }
 
@@ -448,8 +450,7 @@ public class CertificateRequestor {
 
         if ((certList == null) || (certList.size() == 0)) {
           if (log.isDebugEnabled()) {
-            log.debug(
-              "CA key created but is not approved by upper level CA yet.");
+            log.debug("CA key created but is not approved by upper level CA yet.");
           }
 
           String caCommonName = null;
@@ -476,7 +477,7 @@ public class CertificateRequestor {
       // sign it locally
       CertificateManagementService km = (CertificateManagementService) serviceBroker
         .getService(new CertificateManagementServiceClientImpl(caDN),
-          CertificateManagementService.class, null);
+                    CertificateManagementService.class, null);
       if (log.isDebugEnabled()) {
         log.debug("Signing certificate locally with " + caDN);
       }
@@ -487,7 +488,7 @@ public class CertificateRequestor {
       }
 
       X509CertImpl certImpl = km.signX509Certificate(generatePKCS10Request(
-            cert, alias));
+                                                       cert, alias));
 
       if (cacheservice != null) {
         privatekey = cacheservice.getKey(alias);
@@ -514,14 +515,18 @@ public class CertificateRequestor {
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
     KeyRingService keyRing = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+                                                                       KeyRingService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate Cache service in addCAKeyPair");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate Cache service in addCAKeyPair");
+      }
     }
 
     if (!cryptoClientPolicy.isCertificateAuthority()) {
-      log.error("Cannot make CA cert, this node is not a CA");
+      if (log.isErrorEnabled()) {
+        log.error("Cannot make CA cert, this node is not a CA");
+      }
       return null;
     } else {
       try {
@@ -537,20 +542,20 @@ public class CertificateRequestor {
           }
 
           /*
-             No need tp parse dn as Search should be able to do this and publish the certificate to certCache
-                   //String filter = "(cn=" + dname.getCommonName() + ")";
-                   String filter =CertificateUtility. parseDN(dname.getName());
-                   // there should be only one upper level CA, for now
-           */
+            No need tp parse dn as Search should be able to do this and publish the certificate to certCache
+            //String filter = "(cn=" + dname.getCommonName() + ")";
+            String filter =CertificateUtility. parseDN(dname.getName());
+            // there should be only one upper level CA, for now
+            */
           X500Name x500signer = new X500Name(cryptoClientPolicy.getIssuerPolicy()[0].caDN);
           keyRing.findCert(x500signer);
 
           /*
-             Commented from original code
-             CertDirectoryServiceClient certFinder =
-             getCACertDirServiceClient(cryptoClientPolicy.getIssuerPolicy()[0].caDN);
-             lookupCertInLDAP(filter, certFinder);
-           */
+            Commented from original code
+            CertDirectoryServiceClient certFinder =
+            getCACertDirServiceClient(cryptoClientPolicy.getIssuerPolicy()[0].caDN);
+            lookupCertInLDAP(filter, certFinder);
+          */
           X509Certificate certificate = null;
           if (cacheservice != null) {
             certificate = cacheservice.getCertificate(alias);
@@ -573,13 +578,13 @@ public class CertificateRequestor {
               X509Certificate[] certForImport = null;
               if (keyRing != null) {
                 certForImport = establishCertChain(certificate,
-                    cs.getCertificate());
+                                                   cs.getCertificate());
               }
 
               if (cacheservice != null) {
                 cacheservice.setKeyEntry(alias, privatekey, certForImport);
                 cacheservice.saveCertificateInTrustedKeyStore((X509Certificate) cacheservice
-                  .getCertificate(alias), alias);
+                                                              .getCertificate(alias), alias);
               }
 
               //return privatekey;
@@ -601,14 +606,14 @@ public class CertificateRequestor {
             if (cacheservice != null) {
               // Save the certificate in the trusted CA keystore
               cacheservice.saveCertificateInTrustedKeyStore((X509Certificate) cacheservice
-                .getCertificate(alias), alias);
+                                                            .getCertificate(alias), alias);
               privatekey = cacheservice.getKey(alias);
             }
           }
           // else submit to upper level CA
           else {
             String request = generateSigningCertificateRequest((X509Certificate) cacheservice
-                .getCertificate(alias), alias);
+                                                               .getCertificate(alias), alias);
             if (log.isDebugEnabled()) {
               log.debug("Sending PKCS10 request to root CA to sign this CA.");
             }
@@ -619,7 +624,7 @@ public class CertificateRequestor {
             if (privatekey != null) {
               if (cacheservice != null) {
                 cacheservice.saveCertificateInTrustedKeyStore((X509Certificate) cacheservice
-                  .getCertificate(alias), alias);
+                                                              .getCertificate(alias), alias);
               }
             }
           }
@@ -628,13 +633,13 @@ public class CertificateRequestor {
         if (privatekey != null) {
           CertificateManagementService km = (CertificateManagementService) serviceBroker
             .getService(new CertificateManagementServiceClientImpl(
-                dname.toString()), CertificateManagementService.class, null);
+                          dname.toString()), CertificateManagementService.class, null);
           X509CRL crl = CrlUtility.createEmptyCrl(dname.toString(), privatekey,
-              cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName);
+                                                  cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName);
           String modifiedtime = DateUtil.getCurrentUTC();
           CACertificateEntry caCertEntry = new CACertificateEntry((X509Certificate) cacheservice
-              .getCertificate(alias), CertificateRevocationStatus.VALID,
-              CertificateType.CERT_TYPE_CA, crl, modifiedtime);
+                                                                  .getCertificate(alias), CertificateRevocationStatus.VALID,
+                                                                  CertificateType.CERT_TYPE_CA, crl, modifiedtime);
           km.publishCertificate(caCertEntry);
 
         }
@@ -665,29 +670,29 @@ public class CertificateRequestor {
    * @throws UnrecoverableKeyException DOCUMENT ME!
    */
   public String generateSigningCertificateRequest(X509Certificate certificate,
-    String signerAlias)
+                                                  String signerAlias)
     throws IOException, SignatureException, NoSuchAlgorithmException, 
-      InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
+    InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
     PKCS10 request = generatePKCS10Request(certificate, signerAlias);
     String reply = CertificateUtility.base64encode(request.getEncoded(),
-        CertificateUtility.PKCS10HEADER, CertificateUtility.PKCS10TRAILER);
+                                                   CertificateUtility.PKCS10HEADER, CertificateUtility.PKCS10TRAILER);
 
     /*
-       if (debug) {
-       log.debug("GenerateSigningCertificateRequest:\n" + reply);
-       }
-     */
+      if (debug) {
+      log.debug("GenerateSigningCertificateRequest:\n" + reply);
+      }
+    */
     return reply;
   }
 
   Boolean _pkcsLock = new Boolean(true);
   private String sendPKCS(String commonName, String request, String nodeSignature, String pkcs,
-    TrustedCaPolicy trustedCaPolicy, String nodeName) {
+                          TrustedCaPolicy trustedCaPolicy, String nodeName) {
     String reply = "";
 
     if (log.isDebugEnabled()) {
       log.debug("Sending request to " + trustedCaPolicy.caURL + ", DN= "
-        + trustedCaPolicy.caDN);
+                + trustedCaPolicy.caDN);
     }
 
     if (trustedCaPolicy == null) {
@@ -698,74 +703,80 @@ public class CertificateRequestor {
       return reply;
     }
 
-synchronized (_pkcsLock) {
-  for (int i = 0; i < _waitrepeat; i++ ) {
-    try {
-      URL url = new URL(trustedCaPolicy.caURL);
-      HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+    synchronized (_pkcsLock) {
+      for (int i = 0; i < _waitrepeat; i++ ) {
+        try {
+          URL url = new URL(trustedCaPolicy.caURL);
+          HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 
-      // Don't follow redirects automatically.
-      huc.setInstanceFollowRedirects(false);
-      // Let the system know that we want to do output
-      huc.setDoOutput(true);
-      // Let the system know that we want to do input
-      huc.setDoInput(true);
-      // No caching, we want the real thing
-      huc.setUseCaches(false);
-      // Specify the content type
-      huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-      huc.setRequestMethod("POST");
-      PrintWriter out = new PrintWriter(huc.getOutputStream());
-      String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
-      content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
-      content = content + "&dnname="
-        + URLEncoder.encode(trustedCaPolicy.caDN, "UTF-8");
-      content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
-      content = content + "&nodeSignature="
-        + URLEncoder.encode(nodeSignature, "UTF-8");
-      content = content + "&node=" + URLEncoder.encode(nodeName,"UTF-8");
-      out.println(content);
-      out.flush();
-      out.close();
+          // Don't follow redirects automatically.
+          huc.setInstanceFollowRedirects(false);
+          // Let the system know that we want to do output
+          huc.setDoOutput(true);
+          // Let the system know that we want to do input
+          huc.setDoInput(true);
+          // No caching, we want the real thing
+          huc.setUseCaches(false);
+          // Specify the content type
+          huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+          huc.setRequestMethod("POST");
+          PrintWriter out = new PrintWriter(huc.getOutputStream());
+          String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
+          content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
+          content = content + "&dnname="
+            + URLEncoder.encode(trustedCaPolicy.caDN, "UTF-8");
+          content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
+          content = content + "&nodeSignature="
+            + URLEncoder.encode(nodeSignature, "UTF-8");
+          content = content + "&node=" + URLEncoder.encode(nodeName,"UTF-8");
+          out.println(content);
+          out.flush();
+          out.close();
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(
-            huc.getInputStream()));
-      StringBuffer sbuf = new StringBuffer();
-      int len = 2000; // Size of a read operation
-      char[] cbuf = new char[len];
-      int read;
-      while ((read = in.read(cbuf, 0, len)) > 0) {
-        sbuf.append(cbuf, 0, read);
-      }
+          BufferedReader in = new BufferedReader(new InputStreamReader(
+                                                   huc.getInputStream()));
+          StringBuffer sbuf = new StringBuffer();
+          int len = 2000; // Size of a read operation
+          char[] cbuf = new char[len];
+          int read;
+          while ((read = in.read(cbuf, 0, len)) > 0) {
+            sbuf.append(cbuf, 0, read);
+          }
 
-      in.close();
-      reply = sbuf.toString();
-      reply = URLDecoder.decode(reply, "UTF-8");
-      if (log.isDebugEnabled()) {
-        log.debug("Reply: " + reply);
-      }
-      break;
-    } catch (Exception e) {
-      if (!(e instanceof SocketException)) {
-        log.warn("Unable to send PKCS request to CA. CA URL:"
-        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
-	+ ". CN=" + commonName, e);
-        break;
+          in.close();
+          reply = sbuf.toString();
+          reply = URLDecoder.decode(reply, "UTF-8");
+          if (log.isDebugEnabled()) {
+            log.debug("Reply: " + reply);
+          }
+          break;
+        } catch (Exception e) {
+          if (!(e instanceof SocketException)) {
+            if (log.isWarnEnabled()) {
+              log.warn("Unable to send PKCS request to CA. CA URL:"
+                       + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
+                       + ". CN=" + commonName, e);
+            }
+            break;
+          }
+        }
+
+        try {
+          Thread.sleep(_waittime);
+        } catch (Exception ex) {
+          if (log.isDebugEnabled()) {
+            log.warn("Thread interruped: ", ex);
+          }
+        }
       }
     }
-
-    try {
-      Thread.sleep(_waittime);
-    } catch (Exception ex) {
-      log.warn("Thread interruped: ", ex);
-    }
-  }
-}
     if (reply == "") {
       if (System.currentTimeMillis() > _pollStart + _pollThreshold) {
-        log.warn("Unable to send PKCS request to CA. CA URL:"
-        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
-	+ ". CN=" + commonName);
+        if (log.isDebugEnabled()) {
+          log.warn("Unable to send PKCS request to CA. CA URL:"
+                   + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
+                   + ". CN=" + commonName);
+        }
       }
     }
     return reply;
@@ -790,13 +801,13 @@ synchronized (_pkcsLock) {
   public String[] generateSigningCertificateRequestForAgent(
     X509Certificate certificate, String signerAlias)
     throws IOException, SignatureException, NoSuchAlgorithmException, 
-      InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
+    InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
     EncryptionService encryptService = (EncryptionService) serviceBroker
       .getService(this, EncryptionService.class, null);
     PKCS10 request = generatePKCS10Request(certificate, signerAlias);
 
     String reply = CertificateUtility.base64encode(request.getEncoded(),
-        CertificateUtility.PKCS10HEADER, CertificateUtility.PKCS10TRAILER);
+                                                   CertificateUtility.PKCS10HEADER, CertificateUtility.PKCS10TRAILER);
 
 
     if (log.isDebugEnabled()) {
@@ -835,16 +846,16 @@ synchronized (_pkcsLock) {
     }
 
     ObjectOutputStream out = null;
-	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     try {
       // stream closed in the finally
       out = new ObjectOutputStream(outputStream);
       out.writeObject(signedObj);
 
     } catch (IOException ex) {
-       if(log.isErrorEnabled()){
+      if(log.isErrorEnabled()){
        	log.error("Could not serialize signed object");
-       }
+      }
     } finally {
       try {
         if (out != null) {
@@ -854,10 +865,10 @@ synchronized (_pkcsLock) {
         // ignore;
       }
     }
-	BASE64Encoder encoder= new BASE64Encoder();
-	ByteArrayOutputStream encodeStream = new ByteArrayOutputStream();
-	encoder.encodeBuffer(outputStream.toByteArray(), encodeStream);
-	String encodeSignedObject = encodeStream.toString("US-ASCII");
+    BASE64Encoder encoder= new BASE64Encoder();
+    ByteArrayOutputStream encodeStream = new ByteArrayOutputStream();
+    encoder.encodeBuffer(outputStream.toByteArray(), encodeStream);
+    String encodeSignedObject = encodeStream.toString("US-ASCII");
     String[] ret = new String[2];
     ret[0] = reply;
     ret[1] = encodeSignedObject;
@@ -881,9 +892,9 @@ synchronized (_pkcsLock) {
    * @throws UnrecoverableKeyException DOCUMENT ME!
    */
   public PKCS10 generatePKCS10Request(X509Certificate certificate,
-    String signerAlias)
+                                      String signerAlias)
     throws IOException, SignatureException, NoSuchAlgorithmException, 
-      InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
+    InvalidKeyException, KeyStoreException, UnrecoverableKeyException {
     PublicKey pk = certificate.getPublicKey();
     PKCS10 request = new PKCS10(pk);
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
@@ -928,12 +939,12 @@ synchronized (_pkcsLock) {
   }
 
   private String sendPKCS(String request, String pkcs,
-    TrustedCaPolicy trustedCaPolicy) {
+                          TrustedCaPolicy trustedCaPolicy) {
     String reply = "";
 
     if (log.isDebugEnabled()) {
       log.debug("Sending request to " + trustedCaPolicy.caURL + ", DN= "
-        + trustedCaPolicy.caDN);
+                + trustedCaPolicy.caDN);
     }
 
     if (trustedCaPolicy == null) {
@@ -943,69 +954,75 @@ synchronized (_pkcsLock) {
       return reply;
     }
 
-synchronized (_pkcsLock) {
-  for (int i = 0; i < _waitrepeat; i++) {
-    try {
-      URL url = new URL(trustedCaPolicy.caURL);
-      HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+    synchronized (_pkcsLock) {
+      for (int i = 0; i < _waitrepeat; i++) {
+        try {
+          URL url = new URL(trustedCaPolicy.caURL);
+          HttpURLConnection huc = (HttpURLConnection) url.openConnection();
 
-      // Don't follow redirects automatically.
-      huc.setInstanceFollowRedirects(false);
-      // Let the system know that we want to do output
-      huc.setDoOutput(true);
-      // Let the system know that we want to do input
-      huc.setDoInput(true);
-      // No caching, we want the real thing
-      huc.setUseCaches(false);
-      // Specify the content type
-      huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-      huc.setRequestMethod("POST");
-      PrintWriter out = new PrintWriter(huc.getOutputStream());
-      String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
-      content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
-      content = content + "&dnname="
-        + URLEncoder.encode(trustedCaPolicy.caDN, "UTF-8");
-      content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
-      out.println(content);
-      out.flush();
-      out.close();
+          // Don't follow redirects automatically.
+          huc.setInstanceFollowRedirects(false);
+          // Let the system know that we want to do output
+          huc.setDoOutput(true);
+          // Let the system know that we want to do input
+          huc.setDoInput(true);
+          // No caching, we want the real thing
+          huc.setUseCaches(false);
+          // Specify the content type
+          huc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+          huc.setRequestMethod("POST");
+          PrintWriter out = new PrintWriter(huc.getOutputStream());
+          String content = "pkcs=" + URLEncoder.encode(pkcs, "UTF-8");
+          content = content + "&role=" + URLEncoder.encode(role, "UTF-8");
+          content = content + "&dnname="
+            + URLEncoder.encode(trustedCaPolicy.caDN, "UTF-8");
+          content = content + "&pkcsdata=" + URLEncoder.encode(request, "UTF-8");
+          out.println(content);
+          out.flush();
+          out.close();
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(
-            huc.getInputStream()));
-      StringBuffer sbuf = new StringBuffer();
-      int len = 2000; // Size of a read operation
-      char[] cbuf = new char[len];
-      int read;
-      while ((read = in.read(cbuf, 0, len)) > 0) {
-        sbuf.append(cbuf, 0, read);
-      }
+          BufferedReader in = new BufferedReader(new InputStreamReader(
+                                                   huc.getInputStream()));
+          StringBuffer sbuf = new StringBuffer();
+          int len = 2000; // Size of a read operation
+          char[] cbuf = new char[len];
+          int read;
+          while ((read = in.read(cbuf, 0, len)) > 0) {
+            sbuf.append(cbuf, 0, read);
+          }
 
-      in.close();
-      reply = sbuf.toString();
-      reply = URLDecoder.decode(reply, "UTF-8");
-      if (log.isDebugEnabled()) {
-        log.debug("Reply: " + reply);
-      }
-      break;
-    } catch (Exception e) {
-      if (!(e instanceof SocketException)) {
-      log.warn("Unable to send PKCS request to CA. Tried " + i + "/" + _waitrepeat
-        + " times. CA URL:"
-        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
-        break;
+          in.close();
+          reply = sbuf.toString();
+          reply = URLDecoder.decode(reply, "UTF-8");
+          if (log.isDebugEnabled()) {
+            log.debug("Reply: " + reply);
+          }
+          break;
+        } catch (Exception e) {
+          if (!(e instanceof SocketException)) {
+            if (log.isDebugEnabled()) {
+              log.warn("Unable to send PKCS request to CA. Tried " + i + "/" + _waitrepeat
+                       + " times. CA URL:"
+                       + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
+            }
+            break;
+          }
+        }
+        try {
+          Thread.sleep(_waittime);
+        } catch (Exception ex) {
+          if (log.isWarnEnabled()) {
+            log.warn("Thread interruped: ", ex);
+          }
+        }
       }
     }
-    try {
-      Thread.sleep(_waittime);
-    } catch (Exception ex) {
-      log.warn("Thread interruped: ", ex);
-    }
-  }
-}
     if (reply == "") {
       if (System.currentTimeMillis() > _pollStart + _pollThreshold) {
-      log.warn("Unable to send PKCS request to CA. CA URL:"
-        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN);
+        if (log.isWarnEnabled()) { 
+          log.warn("Unable to send PKCS request to CA. CA URL:"
+                   + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN);
+        }
       }
     }
     return reply;
@@ -1018,7 +1035,9 @@ synchronized (_pkcsLock) {
       .getService(this, CertificateCacheService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate cache Service in processPkcs7Reply");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate cache Service in processPkcs7Reply");
+      }
     }
 
     // Richard -- check whether pending
@@ -1050,7 +1069,7 @@ synchronized (_pkcsLock) {
       if (log.isWarnEnabled()) {
         Date d = new Date();
         log.warn("Error: Certificate not yet valid for:" + alias + " (" + e
-          + ")" + " Current date is " + d.toString());
+                 + ")" + " Current date is " + d.toString());
       }
     } catch (Exception e) {
       if (log.isWarnEnabled()) {
@@ -1078,7 +1097,7 @@ synchronized (_pkcsLock) {
    */
   public void installPkcs7Reply(String alias, InputStream inputstream)
     throws CertificateException, KeyStoreException, NoSuchAlgorithmException, 
-      UnrecoverableKeyException, IOException {
+    UnrecoverableKeyException, IOException {
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkPermission(new KeyRingPermission("installPkcs7Reply"));
@@ -1093,13 +1112,18 @@ synchronized (_pkcsLock) {
     try {
       collection = cf.generateCertificates(inputstream);
     } catch (Exception e) {
-      log.warn("Reply for " + alias + " is not a certificate");
+      if (log.isWarnEnabled()) {
+        log.warn("Reply for " + alias + " is not a certificate");
+      }
       throw new CertificateException("Reply for " + alias
-        + " is not a certificate");
+                                     + " is not a certificate");
+      
     }
 
     if (collection.isEmpty()) {
-      log.warn("Reply for " + alias + " has no certificate");
+      if (log.isWarnEnabled()) {
+        log.warn("Reply for " + alias + " has no certificate");
+      }
       throw new CertificateException("Reply has no certificate");
     }
 
@@ -1136,14 +1160,16 @@ synchronized (_pkcsLock) {
    * @throws UnrecoverableKeyException DOCUMENT ME!
    */
   public void installCertificate(String alias,
-    X509Certificate[] certificateChain)
+                                 X509Certificate[] certificateChain)
     throws CertificateException, KeyStoreException, NoSuchAlgorithmException, 
-      UnrecoverableKeyException {
+    UnrecoverableKeyException {
     X509Certificate[] certificateForImport;
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate cache service in installCertificate:");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate cache service in installCertificate:");
+      }
     }
 
     X509Certificate certificate = null;
@@ -1155,13 +1181,13 @@ synchronized (_pkcsLock) {
 
     if (certificate == null) {
       log.error(alias
-        + " has no certificate. Cannot install certificate signed by CA.");
+                + " has no certificate. Cannot install certificate signed by CA.");
       throw new CertificateException(alias + " has no certificate");
     }
 
     if (privatekey == null) {
       log.error(alias
-        + " has no Private key . Cannot install certificate signed by CA.");
+                + " has no Private key . Cannot install certificate signed by CA.");
       throw new CertificateException(alias + " has no Private Key ");
     }
 
@@ -1189,10 +1215,12 @@ synchronized (_pkcsLock) {
     if (certificateForImport != null) {
       if (cacheservice != null) {
         cacheservice.setKeyEntry(alias, privatekey, certificateForImport);
-        log.debug(" adding certificate to certificate cache:" + alias);
+        if (log.isDebugEnabled()) {
+          log.debug(" adding certificate to certificate cache:" + alias);
+        }
         // The reply contains a certificate chain and it is valid
         cacheservice.addCertificateToCache(alias, certificateForImport[0],
-          privatekey);
+                                           privatekey);
       }
     }
   }
@@ -1200,7 +1228,7 @@ synchronized (_pkcsLock) {
 
   /** */
   public X509Certificate[] validateReply(String alias,
-    X509Certificate certificate, X509Certificate[] certificateReply)
+                                         X509Certificate certificate, X509Certificate[] certificateReply)
     throws CertificateException {
     java.security.PublicKey publickey = certificate.getPublicKey();
     int i;
@@ -1214,7 +1242,9 @@ synchronized (_pkcsLock) {
     if (i == certificateReply.length) {
       String s = "Certificate reply does not contain public key for <" + alias
         + ">";
-      log.warn(s);
+      if (log.isWarnEnabled()) {
+        log.warn(s);
+      }
       throw new CertificateException(s);
     }
 
@@ -1238,7 +1268,9 @@ synchronized (_pkcsLock) {
       }
 
       if (l == certificateReply.length) {
-        log.warn("Incomplete certificate chain in reply for " + alias);
+        if (log.isWarnEnabled()) {
+          log.warn("Incomplete certificate chain in reply for " + alias);
+        }
         throw new CertificateException("Incomplete certificate chain in reply");
       }
     }
@@ -1248,8 +1280,10 @@ synchronized (_pkcsLock) {
       try {
         certificateReply[k].verify(publickey1);
       } catch (Exception exception) {
-        log.warn("Certificate chain in reply does not verify: "
-          + exception.getMessage());
+        if (log.isWarnEnabled()) {
+          log.warn("Certificate chain in reply does not verify: "
+                   + exception.getMessage());
+        }
         throw new CertificateException(
           "Certificate chain in reply does not verify: "
           + exception.getMessage());
@@ -1272,10 +1306,10 @@ synchronized (_pkcsLock) {
    * @throws KeyStoreException DOCUMENT ME!
    */
   private X509Certificate[] establishCertChain(X509Certificate certificate,
-    X509Certificate certificateReply)
+                                               X509Certificate certificateReply)
     throws CertificateException, KeyStoreException {
     KeyRingService keyRing = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+                                                                       KeyRingService.class, null);
     if (certificate == null) {
       log.error("establishCertChain: null certificate");
     }
@@ -1289,13 +1323,17 @@ synchronized (_pkcsLock) {
       java.security.PublicKey publickey1 = certificateReply.getPublicKey();
       if (!publickey.equals(publickey1)) {
         String s = "Public keys in reply and keystore don't match";
-        log.warn(s);
+        if (log.isWarnEnabled()) {
+          log.warn(s);
+        }
         throw new CertificateException(s);
       }
 
       if (certificateReply.equals(certificate)) {
         String s1 = "Certificate reply and certificate in keystore are identical";
-        log.debug(s1);
+        if (log.isDebugEnabled()) {
+          log.debug(s1);
+        }
         throw new CertificateException(s1);
       }
     }
@@ -1320,13 +1358,15 @@ synchronized (_pkcsLock) {
    * @throws Exception DOCUMENT ME!
    */
   public String makeKeyPair(X500Name dname, boolean isCACert,
-    CertificateAttributesPolicy certAttribPolicy)
+                            CertificateAttributesPolicy certAttribPolicy)
     throws Exception {
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate cache Service in makeKeyPair");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate cache Service in makeKeyPair");
+      }
     }
 
     //generate key pair.
@@ -1352,9 +1392,11 @@ synchronized (_pkcsLock) {
       for (int i = 0; (certList != null) && (i < certList.size()); i++) {
         CertificateStatus cs = (CertificateStatus) certList.get(i);
         if ((cs.getCertificateTrust() == CertificateTrust.CERT_TRUST_SELF_SIGNED)
-          && (cs.getCertificateType() == CertificateType.CERT_TYPE_END_ENTITY)) {
+            && (cs.getCertificateType() == CertificateType.CERT_TYPE_END_ENTITY)) {
           String alias = cs.getCertificateAlias();
-          log.debug("Reusing alias: " + alias);
+          if (log.isDebugEnabled()) {
+            log.debug("Reusing alias: " + alias);
+          }
           return alias;
         }
       }
@@ -1381,7 +1423,7 @@ synchronized (_pkcsLock) {
    * @throws Exception DOCUMENT ME!
    */
   public void doGenKeyPair(String alias, X500Name dname, boolean isCACert,
-    CertificateAttributesPolicy certAttribPolicy)
+                           CertificateAttributesPolicy certAttribPolicy)
     throws Exception {
     String keyAlgName = certAttribPolicy.keyAlgName;
     int keysize = certAttribPolicy.keysize;
@@ -1391,7 +1433,9 @@ synchronized (_pkcsLock) {
       .getService(this, CertificateCacheService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate cache Service in doGenKeyPair");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate cache Service in doGenKeyPair");
+      }
     }
 
     if (sigAlgName == null) {
@@ -1405,10 +1449,10 @@ synchronized (_pkcsLock) {
     }
 
     KeyCertGenerator certandkeygen = new KeyCertGenerator(keyAlgName,
-        sigAlgName, null, serviceBroker);
+                                                          sigAlgName, null, serviceBroker);
     if (log.isDebugEnabled()) {
       log.debug("Generating " + keysize + " bit " + keyAlgName
-        + " key pair and " + "self-signed certificate (" + sigAlgName + ")");
+                + " key pair and " + "self-signed certificate (" + sigAlgName + ")");
       log.debug("\tfor: " + dname + " - alias:" + alias);
     }
 
@@ -1437,7 +1481,7 @@ synchronized (_pkcsLock) {
     }
 
     ax509certificate[0] = certandkeygen.getSelfCertificate(dname, envelope,
-        howLong, isSigner);
+                                                           howLong, isSigner);
     if (cacheservice != null) {
       cacheservice.setKeyEntry(alias, privatekey, ax509certificate);
     }
@@ -1460,8 +1504,8 @@ synchronized (_pkcsLock) {
     }
 
     CertificateStatus certstatus = new CertificateStatus(ax509certificate[0],
-        CertificateOrigin.CERT_ORI_KEYSTORE, CertificateRevocationStatus.VALID,
-        certificateType, certificateTrust, alias);
+                                                         CertificateOrigin.CERT_ORI_KEYSTORE, CertificateRevocationStatus.VALID,
+                                                         certificateType, certificateTrust, alias);
     certstatus.setPKCS10Date(new Date());
     if (log.isDebugEnabled()) {
       log.debug("doGenKeyPair: add Private Key");
@@ -1491,7 +1535,7 @@ synchronized (_pkcsLock) {
    * @throws CertificateException DOCUMENT ME!
    */
   public PrivateKey getNodeCert(X500Name nodex500name,
-    TrustedCaPolicy trustedCaPolicy) throws Exception {
+                                TrustedCaPolicy trustedCaPolicy) throws Exception {
     PrivateKey nodeprivatekey = null;
     X509Certificate nodex509 = null;
     String request = "";
@@ -1499,10 +1543,12 @@ synchronized (_pkcsLock) {
     CertificateCacheService cacheservice = (CertificateCacheService) serviceBroker
       .getService(this, CertificateCacheService.class, null);
     KeyRingService keyRing = (KeyRingService) serviceBroker.getService(this,
-        KeyRingService.class, null);
+                                                                       KeyRingService.class, null);
 
     if (cacheservice == null) {
-      log.warn(" Unable to get Certificate Cache Service in getNodeCert");
+      if (log.isWarnEnabled()) {
+        log.warn(" Unable to get Certificate Cache Service in getNodeCert");
+      }
     }
 
     // check if node cert exist
@@ -1519,7 +1565,7 @@ synchronized (_pkcsLock) {
       List nodex509List = null;
       if (keyRing != null) {
         nodex509List = keyRing.findCert(nodex500name,
-            KeyRingService.LOOKUP_KEYSTORE, true);
+                                        KeyRingService.LOOKUP_KEYSTORE, true);
       }
 
       if (nodex509List.size() > 0) {
@@ -1530,7 +1576,7 @@ synchronized (_pkcsLock) {
         // maybe approved and in LDAP?
         if (keyRing != null) {
           nodex509List = keyRing.findCert(nodex500name,
-              KeyRingService.LOOKUP_LDAP, true);
+                                          KeyRingService.LOOKUP_LDAP, true);
         }
 
         if (nodex509List.size() > 0) {
@@ -1549,7 +1595,7 @@ synchronized (_pkcsLock) {
           }
 
           X509Certificate[] certForImport = establishCertChain(certificate,
-              nodex509);
+                                                               nodex509);
           if (nodeprivatekey != null) {
             if (cacheservice != null) {
               cacheservice.setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
@@ -1585,31 +1631,31 @@ synchronized (_pkcsLock) {
           // in the pending mode
           statindex += strStat.length();
           int status = Integer.parseInt(reply.substring(statindex, statindex
-                + 1));
+                                                        + 1));
           if (log.isDebugEnabled()) {
             switch (status) {
-              case KeyManagement.PENDING_STATUS_PENDING:
-                if (log.isDebugEnabled()) {
-                  log.debug("Certificate is pending for approval.");
-                }
+            case KeyManagement.PENDING_STATUS_PENDING:
+              if (log.isDebugEnabled()) {
+                log.debug("Certificate is pending for approval.");
+              }
 
-                break;
-              case KeyManagement.PENDING_STATUS_DENIED:
-                if (log.isDebugEnabled()) {
-                  log.debug("Certificate is denied by CA.");
-                }
+              break;
+            case KeyManagement.PENDING_STATUS_DENIED:
+              if (log.isDebugEnabled()) {
+                log.debug("Certificate is denied by CA.");
+              }
 
-                break;
-              case KeyManagement.PENDING_STATUS_APPROVED:
-                if (log.isDebugEnabled()) {
-                  log.debug("Certificate is approved by CA.");
-                }
+              break;
+            case KeyManagement.PENDING_STATUS_APPROVED:
+              if (log.isDebugEnabled()) {
+                log.debug("Certificate is approved by CA.");
+              }
 
-                break;
-              default:
-                if (log.isDebugEnabled()) {
-                  log.debug("Unknown certificate status:" + status);
-                }
+              break;
+            default:
+              if (log.isDebugEnabled()) {
+                log.debug("Unknown certificate status:" + status);
+              }
             }
           }
 
@@ -1655,7 +1701,9 @@ synchronized (_pkcsLock) {
       .getService(this, CertificateCacheService.class, null);
 
     if (cacheservice == null) {
-      log.warn("Unable to get Certificate cache Service in getNextAlias");
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get Certificate cache Service in getNextAlias");
+      }
     }
 
     try {
@@ -1698,7 +1746,7 @@ synchronized (_pkcsLock) {
 
 
   private String signPKCS(String request, String nodeDN,
-    TrustedCaPolicy trustedCaPolicy) {
+                          TrustedCaPolicy trustedCaPolicy) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
       if (log.isDebugEnabled()) {
@@ -1707,9 +1755,9 @@ synchronized (_pkcsLock) {
 
       CertificateManagementService km = (CertificateManagementService) serviceBroker
         .getService(new CertificateManagementServiceClientImpl(nodeDN),
-          CertificateManagementService.class, null);
+                    CertificateManagementService.class, null);
       X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(
-            request.getBytes()));
+                                                       request.getBytes()));
       PrintStream ps = new PrintStream(baos);
       CertificateUtility.base64EncodeCertificates(ps, cf);
       //get the output to the CA
@@ -1723,7 +1771,7 @@ synchronized (_pkcsLock) {
   }
 
   private class CertificateManagementServiceClientImpl
-    implements CertificateManagementServiceClient {
+  implements CertificateManagementServiceClient {
     private String caDN;
 
     public CertificateManagementServiceClientImpl(String aCaDN) {
