@@ -109,10 +109,17 @@ public class AuthServiceImpl
       }
       _sb.addServiceListener(new SecurityContextServiceAvailableListener());
     }
-    registerEnforcer();
-    if (_log.isDebugEnabled()) {
-      _log.debug("AuthServiceImp Constructor completed - UseDaml = " +
-                 USE_OWL);
+    try {
+      registerEnforcer();
+      if (_log.isDebugEnabled()) {
+        _log.debug("AuthServiceImp Constructor completed - UseDaml = " +
+                   USE_OWL);
+      }
+    }
+    catch (Exception e) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("AuthServiceImpl Enforcer not registered with guard");
+      }
     }
   }
 
@@ -122,12 +129,16 @@ public class AuthServiceImpl
                      _sb.getService(this, EnforcerManagerService.class, null);
     if (_guard == null) {
       _sb.releaseService(this, EnforcerManagerService.class, _guard);
-      _log.fatal("Cannot continue without guard", new Throwable());
-      throw new RuntimeException("Cannot continue without guard");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Guard is not available for AuthServiceImpl");
+      }
+      throw new RuntimeException("Guard is not available for AuthServiceImpl");
     }
     if (!_guard.registerEnforcer(this, _enforcedActionType, new Vector())) {
       _sb.releaseService(this, EnforcerManagerService.class, _guard);
-        _log.fatal("Could not register with the Enforcer Manager Service");
+      if (_log.isWarnEnabled()) {
+        _log.warn("Could not register with the Enforcer Manager Service");
+      }
       throw new SecurityException(
                    "Cannot register with Enforcer Manager Service");
     }
@@ -258,8 +269,9 @@ public class AuthServiceImpl
       return new LinkedList();
     }
     List permissions = new LinkedList();
-    if (!USE_OWL) {
-    // add all of the permissions for now:
+    if (!USE_OWL || (_guard == null)) {
+    // Either we are not using OWL, or policy is disabled.
+    //  add all of the permissions for now:
       permissions.add(new BlackboardPermission("*", 
                                                "add,change,remove,query"));
       permissions.add(new BlackboardObjectPermission("*", 
@@ -341,7 +353,7 @@ public class AuthServiceImpl
       _log.debug("Entering isAuthorizedUL with context" + ec 
                  + " and permission " + p);
     }
-    if (!USE_OWL) { return true; }
+    if (!USE_OWL || (_guard == null)) { return true; }
     // i'm allowing everything that isn't a BlackboardPermission 
     if(!(p instanceof BlackboardPermission) &&
        !(p instanceof BlackboardObjectPermission)) {

@@ -262,8 +262,9 @@ public class ServletPolicyEnforcer
       try {
         registerEnforcer();
       } catch (Exception ex) {
-        // FIXME: Shouldn't just let this drop, I think
-        ex.printStackTrace();
+        if (log.isWarnEnabled()) {
+          log.warn("Guard not available. Running without policy");
+        }
       }
     }
 

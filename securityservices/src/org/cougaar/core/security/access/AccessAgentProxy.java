@@ -94,20 +94,36 @@ public class AccessAgentProxy implements MessageTransportService,
         this.object = myobj;
         acps = myacps;
         serviceBroker = sb;
+        log = (LoggingService) serviceBroker.getService(this,
+                LoggingService.class, null);
+
         if (USE_DAML) {
             _enforcer = new ULMessageNodeEnforcer(sb, new LinkedList());
-            _enforcer.registerEnforcer();
+            try {
+              _enforcer.registerEnforcer();
+            }
+            catch (Exception e) {
+              _enforcer = null;
+              if (log.isWarnEnabled()) {
+                log.warn("Guard not available. Running without policy");
+              }
+            }
 
             _wpEnforcer = new WPEnforcer(sb);
-            _wpEnforcer.registerEnforcer();
+            try {
+              _wpEnforcer.registerEnforcer();
+            }
+            catch (Exception e) {
+              _wpEnforcer = null;
+              if (log.isWarnEnabled()) {
+                log.warn("Guard not available. Running without policy");
+              }
+            }
         }
 
         if (object instanceof Agent) {
             myID = ((Agent) object).getAgentIdentifier();
         }
-
-        log = (LoggingService) serviceBroker.getService(this,
-                LoggingService.class, null);
 
         secprop = (SecurityPropertiesService) serviceBroker.getService(this,
                 SecurityPropertiesService.class, null);
@@ -602,7 +618,7 @@ public class AccessAgentProxy implements MessageTransportService,
 
     private boolean isMessageDenied(String source, String target, String verb,
             boolean direction) {
-        if (USE_DAML) {
+        if (USE_DAML && (_enforcer != null)) {
             boolean ret = _enforcer.isActionAuthorized(source, target, verb);
             log.debug("isActionAuthorized returns " + ret);
             return !ret;

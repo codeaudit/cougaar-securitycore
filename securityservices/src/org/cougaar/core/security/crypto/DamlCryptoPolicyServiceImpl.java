@@ -27,10 +27,12 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
 import org.cougaar.core.security.policy.enforcers.util.CipherSuite;
+import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.service.LoggingService;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
@@ -48,7 +50,15 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
   private synchronized void initDaml() {
     if (_enforcer == null) {
       _enforcer = new ULMessageNodeEnforcer(_serviceBroker, new LinkedList());
-      _enforcer.registerEnforcer();
+      try {
+        _enforcer.registerEnforcer();
+      }
+      catch (Exception e) {
+        _enforcer = null;
+        if (_log.isWarnEnabled()) {
+          _log.warn("Guard not available. Running without guard");
+        }
+      }
     }
   }
 
@@ -67,9 +77,13 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
       _log.debug("Called getSendPolicies for " + source + " to " + target);
     }
     initDaml();
-    Collection c = new LinkedList();
-    
-    return _enforcer.getAllowedCipherSuites(source, target);
+    //Collection c = new LinkedList();
+    if (_enforcer != null) {    
+      return _enforcer.getAllowedCipherSuites(source, target);
+    }
+    else {
+      return HardWired.nsaApproved;
+    }
     /*
     Iterator iter = allowed.iterator();
     while (iter.hasNext()) {
@@ -97,8 +111,13 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
                  ignoreEncryption + ", ignoreSignature = " + ignoreSignature);
     }
     initDaml();
-    CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
-
+    CipherSuite cs = null;
+    if (_enforcer != null) {
+      cs = _enforcer.getAllowedCipherSuites(source, target);
+    }
+    else {
+      cs = HardWired.nsaApproved;
+    }
     if (_log.isDebugEnabled()) {
       _log.debug("Comparing against cipher suite: " + cs);
     }
@@ -184,8 +203,13 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
   }
 
   private SecureMethodParam getDamlPolicy(String source, String target) {
-    CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
-    return convertPolicy(cs);
+    if (_enforcer != null) {
+      CipherSuite cs = _enforcer.getAllowedCipherSuites(source, target);
+      return convertPolicy(cs);
+    }
+    else {
+      return convertPolicy(HardWired.nsaApproved);
+    }
   }
 
 }  

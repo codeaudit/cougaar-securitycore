@@ -268,7 +268,9 @@ public class CryptoPolicyServiceImpl
       }
 
       if(cp==null){
-          log.debug("can't find policy for " + "->" +  source);
+          if (log.isDebugEnabled()) {
+            log.debug("can't find policy for " + "->" +  source);
+          }
           return null;
       }
 
@@ -291,7 +293,7 @@ public class CryptoPolicyServiceImpl
         }
         catch(Exception ex) {
 	  if (log.isWarnEnabled()) {
-	    log.warn("Unable to register enforcer", ex);
+	    log.warn("Unable to register Crypto Policy enforcer - Will continue without policy");
 	  }
         }
       }
@@ -399,6 +401,8 @@ public class CryptoPolicyServiceImpl
       extends GuardRegistration
       implements NodeEnforcer{
 
+      private CryptoPolicyServiceImpl _legacy;
+
       public DataProtectionPolicyProxy(ServiceBroker sb) {
 
         super("org.cougaar.core.security.policy.DataProtectionPolicy",
@@ -410,8 +414,10 @@ public class CryptoPolicyServiceImpl
           registerEnforcer();
         }
         catch(Exception ex) {
+          // Implement a default policy
+          dcp_dataprot = getDataProtectionPolicy("");
 	  if (log.isWarnEnabled()) {
-	    log.warn("Unable to register enforcer", ex);
+	    log.warn("Unable to register enforcer - DataProtection will continue without policy");
 	  }
         }
       }

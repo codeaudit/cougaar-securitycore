@@ -130,12 +130,25 @@ public class DualAuthenticator extends ValveBase {
   private boolean initNodeEnforcer() {
     try {
       if (USE_DAML && _enforcer == null && _serviceBroker != null) {
-        _log.debug("Creating ServletNodeEnforcer");
+        if (_log.isDebugEnabled()) {
+          _log.debug("Creating ServletNodeEnforcer");
+        }
         ServletNodeEnforcer enforcer = new ServletNodeEnforcer(_serviceBroker);
-        _log.debug("Registering ServletNodeEnforcer");
-        enforcer.registerEnforcer();
-        _log.debug("Done registering ServletNodeEnforcer");
-        _enforcer = enforcer;
+        if (_log.isDebugEnabled()) {
+          _log.debug("Registering ServletNodeEnforcer");
+        }
+        try {
+          enforcer.registerEnforcer();
+          if (_log.isDebugEnabled()) {
+            _log.debug("Done registering ServletNodeEnforcer");
+          }
+          _enforcer = enforcer;
+        }
+        catch (Exception e) {
+          if (_log.isWarnEnabled()) {
+            _log.warn("Guard not available. Running DualAuthenticator without policy");
+          }
+        }
       }
       return true;
     } catch (Exception e) {
@@ -431,7 +444,7 @@ public class DualAuthenticator extends ValveBase {
 
   protected byte getURIAuthRequirement(String path, String cipher, 
                                        AuthSuite cwa) {
-    if (USE_DAML) {
+    if (USE_DAML && (_enforcer != null)) {
       if (cwa == null) {
         // don't bother authenticating when you already know you can't reach it
         return AUTH_NEVER; 
@@ -501,7 +514,7 @@ public class DualAuthenticator extends ValveBase {
   */
 
   private AuthSuite getAuthRequirements(String uri, String cipher) {
-    if (USE_DAML) {
+    if (USE_DAML && (_enforcer != null)) {
       return _enforcer.whichAuthSuite(uri);
     }
     return null;
@@ -509,7 +522,7 @@ public class DualAuthenticator extends ValveBase {
 
   protected boolean needHttps(HttpServletRequest req, String cipher, 
                               AuthSuite cwa) {
-    if (USE_DAML) {
+    if (USE_DAML && (_enforcer != null)) {
       if (cwa == null || cwa.getAuth() == cwa.authInvalid) {
         return false;
       }
@@ -700,7 +713,7 @@ public class DualAuthenticator extends ValveBase {
   {
     if (!USE_AUDIT) {
       return false;
-    } else if (USE_DAML) {
+    } else if (USE_DAML && (_enforcer != null)) {
       _log.debug("Using DAML to determine if audit is required");
       return _enforcer.auditRequired(uri);
     } else {
@@ -722,7 +735,7 @@ public class DualAuthenticator extends ValveBase {
   {
     if (!USE_AUDIT) {
       return false;
-    } else if  (USE_DAML) {
+    } else if  (USE_DAML && (_enforcer != null)) {
       String roles[] = principal.getRoles();
       HashSet roleSet = new HashSet();
       for (int i = 0; i < roles.length; i++) {
