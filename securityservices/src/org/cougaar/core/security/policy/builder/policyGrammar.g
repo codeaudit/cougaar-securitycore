@@ -33,9 +33,21 @@ policyFile
 returns [ParsedPolicyFile ppf]
 throws PolicyCompilerException
 {   ppf = new ParsedPolicyFile();
-    ParsedPolicy pp;  }
+    ParsedPolicy pp;  
+    Set policyNames = new HashSet();
+}
     :   ( declaration[ppf] )*
-        ( pp = policy { ppf.addPolicy(pp); })+
+        ( pp = policy 
+            {   ppf.addPolicy(pp); 
+                if (policyNames.contains(pp.getPolicyName())) {
+                  System.out.println("Duplicate policy name: " + 
+                                                  pp.getPolicyName());
+                  System.out.println("Only matters with build command or"
+                                     + " commit without --dm option");
+                } else {
+                  policyNames.add(pp.getPolicyName());
+                }
+             })+
     ;
 
 declaration[ParsedPolicyFile ppf]
