@@ -266,7 +266,7 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
      // no need to specify targets since we may not know of the targets
     RegistrationAlert reg=
       imessage.createRegistrationAlert(this,
-				       capabilities,IdmefMessageFactory.newregistration);
+				       capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
      NewEvent event=factory.newEvent(reg);
      System.out.println(" going to publish capabilities in event Service  :");
     bbservice.publishAdd(event); 
