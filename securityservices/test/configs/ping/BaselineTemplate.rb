@@ -3,30 +3,26 @@ require 'ultralog/scripting'
 
 include Cougaar
 
-HOSTS_FILE = Ultralog::OperatorUtils::HostManager.new.get_hosts_file
-#puts "Host file #{HOSTS_FILE}"
-
 Cougaar::ExperimentMonitor.enable_stdout
 Cougaar::ExperimentMonitor.enable_logging
+
+require 'security/actions/buildHostFile'
+
+# Build the host file based on user name
+host_file = "host-layout-file.xml"
+::Cougaar::Actions::BuildCsiHostFile.new(host_file).buildHostFile()
 
 Cougaar.new_experiment().run(parameters[:run_count]) {
   set_archive_path parameters[:archive_dir]
 
-  do_action "LoadSocietyFromScript", parameters[:society_file]
-  
   # find the "*hosts.xml" layout file 
   # 
   # on the TIC machines this can be replaced with the "HOSTS_FILE" 
   # rule, which looks in the operator directory.  The code below 
   # will work in a stand-alone ACME setup. 
-  host_file = HOSTS_FILE
-  #host = @hostname unless host 
 at :build_host_file
 
-  Dir.glob(File.join(".", "host-layout-file.xml")).each do |file| 
-    ts = Cougaar::SocietyBuilder.from_xml_file(file).society 
-    host_file = file 
-  end 
+  do_action "LoadSocietyFromScript", parameters[:society_file]
   do_action "LayoutSociety", parameters[:layout_file], host_file
 
   do_action "TransformSociety", false, *parameters[:rules]
