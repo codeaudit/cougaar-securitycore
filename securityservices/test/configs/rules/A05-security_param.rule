@@ -35,9 +35,6 @@ namesrv = nil # eg "lemon:8888:5555"
 # used to obtain environment variables
 require 'Env'
 
-# user 
-user = ENV["USER"]
-
 # http port to access cougaar node
 httpport = 8800
 # https port to access cougaar node
@@ -45,12 +42,6 @@ httpsport = 9800
   
 #print "cip = #{cip}\n"
 #print "cws = #{cws}\n"
-#print "user = #{user}\n"
-
-if (user == nil)
-  user = "asmt"
-  print "defaulting to user to #{user}\n"
-end
 
 society.each_host do |host|
   # the host
@@ -255,7 +246,7 @@ society.each_host do |host|
     
     # Role to take when making LDAP requests
     # This parameter is used in the cryptoPolicy.xml file.
-    node.override_parameter("-Dorg.cougaar.security.role", "#{user}")
+    #node.override_parameter("-Dorg.cougaar.security.role", "#{user}")
     
     # This property is used to set the interval (in seconds) at which CRLs are checked
     node.override_parameter("-Dorg.cougaar.core.security.crypto.crlpoll", "600")
