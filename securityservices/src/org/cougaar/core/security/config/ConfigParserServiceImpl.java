@@ -108,12 +108,12 @@ public class ConfigParserServiceImpl
     parser.setContentHandler(handler);
 
     setConfigurationFile("cryptoPolicy.xml");
-    setConfigurationFile("BootPolicy.Crypto.xml");
     setConfigurationFile("BootPolicy.MsgAccess.xml");
     setConfigurationFile("BootPolicy.Servlet.xml");
     setConfigurationFile("BootPolicy.UserDB.xml");
     setConfigurationFile("BootPolicy.BBFilter.xml");
     setConfigurationFile("BootPolicy.DataProtection.xml");
+    setConfigurationFile("BootPolicy.Crypto.xml");
   }
 
   /** Find a boot policy file
