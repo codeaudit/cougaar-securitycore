@@ -89,7 +89,7 @@ public interface KeyRingService extends Service {
   void publishCertificate(CertificateEntry certEntry);
   void updateNS(X500Name x500name);
   void updateNS(String commonName);
-
+  void updateNS(CertificateEntry certEntry)throws Exception;
   // String getCommonName(String alias);
 
   void removeEntry(String commonName);
