@@ -37,6 +37,7 @@ import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.util.CommunityServiceUtil;
 import org.cougaar.core.security.util.CommunityServiceUtilListener;
 import org.cougaar.core.service.LoggingService;
+import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.ldm.policy.Policy;
@@ -108,11 +109,23 @@ public class LdapUserServiceImpl implements UserService {
    * the guard's policy. If no policy exists, there will be no
    * connection to the user database.
    */
-  public LdapUserServiceImpl(ServiceBroker sb, MessageAddress agent) {
+  public LdapUserServiceImpl(ServiceBroker sb) {
     _serviceBroker = sb;
     _log = (LoggingService)
       _serviceBroker.getService(this, LoggingService.class, null);
-    setDefaultDomain(sb, agent);
+    AgentIdentificationService _agentIdentificationservice=(AgentIdentificationService)
+      _serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if(_agentIdentificationservice!=null) {
+      MessageAddress agent = _agentIdentificationservice.getMessageAddress();
+      setDefaultDomain(agent);
+    }
+    else {
+      if(_log.isDebugEnabled()){
+        _log.debug("AgentIdentificationservice service is not avilable in Ldap User service ");
+        _log.debug("AddingListener for AgentIdentificationservice ");
+      }
+      _serviceBroker.addServiceListener(new AgentIdentificationServiceListener());
+    }
   }
 
   /**
@@ -144,10 +157,10 @@ public class LdapUserServiceImpl implements UserService {
     }
   }
 
-  private void setDefaultDomain(ServiceBroker sb, MessageAddress address) {
+  private void setDefaultDomain( MessageAddress address) {
     String agent = address.getAddress();
     CommunityService cs = (CommunityService)
-      sb.getService(this, CommunityService.class, null);
+      _serviceBroker.getService(this, CommunityService.class, null);
     if (cs == null) {
       _serviceBroker.addServiceListener(new CommunityServiceListener(agent));
     } else {
@@ -1051,6 +1064,22 @@ public class LdapUserServiceImpl implements UserService {
           setDefaultDomain(cs, _agent);
           ae.getServiceBroker().releaseService(this, CommunityService.class,
                                                cs);
+        }
+      }
+    }
+  }
+  
+  private class AgentIdentificationServiceListener implements ServiceAvailableListener {
+    public void serviceAvailable(ServiceAvailableEvent ae) {
+      if (ae.getService().equals(AgentIdentificationService.class)) {
+        AgentIdentificationService ais = (AgentIdentificationService) ae.getServiceBroker().
+          getService(this, AgentIdentificationService.class, null);
+        if (ais != null) {
+          ae.getServiceBroker().removeServiceListener(this);
+          _log.debug("Got agent AgentIdentificationService service in Ldap User Service ");
+          MessageAddress agent = ais.getMessageAddress();
+          setDefaultDomain(agent);
+         
         }
       }
     }
