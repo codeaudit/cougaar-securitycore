@@ -54,8 +54,9 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   do_action "TransformSociety", false, 
     ".",
     "#{RULES}/isat",
-    "#{RULES}/security"
- 
+    "#{RULES}/security",
+    "#{RULES}/security/communities"
+
   # optional: save the society to an XML file for easy debugging 
   do_action "SaveCurrentSociety", "mySociety.xml" 
   do_action "SaveCurrentCommunities", "myCommunities.xml" 
