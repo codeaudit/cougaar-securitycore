@@ -85,6 +85,7 @@
         <pathelement location="${cougaar.install.path}/lib/core.jar"/>
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
+        <pathelement location="${cougaar.install.path}/lib/mtsstd.jar"/>
         <pathelement location="${cougaar.install.path}/lib/aggagent.jar"/>
         <pathelement location="${cougaar.install.path}/lib/community.jar"/>
         <pathelement location="${cougaar.install.path}/lib/planning.jar"/>
@@ -132,7 +133,7 @@
               if="ant.version.incorrect"/>
         <condition property="vm.version.incorrect" value="true">
           <not>
-            <contains string="${java.vm.version}" substring="1.4.1_02"/>
+            <contains string="${java.vm.version}" substring="1.4.2"/>
           </not>
         </condition>
         <fail message="JDK 1.4.1_02 required. Current version is ${java.vm.version}"
