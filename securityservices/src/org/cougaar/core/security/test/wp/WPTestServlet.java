@@ -40,7 +40,7 @@ import org.cougaar.planning.ldm.plan.Verb;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @author $author$
  */
 public class WPTestServlet extends AbstractServletComponent {
@@ -55,7 +55,7 @@ public class WPTestServlet extends AbstractServletComponent {
 
 
   /* (non-Javadoc)
-   * @see org.cougaar.core.security.test.AbstractServletComponent#execute(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see org.cougaar.core.security.servlet.AbstractServletComponent#execute(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
   protected void execute(HttpServletRequest request, HttpServletResponse response) {
     this.blackboardService.openTransaction();
