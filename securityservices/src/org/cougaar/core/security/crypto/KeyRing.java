@@ -836,9 +836,15 @@ try {
                  cert + " -- does not exist.");
       }
     } catch (Exception e) {
-      if (warn && log.isWarnEnabled()) {
-        log.warn("Unable to get private key of " +
-                 cert + " -- dn is not well formed.", e);
+//      if (warn && log.isWarnEnabled()) {
+      if (log.isInfoEnabled()) {
+        // Richard, the original warning is confusing, it claims dn is not
+        // well-formed but actually it is catching the excpetion thrown in
+        // "No private key found"
+        // Also throwing a warning with stack trace so deep in the code
+        // messes up logs.
+        log.info("Unable to get private key of " +
+                 cert + ", " + e);
       }
     }
     return null;
