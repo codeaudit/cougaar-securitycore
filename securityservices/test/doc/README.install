@@ -305,6 +305,23 @@ Running the ul-mini-config society
 12. Go to the test/configs/demo directory and type the following command:
    launch-society [configuration file] [use ssh-agent: true|false]
 
+13. Some files will be created while the society is running. In particular,
+    the NCADomainManager agent is using persistence to store data accross
+    multiple runs of the society. This is used by the KAoS domain manager
+    to store policies. Therefore, files are created in the $COUGAAR_INSTALL_PATH/P
+    directory.
+    Log files are also created by the security manager and the authenticated
+    class loader under $COUGAAR_INSTALL_PATH/log/bootstrap.
+    The persistence mechanism creates log files under the configs/ul-mini-config
+    directory.
+    Finally, the standard output of each node is stored in a log file in
+    the test/configs/demo directory.
+    It is possible to do a fresh start by typing:
+      cd securityservices/test/configs/demo
+      rm -rf $COUGAAR_INSTALL_PATH/P
+      rm -rf *.log
+      rm -rf $COUGAAR_INSTALL_PATH/log/bootstrap/*
+
 The launch-society script launches multiple nodes from one single
 command. The options are the following:
 * [configuration file] : the name of a configuration file that is defines
