@@ -64,8 +64,11 @@
       <antcall target="get-overlays"/>
       <!-- Step 3: create ZIP file -->
       <antcall target="zip-overlays"/>
-      <!-- Step 4: create ZIP file -->
+      <!-- Step 4, 5 and 6: create ZIP file -->
       <antcall target="scp-files-to-testbed"/>
+      <!-- Step 8: Run society-->
+      <antcall target="run-society"/>
+      <!-- Step 9: Retrieve log4j log files -->
     </target>
 
     <target name="get-overlays" depends="init">
@@ -107,9 +110,8 @@
        </zip>
     </target>
 
-
     <target name="scp-files-to-testbed">
-      <!-- Step 4 and 5 -->
+      <!-- Step 4, 5 and 6 -->
       <sshexec host="${testbed.operator.host}"
 	username="${testbed.user.name}"
         keyfile="${user.home}/.ssh/id_dsa"
@@ -117,6 +119,19 @@
       <scp file="cougaar-test.zip"
            todir="${testbed.user.name}@${testbed.operator.host}:${testbed.cip.dir}"
            keyfile="${user.home}/.ssh/id_dsa"/>
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="cd ${testbed.cip.dir} ; unzip cougaar-test.zip"/>
+    </target>
+
+    <target name="run-society">
+      <!-- Run society for 10 minutes 10 * 60 * 1000-->
+      <sshexec host="${testbed.operator.host}"
+	username="${testbed.user.name}"
+        keyfile="${user.home}/.ssh/id_dsa"
+	command="export COUGAAR_INSTALL_PATH=${testbed.cip.dir} ; cd ${testbed.cip.dir}/configs/ping ; ruby ASMT-PING-DEF.rb"
+        timeout="60000"/>
     </target>
 </project>
 
