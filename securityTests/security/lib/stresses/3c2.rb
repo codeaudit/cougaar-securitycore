@@ -33,7 +33,7 @@ class Security3c2 < SecurityStressFramework
 
        # message revoked Idmef message
        if event.event_type == 'STATUS' && event.component == 'IdmefEventPublisherPlugin' && event.data =~ /MESSAGE_FAILURE/
-#         puts "event: #{event.cluster_identifier}, #{event.component}, #{event.data}"
+          #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data}" )
          if event.data =~ /@revoked_agent/
            @msg_nodes[event.cluster_identifier] = @revoked_agent
          end
@@ -43,7 +43,7 @@ class Security3c2 < SecurityStressFramework
        # SSL revoked Idmef message
        msgPattern = /CertificateRevoked([^)]*)/m
        if event.event_type == 'STATUS' && event.data =~ /Revoked/
-#         puts "event: #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}"
+          #saveUnitTestResult('5k', "event: #{event.cluster_identifier}, #{event.component}, #{event.data.to_s}" )
 
          name = event.data.scan(msgPattern)
          raise "wrong revocation message found #{event.data}" unless name != []
@@ -69,11 +69,15 @@ class Security3c2 < SecurityStressFramework
 #      sleep 5.minutes unless $WasRunning
 
    def postConditionalGLSConnection
+    Thread.fork {
       # Give the agents time to retrieve their certificates
       # user admin may not be started yet
       @certRevocation = CertRevocation.new
 
       @revoked_node = @certRevocation.selectNode
+      if (@revoked_node == nil)
+        saveResult("5k103", "Error: could not find node to revoke")
+      end
       result = @certRevocation.revokeNode(@revoked_node)
       saveResult(result, "5k103", "revoke a node through administrator")
 
@@ -82,7 +86,6 @@ class Security3c2 < SecurityStressFramework
       saveResult(result, "5k104", "revoke an agent through administrator")
 
 
-    Thread.fork {
 # no need to kill revoked node, trust manager is supposed to detect it      
 #      @run.do_action "Sleep", 10.minutes
 #      @run.do_action "GenericAction" do |run|

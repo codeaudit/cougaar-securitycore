@@ -69,6 +69,7 @@ module Cougaar
 	  return
 	end
 	logInfoMsg "Invoking stress: #{@stressorClassName}.#{@methodName}"
+	t1 = Time.now
 	begin
 	  @aMethod.call()
 	rescue => ex
@@ -76,7 +77,8 @@ module Cougaar
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
                "#{ex}\n#{ex.backtrace.join("\n")}")
 	end
-	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName}" if $Dbg_action
+	t2 = Time.now
+	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName} in #{t2 - t1} seconds"
       end
     end
 

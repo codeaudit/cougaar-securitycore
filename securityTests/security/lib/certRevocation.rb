@@ -14,10 +14,6 @@ class CertRevocation
      distinguishNodes
    end
 
-   def run
-     getRun
-   end
-
    def getManagement
      return management
    end
@@ -58,16 +54,16 @@ class CertRevocation
    end
 
    def selectAgentFromNode(node)
-          index = rand(node.agents.size)
-          a = node.agents[index]
-          if a != nil
-            return a.name
-          end
-      return nil
+     index = rand(node.agents.size)
+     a = node.agents[index]
+     if a != nil
+        return a.name
+     end
+     return nil
    end
 
    def revokeNode(node) 
-     puts "revoking node #{node.name}"
+     saveUnitTestResult("Revocation", "revoking node #{node.name}")
      agent = node.agents[0]
      caDomains = run.society.agents[agent.name].caDomains
      
@@ -75,7 +71,7 @@ class CertRevocation
    end
 
             def revokeAgent(agent)
-              puts "revoking agent #{agent}"
+              saveUnitTestResult("Revocation", "revoking agent #{agent}")
               caDomains = run.society.agents[agent].caDomains
               return revoke(agent, caDomains)
             end
@@ -84,7 +80,7 @@ class CertRevocation
      CaDomains.instance.getActualEntities
               caManager = caDomains[0].signer
               cadn = caDomains[0].cadn
-puts "cadn #{cadn}"
+              puts "cadn #{cadn}"
 
               url = "#{caManager.uri}/CA/RevokeCertificateServlet"
               # role = getParameter(ca.node, /security.role/, nil)
@@ -94,9 +90,9 @@ puts "cadn #{cadn}"
 ###              dnname = caDomains[0].distinguishedNames[agent]
 puts agent
 #doIrb
-              obj = getRun.society.agents[agent]
+              obj = run.society.agents[agent]
               if obj == nil
-                obj = getRun.society.nodes[agent]
+                obj = run.society.nodes[agent]
                 if obj != nil
                   obj = obj.agent
                 end

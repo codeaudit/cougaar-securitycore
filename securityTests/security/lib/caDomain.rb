@@ -150,7 +150,7 @@ class CaDomain
   end
   
   def revokeUserCert(name)
-    puts "revoking certificate #{name}" if $VerboseDebugging
+    saveUnitTestResult('revocation', "Revoking certificate #{name}" )
     getActualEntities
     dn = @distinguishedNames[name]
     unless dn
@@ -315,9 +315,6 @@ class CaDomain
     @agentList = agents.collect {|a| a[0]}
   end
   
-  def run
-    getRun
-  end
 end
 
 
@@ -333,11 +330,6 @@ class CaDomains
   def initialize
     super
     @runcount = -1
-  end
-  
-  
-  def run
-    getRun
   end
   
   def [](domainName)

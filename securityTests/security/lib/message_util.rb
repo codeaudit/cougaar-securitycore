@@ -162,7 +162,7 @@ class MessageEventWatcher
     @source = source
     @target = target
 
-    @listener = getRun.comms.on_cougaar_event { |event|
+    @listener = run.comms.on_cougaar_event { |event|
       if (@uid == nil)
         if (event.data =~ /MessageTransport\(.+\) UID\(.+\) Source\(#{@source}\) Target\(#{@target}\)/)
           @events.unshift(event)

@@ -14,16 +14,12 @@ class DataProtection
 
   end
 
-  def run
-    getRun
-  end
-
   def checkDataEncrypted(pattern, readSize=2000, showResults=true)
     failure = 0
     size = 0
     cip = ENV['CIP']
     @filelist = []
-    getRun.society.each_node do |node|
+    run.society.each_node do |node|
       node.each_agent do |agent|
         cip = ENV['CIP']
         filePath = "#{cip}/workspace/P/#{agent.name}/delta_*"

@@ -276,10 +276,6 @@ end
     return do_cert_auth("bogus_"+userName, hostName, urlPath)
   end
 
-   def run
-     getRun
-   end
-
 end # class UserDomain
 
 
@@ -293,10 +289,6 @@ class UserDomains
 
    def ensureDomains
       @domains = {} unless @domains
-   end
-
-   def run
-      getRun
    end
 
    def [](domainName)

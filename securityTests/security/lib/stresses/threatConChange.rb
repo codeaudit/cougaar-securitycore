@@ -4,7 +4,8 @@
 #
 class ThreatConChange < SecurityStressFramework
 
-  def initialize
+  def initialize(run)
+    @run = run
     @enteredHIGH = false
     @enteredLOW = false
     @threat_con_om = "org.cougaar.core.security.monitoring.THREATCON_LEVEL"
@@ -18,19 +19,20 @@ class ThreatConChange < SecurityStressFramework
     # find an agent in the first enclave to use as an attack target
     searchForTarget
     # modify the society RateCalculatorPlugin's arguments
-    modifyComponent
+    #modifyComponent
     # determine the policy domain manager <enclave>PolicyDomainManager
-    run.comms.on_cougaar_event do |event|
+    @run.comms.on_cougaar_event do |event|
       eventCall(event)
     end
   end
 
   def postSocietyQuiesced
-    setUserDomain
-    # perform the invalid logins
-    performLoginFailures
-    waitForHIGH
-    waitForLOW
+    thread = Thread.fork {
+      setUserDomain
+      # perform the invalid logins
+      performLoginFailures
+      waitForHIGH
+      waitForLOW
 =begin
     # sleep for a max of 10 minutes or at least until the THREATCON_LEVEL
     # has gone back to the LOW state
@@ -46,8 +48,9 @@ class ThreatConChange < SecurityStressFramework
       logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL LOW"
     end
 =end
-    # check results
-    processResults
+      # check results
+      processResults
+    }
   end
   
   #
@@ -133,7 +136,7 @@ class ThreatConChange < SecurityStressFramework
   #
   def modifyComponent
     plugin = 'org.cougaar.core.security.monitoring.plugin.RateCalculatorPlugin'
-    agent = run.society.agents["#{@enclave}EnclaveMnRManager"] 
+    agent = @run.society.agents["#{@enclave}EnclaveMnRManager"] 
     #logInfoMsg "agent: #{agent.name}"
     agent.remove_component(plugin)
     agent.add_component do |c|
@@ -152,7 +155,7 @@ class ThreatConChange < SecurityStressFramework
   # This method sets @pdm (policy domain manager), @enclave and @attackAgent
   #
   def searchForTarget
-    run.society.each_node do |node|
+    @run.society.each_node do |node|
       securityComp = false
       node.each_facet(:role) do |facet|
         if facet[:role] == $facetManagement ||
@@ -180,7 +183,7 @@ class ThreatConChange < SecurityStressFramework
         end 
         return
       end # if securityComp == false
-    end # run.society.each_node
+    end # @run.society.each_node
   end # searchForTarget
 
   #
@@ -190,7 +193,7 @@ class ThreatConChange < SecurityStressFramework
     UserDomains.instance.ensureUserDomains
     @userDomain = @attackAgent.userDomain
     if @userDomain == nil
-      @userDomain = run.society.agents["#{attackAgent.name}"].userDomain
+      @userDomain = @run.society.agents["#{attackAgent.name}"].userDomain
     end
   end 
 
@@ -206,9 +209,9 @@ class ThreatConChange < SecurityStressFramework
       count += 1
     end
     if count == 50 && @enteredLOW == false
-      logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL LOW"
+      saveResult(true, "1E2", "Timeout Didn't receive THREATCON_LEVEL LOW")
     elsif @enteredLOW == true
-      logInfoMsg "Finished: received THREATCON_LEVEL LOW" 
+      saveResult(true, "1E2", "Received THREATCON_LEVEL LOW")
     end
   end
 
@@ -221,9 +224,9 @@ class ThreatConChange < SecurityStressFramework
       count += 1
     end
     if count == 10 && @enteredHIGH == false
-      logInfoMsg "Finished: ***** Timeout ***** didn't receive THREATCON_LEVEL HIGH"
+      saveResult(false, "1E1", "Timeout Didn't receive THREATCON_LEVEL HIGH")
     elsif @enteredHIGH == true
-      logInfoMsg "Finished: received THREATCON_LEVEL HIGH" 
+      saveResult(true, "1E1","Received THREATCON_LEVEL HIGH")
     end
   end
 
