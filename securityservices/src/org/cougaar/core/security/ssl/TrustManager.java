@@ -53,7 +53,7 @@ public class TrustManager implements X509TrustManager {
   public TrustManager(KeyRingService krs, ServiceBroker sb, 
                       boolean skipTrustCheck) {
     this(krs, sb);
-    this.skipTrustCheck = true;
+    this.skipTrustCheck = skipTrustCheck;
   }
 
   public TrustManager(KeyRingService krs, ServiceBroker sb) {
@@ -105,13 +105,6 @@ public class TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] chain, String authType)
     throws CertificateException
   {
-    if (skipTrustCheck) {
-      if (log.isDebugEnabled()) {
-        log.debug("Skipping certificate trust check: " + chain);
-      }
-      return;
-    }
-
     // check whether client is user or node
     if (chain == null || chain.length == 0) {
       log.warn("checkClientTrusted: No certificate present");
@@ -134,6 +127,16 @@ public class TrustManager implements X509TrustManager {
       else if (title.equals(CertificateCache.CERT_TITLE_USER)
 	  && this instanceof ServerTrustManager) {
         accept = true;
+        // only allow skipping trust check for user
+        // for HTTP link protocol the trust check will be done at the trust manager.
+        // for normal user access to servlet the check will be done by DualAuthenticator
+        if (skipTrustCheck) {
+          if (log.isDebugEnabled()) {
+            log.debug("Skipping certificate trust check: " + chain);
+          }
+          return;
+        }
+
       }
       else if(title.equals(CertificateCache.CERT_TITLE_AGENT)
           && this instanceof ServerTrustManager) {
