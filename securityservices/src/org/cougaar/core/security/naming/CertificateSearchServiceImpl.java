@@ -58,9 +58,6 @@ public class CertificateSearchServiceImpl implements CertificateSearchService {
       sb.getService(this, LoggingService.class,
                     null);
     
-    whitePagesService = (WhitePagesService)
-      sb.getService(this, WhitePagesService.class, null);
-
   }
 
   public List findDNFromNS(String cname) {
