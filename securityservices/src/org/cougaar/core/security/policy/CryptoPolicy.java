@@ -45,8 +45,9 @@ public class CryptoPolicy extends SecurityPolicy {
   public static final int INCOMING = 1;
   public static final int OUTGOING = 2;
   public static final int BOTH = 3;
+  public static final int DATAPROTECTION = 4;
   public int Direction = BOTH;
-  
+
   private HashMap secuMethod = new HashMap();
   public void setSecuMethod(String key, String method){
     Object o = secuMethod.get(key);
@@ -60,7 +61,7 @@ public class CryptoPolicy extends SecurityPolicy {
         sm.add(method);
     }
   }
-  
+
   private HashMap symmSpec = new HashMap();
   public void setSymmSpec(String key, String spec){
     Object o = symmSpec.get(key);
@@ -70,7 +71,7 @@ public class CryptoPolicy extends SecurityPolicy {
       symmSpec.put(key, sp);
     }else{
       Vector sp = (Vector)o;
-      if(!sp.contains(spec))  
+      if(!sp.contains(spec))
         sp.add(spec);
     }
   }
@@ -84,7 +85,7 @@ public class CryptoPolicy extends SecurityPolicy {
       signSpec.put(key, sp);
     }else{
       Vector sp = (Vector)o;
-      if(!sp.contains(spec))  
+      if(!sp.contains(spec))
         sp.add(spec);
     }
   }
@@ -98,7 +99,7 @@ public class CryptoPolicy extends SecurityPolicy {
       asymmSpec.put(key, sp);
     }else{
       Vector sp = (Vector)o;
-      if(!sp.contains(spec))  
+      if(!sp.contains(spec))
         sp.add(spec);
     }
   }
@@ -111,25 +112,25 @@ public class CryptoPolicy extends SecurityPolicy {
   //for backward compatiblity
   public SecureMethodParam getSecureMethodParam(String key){
     SecureMethodParam smp = new SecureMethodParam();
-    
+
     Vector v = (Vector)secuMethod.get(key);
     //if key not found use "DEFAULT"
     if(v==null) v=(Vector)secuMethod.get("DEFAULT");
-    String method = "invalid"; 
+    String method = "invalid";
     if(v!=null) method = (String)(v.firstElement());
-    
+
     if(method.equalsIgnoreCase("plain")){
       smp.secureMethod = SecureMethodParam.PLAIN;
-    }else if(method.equalsIgnoreCase("sign")){ 
+    }else if(method.equalsIgnoreCase("sign")){
       smp.secureMethod = SecureMethodParam.SIGN;
-    }else if(method.equalsIgnoreCase("encrypt")){ 
+    }else if(method.equalsIgnoreCase("encrypt")){
       smp.secureMethod = SecureMethodParam.ENCRYPT;
-    }else if(method.equalsIgnoreCase("signAndEncrypt")){ 
+    }else if(method.equalsIgnoreCase("signAndEncrypt")){
       smp.secureMethod = SecureMethodParam.SIGNENCRYPT;
     }else{
       smp.secureMethod = SecureMethodParam.INVALID;
     }
-    
+
     v = (Vector)symmSpec.get(key);
     if(v==null) v=(Vector)symmSpec.get("DEFAULT");
     if(v!=null) smp.symmSpec = (String)(v.firstElement());
@@ -141,14 +142,14 @@ public class CryptoPolicy extends SecurityPolicy {
     v = (Vector)signSpec.get(key);
     if(v==null) v=(Vector)signSpec.get("DEFAULT");
     if(v!=null) smp.signSpec = (String)(v.firstElement());
-    
+
     return smp;
   }
-  
+
   public String toString() {
   return "crypto policy--NAME:" + Name +
         " TYPE:" + Type +
-        " DIRECTION:" + Direction 
+        " DIRECTION:" + Direction
   ;
   }
 }

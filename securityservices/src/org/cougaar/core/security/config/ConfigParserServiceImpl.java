@@ -113,6 +113,7 @@ public class ConfigParserServiceImpl
     setConfigurationFile("BootPolicy.Servlet.xml");
     setConfigurationFile("BootPolicy.UserDB.xml");
     setConfigurationFile("BootPolicy.BBFilter.xml");
+    setConfigurationFile("BootPolicy.DataProtection.xml");
   }
 
   /** Find a boot policy file

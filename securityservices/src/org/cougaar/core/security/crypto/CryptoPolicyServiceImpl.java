@@ -59,15 +59,18 @@ public class CryptoPolicyServiceImpl
   //policy for society--usually the default, one-fits-all policy
   CryptoPolicy dcp_in = null;
   CryptoPolicy dcp_out = null;
-  
-  
+  CryptoPolicy dcp_dataprot = null;
+
+
   //policy for community--common policy for the team
   HashMap incoming_c = new HashMap();
   HashMap outgoing_c = new HashMap();
+  HashMap dataprot_c = new HashMap();
 
   //policy for agent--the one and only
   HashMap incoming_a = new HashMap();
   HashMap outgoing_a = new HashMap();
+  HashMap dataprot_a = new HashMap();
 
   /** Creates new CryptoPolicyServiceImpl */
   public CryptoPolicyServiceImpl(ServiceBroker sb) {
@@ -91,10 +94,10 @@ public class CryptoPolicyServiceImpl
         log.debug("Outgoing SecureMethodParam for "
                + source );
       }
-      
+
       CryptoPolicy p = getOutgoingPolicy(source);
       if (p==null) return null;
-      
+
       SecureMethodParam smp = new SecureMethodParam();
       smp = p.getSecureMethodParam(target);
 
@@ -124,7 +127,7 @@ public class CryptoPolicyServiceImpl
           }catch(Exception e){
             log.error("failed getting community name: " + e.getMessage());
           }
-          if(cname != null && outgoing_c !=null) 
+          if(cname != null && outgoing_c !=null)
             cp = (CryptoPolicy)outgoing_c.get(cname);
         }
       }
@@ -139,7 +142,7 @@ public class CryptoPolicyServiceImpl
       }
         return cp;
     }
-    
+
     public SecureMethodParam getReceivePolicy(String source, String target) {
       if(log.isDebugEnabled()) {
         log.debug("Incoming SecureMethodParam for "
@@ -148,7 +151,7 @@ public class CryptoPolicyServiceImpl
 
       CryptoPolicy p = getIncomingPolicy(target);
       if (p==null) return null;
-      
+
       SecureMethodParam smp = new SecureMethodParam();
       smp = p.getSecureMethodParam(source);
 
@@ -162,7 +165,7 @@ public class CryptoPolicyServiceImpl
       if(log.isDebugEnabled()) {
         log.debug("getting incoming CryptoPolicy for " + target);
       }
-      
+
       //try agent first
       CryptoPolicy cp = (CryptoPolicy)incoming_a.get(target);
 
@@ -178,7 +181,7 @@ public class CryptoPolicyServiceImpl
           }catch(Exception e){
             log.error("Failed getting community name: " + e.getMessage());
           }
-          if(cname != null && incoming_c !=null) 
+          if(cname != null && incoming_c !=null)
             cp = (CryptoPolicy)incoming_c.get(cname);
         }
       }
@@ -194,12 +197,55 @@ public class CryptoPolicyServiceImpl
         return cp;
     }
 
+    public SecureMethodParam getDataProtectionPolicy(String source) {
+      if(log.isDebugEnabled()) {
+        log.debug("getting DataProtection CryptoPolicy for " + source);
+      }
+
+      //try agent first
+      CryptoPolicy cp = (CryptoPolicy)dataprot_a.get(source);
+
+      if(cp==null && commu!=null){
+        //find which community the agent belongs to and get the policy
+        Collection c = commu.listParentCommunities(source);
+        if(c!=null){
+          String cname = null;
+          try{
+            //agent could belongs to multiple communities, thus multiple set
+            //of policy--no policy consolidation for now, just pick one.
+            cname = (String)c.iterator().next();
+          }catch(Exception e){
+            log.error("Failed getting community name: " + e.getMessage());
+          }
+          if(cname != null && dataprot_c !=null)
+            cp = (CryptoPolicy)dataprot_c.get(cname);
+        }
+      }
+
+      if(cp==null){
+        //last try
+        cp = dcp_dataprot;
+      }
+
+      if(cp==null){
+          log.debug("can't find policy for " + "->" +  source);
+          return null;
+      }
+
+      SecureMethodParam smp = cp.getSecureMethodParam(source);
+
+      if(smp==null){
+          log.error("Failed converting CryptoPolicy " + cp);
+      }
+      return smp;
+    }
+
     private class CryptoPolicyProxy
       extends GuardRegistration
       implements NodeEnforcer{
 
       public CryptoPolicyProxy(ServiceBroker sb) {
-        
+
         super("org.cougaar.core.security.policy.CryptoPolicy",
               "CryptoPolicyService", sb);
         if (log.isDebugEnabled()) {
@@ -232,17 +278,17 @@ public class CryptoPolicyServiceImpl
             + policySubjectID);
       }
 
-    public void receivePolicyMessage(SecurityPolicy policy, 
-                                      String policyID, 
-                                      String policyName, 
-                                      String policyDescription, 
-                                      String policyScope, 
-                                      String policySubjectID, 
-                                      String policySubjectName, 
-                                      String policyTargetID, 
-                                      String policyTargetName, 
+    public void receivePolicyMessage(SecurityPolicy policy,
+                                      String policyID,
+                                      String policyName,
+                                      String policyDescription,
+                                      String policyScope,
+                                      String policySubjectID,
+                                      String policySubjectName,
+                                      String policyTargetID,
+                                      String policyTargetName,
                                       String policyType) {
-      
+
       if (log.isDebugEnabled()) {
           log.debug("Received policy message for: " + policySubjectID);
         }
@@ -253,7 +299,7 @@ public class CryptoPolicyServiceImpl
         }
         return;
       }
-      
+
       CryptoPolicy cp = null;
       try{
         cp = (CryptoPolicy)policy;
@@ -261,7 +307,7 @@ public class CryptoPolicyServiceImpl
         log.debug("received unknown policy type.");
         return;
       }
-      
+
       switch(cp.Type){
       case  CryptoPolicy.AGENT:
         if(cp.Direction == CryptoPolicy.INCOMING){
@@ -271,6 +317,8 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           incoming_a.put(cp.Name, cp);
           outgoing_a.put(cp.Name, cp);
+        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+          dataprot_a.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.COMMUNITY:
@@ -281,6 +329,8 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           incoming_c.put(cp.Name, cp);
           outgoing_c.put(cp.Name, cp);
+        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+          dataprot_c.put(cp.Name, cp);
         }
         break;
       case  CryptoPolicy.SOCIETY:
@@ -291,9 +341,11 @@ public class CryptoPolicyServiceImpl
         }else if(cp.Direction == CryptoPolicy.BOTH){
           dcp_in = cp;
           dcp_out = cp;
+        }else if(cp.Direction == CryptoPolicy.DATAPROTECTION){
+          dcp_dataprot = cp;
         }
       }
       return;
-    }     
+    }
   }
 }

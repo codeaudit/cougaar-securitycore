@@ -3,25 +3,25 @@
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
- *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
- *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
- *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
- *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
- *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
- *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
- *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
- *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
- * 
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
+ *
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS,
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.
+ *
  * </copyright>
  *
  * CHANGE RECORD
- * - 
+ * -
  * Created on May 1, 2002, 2:54 PM
  */
 
@@ -40,7 +40,7 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
 
-public class CryptoPolicyHandler 
+public class CryptoPolicyHandler
   extends BaseConfigHandler
 {
   private CryptoPolicy cp;
@@ -61,7 +61,7 @@ public class CryptoPolicyHandler
 			    ContentHandler parent,
 			    String role,
 			    String topLevelTag) {
-    
+
     if (log.isDebugEnabled()) {
       log.debug("Reading crypto policy");
     }
@@ -80,7 +80,7 @@ public class CryptoPolicyHandler
       msgParty = "";
     }
   }
-  
+
   public void endElement( String namespaceURI,
 			  String localName,
 			  String qName )
@@ -89,12 +89,12 @@ public class CryptoPolicyHandler
     if (endElementAction == SKIP) {
       return;
     }
-    
+
     if (localName.equals("Name")) {
       String value = getContents();
       cp.Name = value;
     }
-    
+
     if (localName.equals("Type")) {
       String value = getContents();
       if(value.equalsIgnoreCase("AGENT")){
@@ -109,7 +109,7 @@ public class CryptoPolicyHandler
         }
       }
     }
-    
+
     if (localName.equals("Direction")) {
       String value = getContents();
       if(value.equalsIgnoreCase("BOTH")){
@@ -118,6 +118,8 @@ public class CryptoPolicyHandler
         cp.Direction = AccessControlPolicy.INCOMING;
       }else if(value.equalsIgnoreCase("OUTGOING")){
         cp.Direction = AccessControlPolicy.OUTGOING;
+      }else if(value.equalsIgnoreCase("DATAPROTECTION")){
+        cp.Direction = CryptoPolicy.DATAPROTECTION;
       }else{
         if (log.isErrorEnabled()) {
           log.error(" unexpected Direction value.");
@@ -126,7 +128,7 @@ public class CryptoPolicyHandler
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("CryptoPolicy: " + localName 
+      log.debug("CryptoPolicy: " + localName
 		+ " = " + getContents());
     }
 
@@ -153,5 +155,5 @@ public class CryptoPolicyHandler
     // Reset contents
     contents.reset();
   }
-  
+
 }
