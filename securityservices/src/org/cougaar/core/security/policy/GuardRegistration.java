@@ -43,6 +43,7 @@ import org.cougaar.util.*;
 import kaos.policy.guard.*;
 import kaos.policy.enforcement.Enforcer;
 import kaos.policy.util.PolicyConstants;
+import safe.guard.EnforcerManagerService;
 import kaos.core.util.*;
 
 // Cougaar security services
@@ -60,7 +61,7 @@ public abstract class GuardRegistration
   private ConfigParserService cps = null;
 
   /** The KAoS guard **/
-  private EnforcerManager guard = null;
+  private EnforcerManagerService guard = null;
 
   /** The policy type to which we are subscribing
       This is the fully-qualified class name of the policy **/
@@ -83,6 +84,16 @@ public abstract class GuardRegistration
     cps = (ConfigParserService)
       serviceBroker.getService(this,
 			       ConfigParserService.class, null);
+
+    guard =
+      (EnforcerManagerService) serviceBroker.getService(this, EnforcerManagerService.class,
+							null);
+    //guardRetriever = new GuardRetriever();
+    //guard = guardRetriever.getGuard();
+    if (guard == null) {
+      log.error("FATAL ERROR: Cannot continue without guard");
+      throw new RuntimeException("ERROR: Cannot continue without guard");
+    }
 
     setPolicyType(aPolicyType);
     setName(enforcerName);	// Setup the enforcer's name (agent or node)
@@ -113,7 +124,7 @@ public abstract class GuardRegistration
   /** Obtain a reference to the KAoS guard and register the policy enforcer **/
   public void registerEnforcer()
     throws EnforcerRegistrationException {
-    GuardRetriever guardRetriever;
+    //GuardRetriever guardRetriever;
 
     if (log.isDebugEnabled() == true) {
       // Register the policy enforcer with the guard.
@@ -121,12 +132,6 @@ public abstract class GuardRegistration
 		getName() + " to KAoS guard for " + getPolicyType());
     }
 
-    guardRetriever = new GuardRetriever();
-    guard = guardRetriever.getGuard();
-    if (guard == null) {
-      log.error("FATAL ERROR: Cannot continue without guard");
-      throw new RuntimeException("ERROR: Cannot continue without guard");
-    }
     // Make sure policy type has been set
     if (getPolicyType() == null) {
       throw new EnforcerRegistrationException("Policy type not specified!");

@@ -96,12 +96,16 @@ public class MessageProtectionServiceImpl
     // Retrieve KeyRing service
     this.keyRing = (KeyRingService)
       serviceBroker.getService(this, KeyRingService.class, null);
+    if (this.keyRing == null) {
+      log.error("Unable to get KeyRing service");
+      throw new RuntimeException("MessageProtectionService. No KeyRing service");
+    }
 
     // Retrieve Encryption service
     this.encryptService = (EncryptionService)
       serviceBroker.getService(this, EncryptionService.class, null);
     if (encryptService == null) {
-      log.debug("Unable to get Encryption service");
+      log.warn("Unable to get Encryption service");
       throw new RuntimeException("MessageProtectionService. No encryption service");
     }
   }
