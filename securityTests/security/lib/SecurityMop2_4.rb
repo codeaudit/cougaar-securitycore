@@ -50,6 +50,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     @calcDone = false
     @performDone = false
     @crlUpdated = false
+    @userCreated = false
   end
 
   def to_s
@@ -259,11 +260,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
           File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
           File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
           #puts "Calling lookForCRLUpdate  "
-          lookForCRLUpdate(getOSDGOVAgent.node,"newCRL Issuer(#{getOSDGOVAgent.caDomains[0].cadn})")
+	  lookForCRLUpdate(getOSDGOVAgent.node,"newCRL Issuer(#{getOSDGOVAgent.caDomains[0].cadn})")
+	  saveAssertion("SecurityMop2.4","Looking for crl update on #{getOSDGOVAgent.node.name} with pattern newCRL Issuer(#{getOSDGOVAgent.caDomains[0].cadn})")
           revokeCertBeforeTest getOSDGOVAgent.caDomains[0],'RevokedLogistician'
           revokeCertBeforeTest @conusDomain.agent.caDomains[0],'RecreatedLogistician'
           #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
-                    
+          @userCreated = true;          
           logInfoMsg " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
           @conusDomain.deleteUser('RecreatedLogistician')
           logInfoMsg " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
@@ -296,7 +298,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
       rescue => ex
         saveAssertion('SecurityMop2.4 Setup failed ',
                       "Unable to perform stress: #{ex}\n#{ex.backtrace.join("\n")}" )
-      end  
+      end 
+      
     }
   end # setup
 
@@ -355,10 +358,21 @@ class  SecurityMop2_4 < AbstractSecurityMop
         #puts "sleeping for 3 minutes"
         #sleep 3.minutes
         #saveAssertion("SecurityMop2.4","Calling run test ")
-        maxSleepTime=4.minutes
-        sleepTime = 40.seconds
+        maxSleepTime=20.minutes
+        sleepTime = 1.minutes
         totalWaitTime = 0
         #puts "Starting to wait for CRL Update" 
+	 while @userCreated == false && totalWaitTime < maxSleepTime
+          logInfoMsg "Waited #{totalWaitTime} minutes  for User Creation" if $VerboseDebugging
+          sleep(sleepTime) # sleep
+          totalWaitTime += sleepTime 
+        end
+        if ((totalWaitTime >= maxSleepTime) && (@UserCreation == false) )
+          saveResult(false, "SecurityMop 2.4", "Timeout Could not create Users ")
+	end
+	maxSleepTime=4.minutes
+        sleepTime = 40.seconds
+        totalWaitTime = 0
         while @crlUpdated == false && totalWaitTime < maxSleepTime
           logInfoMsg "Waited #{totalWaitTime} seconds for CRL update" if $VerboseDebugging
           sleep(sleepTime) # sleep
@@ -368,8 +382,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
           saveResult(false, "SecurityMop 2.4", "Timeout Didn't receive CRL Update")
         elsif @crlUpdated == true
           saveAssertion("SecurityMop2.4","Calling run Tests after CRL Update ")
-          runTests(@tests)
         end
+	runTests(@tests)
         runServletPolicyTests
         logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
@@ -401,7 +415,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
     deltaPolicy(enclave, certpol)
     sleep 1.minutes
     @tests =getCertPolicyTests
-     runTests(@tests)
+    runTests(@tests)
   end  
 
   def ensureDomains
@@ -416,7 +430,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
       @transDomain = UserDomains.instance['1-ad-divsupUserDomainComm']
       saveAssertion("SecurityMop2.4", "calling get Tests");
       @tests = getTests
-      saveAssertion("SecurityMop2.4", "get Tests Done");
+      logInfoMsg "ensureDomains of SecurityMop 2_4  Test returned #{@test} " if $VerboseDebugging
+      saveAssertion("SecurityMop2.4"," tests : #{@tests}")
+      saveAssertion("SecurityMop2.4"," test size : #{@tests.size}")
+      saveAssertion("SecurityMop2.4", "get Tests Done")
     end
   end
 
@@ -632,7 +649,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         return testCollection
       else
         unless fwdAgent and rearAgent and conusAgent and transAgent
-          raise "One of the PolicyDomainManagerServlet agents is missing [Fwd|Rear|Conus|Trans]"
+        raise "One of the PolicyDomainManagerServlet agents is missing [Fwd|Rear|Conus|Trans]"
         end
         fwdUser   = "FwdPolicyUser"
         rearUser  = "RearPolicyUser"
@@ -646,8 +663,11 @@ class  SecurityMop2_4 < AbstractSecurityMop
           domain = x.shift
           testCollection[domain] = self.send(:testSet, *x)
         end
+	
         testCollection[@conusDomain] += conusTests
-        return testCollection
+        saveAssertion("SecurityMop2.4","Returing test size :#{testCollection.size}") 
+	logInfoMsg " get test returning test size :#{testCollection.size}" if $VerboseDebugging
+	return testCollection
       end 
     rescue Exception => e
       logInfoMsg "error in SecurityMop2_4.getTests"
@@ -664,11 +684,13 @@ class  SecurityMop2_4 < AbstractSecurityMop
       logInfoMsg "agent: #{agent.name}, #{user}, #{otherUser}" if $VerboseDebugging 
       logInfoMsg "Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}"
     end
+    saveAssertion("SecurityMop2.4","Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}")
     agent = run.society.agents[agent] if agent.kind_of?(String)
-    if( agent.userDomain ==nil) 
+    if( agent.userDomain ==nil)
       logInfoMsg " Cannot create test set for agent #{agent.name} user#{user} #{otherUser}"
-      return
-    end   
+      saveAssertion("SecurityMop2.4"," Cannot create test set for agent #{agent.name} user#{user} #{otherUser}")
+      return;
+    end
     domainName = agent.userDomain.name
     policyServlet = '/policyAdmin'
     tests = [
@@ -684,7 +706,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
                  #['Basic', @fwdAgent, "#{domainName}\\R",  'R', policyServlet,  401, '3a','NO_PRIV','policy'])
                  ['Basic', @fwdAgent, "#{domainName}\\P",  'P', policyServlet,  401, '3a','DATABASE_ERROR','user'])
     end
-    
+    logInfoMsg "test size returned in test set is #{tests.size} " if $VerboseDebugging 
     return tests
   end # testSet
   
