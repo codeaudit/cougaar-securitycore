@@ -40,7 +40,7 @@ class Object
 end
 class NilClass
   def as_string
-      'ni'
+    'ni'
   end
 end
 class String
@@ -412,7 +412,7 @@ def saveResult(pass, testnum, testname, tagId="testId")
   $TestResults << [ pass, testnum, testname ]
 end # saveResult
 
-def saveUnitTestResult(testnum, description)
+def saveAssertion(testnum, description)
   Thread.critical = true
   #puts "Entered critical section - #{Time.now}"
   begin
@@ -428,7 +428,7 @@ def saveUnitTestResult(testnum, description)
   end
   #puts "Leaving critical section - #{Time.now}"
   Thread.critical = false
-end # saveUnitTestResult
+end # saveAssertion
 
 
 def saveResultsToFile(pass, success, testnum, testname, tagId)
@@ -452,7 +452,7 @@ def saveResultsToFile(pass, success, testnum, testname, tagId)
   end
   #logInfoMsg "saveResultsToFile - Leaving critical section - #{Time.now}"
   Thread.critical = false
-    
+  
 end 
 
 def getClasspath
