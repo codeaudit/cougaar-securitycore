@@ -1,0 +1,6 @@
+#!/bin/tcsh
+
+find . -name '*.java' -exec sarep 'com.nai.security' 'org.cougaar.core.security' {} \;
+
+echo  ############################################
+#mv -i -v src/com/nai/security src/org/cougaar/core
