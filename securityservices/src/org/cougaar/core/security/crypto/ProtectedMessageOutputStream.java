@@ -145,9 +145,12 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
         throw new IOException(e.getMessage());
       }
     }
-
+    X509Certificate [] sourceChain = null;
+    if (_sourceCert != null) {
+      sourceChain = _keyRing.buildCertificateChain(_sourceCert);
+    }
     ProtectedMessageHeader header = 
-      new ProtectedMessageHeader(_keyRing.buildCertificateChain(_sourceCert),
+      new ProtectedMessageHeader(sourceChain,
                                  _targetCert,
                                  policy, receiverSecret, senderSecret);
     if (_log.isDebugEnabled()) {
