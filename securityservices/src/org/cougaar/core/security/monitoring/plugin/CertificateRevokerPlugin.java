@@ -626,8 +626,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
     Iterator i = agents.iterator();
 
     while(i.hasNext()) {
-      MessageAddress addr = (MessageAddress)i.next();
-      if(addr.toString().equals(agentName)) {
+      Entity agent = (Entity) i.next();
+      if(agent.getName().equals(agentName)) {
         return true;
       }
     }
