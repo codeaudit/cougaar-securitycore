@@ -13,8 +13,6 @@ $badMessages = [
   /FATAL/
 ]
 
-$testPassed=true
-
 $startupDelay = 10 * 60
 
 # Except for the following cases: This array contains pairs of
@@ -373,11 +371,17 @@ end
 # Execution Section
 #
 
-processArgs
-checkLogs($logdir)
+def processLogFiles
+  $testPassed=true
+  processArgs
+  checkLogs($logdir)
 
-if $testPassed
-  puts "<testResult>SUCCESS</testResult>"
-else
-  puts "<testResult>FAILED</testResult>"
+  if $testPassed
+    puts "<testResult>SUCCESS</testResult>"
+  else
+    puts "<testResult>FAILED</testResult>"
+  end
+  return $testPassed
 end
+
+processLogFiles
