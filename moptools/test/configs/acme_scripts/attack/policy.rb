@@ -49,20 +49,21 @@ Policy BlockSendCommunication = [
    is a subset of the set { %\##{agent2.name} }
 ]
 DONE
-    puts "Sleeping 5 minutes while the new policy distributes"
-    sleep 1.minutes
-    puts "Done sleeping...."
+#    puts "Sleeping 5 minutes while the new policy distributes"
+    sleep 5.minutes
+#    puts "Done sleeping...."
       
     Util.relayMessageTest(agent1.name, agent2.name, 
                           '3a1', "Send unauthorized message", 
                           '3a20', "Send unauthorized message IDMEF",
                           [ true, false, false, false ],
-                          agent1.name)
+                          agent1.node.agent.name)
     Util.relayMessageTest(agent2.name, agent1.name, 
                           '3b1', "Receive unauthorized message", 
                           '3b20', "Receive unauthorized message IDMEF", 
                           [ true, false, false, false ],
-                          agent1.name)
+                          agent1.node.agent.name)
+    sleep 10.minutes if $WasRunning
   end # postConditionalNextOplanStage
 end # NoAttackMessage
 

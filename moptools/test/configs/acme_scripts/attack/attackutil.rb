@@ -139,10 +139,11 @@
 	logInfoMsg results
       end # modifyPolicy
 
-      def sendRelayMessage(source, target, &block)
+      def sendRelayMessage(source, target)
 #        puts "sending relay message from #{source} to #{target}"
         url = getUrl(source)
 #        puts "the url = #{url}/message/send?xml=true&address=#{target}"
+        watcher = MessageEventWatcher.new(source, target)
         result,url = Cougaar::Communications::HTTP.get("#{url}/message/send?xml=true&address=#{target}")
         raise "Error sending message from #{source} to #{target}" unless result
 #        puts "sent relay message: #{result}"
@@ -151,20 +152,12 @@
           uid = match[0]
         }
         if uid == nil
+          watcher.stop
           raise "Could not extract UID from response when sending " +
             "message from #{source} to #{target}"
         end
-#        puts "starting event watcher..."
-        listener_num = getRun.comms.on_cougaar_event do |event|
-          event.data.scan(/MessageTransport\((.*)\) UID\(#{uid}\) Source\(.*\) Target\(.*\)/) { |match|
-            if (match[0] == "ResponseReceived")
-              getRun.comms.remove_on_cougaar_event(listener_num)
-            end
-            yield(match[0])
-          }
-        end
-#        puts "listener number = #{listener_num}"
-        listener_num
+        watcher.setUID(uid)
+        watcher
       end # sendRelayMessage
 
       def relayMessageTest1(source, target, 
@@ -180,15 +173,12 @@
                            idmefNum, idmefName,
                            responsesExpected, 
                            stoppingAgent,
-                           maxWait = 1.minutes)
+                           maxWait = 2.minutes)
 #	puts "started relayMessageTest"
-        responses = {}
         expected = {}
-        responseArr = []
 #	puts "in relayMessageTest"
         MESSAGE_EVENTS.each_index { |index|
-          responses[MESSAGE_EVENTS[index]] = false
-          expected[MESSAGE_EVENTS[index]] = responsesExpected
+          expected[MESSAGE_EVENTS[index]] = responsesExpected[index]
         }
 #	puts "done setting expected values"
         idmefSrc = source
@@ -206,31 +196,24 @@
 #	puts "about to create idmef watcher"
         idmefWatcher = 
           IdmefWatcher.new(idmefNum, idmefName, shouldStop,
-                           "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\(#{idmefSrc}/\\d+\\) Target\\(#{idmefTgt}/\\d+\\)")
+                           "IDMEF\\(#{stoppingAgent}\\) Classification\\(org.cougaar.core.security.monitoring.MESSAGE_FAILURE\\) Source\\([^)]+\\) Target\\([^)]+\\) AdditionalData\\(([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target})),([^,]+,)*((SOURCE_AGENT:#{source})|(TARGET_AGENT:#{target}))(,[^,)]+)*\\)")
         idmefWatcher.start
 
 #	puts "started idmefWatcher"        
-        listener = sendRelayMessage(source, target) { |result|
-          responses[result] = true
-          responseArr << result
+        watcher = sendRelayMessage(source, target);
+        Thread.fork {
+#          puts "sleeping...."
+          sleep(maxWait)
+#          puts "done sleeping"
+          idmefWatcher.stop
+          watcher.stop
+#          puts ("stopped...")
+          saveResult(watcher.getHash() == expected,
+                     attackNum, attackName + "\t" +
+                     source + "\t" + target + "\t" + 
+                     watcher.getArray().join("\t"))
+#          puts("saved result")
         }
-	puts "Sent relay message: #{listener}"
-#        Thread.fork {
-	puts "sleeping...."
-        sleep(maxWait)
-	puts "done sleeping"
-        idmefWatcher.stop
-        if (!responses["ResponseReceived"])
-          getRun.comms.remove_on_cougaar_event(listener)
-        end
-
-	puts ("stopped...")
-        saveResult(responses == expected,
-                   attackNum, attackName + "\t" +
-                   source + "\t" + target + "\t" + 
-                   responseArr.join("\t"))
-	puts("saved result")
-#        }
       end # relayMessageTest
 
       def agentExists(agent)
@@ -311,6 +294,8 @@
 
         def start
           @listener = getRun.comms.on_cougaar_event do |event|
+#            puts("Looking at event #{event.data}")
+#            puts("compare against #{@idmefText}")
             if event.data =~ /#{@idmefText}/
               # it gave an event
               @idmefFound = true
@@ -327,4 +312,69 @@
           end
         end
       end #IdmefWatcher
+
+      class MessageEventWatcher
+        def initialize(source, target)
+          @hash = { }
+          MESSAGE_EVENTS.each { |event|
+            @hash[event] = false
+          }
+          @uid = nil
+          @array = []
+          @events = []
+          @source = source
+          @target = target
+
+          @listener = getRun.comms.on_cougaar_event { |event|
+            if (@uid == nil)
+              if (event.data =~ /MessageTransport\(.+\) UID\(.+\) Source\(#{@source}\) Target\(#{@target}\)/)
+                @events.unshift(event)
+              end
+            else
+              event.data.scan(/MessageTransport\((.*)\) UID\(#{@uid}\) Source\(#{@source}\) Target\(#{@target}\)/) { |match|
+                @array << match[0]
+                @hash[match[0]] = true
+                if (match[0] == "ResponseReceived")
+                  stop
+                end
+              }
+            end
+          }
+        end
+
+        def parseOldEvents()
+          @events.each { |event|
+            event.data.scan(/MessageTransport\((.*)\) UID\(#{@uid}\) Source\(#{@source}\) Target\(#{@target}\)/) { |match|
+              @array.unshift(match[0])
+              @hash[match[0]] = true
+              if (match[0] == "ResponseReceived")
+                stop
+              end
+            }
+          }
+          @events.clear
+        end
+
+        def setUID(uid)
+          if (@uid == nil)
+            @uid = uid
+            parseOldEvents
+          end
+        end
+        
+        def stop
+          if (@listener != nil)
+            getRun.comms.remove_on_cougaar_event(@listener)
+            @listener = nil
+          end
+        end
+
+        def getHash
+          return @hash
+        end
+
+        def getArray
+          return @array
+        end
+      end # MessageEventWatcher
     end # module Util
