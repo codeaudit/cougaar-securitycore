@@ -2,11 +2,11 @@
 
 foreach i (`cat integmachines`)
   echo ssh $i "killall -9 java"
-  ssh $i "killall -9 java"&
+  ssh $i "killall -9 java"
 end
 
 wait
-sleep 10
+sleep 5
 foreach i (`cat integmachines`)
   echo xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server"
   xterm -sl 50000 -title "$i $CIP" -geometry 60x10 -exec ssh $i "cd $CIP/server/bin;./Server " &
