@@ -1,5 +1,4 @@
-
-<!ELEMENT cryptoConfiguration (nodeConfiguration, certificateAuthority)>
+<!ELEMENT c2ryptoConfiguration (nodeConfiguration, certificateAuthority)>
 
 <!ELEMENT nodeConfiguration (CA_DN, CA_URL, CA_keystore, CA_keystorePassword, CertDirectoryURL, CertDirectoryType, ou, o, l, st, c, keyAlgName, keysize, sigAlgName, validity)>
 <!ELEMENT CA_DN (#PCDATA)>
