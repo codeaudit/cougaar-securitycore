@@ -16,7 +16,7 @@
 <!ATTLIST Attribute Value CDATA #REQUIRED>
 ]>
 <Communities>
-  <Community Name="CSI">
+  <Community Name="UserDomain1">
     <Attribute ID="CommunityManager" Value=""/>
     <Attribute ID="CommunityType"    Value="User"/>
     <Entity Name="UserAdminNode">

@@ -64,14 +64,20 @@
 	<!-- KPAT, Policy -->
         <pattern>/policyAdmin</pattern>
         <!-- a rule must have at least one role -->
-        <role>CSI\PolicyAdministrator</role>
+        <role>UserDomain1\PolicyAdministrator</role>
+        <role>UserDomain2\PolicyAdministrator</role>
+        <role>UserDomain3\PolicyAdministrator</role>
+        <role>UserDomain4\PolicyAdministrator</role>
       </rule>
     </agent>
 
     <agent name="SCmrmanager">
       <rule requireSSL="false" auth="EITHER">
         <pattern>/*</pattern>
-        <role>CSI\MonitorManager</role>
+        <role>UserDomain1\MonitorManager</role>
+        <role>UserDomain2\MonitorManager</role>
+        <role>UserDomain3\MonitorManager</role>
+        <role>UserDomain4\MonitorManager</role>
       </rule>
     </agent>
 
@@ -80,7 +86,10 @@
         <pattern>/glsinit</pattern>
         <pattern>/glsreply</pattern>
         <pattern>/editOplan</pattern>
-        <role>CSI\Logistician</role>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
       </rule>
     </agent>
 
@@ -88,15 +97,24 @@
       <rule requireSSL="false" auth="EITHER">
         <pattern>/aggregator</pattern>
         <pattern>/aggregatorkeepalive</pattern>
-        <role>CSI\Logistician</role>
-        <role>CSI\LogisticsViewer</role>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
       </rule>
     </agent>
 
     <agent name="*">
       <rule requireSSL="false" auth="EITHER">
         <pattern>/useradmin</pattern>
-        <role>CSI\UserManager</role>
+        <role>UserDomain1\UserManager</role>
+        <role>UserDomain2\UserManager</role>
+        <role>UserDomain3\UserManager</role>
+        <role>UserDomain4\UserManager</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
@@ -109,15 +127,27 @@
         <!-- al-inventory standalone application -->
         <pattern>/log_inventory</pattern>
 
-        <role>CSI\Logistician</role>
-        <role>CSI\LogisticsViewer</role>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
 	<!-- Used by the data grabber -->
         <pattern>/hierarchy</pattern>
-        <role>CSI\Logistician</role>
-        <role>CSI\LogisticsViewer</role>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
       </rule>
 
       <rule requireSSL="false" auth="EITHER">
@@ -151,7 +181,10 @@
         <pattern>/CA/SubmitCaKeyServlet</pattern>
         <pattern>/CA/ProcessPendingCertServlet</pattern>
         <pattern>/CA/CaKeyManagement</pattern>
-        <role>CSI\CAAdministrator</role>
+        <role>UserDomain1\CAAdministrator</role>
+        <role>UserDomain2\CAAdministrator</role>
+        <role>UserDomain3\CAAdministrator</role>
+        <role>UserDomain4\CAAdministrator</role>
       </rule>
 <!--
       <rule requireSSL="true" auth="CERT">
@@ -164,7 +197,10 @@
         <pattern>/move</pattern>
         <pattern>/load</pattern>
         <pattern>/topology</pattern>
-        <role>CSI\SocietyAdmin</role>
+        <role>UserDomain1\SocietyAdmin</role>
+        <role>UserDomain2\SocietyAdmin</role>
+        <role>UserDomain3\SocietyAdmin</role>
+        <role>UserDomain4\SocietyAdmin</role>
       </rule>
       <!-- For Rovers Managers to control and modify rovers -->
       <!-- Perhaps this should be moved to a specific agent? -->
