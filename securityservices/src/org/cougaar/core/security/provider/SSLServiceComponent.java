@@ -26,7 +26,11 @@
 
 package org.cougaar.core.security.provider;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
+
+import javax.net.ssl.SSLSocketFactory;
 
 import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ServiceBroker;
@@ -39,8 +43,8 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.identity.WebserverIdentityService;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
-import org.cougaar.core.security.ssl.JaasSSLFactory;
 import org.cougaar.core.security.ssl.AxisSSLSocketFactory;
+import org.cougaar.core.security.ssl.JaasSSLFactory;
 
 public final class SSLServiceComponent
   extends SecurityComponent
@@ -160,7 +164,44 @@ public final class SSLServiceComponent
         setDefaultSSLSocketFactory(jaasSSLFactory);
 
       // Axis SSL socket factory (web services)
-      AxisSSLSocketFactory.setSSLSocketFactory(jaasSSLFactory);
+      try {
+        Class c = Class.forName("org.cougaar.core.security.ssl.AxisSSLSocketFactory");
+        Class paramTypes[] = {SSLSocketFactory.class};
+        Method m = c.getMethod("setSSLSocketFactory", paramTypes);
+        Object paramValues[] = {jaasSSLFactory};
+        m.invoke(null, paramValues);
+      }
+      catch (ClassNotFoundException e) {
+        // Don't load the AXIS component. That's ok if AXIS is not enabled.
+        if (log.isInfoEnabled()) {
+          log.info("AxisSSLSocketFactory not enabled");
+        }
+      } catch (SecurityException e) {
+        // getMethod Exception
+        if (log.isErrorEnabled()) {
+          log.error("Unable to access AxisSSLSocketFactory.setSSLSocketFactory method", e);
+        }
+      } catch (NoSuchMethodException e) {
+        // getMethod Exception
+        if (log.isErrorEnabled()) {
+          log.error("AxisSSLSocketFactory.setSSLSocketFactory method does not exist", e);
+        }
+      } catch (IllegalArgumentException e) {
+        // Method.invoke exception
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set AxisSSLSocketFactory.setSSLSocketFactory", e);
+        }
+      } catch (IllegalAccessException e) {
+        // Method.invoke exception
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set AxisSSLSocketFactory.setSSLSocketFactory", e);
+        }
+      } catch (InvocationTargetException e) {
+        // Method.invoke exception
+        if (log.isErrorEnabled()) {
+          log.error("Unable to set AxisSSLSocketFactory.setSSLSocketFactory", e);
+        }
+      }
 
       krs.finishInitialization();
 
