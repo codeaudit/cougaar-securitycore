@@ -99,8 +99,7 @@ Policy DamlBootPolicyOrgActivityRemove = [
  }
 ]
 
-
-Policy DamlBootPolicyOrgActivityRemove = [
+Policy DamlBootPolicyOrgActivityAll = [
    Priority = 2,
    $Ultralog/Names/EntityInstances.daml#PluginsInRoleOrgActivityAllRole 
    is authorized to perform
