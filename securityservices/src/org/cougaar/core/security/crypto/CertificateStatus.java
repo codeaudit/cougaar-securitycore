@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -51,7 +51,7 @@ public class CertificateStatus
   /** The type of the certificate: end entity or trusted certificate
       authority */
   private CertificateType certificateType;
-  
+
   /** The last time a certificate signing request was sent to the
    * certificate authority. */
   private Date lastTimeSigningRequest;
@@ -79,6 +79,7 @@ public class CertificateStatus
     certificateOrigin = origin;
     certificateType = type;
     alias = a;
+    /*
     if (type == CertificateType.CERT_TYPE_CA) {
       // The certificate is necessarily trusted, regardless
       // of the trust parameter.
@@ -87,6 +88,9 @@ public class CertificateStatus
     else {
       certificateTrust = trust;
     }
+    */
+    // for multiple CA, CA cert cannot be treated as trusted automatically
+    certificateTrust = trust;
   }
 
   /** Return true if the certificate is valid */
@@ -123,7 +127,7 @@ public class CertificateStatus
       if(getCertificateTrust() == CertificateTrust. CERT_TRUST_REVOKED_CERT) {
 	certificateIsValid=false;
 	throw new CertificateRevokedException("Certificate not trusted:"+
-      				       getCertificateTrust()); 
+      				       getCertificateTrust());
       }
       else {
 	throw new CertificateNotTrustedException("Certificate not trusted:",

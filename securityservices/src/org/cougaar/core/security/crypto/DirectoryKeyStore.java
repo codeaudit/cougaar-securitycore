@@ -1095,8 +1095,9 @@ public class DirectoryKeyStore
 
       if(certificate != null) {
 	if (certType == CertificateType.CERT_TYPE_CA) {
-	  // The certificate is trusted by definition
-	  trust = CertificateTrust.CERT_TRUST_CA_CERT;
+          // cannot trust it automatically, need to be in the trust store
+          if (cryptoClientPolicy.isRootCA() || caKeystore.getCertificate(s) != null)
+            trust = CertificateTrust.CERT_TRUST_CA_CERT;
 	}
 	certstatus =
 	  new CertificateStatus(certificate, true,
@@ -1239,12 +1240,12 @@ public class DirectoryKeyStore
 
       if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	// This is a trusted certificate authority.
-	signedByAtLeastOneCA = true;
+        signedByAtLeastOneCA = true;
       }
       if (log.isDebugEnabled()) {
 	log.debug("Certificate is self issued");
       }
-      if (param.isCertAuth) {
+      if (param.isCertAuth && cryptoClientPolicy.isRootCA()) {
 	// If DirectoryKeyStore is used in the context of a Certificate
 	// Authority, then a self-signed certificate is OK.
 	return true;
