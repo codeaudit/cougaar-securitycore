@@ -36,8 +36,8 @@ import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
 // Cougaar security services
-import com.nai.security.policy.*;
-import com.nai.security.util.*;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.*;
 
 public class CaPolicyHandler
   extends BaseConfigHandler

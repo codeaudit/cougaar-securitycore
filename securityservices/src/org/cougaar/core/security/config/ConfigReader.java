@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 // Cougaar security services
-import com.nai.security.policy.*;
+import org.cougaar.core.security.policy.*;
 
 public class ConfigReader
 {

@@ -205,7 +205,7 @@ public class XMLPolicyCreator {
     }	catch(Throwable e) {
       System.err.println("Couldn't instantiate policy type " 
 			 + policyType + e);
-      System.err.println("Using default class com.nai.security.policy.TypedPolicy");
+      System.err.println("Using default class org.cougaar.core.security.policy.TypedPolicy");
     }
     if (p == null)
       p = new TypedPolicy(policyName, policyType);

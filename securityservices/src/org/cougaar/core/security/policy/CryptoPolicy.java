@@ -28,6 +28,6 @@ package org.cougaar.core.security.policy;
 
 public class CryptoPolicy extends TypedPolicy {
   public CryptoPolicy() {
-    super("com.nai.security.policy.CryptoPolicy");
+    super("org.cougaar.core.security.policy.CryptoPolicy");
   }
 }

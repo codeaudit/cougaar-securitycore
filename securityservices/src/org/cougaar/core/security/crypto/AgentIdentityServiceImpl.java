@@ -44,12 +44,12 @@ import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
-import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.crypto.*;
-import com.nai.security.crypto.*;
+import org.cougaar.core.security.crypto.*;
 
 
 public class AgentIdentityServiceImpl

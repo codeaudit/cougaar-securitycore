@@ -112,7 +112,7 @@ public class AccessControlPolicy extends TypedPolicy {
    * default contructors which calls TypedPolicy constructor and name policy type
    */
   public AccessControlPolicy() {
-    super("com.nai.security.policy.AccessControlPolicy");
+    super("org.cougaar.core.security.policy.AccessControlPolicy");
 
   }
 

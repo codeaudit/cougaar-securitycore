@@ -33,9 +33,9 @@ import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 
 // Cougaar security services
-import com.nai.security.util.CryptoDebug;
-import com.nai.security.crypto.KeyRing;
-import com.nai.security.crypto.CryptoPolicyServiceImpl;
+import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.security.crypto.KeyRing;
+import org.cougaar.core.security.crypto.CryptoPolicyServiceImpl;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.acl.*;
 import org.cougaar.core.security.services.identity.*;

@@ -31,8 +31,8 @@ import java.security.cert.*;
 import java.net.*;
 import java.util.*;
 
-import com.nai.security.util.*;
-import com.nai.security.crypto.*;
+import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManager {

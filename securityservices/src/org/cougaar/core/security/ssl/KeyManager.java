@@ -30,8 +30,8 @@ import java.security.*;
 import java.security.cert.*;
 import java.net.*;
 
-import com.nai.security.util.*;
-import com.nai.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class KeyManager implements X509KeyManager {

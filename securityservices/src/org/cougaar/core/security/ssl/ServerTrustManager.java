@@ -29,8 +29,8 @@ import javax.net.ssl.*;
 import java.security.*;
 import java.security.cert.*;
 
-import com.nai.security.util.*;
-import com.nai.security.crypto.DirectoryKeyStore;
+import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.crypto.DirectoryKeyStore;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 
 public class ServerTrustManager extends org.cougaar.core.security.ssl.TrustManager {

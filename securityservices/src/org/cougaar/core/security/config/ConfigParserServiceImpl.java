@@ -43,8 +43,8 @@ import sun.security.x509.*;
 import sun.security.util.ObjectIdentifier;
 
 // Cougaar Security Services
-import com.nai.security.policy.*;
-import com.nai.security.util.*;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;

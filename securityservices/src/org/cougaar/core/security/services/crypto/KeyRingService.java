@@ -39,7 +39,7 @@ import sun.security.x509.*;
 import org.cougaar.core.component.Service;
 
 // Cougaar Security Services
-import com.nai.security.crypto.*;
+import org.cougaar.core.security.crypto.*;
 
 /** Low-level service to retrieve certificates
  */

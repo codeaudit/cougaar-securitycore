@@ -43,7 +43,7 @@ public interface SecurityPropertiesService extends Service
   public static String POLICY_DEBUG =
   "org.cougaar.core.security.policy.debug";
   public static String MONITORING_DEBUG =
-  "com.nai.security.monitoringdebug";
+  "org.cougaar.core.security.oldmonitoringdebug";
   public static String KAOS_DEBUG =
   "SAFE.debug";
 
@@ -77,7 +77,7 @@ public interface SecurityPropertiesService extends Service
   public void setProperty(String property, String value);
 
   /*
-import com.nai.security.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.SecurityPropertiesService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
 
   private SecurityPropertiesService secprop = null;

@@ -37,8 +37,8 @@ import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 
 // Cougaar security services
-import com.nai.security.util.CryptoDebug;
-import com.nai.security.util.SecurityPropertiesServiceImpl;
+import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.security.util.SecurityPropertiesServiceImpl;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 
 public class SecurityPropertiesServiceProvider

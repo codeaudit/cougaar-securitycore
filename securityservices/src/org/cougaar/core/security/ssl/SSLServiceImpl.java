@@ -32,7 +32,7 @@ import java.net.*;
 import java.security.*;
 import javax.net.*;
 
-import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.SSLService;
 

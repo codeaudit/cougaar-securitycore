@@ -45,7 +45,7 @@ import javax.naming.directory.AttributeModificationException;
 
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.planning.ldm.policy.RuleParameter;
-import com.nai.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.GuardRegistration;
 import safe.enforcer.NodeEnforcer;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.core.security.policy.LdapUserServicePolicy;

@@ -31,8 +31,8 @@ import org.cougaar.core.component.*;
 import org.cougaar.util.*;
 
 // Cougaar security services
-import com.nai.security.util.CryptoDebug;
-import com.nai.security.certauthority.KeyManagement;
+import org.cougaar.core.security.util.CryptoDebug;
+import org.cougaar.core.security.certauthority.KeyManagement;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.services.identity.*;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;

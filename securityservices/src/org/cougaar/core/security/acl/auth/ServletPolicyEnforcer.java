@@ -38,7 +38,7 @@ import org.apache.catalina.deploy.SecurityCollection;
 import safe.enforcer.NodeEnforcer;
 
 // Cougaar security services
-import com.nai.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import org.cougaar.core.security.services.crypto.ServletPolicyService;

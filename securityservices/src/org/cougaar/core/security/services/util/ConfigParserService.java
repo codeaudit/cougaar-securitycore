@@ -33,7 +33,7 @@ import java.io.InputStream;
 import org.cougaar.core.component.Service;
 
 // Cougaar core services
-import com.nai.security.policy.*;
+import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 import org.cougaar.core.security.crypto.SecureMethodParam;
 

@@ -44,7 +44,7 @@ public class CougaarClassLoader extends XURLClassLoader {
     */
     exclusions.add("java.");  // avoids javaiopatch.jar
     // let base do it instead
-    exclusions.add("com.nai.security.crlextension");
+    exclusions.add("org.cougaar.core.security.crlextension");
     //exclusions.add("com.sun.");
     //exclusions.add("sun.");
     //exclusions.add("net.jini.");

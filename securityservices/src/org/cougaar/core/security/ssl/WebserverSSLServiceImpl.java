@@ -28,7 +28,7 @@ package org.cougaar.core.security.ssl;
 import javax.net.*;
 import javax.net.ssl.*;
 
-import com.nai.security.util.CryptoDebug;
+import org.cougaar.core.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.identity.*;
 

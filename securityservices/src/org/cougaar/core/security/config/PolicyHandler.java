@@ -36,8 +36,8 @@ import java.lang.reflect.Array;
 import org.cougaar.util.ConfigFinder;
 
 // Cougaar security services
-import com.nai.security.policy.*;
-import com.nai.security.util.*;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.services.util.*;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 

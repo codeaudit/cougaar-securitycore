@@ -30,7 +30,7 @@ import java.util.Collection;
 
 import org.cougaar.core.security.acl.auth.UserRoles;
 
-import com.nai.security.policy.GuardRegistration;
+import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.planning.ldm.policy.Policy;
 import org.cougaar.planning.ldm.policy.RuleParameter;
 import safe.enforcer.NodeEnforcer;

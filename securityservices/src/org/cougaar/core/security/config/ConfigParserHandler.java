@@ -33,8 +33,8 @@ import java.util.*;
 import java.lang.reflect.Array;
 
 // Cougaar security services
-import com.nai.security.policy.*;
-import com.nai.security.util.*;
+import org.cougaar.core.security.policy.*;
+import org.cougaar.core.security.util.*;
 
 public class ConfigParserHandler
   extends BaseConfigHandler
