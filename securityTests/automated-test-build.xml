@@ -109,7 +109,7 @@
          <!-- Add security services modules -->
          <fileset dir="${overlays.directory.name}">
            <patternset>
-             <include name="*.zip">
+             <include name="*.zip"/>
            </patternset>
          </fileset>
        </zip>
