@@ -28,6 +28,8 @@ package org.cougaar.core.security.test;
 // java packages
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.PrivilegedAction;
+import java.security.AccessController;
 import java.util.List;
 import java.util.Map;
 
@@ -73,8 +75,14 @@ public class UserManagerReadyServlet extends ComponentServlet {
 
     out.println("<?xml version='1.0' encoding='UTF-8'?>");
     out.println("<user-manager-servlet>");
+
     UserService userService = (UserService)
-      this.serviceBroker.getService(this, UserService.class, null);
+      AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            return serviceBroker.getService(this, UserService.class, null);
+          }
+        });
+
     String domain = null;
     Map user = null;
     try {
