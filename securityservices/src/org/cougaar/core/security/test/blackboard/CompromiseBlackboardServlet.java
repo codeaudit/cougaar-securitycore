@@ -31,7 +31,7 @@ package org.cougaar.core.security.test.blackboard;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cougaar.core.security.blackboard.CompromiseBlackboard;
+import org.cougaar.core.security.monitoring.blackboard.CompromiseBlackboard;
 import org.cougaar.core.security.test.AbstractServletComponent;
 import org.cougaar.core.service.UIDService;
 
@@ -41,7 +41,7 @@ import org.cougaar.core.service.UIDService;
  * publishing a compromise object to the Blackboard
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class CompromiseBlackboardServlet extends AbstractServletComponent {
   /**
