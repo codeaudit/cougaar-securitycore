@@ -129,10 +129,10 @@ public class DataProtectionServiceImpl
 			uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
 
 			//Get AgentIdentification Service
-			AgentIdentificationService agentIdService = (AgentIdentificationService) this.serviceBroker.getService(this, AgentIdentificationService.class, null);
+			agentIdService = (AgentIdentificationService) this.serviceBroker.getService(this, AgentIdentificationService.class, null);
 
 			//Get Blackboard Service
-			BlackboardService bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
+			bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
     // Get keyring service
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
