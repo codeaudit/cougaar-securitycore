@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<ciphers>
+  <cipher name="WeakProtection">
+    <symmetric>plain</symmetric>
+    <asymmetric>none</asymmetric>
+    <signature>none</signature>
+  </cipher>
+
+  <cipher name="NSAApprovedProtection">
+    <symmetric>AES#128</symmetric>
+    <symmetric>RC4#128</symmetric>
+    <symmetric>DESede#128</symmetric>
+    <symmetric>Blowfish#128</symmetric>
+    <asymmetric>RSA/ECB/PKCS1Padding</asymmetric>
+    <signature>MD5withRSA</signature>
+  </cipher>
+
+  <cipher  name="SecretProtection">
+    <symmetric>DES</symmetric>
+    <asymmetric>RSA/ECB/PKCS1Padding</asymmetric>
+    <signature>MD5withRSA</signature>
+  </cipher>
+
+</ciphers>
