@@ -43,4 +43,5 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/mail.jar
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jce1_2_1.jar
 #setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/xml4j.jar
 
-
+# Tomcat packages
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/lib/webserver.jar

@@ -70,6 +70,7 @@ endif
 #set MYDOMAINS="-Dorg.cougaar.domain.alp=org.cougaar.domain.glm.GLMDomain"
 set MYDOMAINS=""
 set MYPROPERTIES="$MYDOMAINS -Dorg.cougaar.system.path=$COUGAAR3RDPARTY -Dorg.cougaar.install.path=$COUGAAR_INSTALL_PATH -Duser.timezone=GMT -Dorg.cougaar.core.agent.startTime=08/10/2005 -Dorg.cougaar.planning.ldm.lps.ComplainingLP.level=0"
+# -Dorg.cougaar.message.protocol.classes=org.cougaar.core.mts.SSLRMILinkProtocol -Dorg.cougaar.core.naming.useSSL=true"
 
 # ########################################################
 # DEBUG properties
@@ -223,6 +224,12 @@ default:
         breaksw
 endsw
 set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.http.port=${servletport}"
+
+# setup for running tomcat https
+#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.lib.web.https.port=8400"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keystore=../securityservices/test/configs/demo/minitest/tomcatKeystore"
+set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.web.keypass=changeit"
+
 #################################
 
 if ($?COUGAAR_MYPROP) then
