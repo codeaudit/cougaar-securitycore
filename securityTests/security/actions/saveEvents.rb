@@ -14,8 +14,8 @@ module Cougaar
      end
 
      def eventCall(event)
-       aFile = File.new(@filename, "aw")
-       aFile << "#{Time.new} #{event.to_s}"
+       aFile = File.new(@filename, File::RDWR | File::APPEND | File::CREAT)
+       aFile << "#{Time.new} #{event.to_s}\n"
        aFile.close
      end
    end

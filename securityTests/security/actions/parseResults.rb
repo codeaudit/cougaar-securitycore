@@ -15,9 +15,10 @@ $expectedTests = [
   'SecurityMop2.1', 'SecurityMop2.2', 'SecurityMop2.3',
   'SecurityMop2.4', 'SecurityMop2.5', 'SecurityMop2.6',
   'Stress1e1', 'Stress1e2',
-  'Stress3c2', 'Stress3c5',
   'Stress3a101',
-  'Stress3ab101',
+  'Stress3b9', 'Stress3c9',
+  'Stress3c21',
+  'Stress3c2', 'Stress3c5',
   'Stress3c1',
   'Stress3e1', 'Stress3e2',
   'Stress4a50', 'Stress4a51', 'Stress4a52', 'Stress4a53',
@@ -28,6 +29,7 @@ $expectedTests = [
   'Stress5a20', 'Stress5a21', 'Stress5a22', 'Stress5a23',
   'Stress5f',
   'Stress5k103', 'Stress5k104',
+  'StressMaliciousJoinCommunity',
 ]
 
 module Cougaar

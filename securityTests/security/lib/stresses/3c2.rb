@@ -19,7 +19,7 @@ class Security3c2 < SecurityStressFramework
    end
 
    def getStressIds()
-     return ["Stress5k103", "Stress5k104", "Stress3c2", "Stress3c5"]
+     return ["Stress3b9", "Stress3c9", "Stress3c21", "Stress5k103", "Stress5k104", "Stress3c2", "Stress3c5"]
    end
 
    def postLoadSociety
@@ -80,10 +80,10 @@ class Security3c2 < SecurityStressFramework
       end
 
       if (node == nil)
-        saveResult("5k103", "Error: could not find node to revoke")
+        saveResult("Stress5k103", "Error: could not find node to revoke")
       end
       result = @certRevocation.revokeNode(node)
-       saveResult(result, "5k103",
+       saveResult(result, "Stress5k103",
          "revoke a node through administrator: #{node}")
    end
 
@@ -95,7 +95,7 @@ class Security3c2 < SecurityStressFramework
       end
 
       result = @certRevocation.revokeAgent(agent)
-      saveResult(result, "5k104",
+      saveResult(result, "Stress5k104",
 	 "revoke an agent through administrator: #{agent}")
 
       sleep(10.minutes)
@@ -117,12 +117,12 @@ class Security3c2 < SecurityStressFramework
       summary "The following nodes received SSL connection request from revoked node:"
       summary "#{@ssl_receiver_nodes.keys.to_s}"
       result = false unless @ssl_receiver_nodes.keys.size != 0
-      saveResult(result, "3c2", "SSL initiated by node with revoked certificate.")
+      saveResult(result, "Stress3c2", "SSL initiated by node with revoked certificate.")
 
       summary "The following nodes initiated SSL connection request to revoked node:"
       summary "#{@ssl_initiator_nodes.keys.to_s}"
       result = false unless @ssl_initiator_nodes.keys.size != 0
-      saveResult(result, "3c5", "SSL received by node with revoked certificate.")
+      saveResult(result, "Stress3c5", "SSL received by node with revoked certificate.")
       #sleep(2.minutes)
 
    end
@@ -186,21 +186,21 @@ class Security3c2 < SecurityStressFramework
    def testMessage(agent1, agent2)
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
-        '3c21',
+        'Stress3c21',
 	"Send message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.",
         [ true, false, false, false ],
         agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
-        '3c21',
+        'Stress3c21',
 	"Receive message with expired cert IDMEF: #{agent1.name} => #{agent2.name}.", 
         [ true, false, false, false ],
         agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-            '3c9', "Send message with expired cert: #{agent1.name} => #{agent2.name}.", 
+            'Stress3c9', "Send message with expired cert: #{agent1.name} => #{agent2.name}.", 
              [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-            '3b9', "Receive message with expired cert: #{agent1.name} => #{agent2.name}.", 
+            'Stress3b9', "Receive message with expired cert: #{agent1.name} => #{agent2.name}.", 
             [ true, false, false, false ])
    end
 
