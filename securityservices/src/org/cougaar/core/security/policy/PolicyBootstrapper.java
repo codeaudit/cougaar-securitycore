@@ -41,6 +41,9 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.planning.ldm.policy.Policy;
 
 // Cougaar security services
+import org.cougaar.core.security.policy.builder.ParsedPolicy;
+import org.cougaar.core.security.policy.builder.PolicyParser;
+import org.cougaar.core.security.policy.builder.PolicyLexer;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.services.util.PolicyBootstrapperService;
 import org.cougaar.core.security.config.ConfigParserServiceImpl;
@@ -110,19 +113,25 @@ public class PolicyBootstrapper
       try {
         damlPoliciesFile = cf.open(_damlBootPolicies);
       } catch (IOException e) {
-        log.fatal("Error opening the daml boot policies file" + _damlBootPolicies, e);
+        log.fatal("Error opening the daml boot policies file" 
+                  + _damlBootPolicies, e);
         throw e;
       }
-      BufferedReader damlReader 
-        = new BufferedReader(new InputStreamReader(damlPoliciesFile));
-      while ((line = damlReader.readLine()) != null) {
-        if (line.startsWith("#")) { continue; }
-
-        int spacePt;
-        if ((spacePt = line.indexOf(' ')) == -1) { continue; }
-        String type = line.substring(0,spacePt);
-        String fileName = line.substring(spacePt+1);
+      PolicyLexer lexer = new PolicyLexer(damlPoliciesFile);
+      PolicyParser parser = new PolicyParser(lexer);
+      List parsedPolicies;
+      try {
+        parsedPolicies = parser.policies();
+      } catch (Exception e) { 
+        throw new RuntimeException("Fatal", e);
+      }
+      for (Iterator parsedPoliciesIt = parsedPolicies.iterator();
+           parsedPoliciesIt.hasNext();) {
+        ParsedPolicy parsedPolicy = (ParsedPolicy) parsedPoliciesIt.next();
+        String type     = parsedPolicy.getAction();
+        String fileName = parsedPolicy.getPolicyName() + ".info";
         if (log.isDebugEnabled()) {
+          log.debug("using grammar");
           log.debug("working on the file " + fileName);
         }
         try {
@@ -149,10 +158,10 @@ public class PolicyBootstrapper
           = new ObjectInputStream(policyStream);
         PolicyMsg policy = (PolicyMsg) policyObjectStream.readObject();
         policyObjectStream.close();
-        log.debug(".PolicyBootStrapper: retrieved " + policy + 
-                  "from the file " + policyFileURL);
-
-
+        if (log.isDebugEnabled()) {
+          log.debug(".PolicyBootStrapper: retrieved " + policy + 
+                    "from the file " + policyFileURL);
+        }
         Object lookup = _damlBootMap.get(type);
         if (lookup == null) { lookup = new Vector(); }
         List policyList = (List) lookup;
@@ -160,14 +169,14 @@ public class PolicyBootstrapper
 
         _damlBootMap.put(type, policyList);
       }
-      damlReader.close();
+      damlPoliciesFile.close();
     } catch (IOException e) {
-      log.warn("Exception reading daml policies file" + e);
+      log.warn("Exception reading daml policies file", e);
     } catch (ClassNotFoundException e) {
       log.error("Policy file " + policyFileURL + 
                 " does not contain PolicyMsg object!", e);
     } catch (RuntimeException e) {
-      log.warn("Exception reading daml policies file" + e);
+      log.warn("Exception reading daml policies file", e);
     }
     log.debug(".PolicyBootStrapper: Finished Reading daml policies file " 
               + damlPoliciesFile);

@@ -59,7 +59,20 @@ public abstract class ParsedPolicy
     _action   = action;
   }
 
+  public String getPolicyName()
+  {
+    return _policyName;
+  }
 
+  public String getActor()
+  {
+    return _actor;
+  }
+
+  public String getAction()
+  {
+    return _action;
+  }
 
   public static String tokenToURI(Token u)
     throws PolicyCompilerException

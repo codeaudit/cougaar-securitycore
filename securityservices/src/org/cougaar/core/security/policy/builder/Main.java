@@ -28,7 +28,7 @@ class Main {
         jtp.ui.DamlQueryAnswerer.main(args);
       } else {
         System.out.println("args.length = " + args.length);
-        List policies = compile("DamlBootPolicyList.txt");
+        List policies = compile("DamlBootPolicyList");
         for(Iterator policyIt = policies.iterator();
             policyIt.hasNext();) {
           ParsedPolicy pp = (ParsedPolicy) policyIt.next();
