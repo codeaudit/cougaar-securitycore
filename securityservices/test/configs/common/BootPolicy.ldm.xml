@@ -61,11 +61,13 @@
         <Key key="*" value="CAAdministrator" />
       </KeySet>
     </RuleParam>
+<!-- don't use this until I make changes to the policy
     <RuleParam name="UserAdminAgent">
       <KeySet value="auth-constraint">
         <Key key="/useradmin*" value="EITHER" />
       </KeySet>
     </RuleParam>
+-->
   </Policy>
 
 <!-- BlackboardService read-only filter
