@@ -16,6 +16,8 @@ require 'security/lib/SecurityMop2_6'
 insert_after :society_running do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "setup"
+  do_action  "InjectStress", "SecurityMop2_4", "setup"
+  do_action  "InjectStress", "SecurityMop2_4", "perform"
 end
 
 insert_after :after_stage_1 do
