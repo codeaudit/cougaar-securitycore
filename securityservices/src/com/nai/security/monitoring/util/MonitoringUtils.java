@@ -65,9 +65,12 @@ public class MonitoringUtils
 	static
 	{
 		String sdebug=System.getProperty("com.nai.security.monitoringdebug");
-		if(sdebug.equalsIgnoreCase("true"))
+		if(sdebug!=null)
 		{
-			debug=1;
+			if(sdebug.equalsIgnoreCase("true"))
+			{
+				debug=1;
+			}
 		}
 	}
 
