@@ -6,8 +6,10 @@ description: MOAS-II Baseline integrated ur save run
 script: $CIP/csmart/scripts/definitions/BaselineTemplate-ExtOplan.rb
 parameters:
   - run_count: 1
-  - society_file: $CIP/csmart/config/societies/ua/full-tc20-avn-234a703v.plugins.rb
-  - layout_file: $CIP/operator/layouts/UR-OP-layout.xml
+  - society_file: $CIP/csmart/config/societies/ua/full-tc20-avn-162a208v.plugins.rb
+  - layout_file: $CIP/operator/layouts/UR-557-layout-1.xml
+#  - society_file: $CIP/csmart/config/societies/ua/full-tc20-avn-234a703v.plugins.rb
+#  - layout_file: $CIP/operator/layouts/UR-OP-layout.xml
   - archive_dir: /mnt/archive
   
   - rules:
@@ -29,6 +31,7 @@ parameters:
 # coordinator rules
     - $CIP/csmart/config/rules/coordinator
     - $CIP/csmart/config/rules/coordinator/test
+    - $CIP/csmart/config/rules/security/coordinator
     - $CIP/csmart/config/rules/robustness/uc1/
     - $CIP/csmart/config/rules/robustness/UC3
 #    - $CIP/csmart/config/rules/isat/uc3_nosec
@@ -107,6 +110,13 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
+
+  - script: $CIP/csmart/lib/isat/standard_kill_nodes.rb
+    parameters:
+      - start_tag: before_stage_2
+      - start_delay: 60
+      - nodes_to_kill:
+        - REAR-A-NODE
 
 =end
 

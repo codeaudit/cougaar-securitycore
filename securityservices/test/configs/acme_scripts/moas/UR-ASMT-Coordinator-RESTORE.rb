@@ -3,10 +3,11 @@
 name: ASMT-Coordinator-RESTORE
 group: Coordinator
 description: baseline integrated ur restore run 
-script: $CIP/csmart/scripts/definitions/RestoreTemplate.rb
+script: $CIP/csmart/scripts/definitions/UR-RestoreTemplate.rb
 parameters:
   - run_count: 1
-  - snapshot_name: $CIP/SAVE-ASMT-Coordinator-PreStage4.tgz
+  - snapshot_name: $CIP/SAVE-ASMT-PreStage4.tgz
+#  - snapshot_name: $CIP/SAVE-ASMT-Coordinator-PreStage4.tgz
   - archive_dir: /mnt/archive
   - stages:
     - 4
@@ -43,45 +44,6 @@ include_scripts:
   - script: $CIP/csmart/lib/security/scripts/check_wp.rb
   - script: $CIP/csmart/lib/security/scripts/check_report_chain_ready.rb
   - script: $CIP/csmart/lib/security/scripts/cleanup_society.rb
-
-  # Advance to Oct 14
-  - script: $CIP/csmart/lib/isat/advanceTime.rb
-    parameters:
-      - advance_location: after_stage
-      - days: 1
-
-  # Complete the security handoff
-  - script: $CIP/csmart/lib/security/scripts/completehandoff.rb
-    parameters:
-      - start_label: after_stage
-      - nodename: AVN-CO-NODE
-      - enclave: 1-UA
-
-  # Do the IP address change
-  - script: $CIP/csmart/lib/isat/migrate.rb
-    parameters:
-      - migrate_location: after_stage
-      - node_name: AVN-CO-NODE
-      - target_network: 1-UA
-
-  - script: $CIP/csmart/lib/robustness/mic/community_reassignment.rb
-    parameters:
-      - location: after_stage
-      - old_community: REAR-COMM
-      - new_community: 1-UA-COMM
-
-  # Start the security handoff on Oct 13th.
-  - script: $CIP/csmart/lib/security/scripts/starthandoff.rb
-    parameters:
-      - start_label: after_stage
-      - nodename: AVN-CO-NODE
-
-  # Advance time to Oct 13th
-  - script: $CIP/csmart/lib/isat/advanceTime.rb
-    parameters:
-      - advance_location: after_stage
-      - days: 3
-
 
 =end
 
