@@ -65,14 +65,16 @@ export CVSROOT=:ext:user@cvs.utralog.net:/cvs/nai # for bash shell users
 2. Unpack the security services distribution and go to the top level of the 
    source code tree. From cvs type the following:
 
-cvs co securityservices
-cd src
+       cvs co securityservices
 
 3. Copy the jar files under securityservices/sys into $COUGAAR_INSTALL_PATH/sys.
+       cd securityservices/sys
+       cp *.jar $COUGAAR_INSTALL_PATH/sys
 
 4. Sign all the jar and zip files under the $COUGAAR_INSTALL_PATH/lib and
    $COUGAAR_INSTALL_PATH/sys directories. This can be done by typing:
-         test/bin/signJars
+       cd securityservices
+       test/bin/signJars
 
 5. Copy the configuration files under securityservices/sys/test/configs/common
    into $COUGAAR_INSTALL_PATH/configs/common.
@@ -98,15 +100,15 @@ export PATH=${PATH}:COUGAAR_INSTALL_PATH/build/bin	# for bash users
 
 7. Use the myalpc script from the securityservices directory. 
 
-test/bin/myalpc src
-
+      cd securityservices
+      test/bin/myalpc src
 
 8. Now all the source code should be compiled under the $COUGAARCLASSES 
    directory. Use make to build and sign the jar files. All class files are 
    expected in the $COUGAARCLASSES directory. The makefile automatically 
    signs the bootstrap.jar and securityservices.jar with the appropriate keys.
 
-make signjar
+      make signjar
 
    Note 1:
    The makefile assumes there is a sigingCA_keystore file in the
@@ -128,7 +130,7 @@ make signjar
 9. The signed jar files can be now be installed into the $COUGAAR_INSTALL_PATH
    directory. 
 
-make install
+      make install
 
 
 Configuration data

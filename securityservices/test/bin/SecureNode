@@ -226,9 +226,8 @@ endif
 
 # exec instead of eval
 if ( "$useBootstrapper" == "true") then
-	exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
+	#exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
+	exec java $javaargs com.nai.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
 else
 	exec java $javaargs org.cougaar.core.society.Node $args
 endif
-
-
