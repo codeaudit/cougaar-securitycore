@@ -150,6 +150,13 @@ public class ProtectedMessageHeader implements java.io.Serializable {
 
   public String toString() {
     return "ProtectedMessageHeader " +
-      _sender + " -> " + _receiver + ": " + _policy;
+      ((_sender == null) 
+       ? "null" 
+       : _sender.getSubjectX500Principal().getName()) +
+      " -> " + 
+      ((_receiver == null)
+       ? "null" 
+       : _receiver.getSubjectX500Principal().getName()) +
+      ": " + _policy;
   }
 }
