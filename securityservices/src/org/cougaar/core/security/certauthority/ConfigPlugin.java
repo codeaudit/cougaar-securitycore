@@ -164,7 +164,7 @@ public class ConfigPlugin
     }
     List l = (List) o;
     if (l.size() == 0 || l.size() > 3) {
-      log.debug("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
+      System.out.println("Incorrect number of parameters. Format (caDN, ldapURL, [caURL])");
     }
     Iterator it = l.iterator();
 
@@ -175,7 +175,7 @@ public class ConfigPlugin
       throw new RuntimeException("Parameter incorrect: " + caDN + " : " + ldapURL);
     }
 
-    log.debug("Parameter: " + caDN + " : " + ldapURL);
+    //System.out.println("Parameter: " + caDN + " : " + ldapURL);
 
     if (l.size() > 2) {
       // this is not a root CA, get trusted ca policy
@@ -206,7 +206,7 @@ public class ConfigPlugin
         requestURL = "https://" + cahost + ":" + httpsport;
       }
       requestURL += "/$" + caagent + cryptoClientPolicy.getRequestURL();
-      log.debug("infoURL: " + infoURL + " : requestURL " + requestURL);
+      //System.out.println("infoURL: " + infoURL + " : requestURL " + requestURL);
 
       try {
         String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
