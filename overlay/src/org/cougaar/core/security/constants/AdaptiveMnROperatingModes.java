@@ -53,6 +53,12 @@ public class AdaptiveMnROperatingModes {
   public final static String PREVENTIVE_MEASURE_POLICY = 
     "org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY";
   /**
+   * number of message failure before revoking an agent's certificate
+   * possible values: { N, where N is a number }
+   */
+  public final static String MAX_MESSAGE_FAILURE = 
+    "org.cougaar.core.security.crypto.MAX_MESSAGE_FAILURE";
+  /**
    * telcordia's adaptive filter scope
    * possible values: 
    * { LOGIN_FAILURES | LOGIN_JAR_SECURITYMGR_FAILURES | 
