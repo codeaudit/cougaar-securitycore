@@ -18,7 +18,9 @@ setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/jbcl.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/silk.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/idmef.jar
 setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/ibmpkcs.jar
-setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/tomcat_33.jar 
+#setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/tomcat_33.jar 
+# Tomcat 4.0
+setenv CLASSPATH ${CLASSPATH}:${cougaarsubdir}/sys/tomcat_40.jar
 
 # Cougaar packages
 # build.jar and planserver.jar don't change often, so point to the jar file
