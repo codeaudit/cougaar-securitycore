@@ -68,11 +68,13 @@ module Cougaar
         def parsePids(str)
           #@run.info_message "Response from #{host.name} #{response.body}"
           pidmap = {}
-          str.split(',').each { |i|
-            i.scan(/(.+)=(.+)/) { |match|
-              pidmap[match[0]] = match[1]
+          if (str != nil) 
+            str.split(',').each { |i|
+              i.scan(/(.+)=(.+)/) { |match|
+                pidmap[match[0]] = match[1]
+              }
             }
-          }
+          end
           return pidmap
         end
 
