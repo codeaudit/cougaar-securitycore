@@ -484,17 +484,10 @@ Policy AllowRegistration = [
 END
   }
   lines1 = File.readlines(damlFile)
-  begin
-    lines2 = File.readlines(origFile)
-  rescue
-    lines2 = []
-  end
-  if (lines2 != lines1)
-    output = policyUtil("--maxReasoningDepth 150 build --quiet --info #{damlFile}",
-                        nil, "#{CIP}/configs/security")
-    scheduleConfigChange(damlFile)
-    Dir["#{CIP}/configs/security/*.info"].each { |file|
+  output = policyUtil("--maxReasoningDepth 150 build --quiet --info #{damlFile}",
+                      nil, "#{CIP}/configs/security")
+  scheduleConfigChange(damlFile)
+  Dir["#{CIP}/configs/security/*.info"].each { |file|
       scheduleConfigChange(file)
-    }
-  end
+  }
 end
