@@ -9,6 +9,6 @@ description: special initialization for security
 require 'security/lib/scripting'
 
 insert_before :wait_for_initialization do
-  wait_for  "UserManagerReady", "OSD.GOV", "/userManagerReady", 60.minutes
+  wait_for  "UserManagerReady", nil, "/userManagerReady", 60.minutes
 end
 
