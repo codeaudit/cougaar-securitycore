@@ -13,13 +13,14 @@ import org.cougaar.core.security.auth.BlackboardPermission;
 import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.auth.ExecutionPrincipal;
 import org.cougaar.core.security.auth.ObjectContext;
-import org.cougaar.core.security.policy.enforcers.util.DAMLBlackboardMapping;
+import org.cougaar.core.security.policy.ontology.EntityInstancesConcepts;
+import org.cougaar.core.security.policy.ontology.UltralogActionConcepts;
+import org.cougaar.core.security.policy.enforcers.util.OwlBlackboardMapping;
 import org.cougaar.core.security.policy.enforcers.util.RoleMapping;
 import org.cougaar.core.security.services.auth.AuthorizationService;
 import org.cougaar.core.security.services.auth.SecurityContextService;
 import org.cougaar.core.security.util.ActionPermission;
 import org.cougaar.core.service.LoggingService;
-
 import java.security.Permission;
 import java.security.Principal;
 import java.security.ProtectionDomain;
@@ -34,6 +35,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.agent.service.ServiceFailure;
+
+import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.management.UnknownConceptException;
 import kaos.ontology.repository.ActionInstanceDescription;
 import kaos.ontology.repository.TargetInstanceDescription;
@@ -49,7 +53,7 @@ public class AuthServiceImpl
   implements AuthorizationService, NodeEnforcer {
   public static final String DAML_PROPERTY = 
     "org.cougaar.core.security.policy.auth.role.useDaml";
-  private static final boolean USE_DAML = Boolean.getBoolean(DAML_PROPERTY);
+  private static final boolean USE_OWL = Boolean.getBoolean(DAML_PROPERTY);
 
   private static int _counter = 0;
   private SecurityContextService _scs;
@@ -58,19 +62,17 @@ public class AuthServiceImpl
   private RoleMapping            _roleMap;
   private LoggingService         _log;
 
-  private static final String _enforcedActionType = 
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    UltralogActionConcepts._BlackBoardAccess_;
-  private static final Map _damlActionMapping;
+  private static final String _enforcedActionType 
+            = UltralogActionConcepts.BlackBoardAccess();
+  private static final Map _owlActionMapping;
   static {
-    _damlActionMapping = new HashMap();
+    _owlActionMapping = new HashMap();
     String accessModes[] = {"Add", "Remove", "Change", "Query",
                             "Read", "Write", "Create"};
     for (int i = 0; i < accessModes.length; i++) {
-      _damlActionMapping.put(
+      _owlActionMapping.put(
               accessModes[i].toLowerCase(),
-              org.cougaar.core.security.policy.enforcers.ontology.jena.
-              EntityInstancesConcepts.EntityInstancesDamlURL
+              EntityInstancesConcepts.EntityInstancesOwlURL()
               + "BlackBoardAccess" + accessModes[i]
       );
     }
@@ -83,8 +85,8 @@ public class AuthServiceImpl
     _blackboardObjectActions.add("write");
   }
   private static Set            _nameableBlackboardObjects = null;
-  private Set                   _allBlackboardObjectsDAML  = null;
-  private DAMLBlackboardMapping _damlObjectMap;
+  private Set                   _allBlackboardObjectsOWL  = null;
+  private OwlBlackboardMapping _owlObjectMap;
   
   public AuthServiceImpl(ServiceBroker sb) {
     _sb = sb;  
@@ -94,10 +96,10 @@ public class AuthServiceImpl
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);
 
-    _damlObjectMap = new DAMLBlackboardMapping(_sb);
-    _damlObjectMap.initialize();
-    _nameableBlackboardObjects = _damlObjectMap.namedObjects();
-    _allBlackboardObjectsDAML = _damlObjectMap.allDAMLObjectNames();
+    _owlObjectMap = new OwlBlackboardMapping(_sb);
+    _owlObjectMap.initialize();
+    _nameableBlackboardObjects = _owlObjectMap.namedObjects();
+    _allBlackboardObjectsOWL = _owlObjectMap.allDAMLObjectNames();
 
     _scs = (SecurityContextService)
       _sb.getService(this, SecurityContextService.class, null);
@@ -110,7 +112,7 @@ public class AuthServiceImpl
     registerEnforcer();
     if (_log.isDebugEnabled()) {
       _log.debug("AuthServiceImp Constructor completed - UseDaml = " +
-                 USE_DAML);
+                 USE_OWL);
     }
   }
 
@@ -254,7 +256,7 @@ public class AuthServiceImpl
       return new LinkedList();
     }
     List permissions = new LinkedList();
-    if (!USE_DAML) {
+    if (!USE_OWL) {
     // add all of the permissions for now:
       permissions.add(new BlackboardPermission("*", 
                                                "add,change,remove,query"));
@@ -264,42 +266,46 @@ public class AuthServiceImpl
     }
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription(
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._blackBoardAccessMode_,
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      EntityInstancesConcepts.EntityInstancesDamlURL + 
+                      UltralogActionConcepts.blackBoardAccessMode(),
+                      EntityInstancesConcepts.EntityInstancesOwlURL() + 
                       "BlackBoardAccessAdd"));
     ActionInstanceDescription action = 
       new ActionInstanceDescription(_enforcedActionType,
                                     rec,
                                     targets);
     KAoSProperty accessProp =
-      action.getProperty(
-                org.cougaar.core.security.policy.enforcers.ontology.jena.
-                UltralogActionConcepts._blackBoardAccessMode_);
-    for (Iterator accessIt = _damlActionMapping.keySet().iterator();
+      action.getProperty(UltralogActionConcepts.blackBoardAccessMode());
+    for (Iterator accessIt = _owlActionMapping.keySet().iterator();
          accessIt.hasNext();) {
       String accessMode = (String) accessIt.next();
-      String accessModeDaml = (String) _damlActionMapping.get(accessMode);
+      String accessModeOwl = (String) _owlActionMapping.get(accessMode);
       {
         Vector tmp = new Vector();
-        tmp.add(accessModeDaml);
+        tmp.add(accessModeOwl);
         accessProp.setMultipleInstances(tmp);
       }
       if (_log.isDebugEnabled()) {
         _log.debug("action = " + action);
       }
-      Set objectsInDAML = 
-        _guard.getAllowableValuesForActionProperty(
-                    org.cougaar.core.security.policy.enforcers.ontology.jena.
-                    UltralogActionConcepts._blackBoardAccessObject_,
+      Set objectsInOWL = null;
+      try {
+        objectsInOWL = 
+           _guard.getAllowableValuesForActionProperty(
+                    UltralogActionConcepts.blackBoardAccessObject(),
                     action,
-                    _allBlackboardObjectsDAML);
-      for (Iterator damlObjectNameIt =  objectsInDAML.iterator();
-           damlObjectNameIt.hasNext();) {
-        String damlObjectName = (String) damlObjectNameIt.next();
-        if (damlObjectName.
-            equals(DAMLBlackboardMapping.otherBlackboardObjectDAML)) {
+                    _allBlackboardObjectsOWL,
+                    false);
+      } catch (ServiceFailure sf) {
+        if (_log.isErrorEnabled()) {
+          _log.error("This shouldn't happen", sf);
+        }
+        objectsInOWL = new HashSet();
+      }
+      for (Iterator owlObjectNameIt =  objectsInOWL.iterator();
+           owlObjectNameIt.hasNext();) {
+        String owlObjectName = (String) owlObjectNameIt.next();
+        if (owlObjectName.
+            equals(OwlBlackboardMapping.otherBlackboardObjectDAML)) {
           if (_blackboardObjectActions.contains(accessMode)) {
             permissions.add(new BlackboardObjectPermission("%Other%",
                                                            accessMode));
@@ -308,7 +314,7 @@ public class AuthServiceImpl
                                                      accessMode));
           }
         } else {
-          Set objectsInUL = _damlObjectMap.damlToClassNames(damlObjectName);
+          Set objectsInUL = _owlObjectMap.damlToClassNames(owlObjectName);
           for (Iterator objectsInULIt = objectsInUL.iterator();
                objectsInULIt.hasNext();) {
             String ulObjectName = (String) objectsInULIt.next();
@@ -329,7 +335,11 @@ public class AuthServiceImpl
 
   private boolean isAuthorizedUL(RoleExecutionContext ec, Permission p) {
 
-    if (!USE_DAML) { return true; }
+    if (_log.isDebugEnabled()) {
+      _log.debug("Entering isAuthorizedUL with context" + ec 
+                 + " and permission " + p);
+    }
+    if (!USE_OWL) { return true; }
     // i'm allowing everything that isn't a BlackboardPermission 
     if(!(p instanceof BlackboardPermission) &&
        !(p instanceof BlackboardObjectPermission)) {
@@ -343,17 +353,30 @@ public class AuthServiceImpl
     // get the classname of the object
     // e.g. org.cougaar.core.adaptivity.OperatingModeImpl
     String object     = p.getName();
-    String damlObject = _damlObjectMap.classToDAMLName(object);
+    String owlObject = _owlObjectMap.classToDAMLName(object);
 
     // get the action the plugin wants to perform on the object
     // e.g. add
     String actions [] = ap.getActionList();
 
-
-    int firstPolicyUpdateCounter = _guard.getPolicyUpdateCount();
+    int firstPolicyUpdateCounter = 0;
+    try {
+      firstPolicyUpdateCounter = _guard.getPolicyUpdateCount().intValue();
+      if (_log.isDebugEnabled()) {
+        _log.debug("Obtained policy counter = " + firstPolicyUpdateCounter);
+      }
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen", sf);
+        return false;
+      }
+    }
     if (ec.cachedIsAuthorized(object,
                               actions,
                               firstPolicyUpdateCounter)) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Access is cached and therefore permitted");
+      }
       return true;
     }
 
@@ -366,17 +389,32 @@ public class AuthServiceImpl
     }
     for (int i = 0; i < actions.length; i++) {
       String action = actions[i];
-      String damlAction = (String) _damlActionMapping.get(action);
-      if  (damlAction == null) {
+      String owlAction = (String) _owlActionMapping.get(action);
+      if  (owlAction == null) {
         throw new RuntimeException
           ("Invalid Action Type used in enforcement routines");
       }
-      if (! isAuthorizedDaml(ec, damlAction, damlObject)) {
+      if (! isAuthorizedOwl(ec, owlAction, owlObject)) {
         return false;
       }
     }
-    int secondPolicyUpdateCounter = _guard.getPolicyUpdateCount();
+    int secondPolicyUpdateCounter = 0;
+    try {
+      secondPolicyUpdateCounter = _guard.getPolicyUpdateCount().intValue();
+      if (_log.isDebugEnabled()) {
+        _log.debug("Obtained second update counter = " 
+                   + secondPolicyUpdateCounter);
+      }
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen but the mediation passed", sf);
+      }
+      return true;
+    }
     if (firstPolicyUpdateCounter == secondPolicyUpdateCounter) {
+      if (_log.isDebugEnabled()) {
+        _log.debug("Updating cache with success");
+      }
       ec.updateCachedAuthorization(object, 
                                    actions,
                                    secondPolicyUpdateCounter);
@@ -384,25 +422,26 @@ public class AuthServiceImpl
     return true;
   }
 
-  public boolean isAuthorizedDaml(RoleExecutionContext rec,
+  public boolean isAuthorizedOwl(RoleExecutionContext rec,
                                   String action,
                                   String objectName)
   {
+    if (_log.isDebugEnabled()) {
+      _log.debug("going to owl policy check");
+    }
     Set targets = new HashSet();
     targets.add(new TargetInstanceDescription(
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._blackBoardAccessMode_,
+                      UltralogActionConcepts.blackBoardAccessMode(),
                       action));
     targets.add(new TargetInstanceDescription(
-                      org.cougaar.core.security.policy.enforcers.ontology.jena.
-                      UltralogActionConcepts._blackBoardAccessObject_,
+                      UltralogActionConcepts.blackBoardAccessObject(),
                       objectName));
     ActionInstanceDescription aid = 
       new ActionInstanceDescription(_enforcedActionType,
                                     "Dummy",
                                     targets);
     KAoSProperty actorProp = 
-      aid.getProperty(kaos.ontology.jena.ActionConcepts._performedBy_);
+      aid.getProperty(ActionConcepts.performedBy());
     {
       Vector tmp = new Vector();
       tmp.add(rec);
@@ -413,20 +452,27 @@ public class AuthServiceImpl
         = new kaos.policy.guard.ActionPermission("foo", aid);
       _guard.checkPermission(kap, null);
       return true;
-    } catch (SecurityException e) {
-      if (_log.isWarnEnabled() && 
-          !action.equals(org.cougaar.core.security.policy.enforcers.ontology.jena.
-                         EntityInstancesConcepts.EntityInstancesDamlURL + 
-                         "BlackBoardAccessQuery")) {
-        _log.warn("Permission denied " + e);
-        _log.warn("Action = " + aid);
+    } catch (ServiceFailure sf) {
+      if (_log.isErrorEnabled()) {
+        _log.error("This shouldn't happen", sf);
       }
-      return false;
+      if (_log.isWarnEnabled()) {
+        _log.warn("Permission denied due to error in mediation mechanism");
+      }
+    } catch (SecurityException e) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Permission denied " + e);
+      }
     }
+    if (_log.isWarnEnabled() && 
+        !action.equals(EntityInstancesConcepts.EntityInstancesOwlURL() + 
+                       "BlackBoardAccessQuery")) {
+      _log.warn("Action = " + aid);
+    }
+    return false;
   }
   
-  private URIPrincipal 
-    getServletURIPrincipal(ProtectionDomain domain)
+  private URIPrincipal getServletURIPrincipal(ProtectionDomain domain)
   {
     // get the principals from the protection domain
     Principal p[] = domain.getPrincipals();
