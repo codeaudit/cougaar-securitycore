@@ -13,7 +13,7 @@ require 'security/lib/common_security_rules'
 if !$disableKaosPolicy
   society.each_agent do |agent|
     agent.each_facet(:role) do |facet|
-      if facet[:role] == $facetPolicyServletManagerAgent
+      if facet[:role] == $facetPolicyServletManagerAgent then
         enclave = agent.node.host.get_facet(:enclave).capitalize
         # Find the name of the associated policy manager
         policyManagerAgentName = nil
@@ -25,9 +25,11 @@ if !$disableKaosPolicy
             end
           end
         end
-        agent.add_component do |c|
-          c.classname = "safe.policyManager.PolicyAdminServletComponent"
-          c.add_argument(policyManagerAgentName)
+        if (policyManagerAgentName != nil) then
+          agent.add_component do |c|
+            c.classname = "safe.policyManager.PolicyAdminServletComponent"
+            c.add_argument(policyManagerAgentName)
+          end
         end
       end
     end
