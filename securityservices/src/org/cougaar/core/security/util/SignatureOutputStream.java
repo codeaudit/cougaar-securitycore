@@ -68,7 +68,7 @@ public class SignatureOutputStream extends FilterOutputStream {
     }
   }
 
-  public void writeSignature() throws IOException {
+  public byte[] writeSignature() throws IOException {
     try {
       byte[] sig = _signature.sign();
       int len = sig.length;
@@ -77,8 +77,11 @@ public class SignatureOutputStream extends FilterOutputStream {
       super.write(sigTop);
       super.write(sigBottom);
       super.write(sig);
+      return sig;
     } catch (SignatureException e) {
       // will never happen
+      throw new IOException("Failed to get signature: " + e.toString());
     }
   }
+
 }
