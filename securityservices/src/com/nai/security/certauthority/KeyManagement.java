@@ -111,7 +111,7 @@ public class KeyManagement
 		} catch (SignatureException e) {
 		}
 
-		String CAalias = "";
+		String CAalias = "bootstrapper";
 		PrivateKey pk = KeyRing.getPrivateKey(CAalias);
 		Signature se = null;
 		String spec;

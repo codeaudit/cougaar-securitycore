@@ -25,6 +25,7 @@
  */
 
 package com.nai.security.certauthority;
+													
 import org.cougaar.util.ConfigFinder;
 
 import java.io.*;
@@ -37,15 +38,12 @@ import java.util.Properties;
 import java.security.*;
 import java.security.cert.*;
 
-import com.nai.security.crypto.CertificateFinder;
-
 final class KeyRing {
 
   private static String ksPass;
   private static String ksPath;
   private static String provider_url=null;
 
-  private static CertificateFinder certificatefinder=null;
   private static KeyStore keystore = null;
   static private boolean debug = false;
   private static HashMap m = new HashMap();
@@ -64,7 +62,6 @@ final class KeyRing {
 	ksPath = System.getProperty("org.cougaar.security.keystore", defaultKeystorePath);
 
 	System.out.println("Secure message keystore: path=" + ksPath);
-	certificatefinder=new CertificateFinder(provider_url);
 }
 
 	private static void init() {
