@@ -53,7 +53,7 @@ jar: build-classes
 # Build base bootstrapper
 	@echo +++++++ Building bootstrapper.jar
 	cd ${COUGAARCLASSES}; \
-	jar cf ${COUGAARCLASSES}/bootstrapper.jar org/cougaar/core/security/bootstrap/
+	jar cf ${COUGAARCLASSES}/bootstrapper.jar org/cougaar/core/security/bootstrap
 	@echo +++++++ Done Building bootstrapper.jar
 # Build secure bootstrapper 
 	@echo +++++++ Building securebootstrapper.jar
