@@ -231,6 +231,10 @@ public abstract class CertDirectoryService
 	  IllegalArgumentException("Directory Service URL not specified.");
       }
     }
+
+  public String getDirectoryServiceURL() {
+    return ldapServerUrl;
+  }
     
   /**
    * Construct a URL to the LDAP certificate directory.

@@ -74,5 +74,5 @@ public interface CertDirectoryServiceCA
 
   CertificateRevocationStatus getCertificateRevocationStatus(Attributes attributes);
 
-  //void getContexts();
+  String getDirectoryServiceURL();
 }

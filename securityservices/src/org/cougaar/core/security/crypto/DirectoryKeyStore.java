@@ -549,7 +549,8 @@ public class DirectoryKeyStore
     else {
       if (certs.length == 0) {
 	if (log.isWarnEnabled()) {
-	  log.warn("Failed to get Certificate for " + filter);
+	  log.warn("Failed to lookup certificate for " + filter + " in LDAP: "
+		   + certFinder.getDirectoryServiceURL());
 	}
       }
     }
