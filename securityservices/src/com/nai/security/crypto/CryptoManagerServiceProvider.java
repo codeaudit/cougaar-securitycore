@@ -32,41 +32,42 @@ import java.security.Security;
 import java.security.Provider;
 
 public class CryptoManagerServiceProvider implements ServiceProvider {
-    private static CryptoPolicyService cps = null;
-    private static AccessControlPolicyService acps = null;
+  private static CryptoPolicyService cps = null;
+  private static AccessControlPolicyService acps = null;
 
-    /** Creates new CryptoManagerServiceProvider */
-    public CryptoManagerServiceProvider() {
-      // Load cryptographic providers
-      CryptoProviders.loadCryptoProviders();
+  private static boolean debug = false;
 
-	String debug = System.getProperty("org.cougaar.message.transport.debug");
-        if ( debug!=null && (debug.equalsIgnoreCase("true") || debug.indexOf("security")>=0) ) {
-            Provider[] plist=Security.getProviders();
-            for(int i=0;i<plist.length;i++){
-                System.out.println("["+(i+1)+"]:"+plist[i].getName());
-            }
-        }
-        
-      cps = new CryptoPolicyServiceImpl();
-      acps = new AccessControlPolicyServiceImpl();
+  /** Creates new CryptoManagerServiceProvider */
+  public CryptoManagerServiceProvider() {
+    String sdebug = System.getProperty("org.cougaar.message.transport.debug");
+    if (sdebug != null
+	&& (sdebug.equalsIgnoreCase("true")
+	    || sdebug.indexOf("security")>=0) ) {
+      debug = true;
     }
 
-    public Object getService(ServiceBroker sb, Object obj, Class cls) {
-        if(cls==CryptoManagerService.class){
-            return new CryptoManagerServiceImpl();
-        }else if(cls==CryptoPolicyService.class){
-            if( cps==null ) cps = new CryptoPolicyServiceImpl();
-            return cps;
-        }else if(cls==AccessControlPolicyService.class){
-            if( acps==null ) acps = new AccessControlPolicyServiceImpl();
-            return acps;
-        }else{
-            return null;
-        }
+    // Note: cryptographic providers are now loaded by the base
+    // bootstrapper.
+    cps = new CryptoPolicyServiceImpl();
+    acps = new AccessControlPolicyServiceImpl();
+  }
+
+  public Object getService(ServiceBroker sb, Object obj, Class cls) {
+    if(cls==CryptoManagerService.class){
+      return new CryptoManagerServiceImpl();
+    }else if(cls==CryptoPolicyService.class){
+      if( cps==null ) cps = new CryptoPolicyServiceImpl();
+      return cps;
+    }else if(cls==AccessControlPolicyService.class){
+      if( acps==null ) acps = new AccessControlPolicyServiceImpl();
+      return acps;
+    }else{
+      return null;
     }
-    
-    public void releaseService(ServiceBroker sb, Object obj1, Class cls, Object obj2) {
-    }
-    
+  }
+  
+  public void releaseService(ServiceBroker sb, Object obj1,
+			     Class cls, Object obj2)
+  {
+  }
 }
