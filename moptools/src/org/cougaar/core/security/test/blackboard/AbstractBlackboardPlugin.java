@@ -15,6 +15,7 @@ package org.cougaar.core.security.test.blackboard;
 
 
 import java.io.Serializable;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -224,10 +225,6 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     }
   }
 
-
-   
-
-
   /**
    * Load Component
    */
@@ -236,6 +233,11 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     startTime = new Date();
     Collection parameters = getParameters();
     Iterator iter = parameters.iterator();
+
+    dumpDir = System.getProperty("org.cougaar.workspace")
+      + File.separator + "security" + File.separator
+      + "mopresults";
+
     while (iter.hasNext()) {
       try {
 	String paramString = (String) iter.next();
@@ -278,6 +280,8 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
    * Initialize Analyzer Database for this run
    */
   private void initAnalyzerDatabase() {
+    File dumpDirFile = new File(dumpDir);
+    dumpDirFile.mkdirs();
   }
 
 
