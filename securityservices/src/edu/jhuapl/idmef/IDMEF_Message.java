@@ -185,12 +185,23 @@ public abstract class IDMEF_Message implements XMLSerializable{
     public Document toXML() throws ParserConfigurationException{
 	
 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	// factory.setNamespaceAware( false );
 	DocumentBuilder builder = factory.newDocumentBuilder();
 	Document document = builder.newDocument(); 
+	// Element root = (Element) document.createElementNS("idmef", "IDMEF-Message"); 
 	Element root = (Element) document.createElement("IDMEF-Message"); 
 	document.appendChild (root);
 	if(version != null)
-	    root.setAttribute("version", version);
+	{
+        root.setAttribute( "version", version );
+	    /* 
+	    // TODO: determine if this is necessary!
+	    Attr attr = document.createAttributeNS( "idmef", "version" );
+	    attr.setValue(version);
+	    root.setAttributeNodeNS( attr );
+	    */
+	}
+	
 	Node messageNode = this.convertToXML(document);
 	root.appendChild(messageNode);
 	return document;

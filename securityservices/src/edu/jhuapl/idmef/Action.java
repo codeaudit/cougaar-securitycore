@@ -120,6 +120,9 @@ public class Action implements XMLSerializable {
         if( m_category != null ){
             actionNode.setAttribute( ATTRIBUTE_CATEGORY, m_category );
         }
+        if( m_description != null ){
+            actionNode.appendChild( parent.createTextNode( m_description ) );
+        }
         return actionNode;
     }
     

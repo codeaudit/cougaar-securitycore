@@ -206,36 +206,37 @@ public class Inode implements XMLSerializable {
     
         Element inodeNode = parent.createElement( ELEMENT_NAME );
 
-        Element childNode = null;
+        Node childNode = null;
         
         if( m_changeTime != null ){
+            String idmefTime = IDMEFTime.convertToIDMEFFormat( m_changeTime );
             childNode = parent.createElement( CHILD_ELEMENT_CHANGE_TIME );
-            childNode.setNodeValue( IDMEFTime.convertToIDMEFFormat( m_changeTime ) );
+            childNode.appendChild( parent.createTextNode( idmefTime ) );
             inodeNode.appendChild( childNode );
         }
         if( ( m_number != null ) &&
             ( m_majorDevice != null ) &&
             ( m_minorDevice != null ) ){
             childNode = parent.createElement( CHILD_ELEMENT_NUMBER );
-            childNode.setNodeValue( m_number.toString() );
+            childNode.appendChild( parent.createTextNode( m_number.toString() ) );
             inodeNode.appendChild( childNode );
 
             childNode = parent.createElement( CHILD_ELEMENT_MAJOR_DEVICE );
-            childNode.setNodeValue( m_majorDevice.toString() );
+            childNode.appendChild( parent.createTextNode( m_majorDevice.toString() ) );
             inodeNode.appendChild( childNode );
 
             childNode = parent.createElement( CHILD_ELEMENT_MINOR_DEVICE );
-            childNode.setNodeValue( m_minorDevice.toString() );
+            childNode.appendChild( parent.createTextNode( m_minorDevice.toString() ) );
             inodeNode.appendChild( childNode );
         }
         else if( ( m_cMajorDevice != null ) &&
                  ( m_cMinorDevice != null ) ){
             childNode = parent.createElement( CHILD_ELEMENT_C_MAJOR_DEVICE );
-            childNode.setNodeValue( m_cMajorDevice.toString() );
+            childNode.appendChild( parent.createTextNode( m_cMajorDevice.toString() ) );
             inodeNode.appendChild( childNode );
         
             childNode = parent.createElement( CHILD_ELEMENT_C_MINOR_DEVICE );
-            childNode.setNodeValue( m_cMinorDevice.toString() );
+            childNode.appendChild( parent.createTextNode( m_cMinorDevice.toString() ) );
             inodeNode.appendChild( childNode );
         }
         return inodeNode;

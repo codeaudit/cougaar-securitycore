@@ -190,6 +190,10 @@ public class Impact implements XMLSerializable {
         if( m_type != null ){
             impactNode.setAttribute( ATTRIBUTE_TYPE, m_type );
         }
+        if( m_description != null ){
+            impactNode.appendChild( parent.createTextNode( m_description ) );
+        }
+        
         return impactNode; 
     }
     

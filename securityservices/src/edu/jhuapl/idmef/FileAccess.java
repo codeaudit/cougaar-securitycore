@@ -115,8 +115,8 @@ public class FileAccess implements XMLSerializable {
         fileAccessNode.appendChild( m_userId.convertToXML( parent ) );
         int len = m_permissions.length;
         for( int i = 0; i < len; i++ ){
-            Element pNode = parent.createElement( CHILD_ELEMENT_PERMISSION );
-            pNode.setNodeValue( m_permissions[ i ] );
+            Node pNode = parent.createElement( CHILD_ELEMENT_PERMISSION );
+            pNode.appendChild( parent.createTextNode( m_permissions[ i ] ) );
             fileAccessNode.appendChild( pNode );
         }
         return fileAccessNode;

@@ -402,40 +402,51 @@ public class IDMEF_File implements XMLSerializable {
     
     public Node convertToXML( Document parent ){
         Element fileNode = parent.createElement( IDMEF_File.ELEMENT_NAME );
-        Element node = parent.createElement( CHILD_ELEMENT_NAME );
+        Node node = null;
+        String idmefTime = null;
         int len = 0;
         if( m_name != null ){
-            node.setNodeValue( m_name );
+            node = parent.createElement( CHILD_ELEMENT_NAME );
+            node.appendChild( parent.createTextNode( m_name ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_PATH );
+        
         if( m_path != null ){
-            node.setNodeValue( m_path );
+            node = parent.createElement( CHILD_ELEMENT_PATH );
+            node.appendChild( parent.createTextNode( m_path ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_CREATE_TIME );
+
         if( m_createTime != null ){
-            node.setNodeValue( IDMEFTime.convertToIDMEFFormat( m_createTime ) );
+            node = parent.createElement( CHILD_ELEMENT_CREATE_TIME );
+            idmefTime = IDMEFTime.convertToIDMEFFormat( m_createTime );
+            node.appendChild( parent.createTextNode( idmefTime ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_MODIFY_TIME );
+        
         if( m_modifyTime != null ){
-            node.setNodeValue( IDMEFTime.convertToIDMEFFormat( m_modifyTime ) );
+            node = parent.createElement( CHILD_ELEMENT_MODIFY_TIME );
+            idmefTime = IDMEFTime.convertToIDMEFFormat( m_modifyTime );
+            node.appendChild( parent.createTextNode( idmefTime ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_ACCESS_TIME );
+        
         if( m_accessTime != null ){
-            node.setNodeValue( IDMEFTime.convertToIDMEFFormat( m_accessTime ) );
+            node = parent.createElement( CHILD_ELEMENT_ACCESS_TIME );
+            idmefTime = IDMEFTime.convertToIDMEFFormat( m_accessTime );
+            node.appendChild( parent.createTextNode( idmefTime ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_DATA_SIZE );
+
         if( m_dataSize != null ){
-            node.setNodeValue( m_dataSize.toString() );
+            node = parent.createElement( CHILD_ELEMENT_DATA_SIZE );
+            node.appendChild( parent.createTextNode( m_dataSize.toString() ) );
             fileNode.appendChild( node );
         }
-        node = parent.createElement( CHILD_ELEMENT_DISK_SIZE );
+
         if( m_diskSize != null ){
-            node.setNodeValue( m_diskSize.toString() );
+            node = parent.createElement( CHILD_ELEMENT_DISK_SIZE );
+            node.appendChild( parent.createTextNode( m_diskSize.toString() ) );
             fileNode.appendChild( node );
         }
         

@@ -186,10 +186,10 @@ public class Linkage implements XMLSerializable {
             linkageNode.appendChild( m_file.convertToXML( parent ) );
         }
         else if( m_name != null && m_path != null ) {
-            Element nameNode = parent.createElement( CHILD_ELEMENT_NAME );
-            Element pathNode = parent.createElement( CHILD_ELEMENT_PATH );
-            nameNode.setNodeValue( m_name );
-            pathNode.setNodeValue( m_path );                        
+            Node nameNode = parent.createElement( CHILD_ELEMENT_NAME );
+            Node pathNode = parent.createElement( CHILD_ELEMENT_PATH );
+            nameNode.appendChild( parent.createTextNode( m_name ) );
+            pathNode.appendChild( parent.createTextNode( m_path ) );                        
             linkageNode.appendChild( nameNode );
             linkageNode.appendChild( pathNode );
         }

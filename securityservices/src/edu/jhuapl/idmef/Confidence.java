@@ -146,7 +146,7 @@ public class Confidence implements XMLSerializable {
         if( m_rating.equals( NUMERIC ) &&
             ( m_numeric != null ) ){
             // set the Confidence node value iff rating is NUMERIC
-            confidenceNode.setNodeValue( m_numeric.toString() );   
+            confidenceNode.appendChild( parent.createTextNode( m_numeric.toString() ) );   
         } 
         return confidenceNode;  
     }   
