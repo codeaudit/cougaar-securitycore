@@ -41,12 +41,12 @@ Cougaar::ExperimentMonitor.enable_logging
 Cougaar.new_experiment("Policy-Test").run(1) { 
 
 
-  society_file="PolicyOne.xml"
-  layout_file="PolicyOne-layout.xml"
+#   society_file="PolicyOne.xml"
+#   layout_file="PolicyOne-layout.xml"
 
-#  society_file="PolicyTwo.xml"
-# layout_file="PolicyTwo-layout.xml"
-#  layout_file="PolicyTwoSpread-layout.xml"
+  society_file="PolicyTwo.xml"
+#  layout_file="PolicyTwo-layout.xml"
+  layout_file="PolicyTwoSpread-layout.xml"
 
  
   # read the basic society definition 
@@ -77,15 +77,15 @@ RULES = File.join(CIP, 'csmart','config','rules')
     "#{CIP}/csmart/config/rules/security/mop/audit_servlet.rule",
     "#{CIP}/csmart/config/rules/security/robustness",
     "#{CIP}/csmart/config/rules/security/testCollectData/MessageReaderAspect.rule",
+
     "#{CIP}/csmart/config/rules/security/mts/loopback_protocol.rule",
     "#{CIP}/csmart/config/rules/security/mts/sslRMI.rule",
-    "#{CIP}/csmart/config/rules/security/mts/http_mts.rule",
+#    "#{CIP}/csmart/config/rules/security/mts/http_mts.rule",
 #    "#{CIP}/csmart/config/rules/security/mts/https_mts.rule",
     "#{CIP}/csmart/config/rules/security/naming",
 #    "#{CIP}/csmart/config/rules/security/test/test-network-config.rule",
-    "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule"
+    "#{CIP}/csmart/lib/security/rules/mts_queue_viewer.rule",
     "#{CIP}/csmart/config/rules/robustness/debug_rules/incarnation.rule"
-
 
   do_action "TransformSociety", false,
     "#{CIP}/csmart/config/rules/security/communities"
@@ -103,6 +103,7 @@ RULES = File.join(CIP, 'csmart','config','rules')
   do_action "BuildUserFiles"  
   do_action "DeployCommunitiesFile" 
 
+
   do_action "StartSociety" 
 
   do_action "Sleep", 30.seconds 
@@ -110,12 +111,14 @@ RULES = File.join(CIP, 'csmart','config','rules')
   
   do_action "InstallBootPolicies"
 
-#  do_action "BlackboardTest"
-#  do_action "ServletTest01"
-#  do_action "CommunicationTest01"
-  do_action "DomainManagerRehydrateReset"
 
+  do_action "BlackboardTest"
+  do_action "ServletTest01"
+  do_action "CommunicationTest01"
+  do_action "CommunicationTest02"
+  do_action "DomainManagerRehydrateReset"
   do_action "TestResults"
-  do_action "Irb"
+
+
 }
 
