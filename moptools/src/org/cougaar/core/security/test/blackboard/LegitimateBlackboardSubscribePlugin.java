@@ -84,7 +84,7 @@ public class LegitimateBlackboardSubscribePlugin extends AbstractBlackboardPlugi
    */
   public void setupSubscriptions() {
     super.setupSubscriptions();
-    publishAddOrgActivity();
+    //publishAddOrgActivity();
     orgSubs = (IncrementalSubscription)
        getBlackboardService().subscribe(legitOrgActivityPredicate);
   }

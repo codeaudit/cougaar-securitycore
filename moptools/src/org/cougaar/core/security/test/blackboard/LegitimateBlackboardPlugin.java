@@ -168,7 +168,7 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       // Create a fake orgActivity object and publish it.
       // See if we can query it, and remove the object after we
       // read it.
-      publishAddOrgActivity();
+      //publishAddOrgActivity();
     }
   }
 
