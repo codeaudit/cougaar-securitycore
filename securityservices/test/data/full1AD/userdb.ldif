@@ -1,25 +1,3 @@
-dn: dc=cougaar, dc=org
-objectClass: dcObject
-objectClass: organization
-dc: cougaar
-o: UltraLog
-description: User Database
-
-dn: uid=amarinea,dc=cougaar,dc=org
-objectClass: inetOrgPerson
-objectClass: cougaarAcct
-uid: amarinea
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170910Z
-cougaarAcctEnableTime: 19700101000000Z
-cougaarAuthReq: PASSWORD
-sn: art
-givenName: art
-cn: art
-userPassword:: NmE2YTJkOGJmY2M2MTg0YWQ0NDA0ZWY0NjFlODU1NzA=
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020604210534Z
-
 dn: cn=manager, dc=cougaar, dc=org
 objectClass: organizationalRole
 cn: Manager
@@ -29,38 +7,6 @@ createTimestamp: 20020603103504Z
 modifiersName: cn=manager,dc=cougaar,dc=org
 modifyTimestamp: 20020603103504Z
 
-dn: cn=UserManager,dc=roles,dc=cougaar,dc=org
-objectClass: organizationalRole
-description: manages system users
-cn: UserManager
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170523Z
-roleOccupant: uid=amarinea,dc=cougaar,dc=org
-roleOccupant: uid=george,dc=cougaar,dc=org
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020605174024Z
-
-dn: cn=CAAdministrator,dc=roles,dc=cougaar,dc=org
-objectClass: organizationalRole
-cn: CAAdministrator
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170156Z
-roleOccupant: uid=sebastien,dc=cougaar,dc=org
-roleOccupant: uid=george,dc=cougaar,dc=org
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020605174024Z
-
-dn: cn=PolicyAdministrator,dc=roles,dc=cougaar,dc=org
-objectClass: organizationalRole
-cn: PolicyAdministrator
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170009Z
-roleOccupant: uid=james,dc=cougaar,dc=org
-roleOccupant: uid=amarinea,dc=cougaar,dc=org
-roleOccupant: uid=george,dc=cougaar,dc=org
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020605174024Z
-
 dn: dc=roles,dc=cougaar,dc=org
 objectClass: dcObject
 objectClass: organization
@@ -68,70 +14,161 @@ dc: roles
 o: UltraLog
 description: Role Database
 
-dn: uid=george,dc=cougaar,dc=org
-objectClass: inetOrgPerson
-objectClass: cougaarAcct
-cougaarAuthReq: EITHER
-cougaarAcctEnableTime: 19700101000000Z
-givenName: George
-uid: george
-userPassword:: ZDU3MjE5OWQxOGNlODFkZTBmYTA0NmY2YzFhM2Y1ZGU=
-sn: Mount
-cn: George Mount
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020605174019Z
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020605174019Z
-
-dn: dc=isat,dc=cougaar, dc=org
+dn: dc=cougaar, dc=org
 objectClass: dcObject
 objectClass: organization
 dc: COUGAAR
 o: UltraLog
-description: ISAT's Certificates
+description: UltraLog Certificates
 creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020603103507Z
+createTimestamp: 20020603103504Z
 modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020603103507Z
+modifyTimestamp: 20020603103504Z
 
-dn: cn=MonitorManager,dc=roles,dc=cougaar,dc=org
+dn: cn=RoverManager,dc=roles,dc=cougaar,dc=org
 objectClass: organizationalRole
-description: manages MandR Console
-cn: MonitorManager
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170657Z
-roleOccupant: uid=amarinea,dc=cougaar,dc=org
-roleOccupant: uid=george,dc=cougaar,dc=org
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020605174024Z
+description: Control and Modification of Rovers
+cn: RoverManager
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020701184111Z
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
 
-dn: uid=sebastien,dc=cougaar,dc=org
+dn: cn=Rover,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Allows rover to insert code and communicate directly with other r
+ overs
+cn: Rover
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020701184358Z
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
+
+dn: dc=users,dc=cougaar,dc=org
+objectClass: dcObject
+objectClass: organization
+dc: users
+o: UltraLog
+description: Users go here
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703214739Z
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703214739Z
+
+dn: uid=amarinea,dc=users,dc=cougaar,dc=org
 objectClass: inetOrgPerson
 objectClass: cougaarAcct
-uid: sebastien
-creatorsName: cn=manager,dc=cougaar,dc=org
-createTimestamp: 20020604170254Z
+objectClass: organizationalPerson
+uid: amarinea
+userPassword:: NmE2YTJkOGJmY2M2MTg0YWQ0NDA0ZWY0NjFlODU1NzA=
 cougaarAcctEnableTime: 19700101000000Z
+cougaarAuthReq: PASSWORD
+givenName: Art
+sn: Marineau
+cn: Art Marineau
+
+dn: uid=george,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: george
+userPassword:: ZDU3MjE5OWQxOGNlODFkZTBmYTA0NmY2YzFhM2Y1ZGU=
+cougaarAcctEnableTime: 19700101000000Z
+cougaarAuthReq: EITHER
+givenName: George
+sn: Mount
+cn: George Mount
+
+dn: uid=sebastien,dc=users,dc=cougaar,dc=org
+objectClass: inetOrgPerson
+objectClass: cougaarAcct
+objectClass: organizationalPerson
+uid: sebastien
+userPassword:: OGE3ZDcxMGRkMTc1MDgzZDVkNzMxZjgxMjczN2ZmNjU=
 cougaarAuthReq: EITHER
 sn: Rosset
 givenName: Sebastien
 cn: Sebastien Rosset
-userPassword:: OGE3ZDcxMGRkMTc1MDgzZDVkNzMxZjgxMjczN2ZmNjU=
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020604210521Z
+cougaarAcctEnableTime: 20020616000839Z
 
-dn: uid=james,dc=cougaar,dc=org
+dn: uid=james,dc=users,dc=cougaar,dc=org
 objectClass: inetOrgPerson
 objectClass: cougaarAcct
 uid: james
 creatorsName: cn=manager,dc=cougaar,dc=org
 createTimestamp: 20020604170113Z
+userPassword:: Y2MxZjZkZTNjZTNlMTk1YThlN2ZmMGYyNGYyNTk2NDE=
 cougaarAcctEnableTime: 19700101000000Z
 cougaarAuthReq: EITHER
-sn: Lott
 givenName: James
+sn: Lott
 cn: James Lott
-userPassword:: Y2MxZjZkZTNjZTNlMTk1YThlN2ZmMGYyNGYyNTk2NDE=
-modifiersName: cn=manager,dc=cougaar,dc=org
-modifyTimestamp: 20020604210512Z
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020708204134Z
+
+dn: cn=UserManager,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Manages Users and Roles
+cn: UserManager
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220416Z
+roleOccupant: uid=amarinea,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
+
+dn: cn=CAAdministrator,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Able to create CA certificates and sign certificates
+cn: CAAdministrator
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220505Z
+roleOccupant: uid=sebastien,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
+
+dn: cn=PolicyAdministrator,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Can modify and distribute policy with KPAT
+cn: PolicyAdministrator
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220546Z
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=james,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220813Z
+
+dn: cn=MonitorManager,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Manages M&R Security Console
+cn: MonitorManager
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220631Z
+roleOccupant: uid=amarinea,dc=users,dc=cougaar,dc=org
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
+
+dn: cn=MoveAgent,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Allowed to move an agent from Node to Node
+cn: MoveAgent
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220711Z
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
+
+dn: cn=Topology,dc=roles,dc=cougaar,dc=org
+objectClass: organizationalRole
+description: Allows the user to view the society topology
+cn: Topology
+creatorsName: cn=Manager,dc=cougaar,dc=org
+createTimestamp: 20020703220726Z
+roleOccupant: uid=george,dc=users,dc=cougaar,dc=org
+modifiersName: cn=Manager,dc=cougaar,dc=org
+modifyTimestamp: 20020703220753Z
 
