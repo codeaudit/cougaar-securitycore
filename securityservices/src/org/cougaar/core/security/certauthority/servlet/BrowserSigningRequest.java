@@ -145,6 +145,7 @@ public class BrowserSigningRequest
       certBuf.append(b64);
       certBuf.append("\n-----END CERTIFICATE-----\n");
       String textCert = certBuf.toString();
+      resp.reset();
       if (!isIE) {
         resp.setContentType("multipart/x-mixed-replace;boundary=" + boundary);
         out.println("--" + boundary);

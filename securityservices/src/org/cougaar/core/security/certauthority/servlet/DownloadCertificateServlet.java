@@ -82,8 +82,6 @@ public class DownloadCertificateServlet extends  HttpServlet
     String role=null;
     String cadnname=null;
 
-    PrintWriter out=res.getWriter();
-
     res.setContentType("text/html");
     if (log.isDebugEnabled()) {
       //log.debug("getContextPath:" + req.getContextPath());
@@ -101,7 +99,7 @@ public class DownloadCertificateServlet extends  HttpServlet
 			 + " - cadnname: " + cadnname);
     }
     if((cadnname==null)||(cadnname=="")) {
-      out.print("Error in dn name ");
+      res.getWriter().print("Error in dn name ");
       return;
     }
     try {
@@ -115,23 +113,23 @@ public class DownloadCertificateServlet extends  HttpServlet
 				       caPolicy.ldapType, caPolicy.ldapURL,
 				       support.getServiceBroker());
     } catch (Exception e) {
-      out.print("Unable to read policy file: " + e);
+      res.getWriter().print("Unable to read policy file: " + e);
       return;
     }
     
     if((distinguishedName==null)||(distinguishedName=="")) {
-      out.print("Error in distinguishedName ");
+      res.getWriter().print("Error in distinguishedName ");
       return;
     }
  
     String filter = "(uniqueIdentifier=" +distinguishedName + ")";
     LdapEntry[] ldapentries = certificateFinder.searchWithFilter(filter);
     if(ldapentries==null || ldapentries.length == 0) {
-      out.println("Error: no such certificate in LDAP ");
+      res.getWriter().println("Error: no such certificate in LDAP ");
       return;
     }
     if (ldapentries.length != 1) {
-      out.println("Error: there are multiple certificates with the same UID");
+      res.getWriter().println("Error: there are multiple certificates with the same UID");
       return;
     }
     
@@ -143,10 +141,11 @@ public class DownloadCertificateServlet extends  HttpServlet
       encoded = certimpl.getEncoded();
       b64 = Base64.encode(encoded);
     } catch (Exception exp) {
-      out.println("error-----------  "+exp.toString());
+      res.getWriter().println("error-----------  "+exp.toString());
       return;
     }
 
+    res.reset();
     if (isCA(certimpl.getSubjectDN().getName())) {
       res.setContentType("application/x-x509-ca-cert");
       res.setHeader("Content-Disposition","inline; filename=\"ca.cer\"");
@@ -155,9 +154,13 @@ public class DownloadCertificateServlet extends  HttpServlet
       res.setHeader("Content-Disposition","inline; filename=\"user.cer\"");
     } // end of else
 
-    out.println("-----BEGIN CERTIFICATE-----");
-    out.println(new String(b64));
-    out.println("-----END CERTIFICATE-----");
+    StringBuffer buf = new StringBuffer();
+    buf.append("-----BEGIN CERTIFICATE-----\n");
+    buf.append(b64);
+    buf.append("\n-----END CERTIFICATE-----\n");
+    res.setContentLength(buf.length());
+    res.getWriter().print(buf.toString());
+    res.getWriter().close();
   }
 
   public static boolean isCA(String dn) {
