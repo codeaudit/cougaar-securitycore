@@ -6,8 +6,8 @@ script: BaselineTemplate.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/csmart/config/societies/ua/full-tc20-232a703v.plugins.rb
-#  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-33H63N-layout.xml
-  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-40H77N-layout.xml
+  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-33H63N-layout.xml
+#  - layout_file: $CIP/operator/layouts/FULL-UA-MNGR-40H77N-layout.xml
 #  - layout_file: $CIP/operator/layouts/AS-1K-layout.xml
 #  - layout_file: $CIP/operator/layouts/AS-1K-robustness-layout.xml
   - archive_dir: $CIP/Logs
