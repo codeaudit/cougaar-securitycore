@@ -49,6 +49,7 @@ import org.cougaar.core.security.crypto.KeyRing;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.crypto.KeySet;
 import org.cougaar.core.security.crypto.KeyWrapping;
+import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.identity.TransferableIdentity;
 import org.cougaar.core.security.services.identity.AgentIdentityService;
@@ -114,10 +115,10 @@ public class AgentMobility
     if (CryptoDebug.debug) {
       System.out.println("======== Looking up agent's key to be wrapped");
     }
-    PrivateKey privKey = keyRing.findPrivateKey(pkcs12Alias);
-    X509Certificate cert =
-      (X509Certificate)keyRing.findCert(pkcs12Alias);
-    if (privKey == null) {
+    List privKeyList = keyRing.findPrivateKey(pkcs12Alias);
+
+    List certList = keyRing.findCert(pkcs12Alias);
+    if (privKeyList == null) {
       System.out.println("Error: unable to get agent key");
       return;
     }
@@ -125,7 +126,8 @@ public class AgentMobility
     if (CryptoDebug.debug) {
       System.out.println("========= Looking up key for sender node");
     }
-    PrivateKey signerPrivKey = keyRing.findPrivateKey(signerAlias);
+    List signerPrivKeyList = keyRing.findPrivateKey(signerAlias);
+    PrivateKey signerPrivKey = ((PrivateKeyCert)signerPrivKeyList.get(0)).getPrivateKey();
     if (signerPrivKey == null) {
       System.out.println("Error: unable to get key for sender node");
       return;
@@ -134,8 +136,9 @@ public class AgentMobility
     if (CryptoDebug.debug) {
       System.out.println("========= Looking up certificate for sender node");
     }
+    List signerCertificateList = keyRing.findCert(signerAlias);
     X509Certificate signerCertificate =
-      (X509Certificate)keyRing.findCert(signerAlias);
+      ((CertificateStatus)signerCertificateList.get(0)).getCertificate();
     if (signerCertificate == null) {
       System.out.println("Error: unable to get certificate for sender node");
       return;
@@ -144,13 +147,16 @@ public class AgentMobility
     if (CryptoDebug.debug) {
       System.out.println("======== Looking up key for receiver node");
     }
-    PrivateKey rcvrPrivKey = keyRing.findPrivateKey(receiverAlias);
+
+    List rcvrPrivKeyList = keyRing.findPrivateKey(receiverAlias);
+    PrivateKey rcvrPrivKey = ((PrivateKeyCert)rcvrPrivKeyList.get(0)).getPrivateKey();
     if (rcvrPrivKey == null) {
       System.out.println("Unable to get receiver node private key");
       return;
     }
+    List rcvrCertList = keyRing.findCert(receiverAlias);
     X509Certificate rcvrCert =
-      (X509Certificate)keyRing.findCert(receiverAlias);
+      ((CertificateStatus)rcvrCertList.get(0)).getCertificate();
 
     java.security.PublicKey pubKey = rcvrCert.getPublicKey();
     String alg = rcvrCert.getPublicKey().getAlgorithm();
@@ -181,8 +187,8 @@ public class AgentMobility
       System.out.println("==================================");
       System.out.println("======== Creating PKCS#12 envelope");
     }
-    byte[] pkcs12 = keyRing.protectPrivateKey(privKey,
-					      cert,
+    byte[] pkcs12 = keyRing.protectPrivateKey(privKeyList,
+					      certList,
 					      signerPrivKey,
 					      signerCertificate,
 					      rcvrCert);
@@ -192,7 +198,7 @@ public class AgentMobility
       System.out.println("======== Extracting PKCS#12 envelope");
     }
     PrivateKeyCert[] pkey = keyRing.getPfx(pkcs12,
-					   rcvrPrivKey,
-					   rcvrCert);
+					   rcvrPrivKeyList,
+					   rcvrCertList);
   }
 }

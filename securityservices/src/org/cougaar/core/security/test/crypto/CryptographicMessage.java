@@ -237,9 +237,11 @@ public class CryptographicMessage
 
   private void testCryptographicMessage(String[] args)
   {
+    List signerCertificateList = keyRing.findCert(args[0]);
     X509Certificate signerCertificate =
-      (X509Certificate)keyRing.findCert(args[0]);
-    PrivateKey privatekey = keyRing.findPrivateKey(args[0]);
+      ((CertificateStatus)signerCertificateList.get(0)).getCertificate();
+    List privatekeyList = keyRing.findPrivateKey(args[0]);
+    PrivateKey privatekey = ((PrivateKeyCert)(privatekeyList.get(0))).getPrivateKey();
     String text = "This is a test message";
     byte[] message = text.getBytes();
 

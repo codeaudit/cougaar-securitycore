@@ -179,15 +179,32 @@ public class KeyStoreTest
     if (CryptoDebug.debug) {
       System.out.println("Search private key for " + cn);
     }
-    PrivateKey pk = keyRing.findPrivateKey(cn);
+    List pkList = keyRing.findPrivateKey(cn);
+    Iterator it = pkList.iterator();
     if (CryptoDebug.debug) {
-      System.out.println("Private key is : " + pk);
+      System.out.println("Private keys are : ");
+    }
+    while (it.hasNext()) {
+      PrivateKey pk = ((PrivateKeyCert)it.next()).getPrivateKey();
+      if (CryptoDebug.debug) {
+	System.out.println("Private key: " + pk);
+      }
+    }
+
+    if (CryptoDebug.debug) {
       System.out.println(" ========================================");
       System.out.println("Search cert for " + cn);
     }
-    Certificate c = keyRing.findCert(cn);
+    List certList = keyRing.findCert(cn);
+    it = certList.iterator();
     if (CryptoDebug.debug) {
-      System.out.println("Certificate is : " + c);
+      System.out.println("Certificates are : ");
+    }
+    while (it.hasNext()) {
+      X509Certificate c = ((CertificateStatus)it.next()).getCertificate();
+      if (CryptoDebug.debug) {
+	System.out.println("Certificates are : " + c);
+      }
     }
     System.out.println(" ========================================");
     //testEncryptionUsingRSA(c, args[3]);

@@ -75,7 +75,7 @@ public class KeyTest implements Runnable
 
   public void run() {
     // Retrieve same key from multiple threads.
-    Certificate c = keyRing.findCert(commonName, DirectoryKeyStore.LOOKUP_LDAP);
+    List c = keyRing.findCert(commonName, DirectoryKeyStore.LOOKUP_LDAP);
   }
 
 }
