@@ -185,7 +185,6 @@
                 <include name="tomcat_40.jar" />
                 <include name="ibmpkcs.jar" />
                 <include name="jas.jar" />
-                <include name="mail.jar" />
                 <include name="log4j.jar" />
              </fileset>
           </classpath>
