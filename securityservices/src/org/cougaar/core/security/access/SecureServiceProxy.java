@@ -26,6 +26,7 @@ package org.cougaar.core.security.access;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.util.DynamicUnaryPredicate;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 
 // security services
@@ -118,7 +119,18 @@ class SecureServiceProxy {
     }
     return true;
   }
-  
+ 
+  protected UnaryPredicate createSecurePredicate(UnaryPredicate up, ExecutionContext ec) {
+    UnaryPredicate sup = null;
+    if(up instanceof DynamicUnaryPredicate) {
+      sup = new SecureDynamicUnaryPredicate((DynamicUnaryPredicate)up, ec); 
+    }
+    else {
+      sup = new SecureUnaryPredicate(up, ec);
+    }
+    return sup;
+  } 
+
   protected class SecureUnaryPredicate implements UnaryPredicate {
     private UnaryPredicate _up;
     private ExecutionContext _ec;
@@ -135,5 +147,12 @@ class SecureServiceProxy {
       // at this point, authorization succeeded.
       return (_up != null ? _up.execute(o) : true);
     } 
+  }
+  
+  protected class SecureDynamicUnaryPredicate extends SecureUnaryPredicate
+    implements DynamicUnaryPredicate {
+    SecureDynamicUnaryPredicate(DynamicUnaryPredicate dup, ExecutionContext ec) {
+      super(dup, ec);
+    }
   }
 }

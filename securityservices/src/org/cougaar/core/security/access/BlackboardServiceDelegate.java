@@ -64,23 +64,19 @@ class BlackboardServiceDelegate extends SecureServiceProxy
     return _bs.getSubscriber();
   }
   public Subscription subscribe(UnaryPredicate isMember) { 
-    UnaryPredicate sup = 
-      new SecureUnaryPredicate(isMember, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(isMember, _scs.getExecutionContext());
     return _bs.subscribe(sup); 
   }
   public Subscription subscribe(UnaryPredicate isMember, Collection realCollection) {
-    UnaryPredicate sup = 
-      new SecureUnaryPredicate(isMember, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(isMember, _scs.getExecutionContext());
     return _bs.subscribe(sup, realCollection);
   }
   public Subscription subscribe(UnaryPredicate isMember, boolean isIncremental) {
-    UnaryPredicate sup = 
-      new SecureUnaryPredicate(isMember, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(isMember, _scs.getExecutionContext());
     return _bs.subscribe(sup, isIncremental);
   }
   public Subscription subscribe(UnaryPredicate isMember, Collection realCollection, boolean isIncremental) {
-    UnaryPredicate sup = 
-      new SecureUnaryPredicate(isMember, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(isMember, _scs.getExecutionContext());
     return _bs.subscribe(sup, realCollection, isIncremental);
   }
   public Subscription subscribe(Subscription subscription) {
@@ -103,7 +99,7 @@ class BlackboardServiceDelegate extends SecureServiceProxy
   }
   
   public Collection query(UnaryPredicate isMember) {
-    UnaryPredicate sup = new SecureUnaryPredicate(isMember, _scs.getExecutionContext());
+    UnaryPredicate sup = createSecurePredicate(isMember, _scs.getExecutionContext());
     return _bs.query(sup);
   }
   public void unsubscribe(Subscription subscription) {
