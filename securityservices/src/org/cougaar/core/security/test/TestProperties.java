@@ -27,7 +27,7 @@ import java.security.*;
 import java.util.HashMap;
 import java.util.*;
 import javax.naming.Context;
-import org.cougaar.core.security.bootstrap.SystemProperties;
+import org.cougaar.bootstrap.SystemProperties;
 
 public class TestProperties {
         
