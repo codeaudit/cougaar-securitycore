@@ -139,6 +139,7 @@ installconf:
 #	cp -r ./test/configs/ul-mini-config  ${COUGAAR_INSTALL_PATH}/configs/.
 
 	cp test/configs/tomcat4/server.xml ${COUGAAR_INSTALL_PATH}/webtomcat/data/conf
+	cp test/configs/tomcat4/web.xml ${COUGAAR_INSTALL_PATH}/webtomcat/data/webapps/ROOT/WEB-INF/
 
 confnai:
 	echo +++++++ Installing NAI configuration files
