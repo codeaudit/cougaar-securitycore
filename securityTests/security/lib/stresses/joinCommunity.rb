@@ -57,7 +57,7 @@ class JoinCommunity < SecurityStressFramework
       "?agent=#{@testAgent}&community=#{@testCommunity}&manager=#{@testManager}"
     url = "#{@attackAgent.uri}/joinCommunity" +"?agent=#{@testAgent}&community=#{@testCommunity}&manager=#{@testManager}"
     begin
-      logInfoMsg "Attempting to access #{url}"
+      logInfoMsg "Attempting to access #{url}" if $VerboseDebugging
       result = Cougaar::Communications::HTTP.get(url)
     rescue
       logInfoMsg "Unable to access #{url}"
@@ -72,7 +72,7 @@ class JoinCommunity < SecurityStressFramework
     while @msgFailureDetected == false && count < 10
       interval = 60
       sleep(interval)
-      logInfoMsg "Sleeping #{interval} secs: Waiting for MESSAGE_FAILURE"
+      logInfoMsg "Sleeping #{interval} secs: Waiting for MESSAGE_FAILURE" if $VerboseDebugging
       count += 1
     end
     if count == 50
@@ -114,7 +114,7 @@ class JoinCommunity < SecurityStressFramework
     if event.cluster_identifier == @testManager &&
        event.component == 'IdmefEventPublisherPlugin' &&
        event.data =~ /#{@filter}/
-       logInfoMsg "Detected Invalid Community Request MESSAGE_FAILURE"
+       logInfoMsg "Detected Invalid Community Request MESSAGE_FAILURE" if $VerboseDebugging
        @msgFailureDetected = true       
        # remove the event listener
        @run.comms.remove_on_cougaar_event(@listenerId)

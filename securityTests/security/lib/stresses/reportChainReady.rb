@@ -31,7 +31,7 @@ class TestReportChainReady < SecurityStressFramework
 
   def loadSocietyData
     File.open(File.join(CIP, "workspace", "test", "subordinates.rb"), "w") do |rubyFile|
-      logInfoMsg("calling loadSocietyData for report for Duty")
+      logInfoMsg("calling loadSocietyData for report for Duty") if $VerboseDebugging
       rubyFile.puts("def installExpectedRelations(rcr)")
       @run.society.each_agent(true) do |agent|
         facetval = agent.get_facet(:superior_org_id)
@@ -65,14 +65,14 @@ class TestReportChainReady < SecurityStressFramework
 
   def afterReportChainReady
     Thread.fork do
-      logInfoMsg("calling afterReportChainReady for reportforDuty script")
+      logInfoMsg("calling afterReportChainReady for reportforDuty script") if $VerboseDebugging
       begin
         success = true
         4.times do
           sleep(5.minutes)
           success = generateReport()
         end
-        logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script")
+        logInfoMsg("calling Save results in afterReportChainReady for reportforDuty script") if $VerboseDebugging
         if success then
           saveResult true, @stressid, "ReportChainReady succeeded - all agents reported for duty"
         else

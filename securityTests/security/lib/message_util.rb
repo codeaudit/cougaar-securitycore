@@ -228,7 +228,7 @@ class IdmefWatcher
   end
 
   def start
-    logInfoMsg "Starting a listener with pattern --> #{@idmefText}"
+    logInfoMsg "Starting a listener with pattern --> #{@idmefText}" if $VerboseDebugging
     @listener = run.comms.on_cougaar_event do |event|
       if event.data =~ /#{@idmefText}/
         # it gave an event

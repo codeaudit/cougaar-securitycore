@@ -111,7 +111,7 @@ module Cougaar
                      "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	end
 	t2 = Time.now
-	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName} in #{t2 - t1} seconds"
+	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName} in #{t2 - t1} seconds" if $VerboseDebugging
       end
     end
 

@@ -89,11 +89,11 @@ class Security3c2 < SecurityStressFramework
 
     sleep(3.minutes)
 
-    summary "The following nodes received SSL connection request from revoked node: #{@ssl_receiver_nodes.keys.join(" ")}"
+    summary "The following nodes received SSL connection request from revoked node: #{@ssl_receiver_nodes.keys.join(" ")}" if $VerboseDeugging
     result = false unless @ssl_receiver_nodes.keys.size != 0
     saveResult(result, "Stress3c2", "SSL initiated by node with revoked certificate.")
 
-    summary "The following nodes initiated SSL connection request to revoked node: #{@ssl_initiator_nodes.keys.join(" ")}"
+    summary "The following nodes initiated SSL connection request to revoked node: #{@ssl_initiator_nodes.keys.join(" ")}" if $VerboseDebugging
     result = false unless @ssl_initiator_nodes.keys.size != 0
     saveResult(result, "Stress3c5", "SSL received by node with revoked certificate.")
   end
@@ -116,7 +116,7 @@ class Security3c2 < SecurityStressFramework
     end
 
     uriEnqueue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
-    logInfoMsg "Blocking CRL at #{uriEnqueue}"
+    logInfoMsg "Blocking CRL at #{uriEnqueue}" if $VerboseDebugging
     result, url = Cougaar::Communications::HTTP.get(uriEnqueue)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent.name}\nURL: #{uriEnqueue}\n#{result}")
@@ -143,7 +143,7 @@ class Security3c2 < SecurityStressFramework
 
     # Now, re-enable CRL to reach the revoked agent.
     uriDequeue = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
-    logInfoMsg "Reenabling CRL at #{uriDequeue}"
+    logInfoMsg "Reenabling CRL at #{uriDequeue}" if $VerboseDebugging
     result, url = Cougaar::Communications::HTTP.get(uriDequeue)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent.name}\nURL: #{url}\n#{result}")

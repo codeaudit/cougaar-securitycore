@@ -343,7 +343,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         totalWaitTime = 0
         #puts "Starting to wait for CRL Update" 
         while @crlUpdated == false && totalWaitTime < maxSleepTime
-          logInfoMsg "Waited #{totalWaitTime} seconds for CRL update"
+          logInfoMsg "Waited #{totalWaitTime} seconds for CRL update" if $VerboseDebugging
           sleep(sleepTime) # sleep
           totalWaitTime += sleepTime 
         end

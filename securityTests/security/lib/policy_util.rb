@@ -67,7 +67,7 @@ def getPolicyManager(enclave)
   if manager == nil
     raise "There is no security manager for enclave '#{enclave}'"
   else
-    logInfoMsg "Found manager for #{host}:#{port} #{manager}"
+    logInfoMsg "Found manager for #{host}:#{port} #{manager}" if $VerboseDebugging
   end
   [host, port, manager]
 end
