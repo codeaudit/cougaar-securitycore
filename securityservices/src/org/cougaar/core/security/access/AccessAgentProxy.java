@@ -251,8 +251,7 @@ public class AccessAgentProxy
 	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
 		          + m.toString());
 	      }
-	
-	      if(!incomingAgentAction(contents)) {
+	      else if(!incomingAgentAction(contents)) {
 	        failureIfOccurred = MessageFailureEvent.INCONSISTENT_AGENT_ACTION;
 	        if (log.isWarnEnabled())
 	          log.warn("WARNING: Rejecting incoming messagewithtrust : "
@@ -438,21 +437,21 @@ public class AccessAgentProxy
     if(msg == null) {
       return null;
     }
-    String failureIfOccur = null;
+    String failureIfOccurred = null;
     TrustSet[] trust = null;
     trust = outgoingTrust(msg);
     if(!outgoingMessageAction(msg, trust[0])) {
-      failureIfOccur = MessageFailureEvent.INCONSISTENT_MESSAGE_ACTION;
+      failureIfOccurred = MessageFailureEvent.INCONSISTENT_MESSAGE_ACTION;
       trust = null;
     }
-    if(!outgoingAgentAction(msg)) {
-      failureIfOccur = MessageFailureEvent.INCONSISTENT_AGENT_ACTION;
+    else if(!outgoingAgentAction(msg)) {
+      failureIfOccurred = MessageFailureEvent.INCONSISTENT_AGENT_ACTION;
       trust = null;
     }
-    if(trust == null) {
+    if(failureIfOccurred != null) {
       publishMessageFailure(msg.getOriginator().toString(),
                             msg.getTarget().toString(),
-                            failureIfOccur,
+                            failureIfOccurred,
                             msg.toString());
     }
     return trust;
