@@ -24,7 +24,7 @@ package org.cougaar.core.security.monitoring.blackboard;
  
 import java.util.List;
 
-public class MRAgentLookUpReply {
+public class MRAgentLookUpReply implements java.io.Serializable {
 
   private  List AgentList;
 

@@ -25,7 +25,7 @@ package org.cougaar.core.security.monitoring.blackboard;
 
 import edu.jhuapl.idmef.*;
 
-public class MRAgentLookUp {
+public class MRAgentLookUp implements java.io.Serializable {
 
   public String community;
   public String role;
