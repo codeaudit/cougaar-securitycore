@@ -88,14 +88,18 @@ public class TrustManager implements X509TrustManager {
     X509Certificate usrcert = chain[0];
     String clndn = usrcert.getSubjectDN().getName();
     String title = CertificateUtility.findAttribute(clndn, "t");
-    // we allow application user to access only tomcat
+    // we allow users, agents, or nodes to access tomcat
     boolean accept = false;
     if (title != null) {
       if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
         accept = true;
       }
-      if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)
+      else if (title.equals(DirectoryKeyStore.CERT_TITLE_USER)
 	  && this instanceof ServerTrustManager) {
+        accept = true;
+      }
+      else if(title.equals(DirectoryKeyStore.CERT_TITLE_AGENT) 
+          && this instanceof ServerTrustManager) {
         accept = true;
       }
     }
