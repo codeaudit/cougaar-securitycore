@@ -38,12 +38,14 @@ import org.cougaar.core.service.UIDService;
 
 /**
  * Just simulates an sensor detecting a blackboard compromise and then
- * publishing a compromise object to the Blackboard
+ * publishing a compromise object to the Blackboard. The only url parameter
+ * is <i>scope<i> which is the scope of the compromise, either Agent, Node or Host
  *
  * @author ttschampel
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class CompromiseBlackboardServlet extends AbstractServletComponent {
+  private static final String SCOPE_PARAM="scope";
   /**
    * Path to servlet
    *
@@ -67,6 +69,14 @@ public class CompromiseBlackboardServlet extends AbstractServletComponent {
     CompromiseBlackboard cb = new CompromiseBlackboard();
     cb.setTimestamp(System.currentTimeMillis());
     cb.setUID(uidService.nextUID());
+    String scope = request.getParameter(SCOPE_PARAM);
+    if(scope==null || scope.trim().length()==0){
+    	if(logging.isWarnEnabled()){
+    		logging.warn("No compromise scope in url query string, using agent scope!");
+    	}
+    	scope = CompromiseBlackboard.AGENT_COMPROMISE_TYPE;
+    }
+    cb.setCompromiseType(scope);
     this.blackboardService.openTransaction();
     this.blackboardService.publishAdd(cb);
     this.blackboardService.closeTransaction();
