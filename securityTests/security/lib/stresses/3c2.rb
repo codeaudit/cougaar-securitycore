@@ -106,10 +106,16 @@ class Security3c2 < SecurityStressFramework
       raise "Unable to find source agent: #{agent}"
     end
 
-    # Preven CRL to reach revoked agent.
+    # Prevent CRL to reach revoked agent.
     # That way, the revoked agent will succeed sending a message out,
     # and we can test that the receiver is blocking the message.
-    url = "#{agent1.uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
+     uri = nil
+     if (agent1.kind_of? Cougaar::Model::Agent)
+       uri = agent1.node.uri
+     else
+       uri = agent1.uri
+     end
+    url = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
     result, url = Cougaar::Communications::HTTP.get(url)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
@@ -135,7 +141,7 @@ class Security3c2 < SecurityStressFramework
     testMessage(agent1, agent2, "Sender does not have CRL")      
 
     # Now, re-enable CRL to reach the revoked agent.
-    url = "#{agent1.uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
+    url = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=false"
     result, url = Cougaar::Communications::HTTP.get(url)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to re-enable CRL msg at #{agent1.name}")
@@ -149,15 +155,15 @@ class Security3c2 < SecurityStressFramework
   end
 
   def getValidDestAgent
-    agentName = nil
-    run.society.each_agent(true) do |agent|
-      if !(agent.has_facet? "AgentAttacker")
-        agentName = agent
-        break
-      end
-    end
-    return agentName
-  end
+     agentName = nil
+     run.society.each_agent(true) do |agent|
+       if !(agent.has_facet? "AgentAttacker")
+         agentName = agent
+         break
+       end
+     end
+     return agentName
+   end
 
   def getAttackAgent
     agentName = nil
