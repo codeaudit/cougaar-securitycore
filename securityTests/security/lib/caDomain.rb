@@ -105,7 +105,7 @@ class CaDomain
       agentName = signer.name
       nodeName = signer.node.name
     end
-     "   CaDomain name=#{@name}\n  agent=#{agentName}\n  node=#{nodeName}\n  CADN=#{@cadn.as_string}\n  parentDomain=#{parentDomainName.as_string}\n  expectedEntities=#{@expectedEntities.as_string}\n  actualEntities=#{@actualEntities.as_string}\n  childrenDomains=#{childrenDomains.collect {|domain| domain.name}.as_string}\n"
+    "   CaDomain name=#{@name}\n  agent=#{agentName}\n  node=#{nodeName}\n  CADN=#{@cadn.as_string}\n  parentDomain=#{parentDomainName.as_string}\n  expectedEntities=#{@expectedEntities.as_string}\n  actualEntities=#{@actualEntities.as_string}\n  childrenDomains=#{childrenDomains.collect {|domain| domain.name}.as_string}\n"
   end
   
   
@@ -125,22 +125,22 @@ class CaDomain
     url = "#{signer.uri}/CA/CertificateList"
     if @cadn == ''
       response = getHtml(uri)
-#puts "in getActualEntites"
-#puts response.code
-#puts response.body
+      #puts "in getActualEntites"
+      #puts response.code
+      #puts response.body
       @cadn = response.body.scan(/option value="([^"]*)/)[0][0]
     end
     # example: Enclave3_CA
     cadnName = @cadn.split(",")[0].split("=")[1]
     params = ["cadnname=#{cadnName}"]
     response = getHtml(url + "?" + params.join("&"))
-#puts "in getActualEntites 2"
-#puts "#{url}, #{response.code}"
-#puts response.body
+    #puts "in getActualEntites 2"
+    #puts "#{url}, #{response.code}"
+    #puts response.body
     scanResult = response.body.scan(validPattern)
     entities = scanResult.collect {|i| i[2]}
-#puts entities.sort
-#puts scanResult.collect {|i| i[0]}.sort
+    #puts entities.sort
+    #puts scanResult.collect {|i| i[0]}.sort
     @distinguishedNames = {}
     @cadnNames = {}
     scanResult.each {|i| @distinguishedNames[i[2]] = i[0]}
@@ -150,18 +150,26 @@ class CaDomain
   end
   
   def revokeUserCert(name)
-    saveUnitTestResult('revocation', "Revoking certificate #{name}" )
+    #saveUnitTestResult('revocation', "Revoking certificate #{name}" )
     getActualEntities
     dn = @distinguishedNames[name]
     unless dn
+      saveAssertion('revokeUserCert',"Couldn't find the distinguished name for #{name}, unable to revoke user on CA #{@name}")
+      #puts  "Couldn't find the distinguished name for #{name}, unable to revoke user on CA #{@name}"
       logInfoMsg "Couldn't find the distinguished name for #{name}, unable to revoke user on CA #{@name}"
       return false
     end
     params = ["distinguishedName=#{CGI.escape(@distinguishedNames[name])}",
-              "cadnname=#{CGI.escape(@cadn)}"]
+      "cadnname=#{CGI.escape(@cadn)}"]
     url = signer.uri + '/CA/RevokeCertificateServlet'
     w = SRIWeb.new
     response = w.postHtml(url, params)
+    #puts "respone receive when revoking the cert is : #{response.code} for  #{name}"
+    if  response.code == 200 
+      saveAssertion('revocation', "Revoking certificate #{name}" )
+    else 
+      saveAssertion('revocation', "Failed to revoke certificate #{name}" )
+    end
     return response.code == 200
   end
   
@@ -211,7 +219,7 @@ class CaDomain
     end
     signedCert = CGI.unescapeHTML(response.body)
     signedCert = response.body
-#puts "signedCert = [#{signedCert}]"
+    #puts "signedCert = [#{signedCert}]"
     
     array = signedCert.split('<br>')
     array[0] = array[0].split[1] + ' CERTIFICATE-----'
@@ -227,7 +235,7 @@ class CaDomain
   def createBogusCert(userName)
     userName = 'bogus_'+userName
     createOpenSSLParamFile(userName)
-      %x{openssl req -nodes -new -keyout pems/"#{name}#{userName}"_key.pem -x509 -out "#{name}#{userName}_cert.pem" -days 365 < params 2>/dev/null}
+    %x{openssl req -nodes -new -keyout pems/"#{name}#{userName}"_key.pem -x509 -out "#{name}#{userName}_cert.pem" -days 365 < params 2>/dev/null}
     File.delete("params")
   end
   
@@ -243,7 +251,7 @@ class CaDomain
     state = cadn.scan(/, ST=(.*), C=/)[0][0]
     country = cadn.scan(/, C=(.*), T=/)[0][0]
     #               US          VA      Arlington  Cougaar     Ultralog
-#    parameters = "#{country}\n#{state}\n#{city}\n#{orgName}\n#{orgUnitName}\n#{userDomain}-#{userName}\n\n\n\n"
+    #    parameters = "#{country}\n#{state}\n#{city}\n#{orgName}\n#{orgUnitName}\n#{userDomain}-#{userName}\n\n\n\n"
     parameters = "#{country}\n#{state}\n#{city}\n#{orgName}\n#{orgUnitName}\n#{userName}\n\n\n\n"
     puts "parameters: #{parameters}" if $ShowUserCreation
     
@@ -358,7 +366,7 @@ class CaDomains
       @domains = {}
     end
   end
-    
+  
   def printIt
     puts
     each do |domainName, caDomain|
@@ -367,297 +375,297 @@ class CaDomains
     end
     puts "wpEntities = #{@wpEntities.as_string}"
   end
-    
-   # this method compares the expected with the actual and wp
-   def validateDomainEntities
-      certTotals = validateActualEntities
-      wpTotals = validateWpEntities
-      successRatio = (certTotals[0]+wpTotals[0]) / (certTotals[1]+wpTotals[1])
-      summary "The success ratio is #{successRatio}"
-      return successRatio
-   end
+  
+  # this method compares the expected with the actual and wp
+  def validateDomainEntities
+    certTotals = validateActualEntities
+    wpTotals = validateWpEntities
+    successRatio = (certTotals[0]+wpTotals[0]) / (certTotals[1]+wpTotals[1])
+    summary "The success ratio is #{successRatio}"
+    return successRatio
+  end
 
-   def validateActualEntities
-      ensureExpectedEntities
-      certSuccess = []
-      certSuccess = collect do |domainName, caDomain|
-         caDomain.getActualEntities
-         caDomain.validateCertificateList
-      end
-      certTotals = certSuccess.injectIt([0,0]) {|x,y| [x[0]+y[0], x[1]+y[1]]}
-      summary "**** #{certTotals[0]} out of #{certTotals[1]} certs were found ****"
-      return certTotals
-   end
+  def validateActualEntities
+    ensureExpectedEntities
+    certSuccess = []
+    certSuccess = collect do |domainName, caDomain|
+      caDomain.getActualEntities
+      caDomain.validateCertificateList
+    end
+    certTotals = certSuccess.injectIt([0,0]) {|x,y| [x[0]+y[0], x[1]+y[1]]}
+    summary "**** #{certTotals[0]} out of #{certTotals[1]} certs were found ****"
+    return certTotals
+  end
 
-   def validateWpEntities
-      wpSuccess = []
-      allExpectedEntities = []
-      wpEntities = getWpEntities
-      wpSuccess = collect do |domainName, caDomain|
-         allExpectedEntities += caDomain.expectedWpEntities
-         caDomain.validateWpEntities(wpEntities)
-      end
-      missing = wpEntities - allExpectedEntities
-      summary "The white pages contains extra certificates: #{missing.as_string}" if missing
-      wpTotals = wpSuccess.injectIt([0,0]) {|x,y| [x[0]+y[0], x[1]+y[1]]}
-      summary "**** #{wpTotals[0]} out of #{wpTotals[1]} certs were found on wp ****"
-      return wpTotals
-   end
+  def validateWpEntities
+    wpSuccess = []
+    allExpectedEntities = []
+    wpEntities = getWpEntities
+    wpSuccess = collect do |domainName, caDomain|
+      allExpectedEntities += caDomain.expectedWpEntities
+      caDomain.validateWpEntities(wpEntities)
+    end
+    missing = wpEntities - allExpectedEntities
+    summary "The white pages contains extra certificates: #{missing.as_string}" if missing
+    wpTotals = wpSuccess.injectIt([0,0]) {|x,y| [x[0]+y[0], x[1]+y[1]]}
+    summary "**** #{wpTotals[0]} out of #{wpTotals[1]} certs were found on wp ****"
+    return wpTotals
+  end
 
 
 =begin
-      if success
-         summary "Success:  All CAs have the correct agents."
-      else
-         summary "Failure:  Not all CAs have the correct agents."
-      end
-      return success
+     if success
+       summary "Success:  All CAs have the correct agents."
+     else
+       summary "Failure:  Not all CAs have the correct agents."
+     end
+     return success
 =end
 
 
-   def ensureExpectedEntities
-      # We only need to run this once because it won't change.
-      ensureDomains
-      getExpectedEntities unless domains.keys.size > 0
-   end
+  def ensureExpectedEntities
+    # We only need to run this once because it won't change.
+    ensureDomains
+    getExpectedEntities unless domains.keys.size > 0
+  end
 
-   # Gets the expectedEntities from the loaded society file.
-   def getExpectedEntities
-      findCAnodes
-      associateAgentsWithCaManagers
-      addExpectationForChildrenDomains
-      makeExpectedWpEntities
-      @expectedEntities
-   end
+  # Gets the expectedEntities from the loaded society file.
+  def getExpectedEntities
+    findCAnodes
+    associateAgentsWithCaManagers
+    addExpectationForChildrenDomains
+    makeExpectedWpEntities
+    @expectedEntities
+  end
 
-   # Get the white pages entities which have a certificate from the /wp page
-      def getWpEntities
-        ensureExpectedEntities
-        url = getNameServer.uri + '/wp?action=recursive_dump&useCache=true&timeout=&async=false&limit=&name='
-        response = getHtml(url)
-        wpEntities = parseWp(response.body)
-        @wpEntities = wpEntities
-        return wpEntities
-      end
-      
-      def getNameServer
-        run.society.each_node do |node|
-          node.each_facet('role') do |facet|
-            if facet['role'] = 'NameServer'
-              return node
-            end
-          end
-        end
-        raise "Couldn't find NameServer facet"
-      end
-      
-      def getActualEntities
-        ensureExpectedEntities
-        each do |domainName, caDomain|
-          caDomain.getActualEntities
+  # Get the white pages entities which have a certificate from the /wp page
+  def getWpEntities
+    ensureExpectedEntities
+    url = getNameServer.uri + '/wp?action=recursive_dump&useCache=true&timeout=&async=false&limit=&name='
+    response = getHtml(url)
+    wpEntities = parseWp(response.body)
+    @wpEntities = wpEntities
+    return wpEntities
+  end
+  
+  def getNameServer
+    run.society.each_node do |node|
+      node.each_facet('role') do |facet|
+        if facet['role'] = 'NameServer'
+          return node
         end
       end
-      
-      # Find the CA nodes [example: (ROOT|FWD|REAR|CONUS|TRANS)-CA-NODE]
-      def findCAnodes
-        run.society.each_host do |host|
-          host.each_node do |node|
-            components = node.getComponentsMatching(/security.certauthority.ConfigPlugin/)
-            
-            components.each do |component|
-              # 1st arg = 'CN=RootCA, OU=Root, O=DLA ...
-              cadn = component.arguments[0].to_s
-              caDomainName = cadn.split(',')[0].split('=')[1]
-              managerAgent = findNodeCaManager node
-              domain = self[managerAgent.name]
-              domain.name = caDomainName
-              domain.signer = managerAgent
-              domain.cadn = cadn
-              # 3rd arg = 'sv024:RootCaManager:8800:9800'
-              if component.arguments.size >= 3
-                parentStr = component.arguments[2].to_s
-                parentCaManagerName = parentStr.split(':')[1]
-                domain.parentDomain = self[parentCaManagerName]
-                self[parentCaManagerName].childrenDomains << domain
-              end
-              node.caDomains = [] unless node.caDomains
-              node.caDomains << domain
-            end
-          end
-        end
-      end
-      
-      def findNodeCaManager(node)
-        node.each_agent do |agent|
-          components = agent.getComponentsMatching /certauthority.CaServletComponent/
-          components.each do |component|
-            if component.arguments[0].to_s =~ /servlet.CertificateList/
-              return agent
-            end
-          end
-        end
-        logWarningMsg "Missing certauthority.CaServletComponent for node #{node.name}"
-        nil
-      end
-      
-      # Figure out which agents go with which ca domains
-      def associateAgentsWithCaManagers
-        # Find the society agents which belong to each CA node
-        run.society.each_host do |host|
-          host.each_node do |node|
-            # list of agents which should have certificates on this node
-            entities = node.agents.collect {|agent| agent.name}
-            entities << node.name
-            # for tomcat, assumes society is running https
-            entities << host.name
-            
-            # all nodes except (ROOT|FWD|REAR|CONUS|TRANS)-CA-NODEs have this
-            components = node.getComponentsMatching(/crypto.AutoConfigPlugin/)
-            if components == []
-              # this must be a CA node.
-              node.caDomains.each do |caDomain|
-                #caManager = caDomain.signer.name
-                entities << caDomain.name
-                #caDomain = self[caManager]
-                #node.caDomain = caDomain
-                caDomain.expectedEntities = (caDomain.expectedEntities + entities).sort
-              end
-            else
-              # 1st arg = 'sv041:ConusEnclaveCaManager:8810:9810'
-              components.each do |component|
-                castr = component.arguments[0].to_s
-                caManager = castr.split(":")[1]
-                caDomain = self[caManager]
-                node.caDomains = [] unless node.caDomains
-                node.caDomains << caDomain
-                caDomain.expectedEntities = (caDomain.expectedEntities + entities).sort
-              end
-            end
-          end # each_node
-        end # each_host
-      end
-      
-      # A parent CA domain (such as RootCA) should expect to have a cert for its
-      # children.
-      def addExpectationForChildrenDomains
-        each do |domainName, caDomain|
-          entities = caDomain.expectedEntities
-          caDomain.childrenDomains.each do |childDomain|
-            entities << childDomain.name
-          end
-          caDomain.expectedEntities = entities.sort
-        end
-      end
-      
-      def parseWp(content)
-        pat = wpPattern
+    end
+    raise "Couldn't find NameServer facet"
+  end
+  
+  def getActualEntities
+    ensureExpectedEntities
+    each do |domainName, caDomain|
+      caDomain.getActualEntities
+    end
+  end
+  
+  # Find the CA nodes [example: (ROOT|FWD|REAR|CONUS|TRANS)-CA-NODE]
+  def findCAnodes
+    run.society.each_host do |host|
+      host.each_node do |node|
+        components = node.getComponentsMatching(/security.certauthority.ConfigPlugin/)
         
-        rows = []
-        m = pat.match(content)
-        if m
-          # [name, type, uri, cert]
-          # ex: [REAR-B-NODE, certificate, cert://REAR-B-NODE, org.cougaar.core.security.naming.NamingCertEntry@b6c33027]
-          rows << [m[2], m[3], m[4], m[5]]
-          while m = pat.match(m.post_match)
-            rows << [m[2], m[3], m[4], m[5]]
+        components.each do |component|
+          # 1st arg = 'CN=RootCA, OU=Root, O=DLA ...
+          cadn = component.arguments[0].to_s
+          caDomainName = cadn.split(',')[0].split('=')[1]
+          managerAgent = findNodeCaManager node
+          domain = self[managerAgent.name]
+          domain.name = caDomainName
+          domain.signer = managerAgent
+          domain.cadn = cadn
+          # 3rd arg = 'sv024:RootCaManager:8800:9800'
+          if component.arguments.size >= 3
+            parentStr = component.arguments[2].to_s
+            parentCaManagerName = parentStr.split(':')[1]
+            domain.parentDomain = self[parentCaManagerName]
+            self[parentCaManagerName].childrenDomains << domain
+          end
+          node.caDomains = [] unless node.caDomains
+          node.caDomains << domain
+        end
+      end
+    end
+  end
+  
+  def findNodeCaManager(node)
+    node.each_agent do |agent|
+      components = agent.getComponentsMatching /certauthority.CaServletComponent/
+      components.each do |component|
+        if component.arguments[0].to_s =~ /servlet.CertificateList/
+          return agent
+        end
+      end
+    end
+    logWarningMsg "Missing certauthority.CaServletComponent for node #{node.name}"
+    nil
+  end
+  
+  # Figure out which agents go with which ca domains
+  def associateAgentsWithCaManagers
+    # Find the society agents which belong to each CA node
+    run.society.each_host do |host|
+      host.each_node do |node|
+        # list of agents which should have certificates on this node
+        entities = node.agents.collect {|agent| agent.name}
+        entities << node.name
+        # for tomcat, assumes society is running https
+        entities << host.name
+        
+        # all nodes except (ROOT|FWD|REAR|CONUS|TRANS)-CA-NODEs have this
+        components = node.getComponentsMatching(/crypto.AutoConfigPlugin/)
+        if components == []
+          # this must be a CA node.
+          node.caDomains.each do |caDomain|
+            #caManager = caDomain.signer.name
+            entities << caDomain.name
+            #caDomain = self[caManager]
+            #node.caDomain = caDomain
+            caDomain.expectedEntities = (caDomain.expectedEntities + entities).sort
+          end
+        else
+          # 1st arg = 'sv041:ConusEnclaveCaManager:8810:9810'
+          components.each do |component|
+            castr = component.arguments[0].to_s
+            caManager = castr.split(":")[1]
+            caDomain = self[caManager]
+            node.caDomains = [] unless node.caDomains
+            node.caDomains << caDomain
+            caDomain.expectedEntities = (caDomain.expectedEntities + entities).sort
           end
         end
-        certs = rows.select {|row| row[3] != 'null_cert'}
-        certs = certs.collect {|cert| cert[0]}
-        return certs
+      end # each_node
+    end # each_host
+  end
+  
+  # A parent CA domain (such as RootCA) should expect to have a cert for its
+  # children.
+  def addExpectationForChildrenDomains
+    each do |domainName, caDomain|
+      entities = caDomain.expectedEntities
+      caDomain.childrenDomains.each do |childDomain|
+        entities << childDomain.name
       end
-      
-      def wpPattern
-        pre = "<td[^>]*>"
-        mid = "([^<]*)"
-        post = "</td>"
-        td = pre + mid + post
-        # Note: there is an extra </td> in each row
-        all = "<tr>"+td+td+td+td+td+"</td></tr>"
-        return Regexp.new(all)
+      caDomain.expectedEntities = entities.sort
+    end
+  end
+  
+  def parseWp(content)
+    pat = wpPattern
+    
+    rows = []
+    m = pat.match(content)
+    if m
+      # [name, type, uri, cert]
+      # ex: [REAR-B-NODE, certificate, cert://REAR-B-NODE, org.cougaar.core.security.naming.NamingCertEntry@b6c33027]
+      rows << [m[2], m[3], m[4], m[5]]
+      while m = pat.match(m.post_match)
+        rows << [m[2], m[3], m[4], m[5]]
       end
-      
-      # the white page entities should be the same as the certificate listing
-      # entities minus the hosts and CAs.
-      def makeExpectedWpEntities
-        hostNames = []
-        run.society.each_host {|host| hostNames << host.name}
-        caNames = []
-        each {|name, ca| caNames << ca.name}
-        each do |domainName, caDomain|
-          caDomain.expectedWpEntities = caDomain.expectedEntities - hostNames - caNames
-        end
-      end
-      
-      def CaDomains.domainsWithEntity(entityName, retrieveActualEntities=true)
-        instance.domainsWithEntity entityName, retrieveActualEntities
-      end
-      def domainsWithEntity(entityName, retrieveActualEntities=true)
-        #ensureExpectedEntities
-        select do |domainName, caDomain|
-          caDomain.getActualEntities if retrieveActualEntities
-          caDomain.actualEntities.detect {|name| name == entityName}
-        end
-      end
-      
-    end # class CaDomains
-    
-    
-    
-    
-    #end # Model
-    #end # Cougaar
-    
-    
-    #----------------------------------------
-    
+    end
+    certs = rows.select {|row| row[3] != 'null_cert'}
+    certs = certs.collect {|cert| cert[0]}
+    return certs
+  end
+  
+  def wpPattern
+    pre = "<td[^>]*>"
+    mid = "([^<]*)"
+    post = "</td>"
+    td = pre + mid + post
+    # Note: there is an extra </td> in each row
+    all = "<tr>"+td+td+td+td+td+"</td></tr>"
+    return Regexp.new(all)
+  end
+  
+  # the white page entities should be the same as the certificate listing
+  # entities minus the hosts and CAs.
+  def makeExpectedWpEntities
+    hostNames = []
+    run.society.each_host {|host| hostNames << host.name}
+    caNames = []
+    each {|name, ca| caNames << ca.name}
+    each do |domainName, caDomain|
+      caDomain.expectedWpEntities = caDomain.expectedEntities - hostNames - caNames
+    end
+  end
+  
+  def CaDomains.domainsWithEntity(entityName, retrieveActualEntities=true)
+    instance.domainsWithEntity entityName, retrieveActualEntities
+  end
+  def domainsWithEntity(entityName, retrieveActualEntities=true)
+    #ensureExpectedEntities
+    select do |domainName, caDomain|
+      caDomain.getActualEntities if retrieveActualEntities
+      caDomain.actualEntities.detect {|name| name == entityName}
+    end
+  end
+  
+end # class CaDomains
+
+
+
+
+#end # Model
+#end # Cougaar
+
+
+#----------------------------------------
+
 =begin
 
    def getRootCertificateNode
-      run.society.each_node do |node|
-         node.each_facet do |facet|
-            if facet['role']=='RootCertificateAuthority'
-               return node
-            end
+     run.society.each_node do |node|
+       node.each_facet do |facet|
+         if facet['role']=='RootCertificateAuthority'
+           return node
          end
-      end
-      logWarningMsg "There doesn't seem to be a facet with 'RootCertificateAuthority' as role.  Will try using 'ROOT-CA-NODE' for the root CA node."
-      return run.society.nodes['ROOT-CA-NODE']
+       end
+     end
+     logWarningMsg "There doesn't seem to be a facet with 'RootCertificateAuthority' as role.  Will try using 'ROOT-CA-NODE' for the root CA node."
+     return run.society.nodes['ROOT-CA-NODE']
    end
 
    # The following code creates hashes based on time for UserTry and Idmef
    def addUserTry(time, usertry, returnStatusCode)
-      ensureUserTry
-      @userTries[time] = [usertry, returnStatusCode]
+     ensureUserTry
+     @userTries[time] = [usertry, returnStatusCode]
    end
    def removeUserTry(time)
-      ensureUserTry
-      @userTries.delete(time)
+     ensureUserTry
+     @userTries.delete(time)
    end
    def ensureUserTry
-      if not defined? @userTries
-         @userTries = {}
-      end
+     if not defined? @userTries
+       @userTries = {}
+     end
    end
 
    def addIdmef(time, event)
-      ensureIdmef
-      @idmefs[time] = event
+     ensureIdmef
+     @idmefs[time] = event
    end
    def removeIdmef(time)
-      ensureIdmef
-      @idmefs.delete(time)
+     ensureIdmef
+     @idmefs.delete(time)
    end
    def forEachIdmef(&block)
-      ensureIdmef
-      @idmefs.each do |key, value|
-         yield key, value
-      end
+     ensureIdmef
+     @idmefs.each do |key, value|
+       yield key, value
+     end
    end
    def ensureIdmef
-      if not defined? @idmefs
-         @idmefs = {}
-      end
+     if not defined? @idmefs
+       @idmefs = {}
+     end
    end
 =end
-    
+ 
