@@ -212,6 +212,18 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
         return false;
       }
     };
+
+  /**
+   * class used internally for determining if the query results have
+   * been updated or something that we don't care about
+   */
+  private static final UnaryPredicate LOGINFAILURE_PREDICATE =
+    new UnaryPredicate() {
+      public boolean execute(Object o) {
+        return (o instanceof QueryResultAdapter);
+      }
+    };
+
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -322,7 +334,7 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     _queryAdapter = new QueryResultAdapter(aq);
 
     _queryChanged = (IncrementalSubscription)
-      getBlackboardService().subscribe(new QueryChanged());
+      getBlackboardService().subscribe(LOGINFAILURE_PREDICATE);
 
     startSensorQuery();
 
@@ -402,19 +414,6 @@ public class LoginFailureRatePlugin extends ComponentPlugin {
     } else {
       getBlackboardService().publishAdd(_queryAdapter);
       _queryPublished = true;
-    }
-  }
-
-  /**
-   * class used internally for determining if the query results have
-   * been updated or something that we don't care about
-   */
-  private static class QueryChanged implements UnaryPredicate {
-    public QueryChanged() {
-    }
-
-    public boolean execute(Object o) {
-      return (o instanceof QueryResultAdapter);
     }
   }
 
