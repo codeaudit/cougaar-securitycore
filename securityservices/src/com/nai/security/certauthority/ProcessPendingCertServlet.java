@@ -79,7 +79,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
           pendingCache.getCertificate(caPolicy.pendingDirectory, alias);
 
         if (actionType.indexOf("Approve") >= 0) {
-          caOperations.publishCertificate(certimpl);
+          caOperations.publishCertificate(certimpl,CertificateUtility.EntityCert,null);
           out.println("Certificate is now approved: " +
             certimpl.getSubjectDN().getName());
           // need to move to approved directory
