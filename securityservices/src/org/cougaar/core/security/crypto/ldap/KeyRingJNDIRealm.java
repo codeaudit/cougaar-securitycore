@@ -126,6 +126,7 @@ public class KeyRingJNDIRealm extends RealmBase {
   public static final int    LF_LDAP_PASSWORD_NULL      = 5;
   public static final int    LF_PASSWORD_MISMATCH       = 6;
   public static final int    LF_USER_MISMATCH           = 7;
+  public static final int    LF_REQUIRES_CERT           = 8;
 
   public static final Classification CAPABILITIES[] = {
     new Classification("LOGIN FAILURE - user does not exist",
@@ -144,7 +145,9 @@ public class KeyRingJNDIRealm extends RealmBase {
     new Classification("LOGIN FAILURE - the user has entered the wrong " +
                        "password", "", Classification.VENDOR_SPECIFIC),
     new Classification("LOGIN FAILURE - dual authentication user names are " +
-                       "different", "", Classification.VENDOR_SPECIFIC)
+                       "different", "", Classification.VENDOR_SPECIFIC),
+    new Classification("LOGIN FAILURE - requires user certificate",
+                       "", Classification.VENDOR_SPECIFIC)
   };
 
   /** 
@@ -152,22 +155,31 @@ public class KeyRingJNDIRealm extends RealmBase {
    * given in the setDefaultLdapUserService call.
    */
   public KeyRingJNDIRealm() {
-    _userService = (LdapUserService) _nodeServiceBroker.
-      getService(this, LdapUserService.class, null);
+    init();
+  }
 
-    AgentIdentityService ais = (AgentIdentityService)
-      _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
-    if (ais != null) {
-      // force a certificate for the node
-      try {
-        ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
-      } catch (PendingRequestException e) {
-        // well, can't use it, but no biggy
-      } catch (IdentityDeniedException e) {
-        e.printStackTrace();
+  private synchronized boolean init() {
+    if (_nodeServiceBroker == null)
+      return false;
+    if (_userService == null) {
+      _userService = (LdapUserService) _nodeServiceBroker.
+        getService(this, LdapUserService.class, null);
+      
+      AgentIdentityService ais = (AgentIdentityService)
+        _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
+      if (ais != null) {
+        // force a certificate for the node
+        try {
+          ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
+        } catch (PendingRequestException e) {
+          // well, can't use it, but no biggy
+        } catch (IdentityDeniedException e) {
+          e.printStackTrace();
+        }
       }
+      setFactory(_nodeServiceBroker);
     }
-    setFactory(_nodeServiceBroker);
+    return true;
   }
 
   /**
@@ -215,9 +227,9 @@ public class KeyRingJNDIRealm extends RealmBase {
    */
   public Principal authenticate(String username, String credentials) {
 //     System.out.println("Authenticating " + username + " with " + credentials);
-    if (username == null || credentials == null) {
+    if (!init() || username == null || credentials == null) {
       // don't alert that there was no credentials -- that happens
-      // under normal operation
+      // under normal opera1tion
       return null;
     }
     try {
@@ -245,7 +257,7 @@ public class KeyRingJNDIRealm extends RealmBase {
   public Principal authenticate(X509Certificate certs[]) {
 
 //     System.out.println("Trying to authenticate the certificates");
-    if ( (certs == null) || (certs.length < 1) ) {
+    if ( !init() || certs == null || certs.length < 1 ) {
       // don't log this -- there aren't any certificates and that's ok
       return null;
     }
@@ -323,6 +335,7 @@ public class KeyRingJNDIRealm extends RealmBase {
       System.out.println("realm:" + realm);
       System.out.println("md5a2:" + md5a2);
     */
+    if (!init()) return null;
     try {
       Attributes userAttrs = _userService.getUser(username);
       Attribute pwdAttr = userAttrs.get(_userService.getPasswordAttribute());
@@ -411,6 +424,7 @@ public class KeyRingJNDIRealm extends RealmBase {
   protected Principal getPrincipal(Attributes userAttr) {
     String username = null;
     String authFields = "EITHER";
+    if (_userService == null) return null;
     try {
       username = userAttr.get(_userService.getUserIDAttribute()).
         get().toString();
