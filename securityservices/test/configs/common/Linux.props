@@ -57,7 +57,7 @@ java.class.path=/mnt/shared/integ92/lib/CougaarCRLextensions.jar
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ92/configs/common\;/mnt/shared/integ92/glmtrans/configs/demo-config/config\;"
 #org.cougaar.config.path="/mnt/shared/integ92/configs/security;/mnt/shared/integ92/configs/common;/mnt/shared/integ92/glmtrans/configs/demo-config/config;"
-org.cougaar.config.path="/mnt/shared/integ92/configs/security;"
+org.cougaar.config.path=".;/mnt/shared/integ92/configs/security;"
 
 # Some standard memory settings.
 #
@@ -97,7 +97,7 @@ java.class.name=org.cougaar.bootstrap.Bootstrapper
 #   (or just "xhost +").
 #
 # On some machines you may need to use the full machine name.
-env.DISPLAY=localhost:0.0
+#env.DISPLAY=localhost:0.0
 
 ########################################################################
 # A couple properties fir the kaos domain manager
@@ -228,6 +228,8 @@ org.cougaar.core.security.crypto.debug=true
 org.cougaar.message.transport.debug=security
 
 #org.cougaar.core.cluster.persistence.debug=true
+
+#org.cougaar.core.util.ConfigFinder.verbose=true
 
 # END DEBUG properties
 # ########################################################
