@@ -19,7 +19,9 @@
 
 <!-- Each rule defines a set of uri patterns and roles that can access
      the uri patterns. -->
-<!ELEMENT rule (pattern+,role+,auth?)>
+<!ELEMENT rule (pattern+,role+)>
+<!ATTLIST rule requireSSL (true|false|yes|no) "false">
+<!ATTLIST rule auth (CERT|PASSWORD|EITHER|BOTH) "EITHER">
 
 <!-- Optionally an authorization type may be provided -->
 <!ELEMENT auth (#PCDATA)>
@@ -42,17 +44,17 @@
     <agent name="DomainManager">
       <!-- A rule defines which roles are allowed to access which uri
            patterns. It may optionally restrict the authentication
-           mechanism for the urls in the rule -->
-      <rule>
+           mechanism for the urls in the rule. 
+
+           Force the user to authenticate by a method. You may
+           use certificate (CERT), password (PASSWORD), or the default
+           of either (EITHER), or both (BOTH). If multiple patterns
+           match a url, a union of the restrictions is made. -->
+      <rule auth="EITHER">
         <!-- a rule must have at least one uri pattern -->
         <pattern>/*</pattern>
         <!-- a rule must have at least one role -->
         <role>PolicyAdministrator</role>
-        <!-- force the user to authenticate by a method. You may
-             use certificate (CERT), password (PASSWORD), or the default
-             of either (EITHER), or both (BOTH). If multiple patterns
-             match a url, a union of the restrictions is made. -->
-        <auth>EITHER</auth>
       </rule>
     </agent>
 
@@ -64,7 +66,7 @@
     </agent>
 
     <agent name="UserAdminAgent">
-      <rule>
+      <rule requireSSL="true">
         <pattern>/useradmin</pattern>
         <role>UserManager</role>
       </rule>
@@ -77,7 +79,7 @@
         <pattern>/CA/CertificateSigningRequest</pattern>
         <role>*</role>
       </rule>
-      <rule>
+      <rule requireSSL="true">
         <!-- This rule allows access to read-only portions of the CA. -->
         <pattern>/CA/Index</pattern>
         <pattern>/CA/Browser</pattern>
@@ -91,7 +93,7 @@
         <!-- Currently let everyone read the certificate database. -->
         <role>*</role>
       </rule>
-      <rule>
+      <rule requireSSL="true">
         <!-- only let the administrator do write-only stuff -->
         <pattern>/CA/RevokeCertificateServlet</pattern>
         <pattern>/CA/CreateCaKeyServlet</pattern>
