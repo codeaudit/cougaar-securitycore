@@ -51,7 +51,7 @@ public class NodeServer
 
   private String commandLine;
   private File nodeStartupDirectory;
-  private String experimentPath;
+  private String resultPath;
   private String junitConfigPath;
 
   public NodeServer()
@@ -68,12 +68,12 @@ public class NodeServer
     throws java.rmi.RemoteException {
 
     System.out.println("NodeServer.startNode");
-    String args[] = tcc.getArguments();
+    String args[] = tcc.getNodeArguments();
     nodeName = args[0];
 
-    experimentPath = System.getProperty("org.cougaar.securityservices.regress");
-    Assert.assertNotNull("Unable to get test output path. Set org.cougaar.securityservices.regress",
-			 experimentPath);
+    resultPath = System.getProperty("junit.test.result.path");
+    Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
+			 resultPath);
 
     nodeStartupDirectory = new File(tcc.getNodeStartupDirectoryName());
     if (!nodeStartupDirectory.exists() || !nodeStartupDirectory.isDirectory()) {
@@ -130,7 +130,7 @@ public class NodeServer
 	new NodeTimeoutController(nodeApp, tcc.getMaxExecutionTime());
       ntc.start();
 
-      ProcessGobbler pg = new ProcessGobbler(experimentPath, nodeName, nodeApp);
+      ProcessGobbler pg = new ProcessGobbler(resultPath, nodeName, nodeApp);
       pg.dumpProcessStream();
 
       PrintWriter outWriter = new PrintWriter(nodeApp.getOutputStream(), true);

@@ -45,7 +45,7 @@ public class NodeConfiguration
 
   /** The command-line arguments when starting the node.
    */
-  private String arguments[];
+  private String nodeArguments[];
 
   /** The host name where the node is executed.
    */
@@ -71,10 +71,28 @@ public class NodeConfiguration
    */
   private int rmiRegistryPort;
 
-  public NodeConfiguration() {
+  /** A description of what the node is doing */
+  private String nodeName;
+  private OperationConf preOperation;
+  private OperationConf postOperation;
+
+  public NodeConfiguration(String name) {
+    nodeName = name;
   }
 
   // GET methods
+  public String getNodeName() {
+    return nodeName;
+  }
+
+  public OperationConf getPreOperation() {
+    return preOperation;
+  }
+
+  public OperationConf getPostOperation() {
+    return postOperation;
+  }
+
   public String getTopLevelDirectory() {
     return topLevelDirectory;
   }
@@ -84,8 +102,8 @@ public class NodeConfiguration
   public String getPropertyFile() {
     return propertyFile;
   }
-  public String[] getArguments() {
-    return arguments;
+  public String[] getNodeArguments() {
+    return nodeArguments;
   }
   public int getMaxExecutionTime() {
     return maxExecutionTime;
@@ -107,6 +125,12 @@ public class NodeConfiguration
   }
 
   // SET methods
+  public void setPreOperation(OperationConf oc) {
+    preOperation = oc;
+  }
+  public void setPostOperation(OperationConf oc) {
+    postOperation = oc;
+  }
   public void setTopLevelDirectory(String dir) {
     topLevelDirectory = dir;
   }
@@ -116,8 +140,8 @@ public class NodeConfiguration
   public void setPropertyFile(String file) {
     propertyFile = file;
   }
-  public void setArguments(String args[]) {
-    arguments = args;
+  public void setNodeArguments(String args[]) {
+    nodeArguments = args;
   }
   public void setMaxExecutionTime(int max) {
     maxExecutionTime = max;
@@ -136,5 +160,29 @@ public class NodeConfiguration
   }
   public void setRmiRegistryPort(int port) {
     rmiRegistryPort = port;
+  }
+
+  public String toString() {
+    String s =
+      " Node Description: " + nodeName +
+      "\n Top-level directory: " + topLevelDirectory +
+      "\n nodeDirectoryName: " + nodeDirectoryName +
+      "\n propertyFile: " + propertyFile +
+      "\n node arguments: ";
+    if (nodeArguments != null) {
+      for (int i = 0 ; i < nodeArguments.length ; i++) {
+	s = s + nodeArguments[i].toString() + " ";
+      }
+    }
+    s = s +
+      "\n hostName: " + hostName +
+      "\n maxExecutionTime: " + maxExecutionTime +
+      "\n howLongBeforeStart: " + howLongBeforeStart +
+      "\n httpPort: " + httpPort +
+      "\n httpsPort: " + httpsPort +
+      "\n rmiRegistryPort: " + rmiRegistryPort + 
+      "\n" + (preOperation == null ? "No pre operation" : preOperation.toString())
+      + "\n" + (postOperation == null ? "No post operation" : postOperation.toString()) + "\n";
+    return s;
   }
 }

@@ -1,0 +1,76 @@
+This README file explains how to install and configure the test suite
+for the security services.
+
+INTRODUCTION
+============
+The test suite has the following capabilities:
+* A series of regression tests can be run on a regular basis (e.g. every
+  two hours or every day) to verify that the security services do not have
+  bugs.
+* During a test, one or more nodes are executed concurrently. The order
+  and the timing of the nodes execution can be controlled. Since nodes are
+  supposed to run forever, each node is given a maximum amount of time
+  during which it must perform its operation (at least for test purposes).
+  An operation can be executed before and after the node is executed.
+  For instance, configuration files can be customized during the
+  pre-operation and files can be cleaned up or analyzed during the
+  post-operation.
+* Tests are executed sequentially.
+* After all the tests have been executed, a program analyzes the results
+  and determines whether the test has been successful or not.
+* The set of nodes can be executed on one or multiple hosts.
+* A dashboard, which is accessible from a web page, provides a summary
+  of the test results and has links to log details. The dashboard is updated
+  every time the test suite is executed.
+* The latest version of the securityservices module is fetched every time
+  the test suite is executed.
+* The test suite must currently be executed on Linux. There is no support
+  for Windows.
+
+INSTALLATION
+============
+
+* Create a user for the Tomcat web server and another user for the tests.
+  For example, create a "tomcat" user and a "junittest" user.
+  The Tomcat web server (which is used to run the dashboard) and the
+  test suite should be executed under two different users.
+  This is because Tomcat is a java application and the test suite kills
+  all java processes on all machines where the tests are executed.
+  An alternative is to run the Tomcat server on a host where the test
+  suite will not be executed.
+* Install Java web services (or at a minimum Tomcat)
+    http://java.sun.com/webservices/downloads/webservicespack.html
+  In general, the installation directory is ${HOME/jwsdp-1_0.
+* Install and configure ssh and sshd on every host where the tests will
+  be executed. Configure ssh for the "junittest" user so that the user
+  can log to another machine without human intervention. For example,
+  create a private/public key pair with no passphrase.
+  The test suite uses ssh to run nodes remotely.
+* Configure CVS for the junittest user. The junittest user should be able
+  to checkout and update the securityservices module from the CVS server
+  (currently cvs.ultralog.net).
+  Since the securityservices module is updated before the test suite is
+  executed, make sure the junittest user can update from CVS without user
+  intervention.
+* Checkout the securityservices module from CVS in the directory of your
+  choice.
+    cvs checkout securityservices
+* Install the version of Cougaar that matches the version of the
+  securityservices module.
+* Install ant version >= 1.5
+  Optional tasks are required to run the junit tests and the result analyzis.
+  Add junit.jar and Xalan 2.x to the ant/lib directory
+    JUNIT can be found at http://www.junit.org
+    XALAN can be found at http://xml.apache.org/xalan-j
+* Install and customize the crontab for the junittest user.
+  A crontab example is available under regress/config/nodeTest/crontab.
+  By default, the crontab executes the tests every 2 hours.
+
+CONFIGURATION
+=============
+A number of files must be customized for your environment before the
+tests can be executed.
+
+* build-dashboard.xml
+  This file is used to update the dashboard every time the test suite is
+  executed. Dashboard web pages are copied to the Tomcat 

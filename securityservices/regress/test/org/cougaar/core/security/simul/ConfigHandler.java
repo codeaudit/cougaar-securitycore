@@ -72,13 +72,13 @@ public class ConfigHandler
     return nodeConfList;
   }
 
-  public static String NODE_TEST = "nodeTest";
-  public static String HOW_LONG = "howLongBeforeStart";
-  public static String MAX_EXEC_TIME = "maxExecTime";
-  public static String HOST_NAME = "hostName";
-  public static String NODE_STARTUP_DIRECTORY = "nodeStartupDirectory";
-  public static String PROPERTY_FILE = "propertyFile";
-  public static String ARGUMENTS = "arguments";
+  public static final String NODE_TEST = "nodeTest";
+  public static final String HOW_LONG = "howLongBeforeStart";
+  public static final String MAX_EXEC_TIME = "maxExecTime";
+  public static final String HOST_NAME = "hostName";
+  public static final String NODE_STARTUP_DIRECTORY = "nodeStartupDirectory";
+  public static final String PROPERTY_FILE = "propertyFile";
+  public static final String ARGUMENTS = "arguments";
 
   public void startElement( String namespaceURI,
 			    String localName,
@@ -89,7 +89,7 @@ public class ConfigHandler
 
     if (localName.equals(NODE_TEST)) {
       System.out.println("New nodeTest");
-      currentNodeConf = new NodeConfiguration();
+      currentNodeConf = new NodeConfiguration("");
 
       // Set top-level directory
       File f1 = new File(System.getProperty("org.cougaar.securityservices.base"));
@@ -136,7 +136,7 @@ public class ConfigHandler
 	argsList.add(st.nextToken());
       }
       String[] args = (String[]) argsList.toArray(new String[1]);
-      currentNodeConf.setArguments(args);
+      currentNodeConf.setNodeArguments(args);
     }
   }
 

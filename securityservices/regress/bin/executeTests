@@ -1,0 +1,31 @@
+#!/bin/tcsh
+# Execute JUNIT tests
+
+#
+# Kill all java processes
+#
+foreach host (tea cypress fig yew)
+    ssh ${host} killall java
+end
+
+#
+# Go to the securityservices module
+#
+cd ~/UL/securityservices
+
+#
+# Execute tests
+#
+ant run-node-tests
+
+#
+# Run result analyzer and create web page
+#
+ant -buildfile build-dashboard.xml make-jar
+
+java -classpath regress/build/WEB-INF/dashboard.jar org.cougaar.core.security.dashboard.Dashboard
+
+#
+# Update web page
+#
+ant -buildfile build-dashboard.xml reload

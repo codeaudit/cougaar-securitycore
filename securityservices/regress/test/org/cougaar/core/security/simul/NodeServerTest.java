@@ -37,14 +37,16 @@ public class NodeServerTest
   extends TestCase
 {
   /** A list of NodeConfiguration */
-  private ArrayList nodeConfList;
+  private Vector nodeConfList;
   private String junitConfigPath;
   private String classPath;
   private String userDir;
   private String userName;
+  private String resultPath;
 
   private TestResult testResult;
   private ConfigParser configParser;
+  private ExperimentMapper experimentMapper;
 
   public NodeServerTest(String name) {
     super(name);
@@ -54,12 +56,15 @@ public class NodeServerTest
     junitConfigPath = System.getProperty("org.cougaar.junit.config.path");
     Assert.assertNotNull("Unable to get org.cougaar.junit.config.path", junitConfigPath);
 
+    resultPath = System.getProperty("junit.test.result.path");
+    Assert.assertNotNull("Unable to get test output path. Set junit.test.result.path",
+			 resultPath);
+
     classPath = System.getProperty("org.cougaar.securityservices.classes");
     Assert.assertNotNull("Unable to get org.cougaar.securityservices.classes", classPath);
 
     userDir = System.getProperty("user.dir");
     Assert.assertNotNull("Unable to get user dir", userDir);
-    System.out.println("Startup directory is " + userDir);
 
     userName = System.getProperty("user.name");
     Assert.assertNotNull("Unable to get user name", userName);
@@ -84,22 +89,32 @@ public class NodeServerTest
 
   public void testRunExperiment() {
     //readConfigurationFile();
-    String fileName = junitConfigPath + File.separator + "NodeServerTestCase.xml";
-    configParser = new ConfigParser(fileName);
-    configParser.parseNodeConfiguration();
-    nodeConfList = configParser.getNodeConfigurationList();
+    String fileName = System.getProperty("junit.config.file");
+    //configParser = new ConfigParser(fileName);
+    //configParser.parseNodeConfiguration();
+    experimentMapper = new ExperimentMapper();
+    Experiment experiment = (Experiment) experimentMapper.fromXML(fileName);
+
+    nodeConfList = experiment.getNodeConfiguration();
+    System.out.println(experiment.toString());
+
+    // Run Pre operation
+    try {
+      experiment.getPreOperation().invokeMethod(null);
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to execute pre-operation:" + e);
+    }
+    //nodeConfList = configParser.getNodeConfigurationList();
 
     ArrayList threadList = new ArrayList();
     for (int i = 0 ; i < nodeConfList.size() ; i++) {
       NodeConfiguration tcc = (NodeConfiguration) nodeConfList.get(i);
       System.out.println("#####################################################");
       System.out.println("Test Case # " + i);
-      System.out.println("Node Startup Directory: " + tcc.getNodeStartupDirectoryName());
-      System.out.println("Property File:          " + tcc.getPropertyFile());
-      System.out.println("Max Execution Time:     " + tcc.getMaxExecutionTime());
-      System.out.print("Arguments:              ");
-      for (int j = 0 ; j < tcc.getArguments().length ; j++) {
-	System.out.print(tcc.getArguments()[j] + " ");
+      System.out.print("Node Arguments:              ");
+      for (int j = 0 ; j < tcc.getNodeArguments().length ; j++) {
+	System.out.print(tcc.getNodeArguments()[j] + " ");
       }
       System.out.println();
       try {
@@ -120,6 +135,15 @@ public class NodeServerTest
     catch (java.lang.InterruptedException e) {
       Assert.fail("Unable to execute remote node");
     }
+
+    // Run Post operation
+    try {
+      experiment.getPostOperation().invokeMethod(null);
+    }
+    catch (Exception e) {
+      Assert.fail("Unable to execute pre-operation:" + e);
+    }
+
   }
   
   private Thread runRemoteNode(NodeConfiguration tcc) {
@@ -177,10 +201,10 @@ public class NodeServerTest
 	  + " test.org.cougaar.core.security.simul.NodeServer "
 	  + tcc.getRmiRegistryPort() + "";
 
-	System.out.println("Executing " + commandLine);
+	//System.out.println("Executing " + commandLine);
 	nodeApp = thisApp.exec(commandLine);
 
-	ProcessGobbler pg = new ProcessGobbler(userDir + File.separator + System.getProperty("org.cougaar.securityservices.regress"), "ssh-" + tcc.getHostName(), nodeApp);
+	ProcessGobbler pg = new ProcessGobbler(resultPath, "ssh-" + tcc.getHostName(), nodeApp);
 	pg.dumpProcessStream();
 
 	ProcessMonitor pm = new ProcessMonitor(nodeApp, testResult, test);
