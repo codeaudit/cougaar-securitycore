@@ -60,7 +60,6 @@ public class AuthenticatedClassLoader extends URLClassLoader {
     exclusions.add("com.sun.");
     exclusions.add("sun.");
     exclusions.add("net.jini.");
-    exclusions.add("com.nai.security.certauthority.LdapEntry");
     String s = System.getProperty("org.cougaar.bootstrapper.exclusions");
     if (s != null) {
       List extras = explode(s, ':');
@@ -177,7 +176,11 @@ public class AuthenticatedClassLoader extends URLClassLoader {
 
   /** check if the class has already been loaded by this class loader */
   protected Class findLoaded(String classname) {
-    return (Class)loadedClasses.get(classname);
+    Class c = null;
+    synchronized (loadedClasses) {
+      c = (Class)loadedClasses.get(classname);
+    }
+    return c;
   }
 
 
@@ -185,15 +188,25 @@ public class AuthenticatedClassLoader extends URLClassLoader {
       but did not find it among its trusted classes
   */
   protected boolean findSuspicious(String classname) {
-    return suspiciousClasses.contains(classname);
+    boolean ret = false;
+    synchronized (suspiciousClasses) {
+      ret = suspiciousClasses.contains(classname);
+    }
+    return ret;
   }
 
   /** add to the local cache of loaded or suspicious classes */
   protected void saveLocally(Class c, String name) {
     if (c == null) {
-      suspiciousClasses.add(name);
+      synchronized (suspiciousClasses) {
+	suspiciousClasses.add(name);
+      }
     }
-    else loadedClasses.put(name, c);
+    else {
+      synchronized (loadedClasses) {
+	loadedClasses.put(name, c);
+      }
+    }
   }
 
   /** this method overrides default functionality provided by the java.lang.URLClassLoader */
