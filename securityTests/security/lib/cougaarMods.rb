@@ -118,8 +118,13 @@ module Cougaar
 
        def initialize(run, agent=nil, path="/userManagerReady", timeout=nil, &block)
          super(run, timeout, &block)
-         if agent == nil
-           @run.each_agent(true) { |agent|
+         @agent = agent
+         @path = path
+       end
+       
+       def process
+         if @agent == nil
+           @run.society.each_agent(true) { |agent|
              agent.each_facet("org_id") { |facet| 
                if facet["org_id"] == "OSD.GOV"
 	         @agent = agent
@@ -127,13 +132,7 @@ module Cougaar
                end
              }
 	   }
-         else 
-           @agent = agent
          end
-         @path = path
-       end
-       
-       def process
          @run.info_message "Waiting for #{@agent} to be ready for user access"
          waitForUserManager(@agent, @path, '/move')
        end # perform
