@@ -39,7 +39,7 @@ public class RelayBase
   protected MessageAddress _source;
   protected Object _content;
   protected Object _response;
-  protected transient Set _targets;
+  protected Set    _targets;
   private final Relay.TargetFactory FACTORY = 
     new RelayBaseFactory(this.getClass());
 
