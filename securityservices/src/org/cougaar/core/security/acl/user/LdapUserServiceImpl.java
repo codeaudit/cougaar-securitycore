@@ -649,6 +649,9 @@ public class LdapUserServiceImpl implements UserService {
       try {
         Map rv = createMap(_context.getAttributes(rid2dn(rid)), 
                            ROLE_ATTRIBUTES, rid);
+        if (rv == null) {
+          return null;
+        }
         Set roles = getContainedRoles(rid);
         if (roles != null) {
           rv.put(ROLE_LIST_ATTR, roles);

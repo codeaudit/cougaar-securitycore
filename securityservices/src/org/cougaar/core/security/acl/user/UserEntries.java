@@ -371,6 +371,9 @@ public class UserEntries implements UniqueObject {
    */
   public Map getRole(String rid) throws UserServiceException {
     RoleData data = getRoleData(rid);
+    if (data == null) {
+      return null;
+    }
     Map role = new HashMap();
     role.put(FIELD_RID, rid);
     role.put(FIELD_DESCRIPTION, data.description);
