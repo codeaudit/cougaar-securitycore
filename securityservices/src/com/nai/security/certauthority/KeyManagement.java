@@ -40,6 +40,8 @@ import java.security.PublicKey;
 import java.security.MessageDigest;
 import java.math.BigInteger;
 
+import javax.crypto.*;
+
 import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.*;
@@ -483,9 +485,11 @@ public class KeyManagement
 					 CertificateUtility.PKCS10HEADER.length(),
 					 ind_stop);
       sbuf = sbuf.substring(ind_stop + CertificateUtility.PKCS10TRAILER.length());
+      /*
       if (debug) {
 	System.out.println("base64pkcs: " + base64pkcs);
       }
+      */
 
       // Decode request and store it as a DER value
       byte pkcs10DER[] = Base64.decode(base64pkcs.toCharArray());
@@ -735,10 +739,16 @@ public class KeyManagement
 
     // Set validity
     // Certificate can be used right away
-    Date date_notbefore = new Date();
+    Calendar rightNow = Calendar.getInstance();
+    // Allow some time lag to support clock inconsistencies
+    // (one hour)
+    rightNow.add(Calendar.HOUR, -1);
+    Date date_notbefore = rightNow.getTime();
+
     // Certificate is valid for a number of days
     Date date_notafter = new Date();
     date_notafter.setTime(date_notbefore.getTime() + caPolicy.howLong * 1000L);
+
     CertificateValidity certValidity = new CertificateValidity(date_notbefore, date_notafter);
     clientCertInfo.set("validity", certValidity);
 
@@ -815,24 +825,69 @@ public class KeyManagement
 	 *    10) CA publishes agent's certificate to LDAP directory service.
 	 */
 
+	String cn = args[2];
 	if (debug) {
-	  System.out.println("Search private key for " + args[2]);
+	  System.out.println("Search private key for " + cn);
 	}
-	PrivateKey pk = KeyRing.findPrivateKey(args[2]);
+	PrivateKey pk = KeyRing.findPrivateKey(cn);
 	if (debug) {
 	  System.out.println("Private key is : " + pk);
 	  System.out.println(" ========================================");
-	  System.out.println("Search cert for " + args[2]);
+	  System.out.println("Search cert for " + cn);
 	}
-	Certificate c = KeyRing.findCert(args[2]);
+	Certificate c = KeyRing.findCert(cn);
 	if (debug) {
 	  System.out.println("Certificate is : " + c);
 	}
 	System.out.println(" ========================================");
+	testEncryptionUsingRSA(c, args[3]);
       }
+
     } catch (Exception e) {
       System.out.println("Exception: " + e);
       e.printStackTrace();      
     }
   }
+
+  private static void testEncryptionUsingRSA(Certificate cert, String spec)
+  {
+    try {
+      if (debug) {
+	System.out.println("Trying RSA encryption using existing key");
+      }
+      PublicKey key = cert.getPublicKey();
+      testRSAencryption(key, spec);
+
+      if (debug) {
+	System.out.println("===================================");
+	System.out.println("Trying RSA encryption using new key");
+      }
+      KeyCertGenerator kc = new KeyCertGenerator(spec, "MD5WithRSA",
+						 "IBMJCE");
+      kc.generate(512);
+      testRSAencryption(kc.getPublicKey(), spec);
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();      
+    }
+  }
+
+  private static void testRSAencryption(PublicKey key, String spec)
+  {
+    try {
+      if (debug) {
+	System.out.println("Encrypting using " + spec);
+      }
+      /*init the cipher*/
+      Cipher ci;
+      ci=Cipher.getInstance(spec);
+      ci.init(Cipher.ENCRYPT_MODE, key);
+      String theObjectToEncrypt = "Secret Message";
+      SealedObject so = new SealedObject(theObjectToEncrypt, ci);
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+      e.printStackTrace();      
+    }
+  }
+
 }
