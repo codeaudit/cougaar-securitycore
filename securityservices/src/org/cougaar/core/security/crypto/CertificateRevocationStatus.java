@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Networks Associates Technology, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -29,12 +29,12 @@ import java.io.Serializable;
 public class CertificateRevocationStatus implements Serializable {
   // enumerator name
   private final String enum_name;
-  
+
   // private constructor, called only within this class
   private CertificateRevocationStatus(String name) {
     enum_name = name;
   }
-    
+
   // return the enumerator name
   public String toString() {
     return enum_name;
@@ -48,6 +48,8 @@ public class CertificateRevocationStatus implements Serializable {
 
   public static final CertificateRevocationStatus REVOKED =
     new CertificateRevocationStatus("REVOKED");
- 
+
+  public static final CertificateRevocationStatus DEPRECATED =
+    new CertificateRevocationStatus("DEPRECATED");
 }
 
