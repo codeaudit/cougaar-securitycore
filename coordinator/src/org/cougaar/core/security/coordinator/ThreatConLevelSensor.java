@@ -28,6 +28,8 @@ package org.cougaar.core.security.coordinator;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import org.cougaar.coordinator.*;
 import org.cougaar.coordinator.techspec.TechSpecNotFoundException;
 import org.cougaar.core.blackboard.IncrementalSubscription;
@@ -172,7 +174,7 @@ public class ThreatConLevelSensor extends ComponentPlugin
     private void initThreatConDiagnosis() {
       final CommunityServiceUtilListener csu = new CommunityServiceUtilListener() {
         public void getResponse(Set resp) {
-          if (diagnosis != null) {
+          if (_communityName != null) {
             return;
           }
 
@@ -186,23 +188,41 @@ public class ThreatConLevelSensor extends ComponentPlugin
               log.warn("there is only one community allowed!");
             }
             Community community = (Community)it.next();
-            _communityName = community.getName();
+            Attributes attrs = community.getAttributes();
+            if (attrs == null) {
+              return;
+            }
+            Attribute attr = attrs.get("RobustnessManager");
+            if (attr == null) {
+              return;
+            }
+            try {
+              _communityName = (String)attr.get();
+            } catch (Exception ex) {
+              log.warn("Excetpion getting attribute: " + ex);
+              return;
+            }
+                        
+            //_communityName = community.getName();
             servicesReady(); 
           }
 
         }
       };
-      _csu.getManagedSecurityCommunity(csu);
+      //_csu.getManagedSecurityCommunity(csu);
+      _csu.getCommunity(CommunityServiceUtil.ROBUSTNESS_COMMUNITY_TYPE, 
+        CommunityServiceUtil.MEMBER_ROLE, csu);
     }
 
   private synchronized void servicesReady() {
     if (_communityName != null && start && diagnosis == null) {
+/*
     try {
       throw new Throwable();
     } catch (Throwable t) {
       log.debug("diagnosis: " + diagnosis + " trace: ", t);
     }
-
+*/
         start = false;
       Schedulable sch = threadService.getThread(this, new CreateDiagnosisThread());
       sch.schedule(1);
