@@ -76,65 +76,131 @@ import org.w3c.dom.NamedNodeMap;
  * @since IDMEF Message v1.0
  */
 public class FileAccess implements XMLSerializable {
-    public static String ELEMENT_NAME = "FileAccess";
-    public static String CHILD_ELEMENT_PERMISSION = "permission";
+  public static String ELEMENT_NAME = "FileAccess";
+  public static String CHILD_ELEMENT_PERMISSION = "permission";
     
-    public FileAccess( UserId userId, String []permissions ){
-        m_userId = userId;
-        m_permissions = permissions;
+  public FileAccess( UserId userId, String []permissions ){
+    m_userId = userId;
+    m_permissions = permissions;
+  }
+    
+  public FileAccess( Node node ){
+    Node userIdNode = XMLUtils.GetNodeForName( node, UserId.ELEMENT_NAME );
+    if( userIdNode != null ){
+      m_userId = new UserId( userIdNode );
     }
-    
-    public FileAccess( Node node ){
-        Node userIdNode = XMLUtils.GetNodeForName( node, UserId.ELEMENT_NAME );
-        if( userIdNode != null ){
-            m_userId = new UserId( userIdNode );
-        }
         
-        NodeList childList = node.getChildNodes();
-        int len = childList.getLength();
-        ArrayList permissions = new ArrayList();
-        for( int i = 0; i < len; i++ ){
-            Node child = childList.item( i );
-            if( child.getNodeName().equals( CHILD_ELEMENT_PERMISSION ) ){
-                permissions.add( XMLUtils.getAssociatedString( child ) );
-            }
-        }
+    NodeList childList = node.getChildNodes();
+    int len = childList.getLength();
+    ArrayList permissions = new ArrayList();
+    for( int i = 0; i < len; i++ ){
+      Node child = childList.item( i );
+      if( child.getNodeName().equals( CHILD_ELEMENT_PERMISSION ) ){
+	permissions.add( XMLUtils.getAssociatedString( child ) );
+      }
+    }
         
-        int size = permissions.size();
-        if( size > 0 ){
-            m_permissions = new String[ size ];
-            for( int i = 0; i < size; i++ ){
-                m_permissions[ i ] = ( String )permissions.get( i );
-            }
-        }
+    int size = permissions.size();
+    if( size > 0 ){
+      m_permissions = new String[ size ];
+      for( int i = 0; i < size; i++ ){
+	m_permissions[ i ] = ( String )permissions.get( i );
+      }
     }
+  }
     
-    public UserId getUserId(){
-        return m_userId;
-    }
-    public void setUserId( UserId userId ){
-        m_userId = userId;
-    }
+  public UserId getUserId(){
+    return m_userId;
+  }
+  public void setUserId( UserId userId ){
+    m_userId = userId;
+  }
     
-    public String []getPermissions(){
-        return m_permissions;
+  public String []getPermissions(){
+    return m_permissions;
+  }
+  public void setPermissions( String []permissions ){
+    m_permissions = permissions;
+  }
+  
+  public boolean containsPermission(String inPermission) {
+    boolean contains=false;
+    String [] permissions=this.getPermissions();
+    if(permissions == null) {
+      return contains;
     }
-    public void setPermissions( String []permissions ){
-        m_permissions = permissions;
+    String permission;
+    for(int i=0;i<permissions.length;i++) {
+      permission=permissions[i];
+      if(permission.trim().equals(inPermission.trim())) {
+	contains=true;
+	return contains;
+      }
     }
+    return contains;
+  }
+  public boolean equals(Object anObject) {
+    boolean equals=false;
+    boolean areuseridequal=false;
+    boolean arepermequal=false;
+    if(anObject==null) {
+      return equals;
+    }
+    FileAccess fileaccess;
+    if(anObject instanceof FileAccess) {
+      fileaccess=(FileAccess)anObject;
+      String [] myarray;
+      String [] inarray;
+      myarray=this.getPermissions();
+      inarray=fileaccess.getPermissions();
+      if((myarray!=null)&&(inarray!=null)) {
+	if(myarray.length==inarray.length) {
+	  String value;
+	  for(int i=0;i<inarray.length;i++) {
+	    value=inarray[i];
+	    if(!containsPermission(value)) {
+	      arepermequal=false;
+	      break;
+	    }
+	  }
+	  arepermequal=true;
+	}
+      }
+      else if((myarray==null) && (inarray==null)) {
+	arepermequal=true;
+      }
+      UserId myuserid;
+      UserId inuserid;
+      myuserid=this.getUserId();
+      inuserid=fileaccess.getUserId();
+      if((myuserid!=null) && (inuserid!=null)) {
+	if(myuserid.equals(inuserid)) {
+	  areuseridequal=true;
+      	}
+      }
+      else if((myarray==null) && (inarray==null)) {
+	areuseridequal=true;
+      }
+      if( arepermequal && areuseridequal) {
+	equals=true;
+      }
+    }
+    return equals;
+  }
+  
     
-    public Node convertToXML( Document parent ){
-        Element fileAccessNode = parent.createElement( ELEMENT_NAME );    
-        fileAccessNode.appendChild( m_userId.convertToXML( parent ) );
-        int len = m_permissions.length;
-        for( int i = 0; i < len; i++ ){
-            Node pNode = parent.createElement( CHILD_ELEMENT_PERMISSION );
-            pNode.appendChild( parent.createTextNode( m_permissions[ i ] ) );
-            fileAccessNode.appendChild( pNode );
-        }
-        return fileAccessNode;
+  public Node convertToXML( Document parent ){
+    Element fileAccessNode = parent.createElement( ELEMENT_NAME );    
+    fileAccessNode.appendChild( m_userId.convertToXML( parent ) );
+    int len = m_permissions.length;
+    for( int i = 0; i < len; i++ ){
+      Node pNode = parent.createElement( CHILD_ELEMENT_PERMISSION );
+      pNode.appendChild( parent.createTextNode( m_permissions[ i ] ) );
+      fileAccessNode.appendChild( pNode );
     }
+    return fileAccessNode;
+  }
     
-    private UserId m_userId;
-    private String m_permissions[];
+  private UserId m_userId;
+  private String m_permissions[];
 }

@@ -174,342 +174,559 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class IDMEF_File implements XMLSerializable {
 
-    // xml elements and attributes
-    public static String ELEMENT_NAME = "File";
-    public static String CHILD_ELEMENT_NAME = "name";
-    public static String CHILD_ELEMENT_PATH = "path";
-    public static String CHILD_ELEMENT_CREATE_TIME = "create-time";
-    public static String CHILD_ELEMENT_MODIFY_TIME = "modify-time";
-    public static String CHILD_ELEMENT_ACCESS_TIME = "access-time";
-    public static String CHILD_ELEMENT_DATA_SIZE = "data-size";
-    public static String CHILD_ELEMENT_DISK_SIZE = "disk-size";
-    public static String CHILD_ELEMENT_FILEACCESS = "FileAccess";
-    public static String CHILD_ELEMENT_LINKAGE = "Linkage";
-    public static String CHILD_ELEMENT_INODE = "Inode";
+  // xml elements and attributes
+  public static String ELEMENT_NAME = "File";
+  public static String CHILD_ELEMENT_NAME = "name";
+  public static String CHILD_ELEMENT_PATH = "path";
+  public static String CHILD_ELEMENT_CREATE_TIME = "create-time";
+  public static String CHILD_ELEMENT_MODIFY_TIME = "modify-time";
+  public static String CHILD_ELEMENT_ACCESS_TIME = "access-time";
+  public static String CHILD_ELEMENT_DATA_SIZE = "data-size";
+  public static String CHILD_ELEMENT_DISK_SIZE = "disk-size";
+  public static String CHILD_ELEMENT_FILEACCESS = "FileAccess";
+  public static String CHILD_ELEMENT_LINKAGE = "Linkage";
+  public static String CHILD_ELEMENT_INODE = "Inode";
                     
-    public static String ATTRIBUTE_CATEGORY = "category";
-    public static String ATTRIBUTE_FSTYPE = "fstype";
-    public static String ATTRIBUTE_IDENT = "ident";
+  public static String ATTRIBUTE_CATEGORY = "category";
+  public static String ATTRIBUTE_FSTYPE = "fstype";
+  public static String ATTRIBUTE_IDENT = "ident";
     
-    // category values
-    public static String CURRENT = "current";
-    public static String ORIGINAL = "original";
+  // category values
+  public static String CURRENT = "current";
+  public static String ORIGINAL = "original";
     
-    public IDMEF_File( String name, String path, 
-            Date createTime, Date modifyTime, Date accessTime, 
-            Integer dataSize, Integer diskSize, FileAccess []fileAccesses,
-            Linkage []linkages, Inode inode, String category,
-            String fstype, String ident ){
-        m_name = name;
-        m_path = path;
-        m_createTime = createTime;
-        m_modifyTime = modifyTime;
-        m_accessTime = accessTime;
-        m_dataSize = dataSize;
-        m_diskSize = diskSize;
-        m_fileAccesses = fileAccesses;
-        m_linkages = linkages;
-        m_inode = inode;
-        m_category = category;
-        m_fstype = fstype;
-        m_ident = ident;
+  public IDMEF_File( String name, String path, 
+		     Date createTime, Date modifyTime, Date accessTime, 
+		     Integer dataSize, Integer diskSize, FileAccess []fileAccesses,
+		     Linkage []linkages, Inode inode, String category,
+		     String fstype, String ident ){
+    m_name = name;
+    m_path = path;
+    m_createTime = createTime;
+    m_modifyTime = modifyTime;
+    m_accessTime = accessTime;
+    m_dataSize = dataSize;
+    m_diskSize = diskSize;
+    m_fileAccesses = fileAccesses;
+    m_linkages = linkages;
+    m_inode = inode;
+    m_category = category;
+    m_fstype = fstype;
+    m_ident = ident;
+  }
+    
+  public IDMEF_File( Node node ){
+        
+    String nodeValue = null;
+    SimpleDateFormat formatter = 
+      new SimpleDateFormat ("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        
+    Node nameNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
+    Node pathNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
+        
+    if( nameNode != null ){
+      // System.out.println( "IDMEF_File setting name" );
+      m_name = XMLUtils.getAssociatedString( nameNode );
     }
-    
-    public IDMEF_File( Node node ){
-        
-        String nodeValue = null;
-        SimpleDateFormat formatter = 
-                new SimpleDateFormat ("yyyy-MM-dd'T'hh:mm:ss'Z'");
-        
-        Node nameNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
-        Node pathNode =  XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
-        
-	    if( nameNode != null ){
-	        // System.out.println( "IDMEF_File setting name" );
-	        m_name = XMLUtils.getAssociatedString( nameNode );
-        }
-	    if( pathNode != null ){
-	        // System.out.println( "IDMEF_File setting path" );
-	        m_path = XMLUtils.getAssociatedString( pathNode );
-        }
-        Node cTimeNode =  XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_CREATE_TIME );
-	    if( cTimeNode != null ){
-	        try{
-	            nodeValue = XMLUtils.getAssociatedString( cTimeNode );
-	            m_createTime = formatter.parse( nodeValue );
-            }
-            catch( ParseException pe ){
-                pe.printStackTrace();
-            }
-        }
-        Node mTimeNode =  XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_MODIFY_TIME );
-	    if( mTimeNode != null ){
-	        try{
-	            nodeValue = XMLUtils.getAssociatedString( mTimeNode );
-	            m_modifyTime = formatter.parse( nodeValue );
-            }
-            catch( ParseException pe ){
-                pe.printStackTrace();
-            }
-        }
-        Node aTimeNode =  XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_ACCESS_TIME );
-	    if( aTimeNode != null ){
-	        try{
-	            nodeValue = XMLUtils.getAssociatedString( aTimeNode );
-	            m_accessTime = formatter.parse( nodeValue );
-            }
-            catch( ParseException pe ){
-                pe.printStackTrace();
-            }
-        }
-        Node dataSizeNode = XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_DATA_SIZE );
-        if( dataSizeNode != null ){
-            nodeValue = XMLUtils.getAssociatedString( dataSizeNode ); 
-            m_dataSize = new Integer( nodeValue );
-        }
-        Node diskSizeNode = XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_DISK_SIZE );
-        if( diskSizeNode != null ){
-            nodeValue = XMLUtils.getAssociatedString( diskSizeNode ); 
-            m_diskSize = new Integer( nodeValue );
-        }
+    if( pathNode != null ){
+      // System.out.println( "IDMEF_File setting path" );
+      m_path = XMLUtils.getAssociatedString( pathNode );
+    }
+    Node cTimeNode =  XMLUtils.GetNodeForName( node, 
+					       CHILD_ELEMENT_CREATE_TIME );
+    if( cTimeNode != null ){
+      try{
+	nodeValue = XMLUtils.getAssociatedString( cTimeNode );
+	m_createTime = formatter.parse( nodeValue );
+      }
+      catch( ParseException pe ){
+	pe.printStackTrace();
+      }
+    }
+    Node mTimeNode =  XMLUtils.GetNodeForName( node, 
+					       CHILD_ELEMENT_MODIFY_TIME );
+    if( mTimeNode != null ){
+      try{
+	nodeValue = XMLUtils.getAssociatedString( mTimeNode );
+	m_modifyTime = formatter.parse( nodeValue );
+      }
+      catch( ParseException pe ){
+	pe.printStackTrace();
+      }
+    }
+    Node aTimeNode =  XMLUtils.GetNodeForName( node, 
+					       CHILD_ELEMENT_ACCESS_TIME );
+    if( aTimeNode != null ){
+      try{
+	nodeValue = XMLUtils.getAssociatedString( aTimeNode );
+	m_accessTime = formatter.parse( nodeValue );
+      }
+      catch( ParseException pe ){
+	pe.printStackTrace();
+      }
+    }
+    Node dataSizeNode = XMLUtils.GetNodeForName( node, 
+						 CHILD_ELEMENT_DATA_SIZE );
+    if( dataSizeNode != null ){
+      nodeValue = XMLUtils.getAssociatedString( dataSizeNode ); 
+      m_dataSize = new Integer( nodeValue );
+    }
+    Node diskSizeNode = XMLUtils.GetNodeForName( node, 
+						 CHILD_ELEMENT_DISK_SIZE );
+    if( diskSizeNode != null ){
+      nodeValue = XMLUtils.getAssociatedString( diskSizeNode ); 
+      m_diskSize = new Integer( nodeValue );
+    }
 
-        Node inodeNode = XMLUtils.GetNodeForName( node, 
-                CHILD_ELEMENT_INODE );
-        if( inodeNode != null ){
-            m_inode = new Inode( inodeNode );
-        }
+    Node inodeNode = XMLUtils.GetNodeForName( node, 
+					      CHILD_ELEMENT_INODE );
+    if( inodeNode != null ){
+      m_inode = new Inode( inodeNode );
+    }
        
-    	NodeList children = node.getChildNodes();
-    	ArrayList fileAccesses = new ArrayList();
-    	ArrayList linkages = new ArrayList();
+    NodeList children = node.getChildNodes();
+    ArrayList fileAccesses = new ArrayList();
+    ArrayList linkages = new ArrayList();
 
-    	for (int i = 0; i < children.getLength(); i++ ){
-    	    Node child = children.item(i);
-    	    if( child.getNodeName().equals( FileAccess.ELEMENT_NAME ) ){
-         		fileAccesses.add( new FileAccess( child ) );
-	        }
-    	    else if( child.getNodeName().equals( Linkage.ELEMENT_NAME ) ){
-         		linkages.add( new Linkage( child ) );
-	        }
+    for (int i = 0; i < children.getLength(); i++ ){
+      Node child = children.item(i);
+      if( child.getNodeName().equals( FileAccess.ELEMENT_NAME ) ){
+	fileAccesses.add( new FileAccess( child ) );
+      }
+      else if( child.getNodeName().equals( Linkage.ELEMENT_NAME ) ){
+	linkages.add( new Linkage( child ) );
+      }
+    }
+
+        
+    int size = fileAccesses.size();
+    if( size > 0 ){
+      m_fileAccesses = new FileAccess[ size ];
+      for( int i = 0; i < size; i++ ){
+	m_fileAccesses[ i ] = ( FileAccess )fileAccesses.get( i );
+      }    
+    }
+    size = linkages.size();
+    if( size > 0 ){
+      m_linkages = new Linkage[ size ];
+      for( int i = 0; i < size; i++ ){
+	m_linkages[ i ] = ( Linkage )linkages.get( i );
+      }
+    }
+        
+    // get the attributes
+    NamedNodeMap nnm = node.getAttributes();
+
+    Node attr = nnm.getNamedItem( ATTRIBUTE_IDENT );
+    if(attr != null){
+      m_ident = attr.getNodeValue();
+    }
+    attr = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
+    if(attr != null){
+      m_category = attr.getNodeValue();
+    }
+    attr = nnm.getNamedItem( ATTRIBUTE_FSTYPE );
+    if(attr != null){
+      m_fstype = attr.getNodeValue();
+    }
+  }
+    
+  public String getName(){
+    return m_name;
+  }
+  public void setName( String name ){
+    m_name = name;
+  }
+    
+  public String getPath(){
+    return m_path;
+  }
+  public void setPath( String path ){
+    m_path = path;
+  }
+    
+  public Date getCreateTime(){
+    return m_createTime;
+  }
+  public void setCreateTime( Date createTime ){
+    m_createTime = createTime;
+  }
+    
+  public Date getModifyTime(){
+    return m_modifyTime;
+  }
+  public void setModifyTime( Date modifyTime ){
+    m_modifyTime = modifyTime;
+  }
+    
+  public Date getAccessTime(){
+    return m_accessTime;
+  }
+  public void setAccessTime( Date accessTime ){
+    m_accessTime = accessTime;
+  }
+    
+  public Integer getDataSize(){
+    return m_dataSize;
+  }
+  public void setDateSize( Integer dataSize ){
+    m_dataSize = dataSize;
+  }
+    
+  public Integer getDiskSize(){
+    return m_diskSize;
+  }
+  public void setDiskSize( Integer diskSize ){
+    m_diskSize = diskSize;
+  }
+    
+  public FileAccess []getFileAccesses(){
+    return m_fileAccesses;
+  }
+  public void setFileAccesses( FileAccess []fileAccesses ){
+    m_fileAccesses = fileAccesses;
+  }
+    
+  public Linkage []getLinkages(){
+    return m_linkages;
+  }
+  public void setLinkages( Linkage []linkages ){
+    m_linkages = linkages;
+  }
+    
+  public Inode getInode(){
+    return m_inode;
+  }
+  public void setInode( Inode inode ){
+    m_inode = inode;
+  }
+    
+  public String getIdent(){
+    return m_ident;
+  }
+  public void setIdent( String ident ){
+    m_ident = ident;
+  }
+    
+  public String getCategory(){
+    return m_category;
+  }
+  public void setCategory( String category ){
+    m_category = category;
+  }
+    
+  public String getFstype(){
+    return m_fstype;
+  }
+  public void setFstype( String fstype ){
+    m_fstype = fstype;
+  }
+  
+  public boolean containsLinkage(Linkage inlinkage) {
+    boolean contains=false;
+    Linkage [] linkages=this.getLinkages();
+    if(linkages==null) {
+      return contains;
+    }
+    Linkage linkage;
+    for(int i=0;i<linkages.length;i++) {
+      linkage=linkages[i];
+      if(linkage.equals(inlinkage)) {
+	contains=true;
+	return contains;
+      }
+    }
+    return contains;
+  }
+  
+  public boolean containsFileAccess(FileAccess inFileaccess) {
+    boolean contains=false;
+    FileAccess [] fileAccesses=this.getFileAccesses();
+    if(fileAccesses==null) {
+      return contains;
+    }
+    FileAccess fileaccess;
+    for(int i=0;i<fileAccesses.length;i++) {
+      fileaccess=fileAccesses[i];
+      if(fileaccess.equals(inFileaccess)) {
+	contains=true;
+	return contains;
+      }
+    }
+    return contains;
+  }
+  
+  public boolean equals (Object anObject) {
+    boolean equals=false;
+    boolean arenameequal=false;
+    boolean arepathequal=false;
+    boolean arecategoryequal=false;
+    boolean arefstypeequal=false;
+    boolean arecreateTimeequal=false;
+    boolean aremodifyTimeequal=false;
+    boolean areaccessTimeequal=false;
+    boolean aredataSizeequal=false;
+    boolean arediskSizeequal=false;
+    boolean arefileAccessequal=false;
+    boolean arelinkageequal=false;
+    boolean areinodeequal=false;
+    if(anObject==null) {
+      return equals;
+    }
+    IDMEF_File idmef_file;
+    if(anObject instanceof IDMEF_File) {
+      idmef_file=( IDMEF_File) anObject;
+      String myvalue;
+      String invalue;
+      myvalue=this.getName();
+      invalue= idmef_file.getName();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenameequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arenameequal=true;
+      }
+      
+      myvalue=this.getPath();
+      invalue=idmef_file.getPath();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arepathequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arepathequal=true;
+      }
+      
+      myvalue=this.getCategory();
+      invalue=idmef_file.getCategory();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arecategoryequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arecategoryequal=true;
+      }
+      
+      myvalue=this.getFstype();
+      invalue=idmef_file.getFstype();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arefstypeequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arefstypeequal=true;
+      }
+      Date mydate;
+      Date indate;
+      mydate=this.getCreateTime();
+      indate=idmef_file.getCreateTime();
+      if((mydate!=null) && (indate!=null)) {
+	if(mydate.equals(indate)) {
+	  arecreateTimeequal=true;
+	}
+      }
+      else if((mydate==null) && (indate==null)) {
+	arecreateTimeequal=true;
+      }
+      
+      mydate=this.getModifyTime();
+      indate=idmef_file.getModifyTime();
+      if((mydate!=null) && (indate!=null)) {
+	if(mydate.equals(indate)) {
+	  aremodifyTimeequal=true;
+	}
+      }
+      else if((mydate==null) && (indate==null)) {
+	aremodifyTimeequal=true;
+      }
+      
+      mydate=this.getAccessTime();
+      indate=idmef_file.getAccessTime();
+      if((mydate!=null) && (indate!=null)) {
+	if(mydate.equals(indate)) {
+	  areaccessTimeequal=true;
+	}
+      }
+      else if((mydate==null) && (indate==null)) {
+	areaccessTimeequal=true;
+      }
+      Integer myint;
+      Integer inint;
+      myint=this.getDataSize();
+      inint=idmef_file.getDataSize();
+      if((myint!=null) && (inint!=null)) {
+	if(myint.equals(inint)) {
+	  aredataSizeequal=true;
+	}
+      }
+      else if((myint==null) && (inint==null)) {
+	aredataSizeequal=true;
+      }
+      myint=this.getDiskSize();
+      inint=idmef_file.getDiskSize();
+      if((myint!=null) && (inint!=null)) {
+	if(myint.equals(inint)) {
+	  arediskSizeequal=true;
+	}
+      }
+      else if((myint==null) && (inint==null)) {
+	arediskSizeequal=true;
+      }
+      
+      FileAccess [] myfileaccess;
+      FileAccess [] infileaccess;
+      myfileaccess=this.getFileAccesses();
+      infileaccess=idmef_file.getFileAccesses();
+      if((myfileaccess!=null)&&(infileaccess!=null)) {
+	if(myfileaccess.length==infileaccess.length) {
+	  FileAccess fileaccess;
+	  for(int i=0;i<infileaccess.length;i++) {
+	    fileaccess=infileaccess[i];
+	    if(!containsFileAccess(fileaccess)) {
+	      arefileAccessequal=false;
+	      break;
 	    }
+	  }
+	  arefileAccessequal=true;
+	}
+      }
+      else if((myfileaccess==null) && (infileaccess==null)) {
+	arefileAccessequal=true;
+      }
+      
+      Linkage [] mylinkage;
+      Linkage [] inlinkage;
+      mylinkage=this.getLinkages();
+      inlinkage=idmef_file.getLinkages();
+      if((mylinkage!=null)&&(inlinkage!=null)) {
+	if(mylinkage.length==inlinkage.length) {
+	  Linkage linkage;
+	  for(int i=0;i<inlinkage.length;i++) {
+	    linkage=inlinkage[i];
+	    if(!containsLinkage(linkage)) {
+	      arelinkageequal=false;
+	      break;
+	    }
+	  }
+	  arelinkageequal=true;
+	}
+      }
+      else if((mylinkage==null) && (inlinkage==null)) {
+	arelinkageequal=true;
+      }
+       
+      if((this.getInode()!=null)&& (idmef_file.getInode()!=null)) {
+	if(this.getInode().equals(idmef_file.getInode())) {
+	  areinodeequal=true;
+	}
+      }
+      else if((this.getInode()==null)&& (idmef_file.getInode()==null)) {
+	areinodeequal=true;
+      }
+      if( arenameequal && arepathequal && arecategoryequal && 
+	  arefstypeequal && arecreateTimeequal && aremodifyTimeequal && 
+	  areaccessTimeequal && aredataSizeequal && arediskSizeequal && 
+	  arefileAccessequal && arelinkageequal && areinodeequal ) {
+	equals=true;
+      }
+    }
+    return equals;  
+  }
+  
+    
+  public Node convertToXML( Document parent ){
+    Element fileNode = parent.createElement( IDMEF_File.ELEMENT_NAME );
+    Node node = null;
+    String idmefTime = null;
+    int len = 0;
+    if( m_name != null ){
+      node = parent.createElement( CHILD_ELEMENT_NAME );
+      node.appendChild( parent.createTextNode( m_name ) );
+      fileNode.appendChild( node );
+    }
+        
+    if( m_path != null ){
+      node = parent.createElement( CHILD_ELEMENT_PATH );
+      node.appendChild( parent.createTextNode( m_path ) );
+      fileNode.appendChild( node );
+    }
 
+    if( m_createTime != null ){
+      node = parent.createElement( CHILD_ELEMENT_CREATE_TIME );
+      idmefTime = IDMEFTime.convertToIDMEFFormat( m_createTime );
+      node.appendChild( parent.createTextNode( idmefTime ) );
+      fileNode.appendChild( node );
+    }
         
-        int size = fileAccesses.size();
-        if( size > 0 ){
-            m_fileAccesses = new FileAccess[ size ];
-            for( int i = 0; i < size; i++ ){
-                m_fileAccesses[ i ] = ( FileAccess )fileAccesses.get( i );
-            }    
-        }
-        size = linkages.size();
-        if( size > 0 ){
-            m_linkages = new Linkage[ size ];
-            for( int i = 0; i < size; i++ ){
-                m_linkages[ i ] = ( Linkage )linkages.get( i );
-            }
-        }
+    if( m_modifyTime != null ){
+      node = parent.createElement( CHILD_ELEMENT_MODIFY_TIME );
+      idmefTime = IDMEFTime.convertToIDMEFFormat( m_modifyTime );
+      node.appendChild( parent.createTextNode( idmefTime ) );
+      fileNode.appendChild( node );
+    }
         
-        // get the attributes
-    	NamedNodeMap nnm = node.getAttributes();
+    if( m_accessTime != null ){
+      node = parent.createElement( CHILD_ELEMENT_ACCESS_TIME );
+      idmefTime = IDMEFTime.convertToIDMEFFormat( m_accessTime );
+      node.appendChild( parent.createTextNode( idmefTime ) );
+      fileNode.appendChild( node );
+    }
 
-    	Node attr = nnm.getNamedItem( ATTRIBUTE_IDENT );
-    	if(attr != null){
-    	    m_ident = attr.getNodeValue();
-        }
-        attr = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
-        if(attr != null){
-    	    m_category = attr.getNodeValue();
-        }
-        attr = nnm.getNamedItem( ATTRIBUTE_FSTYPE );
-        if(attr != null){
-    	    m_fstype = attr.getNodeValue();
-        }
+    if( m_dataSize != null ){
+      node = parent.createElement( CHILD_ELEMENT_DATA_SIZE );
+      node.appendChild( parent.createTextNode( m_dataSize.toString() ) );
+      fileNode.appendChild( node );
     }
-    
-    public String getName(){
-        return m_name;
-    }
-    public void setName( String name ){
-        m_name = name;
-    }
-    
-    public String getPath(){
-        return m_path;
-    }
-    public void setPath( String path ){
-        m_path = path;
-    }
-    
-    public Date getCreateTime(){
-        return m_createTime;
-    }
-    public void setCreateTime( Date createTime ){
-        m_createTime = createTime;
-    }
-    
-    public Date getModifyTime(){
-        return m_modifyTime;
-    }
-    public void setModifyTime( Date modifyTime ){
-        m_modifyTime = modifyTime;
-    }
-    
-    public Date getAccessTime(){
-        return m_accessTime;
-    }
-    public void setAccessTime( Date accessTime ){
-        m_accessTime = accessTime;
-    }
-    
-    public Integer getDataSize(){
-        return m_dataSize;
-    }
-    public void setDateSize( Integer dataSize ){
-        m_dataSize = dataSize;
-    }
-    
-    public Integer getDiskSize(){
-        return m_diskSize;
-    }
-    public void setDiskSize( Integer diskSize ){
-        m_diskSize = diskSize;
-    }
-    
-    public FileAccess []getFileAccesses(){
-        return m_fileAccesses;
-    }
-    public void setFileAccesses( FileAccess []fileAccesses ){
-        m_fileAccesses = fileAccesses;
-    }
-    
-    public Linkage []getLinkages(){
-        return m_linkages;
-    }
-    public void setLinkages( Linkage []linkages ){
-        m_linkages = linkages;
-    }
-    
-    public Inode getInode(){
-        return m_inode;
-    }
-    public void setInode( Inode inode ){
-        m_inode = inode;
-    }
-    
-    public String getIdent(){
-        return m_ident;
-    }
-    public void setIdent( String ident ){
-        m_ident = ident;
-    }
-    
-    public String getCategory(){
-        return m_category;
-    }
-    public void setCategory( String category ){
-        m_category = category;
-    }
-    
-    public String getFstype(){
-        return m_fstype;
-    }
-    public void setFstype( String fstype ){
-        m_fstype = fstype;
-    }
-    
-    public Node convertToXML( Document parent ){
-        Element fileNode = parent.createElement( IDMEF_File.ELEMENT_NAME );
-        Node node = null;
-        String idmefTime = null;
-        int len = 0;
-        if( m_name != null ){
-            node = parent.createElement( CHILD_ELEMENT_NAME );
-            node.appendChild( parent.createTextNode( m_name ) );
-            fileNode.appendChild( node );
-        }
-        
-        if( m_path != null ){
-            node = parent.createElement( CHILD_ELEMENT_PATH );
-            node.appendChild( parent.createTextNode( m_path ) );
-            fileNode.appendChild( node );
-        }
 
-        if( m_createTime != null ){
-            node = parent.createElement( CHILD_ELEMENT_CREATE_TIME );
-            idmefTime = IDMEFTime.convertToIDMEFFormat( m_createTime );
-            node.appendChild( parent.createTextNode( idmefTime ) );
-            fileNode.appendChild( node );
-        }
-        
-        if( m_modifyTime != null ){
-            node = parent.createElement( CHILD_ELEMENT_MODIFY_TIME );
-            idmefTime = IDMEFTime.convertToIDMEFFormat( m_modifyTime );
-            node.appendChild( parent.createTextNode( idmefTime ) );
-            fileNode.appendChild( node );
-        }
-        
-        if( m_accessTime != null ){
-            node = parent.createElement( CHILD_ELEMENT_ACCESS_TIME );
-            idmefTime = IDMEFTime.convertToIDMEFFormat( m_accessTime );
-            node.appendChild( parent.createTextNode( idmefTime ) );
-            fileNode.appendChild( node );
-        }
-
-        if( m_dataSize != null ){
-            node = parent.createElement( CHILD_ELEMENT_DATA_SIZE );
-            node.appendChild( parent.createTextNode( m_dataSize.toString() ) );
-            fileNode.appendChild( node );
-        }
-
-        if( m_diskSize != null ){
-            node = parent.createElement( CHILD_ELEMENT_DISK_SIZE );
-            node.appendChild( parent.createTextNode( m_diskSize.toString() ) );
-            fileNode.appendChild( node );
-        }
-        
-        len = m_fileAccesses.length;
-        for( int i = 0; i < len; i++ ){
-            fileNode.appendChild( m_fileAccesses[ i ].convertToXML( parent ) );
-        }
-        
-        len = m_linkages.length;
-        for( int i = 0; i < len; i++ ){
-            fileNode.appendChild( m_linkages[ i ].convertToXML( parent ) );
-        }
-        
-        if( m_inode != null ){
-            fileNode.appendChild( m_inode.convertToXML( parent ) );
-        }
-        
-        if( m_ident != null ){
-            fileNode.setAttribute( ATTRIBUTE_IDENT, m_ident );
-        }
-        if( m_category != null ){
-            fileNode.setAttribute( ATTRIBUTE_CATEGORY, m_category );
-        }
-        if( m_fstype != null ){
-            fileNode.setAttribute( ATTRIBUTE_FSTYPE, m_fstype );
-        }
-        return fileNode;   
+    if( m_diskSize != null ){
+      node = parent.createElement( CHILD_ELEMENT_DISK_SIZE );
+      node.appendChild( parent.createTextNode( m_diskSize.toString() ) );
+      fileNode.appendChild( node );
     }
+        
+    len = m_fileAccesses.length;
+    for( int i = 0; i < len; i++ ){
+      fileNode.appendChild( m_fileAccesses[ i ].convertToXML( parent ) );
+    }
+        
+    len = m_linkages.length;
+    for( int i = 0; i < len; i++ ){
+      fileNode.appendChild( m_linkages[ i ].convertToXML( parent ) );
+    }
+        
+    if( m_inode != null ){
+      fileNode.appendChild( m_inode.convertToXML( parent ) );
+    }
+        
+    if( m_ident != null ){
+      fileNode.setAttribute( ATTRIBUTE_IDENT, m_ident );
+    }
+    if( m_category != null ){
+      fileNode.setAttribute( ATTRIBUTE_CATEGORY, m_category );
+    }
+    if( m_fstype != null ){
+      fileNode.setAttribute( ATTRIBUTE_FSTYPE, m_fstype );
+    }
+    return fileNode;   
+  }
     
     
-    private String m_name;
-    private String m_path;
-    private Date m_createTime;
-    private Date m_modifyTime;
-    private Date m_accessTime;
-    private Integer m_dataSize;
-    private Integer m_diskSize;
-    private FileAccess m_fileAccesses[];
-    private Linkage m_linkages[];
-    private Inode m_inode;
-    private String m_ident = "0";
-    private String m_category;
-    private String m_fstype;
+  private String m_name;
+  private String m_path;
+  private Date m_createTime;
+  private Date m_modifyTime;
+  private Date m_accessTime;
+  private Integer m_dataSize;
+  private Integer m_diskSize;
+  private FileAccess m_fileAccesses[];
+  private Linkage m_linkages[];
+  private Inode m_inode;
+  private String m_ident = "0";
+  private String m_category;
+  private String m_fstype;
 }

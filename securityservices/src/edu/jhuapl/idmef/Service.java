@@ -48,169 +48,230 @@ import java.math.*;
 public class Service implements XMLSerializable{
 
 
-    protected String name;
+  protected String name;
 
-    protected Integer port;
+  protected Integer port;
 
-    protected String portlist;
+  protected String portlist;
 
-    protected String protocol;
+  protected String protocol;
 
-    //attributes
+  //attributes
 
-    protected String ident;
+  protected String ident;
 
-    //constants
-    //none
+  //constants
+  //none
 
-    //getters and setters
-    public String getName(){
-	return name;
-    }
-    public void setName(String inName){
-	name = inName;
-    }
+  //getters and setters
+  public String getName(){
+    return name;
+  }
+  public void setName(String inName){
+    name = inName;
+  }
 
-    public Integer getPort(){
-	return port;
-    }
-    public void setPort(Integer inPort){
-	port = inPort;
-    }
-
- 
-    public String getPortlist(){
-	return portlist;
-    }
-    public void setPortlist(String inPortlist){
-	portlist = inPortlist;
-    }
+  public Integer getPort(){
+    return port;
+  }
+  public void setPort(Integer inPort){
+    port = inPort;
+  }
 
  
-    public String getProtocol(){
-	return protocol;
-    }
-    public void setProtocol(String inProtocol){
-	protocol = inProtocol;
-    }
+  public String getPortlist(){
+    return portlist;
+  }
+  public void setPortlist(String inPortlist){
+    portlist = inPortlist;
+  }
 
  
-    public String getIdent(){
-	return ident;
+  public String getProtocol(){
+    return protocol;
+  }
+  public void setProtocol(String inProtocol){
+    protocol = inProtocol;
+  }
+
+ 
+  public String getIdent(){
+    return ident;
+  }
+  public void setIdent(String inIdent){
+    ident = inIdent;
+  }
+
+  /**Copies arguments into corresponding fields.
+   */
+
+  public Service (String inName, Integer inPort, String inPortlist, 
+		  String inProtocol, String inIdent){
+    name = inName;
+    if (inPort != null) port = new Integer(inPort.intValue());
+    else port = null;
+    portlist = inPortlist;
+    protocol = inProtocol;
+    ident = inIdent;
+
+  }
+  /**Creates an object with all fields null.
+   */
+  public Service(){
+    this(null, null, null, null, null);
+
+  }
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public Service (Node node){
+
+
+    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    if (nameNode == null) name = null;
+    else name = XMLUtils.getAssociatedString(nameNode);
+
+    Node portNode =  XMLUtils.GetNodeForName(node, "port");
+    if (portNode == null) port = null;
+    else port = new Integer(XMLUtils.getAssociatedString(portNode));
+
+    Node portlistNode =  XMLUtils.GetNodeForName(node, "portlist");
+    if (portlistNode == null) portlist = null;
+    else portlist = XMLUtils.getAssociatedString(portlistNode);
+
+    Node protocolNode =  XMLUtils.GetNodeForName(node, "protocol");
+    if (protocolNode == null) protocol = null;
+    else protocol = XMLUtils.getAssociatedString(protocolNode);
+
+    NamedNodeMap nnm = node.getAttributes();
+
+    Node identNode = nnm.getNamedItem("ident");
+    if(identNode == null) ident=null;
+    else ident = identNode.getNodeValue();
+
+  }
+  
+  public boolean equlas( Object anObject) {
+    boolean equals=false;
+    boolean arenameequal=false;
+    boolean areportequal=false;
+    boolean areportlistequal=false;
+    boolean areprotocolequal=false;
+    Service service;
+    if(anObject==null) {
+      return equals;
     }
-    public void setIdent(String inIdent){
-	ident = inIdent;
+    if(anObject instanceof Service) {
+      service=(Service)anObject;
+      String myvalue;
+      String invalue;
+      myvalue=this.getName();
+      invalue=service.getName();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenameequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arenameequal=true;
+      }
+      myvalue=this.getPortlist();
+      invalue=service.getPortlist();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  areportlistequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areportlistequal=true;
+      }
+      myvalue=this.getProtocol();
+      invalue=service.getProtocol();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  areprotocolequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areprotocolequal=true;
+      }
+      if((this.getPort()!=null) && (service.getPort()!=null)) {
+	if(this.getPort().equals(service.getPort())) {
+	  areportequal=true;
+	}
+      }
+      else if((this.getPort()==null) && (service.getPort()==null)) {
+	areportequal=true;
+      }
+      
+      if(arenameequal &&  areportlistequal && areprotocolequal && areportequal) {
+	equals=true;
+      }
     }
+    return equals;
+    
+  }
 
-    /**Copies arguments into corresponding fields.
-     */
+  public Node convertToXML(Document parent){
 
-    public Service (String inName, Integer inPort, String inPortlist, 
-		    String inProtocol, String inIdent){
-	name = inName;
-	if (inPort != null) port = new Integer(inPort.intValue());
-	else port = null;
-	portlist = inPortlist;
-	protocol = inProtocol;
-	ident = inIdent;
-
-    }
-    /**Creates an object with all fields null.
-     */
-    public Service(){
-	this(null, null, null, null, null);
-
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public Service (Node node){
-
-
-	Node nameNode =  XMLUtils.GetNodeForName(node, "name");
-	if (nameNode == null) name = null;
-	else name = XMLUtils.getAssociatedString(nameNode);
-
-	Node portNode =  XMLUtils.GetNodeForName(node, "port");
-	if (portNode == null) port = null;
-	else port = new Integer(XMLUtils.getAssociatedString(portNode));
-
-	Node portlistNode =  XMLUtils.GetNodeForName(node, "portlist");
-	if (portlistNode == null) portlist = null;
-	else portlist = XMLUtils.getAssociatedString(portlistNode);
-
-	Node protocolNode =  XMLUtils.GetNodeForName(node, "protocol");
-	if (protocolNode == null) protocol = null;
-	else protocol = XMLUtils.getAssociatedString(protocolNode);
-
-	NamedNodeMap nnm = node.getAttributes();
-
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
-
-    }
-
-    public Node convertToXML(Document parent){
-
-	Element serviceNode = parent.createElement("Service");
-	if(ident != null)
-	    serviceNode.setAttribute("ident", ident);
+    Element serviceNode = parent.createElement("Service");
+    if(ident != null)
+      serviceNode.setAttribute("ident", ident);
 
 	    
 	
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    serviceNode.appendChild(nameNode);
+    if(name != null){
+      Node nameNode = parent.createElement("name");
+      nameNode.appendChild(parent.createTextNode(name));
+      serviceNode.appendChild(nameNode);
 	    
-	}
-	if(port != null){
-	    Node portNode = parent.createElement("port");
-	    portNode.appendChild(parent.createTextNode(port.toString()));
-	    serviceNode.appendChild(portNode);
-	    
-	}
-	if(portlist != null){
-	    Node portlistNode = parent.createElement("portlist");
-	    portlistNode.appendChild(parent.createTextNode(portlist));
-	    serviceNode.appendChild(portlistNode);
-	    
-	}
-	if(protocol != null){
-	    Node protocolNode = parent.createElement("protocol");
-	    protocolNode.appendChild(parent.createTextNode(protocol));
-	    serviceNode.appendChild(protocolNode);
-	    
-	}
-
-
-	return serviceNode;
     }
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main (String args[]){
-
-	Service idmefnode = new Service("Test_Name", new Integer(23), 
-					"26, 8, 100-1098", "telnet", "test_ident");
-
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = idmefnode.convertToXML(document);
-	    root.appendChild(tNode);
-
-	    StringWriter buf=new StringWriter();
-
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
-
-	} catch (Exception e) {e.printStackTrace();}
+    if(port != null){
+      Node portNode = parent.createElement("port");
+      portNode.appendChild(parent.createTextNode(port.toString()));
+      serviceNode.appendChild(portNode);
+	    
     }
+    if(portlist != null){
+      Node portlistNode = parent.createElement("portlist");
+      portlistNode.appendChild(parent.createTextNode(portlist));
+      serviceNode.appendChild(portlistNode);
+	    
+    }
+    if(protocol != null){
+      Node protocolNode = parent.createElement("protocol");
+      protocolNode.appendChild(parent.createTextNode(protocol));
+      serviceNode.appendChild(protocolNode);
+	    
+    }
+
+
+    return serviceNode;
+  }
+  /** Method used to test this object...probably should not be called otherwise.
+   */
+  public static void main (String args[]){
+
+    Service idmefnode = new Service("Test_Name", new Integer(23), 
+				    "26, 8, 100-1098", "telnet", "test_ident");
+
+    try{
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.newDocument(); 
+      Element root = document.createElement("Test_IDMEF_Message"); 
+      document.appendChild (root);
+      Node tNode = idmefnode.convertToXML(document);
+      root.appendChild(tNode);
+
+      StringWriter buf=new StringWriter();
+
+      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
+      sezr.serialize(document);
+      System.out.println(buf.getBuffer());
+
+    } catch (Exception e) {e.printStackTrace();}
+  }
 
 }

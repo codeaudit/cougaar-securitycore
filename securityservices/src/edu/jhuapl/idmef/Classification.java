@@ -52,159 +52,174 @@ import java.math.*;
 */
 public class Classification implements XMLSerializable{
 
-    protected String name;
+  protected String name;
 
-    protected URL url;
+  protected URL url;
 
-    //attributes
-    protected String origin;
+  //attributes
+  protected String origin;
 
-    //getters and setters
+  //getters and setters
 
-    public String getName(){
-	return name;
-    }
-    public void setName(String inName){
-	name = inName;
-    }
+  public String getName(){
+    return name;
+  }
+  public void setName(String inName){
+    name = inName;
+  }
 
-    public URL getUrl(){
-	return url;
-    }
-    public void setUrl(URL inUrl){
-	url = inUrl;
-    }
+  public URL getUrl(){
+    return url;
+  }
+  public void setUrl(URL inUrl){
+    url = inUrl;
+  }
 
-    public String getOrigin(){
-	return origin;
+  public String getOrigin(){
+    return origin;
     
-    }
-    public void setOrigin(String inOrigin){
-	origin = inOrigin;
-    }
+  }
+  public void setOrigin(String inOrigin){
+    origin = inOrigin;
+  }
     
-    //constants
+  //constants
 
-    public static final String UNKNOWN          = "unknown";
-    public static final String BUGTRAQID        = "bugtraqid";
-    public static final String CVE              = "cve";
-    public static final String VENDOR_SPECIFIC  = "vendor-specific";
-
-
-    /**Copies arguments into corresponding fields.
-     */
-    public Classification(String inName, URL inUrl, String inOrigin) {
-
-	name = inName;
-	url = inUrl;
-	origin = inOrigin;
+  public static final String UNKNOWN          = "unknown";
+  public static final String BUGTRAQID        = "bugtraqid";
+  public static final String CVE              = "cve";
+  public static final String VENDOR_SPECIFIC  = "vendor-specific";
 
 
+  /**Copies arguments into corresponding fields.
+   */
+  public Classification(String inName, URL inUrl, String inOrigin) {
+
+    name = inName;
+    url = inUrl;
+    origin = inOrigin;
+
+
+  }
+  /**Copies arguments into corresponding fields, except url. The url field is produced
+     from the passed String.
+  */
+  public Classification(String inName, String inUrl, String inOrigin){
+
+    name = inName;
+
+    try {
+      url = new URL(inUrl);
+    } catch (MalformedURLException e) {
+      url = null;
     }
-    /**Copies arguments into corresponding fields, except url. The url field is produced
-       from the passed String.
-      */
-    public Classification(String inName, String inUrl, String inOrigin){
-
-	name = inName;
-
-	try {
-	    url = new URL(inUrl);
-	} catch (MalformedURLException e) {
-	    url = null;
-	}
-	origin = inOrigin;
+    origin = inOrigin;
 
 
-    }
-    /**Creates an object with all fields null.
-     */
-    public Classification(){
+  }
+  /**Creates an object with all fields null.
+   */
+  public Classification(){
 
-	this(null, (URL) null, null);
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public Classification (Node node){
+    this(null, (URL) null, null);
+  }
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public Classification (Node node){
 
-	Node nameNode =  XMLUtils.GetNodeForName(node, "name");
-	if (nameNode == null) name = null;
-	else name = XMLUtils.getAssociatedString(nameNode);
+    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    if (nameNode == null) name = null;
+    else name = XMLUtils.getAssociatedString(nameNode);
 
-	Node urlNode =  XMLUtils.GetNodeForName(node, "url");
-	if (urlNode == null) url = null;
-	else {
-	    try {
-		url = new URL(XMLUtils.getAssociatedString(urlNode));
-	    } catch (MalformedURLException e) {
-		url = null;
-	    }
-	}
-
-	NamedNodeMap nnm = node.getAttributes();
-
-	Node originNode = nnm.getNamedItem("origin");
-	if(originNode == null) origin=null;
-	else origin = originNode.getNodeValue();
-
-
+    Node urlNode =  XMLUtils.GetNodeForName(node, "url");
+    if (urlNode == null) url = null;
+    else {
+      try {
+	url = new URL(XMLUtils.getAssociatedString(urlNode));
+      } catch (MalformedURLException e) {
+	url = null;
+      }
     }
 
+    NamedNodeMap nnm = node.getAttributes();
 
-    public Node convertToXML(Document parent){
+    Node originNode = nnm.getNamedItem("origin");
+    if(originNode == null) origin=null;
+    else origin = originNode.getNodeValue();
 
-	Element classificationNode = parent.createElement("Classification");
-	if(origin != null)
-	    classificationNode.setAttribute("origin", origin);
 
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    classificationNode.appendChild(nameNode);
+  }
+
+
+  public Node convertToXML(Document parent){
+
+    Element classificationNode = parent.createElement("Classification");
+    if(origin != null)
+      classificationNode.setAttribute("origin", origin);
+
+    if(name != null){
+      Node nameNode = parent.createElement("name");
+      nameNode.appendChild(parent.createTextNode(name));
+      classificationNode.appendChild(nameNode);
 	    
-	}
-	if(url != null){
-	    Node urlNode = parent.createElement("url");
-	    urlNode.appendChild(parent.createTextNode(url.toString()));
-	    classificationNode.appendChild(urlNode);
+    }
+    if(url != null){
+      Node urlNode = parent.createElement("url");
+      urlNode.appendChild(parent.createTextNode(url.toString()));
+      classificationNode.appendChild(urlNode);
 	    
-	} else {
-	    Node urlNode = parent.createElement("url");
-	    urlNode.appendChild(parent.createTextNode("Unknown URL"));
-	    classificationNode.appendChild(urlNode);
-	}
-	return classificationNode;
-    }    
+    } else {
+      Node urlNode = parent.createElement("url");
+      urlNode.appendChild(parent.createTextNode("Unknown URL"));
+      classificationNode.appendChild(urlNode);
+    }
+    return classificationNode;
+  }
+  
+  public boolean equals(Object anObject) {
+    boolean equal=false;
+    if(anObject==null) {
+      return equal;
+    }
+    if(anObject instanceof Classification) {
+      Classification classification=(Classification)anObject;
+      if((this.getOrigin().trim().equals(classification.getOrigin().trim()))
+	 &&(this.getName().trim().equals(classification.getName().trim()))) {
+	equal=true;
+      }
+    }
+    return equal;
+  } 
 
 
-    /** Method used to test this object...probably should not be called otherwise.
-     */
+  /** Method used to test this object...probably should not be called otherwise.
+   */
 
-    public static void main (String args[]){
+  public static void main (String args[]){
 
 
 	
-	try{
-	    Classification idmefnode = new Classification("Test_Name", 
-							  "http://www.yahoo.com", Classification.CVE);
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = idmefnode.convertToXML(document);
-	    root.appendChild(tNode);
+    try{
+      Classification idmefnode = new Classification("Test_Name", 
+						    "http://www.yahoo.com", Classification.CVE);
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.newDocument(); 
+      Element root = document.createElement("Test_IDMEF_Message"); 
+      document.appendChild (root);
+      Node tNode = idmefnode.convertToXML(document);
+      root.appendChild(tNode);
 
-	    StringWriter buf=new StringWriter();
+      StringWriter buf=new StringWriter();
 
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
+      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
+      sezr.serialize(document);
+      System.out.println(buf.getBuffer());
 
-	} catch (Exception e) {e.printStackTrace();}
-    }
+    } catch (Exception e) {e.printStackTrace();}
+  }
 
 
 }

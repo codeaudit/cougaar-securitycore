@@ -49,190 +49,286 @@ import java.math.*;
 
 public class Target implements XMLSerializable {
 
-    protected IDMEF_Node node;
+  protected IDMEF_Node node;
 
-    protected User user;
+  protected User user;
 
-    protected IDMEF_Process process;
+  protected IDMEF_Process process;
 
-    protected Service service;
+  protected Service service;
 
-    protected FileList fileList;
+  protected FileList fileList;
     
-    //attributes
+  //attributes
 
-    protected String ident;
+  protected String ident;
 
-    protected String decoy;
+  protected String decoy;
 
-    protected String networkInterface;
-
-
-    //constants
-
-    public static final String UNKNOWN = "unknown";
-    public static final String YES = "yes";
-    public static final String NO = "no";
+  protected String networkInterface;
 
 
-    //getters and setters
+  //constants
 
-    public IDMEF_Node getNode(){
-	return node;
-    }
-    public void setNode(IDMEF_Node inNode){
-	node = inNode;
-    }
-
-    public User getUser(){
-	return user;
-    }
-    public void setUser(User inUser){
-	user = inUser;
-    }
+  public static final String UNKNOWN = "unknown";
+  public static final String YES = "yes";
+  public static final String NO = "no";
 
 
-    public IDMEF_Process getProcess(){
-	return process;
-    }
-    public void setProcess(IDMEF_Process inProcess){
-	process = inProcess;
-    }
+  //getters and setters
 
-    public Service getService(){
-	return service;
-    }
-    public void setService(Service inService){
-	service = inService;
-    }
+  public IDMEF_Node getNode(){
+    return node;
+  }
+  public void setNode(IDMEF_Node inNode){
+    node = inNode;
+  }
 
-    public FileList getFileList(){
-        return fileList;
-    }
-    public void setFileList( FileList inFileList ){
-        fileList = inFileList;
-    }
+  public User getUser(){
+    return user;
+  }
+  public void setUser(User inUser){
+    user = inUser;
+  }
+
+
+  public IDMEF_Process getProcess(){
+    return process;
+  }
+  public void setProcess(IDMEF_Process inProcess){
+    process = inProcess;
+  }
+
+  public Service getService(){
+    return service;
+  }
+  public void setService(Service inService){
+    service = inService;
+  }
+
+  public FileList getFileList(){
+    return fileList;
+  }
+  public void setFileList( FileList inFileList ){
+    fileList = inFileList;
+  }
     
-    public String getIdent(){
-	return ident;
+  public String getIdent(){
+    return ident;
+  }
+  public void setIdent(String inIdent){
+    ident = inIdent;
+  }
+
+  public String getDecoy(){
+    return decoy;
+  }
+  public void setDecoy(String inDecoy){
+    decoy = inDecoy;
+  }
+
+  public String getNetworkInterface(){
+    return networkInterface;
+  }
+  public void setNetworkInterface(String inNetworkInterface){
+    networkInterface = inNetworkInterface;
+  }
+  
+   public boolean equals( Object anObject) {
+    boolean equals=false;
+    boolean arenodeequal=false;
+    boolean areprocessequal=false;
+    boolean areserviceequal=false;
+    boolean areuserequal=false;
+    boolean aredecoyequal=false;
+    boolean areNIequal=false;
+    Target inTarget;
+    if(anObject==null) {
+      return equals;
     }
-    public void setIdent(String inIdent){
-	ident = inIdent;
+    if( anObject instanceof Target) {
+      inTarget=(Target)anObject;
+      IDMEF_Node myNode;
+      IDMEF_Node inNode;
+      myNode=this.getNode();
+      inNode=inTarget.getNode();
+      if((myNode!=null) && (inNode!=null)) {
+	if(myNode.equals(inNode)) {
+	  arenodeequal=true;
+	}
+      }
+      else if( (myNode==null) && (inNode==null)) {
+	arenodeequal=true;
+      }
+      IDMEF_Process myProcess;
+      IDMEF_Process inProcess;
+      myProcess=this.getProcess();
+      inProcess=inTarget.getProcess();
+      if((myProcess!=null) && (inProcess!=null)) {
+	if(myProcess.equals(inProcess)) {
+	  areprocessequal=true;
+	}
+      }
+      else if( (myProcess==null) && (inProcess==null)) {
+	areprocessequal=true;
+      }
+      Service myService;
+      Service inService;
+      myService=this.getService();
+      inService=inTarget.getService();
+      if((myService!=null) && (inService!=null)) {
+	if(myService.equals(inService)) {
+	  areserviceequal=true;
+	}
+      }
+      else if( (myService==null) && (inService==null)) {
+	areserviceequal=true;
+      }
+      User myUser;
+      User inUser;
+      myUser=this.getUser();
+      inUser=inTarget.getUser();
+      if((myUser!=null) && (inUser!=null)) {
+	if(myUser.equals(inUser)) {
+	  areuserequal=true;
+	}
+      }
+      else if( (myUser==null) && (inUser==null)) {
+	areuserequal=true;
+      }
+      String myvalue;
+      String invalue;
+      myvalue=this.getDecoy();
+      invalue=inTarget.getDecoy();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  aredecoyequal=true;
+	}
+      }
+      else if( (myvalue==null) && (invalue==null)) {
+	aredecoyequal=true;
+      }
+      
+      myvalue=this.getNetworkInterface();
+      invalue=inTarget.getNetworkInterface();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  areNIequal=true;
+	}
+      }
+      else if( (myvalue==null) && (invalue==null)) {
+	areNIequal=true;
+      }
+      
+      if( arenodeequal && areprocessequal && areserviceequal
+	  && areuserequal &&  aredecoyequal &&  areNIequal ) {
+	equals=true;
+      }
+      
     }
+    return equals; 
+    
+  }
 
-    public String getDecoy(){
-	return decoy;
-    }
-    public void setDecoy(String inDecoy){
-	decoy = inDecoy;
-    }
+  /**Copies arguments into corresponding fields.
+   */
+  public Target(IDMEF_Node inNode, User inUser, IDMEF_Process inProcess,
+		Service inService, FileList inFileList, String inIdent, String inDecoy, 
+		String inNetowrkInterface){
 
-    public String getNetworkInterface(){
-	return networkInterface;
-    }
-    public void setNetworkInterface(String inNetworkInterface){
-	networkInterface = inNetworkInterface;
-    }
+    node = inNode;
+    user = inUser;
+    process = inProcess;
+    service = inService;
+    fileList = inFileList;
+    ident = inIdent;
+    decoy = inDecoy;
+    networkInterface = inNetowrkInterface;
 
-    /**Copies arguments into corresponding fields.
-      */
-    public Target(IDMEF_Node inNode, User inUser, IDMEF_Process inProcess,
-		  Service inService, FileList inFileList, String inIdent, String inDecoy, 
-		  String inNetowrkInterface){
+  }
+  /**Creates an object with all fields null.
+   */
+  public Target(){
+    this(null, null, null, null, null, null, null, null);
+  }
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public Target (Node inNode){
 
-	node = inNode;
-	user = inUser;
-	process = inProcess;
-	service = inService;
-	fileList = inFileList;
-	ident = inIdent;
-	decoy = inDecoy;
-	networkInterface = inNetowrkInterface;
+    Node nodeNode =  XMLUtils.GetNodeForName(inNode, "Node");
+    if (nodeNode == null) node = null;
+    else node = new IDMEF_Node (nodeNode);
 
-    }
-    /**Creates an object with all fields null.
-     */
-    public Target(){
-	this(null, null, null, null, null, null, null, null);
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public Target (Node inNode){
+    Node userNode =  XMLUtils.GetNodeForName(inNode, "User");
+    if (userNode == null) user = null;
+    else user = new User (userNode);
 
-	Node nodeNode =  XMLUtils.GetNodeForName(inNode, "Node");
-	if (nodeNode == null) node = null;
-	else node = new IDMEF_Node (nodeNode);
+    Node processNode =  XMLUtils.GetNodeForName(inNode, "Process");
+    if (processNode == null) process = null;
+    else process = new IDMEF_Process (processNode);
 
-	Node userNode =  XMLUtils.GetNodeForName(inNode, "User");
-	if (userNode == null) user = null;
-	else user = new User (userNode);
-
-	Node processNode =  XMLUtils.GetNodeForName(inNode, "Process");
-	if (processNode == null) process = null;
-	else process = new IDMEF_Process (processNode);
-
-	Node serviceNode =  XMLUtils.GetNodeForName(inNode, "Service");
-	if (serviceNode == null) service = null;
-	else service = new Service (serviceNode);
+    Node serviceNode =  XMLUtils.GetNodeForName(inNode, "Service");
+    if (serviceNode == null) service = null;
+    else service = new Service (serviceNode);
 
     // new in v1.0
     Node fileListNode = XMLUtils.GetNodeForName( inNode, FileList.ELEMENT_NAME );
-	if(fileListNode != null){
-	    fileList = new FileList( fileListNode );
+    if(fileListNode != null){
+      fileList = new FileList( fileListNode );
     }
 	
-	NamedNodeMap nnm = inNode.getAttributes();
+    NamedNodeMap nnm = inNode.getAttributes();
 
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
+    Node identNode = nnm.getNamedItem("ident");
+    if(identNode == null) ident=null;
+    else ident = identNode.getNodeValue();
 
-	Node decoyNode = nnm.getNamedItem("decoy");
-	if (decoyNode == null) decoy=null;
-	else decoy = decoyNode.getNodeValue();
+    Node decoyNode = nnm.getNamedItem("decoy");
+    if (decoyNode == null) decoy=null;
+    else decoy = decoyNode.getNodeValue();
 
-	Node networkInterfaceNode = nnm.getNamedItem("interface");
-	if (networkInterfaceNode == null) networkInterface=null;
-	else networkInterface = networkInterfaceNode.getNodeValue();
+    Node networkInterfaceNode = nnm.getNamedItem("interface");
+    if (networkInterfaceNode == null) networkInterface=null;
+    else networkInterface = networkInterfaceNode.getNodeValue();
+  }
+
+
+  public Node convertToXML(Document parent){
+    Element targetNode = parent.createElement("Target"
+      );
+    if(ident != null)
+      targetNode.setAttribute("ident", ident);
+    if(decoy != null)
+      targetNode.setAttribute("decoy", decoy);
+    if(networkInterface != null)
+      targetNode.setAttribute("interface",networkInterface);
+
+    if(node != null){
+      Node nodeNode = node.convertToXML(parent);
+      targetNode.appendChild(nodeNode);
+	    
     }
-
-
-    public Node convertToXML(Document parent){
-	Element targetNode = parent.createElement("Target"
-);
-	if(ident != null)
-	    targetNode.setAttribute("ident", ident);
-	if(decoy != null)
-	    targetNode.setAttribute("decoy", decoy);
-	if(networkInterface != null)
-	    targetNode.setAttribute("interface",networkInterface);
-
-	if(node != null){
-	    Node nodeNode = node.convertToXML(parent);
-	    targetNode.appendChild(nodeNode);
+    if(user != null){
+      Node userNode = user.convertToXML(parent);
+      targetNode.appendChild(userNode);
 	    
-	}
-	if(user != null){
-	    Node userNode = user.convertToXML(parent);
-	    targetNode.appendChild(userNode);
+    }
+    if(process != null){
+      Node processNode = process.convertToXML(parent);
+      targetNode.appendChild(processNode);
 	    
-	}
-	if(process != null){
-	    Node processNode = process.convertToXML(parent);
-	    targetNode.appendChild(processNode);
+    }
+    if(service != null){
+      Node serviceNode = service.convertToXML(parent);
+      targetNode.appendChild(serviceNode);
 	    
-	}
-	if(service != null){
-	    Node serviceNode = service.convertToXML(parent);
-	    targetNode.appendChild(serviceNode);
-	    
-	}
+    }
     if( fileList != null ){
-        targetNode.appendChild( fileList.convertToXML( parent ) );
+      targetNode.appendChild( fileList.convertToXML( parent ) );
     }
     
-	return targetNode;
-    }
+    return targetNode;
+  }
 }

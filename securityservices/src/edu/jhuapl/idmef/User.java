@@ -49,133 +49,200 @@ import java.math.*;
 
 public class User implements XMLSerializable{
 
-    protected UserId userIds[];
+  protected UserId userIds[];
 
 
-    //attributes
+  //attributes
 
-    protected String ident;
+  protected String ident;
 
-    protected String category;
+  protected String category;
 
 
-    //constants
+  //constants
 
-    public static final String UNKNOWN = "unknown";
-    public static final String APPLICATION = "application";
-    public static final String OS_DEVICE = "os-device";
+  public static final String UNKNOWN = "unknown";
+  public static final String APPLICATION = "application";
+  public static final String OS_DEVICE = "os-device";
 
-    //getters and setters
+  //getters and setters
 
-    public UserId[] getUserIds(){
-	return userIds;
+  public UserId[] getUserIds(){
+    return userIds;
+  }
+
+  public void setUserIds(UserId[] inUserIds){
+    userIds = inUserIds;
+  }
+
+  public String getIdent(){
+    return ident;
+  }
+  public void setIdent(String inIdent){
+    ident = inIdent;
+  }
+
+  public String getCategory(){
+    return category;
+  }
+  public void setCategory(String inCategory){
+    category = inCategory;
+  }
+  
+  public boolean equals( Object anObject) {
+    boolean equals=false;
+    boolean areuseridsequal=false;
+    boolean arecategoryequal=false;
+    User user;
+    if(anObject==null) {
+      return equals;
     }
-
-    public void setUserIds(UserId[] inUserIds){
-	userIds = inUserIds;
-    }
-
-    public String getIdent(){
-	return ident;
-    }
-    public void setIdent(String inIdent){
-	ident = inIdent;
-    }
-
-    public String getCategory(){
-	return category;
-    }
-    public void setCategory(String inCategory){
-	category = inCategory;
-    }
-    /**Creates an object with all fields null.
-     */
-    public User(){
-	this(null, null, null);
-    }
-    /**Copies arguments into corresponding fields.
-      */
-    public User (UserId inUserIds[], String inIdent, String inCategory){
-
-	userIds = inUserIds;
-	ident = inIdent;
-	category = inCategory;
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public User(Node node){
-	//get userid nodes here
-	NodeList children = node.getChildNodes();
-	ArrayList useridNodes = new ArrayList();
-	for (int i=0; i<children.getLength(); i++){
-	    Node finger = children.item(i);
-	    if (finger.getNodeName().equals("UserId")){
-		UserId newUserid = new UserId(finger);
-		useridNodes.add(newUserid);
+    if(anObject instanceof User) {
+      user=(User)anObject;
+      UserId [] myarray;
+      UserId [] inarray;
+      myarray=this.getUserIds();
+      inarray=user.getUserIds();
+      if((myarray!=null)&&(inarray!=null)) {
+	if(myarray.length==inarray.length) {
+	  UserId value;
+	  for(int i=0;i<inarray.length;i++) {
+	    value=inarray[i];
+	    if(!contains(value)) {
+	      areuseridsequal=false;
+	      break;
 	    }
+	  }
+	  areuseridsequal=true;
 	}
-	userIds = new UserId[useridNodes.size()];
-	for (int i=0; i< useridNodes.size(); i++){
-	    userIds[i] = (UserId) useridNodes.get(i);
+      }
+      else if((myarray==null) && (inarray==null)) {
+	areuseridsequal=true;
+      }
+      String myvalue;
+      String invalue;
+      myvalue=this.getCategory();
+      invalue=user.getCategory();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arecategoryequal=true;
 	}
-
-	NamedNodeMap nnm = node.getAttributes();
-
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
-
-	Node categoryNode = nnm.getNamedItem("category");
-	if (categoryNode == null) category=null;
-	else category = categoryNode.getNodeValue();
-
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arecategoryequal=true;
+      }
+      if(areuseridsequal && arecategoryequal) {
+	equals=true;
+      }
     }
-    public Node convertToXML(Document parent){
+      return equals;
+  }
+   
+  public boolean contains(UserId inuserid) {
+    boolean contains=false;
+    UserId[] userids=this.getUserIds();
+    if(userids==null) {
+      return contains;
+    }
+    UserId userid;
+    for(int i=0;i<userids.length;i++) {
+      userid=userids[i];
+      if(userid.equals(inuserid)) {
+	contains=true;
+	return contains;
+      }
+    }
+    return contains;
+  } 
+  
+  /**Creates an object with all fields null.
+   */
+  public User(){
+    this(null, null, null);
+  }
+  /**Copies arguments into corresponding fields.
+   */
+  public User (UserId inUserIds[], String inIdent, String inCategory){
 
-	Element userNode = parent.createElement("User");
-	if(ident != null)
-	    userNode.setAttribute("ident", ident);
-	if(category != null)
-	    userNode.setAttribute("category", category);
-
-
-	if (userIds != null){
-	    for (int i=0; i<userIds.length; i++){
-		Node currentNode = userIds[i].convertToXML(parent);
-		if (currentNode != null) userNode.appendChild(currentNode);
-	    }
-	}
-
-
-	return userNode;
+    userIds = inUserIds;
+    ident = inIdent;
+    category = inCategory;
+  }
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public User(Node node){
+    //get userid nodes here
+    NodeList children = node.getChildNodes();
+    ArrayList useridNodes = new ArrayList();
+    for (int i=0; i<children.getLength(); i++){
+      Node finger = children.item(i);
+      if (finger.getNodeName().equals("UserId")){
+	UserId newUserid = new UserId(finger);
+	useridNodes.add(newUserid);
+      }
+    }
+    userIds = new UserId[useridNodes.size()];
+    for (int i=0; i< useridNodes.size(); i++){
+      userIds[i] = (UserId) useridNodes.get(i);
     }
 
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main (String args[]){
+    NamedNodeMap nnm = node.getAttributes();
 
-	UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
+    Node identNode = nnm.getNamedItem("ident");
+    if(identNode == null) ident=null;
+    else ident = identNode.getNodeValue();
 
-	User user = new User(userId_list, "Test_Ident", User.APPLICATION);
+    Node categoryNode = nnm.getNamedItem("category");
+    if (categoryNode == null) category=null;
+    else category = categoryNode.getNodeValue();
 
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node node = user.convertToXML(document);
-	    root.appendChild(node);
+  }
+  public Node convertToXML(Document parent){
 
-	    StringWriter buf=new StringWriter();
+    Element userNode = parent.createElement("User");
+    if(ident != null)
+      userNode.setAttribute("ident", ident);
+    if(category != null)
+      userNode.setAttribute("category", category);
 
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
+
+    if (userIds != null){
+      for (int i=0; i<userIds.length; i++){
+	Node currentNode = userIds[i].convertToXML(parent);
+	if (currentNode != null) userNode.appendChild(currentNode);
+      }
+    }
+
+
+    return userNode;
+  }
+
+  /** Method used to test this object...probably should not be called otherwise.
+   */
+  public static void main (String args[]){
+
+    UserId userId_list[] = {new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER)};
+
+    User user = new User(userId_list, "Test_Ident", User.APPLICATION);
+
+    try{
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.newDocument(); 
+      Element root = document.createElement("Test_IDMEF_Message"); 
+      document.appendChild (root);
+      Node node = user.convertToXML(document);
+      root.appendChild(node);
+
+      StringWriter buf=new StringWriter();
+
+      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
+      sezr.serialize(document);
+      System.out.println(buf.getBuffer());
 	    
-	} catch (Exception e) {e.printStackTrace();}
-    }
+    } catch (Exception e) {e.printStackTrace();}
+  }
 
 }

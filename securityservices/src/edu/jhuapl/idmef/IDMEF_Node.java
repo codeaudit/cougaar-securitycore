@@ -47,198 +47,288 @@ import java.math.*;
 */
 public class IDMEF_Node implements XMLSerializable{
 
-    protected String location;
+  protected String location;
 
-    protected String name;
+  protected String name;
     
-    protected Address addresses[];
+  protected Address addresses[];
 
 
-    //attributes
+  //attributes
 
-    protected String ident;
+  protected String ident;
 
-    protected String category;
+  protected String category;
     
 
 
-    //category constants
-    public static final String UNKNOWN          = "unknown";
-    public static final String ADS              = "ads";
-    public static final String AFS              = "ads";
-    public static final String CODA             = "coda";
-    public static final String DFS              = "dfs";
-    public static final String DNS              = "dns";
-    public static final String HOSTS            = "hosts";
-    public static final String KERBEROS         = "kerberos";
-    public static final String NDS              = "nds";
-    public static final String NIS              = "nis";
-    public static final String NISPLUS          = "nisplus";
-    public static final String NT               = "nt";
-    public static final String WFW              = "wfw";
+  //category constants
+  public static final String UNKNOWN          = "unknown";
+  public static final String ADS              = "ads";
+  public static final String AFS              = "ads";
+  public static final String CODA             = "coda";
+  public static final String DFS              = "dfs";
+  public static final String DNS              = "dns";
+  public static final String HOSTS            = "hosts";
+  public static final String KERBEROS         = "kerberos";
+  public static final String NDS              = "nds";
+  public static final String NIS              = "nis";
+  public static final String NISPLUS          = "nisplus";
+  public static final String NT               = "nt";
+  public static final String WFW              = "wfw";
 
 
 
-    //getters and setters
+  //getters and setters
 
-    public String getLocation(){
+  public String getLocation(){
 
-	return location;
-    }
-    public void setLocation(String inLocation){
-	location = inLocation;
-    }
+    return location;
+  }
+  public void setLocation(String inLocation){
+    location = inLocation;
+  }
 
 
-    public String getName(){
+  public String getName(){
 
-	return name;
-    }
-    public void setName(String inName){
-	name = inName;
-    }
+    return name;
+  }
+  public void setName(String inName){
+    name = inName;
+  }
 
    
-    public Address[] getAddresses(){
+  public Address[] getAddresses(){
 
-	return addresses;
-    }
-    public void setAddresses(Address[] inAddresses){
-	addresses = inAddresses;
-    }
-
-
-    public String getIdent(){
-
-	return ident;
-    }
-    public void setIdent(String inIdent){
-	ident = inIdent;
-    }
+    return addresses;
+  }
+  public void setAddresses(Address[] inAddresses){
+    addresses = inAddresses;
+  }
 
 
-    public String getCategory(){
+  public String getIdent(){
+
+    return ident;
+  }
+  public void setIdent(String inIdent){
+    ident = inIdent;
+  }
+
+
+  public String getCategory(){
 	
-	return category;
-    }
-    public void setCategory(String inCategory){
-	category = inCategory;
-    }
+    return category;
+  }
+  public void setCategory(String inCategory){
+    category = inCategory;
+  }
 
 
 
 
-    public Node convertToXML(Document parent){
+  public Node convertToXML(Document parent){
 
-	Element nodeNode = parent.createElement("Node");
-	if(ident != null)
-	    nodeNode.setAttribute("ident", ident);
-	if(category != null)
-	    nodeNode.setAttribute("category", category);
+    Element nodeNode = parent.createElement("Node");
+    if(ident != null)
+      nodeNode.setAttribute("ident", ident);
+    if(category != null)
+      nodeNode.setAttribute("category", category);
 
-	if(location != null){
-	    Node locNode = parent.createElement("location");
-	    locNode.appendChild(parent.createTextNode(location));
-	    nodeNode.appendChild(locNode);
+    if(location != null){
+      Node locNode = parent.createElement("location");
+      locNode.appendChild(parent.createTextNode(location));
+      nodeNode.appendChild(locNode);
 	    
-	}
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    nodeNode.appendChild(nameNode);
+    }
+    if(name != null){
+      Node nameNode = parent.createElement("name");
+      nameNode.appendChild(parent.createTextNode(name));
+      nodeNode.appendChild(nameNode);
 	    
+    }
+    if (addresses != null){
+      for (int i=0; i<addresses.length; i++){
+	Node currentNode = addresses[i].convertToXML(parent);
+	if (currentNode != null) nodeNode.appendChild(currentNode);
+      }
+    }
+
+
+    return nodeNode;
+  }
+  /**Creates an object with all fields null.
+   */
+  public IDMEF_Node (){
+    this(null, null, null, null, null);
+  }
+  /**Copies arguments into corresponding fields.
+   */
+  public IDMEF_Node (String inLocation, String inName, 
+		     Address inAddresses[], 
+		     String inIdent, String inCategory){
+    location = inLocation;
+    name = inName;
+    addresses = inAddresses;
+    ident = inIdent;
+    category = inCategory;
+  }
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+  public IDMEF_Node (Node node){
+    Node locNode =  XMLUtils.GetNodeForName(node, "location");
+    if (locNode == null) location = null;
+    else location = XMLUtils.getAssociatedString(locNode);
+
+    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    if (nameNode == null) name = null;
+    else name = XMLUtils.getAssociatedString(nameNode);
+
+    //get address nodes here
+    NodeList children = node.getChildNodes();
+    ArrayList addressNodes = new ArrayList();
+    for (int i=0; i<children.getLength(); i++){
+      Node finger = children.item(i);
+      if (finger.getNodeName().equals("Address")){
+	Address newAddress = new Address(finger);
+	addressNodes.add(newAddress);
+      }
+    }
+    addresses = new Address[addressNodes.size()];
+    for (int i=0; i< addressNodes.size(); i++){
+      addresses[i] = (Address) addressNodes.get(i);
+    }
+
+    NamedNodeMap nnm = node.getAttributes();
+
+    Node identNode = nnm.getNamedItem("ident");
+    if(identNode == null) ident=null;
+    else ident = identNode.getNodeValue();
+
+    Node categoryNode = nnm.getNamedItem("category");
+    if (categoryNode == null) category=null;
+    else category = categoryNode.getNodeValue();
+  }
+  /*
+    Check whether input Address is in this objects Address array 
+  */
+  public boolean containsAddress(Address anAddress) {
+    boolean contains=false;
+    Address [] myAddresses;
+    Address address;
+    if(this.getAddresses()!=null) {
+      myAddresses=this.getAddresses();
+      for(int i=0;i<myAddresses.length;i++) {
+	address=myAddresses[i];
+	if(address.equals(anAddress)) {
+	  contains=true;
+	  return contains;
 	}
-	if (addresses != null){
-	    for (int i=0; i<addresses.length; i++){
-		Node currentNode = addresses[i].convertToXML(parent);
-		if (currentNode != null) nodeNode.appendChild(currentNode);
+      }
+    }
+    return contains;
+  }
+  
+  /* 
+     Compares the input Object to the current object for quality and returns true
+     when Addresses,category,name and location are equal; 
+  */
+  public boolean equals( Object anObject) {
+    boolean equals=false;
+    boolean areaddressesequal=false;
+    boolean arecategoryequal=false;
+    boolean arelocationequal=false;
+    boolean arenameequal=false;
+    IDMEF_Node idmefnode;
+    Address[] comparingAddresses;
+    if(anObject==null) {
+      return equals;
+    }
+    if(anObject instanceof IDMEF_Node) {
+      idmefnode=(IDMEF_Node)anObject;
+      comparingAddresses=idmefnode.getAddresses();
+      if((this.getAddresses()!=null)&&(comparingAddresses!=null)) {
+	if(this.getAddresses().length==comparingAddresses.length) {
+	  Address comparingaddress;
+	  for(int i=0;i<comparingAddresses.length;i++) {
+	    comparingaddress=comparingAddresses[i];
+	    if(!containsAddress(comparingaddress)) {
+	      areaddressesequal=false;
+	      break;
 	    }
+	  }
+	  areaddressesequal=true;
 	}
-
-
-	return nodeNode;
-    }
-    /**Creates an object with all fields null.
-     */
-    public IDMEF_Node (){
-	this(null, null, null, null, null);
-    }
-    /**Copies arguments into corresponding fields.
-      */
-    public IDMEF_Node (String inLocation, String inName, 
-		       Address inAddresses[], 
-		       String inIdent, String inCategory){
-	location = inLocation;
-	name = inName;
-	addresses = inAddresses;
-	ident = inIdent;
-	category = inCategory;
-    }
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-    public IDMEF_Node (Node node){
-	Node locNode =  XMLUtils.GetNodeForName(node, "location");
-	if (locNode == null) location = null;
-	else location = XMLUtils.getAssociatedString(locNode);
-
-	Node nameNode =  XMLUtils.GetNodeForName(node, "name");
-	if (nameNode == null) name = null;
-	else name = XMLUtils.getAssociatedString(nameNode);
-
-	//get address nodes here
-	NodeList children = node.getChildNodes();
-	ArrayList addressNodes = new ArrayList();
-	for (int i=0; i<children.getLength(); i++){
-	    Node finger = children.item(i);
-	    if (finger.getNodeName().equals("Address")){
-		Address newAddress = new Address(finger);
-		addressNodes.add(newAddress);
-	    }
+      }
+      String invalue;
+      String myvalue;
+      invalue=idmefnode.getCategory();
+      myvalue=this.getCategory();
+      if((myvalue!=null)&&(invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arecategoryequal=true;
 	}
-	addresses = new Address[addressNodes.size()];
-	for (int i=0; i< addressNodes.size(); i++){
-	    addresses[i] = (Address) addressNodes.get(i);
+      }
+      else if((myvalue==null)&&(invalue==null)) {
+	arecategoryequal=true;
+      }
+      invalue=idmefnode.getLocation();
+      myvalue=this.getLocation();
+      if((myvalue!=null) &&(invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arelocationequal=true;
 	}
-
-	NamedNodeMap nnm = node.getAttributes();
-
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
-
-	Node categoryNode = nnm.getNamedItem("category");
-	if (categoryNode == null) category=null;
-	else category = categoryNode.getNodeValue();
+      }
+      else if((myvalue==null) &&(invalue==null)) {
+	arelocationequal=true;
+      }
+      invalue=idmefnode.getName();
+      myvalue=this.getName();
+      if((myvalue!=null) &&(invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenameequal=true;
+	}
+      }
+      else if( (myvalue==null)&&(invalue==null)) {
+	arenameequal=true;
+      }
+      if(areaddressesequal && arecategoryequal && arelocationequal && arenameequal) {
+	equals=true;
+      }
     }
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main (String args[]){
+    return equals;
+  }
+  
+  /** Method used to test this object...probably should not be called otherwise.
+   */
+  public static void main (String args[]){
 
-	Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
-	                          new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
-	IDMEF_Node idmefnode = new IDMEF_Node("Test Location", 
-					      "Test Name", address_list, 
-					      "Test_Ident", 
-					      IDMEF_Node.DNS);
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node tNode = idmefnode.convertToXML(document);
-	    root.appendChild(tNode);
+    Address address_list[] = {new Address("1.1.1.1", null, null, null, null, null),
+			      new Address("0x0987beaf", null, null, Address.IPV4_ADDR_HEX, null, null)};
+    IDMEF_Node idmefnode = new IDMEF_Node("Test Location", 
+					  "Test Name", address_list, 
+					  "Test_Ident", 
+					  IDMEF_Node.DNS);
+    try{
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.newDocument(); 
+      Element root = document.createElement("Test_IDMEF_Message"); 
+      document.appendChild (root);
+      Node tNode = idmefnode.convertToXML(document);
+      root.appendChild(tNode);
 
-	    StringWriter buf=new StringWriter();
+      StringWriter buf=new StringWriter();
 
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
+      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
+      sezr.serialize(document);
+      System.out.println(buf.getBuffer());
 
-	} catch (Exception e) {e.printStackTrace();}
-    }
+    } catch (Exception e) {e.printStackTrace();}
+  }
 
     
 

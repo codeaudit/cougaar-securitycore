@@ -210,6 +210,94 @@ public class Inode implements XMLSerializable {
     public void setCMinorDevice( Integer cMinorDevice ){
         m_cMinorDevice = cMinorDevice;
     }
+  
+  public boolean equals(Object anObject) {
+    boolean equals=false;
+    boolean areChangeTimeequal=false;
+    boolean areCMajordeviceequal=false;
+     boolean areMajordeviceequal=false;
+    boolean arenumberequal=false;
+    boolean areMinordeviceequal=false;
+     boolean areCMinordeviceequal=false;
+    Inode inNode;
+    if(anObject == null) {
+      return equals;
+    }
+    if(anObject instanceof Inode) {
+      inNode=(Inode) anObject;
+      Date mydate;
+      Date indate;
+      mydate=this.getChangeTime();
+      indate=inNode.getChangeTime();
+      if((mydate!=null) && (indate!=null)) {
+	if(mydate.equals(indate)) {
+	  areChangeTimeequal=true;
+	}
+      }
+      else  if((mydate==null) && (indate==null)) {
+	 areChangeTimeequal=true;
+      }
+      Integer myvalue;
+      Integer invalue;
+      myvalue=this.getNumber();
+      invalue=inNode.getNumber();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.equals(invalue)) {
+	  arenumberequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arenumberequal=true;
+      }
+      myvalue=this.getMajorDevice();
+      invalue=inNode.getMajorDevice();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.equals(invalue)) {
+	  areMajordeviceequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areMajordeviceequal=true;
+      }
+      myvalue=this.getMinorDevice();
+      invalue=inNode.getMinorDevice();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.equals(invalue)) {
+	  areMinordeviceequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areMinordeviceequal=true;
+      }
+      myvalue=this.getCMajorDevice();
+      invalue=inNode.getCMajorDevice();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.equals(invalue)) {
+	  areCMajordeviceequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areCMajordeviceequal=true;
+      }
+      myvalue=this.getCMinorDevice();
+      invalue=inNode.getCMinorDevice();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.equals(invalue)) {
+	  areCMinordeviceequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	areCMinordeviceequal=true;
+      }
+      if( areChangeTimeequal  &&  areCMajordeviceequal &&  areMajordeviceequal 
+	  && arenumberequal  && areMinordeviceequal && areCMinordeviceequal) {
+	equals=true;
+      }
+      
+    }
+    return equals;
+     
+  }
    
     public Node convertToXML( Document parent ){
     

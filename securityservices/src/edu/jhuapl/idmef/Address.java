@@ -129,6 +129,74 @@ public class Address implements XMLSerializable{
     public void setVlan_Num(Integer inVlan_Num){
 	vlan_num = inVlan_Num;
     }
+  
+  public boolean equals(Object anObject) {
+    boolean equals=false;
+    boolean areaddressequal=false;
+    boolean arenetmaskequal=false;
+    boolean arecategoryequal=false;
+    boolean arevlannameequal=false;
+    boolean arevlannumequal=false;
+    Address inaddress;
+    if(anObject==null) {
+      return equals;
+    }
+    if(anObject instanceof Address) {
+      inaddress=(Address) anObject;
+      String invalue;
+      String myvalue;
+      invalue=inaddress.getAddress();
+      myvalue=this.getAddress();
+      if((myvalue!=null)&&(invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  areaddressequal=true;
+	}
+      }
+      else if((myvalue==null)&&(invalue==null)) {
+	areaddressequal=true;
+      }
+      invalue=inaddress.getNetmask();
+      myvalue=this.getNetmask();
+      if((myvalue!=null) && (invalue!=null)){
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenetmaskequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)){
+	areaddressequal=true;
+      }
+      invalue=inaddress.getCategory();
+      myvalue=this.getCategory();
+      if((myvalue!=null) &&(invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arecategoryequal=true;
+	}
+      }
+      else if((myvalue==null) &&(invalue==null)) {
+	arecategoryequal=true;
+      }
+      invalue=inaddress.getVlan_name();
+      myvalue=this.getVlan_name();
+      if((myvalue!=null) && (invalue!=null)) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arevlannameequal=true; 
+	}
+      }
+      else if( (myvalue==null) &&(invalue==null)) {
+	arevlannameequal=true;
+      }
+      if((this.getVlan_num()!=null) && (inaddress.getVlan_num()!=null)) {
+	if(this.getVlan_num().intValue()==inaddress.getVlan_num().intValue()) {
+	  arevlannumequal=true;
+	}
+      }
+      else if((this.getVlan_num()==null) && (inaddress.getVlan_num()==null)) {
+	 arevlannumequal=true;
+      }
+      
+    }
+    return equals;
+  }
     /**Creates an object with all fields null.
      */
     public Address(){

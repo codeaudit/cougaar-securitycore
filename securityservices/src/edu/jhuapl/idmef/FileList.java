@@ -57,50 +57,104 @@ import org.w3c.dom.NodeList;
  * @since IDMEF Message v1.0
  */
 public class FileList implements XMLSerializable {
-    public static String ELEMENT_NAME = "FileList";
+  public static String ELEMENT_NAME = "FileList";
     
-    public FileList( IDMEF_File []files ){
-        m_files = files;
-    }
+  public FileList( IDMEF_File []files ){
+    m_files = files;
+  }
     
-    public FileList( Node node ){
-        NodeList childList = node.getChildNodes();
-	    ArrayList fileList = new ArrayList();
-	    int len = childList.getLength();
+  public FileList( Node node ){
+    NodeList childList = node.getChildNodes();
+    ArrayList fileList = new ArrayList();
+    int len = childList.getLength();
     	
-    	for ( int i = 0; i < len; i++ ){
-    	    Node child = childList.item( i );
-    	    if( child.getNodeName().equals( IDMEF_File.ELEMENT_NAME ) ){
-         		// there should be one impact element
-         		fileList.add( new IDMEF_File( child ) );
-	        }
-	    }
+    for ( int i = 0; i < len; i++ ){
+      Node child = childList.item( i );
+      if( child.getNodeName().equals( IDMEF_File.ELEMENT_NAME ) ){
+	// there should be one impact element
+	fileList.add( new IDMEF_File( child ) );
+      }
+    }
 	    
-	    int size = fileList.size();
-	    if( size > 0 ){ 
-	        m_files = new IDMEF_File[ size ];
-	        for( int i = 0; i < size; i++ ){
-	            m_files[ i ] = ( IDMEF_File )fileList.get( i );
-            }
-        }
+    int size = fileList.size();
+    if( size > 0 ){ 
+      m_files = new IDMEF_File[ size ];
+      for( int i = 0; i < size; i++ ){
+	m_files[ i ] = ( IDMEF_File )fileList.get( i );
+      }
     }
+  }
      
-    public IDMEF_File []getFiles(){
-        return m_files;
+  public IDMEF_File []getFiles(){
+    return m_files;
+  }
+  public void setFiles( IDMEF_File []files ){
+    m_files = files;
+  }
+  
+  public boolean contains (IDMEF_File infile) {
+    boolean contains=false;
+    IDMEF_File[] files=this.getFiles();
+    if(files==null) {
+      return contains;
     }
-    public void setFiles( IDMEF_File []files ){
-        m_files = files;
+    IDMEF_File file;
+    for(int i=0;i<files.length;i++) {
+      file=files[i];
+      if(file.equals(infile)) {
+	contains=true;
+	return contains;
+      }
     }
+    return contains;
+  }
+
+  
+  public boolean equals(Object anObject) {
+    boolean equals=false;
+    boolean arefileListequal=false;
+    FileList fileList;
+    if(anObject==null) {
+      return equals;
+    }
+    if( anObject instanceof FileList) {
+      fileList=(FileList) anObject;
+      IDMEF_File [] myarray;
+      IDMEF_File [] inarray;
+      myarray=this.getFiles();
+      inarray=fileList.getFiles();
+      if((myarray!=null)&&(inarray!=null)) {
+	if(myarray.length==inarray.length) {
+	  IDMEF_File file;
+	  for(int i=0;i<inarray.length;i++) {
+	    file=inarray[i];
+	    if(!contains(file)) {
+	      arefileListequal=false;
+	      break;
+	    }
+	  }
+	  arefileListequal=true;
+	}
+      }
+      else if((myarray==null) && (inarray==null)) {
+	arefileListequal=true;
+      }
+      if(arefileListequal) {
+	equals=true;
+      }
+    }
+    return equals;
+  }
     
-    public Node convertToXML( Document parent ) {
-        Element fileListNode = parent.createElement( ELEMENT_NAME );
-        int len = m_files.length;
+  public Node convertToXML( Document parent ) {
+    Element fileListNode = parent.createElement( ELEMENT_NAME );
+    int len = m_files.length;
         
-        for( int i = 0; i < len; i++ ){
-            fileListNode.appendChild( m_files[ i ].convertToXML( parent ) );
-        }           
-        return fileListNode;
-    }
+    for( int i = 0; i < len; i++ ){
+      fileListNode.appendChild( m_files[ i ].convertToXML( parent ) );
+    }           
+    return fileListNode;
+  }
     
-    private IDMEF_File m_files[];
+  private IDMEF_File m_files[];
 }

@@ -49,151 +49,199 @@ import java.math.*;
 
 public class UserId implements XMLSerializable{
 
-    protected String name;
+  protected String name;
 
-    protected Integer number;
+  protected Integer number;
 
-    //attributes
+  //attributes
 
-    protected String ident;
+  protected String ident;
 
-    protected String type;
+  protected String type;
 
-    //constants
-    public static final String ELEMENT_NAME        = "UserId";
-    public static final String CURRENT_USER        = "current-user";
-    public static final String ORIGINAL_USER       = "original-user";
-    public static final String TARGET_USER         = "target-user";
-    public static final String USER_PRIVS          = "user-privs";
-    public static final String CURRENT_GROUP       = "current-group";
-    public static final String GROUP_PRIVS         = "group-privs";
-    public static final String OTHER_PRIVS         = "other-privs";
+  //constants
+  public static final String ELEMENT_NAME        = "UserId";
+  public static final String CURRENT_USER        = "current-user";
+  public static final String ORIGINAL_USER       = "original-user";
+  public static final String TARGET_USER         = "target-user";
+  public static final String USER_PRIVS          = "user-privs";
+  public static final String CURRENT_GROUP       = "current-group";
+  public static final String GROUP_PRIVS         = "group-privs";
+  public static final String OTHER_PRIVS         = "other-privs";
 
-    //getters and setters
+  //getters and setters
 
-    public String getName(){
-	return name;
-    }
-    public void setName(String inName){
-	name = inName;
-    }
+  public String getName(){
+    return name;
+  }
+  public void setName(String inName){
+    name = inName;
+  }
 
-    public Integer getNumber(){
-	return number;
-    }
-    public void setNumber(Integer inNumber){
-	number = inNumber;
-    }
+  public Integer getNumber(){
+    return number;
+  }
+  public void setNumber(Integer inNumber){
+    number = inNumber;
+  }
     
 
-    public String getIdent(){
-	return ident;
+  public String getIdent(){
+    return ident;
+  }
+  public void setIdent(String inIdent){
+    ident = inIdent;
+  }
+
+  public String getType(){
+    return type;
+  }
+  public void setType(String inType){
+    type = inType;
+  }
+
+  public boolean equals( Object anObject) {
+    boolean equals=false;
+    boolean arenameequal=false;
+    boolean arenumberequal=false;
+    boolean aretypeequal=false;
+    UserId userid;
+    if(anObject==null) {
+      return equals;
     }
-    public void setIdent(String inIdent){
-	ident = inIdent;
-    }
-
-    public String getType(){
-	return type;
-    }
-    public void setType(String inType){
-	type = inType;
-    }
-
-    /**Creates an object with all fields null.
-     */
-    public UserId(){
-	this(null, null, null, null);
-    }
-
-    /**Copies arguments into corresponding fields.
-      */
-    public UserId(String inName, Integer inNumber, 
-		  String inIdent, String inType){
-	name = inName;
-	if (inNumber != null) number = new Integer(inNumber.intValue());
-	else number = null;
-	ident = inIdent;
-	type = inType;
-
-    }
-
-    /**Creates an object from the XML Node containing the XML version of this object.
-       This method will look for the appropriate tags to fill in the fields. If it cannot find
-       a tag for a particular field, it will remain null.
-    */
-
-    public UserId(Node node){
-
-
-	Node nameNode =  XMLUtils.GetNodeForName(node, "name");
-	if (nameNode == null) name = null;
-	else name = XMLUtils.getAssociatedString(nameNode);
-
-	Node numNode =  XMLUtils.GetNodeForName(node, "number");
-	if (numNode == null) number=null;
-	else number = new Integer(XMLUtils.getAssociatedString(numNode));
-
-	NamedNodeMap nnm = node.getAttributes();
-
-	Node identNode = nnm.getNamedItem("ident");
-	if(identNode == null) ident=null;
-	else ident = identNode.getNodeValue();
-
-	Node typeNode = nnm.getNamedItem("type");
-	if (typeNode == null) type=null;
-	else type = typeNode.getNodeValue();
-    }
-
-    public Node convertToXML(Document parent){
-
-	Element useridNode = parent.createElement("UserId");
-	if(ident != null)
-	    useridNode.setAttribute("ident", ident);
-	if(type != null)
-	    useridNode.setAttribute("type", type);
-
-
-	if(name != null){
-	    Node nameNode = parent.createElement("name");
-	    nameNode.appendChild(parent.createTextNode(name));
-	    useridNode.appendChild(nameNode);
-	    
+    if(anObject instanceof UserId) {
+      userid=(UserId)anObject;
+      String myvalue;
+      String invalue;
+      myvalue=this.getName();
+      invalue=userid.getName();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenameequal=true;
 	}
-	if(number != null){
-	    Node numNode = parent.createElement("number");
-	    numNode.appendChild(parent.createTextNode(number.toString()));
-	    useridNode.appendChild(numNode);
-	    
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arenameequal=true;
+      }
+      myvalue=this.getType();
+      invalue=userid.getType();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  aretypeequal=true;
 	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	aretypeequal=true;
+      }
+      if((this.getNumber()!=null) && (userid.getNumber()!=null)) {
+	if(this.getNumber().intValue()==userid.getNumber().intValue()) {
+	  arenumberequal=true;
+	}
+      }
+      else if((this.getNumber()==null) && (userid.getNumber()==null)) {
+	arenumberequal=true;
+      }
+      if( arenameequal && arenumberequal  && aretypeequal ) {
+	equals=true;
+      }
+    }
+    return equals;
+  }
+
+  /**Creates an object with all fields null.
+   */
+  public UserId(){
+    this(null, null, null, null);
+  }
+
+  /**Copies arguments into corresponding fields.
+   */
+  public UserId(String inName, Integer inNumber, 
+		String inIdent, String inType){
+    name = inName;
+    if (inNumber != null) number = new Integer(inNumber.intValue());
+    else number = null;
+    ident = inIdent;
+    type = inType;
+
+  }
+
+  /**Creates an object from the XML Node containing the XML version of this object.
+     This method will look for the appropriate tags to fill in the fields. If it cannot find
+     a tag for a particular field, it will remain null.
+  */
+
+  public UserId(Node node){
 
 
-	return useridNode;
+    Node nameNode =  XMLUtils.GetNodeForName(node, "name");
+    if (nameNode == null) name = null;
+    else name = XMLUtils.getAssociatedString(nameNode);
+
+    Node numNode =  XMLUtils.GetNodeForName(node, "number");
+    if (numNode == null) number=null;
+    else number = new Integer(XMLUtils.getAssociatedString(numNode));
+
+    NamedNodeMap nnm = node.getAttributes();
+
+    Node identNode = nnm.getNamedItem("ident");
+    if(identNode == null) ident=null;
+    else ident = identNode.getNodeValue();
+
+    Node typeNode = nnm.getNamedItem("type");
+    if (typeNode == null) type=null;
+    else type = typeNode.getNodeValue();
+  }
+
+  public Node convertToXML(Document parent){
+
+    Element useridNode = parent.createElement("UserId");
+    if(ident != null)
+      useridNode.setAttribute("ident", ident);
+    if(type != null)
+      useridNode.setAttribute("type", type);
+
+
+    if(name != null){
+      Node nameNode = parent.createElement("name");
+      nameNode.appendChild(parent.createTextNode(name));
+      useridNode.appendChild(nameNode);
+	    
+    }
+    if(number != null){
+      Node numNode = parent.createElement("number");
+      numNode.appendChild(parent.createTextNode(number.toString()));
+      useridNode.appendChild(numNode);
+	    
     }
 
-    /** Method used to test this object...probably should not be called otherwise.
-     */
-    public static void main (String args[]){
+
+    return useridNode;
+  }
+
+  /** Method used to test this object...probably should not be called otherwise.
+   */
+  public static void main (String args[]){
 	
-	UserId userid = new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER);
+    UserId userid = new UserId("Test_Name", new Integer (100), "Test_Ident", UserId.CURRENT_USER);
 
-	try{
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document document = builder.newDocument(); 
-	    Element root = document.createElement("Test_IDMEF_Message"); 
-	    document.appendChild (root);
-	    Node node = userid.convertToXML(document);
-	    root.appendChild(node);
+    try{
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.newDocument(); 
+      Element root = document.createElement("Test_IDMEF_Message"); 
+      document.appendChild (root);
+      Node node = userid.convertToXML(document);
+      root.appendChild(node);
 
-	    StringWriter buf=new StringWriter();
+      StringWriter buf=new StringWriter();
 
-	    XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
-	    sezr.serialize(document);
-	    System.out.println(buf.getBuffer());
+      XMLSerializer sezr = new XMLSerializer (buf ,new OutputFormat(document, "UTF-8", true));
+      sezr.serialize(document);
+      System.out.println(buf.getBuffer());
 	    
-	} catch (Exception e) {e.printStackTrace();}
-    }
+    } catch (Exception e) {e.printStackTrace();}
+  }
 
 
 }

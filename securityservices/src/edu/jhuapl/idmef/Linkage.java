@@ -115,101 +115,161 @@ import org.w3c.dom.NamedNodeMap;
  * @since IDMEF Message v1.0
  */
 public class Linkage implements XMLSerializable {
-    // xml element and attribute names
-    public static String ELEMENT_NAME = "Linkage";
-    public static String CHILD_ELEMENT_NAME = "name";
-    public static String CHILD_ELEMENT_PATH = "path";
-    public static String ATTRIBUTE_CATEGORY = "category";
-    // category values
-    public static String HARD_LINK = "hard-link";
-    public static String MOUNT_POINT = "mount-point";
-    public static String REPARSE_POINT = "reparse-point";
-    public static String SHORT_CUT = "shortcut";
-    public static String STREAM = "stream";
-    public static String SYMBOLIC_LINK = "symbolic-link";
+  // xml element and attribute names
+  public static String ELEMENT_NAME = "Linkage";
+  public static String CHILD_ELEMENT_NAME = "name";
+  public static String CHILD_ELEMENT_PATH = "path";
+  public static String ATTRIBUTE_CATEGORY = "category";
+  // category values
+  public static String HARD_LINK = "hard-link";
+  public static String MOUNT_POINT = "mount-point";
+  public static String REPARSE_POINT = "reparse-point";
+  public static String SHORT_CUT = "shortcut";
+  public static String STREAM = "stream";
+  public static String SYMBOLIC_LINK = "symbolic-link";
     
-    public Linkage( String name, String path, String category ){
-        m_name = name;
-        m_path = path;
-        m_category = category;
-    }
+  public Linkage( String name, String path, String category ){
+    m_name = name;
+    m_path = path;
+    m_category = category;
+  }
     
-    public Linkage( IDMEF_File file, String category ){
-        m_file = file;
-        m_category = category;
-    }
+  public Linkage( IDMEF_File file, String category ){
+    m_file = file;
+    m_category = category;
+  }
     
-    public Linkage( Node node ){
-        Node nameNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
-        Node pathNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
-        if( nameNode != null ){
-            m_name = XMLUtils.getAssociatedString( nameNode );
-        }
-        if( pathNode != null ){
-            m_path = XMLUtils.getAssociatedString( pathNode );
-        }
-        Node fileNode = XMLUtils.GetNodeForName( node, IDMEF_File.ELEMENT_NAME );
-        if( fileNode != null ){
-            m_file = new IDMEF_File( fileNode );
-        }
-        NamedNodeMap nnm = node.getAttributes();
-	    Node categoryNode = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
-        if( categoryNode != null ){
-            m_category = categoryNode.getNodeValue();
-        }
+  public Linkage( Node node ){
+    Node nameNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_NAME );
+    Node pathNode = XMLUtils.GetNodeForName( node, CHILD_ELEMENT_PATH );
+    if( nameNode != null ){
+      m_name = XMLUtils.getAssociatedString( nameNode );
     }
+    if( pathNode != null ){
+      m_path = XMLUtils.getAssociatedString( pathNode );
+    }
+    Node fileNode = XMLUtils.GetNodeForName( node, IDMEF_File.ELEMENT_NAME );
+    if( fileNode != null ){
+      m_file = new IDMEF_File( fileNode );
+    }
+    NamedNodeMap nnm = node.getAttributes();
+    Node categoryNode = nnm.getNamedItem( ATTRIBUTE_CATEGORY );
+    if( categoryNode != null ){
+      m_category = categoryNode.getNodeValue();
+    }
+  }
     
-    public String getCategory(){
-        return m_category;
-    }
-    public void setCategory( String category ){
-        m_category = category;
-    }
+  public String getCategory(){
+    return m_category;
+  }
+  public void setCategory( String category ){
+    m_category = category;
+  }
     
-    public String getName(){
-        return m_name;
-    }
-    public void setName( String name ){
-        m_name = name;
-    }
+  public String getName(){
+    return m_name;
+  }
+  public void setName( String name ){
+    m_name = name;
+  }
     
-    public String getPath(){
-        return m_path;
-    }
-    public void setPath( String path ){
-        m_path = path;
-    }
+  public String getPath(){
+    return m_path;
+  }
+  public void setPath( String path ){
+    m_path = path;
+  }
     
-    public IDMEF_File getFile(){
-        return m_file;
+  public IDMEF_File getFile(){
+    return m_file;
+  }
+  public void setFile( IDMEF_File file ){
+    m_file = file;
+  }
+  
+  public boolean equals(Object anObject) {
+    boolean equals=false;
+    boolean arecategoryequal=false;
+    boolean arenameequal=false;
+    boolean arepathequal=false;
+    boolean areIdmefFileequal=false;
+    if(anObject==null) {
+      return equals;
     }
-    public void setFile( IDMEF_File file ){
-        m_file = file;
+    Linkage linkage;
+    if(anObject instanceof Linkage) {
+      linkage=(Linkage)anObject;
+      String myvalue;
+      String invalue;
+      myvalue=this.getName();
+      invalue=linkage.getName();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arenameequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arenameequal=true;
+      }
+      myvalue=this.getPath();
+      invalue=linkage.getPath();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arepathequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arepathequal=true;
+      }
+      myvalue=this.getCategory();
+      invalue=linkage.getCategory();
+      if( (myvalue!=null) && (invalue!=null) ) {
+	if(myvalue.trim().equals(invalue.trim())) {
+	  arecategoryequal=true;
+	}
+      }
+      else if((myvalue==null) && (invalue==null)) {
+	arecategoryequal=true;
+      }
+      if((this.getFile()!=null) &&( linkage.getFile()!=null)) {
+	if(this.getFile().equals(linkage.getFile())) {
+	  areIdmefFileequal=true;
+	}
+      }
+      else  if((this.getFile()==null) &&( linkage.getFile()==null)) {
+	areIdmefFileequal=true;
+      }
+      if( arenameequal && arepathequal && arecategoryequal && areIdmefFileequal) {
+	equals=true;
+      }
+      
     }
+    return equals;
+  }
     
-    public Node convertToXML( Document parent ){
-        Element linkageNode = parent.createElement( ELEMENT_NAME );
-        if( m_file != null ){
-            linkageNode.appendChild( m_file.convertToXML( parent ) );
-        }
-        else if( m_name != null && m_path != null ) {
-            Node nameNode = parent.createElement( CHILD_ELEMENT_NAME );
-            Node pathNode = parent.createElement( CHILD_ELEMENT_PATH );
-            nameNode.appendChild( parent.createTextNode( m_name ) );
-            pathNode.appendChild( parent.createTextNode( m_path ) );                        
-            linkageNode.appendChild( nameNode );
-            linkageNode.appendChild( pathNode );
-        }
+  public Node convertToXML( Document parent ){
+    Element linkageNode = parent.createElement( ELEMENT_NAME );
+    if( m_file != null ){
+      linkageNode.appendChild( m_file.convertToXML( parent ) );
+    }
+    else if( m_name != null && m_path != null ) {
+      Node nameNode = parent.createElement( CHILD_ELEMENT_NAME );
+      Node pathNode = parent.createElement( CHILD_ELEMENT_PATH );
+      nameNode.appendChild( parent.createTextNode( m_name ) );
+      pathNode.appendChild( parent.createTextNode( m_path ) );                        
+      linkageNode.appendChild( nameNode );
+      linkageNode.appendChild( pathNode );
+    }
         
-        if( m_category != null ){
-            linkageNode.setAttribute( ATTRIBUTE_CATEGORY, m_category );
-        }
-        return linkageNode;    
+    if( m_category != null ){
+      linkageNode.setAttribute( ATTRIBUTE_CATEGORY, m_category );
     }
+    return linkageNode;    
+  }
     
-    private String m_category;
-    private String m_name;
-    private String m_path;
-    private IDMEF_File m_file;
+  private String m_category;
+  private String m_name;
+  private String m_path;
+  private IDMEF_File m_file;
     
 }
