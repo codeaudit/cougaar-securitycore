@@ -24,23 +24,24 @@
  * - 
  */
 
-package com.nai.security.policy;
+package com.nai.security.crypto;
 
-import sun.security.x509.*;
-import java.net.*;
+import java.security.*;
 
-public class CaPolicy {
+/** This exception is being thrown when a Base64 encode block does not
+    contain the appropriate header or trailer.
+ */
 
-  public String keyStoreFile = null;
-  public String alias = null;
-  public String ldapURL = null;
-  public String serialNumberFile = null;
-  public String pkcs10Directory = null;
-  public String x509CertDirectory = null;
+public class Base64Exception extends Exception {
+  public String message;
+  public int cause;
 
-  // Client policy
-  public int certVersion = 0;
-  public AlgorithmId algorithmId = null;
-  public int keySize = 0;
-  public int howLong = 0;
-};
+  public final static int NO_HEADER_EXCEPTION = 0;
+  public final static int NO_TRAILER_EXCEPTION = 1;
+
+  public Base64Exception(String aMessage, int aCause) {
+    super("Wrong Policy Message: " + aMessage);
+    message = aMessage;
+    cause = aCause;
+  }
+}

@@ -38,6 +38,7 @@ public class LdapClient
   public String Provider_Url;
   private DirContext context;
   static private boolean debug = false;
+  private boolean initializationOK = false;
 
     	/** Creates new LdapClient */
 
@@ -48,45 +49,53 @@ public class LdapClient
     Provider_Url=provider_url;
     init();
   }
+
   private void init()
   {
     Hashtable env=new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
     env.put(Context.PROVIDER_URL,Provider_Url);
-    try
-      {
-	context=new InitialDirContext(env);
-	System.out.println("Using LDAP certificate directory: " + Provider_Url);
-      }
-    catch(NamingException nexp)
-      {
-	System.err.println("Warning:can't connect to LDAP server: " + Provider_Url);
-	System.err.println("Reason: " + nexp + ". Use local keystore only.");
-	//nexp.printStackTrace();
-      }
+    try {
+      context=new InitialDirContext(env);
+      System.out.println("Using LDAP certificate directory: " + Provider_Url);
+      initializationOK = true;
+    }
+    catch(NamingException nexp) {
+      System.err.println("Warning:can't connect to LDAP server: " + Provider_Url);
+      System.err.println("Reason: " + nexp + ". Use local keystore only.");
+      //nexp.printStackTrace();
+    }
+  }
+
+  private boolean isInitialized() {
+    return initializationOK;
   }
 
   public NamingEnumeration  search(String filter, String Contexturl)
   {
+    if (!isInitialized()) {
+      return null;
+    }
     NamingEnumeration results=null;
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    try
-      {
-	results=context.search(Contexturl,filter,constrains);
-      }
-    catch(NamingException searchexp)
-      {
-	System.out.println("search failed");
-	searchexp.printStackTrace();
-	return results;
-      }
+    try {
+      results=context.search(Contexturl,filter,constrains);
+    }
+    catch(NamingException searchexp) {
+      System.out.println("search failed");
+      searchexp.printStackTrace();
+      return results;
+    }
 		
     return results;
   }
 
   public NamingEnumeration search(String alias)
   {
+    if (!isInitialized()) {
+      return null;
+    }
     NamingEnumeration results=null;
     StringBuffer filter=new StringBuffer();
     filter.append("(cn=");
@@ -94,33 +103,32 @@ public class LdapClient
     filter.append(")");
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    try
-      {
-	results=context.search(Provider_Url,filter.toString(),constrains);
-      }
-    catch(NamingException searchexp)
-      {
-	System.out.println("search failed");
-	searchexp.printStackTrace();
-      }
+    try {
+      results = context.search(Provider_Url,filter.toString(),constrains);
+    }
+    catch(NamingException searchexp) {
+      System.out.println("search failed");
+      searchexp.printStackTrace();
+    }
     return results;
   }
   public NamingEnumeration searchwithfilter(String filter)
   {
+    if (!isInitialized()) {
+      return null;
+    }
     NamingEnumeration results=null;
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     System.out.println("Filters provided for search ..........."+filter);
     System.out.println("Provider url is  ..........."+Provider_Url);
-    try
-      {
-	results=context.search(Provider_Url,filter,constrains);
-      }
-    catch(NamingException searchexp)
-      {
-	System.out.println("search failed");
-	searchexp.printStackTrace();
-      }
+    try {
+      results=context.search(Provider_Url,filter,constrains);
+    }
+    catch(NamingException searchexp) {
+      System.out.println("search failed");
+      searchexp.printStackTrace();
+    }
     return results;
   }
 

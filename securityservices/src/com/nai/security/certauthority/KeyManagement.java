@@ -37,10 +37,16 @@ import java.security.NoSuchProviderException;
 import java.security.Signature;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.MessageDigest;
+
 import sun.security.pkcs.*;
 import sun.security.x509.*;
 import sun.security.util.*;
 import sun.security.provider.*;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+import org.cougaar.util.ConfigFinder;
 
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
@@ -51,52 +57,129 @@ public class KeyManagement
   private static final String PKCS10HEADER  = "-----BEGIN NEW CERTIFICATE REQUEST-----";
   private static final String PKCS10TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
-  private ConfParser confParser;
+  private static final String PKCS7HEADER   = "-----BEGIN CERTIFICATE-----";
+  private static final String PKCS7TRAILER  = "-----END CERTIFICATE-----";
+  private String topLevelDirectory = null;
+  private String x509directory = null;
+  private String caDN = null;
+  private ConfParser confParser = null;
+  private CaPolicy caPolicy = null;
 
-  public KeyManagement() {
+  public KeyManagement(String aCA_DN) {
+    caDN = aCA_DN;
+
     confParser = new ConfParser();
-  }
 
-  public void signCertificate(byte request[]) {
-  }
-
-  public static void main(String[] args) {
-    String option = args[0];
-    KeyManagement km = new KeyManagement();
-
-    if (option.equals("-10")) {
-      BufferedReader pkcs10stream = null;
-      PrintStream dbgout = new PrintStream(System.out);
-      String pkcs10filename = args[1];
-      PKCS10 pkcs10Request = null;
-      String CAsigner = "bootstrapper";
-
-      ArrayList pkcs7Certificates = new ArrayList();
-      try {
-	ArrayList pkcs10req = km.getSigningRequest(pkcs10filename);
-	for (int i = 0 ; i < pkcs10req.size() ; i++) {
-	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i), CAsigner));
-	}
-      }
-      catch (Exception e) {
-	System.out.println("Exception: " + e);
-	e.printStackTrace();
-      }
-
+    try {
+      caPolicy = confParser.readCaPolicy(caDN);
     }
-    else if (option.equals("-7")) {
-      km.printPkcs7Request(args[1]);
+    catch (Exception e) {
+      System.out.println("Unable to read policy" + e);
+      e.printStackTrace();
     }
+
+    String topLevelDirectory = System.getProperty("org.cougaar.security.CA.certpath");
+    /* The following directory structure will be created:
+     * top-level directory (org.cougaar.security.CA.certpath)
+     * +-+ CA common name
+     *   +-+ pkcs10Directory
+     *   +-+ x509CertDirectory
+     */
+
+    // Create a KeyRing with the appropriate keystore
   }
-  public ArrayList getSigningRequest(String filename)
-    throws FileNotFoundException, IOException, SignatureException,
-	   NoSuchAlgorithmException, InvalidKeyException
+
+  public String processX509Request(BufferedReader request) {
+    String reply = null;
+    return reply;
+  }
+
+  public String processPkcs10Request(BufferedReader request, String caDN) {
+    String reply = null;
+    try {
+      // First, get all the PKCS10 requests in an array list.
+      ArrayList requests = getSigningRequests(request);
+
+      // Loop through each request and sign it.
+      Iterator i = requests.iterator();
+      while (i.hasNext()) {
+	// Find CA certificate in local keystore
+	X509CertImpl caX509 = null;
+	X500Name caX500Name = new X500Name(caDN); 
+
+	PKCS10 req = (PKCS10)i.next();
+
+	X509CertImpl clientX509 = signX509Certificate(req, caDN);
+	// Save the X509 reply in a file
+	saveX509Request(clientX509, caX509);
+
+	// Publish certificate in LDAP directory
+	publish2Ldap(clientX509, caX509 );
+      }
+    }
+    catch (Exception e) {
+      System.out.println("Unable to proocess request: " + e);
+      e.printStackTrace();
+    }
+
+    return reply;
+  }
+
+  private void saveX509Request(X509CertImpl clientX509, X509Certificate caX509)
+    throws IOException, CertificateEncodingException, NoSuchAlgorithmException
   {
-    if (debug) {
-      System.out.println("PKCS10 file: " + filename);
-    }
-    BufferedReader is = new BufferedReader(new FileReader(filename));
-    return getSigningRequest(is);
+    String alg = "MD5"; // TODO: make this dynamic
+
+    // Create directory structure if it hasn't been created yet.
+    createDirectoryStructure(caX509);
+
+    MessageDigest md =createDigest(alg, clientX509.getTBSCertificate());
+    String digest = md.toString();
+
+    String filePrefix = "x509-";
+    File f = new File(x509directory + File.separatorChar + filePrefix + digest);
+
+    f.createNewFile();
+    PrintStream out = new PrintStream(new FileOutputStream(f));
+    out.println(PKCS7HEADER);
+
+    BASE64Encoder b64 = new BASE64Encoder();
+    b64.encodeBuffer(clientX509.getEncoded(), out);
+    out.println(PKCS7TRAILER);
+    out.close();
+  }
+
+  private MessageDigest createDigest(String algorithm, byte[] data)
+    throws NoSuchAlgorithmException
+  {
+    MessageDigest md = MessageDigest.getInstance(algorithm);
+
+    // Create a digest
+    md.update(data);
+    md.digest();
+    return md;
+  }
+
+  private void createDirectoryStructure(X509Certificate caX509)
+    throws IOException
+  {
+    X500Name caX500Name = new X500Name(caX509.getSubjectDN().toString());
+    String caCommonName = caX500Name.getCommonName();
+
+    x509directory = topLevelDirectory + File.separatorChar + caCommonName
+      + File.separatorChar + caPolicy.x509CertDirectory;
+
+    File pkcs10dir = new File(topLevelDirectory + File.separatorChar + caCommonName
+			      +  File.separatorChar + caPolicy.pkcs10Directory);
+    File x509dir = new File(x509directory);
+    pkcs10dir.mkdirs();
+    x509dir.mkdirs();
+  }
+
+  private void publish2Ldap(X509Certificate clientX509, X509Certificate caX509)
+    throws IOException
+  {
+    X500Name clientX500Name = new X500Name(clientX509.getSubjectDN().toString()); 
   }
 
   public void printPkcs7Request(String filename)
@@ -114,18 +197,43 @@ public class KeyManagement
       e.printStackTrace();
     }
   }
+
+  public Collection printPkcs7Request(InputStream inputstream)
+    throws CertificateException
+  {
+    if(inputstream == null)
+      throw new CertificateException("Missing input stream");
+    try {
+      if(!inputstream.markSupported()) {
+	byte abyte0[] = getTotalBytes(new BufferedInputStream(inputstream));
+	inputstream = new ByteArrayInputStream(abyte0);
+      }
+      if(isBase64(inputstream)) {
+	byte abyte1[] = base64_to_binary(inputstream);
+	return parseX509orPKCS7Cert(new ByteArrayInputStream(abyte1));
+      } else {
+	return parseX509orPKCS7Cert(inputstream);
+      }
+    }
+    catch(IOException ioexception) {
+      throw new CertificateException(ioexception.getMessage());
+    }
+  }
+  
   public void printPkcs7Request(BufferedReader bufreader)
   {
     try {
-      int len = 200;     // Size of a read operation
+      int len = 2000;     // Size of a read operation
       char [] cbuf = new char[len];
       String sbuf = null;
       while (bufreader.ready()) {
-	bufreader.read(cbuf, 0, len);
-	sbuf = sbuf + new String(cbuf);
+	int read = bufreader.read(cbuf, 0, len);
+	sbuf = sbuf + new String(cbuf, 0, read);
       }
-      byte der[] = Base64.decode(sbuf.toCharArray());
-      PKCS7 pkcs7 = new PKCS7(der);
+      String base64EncodeRequest = getBase64Block(sbuf, PKCS7HEADER, PKCS7TRAILER);
+      byte der[] = Base64.decode(base64EncodeRequest.toCharArray());
+      InputStream inputstream = new ByteArrayInputStream(der);
+      PKCS7 pkcs7 = new PKCS7(inputstream);
       System.out.println("PKCS7: " + pkcs7);
     }
     catch (Exception e) {
@@ -134,13 +242,42 @@ public class KeyManagement
     }
   }
 
+  private String getBase64Block(String sbuf, String header, String trailer)
+    throws Base64Exception
+  {
+    int ind_start, ind_stop;
+
+    // Find header
+    ind_start = sbuf.indexOf(header);
+    if (ind_start == -1) {
+      // No header was found
+      throw new Base64Exception("No Header", Base64Exception.NO_HEADER_EXCEPTION);
+    }
+
+    // Find trailer
+    ind_stop = sbuf.indexOf(trailer, ind_start);
+    if (ind_stop == -1) {
+      // No trailer was found. Maybe we didn't read enough data?
+      // Try to read more data.
+      throw new Base64Exception("No Trailer", Base64Exception.NO_TRAILER_EXCEPTION);
+    }
+
+    // Extract Base-64 encoded request and remove request from sbuf
+    String base64pkcs = sbuf.substring(ind_start + header.length(), ind_stop - 1);
+    sbuf = sbuf.substring(ind_stop + trailer.length());
+    if (debug) {
+      System.out.println("base64pkcs: " + base64pkcs + "******");
+    }
+    return base64pkcs;
+  }
+
   /**
    * Get an array of PKCS10 certificate signing requests.
    * The file contains Base64 encoded signing requests, which are each bounded at
    * the beginning by -----BEGIN NEW CERTIFICATE REQUEST-----, and bounded at the
    * end by -----END NEW CERTIFICATE REQUEST-----.
    */
-  public ArrayList getSigningRequest(BufferedReader bufreader)
+  public ArrayList getSigningRequests(BufferedReader bufreader)
     throws FileNotFoundException, IOException, SignatureException,
 	   NoSuchAlgorithmException, InvalidKeyException
   {
@@ -151,8 +288,8 @@ public class KeyManagement
     ArrayList pkcs10requests = new ArrayList();
 
     while (bufreader.ready()) {
-      bufreader.read(cbuf, 0, len);
-      sbuf = sbuf + new String(cbuf);
+      int read = bufreader.read(cbuf, 0, len);
+      sbuf = sbuf + new String(cbuf, 0, read);
 
       // Find header
       ind_start = sbuf.indexOf(PKCS10HEADER);
@@ -178,16 +315,31 @@ public class KeyManagement
 
       // Decode request and store it as a DER value
       byte pkcs10DER[] = Base64.decode(base64pkcs.toCharArray());
+      //FileOutputStream f = new FileOutputStream("der.cer");
+      //f.write(pkcs10DER);
+      //f.close();
       if (debug) {
 	System.out.println("PKCS10 Request:" + new String(Base64.encode(pkcs10DER)));
       }
 
       // Create PKCS10 object
       PKCS10 pkcs10 = getSigningRequest(pkcs10DER);
+      System.out.println("Attributes: " + pkcs10.getAttributes());
       pkcs10requests.add(pkcs10);
     }
 
     return pkcs10requests;
+  }
+
+  public ArrayList getSigningRequests(String filename)
+    throws FileNotFoundException, IOException, SignatureException,
+	   NoSuchAlgorithmException, InvalidKeyException
+  {
+    if (debug) {
+      System.out.println("PKCS10 file: " + filename);
+    }
+    BufferedReader is = new BufferedReader(new FileReader(filename));
+    return getSigningRequests(is);
   }
 
   /**
@@ -206,34 +358,59 @@ public class KeyManagement
     return request;
   }
 
-  public int getNextSerialNumber()
+  private synchronized int getNextSerialNumber(String filename)
+    throws FileNotFoundException, IOException
   {
-    return 1;
+    ConfigFinder configFinder = new ConfigFinder();
+    File fserial = configFinder.locateFile(filename);
+    FileWriter fOutSerial = null;
+    int nextSerialNumber = 0;
+    String serialNbString = null;
+
+    if (fserial == null) {
+      fserial = new File(filename);
+      try {
+	fserial.createNewFile();
+	fOutSerial = new FileWriter(fserial);
+	nextSerialNumber = 1;
+	serialNbString = String.valueOf(nextSerialNumber);
+	fOutSerial.write(serialNbString, 0, serialNbString.length());
+	fOutSerial.close();
+      }
+      catch (Exception e) {
+	throw new FileNotFoundException("Unable to create serial number file: "
+					+ filename);
+      }
+    }
+    FileReader fInSerial = new FileReader(fserial);
+    char cbuf[] = new char[200];
+    int byteRead = fInSerial.read(cbuf);
+    fInSerial.close();
+    serialNbString = new String(cbuf, 0, byteRead);
+    System.out.println("Serial = " + serialNbString);
+    nextSerialNumber = Integer.parseInt(serialNbString);
+
+    // Write next serial number back to file.
+    fOutSerial = new FileWriter(fserial);
+
+    // For now, do a simple increment algorithm.
+    serialNbString = String.valueOf(nextSerialNumber + 1);
+    fOutSerial.write(serialNbString, 0, serialNbString.length());
+    fOutSerial.close();
+
+    return nextSerialNumber;
   }
 
   /** Sign a PKCS10 certificate signing request with a CA key
    */
-  public PKCS7 signX509Certificate(PKCS10 clientRequest, String caAlias)
+  public X509CertImpl signX509Certificate(PKCS10 clientRequest, String caDN)
     throws IOException, CertificateEncodingException, NoSuchAlgorithmException,
 	   CertificateException, SignatureException, InvalidKeyException,
 	   NoSuchProviderException
   {
-    PKCS7 pkcs7Certificate = null;  // The signed certificate
-
-    // Get CA policy
-    CaPolicy caPolicy = null;
-    try {
-      caPolicy = confParser.readCaPolicy(caAlias);
-    }
-    catch (Exception e) {
-      System.out.println("Unable to read policy" + e);
-      e.printStackTrace();
-      return pkcs7Certificate;
-    }
-
     // Get X500 name of Certificate authority
     SignerInfo si = null;
-    X509Certificate caX509cert = (X509Certificate) KeyRing.getCert(caAlias);
+    X509Certificate caX509cert = (X509Certificate) KeyRing.getCert(caPolicy.alias);
     if (debug) {
       System.out.println("CA x509:" + caX509cert.toString());
     }
@@ -244,7 +421,7 @@ public class KeyManagement
     }
 
     // Get Signature object for certificate authority
-    PrivateKey caPrivateKey = KeyRing.getPrivateKey(caAlias);
+    PrivateKey caPrivateKey = KeyRing.getPrivateKey(caPolicy.alias);
     Signature caSignature = Signature.getInstance(caPrivateKey.getAlgorithm());
     // caSignature.initSign(caPrivateKey);
 
@@ -259,50 +436,7 @@ public class KeyManagement
      *  version, serialNumber, algorithmID, issuer, validity, subject, key
      *  issuerID, subjectID, extensions
      */
-    X509CertInfo clientCertInfo = new X509CertInfo();
-
-    // Set certificate parameters
-
-    // Set version number
-    CertificateVersion certversion = new CertificateVersion(caPolicy.certVersion);
-    clientCertInfo.set("version", certversion);
-
-    // Set serial number
-    CertificateSerialNumber certSerialNumber = new CertificateSerialNumber(getNextSerialNumber());
-    clientCertInfo.set("serialNumber", certSerialNumber);
-
-    // Set algorithm ID
-    CertificateAlgorithmId certAlgorithmId =
-      new CertificateAlgorithmId(caPolicy.algorithmId);
-    clientCertInfo.set("algorithmID", certAlgorithmId);
-
-    // Set issuer
-    CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500IssuerName);
-    clientCertInfo.set("issuer", certIssuerName);
-
-    // Set validity
-    // Certificate can be used right away
-    Date date_notbefore = new Date();
-    // Certificate is valid for a number of days
-    Calendar cal_end = Calendar.getInstance();
-    cal_end.add(Calendar.DATE, caPolicy.howLong);
-    Date date_notafter = cal_end.getTime();
-    CertificateValidity certValidity = new CertificateValidity(date_notbefore, date_notafter);
-    clientCertInfo.set("validity", certValidity);
-
-
-    X500Name clientX500Name = clientRequest.getSubjectName();
-
-    // Set subject name
-    CertificateSubjectName certSubjectName = new CertificateSubjectName(clientX500Name);
-    clientCertInfo.set("subject", certSubjectName);
-
-
-    // Set client certificate
-    CertificateX509Key clientCertificateX509Key =
-      new CertificateX509Key(clientRequest.getSubjectPublicKeyInfo());
-    X509CertImpl clientCertificate = new X509CertImpl(clientCertInfo);
-    clientCertInfo.set("key", clientCertificateX509Key);
+    X509CertImpl clientCertificate = setX509CertificateFields(clientRequest, caX500IssuerName);
 
     // Set subject unique ID
     /*
@@ -310,9 +444,6 @@ public class KeyManagement
     clientCertInfo.set("subjectuniqueid", certSubjectUniqueIdentity);
     */
     
-    // Set extensions
-    //CertificateExtensions
-
 
     // Sign certificate
     if (debug) {
@@ -322,51 +453,9 @@ public class KeyManagement
     if (debug) {
       System.out.println("After signing: " + clientCertificate.toString());
     }
-    ByteArrayOutputStream ds = new ByteArrayOutputStream();
-    clientCertificate.encode(ds);
 
-    ByteArrayInputStream is = new ByteArrayInputStream( ds.toByteArray());
-    X509Factory x509factory = new X509Factory();
-    Collection c = x509factory.engineGenerateCertificates(is);
-    System.out.println(c);
-
-    // Create the PKCS7 request
-    pkcs7Certificate = new PKCS7(clientCertificate.getEncoded());
-
-    if (debug) {
-      System.out.println("PKCS7:" + pkcs7Certificate.toString());
-    }
-
-    return pkcs7Certificate;
+    return clientCertificate;
    }
-
-  public void buildPKCS7(CertificateX509Key signedCertificate) {
-    AlgorithmId[] digestAlgorithmIds;
-    ContentInfo contentInfo;
-    X509Certificate[] x509certificate;
-    SignerInfo[] asignerinfo;
-
-    /*
-    x509certificate[0] = clientCertificate;
-    digestAlgorithmIds[0] = caPolicy.algorithmId;
-    pkcs7Certificate = new PKCS7();
-    clientCertificate.getEncoded();
-
-    String s = privatekey.getAlgorithm();
-    String s1;
-    if(s.equalsIgnoreCase("DSA"))
-      s1 = "SHA1";
-    else
-      if(s.equalsIgnoreCase("RSA"))
-	s1 = "MD5";
-      else
-	throw new RuntimeException("private key is not a DSA or RSA key");
-    String s2 = s1 + "with" + s;
-    AlgorithmId algorithmid = AlgorithmId.get(s1);
-    AlgorithmId algorithmid1 = AlgorithmId.get(s2);
-    AlgorithmId algorithmid2 = AlgorithmId.get(s);
-    */
-  }
 
   /** Read a file with Base64 encoded certificates, which are each bounded at
    * the beginning by -----BEGIN CERTIFICATE-----, and bounded at the end by
@@ -419,6 +508,225 @@ public class KeyManagement
     }
     return certs;
   }
+
+  private boolean isBase64(InputStream inputstream)
+    throws IOException
+  {
+    if(inputstream.available() >= 10) {
+      inputstream.mark(10);
+      int i = inputstream.read();
+      int j = inputstream.read();
+      int k = inputstream.read();
+      int l = inputstream.read();
+      int i1 = inputstream.read();
+      int j1 = inputstream.read();
+      int k1 = inputstream.read();
+      int l1 = inputstream.read();
+      int i2 = inputstream.read();
+      int j2 = inputstream.read();
+      inputstream.reset();
+      return i == 45 && j == 45 && k == 45 && l == 45 && i1 == 45 && j1 == 66 && k1 == 69 && l1 == 71 && i2 == 73 && j2 == 78;
+    } else {
+      throw new IOException("Cannot determine encoding format");
+    }
+  }
+
+  private byte[] getTotalBytes(InputStream inputstream)
+    throws IOException
+  {
+    byte abyte0[] = new byte[8192];
+    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream(2048);
+    bytearrayoutputstream.reset();
+    int i;
+    while((i = inputstream.read(abyte0, 0, abyte0.length)) != -1) 
+      bytearrayoutputstream.write(abyte0, 0, i);
+    return bytearrayoutputstream.toByteArray();
+  }
+
+
+  private byte[] base64_to_binary(InputStream inputstream)
+    throws IOException
+  {
+    long l = 0L;
+    inputstream.mark(inputstream.available());
+    BufferedInputStream bufferedinputstream = new BufferedInputStream(inputstream);
+    BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(bufferedinputstream));
+    String s;
+    if((s = readLine(bufferedreader)) == null || !s.startsWith("-----BEGIN"))
+      throw new IOException("Unsupported encoding");
+    l += s.length();
+    StringBuffer stringbuffer = new StringBuffer();
+    for(; (s = readLine(bufferedreader)) != null && !s.startsWith("-----END"); stringbuffer.append(s));
+    if(s == null) {
+      throw new IOException("Unsupported encoding");
+    } else {
+      l += s.length();
+      l += stringbuffer.length();
+      inputstream.reset();
+      inputstream.skip(l);
+      BASE64Decoder base64decoder = new BASE64Decoder();
+      return base64decoder.decodeBuffer(stringbuffer.toString());
+    }
+  }
+
+
+  private String readLine(BufferedReader bufferedreader)
+    throws IOException
+  {
+    int defaultExpectedLineLength = 80;
+    StringBuffer stringbuffer = new StringBuffer(defaultExpectedLineLength);
+    int i;
+    do {
+      i = bufferedreader.read();
+      stringbuffer.append((char)i);
+    } while(i != -1 && i != 10 && i != 13);
+    if(i == -1)
+      return null;
+    if(i == 13) {
+      bufferedreader.mark(1);
+      int j = bufferedreader.read();
+      if(j == 10)
+	stringbuffer.append((char)i);
+      else
+	bufferedreader.reset();
+    }
+    return stringbuffer.toString();
+  }
+
+
+  private Collection parseX509orPKCS7Cert(InputStream inputstream)
+    throws CertificateException
+  {
+    try {
+      inputstream.mark(inputstream.available());
+      X509CertImpl x509certimpl = new X509CertImpl(inputstream);
+      System.out.println("X509: " + x509certimpl);
+      
+      // Print DN
+      X500Name x500Name = new X500Name(x509certimpl.getSubjectDN().toString());
+      System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
+      return Arrays.asList(new X509Certificate[] {
+	x509certimpl
+      });
+    }
+    catch(CertificateException certificateexception) { }
+    catch(IOException ioexception1) {
+      throw new CertificateException(ioexception1.getMessage());
+    }
+    try {
+      inputstream.reset();
+      PKCS7 pkcs7 = new PKCS7(inputstream);
+      System.out.println("PKCS7: " + pkcs7);
+
+      X509Certificate ax509certificate[] = pkcs7.getCertificates();
+      if(ax509certificate != null)
+	return Arrays.asList(ax509certificate);
+      else
+	return new ArrayList(0);
+    }
+    catch(IOException ioexception) {
+      throw new CertificateException(ioexception.getMessage());
+    }
+  }
+
+  private X509CertImpl setX509CertificateFields(PKCS10 clientRequest,
+						X500Name caX500IssuerName)
+    throws IOException, CertificateException
+  {
+    /** 
+     * Client certificate attributes
+     * Valid attributes:
+     *  version, serialNumber, algorithmID, issuer, validity, subject, key
+     *  issuerID, subjectID, extensions
+     */
+    X509CertInfo clientCertInfo = new X509CertInfo();
+
+    // Set certificate parameters
+
+    // Set version number
+    CertificateVersion certversion = new CertificateVersion(caPolicy.certVersion);
+    clientCertInfo.set("version", certversion);
+
+    // Set serial number
+    int nextSerialNumber = getNextSerialNumber(caPolicy.serialNumberFile);
+    CertificateSerialNumber certSerialNumber = new CertificateSerialNumber(nextSerialNumber);
+    clientCertInfo.set("serialNumber", certSerialNumber);
+
+    // Set algorithm ID
+    CertificateAlgorithmId certAlgorithmId =
+      new CertificateAlgorithmId(caPolicy.algorithmId);
+    clientCertInfo.set("algorithmID", certAlgorithmId);
+
+    // Set issuer
+    CertificateIssuerName certIssuerName = new CertificateIssuerName(caX500IssuerName);
+    clientCertInfo.set("issuer", certIssuerName);
+
+    // Set validity
+    // Certificate can be used right away
+    Date date_notbefore = new Date();
+    // Certificate is valid for a number of days
+    Calendar cal_end = Calendar.getInstance();
+    cal_end.add(Calendar.DATE, caPolicy.howLong);
+    Date date_notafter = cal_end.getTime();
+    CertificateValidity certValidity = new CertificateValidity(date_notbefore, date_notafter);
+    clientCertInfo.set("validity", certValidity);
+
+    X500Name clientX500Name = clientRequest.getSubjectName();
+
+    // Set subject name
+    CertificateSubjectName certSubjectName = new CertificateSubjectName(clientX500Name);
+    clientCertInfo.set("subject", certSubjectName);
+
+    // Set client certificate
+    CertificateX509Key clientCertificateX509Key =
+      new CertificateX509Key(clientRequest.getSubjectPublicKeyInfo());
+
+    // Set key
+    clientCertInfo.set("key", clientCertificateX509Key);
+
+    X509CertImpl clientCertificate = new X509CertImpl(clientCertInfo);
+
+    return clientCertificate;
+  }
+
+  public static void main(String[] args) {
+    String option = args[0];
+
+    String caDN = "CN=NCA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
+    KeyManagement km = new KeyManagement(caDN);
+
+    if (option.equals("-10")) {
+      BufferedReader pkcs10stream = null;
+      PrintStream dbgout = new PrintStream(System.out);
+      String pkcs10filename = args[1];
+      PKCS10 pkcs10Request = null;
+
+      ArrayList pkcs7Certificates = new ArrayList();
+      try {
+	ArrayList pkcs10req = km.getSigningRequests(pkcs10filename);
+	for (int i = 0 ; i < pkcs10req.size() ; i++) {
+	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i), caDN));
+	}
+      }
+      catch (Exception e) {
+	System.out.println("Exception: " + e);
+	e.printStackTrace();
+      }
+
+    }
+    else if (option.equals("-7")) {
+      try {
+	FileInputStream is = new FileInputStream(args[1]);
+	km.printPkcs7Request(is);
+	// km.printPkcs7Request(args[1]);
+      }
+      catch (Exception e) {
+	System.out.println("Exception: " + e);
+	e.printStackTrace();
+      }
+    }
+  }
+
 }
 
 

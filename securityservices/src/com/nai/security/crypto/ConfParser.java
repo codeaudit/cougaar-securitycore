@@ -83,6 +83,9 @@ public class ConfParser {
   public static final String CA_ALIAS_ELEMENT          = "alias";
   public static final String CA_LDAP_URL_ELEMENT       = "ldapURL";
   public static final String CA_SERIAL_NB_FILE_ELEMENT = "serialNumberFile";
+  public static final String CA_PKCS10_DIR_ELEMENT     = "pkcs10Directory";
+  public static final String CA_X509_CERT_DIR_ELEMENT  = "x509CertDirectory";
+
   public static final String CA_CLIENT_POLICY_ELEMENT  = "clientCertPolicy";
 
   public static final String CA_CERTVERSION_ELEMENT    = "certVersion";
@@ -97,26 +100,39 @@ public class ConfParser {
     }
   }
 
-  public CaPolicy readCaPolicy(String caName) 
-    throws MalformedURLException, NoSuchFieldException, IllegalAccessException
+  public NodePolicy readNodePolicy()
+    throws NoSuchFieldException, IllegalAccessException
   {
+    NodePolicy nodePolicy = null;
+    return nodePolicy;
+  }
+
+  public CaPolicy readCaPolicy(String caDistinguishedName) 
+    throws MalformedURLException, NoSuchFieldException, IllegalAccessException,
+	   IOException
+  {
+    X500Name dn = new X500Name(caDistinguishedName);
+
     List conf = configDoc.getRootElement().getChildren(CA_POLICY_ELEMENT);
     Iterator it = conf.iterator();
     CaPolicy caPolicy = null;
 
     while (it.hasNext()) {
       Element caPolicyElement = (Element) it.next();
-      String aCaName = caPolicyElement.getAttributeValue("name");
-      if (!caName.equalsIgnoreCase(aCaName)) {
+      X500Name aDN = new X500Name(caPolicyElement.getAttributeValue("name"));
+      if (!dn.equals(aDN)) {
 	continue;
       }
       Element caClientPolicy = caPolicyElement.getChild(CA_CLIENT_POLICY_ELEMENT);
       
       caPolicy = new CaPolicy();
-      caPolicy.keyStoreFile     = caPolicyElement.getChildText(CA_KEYSTORE_ELEMENT);
-      caPolicy.alias            = caPolicyElement.getChildText(CA_ALIAS_ELEMENT);
-      caPolicy.ldapURL          = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
-      caPolicy.serialNumberFile = caPolicyElement.getChildText(CA_SERIAL_NB_FILE_ELEMENT);
+      caPolicy.keyStoreFile      = caPolicyElement.getChildText(CA_KEYSTORE_ELEMENT);
+      caPolicy.alias             = caPolicyElement.getChildText(CA_ALIAS_ELEMENT);
+      caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
+      caPolicy.serialNumberFile  = caPolicyElement.getChildText(CA_SERIAL_NB_FILE_ELEMENT);
+
+      caPolicy.pkcs10Directory   = caPolicyElement.getChildText(CA_PKCS10_DIR_ELEMENT);
+      caPolicy.x509CertDirectory = caPolicyElement.getChildText(CA_X509_CERT_DIR_ELEMENT);
 
       caPolicy.certVersion = (Integer.valueOf(caClientPolicy.getChildText(CA_CERTVERSION_ELEMENT))).intValue();
 

@@ -59,54 +59,51 @@ public class CertificateFinder
   }
   public X509Certificate getCertificate(String alias)
   {
-    NamingEnumeration search_results= client.search(alias);
+    NamingEnumeration search_results = client.search(alias);
     int counter=0;
     X509Certificate certificate=null;
-    while((search_results!=null)&&(search_results.hasMoreElements()))
-      {
-	try
-	  {
-	    SearchResult singleentry=(SearchResult)search_results.next();
-	    Attributes completeattributes=singleentry.getAttributes();
-	    Attribute x509cert=completeattributes.get("pem_x509");
-	    String cert=(String)x509cert.get();
-	    char[] charcert=cert.toCharArray();
-	    byte[] certdata=Base64.decode(charcert);
-	    try
-	      {
-		CertificateFactory certfactory=CertificateFactory.getInstance("X.509");
-		InputStream instream=new ByteArrayInputStream(certdata);
-		certificate=(X509Certificate)certfactory.generateCertificate(instream);
+    while((search_results!=null)&&(search_results.hasMoreElements())) {
+      try {
+	SearchResult singleentry=(SearchResult)search_results.next();
+	Attributes completeattributes=singleentry.getAttributes();
+	Attribute x509cert=completeattributes.get("pem_x509");
+	String cert=(String)x509cert.get();
+	char[] charcert=cert.toCharArray();
+	byte[] certdata=Base64.decode(charcert);
+	try {
+	  CertificateFactory certfactory=CertificateFactory.getInstance("X.509");
+	  InputStream instream=new ByteArrayInputStream(certdata);
+	  certificate=(X509Certificate)certfactory.generateCertificate(instream);
                 
-                //verify CA signiture
-                Principal issuer = certificate.getIssuerDN();
-                  java.security.cert.Certificate c=KeyRing.getCert(issuer);
-                  if (c == null) {
-                    throw new CertificateException("Abort getting cert for "+alias+", Unable to get CA certificate for varifying.");
-                  }
-                PublicKey pk = c.getPublicKey();
-                try{
-                    certificate.verify(pk);
-                }catch(Exception e){
-           	  System.out.println("Could not varify CA:"+issuer+" signature");
-                  certificate = null;
-                }
-	      }
-	    catch(CertificateException certexp)
-	      {
-		System.out.println("Could not generate certificate");
-		certexp.printStackTrace();
+	  //verify CA signiture
+	  Principal issuer = certificate.getIssuerDN();
+	  java.security.cert.Certificate c=KeyRing.getCert(issuer);
+	  if (c == null) {
+	    throw new CertificateException("Abort getting cert for "+alias+", Unable to get CA certificate for varifying.");
+	  }
+	  PublicKey pk = c.getPublicKey();
+	  try {
+	    certificate.verify(pk);
+	  }catch(Exception e){
+	    System.out.println("Could not varify CA:"+issuer+" signature");
+	    certificate = null;
+	  }
+	}
+	catch(CertificateException certexp) {
+	  System.out.println("Could not generate certificate");
+	  certexp.printStackTrace();
 
-	      }
+	}
 				
-	    counter++;
-	  }
-	catch (Exception exp)
-	  {
-	    exp.printStackTrace();
-	  }
+	counter++;
       }
-    System.out.println("value of counter is "+counter);
+      catch (Exception exp) {
+	exp.printStackTrace();
+      }
+    }
+    if (debug) {
+      System.out.println("value of counter is " + counter);
+    }
      
     return certificate; 
   }

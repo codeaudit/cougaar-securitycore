@@ -29,15 +29,7 @@ package com.nai.security.policy;
 import sun.security.x509.*;
 import java.net.*;
 
-public class CaPolicy {
-
-  public String keyStoreFile = null;
-  public String alias = null;
-  public String ldapURL = null;
-  public String serialNumberFile = null;
-  public String pkcs10Directory = null;
-  public String x509CertDirectory = null;
-
+public class NodePolicy {
   // Client policy
   public int certVersion = 0;
   public AlgorithmId algorithmId = null;
