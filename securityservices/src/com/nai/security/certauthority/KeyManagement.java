@@ -52,6 +52,13 @@ import org.cougaar.util.ConfigFinder;
 import com.nai.security.policy.*;
 import com.nai.security.crypto.*;
 
+/** Certification Authority service
+ * The following java properties are necessary:
+ * + org.cougaar.security.CA.certpath: set when class used as a standalone CA.
+ *     In that case, KeyManagement is instantiated from a servlet.
+ *     The property should not be defined if the CA service is instantiated from
+ *     Cougaar. 
+ * + See also com.nai.security.crypto.ConfParser for other required properties. */
 public class KeyManagement
 {
   private static boolean debug = true;
@@ -76,7 +83,6 @@ public class KeyManagement
   private LDAPCert certificateDirectory = null;
   private boolean standalone;                  /* true if run as a standalone server
 						  false if run within Cougaar */
-
   public KeyManagement(String aCA_DN) 
     throws Exception{
     caDN = aCA_DN;
