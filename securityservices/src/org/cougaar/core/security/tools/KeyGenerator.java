@@ -38,7 +38,6 @@ import java.util.List;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
-import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.util.log.Logger;
 import org.cougaar.util.log.LoggerFactory;
 import org.w3c.dom.Element;
@@ -62,8 +61,6 @@ public class KeyGenerator {
   {
     secProvider = new SecurityServiceProvider();
     ServiceBroker sb = secProvider.getServiceBroker();
-    configParser = (ConfigParserService)
-      sb.getService(this, ConfigParserService.class, null);
   }
 
   public static void main(String args[]) {
