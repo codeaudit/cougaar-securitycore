@@ -125,8 +125,19 @@ public class ConfigPlugin
           if (log.isDebugEnabled()) {
             log.debug("crypto policy already configured.");
           }
+
           return;
         }
+
+      // need to set default cert attribute policy, so that normal node
+      // can use that as their trusted policy
+        CertificateAttributesPolicy certAttribPolicy =
+          cryptoClientPolicy.getCertificateAttributesPolicy();
+        certAttribPolicy.ou = dname.getOrganizationalUnit();
+        certAttribPolicy.o = dname.getOrganization();
+        certAttribPolicy.l = dname.getLocality();
+        certAttribPolicy.st = dname.getState();
+        certAttribPolicy.c = dname.getCountry();
       } catch (Exception ex) {
         if (log.isWarnEnabled()) {
           log.warn("Cannot complete CA key generation.", ex);
@@ -312,6 +323,10 @@ public class ConfigPlugin
     }
 
     generateCAIdentity();
+
+    if (log.isDebugEnabled()) {
+      log.debug("CA created, now creating node cert.");
+    }
 
     // get node and agent cert
     // done in DirectoryKeyStore
