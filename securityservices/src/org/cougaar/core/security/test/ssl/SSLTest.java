@@ -40,20 +40,30 @@ public class SSLTest {
   SSLServiceImpl sslservice;
   SecurityServiceProvider secProvider;
 
-  String host = "localhost";
-  int port = 8080;
-
   public static void main(String[] args) {
 
     try {
       SSLTest test = new SSLTest();
+
+      String [] options = new String[4];
+      options[0] = new String("All");
+      options[1] = new String("SSL Socket");
+      options[2] = new String("User SSL");
+      options[3] = new String("Password authentication");
+
+      int testid = JOptionPane.showOptionDialog(null, "Choose which test to perform", "SSL tests",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+                    null, options, options[0]);
       test.createService();
 
-      //test.testSocket();
+      if (testid == 0 || testid == 1)
+        test.testSocket();
 
-      test.testUserSocket();
+      if (testid == 0 || testid == 2)
+        test.testUserSocket();
 
-      test.testPasswordAuth();
+      if (testid == 0 || testid == 3)
+        test.testPasswordAuth();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -89,8 +99,14 @@ public class SSLTest {
     }
     System.out.println("=====> Testing SSL client and server sockets.");
     try {
-      ServerThread st = new ServerThread();
+      String host = JOptionPane.showInputDialog(
+        "Enter host to test: ");
+      int port = Integer.parseInt(JOptionPane.showInputDialog(
+        "Enter port to test: "));
+
+      ServerThread st = new ServerThread(port);
       st.start();
+
 
       SSLSocket s = (SSLSocket)KeyRingSSLFactory.getDefault().createSocket(host, port);
 
@@ -129,11 +145,13 @@ public class SSLTest {
                                                  this,
                                                  UserSSLService.class);
       SocketFactory usersocfac = userservice.getUserSocketFactory();
-      String hostname = DirectoryKeyStore.getHostName();
-      int hostport = 8400;
-      System.out.println("Connecting to: " + hostname + " : " + hostport);
+      //String hostname = DirectoryKeyStore.getHostName();
+      //int hostport = 8400;
+      //System.out.println("Connecting to: " + hostname + " : " + hostport);
       //Socket s = usersocfac.createSocket(hostname, hostport);
-      String path = "https://" + hostname + ":" + hostport + "/";
+      //String path = "https://" + hostname + ":" + hostport + "/";
+      String path = JOptionPane.showInputDialog(
+        "Enter the url to test: ");
       URL url = new URL(path);
       BufferedReader in = new BufferedReader(
         new InputStreamReader(url.openStream()));
@@ -172,11 +190,16 @@ public class SSLTest {
   }
 
   class ServerThread extends Thread {
+    int serverport = 0;
+
+    ServerThread(int port) {
+      serverport = port;
+    }
 
     public void run() {
       try {
         SSLServerSocket ss = (SSLServerSocket)
-          KeyRingSSLServerFactory.getDefault().createServerSocket(port);
+          KeyRingSSLServerFactory.getDefault().createServerSocket(serverport);
         SSLSocket s = (SSLSocket)ss.accept();
         //s.startHandshake();
 
