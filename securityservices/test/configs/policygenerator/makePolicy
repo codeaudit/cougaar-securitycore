@@ -14,4 +14,4 @@ setenv CLASSPATH ${CLASSPATH}:../../../classes
 java \
 	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	com.nai.security.tools.PolicyGenerator  \
-	society.conf
+	society.conf policy.conf BootPolicyTemplate.xml CryptoPolicy-
