@@ -55,28 +55,17 @@ public class TestAdditionalData extends TestIdmef {
     
     public static void main( String []args ){
         TestIdmef test = new TestAdditionalData( "TestAdditionalData" );
+        test.init();
         test.run();
     }
+    public void init(){
+      m_agentTester = new TestAgent();
+    }
     public AdditionalData createAdditionalData(){
-        String refIdents[] = { "00000001", "00000002" };
-        Address address = null;
-        try {
-            address = m_msgFactory.createAddress( InetAddress.getLocalHost().getHostAddress(), 
-                                                  null, Address.IPV4_ADDR );
-        }
-        catch( Exception e ){
-            e.printStackTrace();
-        }
-        
-        Agent agent = m_msgFactory.createAgent( "test-agent",
-                                                "a test agent",
-                                                "SF, CA",
-                                                address,
-                                                refIdents );
-        
+        Agent agent = m_agentTester.createAgent();
         return m_msgFactory.createAdditionalData( AdditionalData.XML,
                                                   MEANING,
-                                                   agent.toTaggedString() );
+                                                  agent.toTaggedString() );
     }
     public void compare( AdditionalData ad1, AdditionalData ad2 ){
        if( !( ad1.getType().equals( ad2.getType() ) ) ){
@@ -107,4 +96,5 @@ public class TestAdditionalData extends TestIdmef {
         document.appendChild( adNode );
         XMLUtils.printDocument( document );
     }
+    private TestAgent m_agentTester;
 }
