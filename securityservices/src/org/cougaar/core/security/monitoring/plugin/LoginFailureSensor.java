@@ -65,15 +65,16 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 public class LoginFailureSensor extends ComponentPlugin {
   private DomainService  _domainService;
   private LoggingService _log;
-  private String         _managerRole   = "SecurityMnRManager";
+  private String         _managerRole   = "SecurityMnRManager-Enclave";
+
+  public LoginFailureSensor() {
+  }
 
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
   public void setDomainService(DomainService aDomainService) {
     _domainService = aDomainService;
-    _log = (LoggingService) getServiceBroker().
-      getService(this, LoggingService.class, null);
   }
 
   /**
@@ -81,6 +82,21 @@ public class LoginFailureSensor extends ComponentPlugin {
    */
   public DomainService getDomainService() {
     return _domainService;
+  }
+
+  public synchronized boolean setLoggingService() {
+    if (_log != null) {
+      return true;
+    }
+
+    ServiceBroker sb = getServiceBroker();
+    if (sb == null) {
+      return false;
+    }
+    
+    _log = (LoggingService) sb.
+      getService(this, LoggingService.class, null);
+    return (_log != null);
   }
 
   /**
@@ -92,12 +108,14 @@ public class LoginFailureSensor extends ComponentPlugin {
     }
     List l = (List) o;
     if (l.size() > 1) {
-      _log.warn("Unexpected number of parameters given. Expecting 1, got " + 
-                l.size());
+      if (setLoggingService()) {
+        _log.warn("Unexpected number of parameters given. Expecting 1, got " + 
+                  l.size());
+      }
     }
     if (l.size() > 0) {
       _managerRole = l.get(0).toString();
-      if (_log.isInfoEnabled()) {
+      if (setLoggingService() && _log.isInfoEnabled()) {
         _log.info("Setting Security Manager role to " + _managerRole);
       }
     }
@@ -121,6 +139,7 @@ public class LoginFailureSensor extends ComponentPlugin {
     CommunityService     cs           = (CommunityService)
       sb.getService(this, CommunityService.class,null);
 
+    setLoggingService();
     List capabilities = new ArrayList();
     capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
       
