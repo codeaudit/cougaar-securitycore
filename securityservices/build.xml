@@ -29,6 +29,7 @@
     <!-- prefix for all environment variables -->
     <property environment="env"/>
     <property name="cougaar.install.path" value="${env.COUGAAR_INSTALL_PATH}"/>
+    <property name="cougaar.workspace" value="${env.COUGAAR_WORKSPACE}"/>
     <property name="securityservices.base" value="."/>
     <property name="securityservices.sys" value="${securityservices.base}/sys"/>
     <property name="securityservices.lib" value="${securityservices.base}/lib"/>
@@ -138,27 +139,41 @@
 
     <!-- Run the Junit tests -->
     <target name="run-tests" depends="jar-junit-tests">
-       <junit printsummary="withOutAndErr" haltonfailure="yes" fork="off" haltonerror="yes">
+       <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
+          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
+          <sysproperty key="org.cougaar.workspace.path" value="${cougaar.workspace}"/>
+          <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
+          <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
+          <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
+          <sysproperty key="org.cougaar.core.security.Domain" value="NCADomain"/>
           <classpath>
              <fileset dir="${securityservices.classes}">
                 <include name="securityservices.jar" />
+                <include name="idmef.jar" />
                 <include name="junitTests.jar" />
              </fileset>
              <fileset dir="${cougaar.install.path}/lib">
                 <include name="core.jar" />
                 <include name="util.jar" />
                 <include name="overlay.jar" />
+                <include name="webtomcat.jar" />
+                <include name="webserver.jar" />
+                <include name="safe.jar" />
+                <include name="kaos.jar" />
              </fileset>
              <fileset dir="${cougaar.install.path}/sys">
                 <include name="servlet.jar" />
                 <include name="xerces.jar" />
+                <include name="tomcat_40.jar" />
+                <include name="ibmpkcs.jar" />
+                <include name="jas.jar" />
+                <include name="mail.jar" />
              </fileset>
           </classpath>
-          <jvmarg value="-Djava.compiler=NONE"/>
           <formatter type="plain"/>
-          <batchtest fork="off" todir="${securityservices.regress}">
+          <batchtest  todir="${securityservices.regress}">
              <fileset dir="classes">
-                <include name="test/**/*.class"/>
+                <include name="test/**/*Test.class"/>
              </fileset>
           </batchtest>
        </junit>
