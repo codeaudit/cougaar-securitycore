@@ -3,14 +3,19 @@
       <tstamp/>
   </target>
 
-  <!-- Configure the context path for this application -->
-  <property name="example" value="dashboard" />
-  <property name="path" value="/${example}"/>
+  <property name="application" value="dashboard" />
+  <property name="path" value="/${application}"/>
   <property name="securityservices.base" value="."/>
   <!-- The base directories where the regression test files are located -->
   <property name="securityservices.regress" value="${securityservices.base}${file.separator}regress"/>
+  <!-- The base directories where the regression test result files are located -->
+  <property name="securityservices.results" value="${securityservices.regress}${file.separator}results"/>
 
-  <property name="build"   value="${securityservices.regress}/build" />
+  <!-- Configure the context path for this application (should be defined in the junit.props file-->
+  <!-- <property name="jwsdp.home"   value="/home/u/junittest/jwsdp-1_0" /> -->
+  <property file="${securityservices.regress}/config/nodeTest/junit.props"/>
+
+  <property name="build"   value="${jwsdp.home}/webapps/regress/dashboard/build" />
 
   <property name="username"   value="junittest" />
   <property name="password"   value="Ultra*Log" />
@@ -36,10 +41,10 @@
   <target name="prepare" depends="init"
    	description="Create build directories.">
     <mkdir dir="${build}" />
+    <mkdir dir="${build}/junitreport" />
     <mkdir dir="${build}/WEB-INF" />
-    <mkdir dir="${build}/WEB-INF/classes" />		
+    <mkdir dir="${build}/WEB-INF/classes" />
   </target>
-
 
   <!-- Executable Targets -->
 
@@ -64,20 +69,39 @@
           path="${path}"/>
   </target>
 
+  <target name="clean" description="Delete compiled files">
+     <delete verbose="true">
+        <fileset  dir="${build}"/>
+     </delete>
+  </target>
+
   <target name="build" depends="prepare" 
      description="Compile app Java files and copy HTML and JSP pages" >
-    <javac srcdir="src" destdir="${build}/WEB-INF/classes">
+    <javac srcdir="${securityservices.regress}/dashboard/src" destdir="${build}/WEB-INF/classes">
     	<include name="**/*.java" />
      	<classpath refid="classpath"/>
     </javac>
     <copy todir="${build}">
-      <fileset dir="web">
+      <fileset dir="${securityservices.regress}/dashboard/web">
         <include name="*.html" />
         <include name="*.jsp" />
         <include name="*.gif" />
+        <include name="*.jpg" />
+      </fileset>
+    </copy>
+    <copy todir="${build}/junitreport">
+      <fileset dir="${securityservices.results}/html">
+        <include name="**/*.html" />
+        <include name="**/*.css" />
       </fileset>
     </copy>
   </target>
 
+  <target name="make-jar" depends="build">
+     <jar jarfile="${build}/WEB-INF/dashboard.jar">
+        <fileset dir="${build}/WEB-INF/classes"
+                 includes="**/*.class"/>
+     </jar>
+  </target>
 
 </project>

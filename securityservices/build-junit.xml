@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+    Ant build script for Ultra*Log securityservices - Junit tests. 
+     
+   To run junit tests, the following files must be included in the ANT lib directory:
+     1) junit.jar
+     2) jakarta-ant-1.4.1-optional.jar
+-->
+
+<project basedir="." default="run-node-tests-with-report" name="Ultra*Log/securityservices/junit">
+
+    <target name="init-junit">
+      <property name="junit.test.result.path" value="${securityservices.results}/${junit.test.desc}"/>
+
+      <mkdir dir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE"/>
+
+      <!-- Remove old results -->
+      <delete dir="${junit.test.result.path}"/>
+      <!-- Create output directory for Junit test -->
+      <mkdir dir="${junit.test.result.path}"/>
+    </target>
+
+    <!-- Build the Junit test package -->
+    <target name="build-junit-tests">
+        <echo message="+++++ Building Junit tests"/>
+        <javac classpathref="securityservices.class.path" debug="true" 
+            deprecation="true" destdir="${securityservices.classes}"
+            includes="test/org/**" srcdir="${securityservices.regress}"/>
+        <echo message="+++++ Built Junit tests"/>
+    </target>
+
+   <!-- Create RMI stubs -->
+    <target name="compile-junit-rmi" depends="build-junit-tests">
+      <rmic classname="test.org.cougaar.core.security.simul.NodeServer"
+            classpathref="securityservices.class.path"
+            base="${securityservices.classes}"/>
+    </target>
+
+    <!-- jar Junit tests -->
+    <target name="jar-junit-tests" depends="build-junit-tests, compile-junit-rmi">
+        <jar jarfile="${securityservices.classes}/junitTests.jar">
+            <fileset dir="${securityservices.classes}"
+                includes="test/**/*.class"/>
+        </jar>
+    </target>
+
+    <!-- install junit files -->
+    <target name="install-junit-tests" depends="init-junit">
+        <echo message="+++++ Installing Junit test files"/>
+        <copy todir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE">
+            <fileset dir="${securityservices.regress}/config">
+                <include name="keystore-JUNIT-TEST-NODE"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed Junit test files"/>        
+    </target>
+ 
+    <!-- Run the Junit nodes --> 
+    <target name="run-node-tests" depends="jar-junit-tests">
+       <junit fork="yes" printsummary="yes" dir="${securityservices.base}"
+              timeout="600000" showoutput="yes">
+          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
+          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
+          <sysproperty key="org.cougaar.securityservices.configs" value="${securityservices.configs}"/>
+	  <sysproperty key="org.cougaar.securityservices.base" value="${securityservices.base}"/>
+	  <sysproperty key="org.cougaar.securityservices.classes" value="${securityservices.classes}"/>
+          <sysproperty key="org.cougaar.securityservices.regress" value="${securityservices.regress}"/>
+          <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
+          <!-- <sysproperty key="test.org.cougaar.core.security.simul.SaxMapper.trace" value="true"/> -->
+
+          <classpath>
+             <fileset dir="${securityservices.classes}">
+                <include name="junitTests.jar" />
+             </fileset>
+             <fileset dir="${cougaar.install.path}/sys">
+                <include name="xerces.jar" />
+             </fileset>
+          </classpath>
+
+	  <test name="test.org.cougaar.core.security.simul.NodeServerTest"
+                haltonfailure="no" haltonerror="no"
+                todir="${securityservices.results}" >
+	    <formatter type="xml" />
+	  </test>
+       </junit>
+    </target>
+
+    <!-- Generate a report of the individual report files"-->
+    <target name="run-node-tests-with-report" depends="run-node-tests">
+      <junitreport todir="${securityservices.results}">
+         <fileset dir="${securityservices.results}">
+            <include name="**/TEST-*.xml"/>
+         </fileset>
+         <report format="frames" todir="${securityservices.results}/html"/>
+      </junitreport>
+    </target>
+
+    <!-- Generate dashboard"-->
+    <target name="dashboard">
+       <ant antfile="build-dashboard.xml" dir="." target="remove">
+       </ant>
+       <ant antfile="build-dashboard.xml" dir="." target="clean">
+       </ant>
+       <ant antfile="build-dashboard.xml" dir="." target="build">
+       </ant>
+       <ant antfile="build-dashboard.xml" dir="." target="install">
+       </ant>
+    </target>
+
+    <!-- Run the Junit tests -->
+    <target name="run-tests" depends="jar-junit-tests, install-junit-tests">
+       <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
+          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
+          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
+          <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
+	  <sysproperty key="org.cougaar.core.security.policy.debug" value="true"/>
+          <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
+          <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
+          <sysproperty key="org.cougaar.core.security.Domain" value="NCADomain"/>
+          <classpath>
+             <fileset dir="${securityservices.classes}">
+                <include name="securityservices.jar" />
+                <include name="securebootstrapper.jar" />
+                <include name="idmef.jar" />
+                <include name="junitTests.jar" />
+             </fileset>
+             <fileset dir="${cougaar.install.path}/lib">
+                <include name="overlay.jar" />
+                <include name="core.jar" />
+                <include name="bootstrap.jar" />
+                <include name="util.jar" />
+                <include name="webtomcat.jar" />
+                <include name="webserver.jar" />
+                <include name="safe.jar" />
+                <include name="kaos.jar" />
+             </fileset>
+             <fileset dir="${cougaar.install.path}/sys">
+                <include name="servlet.jar" />
+                <include name="xerces.jar" />
+                <include name="tomcat_40.jar" />
+                <include name="ibmpkcs.jar" />
+                <include name="jas.jar" />
+                <include name="log4j.jar" />
+             </fileset>
+          </classpath>
+          <formatter type="plain"/>
+          <batchtest  todir="${securityservices.results}">
+             <fileset dir="classes">
+                <include name="test/**/*Test.class"/>
+             </fileset>
+          </batchtest>
+       </junit>
+    </target>
+
+</project>

@@ -45,6 +45,8 @@
     <property name="securityservices.src" value="${securityservices.base}${file.separator}src"/>
     <!-- The base directories where the regression test files are located -->
     <property name="securityservices.regress" value="${securityservices.base}${file.separator}regress"/>
+    <!-- The base directories where the regression test result files are located -->
+    <property name="securityservices.results" value="${securityservices.regress}${file.separator}results"/>
 
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
@@ -103,6 +105,10 @@
         <mkdir dir="${securityservices.classes}"/>
         <mkdir dir="${securityservices.signed}"/>
         <mkdir dir="${securityservices.docdir}"/>
+
+        <!-- make regress directory -->
+        <mkdir dir="${securityservices.results}" />
+        <mkdir dir="${securityservices.results}/html" />
     </target>
     
     <!-- Build the JavaIDMEF library -->
@@ -122,113 +128,6 @@
             includes="org/cougaar/core/security/**" srcdir="${securityservices.src}"/>
         <echo message="+++++ Built security services"/>
     </target>
-
-    <!-- Build the Junit test package -->
-    <!-- <target name="build-junit" depends="sign-jars"> -->
-    <target name="build-junit-tests">
-        <echo message="+++++ Building Junit tests"/>
-        <javac classpathref="securityservices.class.path" debug="true" 
-            deprecation="true" destdir="${securityservices.classes}"
-            includes="test/org/**" srcdir="${securityservices.regress}"/>
-        <echo message="+++++ Built Junit tests"/>
-    </target>
-
-    <!-- jar Junit tests -->
-    <target name="jar-junit-tests" depends="build-junit-tests, compile-junit-rmi">
-        <jar jarfile="${securityservices.classes}/junitTests.jar">
-            <fileset dir="${securityservices.classes}"
-                includes="test/**/*.class"/>
-        </jar>
-    </target>
-
-    <!-- install junit files -->
-    <target name="install-junit-tests">
-        <echo message="+++++ Installing Junit test files"/>
-        <mkdir dir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE"/>
-        <copy todir="${cougaar.workspace}/security/keystores/JUNIT-TEST-NODE">
-            <fileset dir="${securityservices.regress}/config">
-                <include name="keystore-JUNIT-TEST-NODE"/>
-            </fileset>
-        </copy>
-        <echo message="+++++ Installed Junit test files"/>        
-    </target>
-
-    <!-- Create RMI stubs -->
-    <target name="compile-junit-rmi" depends="build-junit-tests">
-      <rmic classname="test.org.cougaar.core.security.simul.NodeServer"
-            classpathref="securityservices.class.path"
-            base="${securityservices.classes}"/>
-    </target>
-
-    <!-- Run the Junit nodes --> 
-    <target name="run-node-tests" depends="jar-junit-tests">
-       <junit fork="yes" printsummary="yes" dir="${securityservices.base}" timeout="600000" showoutput="yes">
-          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
-          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
-          <sysproperty key="org.cougaar.securityservices.configs" value="${securityservices.configs}"/>
-	  <sysproperty key="org.cougaar.securityservices.base" value="${securityservices.base}"/>
-	  <sysproperty key="org.cougaar.securityservices.classes" value="${securityservices.classes}"/>
-          <sysproperty key="org.cougaar.securityservices.regress" value="${securityservices.regress}"/>
-          <sysproperty key="org.cougaar.junit.config.path" value="${securityservices.regress}/config/nodeTest"/>
-          <classpath>
-             <fileset dir="${securityservices.classes}">
-                <include name="junitTests.jar" />
-             </fileset>
-             <fileset dir="${cougaar.install.path}/sys">
-                <include name="xerces.jar" />
-             </fileset>
-          </classpath>
-
-	  <test name="test.org.cougaar.core.security.simul.NodeServerTest" haltonfailure="yes" todir="${securityservices.regress}" outfile="result" >
-	    <formatter type="plain" />
-	  </test>
-       </junit>
-    </target>
-
-    <!-- Run the Junit tests -->
-    <target name="run-tests" depends="jar-junit-tests, install-junit-tests">
-       <junit fork="yes" printsummary="yes" dir="${securityservices.regress}/config">
-          <sysproperty key="org.cougaar.install.path" value="${cougaar.install.path}"/>
-          <sysproperty key="org.cougaar.workspace" value="${cougaar.workspace}"/>
-          <sysproperty key="org.cougaar.core.security.crypto.debug" value="true"/>
-	  <sysproperty key="org.cougaar.core.security.policy.debug" value="true"/>
-          <sysproperty key="org.cougaar.node.name" value="JUNIT-TEST-NODE"/>
-          <sysproperty key="org.cougaar.security.role" value="JunitTest"/>
-          <sysproperty key="org.cougaar.core.security.Domain" value="NCADomain"/>
-          <classpath>
-             <fileset dir="${securityservices.classes}">
-                <include name="securityservices.jar" />
-                <include name="securebootstrapper.jar" />
-                <include name="idmef.jar" />
-                <include name="junitTests.jar" />
-             </fileset>
-             <fileset dir="${cougaar.install.path}/lib">
-                <include name="overlay.jar" />
-                <include name="core.jar" />
-                <include name="bootstrap.jar" />
-                <include name="util.jar" />
-                <include name="webtomcat.jar" />
-                <include name="webserver.jar" />
-                <include name="safe.jar" />
-                <include name="kaos.jar" />
-             </fileset>
-             <fileset dir="${cougaar.install.path}/sys">
-                <include name="servlet.jar" />
-                <include name="xerces.jar" />
-                <include name="tomcat_40.jar" />
-                <include name="ibmpkcs.jar" />
-                <include name="jas.jar" />
-                <include name="log4j.jar" />
-             </fileset>
-          </classpath>
-          <formatter type="plain"/>
-          <batchtest  todir="${securityservices.regress}">
-             <fileset dir="classes">
-                <include name="test/**/*Test.class"/>
-             </fileset>
-          </batchtest>
-       </junit>
-    </target>
     
     <!-- jar JavaIDMEF -->
     <target name="jar-idmef" depends="build-idmef">
@@ -239,7 +138,7 @@
         </jar>
     </target>
     
-                      <!-- org/cougaar/core/security/**/test/**, -->
+    <!-- org/cougaar/core/security/**/test/**, -->
     <!-- jar security services -->
     <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
@@ -425,6 +324,9 @@
     <target name="cvs-update">
       <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
     </target>
+    <target name="cvs-update-junit">
+      <cvs  command="update -d -A"/>
+    </target>
     
     <!-- use 'ant with-update' to update repository executing the ALL target -->
     <target name="with-update" depends="cvs-update, all"/>
@@ -538,7 +440,7 @@
 		</target>
    
     <!-- Delete log files -->
-    <target name="clean-log">
+    <target name="clean-log" depends="init">
         <echo message="+++++ Cleaning log files"/>
         <!-- Delelete log files... -->
         <delete verbose="true">
@@ -551,7 +453,13 @@
           <fileset  dir="${cougaar.install.path}/configs/small-135" includes="*.log"/>
         </delete>
         <delete verbose="true">
-          <fileset  dir="${securityservices.regress}" includes="TEST-*"/>
+          <fileset  dir="${securityservices.results}" includes="TEST-*"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${securityservices.results}" includes="*.log"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${securityservices.results}" includes="*.txt"/>
         </delete>
         <delete verbose="true">
           <fileset  dir="${securityservices.configs}/tinysociety" includes="*.log"/>
@@ -596,5 +504,17 @@
         <echo message="    help        - print out the usage message"/>
     </target>
         
+    <!-- Junit tests -->
+    <target name="junit" depends="clean-log, cvs-update-junit, build-securityservices">
+       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true"
+          <property name="junit.test.desc"   value="CaStandaloneFromScratch"/>
+          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch.xml"/>
+       </ant>
+       <ant antfile="build-junit.xml" dir="." target="run-node-tests-with-report" inheritRefs="true">
+          <property name="junit.test.desc"   value="CaStandaloneFromScratch2"/>
+          <property name="junit.config.file" value="${securityservices.regress}/config/nodeTest/CaStandaloneFromScratch2.xml"/>
+       </ant>
+    </target>
+
 </project>
 <!-- End Ultra*Log/securityservices ant build script -->
