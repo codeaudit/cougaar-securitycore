@@ -47,7 +47,6 @@ public class UserCertRequestDialog extends JDialog {
   BorderLayout borderLayout1 = new BorderLayout();
   JPanel buttonPanel = new JPanel();
   JButton nextButton = new JButton();
-  JButton backButton = new JButton();
   JButton cancelButton = new JButton();
   JPanel panels[] = new JPanel[2];
 
@@ -73,7 +72,6 @@ public class UserCertRequestDialog extends JDialog {
     try {
       jbInit();
 
-      backButton.setEnabled(false);
       setButtonListeners();
 
       setSize(400, 300);
@@ -86,12 +84,7 @@ public class UserCertRequestDialog extends JDialog {
     }
   }
 
-  private void setPanel(int index) {
-    jTabbedPane1.setSelectedIndex(index);
-  }
-
   private void setButtonListeners() {
-    backButton.addActionListener(createButtonListener());
     nextButton.addActionListener(createButtonListener());
     cancelButton.addActionListener(createButtonListener());
   }
@@ -172,6 +165,11 @@ public class UserCertRequestDialog extends JDialog {
     KeyStore keystore = keyRing.getKeyStore();
     if (list == null || list.size() == 0)
       return false;
+
+    // not required to set password
+    if (pwd.length == 0)
+      return true;
+
     PrivateKeyCert keyCert = (PrivateKeyCert)list.get(0);
     PrivateKey privatekey = keyCert.getPrivateKey();
     CertificateStatus cs = keyCert.getCertificateStatus();
@@ -200,39 +198,26 @@ public class UserCertRequestDialog extends JDialog {
   }
 
   private void processButtonEvent(ActionEvent evt) {
-    if (evt.getSource() == backButton) {
-      panelIndex = 0;
-    }
     if (evt.getSource() == nextButton) {
-      if (panelIndex == 0) {
-        panelIndex++;
+      if (generateUserCertRequest()) {
+        isOk = true;
+        this.dispose();
       }
-      // submit
       else {
-        if (generateUserCertRequest()) {
-          isOk = true;
-          this.dispose();
-        }
-        else {
-          return;
-        }
+        return;
       }
     }
     if (evt.getSource() == cancelButton) {
       isOk = false;
       this.dispose();
     }
-    backButton.setEnabled(panelIndex != 0);
-    setPanel(panelIndex);
   }
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
-    nextButton.setText("Next");
-    backButton.setText("Back");
+    nextButton.setText("OK");
     cancelButton.setText("Cancel");
     this.getContentPane().add(buttonPanel,  BorderLayout.SOUTH);
-    buttonPanel.add(backButton, null);
     buttonPanel.add(nextButton, null);
     buttonPanel.add(cancelButton, null);
     this.getContentPane().add(jTabbedPane1,  BorderLayout.CENTER);
@@ -240,7 +225,7 @@ public class UserCertRequestDialog extends JDialog {
     panels[0] = new UserProfilePanel();
     panels[1] = new PasswordPanel();
 
-    jTabbedPane1.add(panels[0], 0);
-    jTabbedPane1.add(panels[1], 1);
+    jTabbedPane1.add(panels[0], "Profile");
+    jTabbedPane1.add(panels[1], "Password");
   }
 }

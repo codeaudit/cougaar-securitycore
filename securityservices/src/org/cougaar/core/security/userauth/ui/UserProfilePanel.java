@@ -131,5 +131,6 @@ public class UserProfilePanel extends JPanel {
     this.add(stPanel, null);
     this.add(cPanel, null);
 
+    cadnPanel.setVisible(false);
   }
 }
