@@ -245,7 +245,7 @@ final public class KeyRing  implements KeyRingService  {
     if(cacheservice==null) {
       log.warn("Cache service is null in init of KeyRing Service");
     }
-    
+
     search = (CertificateSearchService) serviceBroker.getService(this,
                                                                  CertificateSearchService.class,
                                                                  null);
@@ -603,7 +603,7 @@ final public class KeyRing  implements KeyRingService  {
     if (log.isDebugEnabled()) {
       log.debug("Build chain: " + principal.getName());
     }
-    
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate Cache service :");
     }
@@ -1144,7 +1144,7 @@ final public class KeyRing  implements KeyRingService  {
       log.warn(" Unable to get Certificate Cache service in findCert");
       return null;
     }
-    
+
     // This function does not work for normal node for multiple CA
     // if uses default certificate attribute
     //if (cryptoClientPolicy.isCertificateAuthority()) {
@@ -1155,7 +1155,7 @@ final public class KeyRing  implements KeyRingService  {
         X500Name dname = (X500Name)nameList.get(i);
         certList.addAll(findCert(dname, lookupType, validOnly));
       }
-      return certList;   
+      return certList;
     }
     // else no cert has been created
     return null;
@@ -1597,7 +1597,7 @@ final public class KeyRing  implements KeyRingService  {
   }
 
   public String findAlias(String commonName) {
-    
+
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in findAlias");
     }
@@ -1634,12 +1634,12 @@ final public class KeyRing  implements KeyRingService  {
 
 
   public List getValidCertificates(X500Name x500Name)  {
-   
+
     if(cacheservice==null) {
       log.warn("CertificateCacheService is null in getValidCertificates");
       return null;
     }
-    
+
     List allCertificates = cacheservice.getCertificates(x500Name);
     if (allCertificates == null || allCertificates.size() == 0) {
       return null;
@@ -1672,7 +1672,7 @@ final public class KeyRing  implements KeyRingService  {
 
   public String getAlias(X509Certificate clientX509) {
     String alias = null;
-    
+
     if(cacheservice==null) {
       log.warn("Unable to get Certificate cache Service in getAlias");
     }
@@ -1872,7 +1872,7 @@ final public class KeyRing  implements KeyRingService  {
       log.debug("updateNS(CertEntry ) called: " + certEntry.toString());
     }
     namingService.updateCert(certEntry);
-    
+
   }
   /**
    * Adding LDAP URL entry in the naming service.
@@ -1887,18 +1887,27 @@ final public class KeyRing  implements KeyRingService  {
       log.warn("Unable to get Certificate cache Service in updateNS");
     }
 
+    /*
     List certificateList = findCert(x500Name, KeyRingService.LOOKUP_KEYSTORE,true );
     if (certificateList == null || certificateList.size() == 0) {
       log.warn("Not registering LDAP URL to naming service. Cannot find certificate. DN:" + x500Name);
       return;
     }
+    */
+    // cannot publish a certificate that does not belong to local
+    List pkeyList = getValidPrivateKeys(x500Name);
+    if (pkeyList == null || pkeyList.size() == 0) {
+      log.warn("Not registering " + x500Name + " to naming, cannot find private key.");
+      return;
+    }
     try {
-      CertificateStatus cs = (CertificateStatus)certificateList.get(0);
+      //CertificateStatus cs = (CertificateStatus)certificateList.get(0);
+      CertificateStatus cs = ((PrivateKeyCert)pkeyList.get(0)).getCertificateStatus();
       CertificateEntry certEntry=null;
       if( cs.getCertificateType()==CertificateType.CERT_TYPE_CA) {
          log.warn("Received cert in UpdateNS is "+cs.getCertificate().getSubjectDN().getName());
-        //don't do any thing  just return 
-        /* 
+        //don't do any thing  just return
+        /*
            certEntry = new CertificateEntry(cs.getCertificate(),
            // of course the cert is trusted by local node, otherwise not valid
            CertificateRevocationStatus.VALID,
@@ -2067,7 +2076,7 @@ final public class KeyRing  implements KeyRingService  {
     }
 
     String alias = findAlias(commonName);
-    
+
     if(cacheservice==null) {
       log.warn(" Unabale to get Certificate cache service in removeEntry");
     }
