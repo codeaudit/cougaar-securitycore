@@ -140,7 +140,6 @@ module Cougaar
 	  b = str.scan(/[\w\.]+/)
 	  nodeInfo.pcpu = b[0]
 	  nodeInfo.pmem = b[1]
-	  nodeInfo.mem_size = b[2]
 	  nodeInfo.rss = b[3]
 	  nodeInfo.rsz = b[4]
         end
@@ -163,24 +162,24 @@ module Cougaar
       class NodeInfo 
         
         attr_reader :name, :host, :pid
-        attr_accessor :mem_size, :xmx, :pcpu, :pmem, :rss, :rsz, :load1min, :load5min, :load15min
+        attr_accessor :xmx, :pcpu, :pmem, :rss, :rsz, :load1min, :load5min, :load15min
         
-        def initialize(name, host, pid, mem_size=nil, xmx=nil)
+        def initialize(name, host, pid, xmx=nil)
           @name = name
           @host = host
           @pid = pid
-          @mem_size = mem_size
           @xmx = xmx
         end
 
         def NodeInfo.header_string
-	  return "Date\tTime\tHost\tPID\tNode_Name\tSZ\tRSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
+          #      "05/13/2004 13:51:24 u129            16434  ROOT-CA-NODE                         1"
+	  return "Date       Time     Host            PID    Node_Name                            RSZ\tXMX\tPCPU\tPMEM\tRSS\tL1\tL5\tL15"
         end
        
         def to_s
 	  now = Time.new
-          s = "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t"
-          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(27)}\t#{@mem_size}\t#{rsz}\t"
+          s = "#{now.strftime("%m/%d/%Y")} #{now.strftime("%H:%M:%S")} "
+          s += "#{@host.name.ljust(15)} #{@pid.ljust(6)} #{name.ljust(30)}\t#{rsz}\t"
           value = @xmx
           @xmx.scan(/([0-9]+)(.+)/) { |match|
             value = match[0].to_i
