@@ -253,13 +253,6 @@ public class SecureConfigFinder
     return false;
   }
 
-  /**
-   * @deprecated
-   */
-  protected boolean acceptUnsignedFiles() {
-    return false;
-  }
-
   /** Do not allow unsigned files by default.
    */
   protected boolean jarFilesOnly() {
@@ -311,6 +304,14 @@ public class SecureConfigFinder
    */
   protected boolean acceptAbsoluteFileNames() {
     return true;
+  }
+
+  protected String getTmpBaseDirectoryName() {
+    String s = System.getProperty("org.cougaar.workspace") + File.separator +
+      "security" + File.separator + 
+      "jarconfig" + File.separator +
+      System.getProperty("org.cougaar.node.name");
+    return s;
   }
 
 }
