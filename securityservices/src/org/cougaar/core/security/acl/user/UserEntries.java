@@ -48,7 +48,7 @@ public class UserEntries implements UniqueObject {
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_ROLE_LIST = "roles";
 
-  private static class UserData {
+  private static class UserData implements java.io.Serializable {
     //     private String  _userName;
     public Object  password;
     public String  enableTime;
@@ -61,7 +61,7 @@ public class UserEntries implements UniqueObject {
     public Set     roles = new HashSet();
   }
 
-  private static class RoleData {
+  private static class RoleData implements java.io.Serializable {
     public String description;
     public Set    users = new HashSet();
     public Set    subRoles = new HashSet();
