@@ -33,6 +33,7 @@ import java.security.Principal;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.util.*;
+import java.io.*;
 import java.security.cert.*;
 import sun.security.x509.*;
 
@@ -84,8 +85,8 @@ public interface KeyRingService extends Service {
   List findCert(X500Name dname, int lookupType, boolean validOnly);
 
 
-  Hashtable findCertPairFromNS(String source, String target) throws CertificateException;
-  List findDNFromNS(String name);
+  Hashtable findCertPairFromNS(String source, String target) throws CertificateException, IOException;
+  List findDNFromNS(String name) throws IOException;
 
 
   List getValidCertificates(X500Name x500Name);
