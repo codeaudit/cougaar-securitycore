@@ -418,11 +418,14 @@ public class MessageProtectionServiceImpl
         if (log.isWarnEnabled()) {
           log.warn("unprotectHeader (plain) " + source +
                    " -> " + target + " clear channel used");
-          }
-          throw new GeneralSecurityException("Could read unprotected message " +
-                                             "between " +
-                                             source + " and " + target +
-                                             ": clear channel used");
+          log.warn("Additional data follows: principal = " 
+                   + KeyRingSSLServerFactory.getPrincipal());
+          log.warn("tg = " + tg);
+        }
+        throw new GeneralSecurityException("Could read unprotected message " +
+                                           "between " +
+                                           source + " and " + target +
+                                           ": clear channel used");
       }
     } else {
       MessageAddress sourceNode = getNodeAddress(source);
@@ -833,7 +836,7 @@ public class MessageProtectionServiceImpl
 //       log.warn("Unexpected Exception when reading input stream", e);
 //       return null;
     } finally {
-      KeyRingSSLServerFactory.resetPrincipal();
+      //      KeyRingSSLServerFactory.resetPrincipal();
     }
   }
   
