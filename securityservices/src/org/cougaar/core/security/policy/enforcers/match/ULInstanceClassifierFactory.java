@@ -51,10 +51,8 @@ import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 public class ULInstanceClassifierFactory
     implements InstanceClassifierFactory
 {
-  public static final String pluginPrefix =
-    org.cougaar.core.security.policy.enforcers.ontology.jena.
-    EntityInstancesConcepts.EntityInstancesDamlURL
-    + "PluginsInRole";
+  public static final String pluginPrefix
+    = PolicyUtils.pluginsInRoleClassPrefix;
 
   private ServiceBroker _sb;
   private CommunityService _communityService;
@@ -196,14 +194,17 @@ public class ULInstanceClassifierFactory
           _log.debug("we are classifying some type of plugin");
         }
         if (instance instanceof RoleExecutionContext) {
-          String shortRoleName = className.substring(pluginPrefix.length());
+          String shortRoleName 
+            = className.substring(pluginPrefix.length());
           if (_log.isDebugEnabled()) {
             _log.debug("Taking a look at the RoleExecutionContext - "
                        + "looking at short role name " + shortRoleName);
           }
           String damlRoleName 
             = org.cougaar.core.security.policy.enforcers.ontology.jena.
-            EntityInstancesConcepts.EntityInstancesDamlURL + shortRoleName;
+            EntityInstancesConcepts.EntityInstancesDamlURL + shortRoleName 
+            + "Role";
+
           if (_log.isDebugEnabled()) {
             _log.debug("damlRoleName = " + damlRoleName);
           }
