@@ -78,7 +78,7 @@ public class JaasAgentBinder
    */
   public Agent getAgent() {
     AgentBinder ab = (AgentBinder) getChildBinder();
-    MyypyypessageAddress addr = ab.getAgentIdentifier();
+    MessageAddress addr = ab.getAgentIdentifier();
     Agent ret = ab.getAgent();
     if (log.isDebugEnabled()) {
       log.debug("Agent "+addr+" wrapper: get agent from binder "+ab);
