@@ -269,6 +269,19 @@ endif
 set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 #set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
+# See java.lang.System.java on why the bootstrapper needs to be on the bootclasspath
+# New security manager class is not on bootstrap classpath.
+# Cause policy to get initialized before we install the new
+# security manager, in order to prevent infinite loops when
+# trying to initialize the policy (which usually involves
+# accessing some security and/or system properties, which in turn
+# calls the installed security manager's checkPermission method
+# which will loop infinitely if there is a non-system class
+# (in this case: the new security manager class) on the stack).
+
+set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/securebootstrapper.jar"
+set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/lib/bootstrapper.jar"
+
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.nameserver.verbosity=20"
 
