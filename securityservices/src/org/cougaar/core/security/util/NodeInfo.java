@@ -69,7 +69,16 @@ public class NodeInfo
 	major = Integer.valueOf(s).intValue();
 	break;
       case 1:
-	minor = Integer.valueOf(s).intValue();
+        {
+          if (_log.isDebugEnabled()) {
+            _log.debug("Minor version = " + s);
+          }
+          String [] vparts = s.split("[^0-9]");
+          minor = Integer.valueOf(vparts[0]).intValue();
+          if (_log.isDebugEnabled()) {
+            _log.debug("Minor (int) version = " + minor);
+          }
+        }
 	break;
       default:
       }
