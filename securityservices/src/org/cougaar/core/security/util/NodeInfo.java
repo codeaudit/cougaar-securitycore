@@ -29,6 +29,7 @@ package org.cougaar.core.security.util;
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.Field;
+import java.net.*;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.node.NodeIdentificationService;
@@ -36,6 +37,7 @@ import org.cougaar.core.node.NodeIdentificationService;
 public class NodeInfo
 {
   private static String nodeName = null;
+  private static String hostName = null;
 
   /** Returns the name of the node. Deals with backward compatibility issues */
   public static String getNodeName()
@@ -83,4 +85,22 @@ public class NodeInfo
       sb.getService(this, NodeIdentificationService.class, null);
     nodeName = nis.getNodeIdentifier().toString();
   }
+
+  public static String getHostName() {
+    if (hostName == null) {
+      // is it set in a system parameter?
+      hostName = System.getProperty("org.cougaar.core.security.hostname");
+      if (hostName != null && !hostName.equals("")) {
+        return hostName;
+      }
+      try {
+        hostName = InetAddress.getLocalHost().getHostName();
+      } catch (UnknownHostException ex) {
+	System.err.println("Unable to get my host name: " + ex.toString());
+      }
+    }
+    return hostName;
+  }
+
+
 }
