@@ -1,2 +1,2 @@
-safe.comm.SAFERelay http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#SafeRelay
-org.cougaar.glm.ldm.oplan.OrgActivity http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivity
+safe.comm.SAFERelay http://ontology.ihmc.us/Ultralog/BlackboardObject#SafeRelay
+org.cougaar.glm.ldm.oplan.OrgActivity http://ontology.ihmc.us/Ultralog/BlackboardObject#OrgActivity

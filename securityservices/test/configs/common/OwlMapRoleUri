@@ -14,6 +14,10 @@
 #
 # http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#<role-name>
 #
-/$*/tasks http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
-/$*/editOplan http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAllRole
-/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#OrgActivityAddRole
+
+
+/$testBBPolicyAgent/OrgActivityAdd http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAddRole
+
+/$*/tasks http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAllRole
+/$*/editOplan http://ontology.ihmc.us/Ultralog/PluginsInRole#OrgActivityAllRole
+
