@@ -83,17 +83,40 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   private static EncryptionService   _crypto;
   private static SecureRandom        _random = new SecureRandom();
 
+  private static boolean replyProblemWarned = false;
+
   public ProtectedMessageInputStream(InputStream stream, 
                                      MessageAddress source,
                                      MessageAddress target,
                                      boolean encryptedSocket,
+                                     boolean isReply,
                                      ServiceBroker sb)
     throws GeneralSecurityException, IncorrectProtectionException, 
     IOException {
 
     super(null);
     init(sb);
-
+    /*
+     * I don't believe isReply should ever be true.  In the RMI MTS,
+     * this is called during the deserialization of an
+     * AttributedMessage (readExternal).  The code makes a check that
+     * the message is a reply and should stop before we get here.  If
+     * the MTS being used is RMI MTS then an obvious thing to check
+     * is the return type of the RMI rerouteMessage call - and make
+     * sure that it either is not an AttributedMessage or that the
+     * replyOnly() method returns true.
+     */
+    if (isReply && !replyProblemWarned && _log.isWarnEnabled()) {
+      _log.warn("Running message protection services on message reply");
+      _log.warn("check the mts implementation, for example the" +
+                "class of the object being returned by MTImpl.rerouteMessage");
+      if (_log.isDebugEnabled()) {
+        _log.debug("This is where this is happening", new Exception());
+        _log.debug("I expect this is the return code");
+      }
+      replyProblemWarned = true;
+      _log.warn("Future similar messages will be disabled");
+    }
     if (_log.isDebugEnabled()) {
       _log.debug(source + " -> " + target + 
                  " " + stream);
@@ -109,28 +132,31 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     if (_log.isDebugEnabled()) {
       _log.debug("Receiving message with header: " + header);
       _log.debug("encrypted socket = " + _encryptedSocket);
+      _log.debug("Reply  Message = " + isReply);
     }
     setAddresses(header, source, target);
     SecureMethodParam headerPolicy = header.getPolicy();
+    if (!isReply) {
       // check the policy
-    boolean ignoreSignature = 
-      ignoreSignature(encryptedSocket);
-    boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
-                                                   headerPolicy,
-                                                   encryptedSocket,
-                                                   ignoreSignature);
-    
-    if (!goodPolicy) {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Policy mismatch for message from " + _source + 
-                   " to " + _target + " for policy " + headerPolicy);
-      }
+      boolean ignoreSignature = 
+        ignoreSignature(encryptedSocket);
+      boolean goodPolicy = _cps.isReceivePolicyValid(_source, _target,
+                                                     headerPolicy,
+                                                     encryptedSocket,
+                                                     ignoreSignature);
 
-      if (encryptedSocket && 
-          headerPolicy.secureMethod == headerPolicy.PLAIN) {
-        sendSignatureValid(false); // please send me the signature next time
+      if (!goodPolicy) {
+        if (_log.isDebugEnabled()) {
+          _log.debug("Policy mismatch for message from " + _source + 
+                     " to " + _target + " for policy " + headerPolicy);
+        }
+
+        if (encryptedSocket && 
+            headerPolicy.secureMethod == headerPolicy.PLAIN) {
+          sendSignatureValid(false); // please send me the signature next time
+        }
+        throw new IncorrectProtectionException(headerPolicy);
       }
-      throw new IncorrectProtectionException(headerPolicy);
     }
     if (_log.isDebugEnabled()) {
       _log.debug("Using policy: " + headerPolicy + " from " +

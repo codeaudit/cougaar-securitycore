@@ -525,6 +525,23 @@ public class MessageProtectionServiceImpl
     attrs.pushValue(FILTERS_ATTRIBUTE, MPA_CLASSNAME);
   }
 
+  private boolean isReply(MessageAttributes attrs)
+  {
+    if (attrs == null) { 
+      return false; 
+    }
+    Object deliveryObj = 
+      attrs.getAttribute(AttributeConstants.DELIVERY_ATTRIBUTE);
+    if (deliveryObj == null) {
+      return false;
+    }
+    if (!(deliveryObj instanceof String)) { 
+      return false;
+    }
+    return ((String) deliveryObj).equals(
+                       AttributeConstants.DELIVERY_STATUS_DELIVERED);
+  }
+
   private boolean isEncrypted(MessageAttributes attrs) {
     if (attrs == null) {
       return false;
@@ -737,10 +754,11 @@ public class MessageProtectionServiceImpl
     }
     */
 
+    boolean isReply         = isReply(attrs);
     boolean encryptedSocket = isEncrypted(attrs);
     try {
       return new ProtectedMessageInputStream(is, source, destination,
-                                             encryptedSocket,
+                                             encryptedSocket, isReply,
                                              serviceBroker);
     } catch (IncorrectProtectionException e) {
       // The stream has already reported the error. Just throw
