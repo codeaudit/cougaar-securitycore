@@ -146,8 +146,8 @@ public class ThreatConLevelReporter extends ComponentPlugin {
     if (_subscription.hasChanged()) {
       // notify all the agents in a particular enclave/security community 
       removePolicies(_subscription.getRemovedCollection());
-    	changePolicies(_subscription.getChangedCollection());
-    	addPolicies(_subscription.getAddedCollection());
+      addPolicies(_subscription.getAddedCollection());
+      changePolicies(_subscription.getChangedCollection());
     }
   }
   
