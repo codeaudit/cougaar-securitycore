@@ -1274,7 +1274,23 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Searching node key: " + nodeName);
 	}
-	nodex509 = findCert(nodeName, LOOKUP_KEYSTORE | LOOKUP_LDAP);
+	nodex509 = findCert(nodeName, LOOKUP_KEYSTORE);
+	if(nodex509 == null) {
+	  // maybe approved and in LDAP?
+	  nodex509 = findCert(nodeName, LOOKUP_LDAP);
+	  if (nodex509 != null) {
+	    // install the certificate into keystore
+	    
+            String nodeAlias = findAlias(nodeName);
+	    if (nodeAlias != null) {
+	      PrivateKey nodeprivatekey = (PrivateKey) keystore.getKey(nodeAlias, param.keystorePassword);
+	      X509Certificate [] certForImport = new X509Certificate[1];
+	      certForImport[0] = nodex509;
+	      if (nodeprivatekey != null)
+		setKeyEntry(nodeAlias, nodeprivatekey, certForImport);
+	    }
+	  }
+	}
 	if(nodex509 == null) {
           // Richard -- not in LDAP or local keystore
           // might be still pending or denied
