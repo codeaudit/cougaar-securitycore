@@ -428,6 +428,11 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}P${/}-", "delete";
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}P${/}", "delete";
 
+	// Rolling log files need delete permission
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}*", "delete";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}-", "delete";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}", "delete";
+
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}*", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}-", "read";
