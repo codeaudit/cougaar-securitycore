@@ -54,7 +54,6 @@ public class RevokeCertificateServlet
 {
   private SecurityPropertiesService secprop = null;
   private CertificateManagementService keymanagement=null;
-  private ConfigParserService configParser = null;
 
   javax.servlet.ServletContext context=null;
   protected boolean debug = false;
@@ -74,12 +73,6 @@ public class RevokeCertificateServlet
 						"false"))).booleanValue();
     if(debug)
       System.out.println(" context is :"+ context.toString());
-
-    configParser = (ConfigParserService)
-      support.getServiceBroker().getService(this,
-					    ConfigParserService.class,
-					    null);
-
   }
 
   public void doPost (HttpServletRequest  req, HttpServletResponse res)
@@ -92,11 +85,8 @@ public class RevokeCertificateServlet
     String domain=req.getParameter("domain");
     String cadnname=req.getParameter("cadnname");
    
-    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
-    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-    
     out.println("<html>");
-     out.println("<script language=\"javascript\">");
+    out.println("<script language=\"javascript\">");
     out.println("function submitme(form)");
     out.println("{ form.submit()}</script>");
     out.println("</head>");
@@ -115,8 +105,8 @@ public class RevokeCertificateServlet
       return;
     }
     int status ;
-     String uri = req.getRequestURI();
-    String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/certlist";
+    String uri = req.getRequestURI();
+    String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/CertificateList";
     try {
     
       keymanagement = support.getCertificateManagementService();

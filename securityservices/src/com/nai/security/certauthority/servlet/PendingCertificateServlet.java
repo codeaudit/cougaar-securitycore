@@ -34,7 +34,7 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import com.nai.security.crypto.CertificateUtility;
+import com.nai.security.crypto.*;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
@@ -50,6 +50,7 @@ public class PendingCertificateServlet extends  HttpServlet
   private X500Name[] caDNs = null;
   private String[] roles = null;
   private CaPolicy caPolicy = null;            // the policy of the CA
+  private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceClient certificateFinder=null;
   protected boolean debug = false;
 
@@ -93,6 +94,7 @@ public class PendingCertificateServlet extends  HttpServlet
 
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
+      nodeConfiguration = new NodeConfiguration(cadnname);
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -121,7 +123,7 @@ public class PendingCertificateServlet extends  HttpServlet
     String filter = "(cn=*)";
 
     String uri = req.getRequestURI();
-    String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/pendingdetail";
+    String certDetailsUri = uri.substring(0, uri.lastIndexOf('/')) + "/PendingCertDetailsServlet";
 
     if (role == "")
       role = null;
@@ -129,13 +131,10 @@ public class PendingCertificateServlet extends  HttpServlet
       System.out.println("calling create table will role:" + role);
     }
 
-    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
     PendingCertCache pendingCache =
-      PendingCertCache.getPendingCache(cadnname,
-				       role, certpath,
-				       support.getServiceBroker());
+      PendingCertCache.getPendingCache(cadnname, role, support.getServiceBroker());
     Hashtable certtable =
-      (Hashtable)pendingCache.get(caPolicy.pendingDirectory);
+      (Hashtable)pendingCache.get(nodeConfiguration.getPendingDirectoryName(cadnname));
     out.println(createtable(certtable,
                             cadnname, role,
                             certDetailsUri));

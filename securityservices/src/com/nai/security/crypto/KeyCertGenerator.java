@@ -110,13 +110,18 @@ public final class KeyCertGenerator
   }
 
   public X509Certificate getSelfCertificate(X500Name x500name, long l)
-    throws CertificateException, InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchProviderException
+    throws CertificateException, InvalidKeyException, SignatureException,
+    NoSuchAlgorithmException, NoSuchProviderException
   {
     try
       {
 	X500Signer x500signer = getSigner(x500name);
 	Date date = new Date();
 	Date date1 = new Date();
+	System.out.println("date: " + date.toString());
+	System.out.println("date1: " + date1.toString());
+	System.out.println("l: " + l);
+
 	date1.setTime(date1.getTime() + l * 1000L);
 	CertificateValidity certificatevalidity = new CertificateValidity(date, date1);
 	X509CertInfo x509certinfo = new X509CertInfo();

@@ -34,7 +34,7 @@ import java.security.cert.X509Certificate;
 import sun.security.x509.*;
 
 // Cougaar security services
-import com.nai.security.crypto.CertificateUtility;
+import com.nai.security.crypto.*;
 import com.nai.security.crypto.ldap.CertDirectoryServiceCA;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
@@ -47,13 +47,12 @@ public class ProcessPendingCertServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
-
   private CaPolicy caPolicy = null;            // the policy of the CA
+  private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceCA caOperations=null;
-
   protected boolean debug = false;
-
   private SecurityServletSupport support;
+
   public ProcessPendingCertServlet(SecurityServletSupport support) {
     this.support = support;
   }
@@ -79,6 +78,11 @@ public class ProcessPendingCertServlet extends  HttpServlet
     String role=req.getParameter("role");
     String cadnname=req.getParameter("cadnname");
     out.println("<html>");
+    out.println("<script language=\"javascript\">");
+    out.println("function submitme(form)");
+    out.println("{ form.submit()}</script>");
+    out.println("</head>");
+
     out.println("<body>");
 
     if((alias==null)||(alias=="")) {
@@ -96,6 +100,7 @@ public class ProcessPendingCertServlet extends  HttpServlet
 
     try {
       caPolicy = configParser.getCaPolicy(cadnname);
+      nodeConfiguration = new NodeConfiguration(cadnname);
       caOperations =
 	CertDirectoryServiceFactory.getCertDirectoryServiceCAInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -114,13 +119,11 @@ public class ProcessPendingCertServlet extends  HttpServlet
       X509Certificate  certimpl;
       try {
         //certimpl=ldapentries[0].getCertificate();
-	String certpath=secprop.getProperty(secprop.CA_CERTPATH);
         PendingCertCache pendingCache =
-	  PendingCertCache.getPendingCache(cadnname,
-					   role, certpath,
-					   support.getServiceBroker());
+	  PendingCertCache.getPendingCache(cadnname, role, support.getServiceBroker());
         certimpl = (X509Certificate)
-          pendingCache.getCertificate(caPolicy.pendingDirectory, alias);
+          pendingCache.getCertificate(nodeConfiguration.getPendingDirectoryName(cadnname),
+				      alias);
 
         if (actionType.indexOf("Approve") >= 0) {
           caOperations.publishCertificate(certimpl,CertificateUtility.EntityCert,null);
@@ -128,14 +131,17 @@ public class ProcessPendingCertServlet extends  HttpServlet
             certimpl.getSubjectDN().getName());
           // need to move to approved directory
           pendingCache.moveCertificate(
-            caPolicy.pendingDirectory, caPolicy.x509CertDirectory, alias);
+            nodeConfiguration.getPendingDirectoryName(cadnname),
+	    nodeConfiguration.getX509DirectoryName(cadnname),
+	    alias);
         }
         if (actionType.indexOf("Deny") >= 0) {
           out.println("Certificate is denied: " +
             certimpl.getSubjectDN().getName());
           // need to move to denied directory
           pendingCache.moveCertificate(
-            caPolicy.pendingDirectory, caPolicy.deniedDirectory, alias);
+	    nodeConfiguration.getPendingDirectoryName(cadnname),
+	    nodeConfiguration.getDeniedDirectoryName(cadnname), alias);
         }
       }
       catch (Exception exp) {
@@ -146,12 +152,31 @@ public class ProcessPendingCertServlet extends  HttpServlet
       }
 
     }
-    out.println("<p><a href=\"../servlet/pendingcert\"> Back to Pending Certificate List ></a>");
+    String uri = req.getRequestURI();
+    String certlistUri = uri.substring(0, uri.lastIndexOf('/')) + "/PendingCertificateServlet";
+    out.println(appendForm(certlistUri,cadnname,role));
+
     out.println("</body>");
     out.println("</html>");
 
   }
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException
+  private String appendForm(String posturl, String caDNName, String role) {
+    
+    StringBuffer sb=new StringBuffer();
+     sb.append("<form name=\"certlist\" action=\"" +posturl
+	       + "\" method=\"post\">");
+     sb.append("<input type=\"hidden\" name=\"cadnname\" value=\""
+		+caDNName + "\">");
+     sb.append("<input type=\"hidden\" name=\"role\" value=\""
+	       + role + "\">");
+     sb.append("<a Href=\"javascript:submitme(document.certlist)\">"
+		+ "Back to List "+"</a></form>");
+     return sb.toString();
+  }
+
+  protected void doGet(HttpServletRequest req,
+		       HttpServletResponse res)
+    throws ServletException, IOException
   {
   }
 

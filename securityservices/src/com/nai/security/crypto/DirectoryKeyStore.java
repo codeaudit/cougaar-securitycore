@@ -1766,21 +1766,19 @@ public class DirectoryKeyStore
     if (CryptoDebug.debug) {
       System.out.println("Make key pair:" + alias + ":" + dname.toString());
     }
-    doGenKeyPair(alias,
-		 dname,
-		 cryptoClientPolicy.getCertificateAttributesPolicy().keyAlgName,
-		 cryptoClientPolicy.getCertificateAttributesPolicy().keysize,
-		 cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName,
-		 cryptoClientPolicy.getCertificateAttributesPolicy().howLong);
+    doGenKeyPair(alias, dname);
     return alias;
   }
 
   /** Generate a key pair and a self-signed certificate */
-  public void doGenKeyPair(String alias, X500Name dname,
-			   String keyAlgName, int keysize, String sigAlgName,
-			   long howLong)
+  public void doGenKeyPair(String alias, X500Name dname)
     throws Exception
   {
+    String keyAlgName = cryptoClientPolicy.getCertificateAttributesPolicy().keyAlgName;
+    int keysize = cryptoClientPolicy.getCertificateAttributesPolicy().keysize;
+    String sigAlgName = cryptoClientPolicy.getCertificateAttributesPolicy().sigAlgName;
+    long howLong = cryptoClientPolicy.getCertificateAttributesPolicy().howLong;
+
     if(sigAlgName == null)
       if(keyAlgName.equalsIgnoreCase("DSA"))
 	sigAlgName = "SHA1WithDSA";
@@ -2025,6 +2023,8 @@ public class DirectoryKeyStore
 	}
 	URL url = new URL(trustedCaPolicy[0].caURL);
 	HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+	// Don't follow redirects automatically.
+	huc.setInstanceFollowRedirects(false);
 	// Let the system know that we want to do output
 	huc.setDoOutput(true);
 	// Let the system know that we want to do input

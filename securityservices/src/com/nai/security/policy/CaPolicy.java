@@ -37,19 +37,6 @@ public class CaPolicy
    *  These fields are used by the CA and the node acting as a CA.
    */
 
-  /** The name of a file where the next serial number is stored.
-   */
-  public String serialNumberFile;
-
-  /** The name of a directory where all PKCS10 requests are stored.
-   */
-  public String pkcs10Directory;
-
-  /** The name of a directory where all issued X509 certificates
-   *  are stored.
-   */
-  public String x509CertDirectory;
-
   /** *************************
    *  Policy parameters when issuing certificates.
    */
@@ -70,8 +57,6 @@ public class CaPolicy
   /** The duration of the validity when issuing an X509 certificate.
    */
   public long howLong;
-
-
 
   /** *************************************************************
    *  These fields are used by the CA only.
@@ -97,13 +82,26 @@ public class CaPolicy
   static public final int NETTOOLS = 1;
   static public final int COUGAAR_OPENLDAP = 2;
 
+  /** The name of a file where the next serial number is stored.
+   */
+  //public String serialNumberFile;
+
   /** The name of a directory where all pending requests are stored.
    */
-  public String pendingDirectory;
+  //public String pendingDirectory;
 
   /** The name of a directory where all denied requests are stored.
    */
-  public String deniedDirectory;
+  //public String deniedDirectory;
+
+  /** The name of a directory where all PKCS10 requests are stored.
+   */
+  //public String pkcs10Directory;
+
+  /** The name of a directory where all issued X509 certificates
+   *  are stored.
+   */
+  //public String x509CertDirectory;
 
   /** *************************
    *  Policy parameters when issuing certificates.

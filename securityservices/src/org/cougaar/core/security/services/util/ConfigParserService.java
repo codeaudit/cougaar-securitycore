@@ -26,6 +26,7 @@ package org.cougaar.core.security.services.util;
 import java.io.Serializable;
 import sun.security.x509.*;
 import org.w3c.dom.*;
+import java.io.InputStream;
 
 // Cougaar core infrastructure
 import org.cougaar.core.component.Service;
@@ -51,6 +52,10 @@ public interface ConfigParserService extends Service {
    */
   CryptoClientPolicy getCryptoClientPolicy();
   CaPolicy getCaPolicy(String aDN);
+
+  void parsePolicy(InputStream policy);
+  SecurityPolicy[] getSecurityPolicies();
+  SecurityPolicy[] getSecurityPolicies(Class policyClass);
 
   /** Get all the roles specified in the XML file
    */

@@ -56,11 +56,7 @@ public class ConfigParserServiceImpl
   implements ConfigParserService
 {
   private SecurityPropertiesService secprop = null;
-
   private boolean isCertAuthority = false;
-
-  private String configFile = null;
-  private String configPath = null;
   private Document configDoc = null;
   private String role;
 
@@ -81,10 +77,17 @@ public class ConfigParserServiceImpl
     }
     role = secprop.getProperty(secprop.SECURITY_ROLE); 
 
+    // Set the ContentHandler...
+    handler = new ConfigParserHandler(parser, role);
+    parser.setContentHandler(handler);
+
     setConfigurationFile();
   }
 
   private void setConfigurationFile() {
+    String configFile = null;
+    String configPath = null;
+
     String defaultConfigFile = "cryptoPolicy.xml";
     configFile = secprop.getProperty(secprop.CRYPTO_CONFIG,
 				     defaultConfigFile);
@@ -115,6 +118,8 @@ public class ConfigParserServiceImpl
 
     try {
       configDoc = confFinder.parseXMLConfigFile(configFile);
+      FileInputStream fis = new FileInputStream(configPath);
+      parsePolicy(fis);
     }
     catch (IOException e) {
       if (CryptoDebug.debug) {
@@ -122,7 +127,6 @@ public class ConfigParserServiceImpl
 	e.printStackTrace();
       }
     }
-    parsePolicy();
   }
 
   public Document getConfigDocument() {
@@ -130,7 +134,9 @@ public class ConfigParserServiceImpl
   }
 
   public CryptoClientPolicy getCryptoClientPolicy() {
-    CryptoClientPolicy[] policy = handler.getCryptoClientPolicy();
+    CryptoClientPolicy[] policy =
+      (CryptoClientPolicy[])getSecurityPolicies(CryptoClientPolicy.class);
+
     if (policy.length != 1) {
       throw new RuntimeException("Inconsistent policy. Got "
 				 + policy.length + " crypto client policies");
@@ -139,7 +145,9 @@ public class ConfigParserServiceImpl
   }
 
   public CaPolicy getCaPolicy(String aDN) {
-    CaPolicy[] policy = handler.getCaPolicy();
+    CaPolicy[] policy =
+      (CaPolicy[])getSecurityPolicies(CaPolicy.class);
+
     X500Name x500Name = null;
     if (CryptoDebug.debug) {
       System.out.println("Requesting CA policy for " + aDN);
@@ -165,17 +173,40 @@ public class ConfigParserServiceImpl
     return null;
   }
 
+  public void parsePolicy(InputStream policy) {
+    if (CryptoDebug.debug) {
+      System.out.println("Reading policy object");
+    }
+    try {
+      // Parse the file...
+      parser.parse(new InputSource(policy));
+
+      if (CryptoDebug.debug) {
+	System.out.println(handler.toString());
+      }
+    }
+    catch ( Exception e ) {
+      e.printStackTrace();
+    }
+  }
+
+  public SecurityPolicy[] getSecurityPolicies() {
+    return handler.getSecurityPolicies();
+  }
+
+  public SecurityPolicy[] getSecurityPolicies(Class policyClass) {
+    return handler.getSecurityPolicies(policyClass);
+  }
 
   public boolean isCertificateAuthority() {
     return getCryptoClientPolicy().isCertificateAuthority();
   }
 
-
   public X500Name[] getCaDNs()
   {
     X500Name[] caDNs = new X500Name[0];
     ArrayList caList = new ArrayList();
-    CaPolicy[] policy = handler.getCaPolicy();
+    CaPolicy[] policy = (CaPolicy[])getSecurityPolicies(CaPolicy.class);
 
     for (int i = 0 ; i < policy.length ; i++) {
       caList.add(policy[i].caDnName);
@@ -211,27 +242,6 @@ public class ConfigParserServiceImpl
       if (aRole != null) {
 	set.add(aRole);
       }
-    }
-  }
-
-  public void parsePolicy() {
-    try {
-      // Set the ContentHandler...
-      handler = new ConfigParserHandler(parser, role);
-      parser.setContentHandler(handler);
-
-      if (CryptoDebug.debug) {
-	System.out.println("Reading policy file: " + configPath);
-      }
-      // Parse the file...
-      parser.parse(new InputSource(new FileReader(configPath)));
-
-      if (CryptoDebug.debug) {
-	System.out.println(handler.toString());
-      }
-    }
-    catch ( Exception e ) {
-      e.printStackTrace();
     }
   }
 }

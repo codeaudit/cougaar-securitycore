@@ -119,6 +119,7 @@ public class CaPolicyHandler
       }
     }
     // Directories
+    /*
     if (localName.equals(CA_SERIAL_ELEMENT)) {
       caPolicy.serialNumberFile = getContents();
     }
@@ -134,6 +135,7 @@ public class CaPolicyHandler
     if (localName.equals(CA_DENIED_ELEMENT )) {
       caPolicy.deniedDirectory = getContents();
     }
+    */
 
     // Certificate Directory Service
     if (localName.equals(CA_LDAP_URL_ELEMENT)) {

@@ -65,14 +65,6 @@ public class ConfigParserHandler
     return ccp;
   }
 
-  public CryptoClientPolicy[] getCryptoClientPolicy() {
-    return (CryptoClientPolicy[])getSecurityPolicies(CryptoClientPolicy.class);
-  }
-
-  public CaPolicy[] getCaPolicy() {
-    return (CaPolicy[])getSecurityPolicies(CaPolicy.class);
-  }
-
   public SecurityPolicy[] getSecurityPolicies(Class policyClass) {
     Iterator it = securityPolicies.iterator();
     ArrayList al = new ArrayList();

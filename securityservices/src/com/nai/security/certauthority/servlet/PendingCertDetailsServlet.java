@@ -35,7 +35,7 @@ import sun.security.x509.*;
 
 // Cougaar security services
 import com.nai.security.policy.CaPolicy;
-import com.nai.security.crypto.CertificateUtility;
+import com.nai.security.crypto.*;
 import com.nai.security.crypto.ldap.CertDirectoryServiceClient;
 import com.nai.security.crypto.ldap.CertDirectoryServiceFactory;
 import com.nai.security.crypto.ldap.LdapEntry;
@@ -46,13 +46,12 @@ public class PendingCertDetailsServlet extends  HttpServlet
 {
   private SecurityPropertiesService secprop = null;
   private ConfigParserService configParser = null;
-
+  private NodeConfiguration nodeConfiguration;
   private CertDirectoryServiceClient certificateFinder=null;
   private CaPolicy caPolicy = null;            // the policy of the CA
-
   protected boolean debug = false;
-
   private SecurityServletSupport support;
+
   public PendingCertDetailsServlet(SecurityServletSupport support) {
     this.support = support;
   }
@@ -105,6 +104,8 @@ public class PendingCertDetailsServlet extends  HttpServlet
 					      ConfigParserService.class,
 					      null);
       caPolicy = configParser.getCaPolicy(cadnname);
+      nodeConfiguration = new NodeConfiguration(cadnname);
+    
       certificateFinder =
 	CertDirectoryServiceFactory.getCertDirectoryServiceClientInstance(
 				       caPolicy.ldapType, caPolicy.ldapURL);
@@ -126,13 +127,11 @@ public class PendingCertDetailsServlet extends  HttpServlet
     X509Certificate  certimpl;
     try {
 
-      String certpath=secprop.getProperty(secprop.CA_CERTPATH);
       PendingCertCache pendingCache =
 	PendingCertCache.getPendingCache(cadnname,
-					 role, certpath,
-					 support.getServiceBroker());
+					 role, support.getServiceBroker());
       certimpl = (X509Certificate)pendingCache.getCertificate(
-        caPolicy.pendingDirectory, alias);
+        nodeConfiguration.getPendingDirectoryName(cadnname), alias);
     }
     catch (Exception exp) {
       out.println("error-----------  "+exp.toString());
@@ -142,7 +141,7 @@ public class PendingCertDetailsServlet extends  HttpServlet
     }
 
     String uri = req.getRequestURI();
-    String certApprovalUri = uri.substring(0, uri.lastIndexOf('/')) + "/processpending";
+    String certApprovalUri = uri.substring(0, uri.lastIndexOf('/')) + "/ProcessPendingCertServlet";
 
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
     out.println("<html>");

@@ -75,8 +75,6 @@ public interface CertificateManagementService extends Service {
 
   public void processPkcs10Request(PrintStream out, InputStream request);
 
-  public String getX509DirectoryName();
-
   public ArrayList getSigningRequests(InputStream reader)
     throws FileNotFoundException, IOException, SignatureException,
 	   NoSuchAlgorithmException, InvalidKeyException;

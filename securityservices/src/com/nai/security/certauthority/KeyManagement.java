@@ -391,9 +391,9 @@ public class KeyManagement
       ArrayList requests = getSigningRequests(request);
 
       String [] dirlist = new String[3];
-      dirlist[1] = caPolicy.x509CertDirectory;
-      dirlist[2] = caPolicy.pendingDirectory;
-      dirlist[0] = caPolicy.deniedDirectory;
+      dirlist[1] = nodeConfiguration.getX509DirectoryName(caDN);
+      dirlist[2] = nodeConfiguration.getPendingDirectoryName(caDN);
+      dirlist[0] = nodeConfiguration.getDeniedDirectoryName(caDN);
 
       // Loop through each request and sign it.
       Iterator i = requests.iterator();
@@ -455,10 +455,6 @@ public class KeyManagement
       e.printStackTrace();
     }
 
-  }
-
-  public String getX509DirectoryName() {
-    return nodeConfiguration.getX509DirectoryName(caDN);
   }
 
   private void saveX509Request(X509CertImpl clientX509, boolean pending)
@@ -646,11 +642,11 @@ public class KeyManagement
     return request;
   }
 
-  private synchronized BigInteger getNextSerialNumber(String filename)
+  private synchronized BigInteger getNextSerialNumber()
     throws FileNotFoundException, IOException
   {
     String serialNbFileName = nodeConfiguration.getNodeDirectory()
-      + File.separatorChar + filename;
+      + File.separatorChar + "serialNumber.txt";
     if (CryptoDebug.debug) {
       System.out.println("Serial Number file name: " + serialNbFileName);
     }
@@ -843,7 +839,7 @@ public class KeyManagement
     clientCertInfo.set("version", certversion);
 
     // Set serial number
-    BigInteger nextSerialNumber = getNextSerialNumber(caPolicy.serialNumberFile);
+    BigInteger nextSerialNumber = getNextSerialNumber();
     CertificateSerialNumber certSerialNumber = new CertificateSerialNumber(nextSerialNumber);
     clientCertInfo.set("serialNumber", certSerialNumber);
 

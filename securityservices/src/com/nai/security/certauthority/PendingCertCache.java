@@ -37,10 +37,11 @@ import java.security.PublicKey;
 import org.cougaar.core.component.ServiceBroker;
 
 // Cougaar security services
+import com.nai.security.util.CryptoDebug;
 import com.nai.security.policy.CaPolicy;
-import com.nai.security.crypto.CertificateUtility;
+import com.nai.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
-import  org.cougaar.core.security.services.crypto.CertificateManagementService;
+import org.cougaar.core.security.services.crypto.CertificateManagementService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 
 public class PendingCertCache
@@ -49,8 +50,9 @@ public class PendingCertCache
   private SecurityPropertiesService secprop = null;
 
   private CaPolicy caPolicy = null;            // the policy of the CA
-  private String x509DirectoryName = null;
+  private NodeConfiguration nodeConfiguration;
   protected boolean debug = false;
+  private String caDN;
 
   private static PendingCertCache thisCache = null;
   private CertificateManagementService signer = null;
@@ -60,12 +62,10 @@ public class PendingCertCache
   // singleton
   // only started once
   public synchronized static PendingCertCache getPendingCache(
-    String cadnname, String role, String certpath,
-    ServiceBroker sb) {
+    String cadnname, String role, ServiceBroker sb) {
     if (thisCache == null) {
       try {
-        thisCache = new PendingCertCache(cadnname, role,
-					 certpath, sb);
+        thisCache = new PendingCertCache(cadnname, role, sb);
       }
       catch (Exception e) {
         System.out.println("Error creating PendingCertCache: " + e.toString());
@@ -75,7 +75,6 @@ public class PendingCertCache
   }
 
   private PendingCertCache(String cadnname, String role,
-			   String certpath,
 			   ServiceBroker sb) 
     throws Exception {
     serviceBroker = sb;
@@ -128,8 +127,14 @@ public class PendingCertCache
     secprop = SecurityServiceProvider.getSecurityProperties(null);
     debug = (Boolean.valueOf(secprop.getProperty(secprop.CRYPTO_DEBUG,
 						"false"))).booleanValue();
+    caDN = caPolicy.caDnName.getName();
 
-    x509DirectoryName = signer.getX509DirectoryName();
+    nodeConfiguration = new NodeConfiguration(caDN);
+    
+    if (CryptoDebug.debug) {
+      System.out.println("PendingCertCache: Top level directory is :"
+			 + nodeConfiguration.getNodeDirectory());
+    }
     loadRequests();
   }
 
@@ -138,17 +143,18 @@ public class PendingCertCache
     throws Exception {
     // there are 3 directories storing certificates which should be loaded
     // 1. the pending request, which will be used when viewing and approving requests
-    put(caPolicy.pendingDirectory,
-      loadCertCache(x509DirectoryName + File.separatorChar +
-        caPolicy.pendingDirectory + File.separatorChar));
+    put(nodeConfiguration.getPendingDirectoryName(caDN),
+	loadCertCache(nodeConfiguration.getPendingDirectoryName(caDN)));
+
     // 2. the valid certificate, which will be used when need to reply client with
     //  a certificate approved
-    put(caPolicy.x509CertDirectory, loadCertCache(x509DirectoryName + File.separatorChar));
+    put(nodeConfiguration.getX509DirectoryName(caDN),
+	loadCertCache(nodeConfiguration.getX509DirectoryName(caDN)));
+
     // 3. the denied request, which will be checked when client send a query request
     //  to check whether the request has been processed
-    put(caPolicy.deniedDirectory,
-      loadCertCache(x509DirectoryName + File.separatorChar +
-        caPolicy.deniedDirectory + File.separatorChar));
+    put(nodeConfiguration.getDeniedDirectoryName(caDN),
+	loadCertCache(nodeConfiguration.getDeniedDirectoryName(caDN)));
   }
 
   private Hashtable loadCertCache(String certsubdir) {
@@ -208,12 +214,10 @@ public class PendingCertCache
       if (certtable != null)
         certtable.remove(alias);
 
-      String topath = x509DirectoryName + File.separatorChar;
       // from is always pending, so just add it
-      String frompath = topath + fromstate + File.separatorChar + alias + ".cer";
-      if (!tostate.equals(caPolicy.x509CertDirectory))
-        topath += tostate + File.separatorChar;
-      topath += alias + ".cer";
+      String frompath = fromstate + File.separatorChar + alias + ".cer";
+      String topath = tostate + File.separatorChar + alias + ".cer";
+
       File fromfile = new File(frompath);
       if (fromfile.exists())
         fromfile.renameTo(new File(topath));

@@ -53,6 +53,8 @@ public class Duration {
     long val = 0;
     boolean expectNumber = true;
 
+    System.out.println("duration:" + text);
+
     while (tokens.hasMoreTokens()) {
       String s = tokens.nextToken();
 
@@ -88,6 +90,7 @@ public class Duration {
 	expectNumber = true;
       }
     }
+     System.out.println("duration:" + duration);
   }
 
   public long getDuration()

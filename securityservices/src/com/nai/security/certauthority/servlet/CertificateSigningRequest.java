@@ -60,7 +60,7 @@ public class CertificateSigningRequest
   {
     super.init(config);
   }
-  
+
   public void doPost (HttpServletRequest req, HttpServletResponse res)
     throws ServletException,IOException
   {
@@ -151,6 +151,14 @@ public class CertificateSigningRequest
   protected void doGet(HttpServletRequest req,
 		       HttpServletResponse res)
     throws ServletException, IOException  {
+    if (CryptoDebug.debug) {
+      System.out.println("+++++ Certificate signing request: ");
+      System.out.println("method:" + req.getMethod());
+      System.out.println("authType:" + req.getAuthType());
+      System.out.println("pathInfo:" + req.getPathInfo());
+      System.out.println("query:" + req.getQueryString());
+    }
+
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
