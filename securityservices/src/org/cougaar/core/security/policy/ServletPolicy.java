@@ -33,6 +33,7 @@ import java.util.ArrayList;
 public class ServletPolicy extends SecurityPolicy {
   private List _rules = new ArrayList();
   private long _failureDelay = 1000;
+  private long _sessionLife = 60000; // 1 minute
 
   public static class ServletPolicyRule implements java.io.Serializable {
     public String agentName;
@@ -90,6 +91,14 @@ public class ServletPolicy extends SecurityPolicy {
 
   public void setFailureDelay(long delay) {
     _failureDelay = delay;
+  }
+
+  public long getSessionLife() {
+    return _sessionLife;
+  }
+
+  public void setSessionLife(long life) {
+    _sessionLife = life;
   }
 
   public String toString() {

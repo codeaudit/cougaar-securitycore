@@ -143,6 +143,12 @@ public class ServletPolicyHandler extends BaseConfigHandler {
       } catch (NumberFormatException e) {
         log.error("The failure-delay element must contain a long integer");
       }
+    } else if (localName.equals("session-life")) {
+      try {
+        _policy.setSessionLife(Long.parseLong(getContents()));
+      } catch (NumberFormatException e) {
+        log.error("The failure-delay element must contain a long integer");
+      }
     }
   }
 }

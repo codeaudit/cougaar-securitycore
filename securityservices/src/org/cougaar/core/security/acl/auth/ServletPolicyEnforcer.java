@@ -29,10 +29,15 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 // Tomcat 4.0 security constraints
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
+import org.apache.catalina.Session;
+import org.apache.catalina.Manager;
+import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.deploy.SecurityCollection;
 
@@ -56,7 +61,8 @@ import org.cougaar.core.security.acl.auth.DualAuthenticator;
 import org.cougaar.core.security.policy.ServletPolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
 
-public class ServletPolicyEnforcer implements ServletPolicyService {
+public class ServletPolicyEnforcer 
+  implements ServletPolicyService, PropertyChangeListener {
 
   ServiceBroker _serviceBroker;
   ServletGuard  _servletGuard;
@@ -69,6 +75,7 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
   SecurityConstraint  _constraints[];
   HashSet             _roles;
   long                _sleepTime = 1000;
+  long                _sessionLife;
   HashSet             _agents = new HashSet();
 
   public ServletPolicyEnforcer(ServiceBroker sb) {
@@ -97,6 +104,16 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
         addStarAgent(agent);
       } // end of while (iter.hasNext())
     }
+    
+    _context.addPropertyChangeListener(this);
+  }
+
+  public void propertyChange(PropertyChangeEvent evt) {
+    String name = evt.getPropertyName();
+    if (name.equals("manager")) {
+      _context.removePropertyChangeListener(this);
+      _context.setManager(new LimitSessionManager((Manager)evt.getNewValue()));
+    } // end of if (name.equals("manager"))
   }
 
   public synchronized void setDualAuthenticator(DualAuthenticator da) {
@@ -296,6 +313,9 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
       HashMap authConstraints = new HashMap();
       HashMap starAuthConstraints = new HashMap();
       HashSet roles = new HashSet();
+
+      setLoginSleepTime(policy.getFailureDelay());
+      _sessionLife = policy.getSessionLife();
       while (iter.hasNext()) {
         ServletPolicy.ServletPolicyRule rule = 
           (ServletPolicy.ServletPolicyRule) iter.next();
@@ -338,6 +358,99 @@ public class ServletPolicyEnforcer implements ServletPolicyService {
       }
       setAuthConstraints(authConstraints,starAuthConstraints);
       setSecurityConstraints(constraints,roles);
+    }
+  }
+
+  public class LimitSessionManager implements Manager {
+    Manager _mgr;
+
+    public LimitSessionManager(Manager mgr) {
+      if (mgr != null) {
+        _mgr = mgr;
+      } else {
+        _mgr = new StandardManager();
+      }
+    }
+
+    public boolean getDistributable(){
+      return _mgr.getDistributable();
+    }
+
+    public void setDistributable(boolean distributable){
+      _mgr.setDistributable(distributable);
+    }
+
+    public String getInfo(){
+      return _mgr.getInfo();
+    }
+
+    public void load() 
+      throws ClassNotFoundException, java.io.IOException {
+      _mgr.load();
+    }
+
+    public void unload() throws java.io.IOException {
+      _mgr.unload();
+    }
+
+    public int getMaxInactiveInterval(){
+      return _mgr.getMaxInactiveInterval();
+    }
+
+    public void setMaxInactiveInterval(int interval){
+      _mgr.setMaxInactiveInterval(interval);
+    }
+
+    public void add(Session session){
+      _mgr.add(session);
+    }
+
+    public void addPropertyChangeListener(java.beans.PropertyChangeListener listener){
+      _mgr.addPropertyChangeListener(listener);
+    }
+
+    public Session createSession(){
+      return _mgr.createSession();
+    }
+
+    public Session findSession(String id)
+      throws java.io.IOException{
+      Session session = _mgr.findSession(id);
+      if (session != null) {
+        if (System.currentTimeMillis() - 
+            session.getCreationTime() > _sessionLife) {
+          session.expire();
+          session = null;
+        } 
+      } 
+      return session;
+    }
+
+    public Session[] findSessions(){
+      Session[] sessions = _mgr.findSessions();
+      for (int i = 0; i < sessions.length; i++) {
+        if (System.currentTimeMillis() - 
+            sessions[i].getCreationTime() > _sessionLife) {
+        sessions[i].expire();
+        }
+      } // end of for (int i = 0; i < sessions.length; i++)
+      return sessions;
+    }
+
+    public void remove(Session session){
+      _mgr.remove(session);
+    }
+
+    public void removePropertyChangeListener(java.beans.PropertyChangeListener listener){
+      _mgr.removePropertyChangeListener(listener);
+    }
+
+    public void setContainer(Container container) {
+      _mgr.setContainer(container);
+    }
+
+    public Container getContainer() {
+      return _mgr.getContainer();
     }
   }
 }

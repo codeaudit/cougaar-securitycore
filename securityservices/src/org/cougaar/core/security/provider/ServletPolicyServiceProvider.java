@@ -37,6 +37,7 @@ import org.cougaar.core.security.acl.auth.DualAuthenticator;
 
 // Tomcat 4.0 
 import org.apache.catalina.Context;
+import org.apache.catalina.Manager;
 
 public class ServletPolicyServiceProvider 
   extends BaseSecurityServiceProvider
@@ -82,6 +83,11 @@ public class ServletPolicyServiceProvider
     if (_servletPolicyService != null) {
       _servletPolicyService.setDualAuthenticator(da);
     }
+  }
+
+  public static Manager getManager(Manager manager) {
+    init();
+    return _servletPolicyService.getManager(manager);
   }
 
   /**
