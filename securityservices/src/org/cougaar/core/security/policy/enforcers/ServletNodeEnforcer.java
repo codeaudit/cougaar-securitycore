@@ -3,6 +3,7 @@ package org.cougaar.core.security.policy.enforcers;
 import org.cougaar.core.security.policy.enforcers.ontology.*;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuite;
 import org.cougaar.core.security.policy.enforcers.util.CypherSuiteWithAuth;
+import org.cougaar.core.security.policy.enforcers.util.DAMLMapping;
 import org.cougaar.core.security.policy.enforcers.util.HardWired;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 
@@ -53,6 +54,7 @@ public class ServletNodeEnforcer
     EntityInstancesConcepts.EntityInstancesDamlURL + "NSAApprovedProtection";
   private List _people;
   private NodeGuard _guard;
+  private DAMLMapping _uriMap;
 
   /**
    * Returns a list of the classes controlled by this enforcer - currently 
@@ -86,6 +88,10 @@ public class ServletNodeEnforcer
   public ServletNodeEnforcer(ServiceBroker sb) {
     // FIXME!!
     HardWired.setServiceBroker(sb);
+
+    _uriMap = new DAMLMapping(sb);
+    _uriMap.initializeUri();
+
     _sb = sb;
     _log = (LoggingService) 
       _sb.getService(this, LoggingService.class, null);
@@ -208,12 +214,17 @@ public class ServletNodeEnforcer
   }
 
   /**
-************************************************************************
-*  Test Code
-*/
+   ************************************************************************
+   *  Test Code
+   */
 
+
+  /** 
+   * Broken for now...
+   */
   public void testTiming(PrintWriter out)
   {
+    out.print("<p><b>Mildly Broken for now! Fix me...</b></p>");
     String role1 = HardWired.ulRoles[0];
     String role2 = HardWired.ulRoles[1];
     Set roles = new HashSet();
@@ -281,10 +292,13 @@ public class ServletNodeEnforcer
   /**
    * This is a test that is intended to be run from a servlet.  Its
    * single argument is an output stream on which html will be written.
+   *
+   * I broke this today - come back to it later...
    */
   public void testEnforcer(PrintWriter out) 
     throws IOException, UnknownConceptException
   {
+    out.print("<p><b>Mildly Broken for now! Fix me...</b></p>");
     out.print("<p><b>Servlet Test</b></p>");
     Set uris = HardWired.uriMap.keySet();
     for (Iterator uriIt = uris.iterator();
@@ -390,8 +404,11 @@ public class ServletNodeEnforcer
    */
   public Set whichCypherSuiteWithAuth(String uri) 
   {
-    String kaosuri = (String) HardWired.uriMap.get(uri);
+    _log.debug("Entering whichCypherSuiteWithAuth");
+    
+    String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
+      _log.warn("Given UL uri mapped to the empty kaos uri");
       return null;
     }
 
@@ -436,15 +453,11 @@ public class ServletNodeEnforcer
                                     String uri, 
                                     CypherSuiteWithAuth c) 
   {
-    String kaosuri = (String) HardWired.uriMap.get(uri);
+    String kaosuri = (String) _uriMap.ulUriToKAoSUri(uri);
     if (kaosuri == null) {
       return false;
     }
 
-    //      Set kaosroles = new HashSet();
-    //      for (Iterator roleIt = roles.iterator(); roleIt.hasNext();) {
-    //          kaosroles.add(HardWired.kaosRoleFromRole((String) roleIt.next()));
-    //      }
     String user = UserDatabase.login(roles);
         
     Set targets = new HashSet();

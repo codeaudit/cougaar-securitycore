@@ -80,11 +80,14 @@ public class HardWired {
    * some sort of dynamic registering could happen with the Domain
    * Manager so that the appropriate information is available when
    * the Domain Manager needs it.
+   *
+   * Now only used for testing...
+   *
    */
   public final static Map uriMap;
   static {
     uriMap = new HashMap();
-    uriMap.put("/policyAdmin",
+    uriMap.put("/$foo/policyAdmin",
                EntityInstancesConcepts.EntityInstancesDamlURL
                +  "PolicyServlet");
 
@@ -92,12 +95,12 @@ public class HardWired {
     // CA servlet
     String caServlet = EntityInstancesConcepts.EntityInstancesDamlURL +
       "CAServlet";
-    uriMap.put("/CA/RevokeCertificateServlet", caServlet);
-    uriMap.put("/CA/CreateCaKeyServlet", caServlet);
-    uriMap.put("/CA/SubmitCaKeyServlet", caServlet);
-    uriMap.put("/CA/ProcessPendingCertServlet", caServlet);
-    uriMap.put("/CA/CaKeyManagement", caServlet);
-    uriMap.put("/useradmin", caServlet);
+    uriMap.put("/$foo/CA/RevokeCertificateServlet", caServlet);
+    uriMap.put("/$foo/CA/CreateCaKeyServlet", caServlet);
+    uriMap.put("/$foo/CA/SubmitCaKeyServlet", caServlet);
+    uriMap.put("/$foo/CA/ProcessPendingCertServlet", caServlet);
+    uriMap.put("/$foo/CA/CaKeyManagement", caServlet);
+    uriMap.put("/$foo/useradmin", caServlet);
   }
 
   /**
