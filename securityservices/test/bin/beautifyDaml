@@ -1,0 +1,8 @@
+#!/bin/sh
+
+CP=${COUGAAR_INSTALL_PATH}/lib/jena.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/xerces.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
+CP=${COUGAAR_INSTALL_PATH}/lib/icu4j.jar:${CP}
+
+java -classpath $CP org.cougaar.core.security.policy.daml.Forgetful $1
