@@ -50,18 +50,24 @@ and ThreatConHIGH.ServletPolicy.xml for the HIGH operating mode.
 
 1. Click the "Add" button in the "Conditional Policies" frame
    to create a new conditional policy.
-2. A pop-up window with the domain structure shows up. Select the entity
+2. The "Edit Condtional Policy" pop-up window is displayed. It shows the
+   org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY operating mode
+   can be used to control conditional policies.
+3. Select the value of the operating mode for which you want to apply a set
+   of security policies. For instance, select the "LOW" value.
+4. Click on the "Add XML" button to add the policy for the value you have
+   chosen.
+5. A pop-up window with the domain structure shows up. Select the entity
    that must enforce the conditional policy. If the policy applies to the
    entire domain, select the domain.
-3. Select the value of the policy operating mode for which you plan to
-   specify a policy.
-4. Click the "Add" button to create a new policy, and add a new policy
-   as described in "Unconditional policies", step 2 to 9.
-5. Click "OK" to return to the main window. You should see one new
+6. Add the new policy as described in "Unconditional policies", step 2 to 9.
+   Note: for servlet policy, enter org.cougaar.core.security.policy.ServletPolicy
+   in the "type" field
+7. Click "OK" to return to the main window. You should see one new
    line in the "Conditional policies" frame with the value of the policy
    mode you have selected and the name of the policy.
-6. Repeat step 1 to 5 with a different value for the operating mode.
-7. In the Main window, click "Commit" on the lower right.
+8. Repeat step 1 to 7 with a different value for the operating mode.
+9. In the Main window, click "Commit" on the lower right.
 
 Policy type
 -----------
