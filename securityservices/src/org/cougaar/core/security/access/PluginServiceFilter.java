@@ -49,10 +49,18 @@ import org.cougaar.core.service.ThreadListenerService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.planning.service.PrototypeRegistryService;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 import java.util.Hashtable;
 
 public class PluginServiceFilter extends ServiceFilter {
+  private static Logger _log;
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger(PluginServiceFilter.class);
+  }
+
   // for ServiceListener to SecurityServiceListener mapping
   private static Hashtable _slTable = new Hashtable();
 
@@ -64,12 +72,21 @@ public class PluginServiceFilter extends ServiceFilter {
   //this is here as a patch
   public void setParameter(Object o) {}
 
+  public PluginServiceFilter() {
+    if (_log.isDebugEnabled()) {
+      _log.debug("Instantiating binder factory: " + this);
+    }
+  }
+
   // This is a "Wrapper" binder which installs a service filter for plugins
   public static class PluginServiceFilterBinder
     extends ServiceFilterBinder
   {
     public PluginServiceFilterBinder(BinderFactory bf, Object child) {
       super(bf,child);
+      if (_log.isDebugEnabled()) {
+        _log.debug("Instantiating binder: " + this);
+      }
     }
 
     // this method specifies a binder proxy to use, so as to avoid exposing the binder
@@ -95,6 +112,9 @@ public class PluginServiceFilter extends ServiceFilter {
         _sb = sb;
         _scs = (SecurityContextService)
           _sb.getService(this, SecurityContextService.class, null);
+        if (_log.isDebugEnabled()) {
+          _log.debug("Instantiating proxy: " + this);
+        }
       }
       
       public void addServiceListener(ServiceListener sl) {
