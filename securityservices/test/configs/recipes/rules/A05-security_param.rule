@@ -240,6 +240,7 @@ society.each_host do |host|
     # Internal Java runtime classes can create infinite recursive calls
     #node.remove_parameter("-Xbootclasspath/a.*")
     node.replace_parameter(/-Xbootclasspath\/a/, "-Xbootclasspath/a:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}securebootstrapper.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}bootstrap.jar")
+    #node.replace_parameter(/-Xbootclasspath\/p/, "-Xbootclasspath/p:$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}buffer-java-patch.jar#{File::PATH_SEPARATOR}$COUGAAR_INSTALL_PATH#{File::SEPARATOR}lib#{File::SEPARATOR}javaiopatch.jar")
     
     # Aspects: MessageProtectionAspect
     # Add the MessageProtectionAspect to the org.cougaar.message.transport.aspects property to turn on

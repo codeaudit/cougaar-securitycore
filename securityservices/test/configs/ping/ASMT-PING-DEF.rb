@@ -2,7 +2,7 @@
 
 name: ASMT-PING-1
 description: MOAS
-script: BaselineTemplate.rb
+script: $CIP/configs/ping/BaselineTemplate.rb
 parameters:
   - run_count: 1
   - society_file: $CIP/configs/ping/MiniPingSociety.rb
@@ -17,9 +17,20 @@ parameters:
 # ######################################################
 # Security rules
     - $CIP/csmart/config/rules/security
+
+#    - $CIP/csmart/config/rules/security/ruleset/base
+#    - $CIP/csmart/config/rules/security/ruleset/crypto
+#    - $CIP/csmart/config/rules/security/ruleset/jaas
+#    - $CIP/csmart/config/rules/security/ruleset/accesscontrol
+#    - $CIP/csmart/config/rules/security/ruleset/misc
+#    - $CIP/csmart/config/rules/security/ruleset/monitoring
+#    - $CIP/csmart/config/rules/security/ruleset/debug
+#    - $CIP/csmart/config/rules/security/ruleset/signConfig
+
     - $CIP/csmart/lib/security/rules
     - $CIP/csmart/config/rules/security/mop
     - $CIP/csmart/config/rules/security/testCollectData
+
    # ###
    # Redundant CA and persistence managers
 #    - $CIP/csmart/config/rules/security/redundancy
