@@ -47,6 +47,7 @@ import java.security.PrivilegedAction;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -217,7 +218,16 @@ public class JaasSSLFactory extends SSLSocketFactory {
     String name = null;
     Subject subject = (Subject) 
       AccessController.doPrivileged(new GetSubject(acc));
-    Set set = subject.getPrincipals(ChainedPrincipal.class);
+    Set set = null;
+    if (subject == null) {
+      if (_log.isErrorEnabled()) {
+        _log.error("Unable to retrieve Subject data");
+      }
+      set = new HashSet(0);
+    }
+    else {
+      set = subject.getPrincipals(ChainedPrincipal.class);
+    }
     if (set.isEmpty()) {
       if(_log.isDebugEnabled()) {
         _log.debug("No principals available. Using node agent's");
