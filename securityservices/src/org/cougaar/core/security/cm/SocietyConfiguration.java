@@ -30,6 +30,8 @@ package org.cougaar.core.security.cm;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
@@ -39,11 +41,26 @@ import org.cougaar.core.util.UniqueObject;
  * Society Configuration Value Object
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SocietyConfiguration implements Serializable, UniqueObject {
   private HashMap agentConfigurations;
+  private HashMap nodeConfigurations;
   private UID uid;
+
+	/**
+	 * @return
+	 */
+	public HashMap getNodeConfigurations() {
+		return nodeConfigurations;
+	}
+
+	/**
+	 * @param nodeConfigurations
+	 */
+	public void setNodeConfigurations(HashMap nodeConfigurations) {
+		this.nodeConfigurations = nodeConfigurations;
+	}
 
 	/**
 	 * @return
@@ -57,8 +74,10 @@ public class SocietyConfiguration implements Serializable, UniqueObject {
    *
    * @param list List of agent to node mappings.
    */
-  public SocietyConfiguration(HashMap list) {
-    this.agentConfigurations = list;
+  public SocietyConfiguration(HashMap agentList, HashMap nodeList) {
+    this.agentConfigurations = agentList;
+    this.nodeConfigurations = nodeList;
+    
   }
 
   /**
@@ -74,5 +93,32 @@ public class SocietyConfiguration implements Serializable, UniqueObject {
    */
   public void setUID(UID arg0) {
     uid = arg0;
+  }
+  
+  public String toString(){
+  	String result="";
+	result = result + "\nNode configs:\n";
+  	if(nodeConfigurations!=null)
+  	{
+  		
+  		Set entries = nodeConfigurations.keySet();
+  		Iterator iter = entries.iterator();
+  		while(iter.hasNext()){
+  			String key = (String)iter.next();
+  			NodeConfiguration nc = (NodeConfiguration)nodeConfigurations.get(key);
+  			result = result + nc.getNodeName() +":"+nc.getNodeType()+"\n";
+  		}
+  	}
+	result= result + "\nAgent configs:\n";
+  	if(agentConfigurations!=null){
+  		Set entries = agentConfigurations.keySet();
+  		Iterator iter = entries.iterator();
+  		while(iter.hasNext()){
+  			String key = (String)iter.next();
+  			AgentConfiguration ac = (AgentConfiguration)agentConfigurations.get(key);
+  			result = result + ac.getAgentname()+":"+ac.getAgentType()+"\n";
+  		}
+  	}
+  	return result;
   }
 }

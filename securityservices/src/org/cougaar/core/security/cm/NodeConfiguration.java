@@ -25,67 +25,69 @@
  */
 
 
-/*
- * Created on Jul 29, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package org.cougaar.core.security.cm;
 
 
 import java.io.Serializable;
 
-import java.util.List;
-
 
 /**
- * Node Configuration value Object
+ * DOCUMENT ME!
  *
- * @author ttschampel
+ * @version $Revision: 1.1 $
+ * @author $author$
  */
-public class AgentConfiguration implements Serializable {
-  private String agentname;
-  private String agentType;
-  
-
-	/**
-	 * @return
-	 */
-	public String getAgentname() {
-		return agentname;
-	}
-
-	/**
-	 * @param agentname
-	 */
-	public void setAgentname(String agentname) {
-		this.agentname = agentname;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getAgentType() {
-		return agentType;
-	}
-
-	/**
-	 * @param agentType
-	 */
-	public void setAgentType(String agentType) {
-		this.agentType = agentType;
-	}
+public class NodeConfiguration implements Serializable {
+  private String nodeName;
+  private String nodeType;
 
   /**
    * Creates a new NodeConfiguration object.
    *
-   * @param agentArg Node name
-   * @param nodesArg List of Agent names
+   * @param name DOCUMENT ME!
+   * @param type DOCUMENT ME!
    */
-  public AgentConfiguration(String _name, String _type){
-    this.agentname = _name;
-    this.agentType = _type;
+  public NodeConfiguration(String name, String type) {
+    this.nodeName = name;
+    this.nodeType = type;
   }
 
+  /**
+   * DOCUMENT ME!
+   *
+   * @return
+   */
+  public String getNodeName() {
+    return nodeName;
+  }
+
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param nodeName
+   */
+  public void setNodeName(String nodeName) {
+    this.nodeName = nodeName;
+  }
+
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @return
+   */
+  public String getNodeType() {
+    return nodeType;
+  }
+
+
+  /**
+   * DOCUMENT ME!
+   *
+   * @param nodeType
+   */
+  public void setNodeType(String nodeType) {
+    this.nodeType = nodeType;
+  }
 }

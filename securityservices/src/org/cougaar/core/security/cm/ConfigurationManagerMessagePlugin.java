@@ -46,7 +46,7 @@ import java.util.Iterator;
  * configuration is on the blackboard
  *
  * @author ttschampel
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ConfigurationManagerMessagePlugin extends ComponentPlugin {
   private static final String PLUGIN_NAME = "ConfigurationManagerMessagePlugin";
@@ -126,7 +126,25 @@ public class ConfigurationManagerMessagePlugin extends ComponentPlugin {
       boolean valid = false;
       if (object != null) {
         AgentConfiguration config = (AgentConfiguration) object;
-        valid = config.getNodes().contains(node);
+        String agentType = config.getAgentType();
+        if(logging.isDebugEnabled()){
+        	logging.debug("Checking that " + node + " has facet role of " + agentType);
+        	
+        }
+        HashMap nodeMap = sc.getNodeConfigurations();
+        Object nodeObj = nodeMap.get(node);
+        if(nodeObj!=null){
+        	NodeConfiguration nc = (NodeConfiguration)nodeObj;
+        	String nodeType  = 	nc.getNodeType();
+        	if(logging.isDebugEnabled()){
+        		logging.debug("Node role is " + nodeType + " and needed type is " + agentType);
+        		
+        	}
+        	if(nodeType.equals(agentType)){
+        		valid=true;
+        	}
+        }
+        
       }
 
       response = new VerifyResponse(valid);
