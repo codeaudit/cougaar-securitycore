@@ -253,9 +253,14 @@ public class EntityStats
       long sum = 0;
       while (it.hasNext()) {
 	Map.Entry m = (Map.Entry) it.next();
-	EntityData ed = (EntityData) m.getValue();
-	ed.updateCurrentSize();
-	sum += (long) ed.getCurrentSize(false);
+	if (m != null) {
+	  EntityData ed = (EntityData) m.getValue();
+	  ed.updateCurrentSize();
+	  sum += (long) ed.getCurrentSize(false);
+	}
+	else {
+	  System.out.println("Error: no Map.Entry");
+	}
       }
       _stats._totalNumberOfElements = sum;
     }
