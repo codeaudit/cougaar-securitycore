@@ -124,6 +124,8 @@ import com.nai.security.crypto.Base64;
 	return cert;
     }
 
+    public LDAPCert() {  }
+
     public LDAPCert(String filename) {
 	X509Certificate cert = loadCert(filename);
 	set = new BasicAttributes(true);
