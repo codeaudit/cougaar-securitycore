@@ -993,7 +993,7 @@ public class KeyManagement
     // Certificate can be used right away
     // move back 1 hour for time difference
     Date curdate = new Date();
-    long dtime = curdate.getTime() - 3600L * 1000L;
+    long dtime = curdate.getTime() - caPolicy.timeEnvelope * 1000L;
     Date date_notbefore = new Date(dtime);
 
     // Certificate is valid for a number of days

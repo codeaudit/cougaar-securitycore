@@ -102,6 +102,7 @@ public class CreateCaKeyServlet
 
     String ldapURL = (String)req.getParameter("LDAPurl");
     String validity = (String)req.getParameter("Validity");
+    String envelope = (String)req.getParameter("timeEnvelope");
     String requirePending = (String)req.getParameter("RequirePending");
     String keySize = (String)req.getParameter("KeySize");
     String nodeIsSigner = (String)req.getParameter("nodeIsSigner");
@@ -124,6 +125,7 @@ public class CreateCaKeyServlet
     attributeTable.put("ldapURL", ldapURL);
     attributeTable.put("keysize", keySize);
     attributeTable.put("validity", validity);
+    attributeTable.put("timeEnvelope", envelope);
     attributeTable.put("requirePending", requirePending);
     attributeTable.put("nodeIsSigner", nodeIsSigner);
 
@@ -236,6 +238,14 @@ public class CreateCaKeyServlet
     out.println("where a1...a6 is a number<br>");
     out.println("y=year, M=month, d=day, h=hour, m=minute, s=second. At least one key is required<br>");
     out.println("</i></td></tr>");
+
+    out.println("<tr><td>");
+    out.println("Time envelope:</td><td><input name=\"timeEnvelope\" type=\"text\" value=\"true\"></td>");
+    out.println("<td><i>The default time envelope for a certificate to be valid.<br>");
+    out.println("The certificate will be valid between this period to the actual time<br>");
+    out.println("it is approved by CA, plus the validity period above after its approval.<br>");
+    out.println("Format is the same as validity.<br>");
+    out.println("</i></td>");
 
     out.println("<tr><td>");
     out.println("Key size:</td><td><input name=\"KeySize\" type=\"text\" value=\"\"></td>");
