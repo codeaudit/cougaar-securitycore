@@ -86,9 +86,9 @@ import KAoS.Util.Logger;
 
 import org.cougaar.domain.planning.ldm.policy.Policy;
 
-import com.nai.security.policy.XMLPolicyCreator;
+import org.cougaar.core.security.policy.XMLPolicyCreator;
 
-import com.nai.security.policy.TypedPolicy;
+import org.cougaar.core.security.policy.TypedPolicy;
 
 
 
@@ -604,7 +604,7 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 
                         PolicyMsg.setPolicyMsgAttribute(newPolicy,
 
-                                                     com.nai.security.policy.TypedPolicy.POLICY_OBJECT_KEY,
+                                                    org.cougaar.core.security.policy.TypedPolicy.POLICY_OBJECT_KEY,
 
                                                      policyObject,
 
