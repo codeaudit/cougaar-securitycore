@@ -54,24 +54,26 @@ declaration[ParsedPolicyFile ppf]
 throws PolicyCompilerException
     : setprefix[ppf]
     | "Agent" agentName:URI
-        { ppf.declareInstance(ParsedPolicy.tokenToURI(agentName),
+        { ppf.declareInstance(ParsedPolicyFile.identifierToURI(agentName),
                               ActorConcepts._Agent_); }
     | "UserRole" userRoleName:TOKEN
         { ppf.declareInstance(GroupInstancesConcepts.GroupInstancesDamlURL
-                              + userRoleName.getText() + "Role",
+                              + ParsedPolicyFile.tokenToText(userRoleName)
+                              + "Role",
                               UltralogGroupConcepts._Role_); }
     | "Servlet" servletName:TOKEN
         { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
-                              + servletName.getText(),
+                              + ParsedPolicyFile.tokenToText(servletName),
                               UltralogEntityConcepts._Servlet_); }
     | "PlugInRole" pluginRoleName:TOKEN
         { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
-                              + pluginRoleName.getText(),
+                              + ParsedPolicyFile.tokenToText(pluginRoleName),
                               UltralogEntityConcepts._PlugInRoles_); }
     | "BlackBoardObject" blackBoardObjectName:TOKEN
-        { ppf.declareInstance(EntityInstancesConcepts.EntityInstancesDamlURL
-                              + blackBoardObjectName.getText(),
-                              UltralogEntityConcepts._BlackBoardObjects_); }
+        { ppf.declareInstance(
+                    EntityInstancesConcepts.EntityInstancesDamlURL +
+                           ParsedPolicyFile.tokenToText(blackBoardObjectName),
+                    UltralogEntityConcepts._BlackBoardObjects_); }
     ;
 
 setprefix[ParsedPolicyFile ppf]
@@ -81,7 +83,7 @@ throws PolicyCompilerException
       if (prefix.getText().startsWith("$")) {
         throw new PolicyCompilerException("Policy prefix must begin with %");
       }
-      ppf.setPrefix(ParsedPolicy.tokenToURI(prefix));
+      ppf.setPrefix(ParsedPolicyFile.identifierToURI(prefix));
          }
     ;
 
@@ -89,14 +91,15 @@ policy
 returns [ParsedPolicy pp]
 throws PolicyCompilerException
 {pp = null;}
-    : "Policy" pn:TOKEN EQ LBRACK pp = innerPolicy[pn.getText()] RBRACK
+    : "Policy" pn:TOKEN EQ LBRACK 
+        pp = innerPolicy[ParsedPolicyFile.tokenToText(pn)] RBRACK
         conditionalAddendum[pp]
     ;
 
 conditionalAddendum[ParsedPolicy pp]
 throws PolicyCompilerException
     : "when" "operating" "mode" EQ mode:TOKEN
-        { pp.setConditionalMode(mode.getText()); }
+        { pp.setConditionalMode(ParsedPolicyFile.tokenToText(mode)); }
     |
     ;
 
@@ -105,9 +108,10 @@ returns [ParsedPolicy pp]
 throws PolicyCompilerException
 {  pp = null; }
     : "GenericTemplate"               pp = genericPolicy[pn]
-    | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
-    | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
+    | "AuditTemplate"                 pp = audit[pn]
     | "BlackboardTemplate"            pp = blackboardPolicy[pn]
+    | "ServletAuthenticationTemplate" pp = servletAuthentication[pn]
+    | "ServletUserAccessTemplate"     pp = servletUserAccess[pn]
     ;
 
 
@@ -120,11 +124,11 @@ throws PolicyCompilerException
       subject:URI "is" modality = genericAuth
         "to" "perform" action:URI "as" "long" "as"
   { GenericParsedPolicy gpp 
-            = new GenericParsedPolicy(pn,
-                                      ParsedPolicy.tokenToInt(priority),
-                                      modality,
-                                      ParsedPolicy.tokenToURI(subject),
-                                      ParsedPolicy.tokenToURI(action));
+          = new GenericParsedPolicy(pn,
+                                    ParsedPolicyFile.identifierToInt(priority),
+                                    modality,
+                                    ParsedPolicyFile.identifierToURI(subject),
+                                    ParsedPolicyFile.identifierToURI(action));
         }
         genericTargets[gpp]
         { pp = gpp; }
@@ -155,7 +159,7 @@ throws PolicyCompilerException
     : "the" "value" "of" property:URI resType = genericRestrictionType
         complementedTarget=genericTargetModality
         genericRange[pp,
-                     ParsedPolicy.tokenToURI(property), 
+                     ParsedPolicyFile.identifierToURI(property), 
                      resType,
                      complementedTarget]
     ;
@@ -184,13 +188,13 @@ throws PolicyCompilerException
     : range:URI 
   { pp.addTarget(property,
                 resType,
-                (Object) ParsedPolicy.tokenToURI(range),
+                (Object) ParsedPolicyFile.identifierToURI(range),
                 complementedTarget); }
     | { List instances = new Vector(); }
         LCURLY
         ( instance:URI 
             { try { 
-                instances.add(ParsedPolicy.tokenToURI(instance)); 
+                instances.add(ParsedPolicyFile.identifierToURI(instance)); 
               } catch (Exception e) {
                   throw new RuntimeException("shouldn't happen - " + 
                                              "see policyGrammar.g");
@@ -202,6 +206,70 @@ throws PolicyCompilerException
                        (Object) instances,
                        complementedTarget); }
     ;
+
+
+audit[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{   pp = null;
+    String userRole = null;
+    Set servletNames = null;
+}   : "Require" "audit" "for" "all" "accesses" "to" "servlet" 
+        servletNames = tokenList userRole = auditUsers
+        { pp = new AuditParsedPolicy(pn, userRole, servletNames); }
+    ;
+
+auditUsers
+returns [String userRole]
+{   userRole = null; }
+    : "by" "users" "in" "role" role:TOKEN
+        { userRole = ParsedPolicyFile.tokenToText(role); }
+    |
+    ;
+
+
+/*
+ * The Blackboard policy template: (e.g. A plugin in the role OpPlan can
+ * add, remove, change, query objects of type OpPlan on the blackboard.
+ */
+
+blackboardPolicy[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{   pp=null;
+    Set accessModes = null; 
+    Set objectTypes = null; }
+    : "A" "PlugIn" "in" "the" "role" pluginRole:TOKEN "can" 
+        accessModes=tokenList "objects" "of" "type" 
+        objectTypes = tokenList
+        { pp = new BlackboardParsedPolicy(
+                                pn,
+                                ParsedPolicyFile.tokenToText(pluginRole), 
+                                accessModes, 
+                                objectTypes); }
+    ;
+
+
+/*
+ * The servlet authentication servlet (e.g. All users must use CertificateSSL 
+ * when accessing the servlet named PolicyServlet)
+ */
+
+servletAuthentication[String pn]
+returns [ParsedPolicy pp]
+throws PolicyCompilerException
+{   pp = null; 
+    Set auth = new HashSet(); }
+    : "All" "users" "must" "use" auth = tokenList "authentication" "when"
+        "accessing" "the" "servlet" "named" servlet:TOKEN
+        { pp = 
+            new ServletAuthenticationParsedPolicy(
+                pn, 
+                auth, 
+                ParsedPolicyFile.tokenToText(servlet));
+        }
+    ;
+
 
 
 /*
@@ -218,8 +286,8 @@ throws PolicyCompilerException
         {pp = new ServletUserParsedPolicy(
                 pn,
                 m,
-                r.getText(),
-                n.getText());
+                ParsedPolicyFile.tokenToText(r),
+                ParsedPolicyFile.tokenToText(n));
             }
     ;
 
@@ -227,46 +295,6 @@ servletUserAccessModality returns [boolean m] { m = true; }
     : "can" { m = true; }
     | "cannot" { m = false; }
    ;
-
-/*
- * The Blackboard policy template: (e.g. A plugin in the role OpPlan can
- * add, remove, change, query objects of type OpPlan on the blackboard.
- */
-
-blackboardPolicy[String pn]
-returns [ParsedPolicy pp]
-throws PolicyCompilerException
-{   pp=null;
-    Set accessModes = null; 
-    Set objectTypes = null; }
-    : "A" "PlugIn" "in" "the" "role" pluginRole:TOKEN "can" 
-        accessModes=tokenList "objects" "of" "type" 
-        objectTypes = tokenList
-        { pp = new BlackboardParsedPolicy(pn,
-                                          pluginRole.getText(), 
-                                          accessModes, 
-                                          objectTypes); }
-    ;
-
-
-/*
- * The servlet authentication servlet (e.g. All users must use CertificateSSL when accessing the servlet named PolicyServlet)
- */
-
-servletAuthentication[String pn]
-returns [ParsedPolicy pp]
-throws PolicyCompilerException
-{   pp = null; 
-    Set auth = new HashSet(); }
-    : "All" "users" "must" "use" auth = tokenList "authentication" "when"
-        "accessing" "the" "servlet" "named" servlet:TOKEN
-        { pp = 
-            new ServletAuthenticationParsedPolicy(
-                pn, 
-                auth, 
-                servlet.getText());
-        }
-    ;
 
 
 
@@ -278,14 +306,14 @@ tokenList
 returns [Set items]
 {   items = null; }
     : item:TOKEN items=moreTokenList
-        { items.add(item.getText()); }
+        { items.add(ParsedPolicyFile.tokenToText(item)); }
     ;
 
 moreTokenList
 returns [Set items]
 {   items = null; }
     : COMMA item:TOKEN items = moreTokenList
-        { items.add(item.getText()); }
+        { items.add(ParsedPolicyFile.tokenToText(item)); }
     |
         { items = new HashSet(); }
     ;
@@ -297,15 +325,30 @@ options {
 }
 
 // one-or-more letters followed by a newline
-TOKEN:   ( 'a'..'z'|'A'..'Z' )+
+TOKEN  
+    :   ( 'a'..'z'|'A'..'Z' )+
+    |   '"' (~'"')+ '"'
     ;
+
+
+//
+// I have implemented two different types of URL
+// In the "%" version, everything after the % represents the URI being 
+// represented.  In the $ version, the $ is a shorthand for the URI prefix
+//     http://ontology.coginst.uwf.edu/
+// Thus for example 
+//         $Action.daml#hasDestination 
+// represents the URL
+//       http://ontology.coginst.uwf.edu/Action.daml#hasDestination
+//
+URI: '$'  ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 
+    | '%' ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 
+    ;
+
 
 INT : ( '0'..'9' )+ 
     ;
 
-URI: '$'  ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 
-    | '%' ( 'a'..'z'|'A'..'Z'|'0'..'9'|'/'|':'|'.'|'#'|'-'|'_')+ 
-    ;
 
 EQ: '='
     ;
@@ -326,8 +369,6 @@ COMMA: ','
     ;
 
 
-
-
 // whitespace
 WS	:	(	' '
 		|	'\t'
@@ -338,7 +379,8 @@ WS	:	(	' '
 	;
 
 
-// I have been having trouble with comments - what is matchNot doing?
+// The newline() call ensures that line numbers are correct in policy files
+// that have comments.
 COMMENT: '#' (~'\n')* '\n'
 		{$setType(Token.SKIP);  newline(); }	//ignore this token
     ;
