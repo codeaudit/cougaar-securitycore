@@ -110,13 +110,14 @@ import org.cougaar.core.agent.ClusterIdentifier;
  */
 public class KeyRingJNDIRealm extends RealmBase {
 
-  private static ServiceBroker    _nodeServiceBroker;
+  private static ServiceBroker _nodeServiceBroker;
+  private static String        _realmName = "Cougaar";
+
   private static final DateFormat LDAP_TIME =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
   private static final TimeZone   GMT = TimeZone.getTimeZone("GMT");
-  private String          _certComponent = "CN";
-  private static String   _realmName = "Cougaar";
 
+  private String          _certComponent = "CN";
   private LdapUserService     _userService;
   private BlackboardService   _blackboardService;
   private IdmefMessageFactory _idmefFactory;
@@ -171,25 +172,6 @@ public class KeyRingJNDIRealm extends RealmBase {
     if (_userService == null) {
       _userService = (LdapUserService) _nodeServiceBroker.
         getService(this, LdapUserService.class, null);
-      
-      AgentIdentityService ais = (AgentIdentityService)
-        _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
-
-      NodeIdentificationService nis = (NodeIdentificationService)
-        _nodeServiceBroker.getService(this, NodeIdentificationService.class, null);
-      if (nis == null) {
-	throw new RuntimeException("Unable to get NodeIdentification service");
-      }
-      if (ais != null) {
-        // force a certificate for the node
-        try {
-          ais.acquire(null);
-        } catch (PendingRequestException e) {
-          // well, can't use it, but no biggy
-        } catch (IdentityDeniedException e) {
-          e.printStackTrace();
-        }
-      }
     }
     return true;
   }
@@ -199,6 +181,14 @@ public class KeyRingJNDIRealm extends RealmBase {
    */
   public static void setNodeServiceBroker(ServiceBroker sb) {
     _nodeServiceBroker = sb;
+  }
+
+  /**
+   * Sets the realm name for use in DIGEST
+   * and BASIC authentication.
+   */
+  public static void setRealmName(String realmName) {
+    _realmName = realmName;
   }
 
   /**
@@ -575,39 +565,6 @@ public class KeyRingJNDIRealm extends RealmBase {
    */
   public String getName() {
     return "KeyRing JNDI Realm";
-  }
-
-  /**
-   * Set the Container with which this Realm has been associated.
-   *
-   * @param container The associated Container
-   */
-  public void setContainer(Container container) {
-    super.setContainer(container);
-    DualAuthenticator daValve = findDAValve(container);
-    if (daValve != null) {
-      _realmName = daValve.getRealmName();
-    }
-  }
-
-  private DualAuthenticator findDAValve(Container container) {
-    Container[] children = container.findChildren();
-    for (int i = 0; i < children.length; i++) {
-      if (children[i] instanceof AuthValve) {
-        Valve v = ((AuthValve) children[i]).getValve();
-        if (v instanceof Container) {
-          children[i] = (Container) v;
-        }
-      }
-      if (children[i] instanceof DualAuthenticator) {
-        return (DualAuthenticator) children[i];
-      }
-      DualAuthenticator da = findDAValve(children[i]);
-      if (da != null) {
-        return da;
-      }
-    }
-    return null;
   }
 
   private synchronized boolean initAlert(ServiceBroker sb) {
