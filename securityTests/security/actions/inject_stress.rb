@@ -78,25 +78,6 @@ module Cougaar
       end
     end
 
-    class StoreMopsInRunHashTable < Cougaar::Action
-      def initialize(run)
-        super(run)
-      end
-
-      def perform
-        # the first slot is a placehold so that mop 2.1 is at index 1.
-        run['mops'] = [
-          AbstractSecurityMop.new(run),
-          Stressors.getStressInstance('SecurityMop21', run),
-          Stressors.getStressInstance('SecurityMop22', run),
-          Stressors.getStressInstance('SecurityMop23', run),
-          Stressors.getStressInstance('SecurityMop2_4', run),
-          Stressors.getStressInstance('SecurityMop2_5', run),
-          Stressors.getStressInstance('SecurityMop2_6', run),
-          ]
-      end
-    end
-
     class InjectStress < Cougaar::Action
 
       def initialize(run, className, methodName)
