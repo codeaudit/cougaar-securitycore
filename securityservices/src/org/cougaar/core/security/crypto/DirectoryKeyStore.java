@@ -3178,7 +3178,8 @@ public class DirectoryKeyStore
         // maybe upper level has expired
         try {
           checkCertificateTrust(cs.getCertificate());
-          return true;
+	  // not expired if there is no exception
+          return false;
         } catch (CertificateException cex) {
           // do not handle certificate revoked exception, should just fail to verify
           // because cannot establish chain (cannot find valid cert)
