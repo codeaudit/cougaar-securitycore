@@ -231,7 +231,6 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission java.io.FilePermission "${/}usr${/}java${/}-", "read";
 	permission java.io.FilePermission "${/}usr${/}java${/}", "read";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.javac";
-        permission java.lang.RuntimePermission "accessClassInPackage.sun.net.www.protocol.http";
 };
 
 ////////////////////////////////////////////////////////////
@@ -505,10 +504,17 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write, delete";
 
 	permission java.io.FilePermission "${/}proc${/}-", "read";
+	permission java.io.FilePermission "${/}tmp${/}", "read";
+	permission java.io.FilePermission "${/}tmp${/}*", "read";
 
 	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}*", "read, write, delete";
 	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}-", "read, write, delete";
 	permission java.io.FilePermission "${/}mnt${/}difs${/}3459${/}", "read, write, delete";
+
+        // for ACME
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}xmlnodes${/}--", "read";
 
 	// "persistence.clear=true" requires the permission to delete files in the
 	// the org.cougaar.workspace/P directory
@@ -522,6 +528,10 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}log4jlogs/${/}", "delete";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}", "read";
+
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}planning${/}", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}planning${/}*", "read";
+	permission java.io.FilePermission "${org.cougaar.install.path}${/}planning${/}-", "read";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}glmtrans${/}*", "read";
@@ -618,7 +628,6 @@ grant {
 	permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}sys${/}-", "read";
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}lib${/}-", "read";
-//        permission java.lang.RuntimePermission "accessClassInPackage.sun.net.www.protocol.http";
 };
 
 ////////////////////////////////////////////////////////////
