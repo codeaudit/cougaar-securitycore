@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -25,13 +25,14 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.security.constants.IdmefClassifications;
 
 // securityservices classes
-import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
+//import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.IdmefEventPublisher;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 
 /**
  * This class must be placed in the Node ini file to allow
- * the DataProtectionService to report data protection failures. 
+ * the DataProtectionService to report data protection failures.
  * This class reports the sensor capabilities to the enclave security
  * manager.
  *
@@ -49,48 +50,53 @@ public class DataProtectionSensor extends  SensorPlugin
   private static final String[] CLASSIFICATIONS = {
     IdmefClassifications.DATA_FAILURE
   };
-  
+
   protected SensorInfo getSensorInfo() {
     if(m_sensorInfo == null) {
-      m_sensorInfo = new DPSensorInfo();  
-    } 
+      m_sensorInfo = new DPSensorInfo();
+    }
     return m_sensorInfo;
   }
-  
+
   protected String []getClassifications() {
     return CLASSIFICATIONS;
   }
-  
+
   protected boolean agentIsTarget() {
     return false;
   }
-  
+
    protected boolean agentIsSource() {
     return false;
   }
-  
+
   /**
    * Register this sensor's capabilities, and initialize the services that need to
    * to publish message failure events to this plugin's blackboard.
-   * 
+   *
    */
   protected void setupSubscriptions() {
     super.setupSubscriptions();
     //initialize the EventPublisher in the following services
-    EventPublisher publisher = 
-      new IdmefEventPublisher(m_blackboard, 
-                              m_cmrFactory, 
-                              m_log, 
+    m_publisher =
+      new IdmefEventPublisher(m_blackboard,
+                              m_cmrFactory,
+                              m_log,
                               getSensorInfo());
-    DataProtectionServiceImpl.addPublisher(publisher);
-  }  
-  
+    //DataProtectionServiceImpl.addPublisher(publisher);
+    publishIDMEFEvent();
+  }
+
+  public static void publishEvent(FailureEvent event) {
+    publishEvent(DataProtectionSensor.class, event);
+  }
+
   private class DPSensorInfo implements SensorInfo {
     public String getName(){
       return "DataProtectionSensor";
     }
     public String getManufacturer(){
-      return "NAI Labs";
+      return "CSI";
     }
     public String getModel(){
       return "Cougaar Data Protection Failure Sensor";
@@ -102,7 +108,7 @@ public class DataProtectionSensor extends  SensorPlugin
       return "Cougaar Security";
     }
   }
-  
+
   private SensorInfo m_sensorInfo;
 }
 

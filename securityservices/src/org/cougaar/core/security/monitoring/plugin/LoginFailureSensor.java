@@ -2,11 +2,11 @@
  * <copyright>
  *  Copyright 1997-2001 Network Associates
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the Cougaar Open Source License as published by
  *  DARPA on the Cougaar Open Source Website (www.cougaar.org).
- * 
+ *
  *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS
  *  PROVIDED 'AS IS' WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR
  *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF
@@ -52,6 +52,8 @@ import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.idmef.Agent;
+import org.cougaar.core.security.monitoring.publisher.LoginEventPublisher;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
 
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.IDMEF_Node;
@@ -77,9 +79,9 @@ import org.cougaar.core.security.constants.IdmefClassifications;
 public class LoginFailureSensor extends SensorPlugin {
   /* private DomainService  _domainService;
   private LoggingService _log;
-  */ 
+  */
   private String         _managerRole   = "SecurityMnRManager-Enclave";
- 
+
   private final  String[] CLASSIFICATIONS = {IdmefClassifications.LOGIN_FAILURE};
   private SensorInfo  sensor=null;
   public LoginFailureSensor() {
@@ -100,28 +102,32 @@ public class LoginFailureSensor extends SensorPlugin {
       _managerRole = l.get(0).toString();
     }
   }
-  
-  
+
+
 
    protected SensorInfo getSensorInfo() {
     if(sensor == null) {
-      sensor = new LFSensor();  
-    } 
+      sensor = new LFSensor();
+    }
     return sensor;
   }
-  
+
   protected  String []getClassifications() {
     return CLASSIFICATIONS;
-   
+
   }
 
   protected  boolean agentIsTarget() {
     return true;
   }
-  
+
   protected  boolean agentIsSource() {
     return false;
-    
+
+  }
+
+  public static void publishEvent(FailureEvent event) {
+    publishEvent(LoginFailureSensor.class, event);
   }
 
   /**
@@ -137,10 +143,10 @@ public class LoginFailureSensor extends SensorPlugin {
     }
 
     SensorInfo           sensor       = new LFSensor();
-        
+
     /*
     BlackboardService    bbs          = getBlackboardService();
-    DomainService        ds           = getDomainService(); 
+    DomainService        ds           = getDomainService();
     CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
     IdmefMessageFactory  idmefFactory = cmrFactory.getIdmefMessageFactory();
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
@@ -171,7 +177,7 @@ public class LoginFailureSensor extends SensorPlugin {
     }
     agentinfo.setRefIdents(ref);
 
-    AdditionalData additionalData = 
+    AdditionalData additionalData =
       idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
 
     List capabilities = new ArrayList();
@@ -180,8 +186,8 @@ public class LoginFailureSensor extends SensorPlugin {
     capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
     targets.add(target);
     addData.add(additionalData);
-      
-    RegistrationAlert reg = 
+
+    RegistrationAlert reg =
       idmefFactory.createRegistrationAlert( sensor, null,
                                             targets,
                                             capabilities,
@@ -189,7 +195,7 @@ public class LoginFailureSensor extends SensorPlugin {
                                             idmefFactory.newregistration ,
                                             idmefFactory.SensorType,
                                             myAddress.toString());
-    
+
     NewEvent regEvent = cmrFactory.newEvent(reg);
     Collection communities = cs.listParentCommunities(agentName);
     Iterator iter = communities.iterator();
@@ -213,11 +219,11 @@ public class LoginFailureSensor extends SensorPlugin {
         }
       }
       if (isSecurityCommunity) {
-        AttributeBasedAddress messageAddress = 
+        AttributeBasedAddress messageAddress =
           AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
         CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
         if (m_log.isInfoEnabled()) {
-          m_log.info("Sending sensor capabilities to community '" + 
+          m_log.info("Sending sensor capabilities to community '" +
                     community + "'");
         }
         bbs.publishAdd(relay);
@@ -228,11 +234,17 @@ public class LoginFailureSensor extends SensorPlugin {
       m_log.warn("This agent does not belong to any community. Login failures won't be reported.");
     }
     */
-    KeyRingJNDIRealm.initAlert(m_idmefFactory,m_cmrFactory, m_blackboard, getSensorInfo());
-  } 
+    //KeyRingJNDIRealm.initAlert(m_idmefFactory,m_cmrFactory, m_blackboard, getSensorInfo());
+    m_publisher =
+      new LoginEventPublisher(m_blackboard,
+                              m_cmrFactory,
+                              m_log,
+                              getSensorInfo());
+    publishIDMEFEvent();
+  }
 
-  
-  
+
+
 
   /**
    * Dummy function doesn't do anything. No subscriptions are made.
@@ -253,7 +265,7 @@ public class LoginFailureSensor extends SensorPlugin {
     public String getModel() {
       return "Servlet Login Failure";
     }
-    
+
     public String getVersion() {
       return "1.0";
     }
