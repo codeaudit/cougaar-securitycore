@@ -148,9 +148,9 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
 		out.println("<li> analyzer from manager agent:"+analyzerorg.getClusterPG().getClusterIdentifier().getAddress()+"</li>");
 		out.println("</ul>");
 		out.println("<p>");
-		out.println("Query Parameters are :"+query_parameters);
+	//	out.println("Query Parameters are :"+query_parameters);
 		out.println("<p>");
-              /*
+              
 		ServerPlugInSupport sps;
 
   		// url and cluster info
@@ -165,7 +165,8 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
     		// url and cluster info
     		clusterID = sps.getClusterIDAsString();
     		encodedClusterID = URLEncoder.encode(clusterID);
-    		int port = psc.getLocalPort();
+    		/*
+		int port = psc.getLocalPort();
     		String loc;
     		try {
       			loc = psc.getLocalAddress().getLocalHost().getHostAddress();
@@ -177,7 +178,7 @@ public class PSP_Assign extends PSP_BaseAdapter implements PlanServiceProvider, 
     		cluster_url = base_url+"$"+encodedClusterID;
 		if (clusterID != null) {
  		*/
-      		out.print("<a href=\"/Search.PSP\">");
+      		out.print("<a href=\"$"+encodedClusterID+"/Search.PSP\">");
       		// link to cluster
       		out.print("Search </a> ");
 
