@@ -52,7 +52,7 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
     if (!ok) return null;
 
     return new PasswordAuthentication(dialog.getAlias(),
-      dialog.getPwd().toCharArray());
+      dialog.getPwd());
   }
 
   public String getDescription() {
@@ -114,6 +114,9 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
         // throw exception if not password incorrect
         if (!(ex instanceof UnrecoverableKeyException))
           throw ex;
+
+        JOptionPane.showMessageDialog(null, "Authentication fail.\n Please check userid and password.",
+          "Certificate Authentication", JOptionPane.ERROR_MESSAGE);
       }
     }
     return login;
