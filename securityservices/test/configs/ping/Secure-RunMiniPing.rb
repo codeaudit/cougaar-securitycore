@@ -76,7 +76,7 @@ Cougaar.new_experiment("MiniPing-Test").run(1) {
   # start jabber 
   # 
   # replace the last parameter with your jabber server's host name  
-  do_action "StartJabberCommunications", "acme_console", "sb007" 
+  do_action "StartJabberCommunications"
  
   do_action "DeployCommunitiesFile" 
  
