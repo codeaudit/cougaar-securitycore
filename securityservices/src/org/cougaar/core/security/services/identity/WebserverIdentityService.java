@@ -29,7 +29,7 @@ package org.cougaar.core.security.services.identity;
 import org.cougaar.core.component.Service;
 
 //import org.cougaar.lib.web.arch.server.*;
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ServerSocketFactory;
 
 public interface WebserverIdentityService extends Service {
   /**
@@ -49,7 +49,7 @@ public interface WebserverIdentityService extends Service {
    * but the creation of SSLServerSocket will find no cert in keystore and will fail.
    *
    */
-  public SSLServerSocketFactory getServerSocketFactory();
+  ServerSocketFactory getWebServerSocketFactory();
 
   /**
    * This function is to set HttpsConfig parameters, Cougaar may have its own
@@ -65,6 +65,6 @@ public interface WebserverIdentityService extends Service {
    * HttpsConfig exists in the cougaar tomcat make path
    * but not the securityservices make path.
    **/
-  //public HttpsConfig setHttpsConfig(HttpsConfig httpsC);
+  //HttpsConfig setHttpsConfig(HttpsConfig httpsC);
 }
 
