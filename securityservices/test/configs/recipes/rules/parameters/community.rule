@@ -50,7 +50,8 @@ society.each_enclave do |enclave|
       end
     end
   end
-  
+
+=begin  
   # BUILD SUB<N> COMMUNITIES
   if SUB_COMM[enclave] != nil
     SUB_COMM[enclave].each_index do |index|
@@ -70,6 +71,7 @@ society.each_enclave do |enclave|
       end
     end
   end
+=end
   
   # BUILD USERDOMAIN COMMUNITIES
   society.communities.add("#{enclave.capitalize}UserDomainComm") do |community|
