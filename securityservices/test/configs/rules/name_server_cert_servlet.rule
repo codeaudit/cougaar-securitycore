@@ -10,14 +10,6 @@ uri = "NameServerCertificateServlet"
 sslRMILinkProtocol = "org.cougaar.mts.std.SSLRMILinkProtocol"
 protocolInsertion = "Node.AgentManager.Agent.MessageTransport.Component"
 
-# comment out the following small section to remove SSLRMILinkProtocol
-society.each_node do |node_agent|
-  node_agent.add_component do |c|
-    c.classname = sslRMILinkProtocol
-    c.insertionpoint = protocolInsertion
-  end
-end
-
 # check the node for protocols other than SSLRMILinkProtocol
 use_ssl = false;
 society.each_node do |node|
