@@ -6,7 +6,7 @@
     <facet enclave='EnclaveA'/> 
     <node name='ROOT-CA-NODE'> 
     <!--  <facet role="jswat"/> --> 
-    <!--  <facet role="optimizeIt"/>  -->
+     <!-- <facet role="ejp"/> -->
       <facet role="NameServer"/> 
       <facet role="RootCertificateAuthority"/> 
     </node> 
@@ -21,6 +21,7 @@
   <host name='HOST2'> 
     <facet enclave='EnclaveA'/> 
     <node name='NodeA'> 
+      <!-- <facet role="optimizeIt"/> -->
       <agent name='AgentA'/> 
     </node> 
     <node name='NodeB'> 
