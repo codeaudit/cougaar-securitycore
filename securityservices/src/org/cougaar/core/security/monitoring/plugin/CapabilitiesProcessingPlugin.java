@@ -69,10 +69,12 @@ class CapabilitiesRelayPredicate implements UnaryPredicate{
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
-      Object content = relay.getContent();
-      if (content instanceof Event) {
-        Event event = (Event) content;
-        ret = (event.getEvent() instanceof Registration);
+     if(relay.getContent() instanceof Event) {
+	Event event = (Event)relay.getContent();
+	ret = (event.getEvent() instanceof Registration);
+      }
+      else {
+	return ret;
       }
     }
     return ret;
@@ -434,7 +436,7 @@ public class CapabilitiesProcessingPlugin
 	foundindex=-1;
 	for(int j=0;j<existinglength;j++) {
 	  existingclassification=existingClassifications[j];
-	  if(!areClassificationsEqual(existingclassification,newclassification)){
+	  if(!existingclassification.equals(newclassification)){
 	    continue;
 	  }
 	  loggingService.debug("Found classification to remove:!!!!!!!!!!!!!!!!!");
@@ -479,16 +481,6 @@ public class CapabilitiesProcessingPlugin
 
   }
 
-
-  public boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
-    boolean equal=false;
-    if((existingclassification.getOrigin().trim().equals(newclassification.getOrigin().trim()))
-       &&(existingclassification.getName().trim().equals(newclassification.getName().trim()))) {
-      // loggingService.debug(" returning true  :");
-      return true;
-    }   
-    return equal;
-  }
   /*
     Reads RegistrationAlert relay and if it is not local then  it publish the content to the 
     blackboard

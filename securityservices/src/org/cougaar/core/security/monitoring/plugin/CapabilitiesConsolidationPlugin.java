@@ -74,10 +74,12 @@ class ConsolidatedCapabilitiesRelayPredicate implements UnaryPredicate{
     boolean ret = false;
     if (o instanceof CmrRelay ) {
       CmrRelay relay = (CmrRelay)o;
-      Object content = relay.getContent();
-      if (content instanceof Event) {
-        Event event = (Event) content;
-        ret = (event.getEvent() instanceof AgentRegistration);
+      if(relay.getContent() instanceof Event) {
+	Event event = (Event)relay.getContent();
+	ret = (event.getEvent() instanceof AgentRegistration);
+      }
+      else {
+	return ret;
       }
     }
     return ret;
@@ -323,7 +325,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       newclas=newcapabilities[i];
       for(int j=0;j<existingcapabilities.length;j++) {
 	existingclas=existingcapabilities[j];
-	if(!areClassificationsEqual(existingclas,newclas)) {
+	if(!existingclas.equals(newclas)) {
 	  continue;
 	}
 		
@@ -351,15 +353,6 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     return consolidate;
   }
 
-  public boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
-    boolean equal=false;
-    if((existingclassification.getOrigin().trim().equals(newclassification.getOrigin().trim()))&&(existingclassification.getName().trim().equals(newclassification.getName().trim()))) {
-      return true;
-    }
-    return equal;
-	
-  }
-    
   public void converttoString(Classification classification) {
     if (loggingService.isDebugEnabled()) {
 	loggingService.debug(" Classification origin :"+classification.getOrigin());
