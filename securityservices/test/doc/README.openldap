@@ -14,6 +14,7 @@ http://biot.com/gq
 
 include		/etc/openldap/schema/core.schema
 include		/etc/openldap/schema/java.schema
+schemacheck	off
 
    The second schema file allows us to store java objects directly into the 
    LDAP server. This is very convenient since Ultra*Log is implemented using
@@ -75,7 +76,10 @@ description: Directory Manager
   After running ldapadd, both entries should be visible using the gq browser.
   To configure gq, use File->Preferences, then click on the servers tab. Click
   the NEW button and enter the Name, LDAP host, LDAP Port (in the examples 
-  so far these would be pear, pear, and 389)
+  so far these would be pear, pear, and 389). For full access, click on the
+  details tab and enter the rootdn and rootpw from slapd.com in Bind DN and
+  Bind Password. Authentication is the above examples is simple. WARNING: THIS
+  ALLOWS A USER TO REMOVE AND MODIFY CERTIFICATES AND THE DIRECTORY STRUCTURE!
 
 
 5 The LDAP servers are configured using an URI such as:
