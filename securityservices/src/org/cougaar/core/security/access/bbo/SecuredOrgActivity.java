@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
 
 package org.cougaar.core.security.access.bbo;
 
@@ -41,18 +34,20 @@ import org.cougaar.core.security.auth.ObjectContext;
 import org.cougaar.core.security.auth.ObjectContextUtil;
 import org.cougaar.core.security.auth.SecuredObject;
 import org.cougaar.core.util.UID;
+import org.cougaar.core.util.OwnedUniqueObject;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
 import org.cougaar.glm.ldm.oplan.TimeSpan;
 import org.cougaar.glm.ldm.plan.GeolocLocation;
 import org.cougaar.planning.ldm.plan.LocationScheduleElement;
 import org.cougaar.planning.ldm.plan.Transferable;
 
-public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
+public final class SecuredOrgActivity
+  extends OwnedUniqueObject
+  implements OrgActivity, SecuredObject
+{
   private        OrgActivity     _org;
   private final  ObjectContext   _context;
   private static SecurityManager _sm = System.getSecurityManager();
-  private        String          _adCon;
-  private        String          _opCon;
 
   private final static java.security.Permission CREATE =
     new BlackboardObjectPermission(OrgActivity.class.getName(), "create");
@@ -65,6 +60,9 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
     new BlackboardObjectPermission(OrgActivity.class.getName(), "write");
 
   public SecuredOrgActivity(OrgActivity org) {
+    if (org == null) {
+      throw new IllegalArgumentException("OrgActivity should not be null");
+    }
     _context = ObjectContextUtil.createContext(org);
     _org = org;
     checkPermission(CREATE);
@@ -277,8 +275,7 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
       return false;
     }
     SecuredOrgActivity soa = (SecuredOrgActivity) o;
-    return getUID().equals(soa.getUID()) &&
-      getObjectContext().equals(soa.getObjectContext());
+    return _org.equals(soa._org);
   }
 
   public int hashCode() {
@@ -286,18 +283,20 @@ public final class SecuredOrgActivity implements OrgActivity, SecuredObject {
   }
 
   public void setAdCon(String adCon) {
-    _adCon = adCon;
+    checkPermission(WRITE);
+    _org.setAdCon(adCon);
   }
 
   public String getAdCon() {
-    return _adCon;
+    return _org.getAdCon();
   }
 
   public void setOpCon(String opCon) {
-    _opCon = opCon;
+    checkPermission(WRITE);
+    _org.setOpCon(opCon);
   }
 
   public String getOpCon() {
-    return _opCon;
+    return _org.getOpCon();
   }
 }
