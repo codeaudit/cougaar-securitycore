@@ -162,7 +162,7 @@ module Cougaar
         def to_s
 	  now = Time.new
           s = "#{now.strftime("%m/%d/%Y")}\t#{now.strftime("%H:%M:%S")}\t"
-          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(23)}\t#{@mem_size}\t"
+          s += "#{@host.name.ljust(15)}\t#{@pid}\t#{name.ljust(27)}\t#{@mem_size}\t"
           value = @xmx
           @xmx.scan(/([0-9]+)(.+)/) { |match|
             value = match[0].to_i
