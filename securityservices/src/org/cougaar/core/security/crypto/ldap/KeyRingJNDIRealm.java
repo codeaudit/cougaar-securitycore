@@ -44,6 +44,11 @@ import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.cougaar.core.security.services.crypto.LdapUserService;
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.services.identity.AgentIdentityService;
+import org.cougaar.core.security.services.identity.PendingRequestException;
+import org.cougaar.core.security.services.identity.IdentityDeniedException;
+
 
 /**
  * A Realm extension for Tomcat 4.0 that uses SSL to talk to
@@ -88,6 +93,20 @@ public class KeyRingJNDIRealm extends RealmBase {
   public KeyRingJNDIRealm() {
     _userService = (LdapUserService) _nodeServiceBroker.
       getService(this, LdapUserService.class, null);
+    if (_nodeServiceBroker != null) {
+      AgentIdentityService ais = (AgentIdentityService)
+        _nodeServiceBroker.getService(this, AgentIdentityService.class, null);
+      if (ais != null) {
+        // force a certificate for the node
+        try {
+          ais.CreateCryptographicIdentity(NodeInfo.getNodeName(), null);
+        } catch (PendingRequestException e) {
+          // well, can't use it, but no biggy
+        } catch (IdentityDeniedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
   }
 
   /** 
@@ -146,9 +165,13 @@ public class KeyRingJNDIRealm extends RealmBase {
  
   /**
    * Set the certificate subject's domain component to be used in
-   * case the subject is not to be used.
-   * The certComponent parameter can be <code>null</code>
-   * or empty string to use the full subject dn.
+   * case the subject is not to be used. 
+   *
+   * certComponent can be
+   * <code>null</code> or empty string to use the full subject dn.
+   *
+   * @param certComponent The attribute from the certificate
+   *                      subject DN to use as the user id.
    */
   public void setCertComponent(String certComponent) {
     if (certComponent != null && certComponent.length() == 0) {

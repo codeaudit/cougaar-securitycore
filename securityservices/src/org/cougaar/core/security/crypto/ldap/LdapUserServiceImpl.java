@@ -125,8 +125,8 @@ public class LdapUserServiceImpl implements LdapUserService {
   }
 
   /**
-   * Converts an ldaps://xyz url to ldap://xyz, including modification
-   * of the port.
+   * Converts an "ldaps://..." url to "ldap://..." including modification
+   * of the default port.
    *
    * @param url String containg the ldaps url. It must begin with "ldaps://".
    */

@@ -66,7 +66,7 @@ public class JNDISSLFactory extends SocketFactory {
    * InitialDirContext to get the <code>SocketFactory</code> object from the
    * class.
    *
-   * @see #init
+   * @see #init(SSLContext ctx)
    */
   public synchronized static SocketFactory getDefault() {
     if (_default == null) {
@@ -78,7 +78,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket()
    */
   public Socket createSocket() throws IOException {
     return _fact.createSocket();
@@ -87,7 +87,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket(Socket, String, int, boolean)
    */
   public Socket createSocket(Socket sock, String host, int port,
                              boolean autoClose) throws IOException {
@@ -97,7 +97,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket(java.net.InetAddress, int)
    */
   public Socket createSocket(InetAddress host, int port) throws IOException {
     return _fact.createSocket(host,port);
@@ -106,7 +106,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket(java.net.InetAddress, int, java.net.InetAddress, int)
    */
   public Socket createSocket(InetAddress host, int port,
                              InetAddress localAddress, int localPort) 
@@ -117,7 +117,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket(String, int)
    */
   public Socket createSocket(String host, int port) throws IOException {
     return _fact.createSocket(host,port);
@@ -126,7 +126,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Creates an <code>SSLSocket</code>
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#createSocket(String, int, java.net.InetAddress, int)
    */
   public Socket createSocket(String host, int port, 
                              InetAddress localAddress, int localPort) 
@@ -137,7 +137,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Returns the default cipher suites
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#getDefaultCipherSuites()
    */
   public String[] getDefaultCipherSuites() {
     return _fact.getDefaultCipherSuites();
@@ -146,7 +146,7 @@ public class JNDISSLFactory extends SocketFactory {
   /**
    * Returns the supported cipher suites
    *
-   * @see javax.net.ssl.SSLSocketFactory
+   * @see javax.net.ssl.SSLSocketFactory#getSupportedCipherSuites()
    */
   public String[] getSupportedCipherSuites() {
     return _fact.getSupportedCipherSuites();
@@ -156,7 +156,7 @@ public class JNDISSLFactory extends SocketFactory {
    * Initializes the class so that the default SocketFactory to
    * use the context provided. 
    *
-   * @see #getDefault
+   * @see #getDefault()
    */
   public synchronized static void init(SSLContext ctx) {
     _ctx = ctx;
