@@ -75,7 +75,9 @@ class GetStackTrace < SecurityStressFramework
       f = File.new(script, "w");
       f << "#!/bin/sh\n"
       f << "cd /proc/$1/fd\n"
+      f << "touch $2\n"
       f << "cat 1 > $2 & \n"
+      f << "sleep 1\n"
       f << "kill -QUIT $1\n"
       f << "chmod 777 $2\n"
       f << "sleep 30\n"
