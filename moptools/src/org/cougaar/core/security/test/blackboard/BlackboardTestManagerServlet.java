@@ -110,7 +110,7 @@ public class BlackboardTestManagerServlet extends AbstractServletComponent {
       logging.debug("BlackboardTestManagerServlet: " + doParam + " - "
           + expParam);
     }
-    if (doParam != null  && !(doParam.equals("removeTasks"))) {
+    if (doParam != null  && doParam.equals("removeTasks")) {
       // Remove all TASKS - Otherwise CncCalc won't be happy
       blackboardService.openTransaction();
       Collection c = blackboardService.query(testingPredicate);
