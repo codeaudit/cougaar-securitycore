@@ -62,6 +62,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.net.SocketException;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.certauthority.KeyManagement;
@@ -92,7 +93,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -100,6 +101,16 @@ public class CertificateRequestor {
   private CryptoClientPolicy cryptoClientPolicy;
   private LoggingService log;
   private String role;
+
+  // parameter for polling CA when it is busy handling all the requests
+  // how long interval to wait for polling CA 
+  private int _waittime = 10000;
+  // repeat polling CA how many times 
+  private int _waitrepeat = 6;
+  // start warning after how long
+  private long _pollThreshold = 180000;
+  // time when poll threshold starts to count
+  private long _pollStart;
 
   /**
    * Creates a new CertificateRequestor object.
@@ -118,6 +129,22 @@ public class CertificateRequestor {
         null);
 
     role = irole;
+      try {
+        String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
+        _waittime = Integer.parseInt(waitPoll);
+
+        waitPoll = System.getProperty("org.cougaar.core.security.waitrepeat", "6");
+        _waitrepeat = Integer.parseInt(waitPoll);
+
+        waitPoll = System.getProperty("org.cougaar.core.security.pollThreshold", "180000");
+        _pollThreshold = Integer.parseInt(waitPoll);
+      } catch (Exception ex) {
+        if (log.isWarnEnabled()) {
+          log.warn("Unable to parse configpoll property: " + ex.toString());
+        }
+      }
+
+      _pollStart = System.currentTimeMillis();
   }
 
   /**
@@ -671,18 +698,8 @@ public class CertificateRequestor {
       return reply;
     }
 
-    int waittime = 10000;
-      try {
-        String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
-        waittime = Integer.parseInt(waitPoll);
-      } catch (Exception ex) {
-        if (log.isWarnEnabled()) {
-          log.warn("Unable to parse configpoll property: " + ex.toString());
-        }
-      }
-
 synchronized (_pkcsLock) {
-  while (true) {
+  for (int i = 0; i < _waitrepeat; i++ ) {
     try {
       URL url = new URL(trustedCaPolicy.caURL);
       HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -729,21 +746,28 @@ synchronized (_pkcsLock) {
       }
       break;
     } catch (Exception e) {
-      log.warn("Unable to send PKCS request to CA. CA URL:"
+      if (!(e instanceof SocketException)) {
+        log.warn("Unable to send PKCS request to CA. CA URL:"
         + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
 	+ ". CN=" + commonName, e);
+        break;
+      }
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("go to sleep after the current request failed.");
-    }
     try {
-      Thread.sleep(waittime);
+      Thread.sleep(_waittime);
     } catch (Exception ex) {
       log.warn("Thread interruped: ", ex);
     }
   }
 }
+    if (reply == "") {
+      if (System.currentTimeMillis() > _pollStart + _pollThreshold) {
+        log.warn("Unable to send PKCS request to CA. CA URL:"
+        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN
+	+ ". CN=" + commonName);
+      }
+    }
     return reply;
   }
 
@@ -921,17 +945,8 @@ synchronized (_pkcsLock) {
       return reply;
     }
 
-    int waittime = 10000;
-      try {
-        String waitPoll = System.getProperty("org.cougaar.core.security.configpoll", "5000");
-        waittime = Integer.parseInt(waitPoll);
-      } catch (Exception ex) {
-        if (log.isWarnEnabled()) {
-          log.warn("Unable to parse configpoll property: " + ex.toString());
-        }
-      }
 synchronized (_pkcsLock) {
-  while (true) {
+  for (int i = 0; i < _waitrepeat; i++) {
     try {
       URL url = new URL(trustedCaPolicy.caURL);
       HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -975,19 +990,25 @@ synchronized (_pkcsLock) {
       }
       break;
     } catch (Exception e) {
+      if (!(e instanceof SocketException)) {
       log.warn("Unable to send PKCS request to CA. CA URL:"
         + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN, e);
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("go to sleep after the current request failed.");
+        break;
+      }
     }
     try {
-      Thread.sleep(waittime);
+      Thread.sleep(_waittime);
     } catch (Exception ex) {
       log.warn("Thread interruped: ", ex);
     }
   }
 }
+    if (reply == "") {
+      if (System.currentTimeMillis() > _pollStart + _pollThreshold) {
+      log.warn("Unable to send PKCS request to CA. CA URL:"
+        + trustedCaPolicy.caURL + " . CA DN:" + trustedCaPolicy.caDN);
+      }
+    }
     return reply;
   }
 
@@ -1671,6 +1692,11 @@ synchronized (_pkcsLock) {
     alias = alias + nextIndex;
     if (log.isDebugEnabled()) {
       log.debug("Next alias for " + name + " is " + alias);
+      try {
+        throw new Exception("");
+      } catch (Exception ex) {
+        log.debug("Stack for request: ", ex);
+      }
     }
 
     return alias;
