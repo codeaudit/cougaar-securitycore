@@ -500,8 +500,8 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "", "read";
 
 	permission java.io.FilePermission "${org.cougaar.workspace}${/}*", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write";
-	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}-", "read, write, delete";
+	permission java.io.FilePermission "${org.cougaar.workspace}${/}", "read, write, delete";
 
 	permission java.io.FilePermission "${/}proc${/}-", "read";
 
@@ -530,6 +530,7 @@ grant signedBy "privileged" {
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}log${/}plugin${/}-", "read,write";
 
 	permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read";
+        permission java.io.FilePermission "${org.cougaar.install.path}${/}", "read";
 
 	//permission java.io.FilePermission "${org.cougaar.install.path}${/}csmart${/}data${/}debug.properties", "read";
 	//permission java.io.FilePermission "${org.cougaar.install.path}${/}*", "read, write";
