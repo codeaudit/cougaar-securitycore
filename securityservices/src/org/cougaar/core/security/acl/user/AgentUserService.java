@@ -565,11 +565,8 @@ public class AgentUserService implements UserService, BlackboardClient {
   }
 
   private class CommunityServiceListener implements ServiceAvailableListener {
-    public final String COMMUNITY_SERVICE_NAME = 
-      CommunityService.class.getName();
-
     public void serviceAvailable(ServiceAvailableEvent ae) {
-      if (ae.getService().equals(COMMUNITY_SERVICE_NAME)) {
+      if (ae.getService().equals(CommunityService.class)) {
         CommunityService cs = (CommunityService) ae.getServiceBroker().
            getService(this, CommunityService.class, null);
         if (cs != null) {
