@@ -35,15 +35,15 @@ class SecurityMop21 < AbstractSecurityMop
       @run.society.each_node do |node|
         agent_count = 0
         node.each_agent do |agent|
-        if agent_count > 1 
-          break
-        agent_count += 1
+          if agent_count > 1 then
+            break
+          end
+          agent_count += 1
       
-        @nextAgent = agent
-#        url = "http://#{ agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=start&exp=#{@run.name}"
-        url = "#{agent.uri}/testBlackboardManager?do=start&exp=#{@run.name}"
-        result = Cougaar::Communications::HTTP.get(url)
-#        puts "result #{result}" # if $VerboseDebugging
+          @nextAgent = agent
+          url = "#{agent.uri}/testBlackboardManager?do=start&exp=#{@run.name}"
+          result = Cougaar::Communications::HTTP.get(url)
+#         puts "result #{result}" # if $VerboseDebugging
         end #each_agent
       end #each_node
     rescue Exception => e
@@ -67,16 +67,16 @@ class SecurityMop21 < AbstractSecurityMop
       run.society.each_node do |node|
         agent_count = 0
         node.each_agent do |agent|
-        if agent_count > 1
-          break
-        agent_count += 1
+          if agent_count > 1 then
+            break
+          end
+          agent_count += 1
 
-        url ="http://#{agent.node.host.host_name}:#{agent.node.cougaar_port}/$#{agent.name}/testBlackboardManager?do=end&exp=#{run.name}"
-#        url ="#{agent.uri}/testBlackboardManager?do=end&exp=#{run.name}"
-#        puts "ending testBlackboardManager #{url}" if $VerboseDebugging
-        puts url if $VerboseDebugging
-        req=Cougaar::Communications::HTTP.get(url)
-        #puts "mop 2.1 end #{agent.name}, #{url}, #{req}" if $VerboseDebugging
+          url ="#{agent.uri}/testBlackboardManager?do=end&exp=#{run.name}"
+#         puts "ending testBlackboardManager #{url}" if $VerboseDebugging
+          puts url if $VerboseDebugging
+          req=Cougaar::Communications::HTTP.get(url)
+         #puts "mop 2.1 end #{agent.name}, #{url}, #{req}" if $VerboseDebugging
         end #each_agent
       end #end each node
     rescue Exception => e
