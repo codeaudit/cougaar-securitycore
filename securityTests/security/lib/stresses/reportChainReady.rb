@@ -128,15 +128,15 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def parseLine(line)
-//    regexp = /Interception: ReportForDuty with role : <(.*)> : <(.*)> : (.*)/
+#    regexp = /Interception: ReportForDuty with role : <(.*)> : <(.*)> : (.*)/
     regexp = /Interception: ReportChainReady : (.*) : (.*)$/
     parsed = regexp.match(line)
     if parsed != nil
       subordinate = parsed.to_a[0].split(" ").last
       superior    = parsed.to_a[1].split(" ").last
-//      role        = parsed.to_a[3]
-//      if role == "Subordinate"
-      if (!subordinate.equals(superior)) then
+#      role        = parsed.to_a[3]
+#      if role == "Subordinate"
+      if (!(subordinate == superior)) then
         addFoundSubordinate(subordinate, superior)
         if superior == "OSD.GOV" then
           puts("subordinate = #{subordinate}")
