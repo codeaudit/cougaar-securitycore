@@ -126,13 +126,13 @@ public class DataProtectionServiceImpl
 			       CryptoPolicyService.class,
 			       null);
 //	Get UID Service
-			uidService = (UIDService) this.serviceBroker.getService(this, UIDService.class, null);
+			uidService = (UIDService) this.serviceBroker.getService(requestor, UIDService.class, null);
 
 			//Get AgentIdentification Service
-			agentIdService = (AgentIdentificationService) this.serviceBroker.getService(this, AgentIdentificationService.class, null);
+			agentIdService = (AgentIdentificationService) this.serviceBroker.getService(requestor, AgentIdentificationService.class, null);
 
 			//Get Blackboard Service
-			bbs = (BlackboardService) serviceBroker.getService(this, BlackboardService.class, null);
+			bbs = (BlackboardService) serviceBroker.getService(requestor, BlackboardService.class, null);
     // Get keyring service
     keyRing = (KeyRingService)
       serviceBroker.getService(requestor,
