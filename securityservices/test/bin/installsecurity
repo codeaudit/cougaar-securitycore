@@ -88,6 +88,7 @@ zip -qr AS_csi_secserv.zip \
 	configs/security \
 	configs/ping \
 	csmart/config/rules/security \
+	csmart/assessment \
 	csmart/scripts \
 	lib/CougaarCRLextensions.jar \
 	lib/idmef.jar \
