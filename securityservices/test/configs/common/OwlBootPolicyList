@@ -461,3 +461,14 @@ Policy AllowWhitePagesAccess = [
   $Ultralog/UltralogAction.owl#wpAccessType is a subset of the set 
   $Ultralog/UltralogEntity.owl#WPAccessType
  ]
+
+
+Policy AllowRegistration = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is authorized to perform
+  $DomainManagementAction.owl#RegisterAction
+  as long as the value of
+  $Action.owl#performedBy is a subset of the set
+  $Actor.owl#Agent
+ ]
