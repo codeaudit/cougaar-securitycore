@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- Define servlets that are included in the example application -->
+
+    <servlet>
+        <servlet-name>certrequest</servlet-name>
+        <servlet-class>com.nai.security.certauthority.CertificateSigningRequest</servlet-class>
+	<!--- initial parameter -->
+	<init-param>
+	<param-name>configfile</param-name>
+	<param-value>/var/tomcat4/webapps/CA/WEB-INF/config/servlet/servletjavaproperties.xml</param-value>
+	</init-param>
+	<load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>certlist</servlet-name>
+        <servlet-class>com.nai.security.certauthority.CertificateList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>test</servlet-name>
+        <servlet-class>com.nai.security.certauthority.Propertytester</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>certdetails</servlet-name>
+        <servlet-class>com.nai.security.certauthority.CertificateDetailsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>revokecertificate</servlet-name>
+        <servlet-class>com.nai.security.certauthority.RevokeCertificateServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>
+	certrequest
+        </servlet-name>
+        <url-pattern>
+            /CertSign
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+	test
+        </servlet-name>
+        <url-pattern>
+            /CertSign
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+	certlist
+        </servlet-name>
+        <url-pattern>
+            /CertSign
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+	certdetails
+        </servlet-name>
+        <url-pattern>
+            /CertSign
+        </url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>
+	revokecertificate
+        </servlet-name>
+        <url-pattern>
+            /CertSign
+        </url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

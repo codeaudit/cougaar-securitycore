@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<servletproperties>
+    <title>java properties to be set by servlet</title>
+    <date>11-10-2001</date>
+    <author>Rakesh</author>
+<servletjavaproperties>
+        <propertyname>org.cougaar.security.CA.certpath</propertyname>
+        <propertyvalue>/var/tomcat4/webapps/CA/WEB-INF/config/certauthority</propertyvalue>
+</servletjavaproperties>
+<servletjavaproperties>
+        <propertyname>org.cougaar.security.crypto.config</propertyname>
+        <propertyvalue>/var/tomcat4/webapps/CA/WEB-INF/config/certauthority/cryptoPolicy.xml</propertyvalue>
+</servletjavaproperties>
+<servletjavaproperties>
+        <propertyname>org.cougaar.security.keystore.password</propertyname>
+        <propertyvalue>Ultra*Log</propertyvalue>
+</servletjavaproperties>
+<servletjavaproperties>
+        <propertyname>org.cougaar.security.keystore</propertyname>
+        <propertyvalue>keystoreTest</propertyvalue>
+</servletjavaproperties>
+</servletproperties>
