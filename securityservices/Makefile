@@ -2,8 +2,6 @@
 SHELL = /bin/sh
 
 #----------------------------------------------------------- SETUP
-COUGAAR_INSTALL_PATH = ${HOME}/cougaar-8.4.1.1
-COUGAARCLASSES = ${COUGAAR_INSTALL_PATH}/classes
 CLASSPATH = ${COUGAARCLASSES}
 #----------------------------------------------------------- MAKE ALL
 
@@ -11,7 +9,7 @@ CLASSPATH = ${COUGAARCLASSES}
 #  $*      - Current target without extension
 #  $<      - Current dependency
 
-all: jar signhigh 
+all: jar signjar 
 
 clean:
 	@echo +++++++ Removing jarfiles
@@ -40,21 +38,23 @@ jar:
 # Build bootstrapper
 	@echo +++++++ Building bootstrapper.jar
 	cd ${COUGAARCLASSES}; \
-	jar cf ${COUGAARCLASSES}/bootstrapper.jar org/cougaar/core/security/bootstrap
+	jar cf ${COUGAARCLASSES}/bootstrapper.jar com/nai/security/bootstrap
 	@echo +++++++ Done Building bootstrapper.jar
 
 # Build security services
 	@echo +++++++ Building securityservices.jar
 	cd ${COUGAARCLASSES}; \
-	jar cf ${COUGAARCLASSES}/securityservices.jar com \
-		org/cougaar/core/security/access \
-		org/cougaar/core/security/crypto \
-		org/cougaar/core/security/policy \
-		org/cougaar/core/security/test \
-		org/cougaar/core/security/util 
+	jar cf ${COUGAARCLASSES}/securityservices.jar \
+		com/nai/security/access \
+		com/nai/security/crypto \
+		com/nai/security/monitoring \
+		com/nai/security/policy \
+		com/nai/security/test \
+		com/nai/security/util \
+		org 
 	@echo +++++++ Done Building securityservices.jar
 
-signhigh: jar
+signjar: jar
 	@echo +++++++ Signing bootstrapper.jar and core.jar
 #	jarsigner -keystore ${COUGAAR_INSTALL_PATH}/configs/common/signingCA_keystore \
 #		-storepass keystore ${COUGAARCLASSES}/core.jar privileged

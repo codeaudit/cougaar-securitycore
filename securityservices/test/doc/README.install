@@ -30,7 +30,7 @@ The securityservices module has the following directory structure:
       * test/configs/demo - to contain all the scripts for launching a sample
       ul-mini-config
 
-	* test/configs/common - Contains essential files that should
+      * test/configs/common - Contains essential files that should
       be shared by all Cougaar configurations.
 
       * test/configs/ul-mini-config - keystores, access control and crypto
@@ -102,7 +102,7 @@ test/bin/myalpc src
    expected in the $COUGAARCLASSES directory. The makefile automatically 
    signs the bootstrap.jar and securityservices.jar with the appropriate keys.
 
-make jar
+make signjar
 
    Note 1:
    The makefile assumes there is a sigingCA_keystore file in the
