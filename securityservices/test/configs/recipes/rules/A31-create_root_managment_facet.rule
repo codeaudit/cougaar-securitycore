@@ -21,17 +21,25 @@ society.each_node do |node|
   end
 end
 
+rmName = $facetRootManagement
+mName  = $facetManagement
+
 if !foundRoot
-  puts "Warning! No #{$facetRootManagment} facet found."
+  puts "Warning! No #{rmName} facet found."
   society.each_node do |node|
-    if facet[:role] == $facetManagement
-      node.add_facet({:role=>$facetRootManagement})
-      foundRoot = true
-      puts "Using node #{node.name} as the root manager"
+    node.each_facet(:role) do |facet|
+      if facet[:role] == $facetManagement
+        node.add_facet({:role=>$facetRootManagement})
+        foundRoot = true
+        puts "Using node #{node.name} as the root manager"
+        break
+      end
+    end
+    if foundRoot
       break
     end
   end
   if !foundRoot
-    puts "Warning! There are no nodes with facet #{$facetManagement}"
+    puts "Warning! There are no nodes with facet #{mName}"
   end
 end
