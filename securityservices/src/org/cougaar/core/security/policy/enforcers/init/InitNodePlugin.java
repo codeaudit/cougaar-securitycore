@@ -101,7 +101,7 @@ public class InitNodePlugin extends ComponentPlugin {
       servletService.register(_messageServletPath, _messageServlet);
       servletService.register(_servletServletPath, _servletServlet);
       servletService.register(_timingServletPath, _timingServlet);
-      sb.releaseService(this, ServletService.class, servletService);
+      // sb.releaseService(this, ServletService.class, servletService);
 
       //      getDirService(sb);
     } catch (Exception e) {

@@ -227,7 +227,9 @@ public class ULMessageNodeEnforcer
     out.print("<p><b>IsActionAuthorized Check</b></p>");
     out.print("<p>Is " + sender + " allowed to send " + verb +
               " messages to " + receiver + "?</p>");
-    if (isActionAuthorized(sender, "##" + receiver, verb)) {
+    if (isActionAuthorized(sender, 
+                           // "##" + 
+                           receiver, verb)) {
       out.print("<p>yes</p>");
     } else {
       out.print("<p>no</p>");
@@ -249,8 +251,12 @@ public class ULMessageNodeEnforcer
     int     count   = 2000;
     long start = System.currentTimeMillis();
     for (int i = 0; i < count; i++) {
-      suites  = getAllowedCypherSuites(sender,"##" + receiver);       
-      allowed = isActionAuthorized(sender, "##" + receiver, verb);
+      suites  = getAllowedCypherSuites(sender,
+                                       // "##" + 
+                                       receiver);       
+      allowed = isActionAuthorized(sender, 
+                                   // "##" + 
+                                   receiver, verb);
     }
     long duration = System.currentTimeMillis() - start;
     out.print("<p>" + count + " calls mediated in " 
@@ -291,7 +297,9 @@ public class ULMessageNodeEnforcer
         String receiver  = HardWired.agents[j];
         out.print("<p>Allowed cypher suites from " + sender
                   + " to " + receiver + "</p>");
-        Set suites = getAllowedCypherSuites(sender,"##" + receiver);
+        Set suites = getAllowedCypherSuites(sender,
+                                            // "##" + 
+                                            receiver);
         if (suites == null || suites.size() ==0) { 
           out.print("<p>None</p>");
         } else {
