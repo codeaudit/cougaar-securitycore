@@ -36,7 +36,10 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.security.monitoring.blackboard.Event;
 import org.cougaar.core.security.monitoring.idmef.Registration;
 import org.cougaar.core.security.monitoring.idmef.AgentRegistration;
+import org.cougaar.core.security.constants.IdmefClassifications;
 
+import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.Classification;
 import edu.jhuapl.idmef.IDMEF_Message;
 
 public class IdmefEventPublisherPlugin
@@ -51,7 +54,6 @@ public class IdmefEventPublisherPlugin
    */
   class IdemfEventPredicate implements UnaryPredicate{
     public boolean execute(Object o) {
-      boolean ret = false;
       if (o instanceof Event ) {
 	Event e=(Event)o;
 	IDMEF_Message msg=e.getEvent();
@@ -61,9 +63,15 @@ public class IdmefEventPublisherPlugin
 	else if(msg instanceof AgentRegistration) {
 	  return false;
 	}
-	ret=true;      
+        Alert a = (Alert)msg; 
+        Classification []cls = a.getClassifications();
+        for(int i = 0; i < cls.length; i++) {
+          if(cls[i].getName().equals(IdmefClassifications.LOGIN_FAILURE)) {
+            return true;
+          }
+        }
       }
-      return ret;
+      return false;
     }
   }
 
