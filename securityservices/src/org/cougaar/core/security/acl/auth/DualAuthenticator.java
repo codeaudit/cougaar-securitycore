@@ -365,11 +365,20 @@ public class DualAuthenticator extends ValveBase {
         // don't bother authenticating when you already know you can't reach it
         return AUTH_NEVER; 
       }
-      constraint = (byte) cwa.getAuth();
+      int authType = cwa.getAuth();
       if (_log.isDebugEnabled()) {
         _log.debug("using URI constraint: " + constraint);
       }
-      return constraint;
+      // now we only care about the least auth requirement...
+      if ((authType & cwa.authNoAuth) != 0) {
+        return AUTH_NONE;
+      } else if ((authType & cwa.authPassword) != 0) {
+        return AUTH_PASSWORD;
+      } else if ((authType & cwa.authCertificate) != 0) {
+        return AUTH_CERT;
+      } else {
+        return AUTH_NEVER;
+      }
     }
     HashMap checkAgainst = _constraints;
     do {
@@ -431,8 +440,12 @@ public class DualAuthenticator extends ValveBase {
       if (cwa == null) {
         return true;
       }
+      return !(cwa.getSSL().contains("plain"));
+      /*
       int authReq = cwa.getAuth();
-      return (authReq != cwa.authPassword && authReq != cwa.authNoAuth);
+      return ((authReq & cwa.authPassword) == 0 && 
+              (authReq & cwa.authNoAuth) == 0);
+      */
     }
     SecurityConstraint constraint = findConstraint(req.getRequestURI());
     if (constraint == null) {
