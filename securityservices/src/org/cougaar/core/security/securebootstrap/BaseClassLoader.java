@@ -51,6 +51,16 @@ public class BaseClassLoader
     exclusions.add("java.");  // avoids javaiopatch.jar
     // let base do it instead
     exclusions.add("org.cougaar.core.security.crlextension");
+
+    // BUG Cougaar 3086:
+    // The SAXParserFactory.newInstance() has a local variable of
+    // type SAXParserFactory which has been loaded by the
+    // primordial class loader. The methods sets this variable
+    // to an instance of a SAXParserFactory that must be loaded
+    // by the same class loader.
+    exclusions.add("javax.xml.");
+    exclusions.add("org.xml.");
+
     //exclusions.add("com.sun.");
     //exclusions.add("sun.");
     //exclusions.add("net.jini.");
