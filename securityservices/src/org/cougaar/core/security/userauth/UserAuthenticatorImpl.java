@@ -93,6 +93,9 @@ public class UserAuthenticatorImpl extends UserAuthenticator {
     username = "";
     SecurityServiceProvider secProvider = new SecurityServiceProvider();
     init(secProvider);
+    try {
+      authenticateUser();
+    } catch (Exception ex) {}
   }
 
   public boolean authenticateUser() throws Exception {
