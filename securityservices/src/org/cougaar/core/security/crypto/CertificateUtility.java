@@ -250,7 +250,7 @@ public class CertificateUtility {
 
   public static String toHexinHTML(byte[] data)
     {
-      StringBuffer buff=new StringBuffer("<br>");
+      StringBuffer buff=new StringBuffer("");
       buff.append("&nbsp;&nbsp;");
       int blockcount=0;
       int linecount=0;
