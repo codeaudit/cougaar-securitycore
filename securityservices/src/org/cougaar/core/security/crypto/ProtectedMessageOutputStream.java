@@ -335,7 +335,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
   }
 
   private SecureMethodParam modifyPolicy(SecureMethodParam policy,
-                                         boolean encryptedSocket) {
+                                         boolean encryptedSocket) 
+    throws GeneralSecurityException {
     policy = copyPolicy(policy);
 
     if (encryptedSocket) {

@@ -506,7 +506,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   }
 
 
-  private boolean ignoreSignature(boolean encryptedSocket) {
+  private boolean ignoreSignature(boolean encryptedSocket) 
+    throws GeneralSecurityException {
     if (_log.isDebugEnabled()) {
       _log.debug("Checking ignore of signature -- encrypted: " + 
                  encryptedSocket +

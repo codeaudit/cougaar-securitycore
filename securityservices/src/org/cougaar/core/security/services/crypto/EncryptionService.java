@@ -52,13 +52,15 @@ public interface EncryptionService extends Service {
    * Returns whether or not the send needs a signature when encryption
    * is available.
    */
-  public boolean sendNeedsSignature(String source, String target);
+  public boolean sendNeedsSignature(String source, String target)
+    throws GeneralSecurityException;
 
   /**
    * Returns whether or not a received message needs a signature
    * when the socket is encrypted.
    */
-  public boolean receiveNeedsSignature(String source);
+  public boolean receiveNeedsSignature(String source)
+    throws GeneralSecurityException;
 
   /**
    * Sets that sending a message from the source needs a signature when

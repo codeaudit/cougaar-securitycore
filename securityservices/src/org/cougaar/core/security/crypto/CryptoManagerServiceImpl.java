@@ -1610,7 +1610,8 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private boolean certOk(String link, String agent) {
+  private boolean certOk(String link, String agent) 
+    throws GeneralSecurityException {
     Map sentMap = getSentMap(link);
     synchronized (sentMap) {
       X509Certificate cert = (X509Certificate) sentMap.get(agent);
@@ -1620,13 +1621,15 @@ public class CryptoManagerServiceImpl
           return true;
         } catch (GeneralSecurityException e) {
           sentMap.remove(agent);
+          throw e;
         }
       }
     }
     return false;
   }
 
-  public boolean receiveNeedsSignature(String source) {
+  public boolean receiveNeedsSignature(String source) 
+    throws GeneralSecurityException {
     Principal p = KeyRingSSLServerFactory.getPrincipal();
     if (p != null) {
       String strP = p.getName();
@@ -1643,7 +1646,8 @@ public class CryptoManagerServiceImpl
     return true;
   }
 
-  public boolean sendNeedsSignature(String source, String target) {
+  public boolean sendNeedsSignature(String source, String target) 
+    throws GeneralSecurityException {
     boolean needsSig = !certOk(source, target);
     if (log.isDebugEnabled()) {
       log.debug("From " + source + " to " + target + ": need signature? " +
