@@ -133,6 +133,8 @@ implements SecurityLog
     // Do not log. The event has already been logged.
   }
 
+  private ByteArrayOutputStream outstream=new ByteArrayOutputStream();
+
   private void logException(Exception e) {
     if (_log != null) {
       String curTime = DateFormat.getDateInstance().format(new Date());
@@ -144,8 +146,10 @@ implements SecurityLog
       _log.print("\n<stack>\n");
       e.printStackTrace(_log);
       _log.print("</stack></securityEvent>\n");
-      ByteArrayOutputStream outstream=new ByteArrayOutputStream();
-      e.printStackTrace(new PrintStream(outstream));
+      synchronized(outstream) {
+        outstream.reset();
+        e.printStackTrace(new PrintStream(outstream));
+      }
       _eventholder.addEvent
 	(new BootstrapEvent(_type,Calendar.getInstance().getTime(),
 			    null,outstream.toString()));
