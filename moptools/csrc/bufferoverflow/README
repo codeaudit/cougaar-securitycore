@@ -1,0 +1,23 @@
+
+
+Compilation
+===========
+
+Type 'make' on the command line.
+
+
+Running the attack
+==================
+
+1) Start the echo server on one machine
+./echo_server
+
+2) Generate the attack code
+./exploit4 768
+
+  This will give a shell prompt.
+
+3) From the previous shell prompt, type:
+./attack_script.sh <hostname>
+
+where hostname is the host where the echo server is running

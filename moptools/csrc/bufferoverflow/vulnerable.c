@@ -24,6 +24,8 @@ int main(int argc, char *argv[]) {
   int i;
   if (argc > 1) {
     printf("Starting vulnerable program - buf size:%d\n", strlen(argv[1]));
+
+    /*
     for (i = 0 ; i < strlen(argv[1]) ; i++) {
       if ( i != 0 && (i % 32) == 0) {
 	printf("\n");
@@ -31,6 +33,7 @@ int main(int argc, char *argv[]) {
       printf("%02X ", (unsigned char)argv[1][i]);
     }
     printf("\n");
+    */
     strcpy(buffer,argv[1]);
   }
 }
