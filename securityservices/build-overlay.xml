@@ -25,96 +25,12 @@
    <fileset dir="${cougaar}/sys">
      <include name="**/*.jar"/>
    </fileset>
-	 <pathelement location="/home/build/hourly/xerces.jar"/>
 	 <pathelement location="/home/build/hourly/jakarta-tomcat-4.0.3/lib/jasper-compiler.jar"/>
 	 <pathelement location="${build}"/>
   </path>
 
-	<target name="create_cougaar_overlay">	
-		<delete dir="${build}"/>
-		<mkdir dir="${build}"/>		
-		<mkdir dir="staging/sys"/>
-		<mkdir dir="staging/lib"/>
-		<mkdir dir="staging/configs/security"/>
-		<mkdir dir="staging/configs/cougaarCA"/>
-		<mkdir dir="staging/webtomcat/data/conf"/>
-		<mkdir dir="staging/webtomcat/data/webapps/ROOT/WEB-INF"/>
-		<javac classpathref="all.libs" debug="true" destdir="${build}" includes="edu/jhuapl/idmef/*.java" srcdir="${src}"/>
-    <jspc srcdir="${src}" destdir="${src}" package="org.cougaar.core.security.crypto.ldap.admin" classpathref="all.libs">
-        <include name="org/cougaar/core/security/crypto/ldap/admin/*.jsp" />
-    </jspc>
-    <javac classpathref="all.libs" debug="true" destdir="${build}" includes="org/cougaar/core/security/**" srcdir="${src}"/>
-		<jar jarfile="staging/lib/idmef.jar">
-			<fileset dir="${build}" includes="edu/jhuapl/idmef/*.class"/>
-			<fileset dir="${src}" includes="edu/jhuapl/idmef/*.dtd"/>
-		</jar>
-    <jar 
-			jarfile="staging/lib/securebootstrapper.jar" 
-			basedir="${build}" 
-			includes="org/cougaar/core/security/securebootstrap/*.class"/>
-		<jar 
-			jarfile="staging/lib/securityservices.jar" 
-			basedir="${build}" 	
-			includes="org/cougaar/core/security/**/*.class,org/cougaar/core/security/SecurityComponent.class"
-     	excludes="org/cougaar/core/security/*bootstrap/**,org/cougaar/core/security/oldmonitoring/**"/>
-   	<jar jarfile="staging/lib/CougaarCRLextensions.jar" basedir="${build}" includes="org/cougaar/core/security/crlextension/**"/>
-		<signjar jar="staging/lib/securebootstrapper.jar" alias="bootstrapper" keystore="/home/build/signingCA_keystore" storepass="keystore"/>
-		<signjar jar="staging/lib/securityservices.jar" alias="privileged" keystore="/home/build/signingCA_keystore" storepass="keystore"/>
-		<signjar jar="staging/lib/CougaarCRLextensions.jar" alias="privileged" keystore="/home/build/signingCA_keystore" storepass="keystore"/>
-		<signjar jar="staging/lib/idmef.jar" alias="privileged" keystore="/home/build/signingCA_keystore" storepass="keystore"/>
-		<copy todir="staging/sys">
-    	<fileset dir="${sys}">
-      	<patternset>
-        	<include name="*.jar"/>
-        	<exclude name="**/CVS/**"/>
-      	</patternset>
-    	</fileset>
-		</copy>
-		<copy todir="staging/lib">
-    	<fileset dir="${lib}">
-      	<patternset>
-        	<include name="*.jar"/>
-        	<exclude name="**/CVS/**"/>
-      	</patternset>
-    	</fileset>
-		</copy>
-		<copy todir="staging/configs/security">
-			<fileset dir="${configs}/adaptiveMnR/">
-				<include name="AMnRPlays.txt"/>
-				<include name="AMnRPlaysEnclave.txt"/>
-			</fileset>
-			<fileset dir="${configs}/common">
-				<include name="*"/>
-					<exclude name="**/Linux.props"/>
-			</fileset>
-		</copy>
-		<copy todir="staging/configs">
-			<fileset dir="${configs}">
-				<patternset>
-					<include name="small-135/*"/>
-					<exclude name="**/CVS/**,**/Linux.props"/>
-				</patternset>
-			</fileset>
-		</copy>
-		<copy todir="staging/configs/cougaarCA">
-			<fileset dir="${configs}/cougaarCA">
-				<include name="*"/>
-			</fileset>
-			<fileset dir="test/bin">
-				<include name="SecureNode"/>
-			</fileset>
-		</copy>
-		<copy todir="staging/webtomcat/data/conf">
-			<fileset dir="${configs}/tomcat4">
-				<include name="server.xml"/>
-			</fileset>
-		</copy>
-		<copy todir="staging/webtomcat/data/webapps/ROOT/WEB-INF">
-			<fileset dir="${configs}/tomcat4">
-				<include name="web.xml"/>
-			</fileset>
-		</copy>
-		<zip zipfile="AS_csi_secserv.zip" basedir="staging"/>
-		<delete dir="staging"/>
+	<target name="create_cougaar_overlay">
+		<exec dir="." executable="test/bin/installsecurity" os="Linux">
+		</exec>
 	</target>
 </project>
