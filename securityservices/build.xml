@@ -310,6 +310,7 @@
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
         <!--
             Do not copy files individually. Files are now stored in JAR files
+        -->
         <copy todir="${cougaar.install.path}/configs/security">
             <fileset dir="${securityservices.configs}/common"/>
         </copy>
@@ -329,7 +330,7 @@
                 </patternset>
             </fileset>
         </copy>
-        -->
+
         <!-- The bootstrap_keystore itself should be outside a Jar file
              so that we can verify jar files.
              The Java policy file must also be outside a jar file.
