@@ -15,7 +15,7 @@
 
     <!-- Certificate directory service for certificate storage -->
     <ldapURL>ldap://pear:389/dc=cougaar,dc=org</ldapURL>
-    <ldapURL role="ychen">ldap://pear:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
+    <ldapURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</ldapURL>
     <ldapURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</ldapURL>

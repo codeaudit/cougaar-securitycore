@@ -24,6 +24,8 @@ clean-data:
 	rm -i test/configs/ul-mini-config-openldap/keystore-*
 	rm -ri test/configs/ul-mini-config-openldap/Crypto-*
 	rm -ri test/configs/ul-mini-config-openldap/*.log
+	rm -ri test/configs/certauthority/Crypto-*
+	rm -ri test/configs/certauthority/keystoreTest
 	rm -ri test/configs/demo/*.log
 
 classes:

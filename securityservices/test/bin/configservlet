@@ -1,5 +1,7 @@
 #!/bin/tcsh -f
 
+set USER=srosset
+
 # ############
 # Copys security services Servlet classes removes tomcat log and restarts tomcat
 
@@ -7,20 +9,20 @@
 
 # Provide COUGAAR_install path if one is not defined
 
-setenv COUGAAR_INSTALL_PATH /home/u/rtripath/UL/cougaar-8.4.1.1
+setenv COUGAAR_INSTALL_PATH /home/u/${USER}/UL/cougaar-8.4.1.1
 
 ###################################################
 
 # Provide COUGAARCLASSES path if one is not defined
 
-setenv COUGAARCLASSES /home/u/rtripath/UL/output-8.4.1.1
+setenv COUGAARCLASSES /home/u/${USER}/UL/securityservices/classes
 
 ###################################################
 
 
 # Provide COUGAAR_SECURITY_SERVICES  if one is not defined
 
-setenv  COUGAAR_SECURITY_SERVICES /home/u/rtripath/UL/securityservices
+setenv  COUGAAR_SECURITY_SERVICES /home/u/${USER}/UL/securityservices
 
 #####################################################
 
