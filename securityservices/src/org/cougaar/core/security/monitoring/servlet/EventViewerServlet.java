@@ -26,15 +26,6 @@
 
 package org.cougaar.core.security.monitoring.servlet;
 
-// Imported TraX classes
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-
-
 // Imported java classes
 import java.io.*;
 import java.util.Collection;
@@ -43,8 +34,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 // IDMEF
-import edu.jhuapl.idmef.IDMEF_Message;
-import edu.jhuapl.idmef.Alert;
+import edu.jhuapl.idmef.*;
 
 // Cougaar core services
 import org.cougaar.core.servlet.SimpleServletSupport;
@@ -65,8 +55,6 @@ public class EventViewerServlet
   private SimpleServletSupport support;
   private ConfigFinder confFinder;
   private SecurityPropertiesService secprop;
-  private StreamSource stylesheet;
-  private Transformer transformer;
 
    /** Creates new predicate to search for Events */
   class IdmefEventPredicate implements UnaryPredicate
@@ -92,28 +80,6 @@ public class EventViewerServlet
 
   public void init(ServletConfig config)
     throws ServletException {
- 
-    File f = null;
-    String stylesheetFile = "idmef-message.html.xsl";
-    f = confFinder.locateFile(stylesheetFile);
-
-    stylesheet = new StreamSource(f);
-
-    try {
-      // Use the static TransformerFactory.newInstance() method to instantiate 
-      // a TransformerFactory. The javax.xml.transform.TransformerFactory 
-      // system property setting determines the actual class to instantiate --
-      // org.apache.xalan.transformer.TransformerImpl.
-      TransformerFactory tFactory = TransformerFactory.newInstance();
-    
-      // Use the TransformerFactory to instantiate a Transformer that will work with  
-      // the stylesheet you specify. This method call also processes the stylesheet
-      // into a compiled Templates object.
-      transformer = tFactory.newTransformer(stylesheet);
-    }
-    catch (TransformerConfigurationException e) {
-      System.out.println("Unable to initialize XSL stylesheet");
-    }
   }
 
   public void doGet(HttpServletRequest request,
@@ -121,34 +87,163 @@ public class EventViewerServlet
     throws IOException {
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
+    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+    out.println("<html>");
+    out.println("<head>");
+    out.println("<title>IDMEF Events</title>");
+    out.println("</head>");
+    out.println("<body>");
+    out.println("<H2>IDMEF Events</H2><BR>");
 
     // Query the blackboard
     Collection collection = support.queryBlackboard(new IdmefEventPredicate());
     Iterator it = collection.iterator();
     String document = null;
-    StreamSource inputXML = null;
+
+    out.print("<table border=\"1\" cellpadding=\"10\">");
+    out.print("<tr>");
+    out.print("<td><b><i>Alert ID</i></b></td>");
+    out.print("<td><b><i>Create Time</i></b></td>");
+    out.print("<td><b><i>Classification</i></b></td>");
+    out.print("<td><b><i>Assessment</i></b></td>");
+    out.print("<td><b><i>Analyzer</i></b></td>");
+    out.print("<td><b><i>Source</i></b></td>");
+    out.print("<td><b><i>Target</i></b></td>");
+    out.print("<td><b><i>Additional Data</i></b></td>");
+    out.print("</tr>");
+
     if (!it.hasNext()) {
       out.print("No Event available");
     }
+
     while (it.hasNext()) {
       IDMEF_Message msg = ((Event)it.next()).getEvent();
       document = msg.toString();
       System.out.println("IDMEF message:\n" + document);
-      inputXML = new StreamSource(new StringReader(document));
-      doTransform(out, inputXML);
+      processMessage(out, msg);
     }
+    out.println("</body></html>");
     out.flush();
     out.close();
   }
 
-  private void doTransform(PrintWriter writer, StreamSource inputXML) {
-    try {
-      // Use the Transformer to apply the associated Templates object to an XML document
-      transformer.transform(inputXML, new StreamResult(writer));
+  private void processMessage(PrintWriter out, IDMEF_Message msg) {
+    out.print("<tr>");
+    String value = null;
+
+    if (msg instanceof Alert) {
+      // Alert
+      Alert alert = (Alert) msg;
+      // Identifier
+      out.print("<td>" + alert.getIdent() + "</td>");
+
+      // Creation Time
+      CreateTime createTime = alert.getCreateTime();
+      value = (createTime != null) ? createTime.getidmefDate() : "";
+      out.print("<td>" + value + "</td>");
+
+      // Classification
+      Classification[] classifications = alert.getClassifications();
+      out.print("<td>");
+      if (classifications != null) {
+	for (int i = 0 ; i < classifications.length ; i++) {
+	  out.print("[" + i + "] Origin:" + classifications[i].getOrigin() + "<br>");
+	  out.print("   Name:" + classifications[i].getName() + "<br>");
+	}
+      }
+      out.print("</td>");
+
+      // Assessment
+      Assessment assessement = alert.getAssessment();
+      value = (assessement != null) ? assessement.toString() : "";
+      out.print("<td>" + value + "</td>");
+
+      // Analyzer
+      Analyzer analyzer = alert.getAnalyzer();
+      out.print("<td>");
+      if (analyzer != null) {
+	out.print("Analyzer ID:" + analyzer.getAnalyzerid() + "<br>");
+      }
+      out.print("</td>");
+
+      // Sources
+      out.print("<td>");
+      Source[] sources = alert.getSources();
+      if ( sources!= null) {
+	for (int i = 0 ; i < sources.length ; i++) {
+	  out.print("[" + i + "]");
+	  IDMEF_Node n = sources[i].getNode();
+	  printNode(out, n);
+	  out.print("<br>");
+	}
+      }
+      out.print("</td>");
+
+      // Targets
+      out.print("<td>");
+      Target[] targets = alert.getTargets();
+       if (targets != null) {
+	for (int i = 0 ; i < targets.length ; i++) {
+	  out.print("[" + i + "]");
+	  IDMEF_Node n = targets[i].getNode();
+	  printNode(out, n);
+	  out.print("<br>");
+	}
+      }
+     out.print("</td>");
+
+      // Additional Data
+      out.print("<td>");
+      AdditionalData[] additionalData = alert.getAdditionalData();
+      value = (additionalData != null) ? additionalData.toString() : "";
+      out.print("</td>");
+
     }
-    catch (TransformerException e) {
-      writer.print("Unable to get IDMEF events");
-      e.printStackTrace(writer);
+    // Heatbeat
+    else if (msg instanceof Heartbeat) {
+      Heartbeat heartbeat = (Heartbeat) msg;
+
+      // Identifier
+      out.print("<td>" + heartbeat.getIdent() + "</td>");
+
+      // Creation Time
+      CreateTime createTime = heartbeat.getCreateTime();
+      value = (createTime != null) ? createTime.getidmefDate() : "";
+      out.print("<td>" + value + "</td>");
+
+      out.print("<td></td> <td></td>");
+
+      // Analyzer
+      Analyzer analyzer = heartbeat.getAnalyzer();
+      out.print("<td>");
+      if (analyzer != null) {
+	out.print("Analyzer ID:" + analyzer.getAnalyzerid() + "<br>");
+      }
+      out.print("</td>");
+
+      // Additional Data
+      AdditionalData[] additionalData = heartbeat.getAdditionalData();
+      value = (additionalData != null) ? additionalData.toString() : "";
+      out.print("<td>" + value + "</td>");
+    }
+    else {
+      out.print("Unknow Event");
+    }
+    out.print("</tr>");
+  }
+
+  private void printNode(PrintWriter out, IDMEF_Node n) {
+    out.print("Ident:" + n.getIdent() + "<br>");
+    out.print("Name:" + n.getName() + "<br>");
+    out.print("Category:" + n.getCategory() + "<br>");
+    out.print("Location:" + n.getLocation() + "<br>");
+
+    Address[] addresses = n.getAddresses();
+    if ( addresses != null) {
+      for (int i = 0 ; i < addresses.length ; i++) {
+	out.print("Address[" + i + "]/" + addresses[i].getCategory()
+		  + " = " + addresses[i].getAddress());
+      }
     }
   }
 }
