@@ -9,7 +9,7 @@
       <trustedCAs>
         <CA_keystore>keystoreNCA_CA</CA_keystore>
         <CA_keystore role="srosset">keystore-CA-srosset</CA_keystore>
-        <CA_keystore role="srosset">keystore-George-CA</CA_keystore>
+        <CA_keystore role="gmount">keystore-George-CA</CA_keystore>
 
         <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
         <trustedCA>
