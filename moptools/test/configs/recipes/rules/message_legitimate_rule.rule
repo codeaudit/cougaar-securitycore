@@ -2,7 +2,7 @@
 # Rule to insert LegitimateMessagePlugin
 
 
-plugin = "org.cougaar.core.security.test.message.LegitimateMessagePlugin"
+plugin = "org.cougaar.core.security.test.message.LegitimateMessageServlet"
 include_array=["NCA","TRANSCOM","1-35-ARBN"]
 
 society.each_agent(true) do |agent|
