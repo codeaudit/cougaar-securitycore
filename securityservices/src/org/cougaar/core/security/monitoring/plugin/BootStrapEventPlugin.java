@@ -212,7 +212,7 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     for(int cnt=0;cnt<vectorofevents.size();cnt++) {
       event=(BootstrapEvent)vectorofevents.elementAt(cnt);
       classification= imessage.createClassification(event.classification,
-				    "http://www.cougaar.org",
+				    null,
 				    Classification.VENDOR_SPECIFIC);
       ArrayList classifications = new ArrayList(1);
       classifications.add(classification);
@@ -336,7 +336,7 @@ public class BootStrapEventPlugin extends ComponentPlugin  implements Observer, 
     IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     List capabilities = new ArrayList();
     capabilities.add( imessage.createClassification( IdmefClassifications.SECURITY_MANAGER_EXCEPTION ,
-						     "http://www.cougaar.org/security/SecurityManagerAlarm.html",
+						     null,
 						     Classification.VENDOR_SPECIFIC  ) );
     capabilities.add( imessage.createClassification( IdmefClassifications.JAR_VERIFICATION_FAILURE, null,
 						     Classification.VENDOR_SPECIFIC  ) );
