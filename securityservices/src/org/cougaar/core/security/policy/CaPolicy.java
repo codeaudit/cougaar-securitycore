@@ -125,7 +125,7 @@ public class CaPolicy
 
 
   public String toString() {
-    return "DN=" + caDnName.toString()
+    return "DN=" + caDnName
       + " - certVersion=" + certVersion
       + " - algorithmId=" + algorithmId
       + " - keysize=" + keySize
