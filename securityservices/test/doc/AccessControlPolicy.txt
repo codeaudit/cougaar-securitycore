@@ -12,9 +12,10 @@ IncomingMessageAction
 
 IncomingVerb
 ============
-	The incoming Message or Directive for the agent named in the "key" entry will be set aside if it contains the Cougaar Task Verb that matches the key value (e.g. "Transport").
-	* possible values: any Cougaar Task Verb
-	* default: ""
+	for the agent named in the "key" entry, only incoming Directives that contains the Cougaar Task Verb that matches the key value (e.g. "Transport") will be passed through.
+	if wild card (i.e. *) is used as the value, all verbs are passed; if "none" is used, all are blocked.
+	* possible values: any Cougaar Task Verb plus "none" and "*".
+	* default: "*"
 
 OutgoingVerb
 ============
