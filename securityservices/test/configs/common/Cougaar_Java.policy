@@ -159,6 +159,8 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "path.separator", "read";
 	permission java.util.PropertyPermission "line.separator", "read";
 
+	permission java.util.PropertyPermission "http.strictPostRedirect", "read";
+
 	permission java.util.PropertyPermission "org.xml.sax.driver", "read";
 
 	permission java.util.PropertyPermission "java.specification.version", "read";
