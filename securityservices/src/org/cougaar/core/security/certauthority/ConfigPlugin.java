@@ -107,6 +107,11 @@ public class ConfigPlugin
       _sb.getService(this,
 					    ConfigParserService.class,
 					    null);
+    if (configParser == null) {
+      String s = "Unable to get config parser service. This is probably due to a configuration issue";
+      log.error(s);
+      throw new RuntimeException(s);
+    }
     cacheservice=(CertificateCacheService)
         _sb.getService(this, CertificateCacheService.class, null);
     SecurityPropertiesService sps = (SecurityPropertiesService)
