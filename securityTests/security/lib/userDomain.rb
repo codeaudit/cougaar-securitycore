@@ -90,7 +90,7 @@ class UserDomain
       #puts result.body
       level = result.body.scan(/THREATCON_LEVEL = (.*)/)
       if level and level != []
-        puts "threatcon level:#{level.inspect}" if $VerboseDebugging
+       logInfoMsg "threatcon level:#{level.inspect}" if $VerboseDebugging
         answer = level[0][0]
       end
     end
@@ -124,7 +124,7 @@ class UserDomain
 
     result = true
 
-    puts "Trying with #{user}, #{password} to servlet #{servlet}" if $VerboseDebugging
+    logInfoMsg "Trying with #{user}, #{password} to servlet #{servlet}" if $VerboseDebugging
     caDomainSet = agent.caDomains[0]
     caDomainName = caDomainSet.name
     keyfile = "#{caDomainName}#{user}_key.pem"
@@ -134,7 +134,7 @@ class UserDomain
     body = ''
     if authentication == 'Basic'
       url = "#{agent.uri}#{servlet}"
-      puts ['basic_auth',url,user,password].as_string if $VerboseDebugging
+      logInfoMsg ['basic_auth',url,user,password].as_string if $VerboseDebugging
       #puts ['basic_auth',url,user,password].as_string
       web.set_auth(user, password)
       result = web.getHtml(url, 1.minute, 3, false)
@@ -144,13 +144,13 @@ class UserDomain
     elsif password == true then
       #   servlet = "/\$"+agent.name+servlet
       servlet = agent.secure_uri+servlet
-      puts "password ==>true  keyfile ===>#{keyfile}  certfile ==>#{certfile} 401 retry ==>false" if $VerboseDebugging
+      logInfoMsg "password ==>true  keyfile ===>#{keyfile}  certfile ==>#{certfile} 401 retry ==>false" if $VerboseDebugging
       result = getHtmlSsl(servlet, keyfile, certfile, 60.seconds, 3, false)
       body = result.body
       result = result.status
     else
       servlet = agent.secure_uri+servlet
-      puts "password ==>false  keyfile ===>#{boguskeyfile}  certfile ==>#{boguscertfile} 401 retry ==>false" if $VerboseDebugging
+      logInfoMsg "password ==>false  keyfile ===>#{boguskeyfile}  certfile ==>#{boguscertfile} 401 retry ==>false" if $VerboseDebugging
       result = getHtmlSsl(servlet, boguskeyfile, boguscertfile, 60.seconds, 3, false)
       body = result.body
       result = result.status
@@ -167,8 +167,8 @@ class UserDomain
 
     if $VerboseDebugging
       #  puts
-      puts "code:#{code}  expectedResult:#{expectedResult}"
-      puts
+      logInfoMsg "code:#{code}  expectedResult:#{expectedResult}"
+      
     end
 
     if (expectedResult==200 and code==491 and authentication=='Basic')
@@ -231,7 +231,7 @@ class UserDomain
   def accessServletMop(test)
     count = 1
     if test[0].kind_of?(Integer)
-      puts "WARNING:  security mop 2.4 tests shouldn't have a repeat value in (userDomain)accessServletMop"
+      logInfoMsg "WARNING:  security mop 2.4 tests shouldn't have a repeat value in (userDomain)accessServletMop"
       count = test[0]
       test = test[1..-1]
     end
