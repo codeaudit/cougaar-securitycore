@@ -117,7 +117,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
           return false;
         }
       } else {
-        if (cs.getSymmetric().contains("plain")) {
+        if (!cs.getSymmetric().contains("plain")) {
           return false;
         }
       }
@@ -132,7 +132,7 @@ public class DamlCryptoPolicyServiceImpl implements CryptoPolicyService {
           return false;
         }
       } else {
-        if (cs.getSignature().contains("none")) {
+        if (!cs.getSignature().contains("none")) {
           return false;
         }
       }
