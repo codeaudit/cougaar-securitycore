@@ -1,0 +1,10 @@
+
+PolicyPrefix=%Coordinator
+
+Delete EncryptCommunication
+
+Policy HighEncryptCommunication = [ 
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $Actor.owl#Agent to members of $Actor.owl#Agent
+]
