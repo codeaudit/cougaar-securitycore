@@ -113,7 +113,15 @@ public class PolicyHandler
     log.debug("Parsing policy file done");
 
     FileOutputStream newPolicyFile = null;
-    file = configParser.findWorkspacePolicyPath("cryptoPolicy.xml");
+
+    // Add workspace/security/keystores/$nodeName directory to the search path
+    String nodeName = secprop.getProperty("org.cougaar.node.name");
+    String cougaarWsp=secprop.getProperty(secprop.COUGAAR_WORKSPACE);
+    String topDirectory = cougaarWsp + File.separatorChar + "security"
+      + File.separatorChar + "keystores" + File.separatorChar;
+    String nodeDirectory = topDirectory + nodeName;
+
+    file = new File(nodeDirectory + File.separatorChar + "cryptoPolicy.xml");
     try {
       newPolicyFile = new FileOutputStream(file); 
       newPolicyFile.write(newPolicy.toByteArray());
