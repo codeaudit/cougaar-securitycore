@@ -807,7 +807,7 @@
       ********************************************************-->
   <Community Name="REAR-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="SocietySecurityMnRManager" >
+    <Entity Name="SocietyMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1195,7 +1195,7 @@
   </Community>
   <Community Name="FWD-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="SocietySecurityMnRManager" >
+    <Entity Name="SocietyMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1522,7 +1522,7 @@
   </Community>
   <Community Name="CONUS-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="SocietySecurityMnRManager" >
+    <Entity Name="SocietyMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1650,7 +1650,7 @@
   </Community>
   <Community Name="TRANS-SECURITY-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="SocietySecurityMnRManager" >
+    <Entity Name="SocietyMnRManager" >
       <Attribute ID="MemberType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
