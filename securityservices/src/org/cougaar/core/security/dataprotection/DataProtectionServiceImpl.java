@@ -44,6 +44,7 @@ import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.*;
 
 // Cougaar security services
+import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
@@ -62,7 +63,8 @@ public class DataProtectionServiceImpl
   private KeyRingService keyRing;
   private LoggingService log;
   private DataProtectionServiceClient dpsClient;
-
+  // service used to obtain the persistence manager policies
+  private PersistenceMgrPolicyService pps;
   private String keygenAlg = "DES";
   private String digestAlg = "SHA";
 
@@ -100,6 +102,11 @@ public class DataProtectionServiceImpl
       serviceBroker.getService(requestor,
 			       KeyRingService.class,
 			       null);
+    // Get the PersistenceMgrPolicyService
+    pps = (PersistenceMgrPolicyService)
+      serviceBroker.getService(requestor,
+                               PersistenceMgrPolicyService.class,
+                               null);
 
     if (encryptionService == null) {
        throw new RuntimeException("Encryption service not available");
@@ -110,7 +117,9 @@ public class DataProtectionServiceImpl
     if (keyRing == null) {
        throw new RuntimeException("KeyRing service not available");
     }
-
+    if (pps == null) {
+      throw new RuntimeException("PersistenceMgrPolicy service not available");
+    }
     if (!(requestor instanceof DataProtectionServiceClient)) {
       throw new RuntimeException("Requestor is not DataProtectionServiceClient");
     }
@@ -217,7 +226,9 @@ public class DataProtectionServiceImpl
 	new DataProtectionKeyCollection();
       keyCollection.add(0, keyImpl);
       // Now, add keys of persistence manager agents (TODO)
-      PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+      // PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+      PersistenceManagerPolicy [] pmp = pps.getPolicies();
+      
       if (pmp.length == 0) {
         if (log.isDebugEnabled()) {
           log.debug("No persistence manager policy available.");
@@ -396,7 +407,8 @@ public class DataProtectionServiceImpl
                                               /*target*/null,
                                               keyCollection,
                                               keyRing.findCertChain(agentCert));
-          PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+          //PersistenceManagerPolicy [] pmp = cp.getPersistenceManagerPolicies();
+          PersistenceManagerPolicy [] pmp = pps.getPolicies();
           // start the threads
           HttpRequestThread [] ts = new HttpRequestThread[pmp.length];
           for (int i = 0; i < pmp.length; i++) {

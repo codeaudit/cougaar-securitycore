@@ -291,6 +291,12 @@ public class SecurityServiceProvider
     rootServiceBroker.addService(CertValidityService.class, newSP);
 
     if (isExecutedWithinNode) {
+      
+      /* Persistence Manager Service */
+      newSP = new PersistenceMgrPolicyServiceProvider(serviceBroker, mySecurityCommunity);
+      services.put(PersistenceMgrPolicyService.class, newSP);
+      rootServiceBroker.addService(PersistenceMgrPolicyService.class, newSP);
+      
       /* Encryption Service */
       newSP = new EncryptionServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(EncryptionService.class, newSP);
