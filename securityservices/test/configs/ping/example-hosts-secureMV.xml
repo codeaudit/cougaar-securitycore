@@ -20,5 +20,8 @@
   <host name='tea'> 
     <facet service="acme"/> 
   </host> 
+  <host name='eucalyptus'> 
+    <facet service="acme"/> 
+  </host> 
 </society> 
 
