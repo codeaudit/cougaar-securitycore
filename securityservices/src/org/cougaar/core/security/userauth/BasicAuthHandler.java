@@ -35,9 +35,9 @@ public class BasicAuthHandler extends AuthenticationHandler {
       dialog.setPrompt("\nPlease enter the password to access the remote site.");
 
       boolean ok = dialog.showDialog();
-      String pwd = dialog.getPwd();
+      char[] pwd = dialog.getPwd();
 
-      pa = new PasswordAuthentication(username, pwd.toCharArray());
+      pa = new PasswordAuthentication(username, pwd);
     }
     else
       pa = _pa;
