@@ -53,7 +53,7 @@ import java.util.ArrayList;
 /**
  * DOCUMENT ME!
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author $author$
  */
 public class UnAuthorizedResourceServlet extends AbstractServletComponent implements BlackboardClient {
@@ -93,7 +93,6 @@ public class UnAuthorizedResourceServlet extends AbstractServletComponent implem
           logging.debug("Could access resource!");
         }
 
-        createIdmefEvent();
         createIdmefEvent();
       }
     } catch (IOException se) {
