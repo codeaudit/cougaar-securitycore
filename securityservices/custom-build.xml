@@ -6,8 +6,6 @@
          * Custom build below
          ******************************************************************************** -->
     <dirname property="imported.basedir" file="${ant.file.imported}"/>
-    <property name="securityservices.jsp" value="${securityservices.output}/jsp"/>
-    <property name="securityservices.policy" value="${securityservices.output}/policy"/>
 
     <path id="core.class.path">    
         <!-- Base class path -->
@@ -73,7 +71,9 @@
 	<pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
     </path>
 
-    <target name="custom-init">
+    <target name="custom-init" depends="init-prop">
+      <property name="securityservices.jsp" value="${securityservices.output}/jsp"/>
+      <property name="securityservices.policy" value="${securityservices.output}/policy"/>
       <!--
       <property name="foo" refid="core.class.path"/>
       <echo message="${foo}"/>
@@ -108,7 +108,7 @@
     </target>
 
     <!-- compile the jsp's into java files -->
-    <target name="compile-jsps">
+    <target name="compile-jsps" depends="custom-init">
         <jspc srcdir="${securityservices.src}"
             package="org.cougaar.core.security.crypto.ldap.admin"
             destdir="${securityservices.jsp}"
