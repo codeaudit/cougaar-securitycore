@@ -1,0 +1,2 @@
+// this is a dummy playbook to avoid a NoSuchElementException in the PlaybookManager
+dummy.CONDITION > 1 : dummy.OPERATING_MODE = 1;
