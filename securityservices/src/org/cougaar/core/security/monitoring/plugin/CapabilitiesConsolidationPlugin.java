@@ -287,10 +287,20 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
       loggingService.debug("RETURNING from execute method:");
       return;
     }
-    if((mgrrole ==null) &&(myRole==null)) {
-      return;
+    if(myRole!=null) {
+      if(mgrrole!=null) {
+	if(destcluster == null) {
+	  return;
+	}
+      }
+      else {
+	if(!myRole.equalsIgnoreCase("SecurityMnRManager-Society")) {
+	  return;
+	}
+	
+      }
     }
-   
+       
     //dateRelayedCapabilities();
     if (loggingService.isDebugEnabled())
        loggingService.debug(" Execute of CapabilitiesConsolidation Plugin called"
@@ -350,7 +360,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
        AdditionalData regAddData[]=null;
        Enumeration keys=capabilitiesobject.keys();
        String key=null;
-       if((mgrrole!=null)&&(myRole!=null))  {
+       if((mgrrole!=null))  {
 	 while(keys.hasMoreElements()) {
 	   key=(String)keys.nextElement();
 	   if (loggingService.isDebugEnabled())
@@ -790,9 +800,12 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	     consCapabilities.setAnalyzer(analyzer);
 	     consclassifications=consCapabilities.getClassifications();
 	     //printConsolidation(consclassifications," consolidated classification after processing is :");
-	     if (loggingService.isDebugEnabled())
+	     if (loggingService.isDebugEnabled()) {
 	       loggingService.debug("Relay to be created will be  :"+ consCapabilities.toString()+ "address is :"+destcluster.toString()); 
-	     addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+	     }
+	     if(destcluster!=null) {
+	       addOrUpdateRelay(factory.newEvent(consCapabilities), factory);
+	     }
 	   }
 	 }
        }
