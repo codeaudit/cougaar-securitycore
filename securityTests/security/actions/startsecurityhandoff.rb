@@ -10,6 +10,7 @@ module Cougaar
         @run=run
         @currentnodename = nodename
         @partialurl= "/handoffUnRegistration"
+        @debug = false
       end
 
       def perform
@@ -17,14 +18,14 @@ module Cougaar
       end
 
      def startDeRegistration 
-        @run.info_message (" startDeRegistration of security handoff called")
+        @run.info_message(" startDeRegistration of security handoff called")
         @run.society.each_node do |node|
           if(node.name == @currentnodename)
-	     @run.info_message ("Currentnode name : #{@currentnodename} ")
-	     @run.info_message ("Node name :#{node.name}")	
+	     @run.info_message("Currentnode name : #{@currentnodename} ")
+	     @run.info_message("Node name :#{node.name}")	
              node.each_agent do |agent|
              uri = agent.uri + @partialurl
-             puts"#{uri}";
+             debug"#{uri}";
              deregister uri
            end
             nodeuri="#{node.uri}/$#{node.name}"+ @partialurl
@@ -42,8 +43,14 @@ module Cougaar
        @run.info_message "De register called "
        @run.info_message "Starting handoff at : #{url} params #{params}" 
        response =  SRIWeb.instance.postHtml url, params
-       @run.info_message ("Response code: #{response.code}")
-       @run.info_message ("Response body: #{response.body}")
+       debug ("Response code: #{response.code}")
+       debug ("Response body: #{response.body}")
+     end
+
+     def debug(s)
+       if @debug then
+         @run.info_message(s)
+       end
      end
 
    end
