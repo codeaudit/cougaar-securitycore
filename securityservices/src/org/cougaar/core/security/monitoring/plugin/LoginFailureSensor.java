@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collection;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
@@ -151,19 +154,43 @@ public class LoginFailureSensor extends ComponentPlugin {
 
     Collection communities = cs.listParentCommunities(agentName);
     Iterator iter = communities.iterator();
-    if (!iter.hasNext()) {
-      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
-    }
+    boolean addedOne = false;
     while (iter.hasNext()) {
       String community = iter.next().toString();
-      AttributeBasedAddress messageAddress = 
-        new AttributeBasedAddress(community, "Role", _managerRole);
-      CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
-      if (_log.isInfoEnabled()) {
-        _log.info("Sending sensor capabilities to community '" + 
-                  community + "'");
+      Attributes attrs = cs.getCommunityAttributes(community);
+      boolean isSecurityCommunity = false;
+      System.out.println("Checking attributes for " + community + ": " +
+                         attrs);
+      if (attrs != null) {
+        Attribute  attr  = attrs.get("CommunityType");
+        System.out.println("CommunityTypes = " + attr);
+        if (attr != null) {
+          try {
+            for (int i = 0; !isSecurityCommunity && i < attr.size(); i++) {
+              System.out.println("CommunityType = " + attr.get(i));
+              if ("Security".equals(attr.get(i).toString())) {
+                isSecurityCommunity = true;
+              }
+            }
+          } catch (NamingException e) {
+            // error reading value, so it can't be a Security community
+          }
+        }
       }
-      bbs.publishAdd(relay);
+      if (isSecurityCommunity) {
+        AttributeBasedAddress messageAddress = 
+          new AttributeBasedAddress(community, "Role", _managerRole);
+        CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
+        if (_log.isInfoEnabled()) {
+          _log.info("Sending sensor capabilities to community '" + 
+                    community + "'");
+        }
+        bbs.publishAdd(relay);
+        addedOne = true;
+      }
+    }
+    if (!addedOne) {
+      _log.warn("This agent does not belong to any community. Login failures won't be reported.");
     }
     KeyRingJNDIRealm.initAlert(idmefFactory, cmrFactory, bbs, sensor);
   }  
