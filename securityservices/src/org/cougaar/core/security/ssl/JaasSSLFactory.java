@@ -26,6 +26,8 @@
 package org.cougaar.core.security.ssl;
 
 import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.security.auth.ChainedPrincipal;
+import org.cougaar.core.security.auth.StringPrincipal;
 import org.cougaar.core.security.crypto.CertificateStatus;
 import org.cougaar.core.security.crypto.PrivateKeyCert;
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -43,9 +45,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -210,40 +214,34 @@ public class JaasSSLFactory extends SSLSocketFactory {
 
   private String getName() {
     AccessControlContext acc = AccessController.getContext();
+    String name = null;
     Subject subject = (Subject) 
       AccessController.doPrivileged(new GetSubject(acc));
-    if (subject == null || subject.getPrincipals() == null) {
-      _log.info("No principals available. Using node agent's");
-    } else {
-      Iterator it = subject.getPrincipals().iterator(); 
-      while (it.hasNext()) {
-        Principal p = (Principal) it.next();
-        // Do not use (p instanceof ChainedPrincipal) as 
-        // the class may have been loaded by a different class loader.
-        if (p.getClass().getName().
-            equals("org.cougaar.core.security.securebootstrap.StringPrincipal")) {
-        }
-        try {
-          Class c = p.getClass();
-          Method m = c.getDeclaredMethod("getName", null);
-          return (String) m.invoke(p, null);
-        }
-        catch (Exception e) {
-          _log.error("Unable to get principal: " + e);
-        }
-      }
-      _log.error("Unable to get principal. Using NodeInfo.getNodeName()");
-    }
-    return NodeInfo.getNodeName();
-
-    /*
-    Set set = subject.getPrincipals(StringPrincipal.class);
+    Set set = subject.getPrincipals(ChainedPrincipal.class);
     if (set.isEmpty()) {
-      return NodeInfo.getNodeName();
-    } // end of if (set.isEmpty())
- 
-    return ((StringPrincipal)set.iterator().next()).getName();
-    */
+      if(_log.isDebugEnabled()) {
+        _log.debug("No principals available. Using node agent's");
+      }
+      name = NodeInfo.getNodeName();
+    } else {
+      // should only be one ChainedPrincipal
+      ArrayList list = ((ChainedPrincipal)set.iterator().next()).getChain();
+      if(list.size() == 0) {
+        if(_log.isDebugEnabled()) {
+          _log.debug("No ChainedPrincipals available. Using node agent's");
+        }
+        name = NodeInfo.getNodeName();
+      } else {
+        // if we get a ChainedPrincipal with node/agent/component, index should
+        // be the agent.  if we get a node/component, index should be the node.
+        int index = (list.size() >= 2 ? list.size() - 2 : 0);
+        name = ((StringPrincipal)list.get(index)).getName();        
+      }
+    }
+    if(_log.isDebugEnabled()) {
+      _log.debug("Returning principal: " + name);
+    }
+    return name;
  }
 
   private static class GetSubject implements PrivilegedAction {
