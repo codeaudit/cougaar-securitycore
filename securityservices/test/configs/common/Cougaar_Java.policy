@@ -195,9 +195,12 @@ grant signedBy "privileged" {
 	permission java.util.PropertyPermission "glm_output_stream", "read";
 	permission java.util.PropertyPermission "glm_log_file", "read";
 	permission java.util.PropertyPermission "SAFE.debug", "read";
+	permission java.util.PropertyPermission "name", "read";
 	// for Cougaar > 8.6.1
 	permission java.util.PropertyPermission "jaxp.debug", "read";
 	permission java.util.PropertyPermission "driver.postgresql", "read";
+
+	permission java.util.PropertyPermission "java.library.path", "read";
 
 	permission java.util.PropertyPermission "generic.database.expander.*", "read";
 
