@@ -156,8 +156,13 @@ public class MessageProtectionServiceImpl
   
   private synchronized void setPolicyService() {
     // Retrieve policy service
-    cps = (CryptoPolicyService)
-      serviceBroker.getService(this, CryptoPolicyService.class, null);
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        cps = (CryptoPolicyService)
+          serviceBroker.getService(this, CryptoPolicyService.class, null);
+        return null;
+      }
+    });
     if (cps == null) {
       log.error("Unable to get crypto policy service");
       throw new
