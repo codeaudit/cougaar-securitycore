@@ -1,0 +1,6 @@
+#!/usr/bin/ruby
+####################################################
+
+if !(defined?($MTS_PROTOCOL)) then
+   $MTS_PROTOCOL = "RMI"
+end
