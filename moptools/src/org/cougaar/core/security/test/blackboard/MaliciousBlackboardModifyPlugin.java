@@ -78,7 +78,7 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
 
 
   private void checkModified() {
-    if (modId != null) {
+      this.totalRuns++;
       Enumeration enumeration = orgSubs.getChangedList();
       boolean found = false;
       while (enumeration.hasMoreElements()) {
@@ -88,7 +88,6 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
           break;
         }
       }
-
       if (found) {
         this.failures++;
         if (logging.isDebugEnabled()) {
@@ -99,7 +98,6 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
       } else {
         this.successes++;
       }
-    }
   }
 
 
@@ -112,10 +110,8 @@ public class MaliciousBlackboardModifyPlugin extends AbstractBlackboardPlugin {
     if (iterator.hasNext()) {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       orgActivity.setActivityName(ACTIVITY_NAME);
-      getBlackboardService().publishChange(orgActivity);
       this.modId = orgActivity.getUID();
-      this.totalRuns++;
-
+      getBlackboardService().publishChange(orgActivity);
     } else {
       this.modId = null;
 

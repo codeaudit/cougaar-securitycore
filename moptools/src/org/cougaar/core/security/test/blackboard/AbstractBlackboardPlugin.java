@@ -331,10 +331,12 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
       }
 
       File dumpDirFile = new File(dumpDir);
-      if (!dumpDirFile.mkdirs()) {
-        if (logging.isInfoEnabled()) {
-          logging.info("Unable to create dump directory:" + dumpDir);
-        }
+      if (!dumpDirFile.exists()) {
+	if (!dumpDirFile.mkdirs()) {
+	  if (logging.isInfoEnabled()) {
+	    logging.info("Unable to create dump directory:" + dumpDir);
+	  }
+	}
       }
     } catch (Exception e) {
       if (logging.isWarnEnabled()) {
@@ -356,6 +358,7 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     }
   }
 
+  private long lasttime = 0;
 
   /**
    * Process subscriptions
@@ -368,13 +371,29 @@ public abstract class AbstractBlackboardPlugin extends ComponentPlugin {
     processOperatingMode();
     processTesting();
     if (this.wasAwakened()) {
-      queryBlackboard();
+      // Safeguard to make sure blackboard is not queried too often
+      long now = System.currentTimeMillis();
+      if (now > (lasttime - DEFAULT_TIME_INTERVAL)) {
+	lasttime = now;
+        queryBlackboard();
+      }
+      else {
+	if (logging.isDebugEnabled()) {
+	  logging.debug("Sleeping for a while");
+	}
+      }
       if (this.stopTesting) {
         this.endTime = new Date();
         dumpResults();
       } else {
         Timer timer = new Timer();
         QueryTimerTask qtt = new QueryTimerTask();
+	if (timeInterval < DEFAULT_TIME_INTERVAL) {
+	  timeInterval = DEFAULT_TIME_INTERVAL;
+	  if (logging.isWarnEnabled()) {
+	    logging.warn("Time interval too small. Resetting to default value");
+	  }
+	}
         timer.schedule(qtt, timeInterval);
 
       }

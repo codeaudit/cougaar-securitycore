@@ -32,7 +32,10 @@ import org.cougaar.core.blackboard.IncrementalSubscription;
 import org.cougaar.core.util.UID;
 import org.cougaar.glm.ldm.oplan.OplanFactory;
 import org.cougaar.glm.ldm.oplan.OrgActivity;
+import org.cougaar.glm.ldm.oplan.OrgActivityImpl;
 import org.cougaar.util.UnaryPredicate;
+import org.cougaar.core.service.AgentIdentificationService;
+import org.cougaar.core.mts.MessageAddress;
 
 import java.util.Enumeration;
 
@@ -83,13 +86,14 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
 
 
   private void checkForAddedOrgActivitySubs() {
-    if (addUID != null) {
+    this.totalRuns++;
       Enumeration enumeration = this.orgActivitySubs.getAddedList();
       if (logging.isDebugEnabled()) {
         logging.debug("Check for Added Org Activity....");
       }
 
       boolean found = false;
+
       while (enumeration.hasMoreElements()) {
         OrgActivity orgActivity = (OrgActivity) enumeration.nextElement();
         if (orgActivity.getUID().equals(addUID)) {
@@ -98,22 +102,21 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
         }
       }
 
-       if (found) {
-         if (logging.isDebugEnabled()) {
-           logging.debug("Found added org activity");
-         }
-         //failure
-         this.failures++;
-         //create IDMEF Event
-         this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
-         } else {
-         	if(logging.isDebugEnabled()){
-         		logging.debug("did not find it");
-         	}
-           this.successes++;
-         }
+      if (found) {
+	if (logging.isDebugEnabled()) {
+	  logging.debug("Found added org activity");
+	}
+	//failure
+	this.failures++;
+	//create IDMEF Event
+	this.createIDMEFEvent(pluginName, "Was able to add OrgActivity object");
+      } else {
+	if(logging.isDebugEnabled()){
+	  logging.debug("did not find it");
+	}
+	this.successes++;
+      }
       
-    }
   }
 
 
@@ -125,8 +128,21 @@ public class MaliciousBlackboardAddPlugin extends AbstractBlackboardPlugin {
     OrgActivity orgActivity = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
     orgActivity.setActivityName(MALCICOUS_ADD_ACTIVITY_NAME);
     orgActivity.setUID(uidService.nextUID());
-    getBlackboardService().publishAdd(orgActivity);
+    MessageAddress ma = null;
+
+    AgentIdentificationService ais = (AgentIdentificationService)
+      getServiceBroker().getService(this, AgentIdentificationService.class, null);
+    if(ais != null) {
+      ma = ais.getMessageAddress(); 
+      getServiceBroker().releaseService(this, AgentIdentificationService.class, ais);
+    }
+    else {
+      if (logging.isWarnEnabled()) {
+	logging.warn("Unable to get AgentIdentificationService");
+      }
+    }
+    ((OrgActivityImpl)orgActivity).setOwner(ma);
     this.addUID = orgActivity.getUID();
-    this.totalRuns++;
+    getBlackboardService().publishAdd(orgActivity);
   }
 }

@@ -69,7 +69,7 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
 
 
   private void checkDeletedActivies() {
-    if (deleteUID != null) {
+      this.totalRuns++;
       Enumeration enum = orgSubs.getRemovedList();
       boolean foundIt = false;
       while (enum.hasMoreElements()) {
@@ -94,7 +94,6 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
 
         this.successes++;
       }
-    }
   }
 
 
@@ -117,7 +116,6 @@ public class MaliciousBlackboardDeletePlugin extends AbstractBlackboardPlugin {
       OrgActivity orgActivity = (OrgActivity) iterator.next();
       this.deleteUID = orgActivity.getUID();
       getBlackboardService().publishRemove(orgActivity);
-      this.totalRuns++;
 
     } else {
       this.deleteUID = null;
