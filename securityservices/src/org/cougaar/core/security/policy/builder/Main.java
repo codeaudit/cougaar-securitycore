@@ -424,7 +424,7 @@ public class Main
       }
       return true;
     } catch (Exception e) {
-      printMessage("" + e.getStackTrace());
+      _log.error("",e);
       return false;
     }
   }
@@ -464,7 +464,7 @@ public class Main
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
-      printMessage("" + e.getStackTrace());
+      _log.error("", e);
       printMessage("Error Committing policies");
     }
   }
