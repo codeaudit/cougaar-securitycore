@@ -48,22 +48,26 @@ import java.util.Vector;
 public class StringPairMapping {
 
   protected LoggingService _log;
-  private ConfigFinder _cf;
+  private   ConfigFinder   _cf;
+  protected List           _mapping;
+  private   String         _filename;
 
-  public StringPairMapping(ServiceBroker sb)
+  public StringPairMapping(ServiceBroker sb, String filename)
+    throws IOException
   {
     _log = (LoggingService) sb.getService(this, LoggingService.class, null);
     if (_log.isDebugEnabled()) {
       _log.debug("Initializing String Pair Mapper");
     }
     _cf = ConfigFinder.getInstance();
+    _mapping = loadPairs(filename);
   }
 
   /**
    * This method reads a mapping from a file.  
    */
 
-  protected List loadPairs(String filename)
+  private List loadPairs(String filename)
     throws IOException
   {
     _log.debug(".loadPairs Initilizing String Pair mapping using " + filename);
@@ -104,10 +108,9 @@ public class StringPairMapping {
     return mapping;
   }
 
-  public Map buildMap(String filename) throws IOException {
+  public Map buildMap() throws IOException {
     Map m = new HashMap();
-    List l = loadPairs(filename);
-    Iterator iter = l.iterator();
+    Iterator iter = _mapping.iterator();
     while (iter.hasNext()) {
       StringPair p = (StringPair) iter.next();
       Set s = (Set) m.get(p._first);
@@ -120,12 +123,12 @@ public class StringPairMapping {
     return m;
   }
 
-  public Map buildFunctionalMap(String filename) throws IOException {
+  public Map buildFunctionalMap()
+    throws IOException {
     Map m = new HashMap();
-    List l = loadPairs(filename);
-    Iterator iter = l.iterator();
+    Iterator iter = _mapping.iterator();
     if (_log.isDebugEnabled()) {
-      _log.debug("getting mappings for filename " + filename);
+      _log.debug("getting mappings for filename " + _filename);
     }
     while (iter.hasNext()) {
       StringPair p = (StringPair) iter.next();
@@ -134,7 +137,7 @@ public class StringPairMapping {
         _log.debug(p._first + " --> " + p._second);
       }
       if (s != null) {
-        throw new IOException("Configuration file " + filename +
+        throw new IOException("Configuration file " + _filename +
                               " is not functional.");
       }
       m.put(p._first, p._second);
@@ -142,17 +145,8 @@ public class StringPairMapping {
     return m;
   }
 
-
-  public static class StringPair
+  public List buildPairList()
   {
-    public String _first;
-    public String _second;
-
-    public StringPair(String first, String second)
-    {
-      _first  = first;
-      _second = second;
-    }
+    return _mapping;
   }
-
 }
