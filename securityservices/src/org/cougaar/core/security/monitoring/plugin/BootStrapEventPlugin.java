@@ -171,19 +171,24 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       detecttime.setIdmefDate(event.detecttime);
        ArrayList data = new ArrayList();
       if(event.principals!=null) {
-	adddata=new AdditionalData();
+	/*
+	adddata=imessage.createAdditionalData();
 	adddata.setType(AdditionalData.STRING);
+	*/
 	StringBuffer buff=new StringBuffer();
 	for(int i=0;i<event.principals.length;i++) {
 	  buff.append(event.principals[i].toString()+"\n");
 	}
-	adddata.setAdditionalData(buff.toString());
+//	adddata.setAdditionalData(buff.toString());
+	adddata = imessage.createAdditionalData(AdditionalData.STRING,"PRINCIPAL_INFO", buff.toString());
 	data.add(adddata);
       }
       if(event.subjectStackTrace!=null){
-	adddata=new AdditionalData();
+	adddata=imessage.createAdditionalData(AdditionalData.STRING, "STACK_TRACE", event.subjectStackTrace);
+	/*
 	adddata.setType(AdditionalData.STRING);
 	adddata.setAdditionalData(event.subjectStackTrace);
+	*/
 	data.add(adddata);
       }
       Alert alert = imessage.createAlert(this, detecttime,
@@ -192,9 +197,13 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
       Event e = factory.newEvent(alert);
       //System.out.println("Intrusion Alert:" + alert.toString());
       //System.out.println("Publishing sensor Event :");
+      
       bbservice.openTransaction();
+      if(m_log.isDebugEnabled()) {
+	m_log.debug("Publishing alert: " + alert);
+      }
       bbservice.publishAdd(e);
-
+      
       // Increment the total number of events
       numberOfEvents++;
       ((BootstrapEventCondition)sensorCondition).setValue(numberOfEvents);
