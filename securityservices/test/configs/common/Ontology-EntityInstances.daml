@@ -29,6 +29,7 @@
     <ultralogEntity:ProtectionLevel rdf:ID="TopSecretProtection"/>
     <ultralogEntity:ProtectionLevel rdf:ID="SecretProtection"/>
 
+    <ultralogEntity:ULContentValue rdf:ID="NoVerb"/>
     <ultralogEntity:ULContentValue rdf:ID="GetLogSupport"/>
     <ultralogEntity:ULContentValue rdf:ID="GetWater"/>
 </rdf:RDF>
