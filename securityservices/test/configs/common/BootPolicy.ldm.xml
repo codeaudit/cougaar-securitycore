@@ -9,7 +9,7 @@
  -->
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
     <RuleParam name="ldapurl">
-      <String value="ldap://u068:389/"/>
+      <String value="ldaps://u068/"/>
     </RuleParam>
     <RuleParam name="user">
       <String value="cn=manager,dc=cougaar,dc=org"/>
@@ -45,20 +45,28 @@
     </RuleParam>
   </Policy>
 
-<!--
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.ServletPolicy">
-    <RuleParam name="allow-role">
-      <KeySet value="ExerciseOne">
-        <Key key="/user_admin" value="secure" />
+    <RuleParam name="UserAdminAgent">
+      <KeySet value="allow-role">
+        <Key key="/*" value="UserManager" />
       </KeySet>
     </RuleParam>
-    <RuleParam name="auth-constraint">
-      <KeySet value="ExerciseOne">
-        <Key key="/user_admin*" value="EITHER" />
+    <RuleParam name="PolicyDomainManager">
+      <KeySet value="allow-role">
+        <Key key="*" value="PolicyAdministrator" />
+      </KeySet>
+    </RuleParam>
+    <RuleParam name="caAgent">
+      <KeySet value="allow-role">
+        <Key key="*" value="CAAdministrator" />
+      </KeySet>
+    </RuleParam>
+    <RuleParam name="UserAdminAgent">
+      <KeySet value="auth-constraint">
+        <Key key="/useradmin*" value="EITHER" />
       </KeySet>
     </RuleParam>
   </Policy>
--->
 
 <!-- BlackboardService read-only filter
   <Policy name="BOOTPOLICY" type="org.cougaar.core.security.policy.BlackboardFiltePolicy">
