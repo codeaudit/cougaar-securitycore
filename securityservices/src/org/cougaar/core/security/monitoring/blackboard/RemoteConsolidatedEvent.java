@@ -30,47 +30,55 @@ import org.cougaar.core.blackboard.Publishable;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.planning.servlet.XMLize;
 
+
+import org.cougaar.core.security.monitoring.util.*;
+
 /** Event implementation
  */
 public class RemoteConsolidatedEvent implements java.io.Serializable,Publishable {
   protected IDMEF_Message theMessage;
   protected MessageAddress theAgent;
-  protected UID parentUID;
-
-  public RemoteConsolidatedEvent(ConsolidatedEvent event)
-    {
-      setparentUID(event.getparentUID());
-      setSource(event.getSource());
-      setEvent(event.getEvent());
-    }
+ 
+  public RemoteConsolidatedEvent(ConsolidatedEvent event)  {
+    //setparentUID(event.getparentUID());
+    setSource(event.getSource());
+    setEvent(event.getEvent());
+  }
 
   
-  private void setEvent(IDMEF_Message aMessage)
-    {
-      theMessage = aMessage;
-    }
+  private void setEvent(IDMEF_Message aMessage) {
+    theMessage = aMessage;
+  }
   private void setSource(MessageAddress aSource) {
     theAgent = aSource;
   }
 
-  public IDMEF_Message getEvent()
-    {
-      return theMessage;
-    }
+  public IDMEF_Message getEvent()  {
+    return theMessage;
+  }
 
   public MessageAddress getSource() {
     return theAgent;
   }
 
- 
-  public void setparentUID(UID uid) {
-    parentUID = uid;
-  }
-  
-  public UID getparentUID() { 
+  public UID getParentUID() { 
+    UID parentUID=null;
+    IDMEF_Message message=getEvent();
+    if(message!=null) {
+      parentUID= DrillDownUtils.getUID(message,DrillDownQueryConstants.PARENT_UID);
+    }  
     return parentUID;
   }
-
+  
+  public UID getOriginatorUID() { 
+    UID originatorUID=null;
+    IDMEF_Message message=getEvent();
+    if(message!=null) {
+      originatorUID= DrillDownUtils.getUID(message,DrillDownQueryConstants.ORIGINATORS_UID);
+    }  
+    return originatorUID;
+  }
+ 
   /** ******************************************************************
    *  Publishable interface
    */
