@@ -251,7 +251,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
       if(debug)System.out.println("No OUT AgentAction found for " + source);
       return null;
     }
-    if(true) {
+    if(debug) {
       Iterator keys = h.keySet().iterator();
       System.out.print("Keys for agent " + source + ": ");
       while(keys.hasNext())
@@ -260,7 +260,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
     }
     Vector r = (Vector)h.get("Out:" + target);
     if(r == null)r = (Vector)h.get("Out:DEFAULT");
-    if(true) {
+    if(debug) {
       System.out.print("Agent:"+ target +" got outgoing verbs ( ");
       for(int i = 0; i < r.size(); i++)
 	System.out.print(r.get(i).toString() + ":"
