@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.acl.user;
 
@@ -45,12 +38,15 @@ import java.util.TimeZone;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.util.UID;
 import org.cougaar.core.util.UniqueObject;
+import org.cougaar.util.log.Logger;
+import org.cougaar.util.log.LoggerFactory;
 
 public class UserEntries implements UniqueObject {
-  private UID _uid;
-  private HashMap _users = new HashMap();
-  private HashMap _roles = new HashMap();
-  private String _domain;
+  private UID               _uid;
+  private HashMap           _users = new HashMap();
+  private HashMap           _roles = new HashMap();
+  private String           _domain;
+  private static Logger    _log;
 
   private static final DateFormat DF =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
@@ -69,6 +65,10 @@ public class UserEntries implements UniqueObject {
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_ROLE_LIST = "roles";
   public static final String FIELD_IS_CLEAR_TEXT_PASSWORD = "clearText";
+
+  static {
+    _log = LoggerFactory.getInstance().createLogger(UserEntries.class);
+  }
 
   private static class UserData implements java.io.Serializable {
     //     private String  _userName;
@@ -619,8 +619,12 @@ public class UserEntries implements UniqueObject {
    * Sets the user domain.
    * @param _domain - The user domain
    */
-  public void setDomain(String domain) {
-    if (_domain != null) {
+  public synchronized void setDomain(String domain) {
+    if (_domain != null && !_domain.equals(domain)) {
+      if (_log.isWarnEnabled()) {
+        _log.warn("Domain has already been set to " + _domain 
+           + " Trying to set to " + domain);
+      }
       throw new IllegalStateException("User domain has already been set");
     }
     _domain = domain;

@@ -67,7 +67,7 @@ public class UserFileParser {
   private UserEntries      _userCache;
   
   static {
-    _log = LoggerFactory.getInstance().createLogger(UserAdminServlet.class);
+    _log = LoggerFactory.getInstance().createLogger(UserFileParser.class);
   }
 
   public static final String ROLE_ASSIGNMENT = "role";
@@ -369,6 +369,7 @@ public class UserFileParser {
     init(userCache);
     
     UserFileParser ufp = new UserFileParser(userCache);
+    System.out.println("Reading user XML file...");
     ufp.readUsers("UserFile.xml");
     OutputStream os = null;
     try {
@@ -380,10 +381,17 @@ public class UserFileParser {
     System.out.println("Generating user XML file: " + fileName
         + " for domain: " + domain);
     ufp.saveUsersAndRoles(os);
+    try {
+      os.close();
+    }
+    catch (IOException e) {
+      System.out.println("Unable to close file");
+    }
   }
 
   public static void main(String[] args) {
     UserFileParser ufp = new UserFileParser();
     ufp.buildDigestedUserFile(args);
+    System.exit(0);
   }
 }

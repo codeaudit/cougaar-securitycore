@@ -83,7 +83,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
 
   private static ServiceBroker _serviceBroker;
   private static String        _realmName = "Cougaar";
-  private LoggingService log;
+  private LoggingService       log;
 
   private static final DateFormat LDAP_TIME =
     new SimpleDateFormat("yyyyMMddHHmmss'Z'");
@@ -490,11 +490,16 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     if (uid != null) {
       username = uid;
     }
-    password = encryptPassword(username, password);
+    String digestPassword = encryptPassword(username, password);
+    if (log.isDebugEnabled()) {
+      log.debug("Digested database password: " + passwordCheck);
+      log.debug("User name: " + username +
+                " Password provided by user (digested): " + digestPassword);
+    }
     if (hasMessageDigest()) {
-      match = digest(password).equalsIgnoreCase(passwordCheck);
+      match = digest(digestPassword).equalsIgnoreCase(passwordCheck);
     } else {
-      match = digest(password).equals(passwordCheck);
+      match = digest(digestPassword).equals(passwordCheck);
     }
 
     if (!match) {

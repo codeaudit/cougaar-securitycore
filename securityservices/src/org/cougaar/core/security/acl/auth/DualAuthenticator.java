@@ -22,13 +22,6 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.acl.auth;
 
@@ -325,6 +318,9 @@ public class DualAuthenticator extends ValveBase {
   protected boolean authenticate(AuthenticatorBase auth, 
                                  HttpRequest req, HttpResponse resp) 
     throws IOException {
+    if (_log.isDebugEnabled()) {
+      _log.debug("authenticate using " + auth.getClass().getName());
+    }
     if (auth instanceof SSLAuthenticator) {
       return ((SSLAuthenticator) auth).authenticate(req, resp, _loginConfig);
     } 
