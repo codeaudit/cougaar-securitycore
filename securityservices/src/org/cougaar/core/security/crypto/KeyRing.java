@@ -922,6 +922,7 @@ try {
 				  boolean buildChain, boolean changeStatus) {
     boolean isTrustedAndValid = false;
 
+/*
     // What is this for? If not important for every find then
     // put it in operations performed during background thread
     if (buildChain) {
@@ -934,6 +935,7 @@ try {
         }
       }
     }
+*/
 
     // The first element in the list should be the most up-to-date
     // certificate. However, there are some cases where it may not.
@@ -1013,8 +1015,9 @@ try {
       // on any certificate
       if (changeStatus) {
         if (e instanceof CertificateChainException) {
-          if (log.isWarnEnabled()) {
-            log.warn("One of signers in chain has been revoked.");
+          if (log.isInfoEnabled()) {
+            log.info("One of signers in chain has been revoked." 
+              + cs.getCertificate().getSubjectDN().getName());
           }
           cs.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
         }
