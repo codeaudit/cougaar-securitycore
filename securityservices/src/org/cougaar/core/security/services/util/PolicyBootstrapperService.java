@@ -23,6 +23,8 @@
 
 package org.cougaar.core.security.services.util;
 
+import java.util.List;
+
 // Cougaar core services
 import org.cougaar.core.component.Service;
 import org.cougaar.core.security.policy.SecurityPolicy;
@@ -33,5 +35,7 @@ import kaos.core.util.PolicyMsg;
 public interface PolicyBootstrapperService
   extends Service
 {
+  public boolean getDefaultModality();
+  public List getBootPolicies(String type);
   public PolicyMsg getBootPolicy(Class type);
 }
