@@ -140,8 +140,9 @@ public class MessageProtectionServiceImpl
   public byte[] protectHeader(byte[] rawData,
 			      MessageAddress source,
 			      MessageAddress destination)
-    throws GeneralSecurityException, IOException
+//    throws GeneralSecurityException, IOException
   {
+try{
     if (!isInitialized) {
       setPolicyService();
     }
@@ -178,6 +179,9 @@ public class MessageProtectionServiceImpl
     }
 
     return baos.toByteArray();
+}catch(Exception e){
+}
+return null;
   }
 
   /**
@@ -191,8 +195,9 @@ public class MessageProtectionServiceImpl
   public byte[] unprotectHeader(byte[] rawData,
 				MessageAddress source,
 				MessageAddress destination)
-    throws GeneralSecurityException, IOException
+//    throws GeneralSecurityException, IOException
   {
+try{
     if (!isInitialized) {
       setPolicyService();
     }
@@ -239,6 +244,9 @@ public class MessageProtectionServiceImpl
     }
 
     return (byte[])o;
+}catch(Exception e){
+}
+return null;
   }
 
   /** 
@@ -270,7 +278,7 @@ public class MessageProtectionServiceImpl
 					       MessageAddress source,
 					       MessageAddress destination,
 					       MessageAttributes attrs)
-    throws IOException
+//    throws IOException
   {
     if (log.isDebugEnabled()) {
       log.debug("getOutputStream: " + source.toAddress()
@@ -313,7 +321,7 @@ public class MessageProtectionServiceImpl
 					     MessageAddress source,
 					     MessageAddress destination,
 					     MessageAttributes attrs)
-    throws IOException
+//    throws IOException
   {
     if (log.isDebugEnabled()) {
       log.debug("getInputStream: " + source.toAddress()
