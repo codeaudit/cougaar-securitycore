@@ -8,8 +8,6 @@ require 'ultralog/scripting'
 require "security/lib/scripting"
 require "security/lib/security"
 
-
-
 class TestReportChainReady < SecurityStressFramework
   def initialize(run)
     super(run)
@@ -36,13 +34,17 @@ class TestReportChainReady < SecurityStressFramework
       if facetval != nil
         subordinate = agent.name
         superior    = facetval
-        if  @expectedSubordinates[superior] == nil
-          @expectedSubordinates[superior]  = [] 
-        end
-        if !(@expectedSubordinates[superior].include?(subordinate))
-          @expectedSubordinates[superior].push(subordinate)
-        end
+        addExpectedRelation(subordinate, superior)
       end
+    end
+  end
+
+  def addExpectedRelation(subordinate, superior)
+    if  @expectedSubordinates[superior] == nil
+      @expectedSubordinates[superior]  = [] 
+    end
+    if !(@expectedSubordinates[superior].include?(subordinate))
+      @expectedSubordinates[superior].push(subordinate)
     end
   end
 
