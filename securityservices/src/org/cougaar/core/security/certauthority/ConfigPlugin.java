@@ -142,7 +142,7 @@ public class ConfigPlugin extends ComponentPlugin {
     }
     else {
       cryptoClientPolicy.setIsRootCA(true);
-      generateCAIdentity();
+      checkOrMakeIdentity(null, "");
     }
 
   }
@@ -224,6 +224,10 @@ public class ConfigPlugin extends ComponentPlugin {
     TrustedCaPolicy tc = info.caPolicy;
     X509Certificate [] certChain = info.caCert;
     tc.caURL = requestURL;
+    if (cryptoClientPolicy.isCertificateAuthority()) {
+      // don't need it for CA, it signs request locally
+      tc.setCertificateAttributesPolicy(null);
+    }
     cryptoClientPolicy.addTrustedCaPolicy(tc);
     // install certificate to trust store
     for (int i = 0; i < certChain.length; i++) {
@@ -247,11 +251,39 @@ public class ConfigPlugin extends ComponentPlugin {
       }
       cacheservice.saveCertificateInTrustedKeyStore(c, alias);
     }
+    if (log.isDebugEnabled()) {
+      log.debug("Saving CryptoClientPolicy to file.");
+    }
     configParser.updateSecurityPolicy(cryptoClientPolicy);
   }
 
   protected synchronized void checkOrMakeIdentity(CAInfo info, String requestURL) {
-    setCAInfo(info, requestURL);
+    // check whether ca policy has been set
+    if (configParser.getCaPolicy(caDN) == null) {
+      // Build a hashtable of (attribute, value) pairs to replace
+      // attributes with their value in a template XML file.
+      Hashtable attributeTable = new Hashtable();
+      attributeTable.put("distinguishedName", caDN);
+      attributeTable.put("ldapURL", ldapURL);
+
+      // other attributes should be static for unzip & run
+
+      PolicyHandler ph = new PolicyHandler(configParser, _sb);
+      // retrieve caPolicyTemplate and add new information
+      // there should be a CaPolicy created with this function
+      // and storage should be updated with new CaPolicy
+      ph.addCaPolicy(attributeTable);
+    }
+
+    if (cryptoClientPolicy.isRootCA()) {
+      if (log.isDebugEnabled()) {
+        log.debug("Saving CryptoClientPolicy to file.");
+      }
+      configParser.updateSecurityPolicy(cryptoClientPolicy);
+    }
+    else {
+      setCAInfo(info, requestURL);
+    }
 
     generateCAIdentity();
 
@@ -299,22 +331,6 @@ public class ConfigPlugin extends ComponentPlugin {
       return;
     }
 
-    // check whether ca policy has been set
-    if (configParser.getCaPolicy(caDN) == null) {
-      // Build a hashtable of (attribute, value) pairs to replace
-      // attributes with their value in a template XML file.
-      Hashtable attributeTable = new Hashtable();
-      attributeTable.put("distinguishedName", caDN);
-      attributeTable.put("ldapURL", ldapURL);
-
-      // other attributes should be static for unzip & run
-
-      PolicyHandler ph = new PolicyHandler(configParser, _sb);
-      // retrieve caPolicyTemplate and add new information
-      // there should be a CaPolicy created with this function
-      // and storage should be updated with new CaPolicy
-      ph.addCaPolicy(attributeTable);
-    }
   }
 
   public static InputStream sendRequest(String requestURL, Object req)
