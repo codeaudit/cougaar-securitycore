@@ -62,7 +62,7 @@ public class CertificateSigningRequest
     super.init(config);
   }
   
-  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+  public void doPost (HttpServletRequest req, HttpServletResponse res)
     throws ServletException,IOException
   {
     String pkcs=null;
@@ -71,18 +71,21 @@ public class CertificateSigningRequest
     String domain = null;
 
     String data;
+
+    if (CryptoDebug.debug) {
+      System.out.println("Received a certificate signing request");
+    }
+    ByteArrayInputStream bytestream=null;
+    PrintStream printstream=new PrintStream(res.getOutputStream());
+
     //res.setContentType("text/html");
     //  PrintWriter out=res.getWriter();
     CA_DN_name =(String)req.getParameter("dnname");
+
+    try {
     domain = CertificateUtility.getX500Domain(CA_DN_name, true, ',', true);
-    ByteArrayInputStream bytestream=null;
-    PrintStream printstream=new PrintStream(res.getOutputStream());
     byte [] bytedata=null;
-    String certpath=secprop.getProperty(secprop.CA_CERTPATH);
-    System.out.println(" cert path  is :"+certpath);
     
-    String confpath=secprop.getProperty(secprop.CRYPTO_CONFIG);
-    System.out.println(" Conf path  is :"+confpath);
     if(( CA_DN_name==null)||( CA_DN_name=="")) {
       printstream.print("Error ---Unknown  type CA dn name :");
       printstream.flush();
@@ -138,9 +141,17 @@ public class CertificateSigningRequest
       printstream.flush();
       printstream.close();
     }
+    }
+    catch (Exception e1) {
+      printstream.print("Error ------"+e1.toString());
+      printstream.flush();
+      printstream.close();
+    }
   }
   
-  protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException  {
+  protected void doGet(HttpServletRequest req,
+		       HttpServletResponse res)
+    throws ServletException, IOException  {
     res.setContentType("Text/HTML");
     PrintWriter out=res.getWriter();
     out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
