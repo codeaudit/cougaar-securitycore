@@ -75,6 +75,7 @@ class Main
   private String  _cmdLineUser;
   private char [] _cmdLinePassword;
   private String  _url;
+  private boolean _setPolicies;
 
   /*
    * Argument passing routines
@@ -102,7 +103,10 @@ class Main
       } else if (args[counter].equals("jtp")) {
         counter++; 
         _cmd = JTP_CMD;
-      } else if (args[counter].equals("commit")) {
+      } else if (args[counter].equals("commit") || 
+                 args[counter].equals("setpolicies") ||
+                 args[counter].equals("addpolicies")) {
+        _setPolicies      = !(args[counter].equals("addpolicies"));
         counter++;
         _cmd = COMMIT_CMD;
         _quiet            = true;
@@ -151,9 +155,9 @@ class Main
     System.out.println("" + (counter++) + ". build {--quiet} policiesFile");
     System.out.println("\tTo build policies from a grammar");
     System.out.println("\tThe --quiet options supresses messages");
-    System.out.println("" + (counter++) + ". commit {--dm} "
-                       + "{--auth username password} " +
-                       "host port agent policiesFile");
+    System.out.println("" + (counter++) + ". commit/setpolicies/addpolicies"
+                       + " {--dm} {--auth username password} ");
+    System.out.println("\t\thost port agent policiesFile");
     System.out.println("\tTo commit policies using policy servlet");
     System.out.println("\t--dm = use the Domain Manager to build policies");
     System.out.println("\t\tBy default policy files are read from disk");
@@ -165,6 +169,14 @@ class Main
     System.out.println("" + (counter++) + ". examine policyFile");
     System.out.println("" + (counter++) + ". parse policyFile");
     System.out.println("\tParse only for debugging purposes");
+    System.out.println("");
+    System.out.println("commit and setpolicies are synonymous");
+    System.out.println("They replace the policies on the domain manager" +
+                       "with the polices in policiesFile");
+    System.out.println("addpolicies leaves existing unconditional policies"
+                       + "on the domain manager intact");
+    System.out.println("Conditional policies on the domain manager are " +
+                       "always replaced.");
     System.exit(-1);
   }
 
@@ -282,7 +294,7 @@ class Main
    * This routine gathers unconditional policies - either from disk or
    * by building them itself - and then commits them.
    */
-  public void commitUnconditionalPolicies(List parsed)
+  public void commitUnconditionalPolicies(List    parsed)
     throws Exception
   {
     System.out.println("Constructing New Unconditional Policy Msgs");
@@ -331,8 +343,8 @@ class Main
    * same id then the old policy must not be removed  and the new
    * policy must be put in the changed list.
    */
-  public void updatePolicies(List newPolicies,
-                             List oldPolicies)
+  public void updatePolicies(List    newPolicies,
+                             List    oldPolicies)
     throws IOException
   {
     List oldIds = new Vector();
@@ -356,10 +368,12 @@ class Main
       }
     }
 
-    for (Iterator policyIt = oldPolicies.iterator(); policyIt.hasNext();) {
-      PolicyMsg policy = (PolicyMsg) policyIt.next();
-      if (!commonIds.contains(policy.getId())) {
-        removedPolicies.add(policy);
+    if (_setPolicies) {
+      for (Iterator policyIt = oldPolicies.iterator(); policyIt.hasNext();) {
+        PolicyMsg policy = (PolicyMsg) policyIt.next();
+        if (!commonIds.contains(policy.getId())) {
+          removedPolicies.add(policy);
+        }
       }
     }
 
