@@ -1,5 +1,28 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 
+<!DOCTYPE USER-DB-CONFIG [
+<!-- The outer policy element --> 
+<!ELEMENT policy (user-db-config*)>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy type CDATA #REQUIRED>
+
+<!ELEMENT user-db-config  (ldap-url?,ldap-user?,ldap-password?,user-dn?,role-dn?,user-attr?,role-attr?,user-role-attr?,auth-attr?,enable-attr?,password-attr?,user-object-class*,role-object-class*)>
+
+<!ELEMENT ldap-url (#PCDATA)>
+<!ELEMENT ldap-user (#PCDATA)>
+<!ELEMENT ldap-password (#PCDATA)>
+<!ELEMENT user-dn (#PCDATA)>
+<!ELEMENT role-dn (#PCDATA)>
+<!ELEMENT user-attr (#PCDATA)>
+<!ELEMENT role-attr (#PCDATA)>
+<!ELEMENT user-role-attr (#PCDATA)>
+<!ELEMENT auth-attr (#PCDATA)>
+<!ELEMENT enable-attr (#PCDATA)>
+<!ELEMENT password-attr (#PCDATA)>
+<!ELEMENT user-object-class (#PCDATA)>
+<!ELEMENT role-object-class (#PCDATA)>
+]>
+
 <policy name="User Database Policy" type="org.cougaar.core.security.policy.LdapUserServicePolicy">
   <user-db-config>
     <!-- the ldap url for the user database -->
@@ -17,25 +40,25 @@
     <role-dn>dc=roles,dc=cougaar,dc=org</role-dn>
 
     <!-- The attribute that distinguishes users -->
-    <user-rdn>uid</user-rdn>
+    <user-attr>uid</user-attr>
 
     <!-- The attribute that distinguishes roles -->
-    <role-rdn>cn</role-rdn>
+    <role-attr>cn</role-attr>
 
     <!-- The attribute in the role to store the user dn's who have that
          role -->
-    <role-attribute>roleOccupant</role-attribute>
+    <user-role-attr>roleOccupant</user-role-attr>
 
     <!-- The attribute in the user that contains the authentication
          requirement -->
-    <auth-attribute>cougaarAuthReq</auth-attribute>
+    <auth-attr>cougaarAuthReq</auth-attr>
 
     <!-- The attribute in the user that contains the time when the user
          is enabled -->
-    <enable-attribute>cougaarAcctEnableTime</enable-attribute>
+    <enable-attr>cougaarAcctEnableTime</enable-attr>
 
     <!-- The attribute in the user account that contains the password -->
-    <password-attribute>userPassword</password-attribute>
+    <password-attr>userPassword</password-attr>
 
     <!-- Define one or more objectClass that is used when creating user
          entries -->

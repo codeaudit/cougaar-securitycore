@@ -32,6 +32,7 @@ import org.xml.sax.helpers.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 // Cougaar core services
@@ -58,7 +59,6 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
 
   // for both
   private String    _agent;
-  private boolean   _readOnly;
 
   public BlackboardFilterPolicyHandler(ServiceBroker sb) {
     super(sb);
@@ -80,26 +80,53 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
 			    Attributes attrs )
     throws SAXException {
     super.startElement(namespaceURI, localName, qName, attrs);
-    if (localName.equals("read-only-policy")) {
-      _readOnly = true;
-    } else if (localName.equals("select-method-policy")) {
-      _readOnly = false;
-    } else if (localName.equals("rule")) {
+    if (localName.equals("read-only-rule")) {
       _agent       = attrs.getValue("agent");
+      _default     = attrs.getValue("default-privilege",
+                                    BlackboardFilterPolicy.DENIED_ACCESS);
       _patterns    = new HashSet();
-
-      if (_readOnly) {
-        _default     = null;
-        _writeRoles  = new HashSet();
-        _readRoles   = new HashSet();
-        _deniedRoles = new HashSet();
-      } else {
-        _allowedRoles = new HashSet();
-        _methods      = new HashSet();
-      }
+      _writeRoles  = new HashSet();
+      _readRoles   = new HashSet();
+      _deniedRoles = new HashSet();
+    } else if (localName.equals("select-method-rule")) {
+      _agent        = attrs.getValue("agent");
+      _patterns     = new HashSet();
+      _allowedRoles = new HashSet();
+      _methods      = new HashSet();
     } 
   }
+
+  private boolean checkAgent() {
+    if (_agent == null) {
+      log.error("You must provide an agent name as a rule parameter");
+      return false;
+    }
+    return true;
+  }
+
+  private boolean checkSize(Collection coll, String name) {
+    if (coll == null || coll.size() == 0) {
+      log.error("You must provide at least one " + name + " element");
+      return false;
+    }
+    return true;
+  }
   
+  private boolean checkDefaultAccess() {
+    if (BlackboardFilterPolicy.READ_ACCESS.equals(_default)) {
+      _default = BlackboardFilterPolicy.READ_ACCESS;
+    } else if (BlackboardFilterPolicy.WRITE_ACCESS.equals(_default)) {
+      _default = BlackboardFilterPolicy.WRITE_ACCESS;
+    } else if (BlackboardFilterPolicy.DENIED_ACCESS.equals(_default)) {
+      _default = BlackboardFilterPolicy.DENIED_ACCESS;
+    } else {
+      log.error("The default privilege must be one of 'read'," + 
+                " 'write', or 'denied'");
+      return false;
+    }
+    return true;
+  }
+
   public void endElement( String namespaceURI,
 			  String localName,
 			  String qName )
@@ -108,46 +135,24 @@ public class BlackboardFilterPolicyHandler extends BaseConfigHandler {
     if (endElementAction == SKIP) {
       return;
     }
-    if (localName.equals("rule")) {
-      if (_agent == null) {
-        log.error("You must provide an agent name as a rule parameter");
-      } else if (_patterns.size() == 0) {
-        log.error("You must have at least one uri pattern in a rule");
-      } else {
-        if (_readOnly) {
-          if (_default == null) {
-            log.error("You must have a default privilege");
-          } else {
-            if (BlackboardFilterPolicy.READ_ACCESS.equals(_default)) {
-              _default = BlackboardFilterPolicy.READ_ACCESS;
-            } else if (BlackboardFilterPolicy.WRITE_ACCESS.equals(_default)) {
-              _default = BlackboardFilterPolicy.WRITE_ACCESS;
-            } else if (BlackboardFilterPolicy.DENIED_ACCESS.equals(_default)) {
-              _default = BlackboardFilterPolicy.DENIED_ACCESS;
-            } else {
-              log.error("The default privilege must be one of 'read'," + 
-                        " 'write', or 'denied'");
-              return;
-            }
-            // good rule
-            BlackboardFilterPolicy.ReadOnlyRule rule = createRORule();
-            _policy.addReadOnlyRule(rule);
-          }
-        } else { // select rule
-          if (_allowedRoles.size() == 0) {
-            log.error("You must have at least one role allowed access to this rule");
-          } else if (_methods.size() == 0) {
-            log.error("You must have at least one method protected by this rule");
-          } else { // yay! good rule
-            BlackboardFilterPolicy.SelectRule rule = createSelectRule();
-            _policy.addSelectRule(rule);
-          }
-        }
+    if (localName.equals("read-only-rule")) {
+      if (checkAgent() && 
+          checkSize(_patterns, "pattern") &&
+          checkDefaultAccess()) {
+        // good rule
+        BlackboardFilterPolicy.ReadOnlyRule rule = createRORule();
+        _policy.addReadOnlyRule(rule);
+      }
+    } else if (localName.equals("select-method-rule")) {
+      if (checkAgent() &&
+          checkSize(_allowedRoles, "role") &&
+          checkSize(_methods,"method") &&
+          checkSize(_patterns,"pattern")) {
+        BlackboardFilterPolicy.SelectRule rule = createSelectRule();
+        _policy.addSelectRule(rule);
       }
     } else if (localName.equals("pattern")) {
       _patterns.add(getContents());
-    } else if (localName.equals("default-privilege")) {
-      _default = getContents();
     } else if (localName.equals("write-role")) {
       _writeRoles.add(getContents());
     } else if (localName.equals("role")) {

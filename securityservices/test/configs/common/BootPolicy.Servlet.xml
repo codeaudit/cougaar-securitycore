@@ -1,5 +1,38 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 
+<!DOCTYPE SERVLET-POLICY [
+<!-- The outer policy element --> 
+<!ELEMENT policy (servlet-policy*)>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy type CDATA #REQUIRED>
+
+<!-- The servlet-policy element in which all the rules are contained -->
+<!ELEMENT servlet-policy (failure-delay?,agent*,root?)>
+
+<!-- The failure-delay element only supports a number -->
+<!ELEMENT failure-delay (#PCDATA)>
+
+<!-- The agent attributes specifies a rule for a particular Agent or
+     all agents -->
+<!ELEMENT agent (rule+)>
+<!ATTLIST agent name CDATA #REQUIRED>
+
+<!-- Each rule defines a set of uri patterns and roles that can access
+     the uri patterns. -->
+<!ELEMENT rule (pattern+,role+,auth?)>
+
+<!-- Optionally an authorization type may be provided -->
+<!ELEMENT auth (#PCDATA)>
+
+<!-- The URI pattern that a rule applies to -->
+<!ELEMENT pattern (#PCDATA)>
+
+<!-- The roles that can access the patterns defined in the rule -->
+<!ELEMENT role (#PCDATA)>
+
+<!ELEMENT root (rule+)>
+]>
+
 <policy name="Servlet Policy" type="org.cougaar.core.security.policy.ServletPolicy">
   <servlet-policy>
     <!-- set the delay time (milliseconds) when a user fails -->
@@ -30,11 +63,46 @@
       </rule>
     </agent>
 
-    <agent name="*">
+    <agent name="UserAdminAgent">
       <rule>
         <pattern>/useradmin</pattern>
         <role>UserManager</role>
       </rule>
+    </agent>
+
+    <agent name="caAgent">
+      <rule>
+        <!-- all users and agents should be allowed to request a certificate -->
+        <pattern>/CA/CertificateSigningRequest</pattern>
+        <role>*</role>
+      </rule>
+      <rule>
+        <!-- This rule allows access to read-only portions of the CA -->
+        <!-- currently let everyone read the certificate database -->
+        <pattern>/CA/Index</pattern>
+        <pattern>/CA/Browser</pattern>
+        <pattern>/CA/Main</pattern>
+        <pattern>/CA/CertificateList</pattern>
+        <pattern>/CA/CertificateDetailsServlet</pattern>
+        <pattern>/CA/PendingCertificateServlet</pattern>
+        <pattern>/CA/PendingCertDetailsServlet</pattern>
+        <pattern>/CA/ListCaKeysServlet</pattern>
+        <pattern>/CA/ListSubordCaServlet</pattern>
+        <role>*</role>
+      </rule>
+      <rule>
+        <!-- only let the administrator do write-only stuff -->
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <pattern>/CA/CreateCaKeyServlet</pattern>
+        <pattern>/CA/SubmitCaKeyServlet</pattern>
+        <pattern>/CA/ProcessPendingCertServlet</pattern>
+        <pattern>/CA/CaKeyManagement</pattern>
+        <role>CAAdministrator</role>
+      </rule>
+    </agent>
+
+    <!-- protected in all agents -->
+    <agent name="*">
       <rule>
         <pattern>/MoveServlet</pattern>
         <role>MoveAgent</role>
@@ -43,20 +111,22 @@
         <pattern>/TopologyServlet</pattern>
         <role>Topology</role>
       </rule>
+      <!-- use this rule to test the blackboard filter policies -->
       <rule>
         <pattern>/tasks</pattern>
-        <role>MonitorManager</role>
         <role>MoveAgent</role>
-        <role>Topology</role>
         <role>CAAdministrator</role>
+        <role>UserManager</role>
       </rule>
     </agent>
 
+    <!-- this is a dummy rule that shows an example
     <root>
       <rule>
         <pattern>*.secure</pattern>
         <role>God</role>
       </rule>
     </root>
+    -->
   </servlet-policy>
 </policy>

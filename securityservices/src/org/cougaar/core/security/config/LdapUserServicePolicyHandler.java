@@ -88,9 +88,9 @@ public class LdapUserServicePolicyHandler extends BaseConfigHandler {
       _policy.userDN = getContents();
     } else if (localName.equals("role-dn")) {
       _policy.roleDN = getContents();
-    } else if (localName.equals("user-rdn")) {
+    } else if (localName.equals("user-attr")) {
       _policy.userRDN = getContents();
-    } else if (localName.equals("role-rdn")) {
+    } else if (localName.equals("role-attr")) {
       _policy.roleRDN = getContents();
     } else if (localName.equals("user-object-class")) {
       _userObjectClass.add(getContents());
@@ -100,13 +100,13 @@ public class LdapUserServicePolicyHandler extends BaseConfigHandler {
       _roleObjectClass.add(getContents());
       _policy.roleObjectClass = (String[])
         _roleObjectClass.toArray(new String[_roleObjectClass.size()]);
-    } else if (localName.equals("role-attribute")) {
+    } else if (localName.equals("user-role-attr")) {
       _policy.roleAttr = getContents();
-    } else if (localName.equals("auth-attribute")) {
+    } else if (localName.equals("auth-attr")) {
       _policy.authAttr = getContents();
-    } else if (localName.equals("enable-attribute")) {
+    } else if (localName.equals("enable-attr")) {
       _policy.enableAttr = getContents();
-    } else if (localName.equals("password-attribute")) {
+    } else if (localName.equals("password-attr")) {
       _policy.passwordAttr = getContents();
     }
   }

@@ -1,19 +1,50 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 
-<policy name="Servlet Policy" type="org.cougaar.core.security.policy.BlackboardFilterPolicy">
-  <read-only-policy>
-    <rule agent="foo">
+<!DOCTYPE BLACKBOARD-FILTER-POLICY [
+<!-- The outer policy element --> 
+<!ELEMENT policy (servlet-policy*)>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy type CDATA #REQUIRED>
+
+<!ELEMENT blackboard-policy  (read-only-rule*,select-method-rule*)>
+
+<!ELEMENT read-only-rule (pattern+,default-privilege?,write-role*,read-role*,denied-role*)>
+<!ATTLIST read-only-rule agent CDATA #REQUIRED>
+<!ATTLIST read-only-rule default-privilege (read|write|denied) "denied">
+
+<!ELEMENT pattern (#PCDATA)>
+<!ELEMENT write-role (#PCDATA)>
+<!ELEMENT read-role (#PCDATA)>
+<!ELEMENT denied-role (#PCDATA)>
+
+<!ELEMENT select-method-rule (pattern+,role+,method+)>
+<!ATTLIST select-method-rule agent CDATA #REQUIRED>
+
+<!ELEMENT role (#PCDATA)>
+<!ELEMENT method (#PCDATA)>
+]>
+
+<policy name="Blackboard Filter Policy" type="org.cougaar.core.security.policy.BlackboardFilterPolicy">
+  <blackboard-policy>
+<!-- for demonstrative purposes only. There is currently no need to protect the
+     blackboard for any service
+    <read-only-rule agent="foo" default-privilege="denied">
       <pattern>/foo</pattern>
       <pattern>/bar</pattern>
-      <default-privilege>denied</default-privilege>
       <write-role>secure</write-role>
       <read-role>tomcat</read-role>
       <read-role>foobar</read-role>
-    </rule>
-    <rule agent="*">
+    </read-only-rule>
+    <read-only-rule agent="*">
       <pattern>/tasks</pattern>
       <default-privilege>read</default-privilege>
       <denied-role>MoveAgent</denied-role>
-    </rule>
-  </read-only-policy>
+    </read-only-rule>
+    <select-method-rule agent="*">
+      <pattern>/tasks</pattern>
+      <role>MoveAgent</role>
+      <method>query</method>
+    </select-method-rule>
+-->
+  </blackboard-policy>
 </policy>
