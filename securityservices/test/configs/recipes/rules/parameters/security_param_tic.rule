@@ -351,4 +351,5 @@ society.each_node do |node|
     # The certificates need to be createdd first before this feature is turned on.
     node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
   end
+ end
 end
