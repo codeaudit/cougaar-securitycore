@@ -401,5 +401,7 @@ grant {
 	// Need to fix core/cluster/ClaimableImpl.java:95
 	//permission java.util.PropertyPermission "*", "read, write";
 
+	// FIX
 	permission com.nai.security.crypto.KeyRingPermission "installPkcs7Reply";
+	permission com.nai.security.crypto.KeyRingPermission "readPrivateKey";
 };
