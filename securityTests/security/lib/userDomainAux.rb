@@ -181,7 +181,7 @@ class UserDomain
       c =  userCollection.collect {|u| u[0]}
       return c
     else
-      puts("WARNING:  userDomainAux.users getHtml request did not succeed (status=#{response.status})")
+      logInfoMsg ("WARNING:  userDomainAux.users getHtml request did not succeed (status=#{response.status})")
     end
   end
 
@@ -226,7 +226,7 @@ class UserDomain
       userCollection = response.body.scan /UserMatchFrame\">([^<]*)/
       return userCollection.collect {|u| u[0]}
     else
-      puts "WARNING:  didn't retrieve html in userDomainAux.roles"
+      logInfoMsg "WARNING:  didn't retrieve html in userDomainAux.roles"
     end
   end
 
@@ -235,7 +235,7 @@ class UserDomain
     u = "#{url}?#{params}"
     response = getHtml(u)
     unless response.status == 200
-      puts "WARNING:  Couldn't create role in userDomainAux.createRole"
+      logInfoMsg "WARNING:  Couldn't create role in userDomainAux.createRole"
     end
   end
 
@@ -244,7 +244,7 @@ class UserDomain
     u = "#{url}?#{params}"
     response = getHtml(u)
     unless response.status == 200
-      puts "WARNING:  Couldn't delete role in userDomainAux.createRole"
+      logInfoMsg "WARNING:  Couldn't delete role in userDomainAux.createRole"
     end
   end
 
@@ -265,14 +265,14 @@ class UserDomain
 
   #--------- User Methods -----------
   def recreateUsers(userCollection)
-    puts "recreating users" if $VerboseDebugging
+    logInfoMsg "recreating users" if $VerboseDebugging
     userCollection << "BogusUser"
     users = []
     @@mutex.synchronize do
-      puts "recreating users for #{@agent.name}" if $VerboseDebugging
+      logInfoMsg "recreating users for #{@agent.name}" if $VerboseDebugging
       caDomainName = @agent.caDomains[0].name
       userCollection.each do |u|
-        puts "in recreateUsers: #{u}" if $VerboseDebugging
+        logInfoMsg "in recreateUsers: #{u}" if $VerboseDebugging
         fullUserName = ''
         if u.kind_of?(UserClass)
           fullUserName = "#{caDomainName}#{u.name}"
@@ -294,7 +294,7 @@ class UserDomain
 
   def recreateUsersForce(userCollection)
     userCollection.each do |user|
-      puts "  #{user}" if $VerboseDebugging
+      logInfoMsg "  #{user}" if $VerboseDebugging
       user = UserClass.premadeUser(user) if user.kind_of?(String)
       begin
         recreateUser(user)
@@ -337,8 +337,8 @@ class UserDomain
     params << "action=Save"
     response = postHtml(url, params)
     if $VerboseDebugging
-      puts "updateUser  Status: #{response.status}"
-      puts "updateUser #{params}"
+      logInfoMsg "updateUser  Status: #{response.status}"
+      logInfoMsg "updateUser #{params}"
     end
     setUserRoles(user)
   end

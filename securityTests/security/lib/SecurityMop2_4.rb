@@ -234,12 +234,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
           sleep 15.seconds
           
           @conusDomain.disableUser('DisabledLogistician')
-          puts " conusDomain disableUser DisabledLogistician" if $VerboseDebugging
+          logInfoMsg " conusDomain disable User DisabledLogistician" if $VerboseDebugging
           @conusDomain.deleteUser('DeletedLogistician')
           
           # Keep the original cert for RecreatedLogistician
           user = "ConusEnclaveCARecreatedLogistician"
-          puts " conusDomain  #{@conusDomain.agent.caDomains[0].to_s} user #{user}" if $VerboseDebugging
+          logInfoMsg " conusDomain  #{@conusDomain.agent.caDomains[0].to_s} user #{user}" if $VerboseDebugging
           File.rename("pems/#{user}_cert.pem", 'pems/RL_cert.orig.pem')
           File.rename("pems/#{user}_key.pem", 'pems/RL_key.orig.pem')
           
@@ -248,9 +248,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
           #@conusDomain.agent.caDomains[0].revokeUserCert('RecreatedLogistician')
           
           
-          puts " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
+          logInfoMsg " conus domain caDomains #{@conusDomain.agent.caDomains[0].to_s}" if $VerboseDebugging
           @conusDomain.deleteUser('RecreatedLogistician')
-          puts " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
+          logInfoMsg " conus domain deleteUse RecreatedLogistician" if $VerboseDebugging
           @conusDomain.recreateUsersForce(['RecreatedLogistician'])
           File.rename('pems/RL_cert.orig.pem', "pems/#{user}_cert.pem")
           File.rename('pems/RL_key.orig.pem', "pems/#{user}_key.pem")
@@ -258,13 +258,13 @@ class  SecurityMop2_4 < AbstractSecurityMop
           if(PingSociety.isPingSociety)
             [[@conusDomain,'CONUS']].each do |domainandname|
               domain = domainandname[0]
-              puts " Security Mop 2-4 setup domain is #{domain}" if $VerboseDebugging
+              logInfoMsg " Security Mop 2-4 setup domain is #{domain}" if $VerboseDebugging
               name = domainandname[1]
               auth = 'EITHER'
-              puts "Domain #{domain} Name : #{name}" if $VerboseDebugging
+              logInfoMsg "Domain #{domain} Name : #{name}" if $VerboseDebugging
               u = UserClass.new("P", "P", auth, 'policy', 'User', ["PolicyAdministrator"])
               #puts "user created is : #{u.to_s}"
-              puts "calling domain recreateUsers" if $VerboseDebugging
+              logInfoMsg "calling domain recreateUsers" if $VerboseDebugging
               domain.recreateUsers([u])
             end
           else
@@ -316,19 +316,15 @@ class  SecurityMop2_4 < AbstractSecurityMop
       begin
         saveAssertion("SecurityMop2.4","in Perfom calling ensureDomains")
         ensureDomains
-        puts " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
+        logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP " if $VerboseDebugging
         #revokeCertBeforeTest
         #puts "sleeping for 3 minutes"
         sleep 3.minutes
         saveAssertion("SecurityMop2.4","Calling run test ")
         runTests(@tests)
         runServletPolicyTests
-        puts " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
-        puts " CALLING Perform TESTS FOR SECURITY MOP  DONE "
-        puts "calling setperform"
+        logInfoMsg " CALLING Perform TESTS FOR SECURITY MOP  DONE " if $VerboseDebugging
         setPerformDone
-        puts "calling setperform done"
-        puts "Setting test done to : #{getPerformDone}"
       rescue Exception => e
         puts "error in perform"
         puts "#{e.class}: #{e.message}"
@@ -346,9 +342,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end
 
   def runServletPolicyTests
-    puts " CALLING Policy TESTS FOR SECURITY MOP " if $VerboseDebugging
+    logInfoMsg " CALLING Policy TESTS FOR SECURITY MOP " if $VerboseDebugging
     enclave = getOSDGOVAgent.enclave
-    puts "Changing policy for #{enclave} to passwd " if $VerboseDebugging
+    logInfoMsg "Changing policy for #{enclave} to passwd " if $VerboseDebugging
     passwdpol = getPasswordServletPolicy
     deltaPolicy(enclave, passwdpol)
     @tests = getPasswdPolicyTests
@@ -361,8 +357,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
   end  
 
   def ensureDomains
-    puts "ensureDomains of SecurityMop 2_4 called " if $VerboseDebugging
-    #puts "ensureDomains of SecurityMop 2_4 called "
+    logInfoMsg "ensureDomains of SecurityMop 2_4 called " if $VerboseDebugging
+    #logInfoMsg "ensureDomains of SecurityMop 2_4 called "
     unless defined?(@conusDomain) and @conusDomain.kind_of?(UserDomain)
       UserDomains.instance.ensureUserDomains
       CaDomains.instance.ensureExpectedEntities
@@ -378,8 +374,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
 
 
   def runTests(tests)
-    puts "Run test called with size :#{tests.size}" if $VerboseDebugging
-    #puts "Run test called with size :#{tests.size}"
+    logInfoMsg "Run test called with size :#{tests.size}" if $VerboseDebugging
+    #logInfoMsg "Run test called with size :#{tests.size}"
     saveAssertion("SecurityMop2.4", "runTests called ");
     tests.each do |domain, testSet|
       #break if Cougaar::Actions::InitiateSecurityMopCollection.halted?
@@ -410,14 +406,14 @@ class  SecurityMop2_4 < AbstractSecurityMop
           mop25=false;
         end
         if $VerboseDebugging
-          puts "type --> #{type}"
-          puts "agent --> #{agent.name}"
-          puts "user --> #{user}"
-          puts "password --> #{password}"
-          puts "servlet --> #{servlet}"
-          puts "useCase --> #{useCase}"
-          puts "idmefPattern --> #{idmefPattern}"
-          puts "scope --> #{scope}"
+          logInfoMsg "type --> #{type}"
+          logInfoMsg "agent --> #{agent.name}"
+          logInfoMsg "user --> #{user}"
+          logInfoMsg "password --> #{password}"
+          logInfoMsg "servlet --> #{servlet}"
+          logInfoMsg "useCase --> #{useCase}"
+          logInfoMsg "idmefPattern --> #{idmefPattern}"
+          logInfoMsg "scope --> #{scope}"
         end
         begin
           pattern = /#{agent.host.name}.*#{servlet}.*#{idmefPattern}/
@@ -426,12 +422,12 @@ class  SecurityMop2_4 < AbstractSecurityMop
           @numtotalAccessAttempts +=1
           result, expectedResult, actualResult, successBoolean, msg, body = domain.accessServletMop(test)
           if $VerboseDebugging
-            puts "servlet --> #{servlet}"
-            puts "useCase --> #{useCase}"
-            puts " expectedResult -----> #{expectedResult}"
-            puts " actualResult -----> #{actualResult}"
-            puts " successBoolean----->#{successBoolean}"
-            puts "idmefPattern --> #{idmefPattern}"
+            logInfoMsg "servlet --> #{servlet}"
+            logInfoMsg "useCase --> #{useCase}"
+            logInfoMsg " expectedResult -----> #{expectedResult}"
+            logInfoMsg " actualResult -----> #{actualResult}"
+            logInfoMsg " successBoolean----->#{successBoolean}"
+            logInfoMsg "idmefPattern --> #{idmefPattern}"
           end
           if useCase == nil
             saveAssertion('No use Case Specified ',msg)
@@ -443,9 +439,9 @@ class  SecurityMop2_4 < AbstractSecurityMop
                           " FAILED TEST :  expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}")
 
           end
-          #if $VerboseDebugging
-            puts " expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} idmefPattern:#{idmefPattern} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}"
-          #end
+          if $VerboseDebugging
+            logInfoMsg " expectedResult:#{expectedResult} actual:#{actualResult} success:#{successBoolean} idmefPattern:#{idmefPattern} scope:#{scope}, #{expectedResult.class}, #{actualResult.class}"
+          end
           if [492,493,494].member?(actualResult) # no web server or timed out 
             msg = "ignored (no web server or timed out):  #{msg}"
             @totalactions << "Web server Time out : #{body}"
@@ -468,7 +464,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
                @numtotalAccessAttemptCorrect+=1
               @actions << " Success :  #{msg}"
             end   
-            puts  "logged:  #{msg}" if $VerboseDebugging
+            logInfoMsg  "logged:  #{msg}" if $VerboseDebugging
           else
             if(mop25)
               if expectedResult == 200
@@ -487,10 +483,10 @@ class  SecurityMop2_4 < AbstractSecurityMop
                 @numAccessesCorrect += 1
                 @numtotalAccessAttemptCorrect+=1
                 @logins << " Success :  #{msg}"
-                #puts  "Success :  #{msg}"
+                #logInfoMsg  "Success :  #{msg}"
               else
                 @logins << "Failure : #{msg}"
-                puts "Failure :  #{msg}"
+                logInfoMsg "Failure :  #{msg}"
               end
             end
             if (mop26)   # scope =~ /policy/
@@ -505,45 +501,45 @@ class  SecurityMop2_4 < AbstractSecurityMop
             end
           end # if actualResult == 200
           if $VerboseDebugging
-            puts "$                 Actions logged                #{@numActionsLogged}                                                     "
-            puts "$                 policy  loggable              #{@numLoggablePolicies}                                                 "
-            puts "$                 policy  logged                #{@numPoliciesLogged}                                                   "
-            puts "$                 Loggable Action               #{@numLoggableActions}                                                   "
-            puts "$                 numAccessAttempts             #{@numAccessAttempts}                                                   "
-            puts "$                 numAccessesCorrect            #{@numAccessesCorrect}                                                   "
+            logInfoMsg "$                 Actions logged                #{@numActionsLogged}                                                     "
+            logInfoMsg "$                 policy  loggable              #{@numLoggablePolicies}                                                 "
+            logInfoMsg "$                 policy  logged                #{@numPoliciesLogged}                                                   "
+            logInfoMsg "$                 Loggable Action               #{@numLoggableActions}                                                   "
+            logInfoMsg "$                 numAccessAttempts             #{@numAccessAttempts}                                                   "
+            logInfoMsg "$                 numAccessesCorrect            #{@numAccessesCorrect}                                                   "
           end
         rescue Exception => e
           puts "error in runTests"
           puts "#{e.class}: #{e.message}"
-          puts e.backtrace.join("\n")
+          puts  e.backtrace.join("\n")
         end
       end # testSet.each
     end # tests.each
-    puts "done with runTests"
-    #puts "action----------------------------->   #{@actions}"
-    #puts "policies----------------------------->   #{@policies}"
-    #puts "logins----------------------------->   #{@logins}"
-    puts "done with runTests" if $VerboseDebugging
+    logInfoMsg "done with runTests"
+    #logInfoMsg "action----------------------------->   #{@actions}"
+    #logInfoMsg "policies----------------------------->   #{@policies}"
+    #logInfoMsg "logins----------------------------->   #{@logins}"
+    logInfoMsg "done with runTests" if $VerboseDebugging
   end # runTests
   
   def getPasswdPolicyTests
     
      begin
-       #puts "calling getPasswdPolicyTests "
+       #logInfoMsg "calling getPasswdPolicyTests "
        testCollection = {}
        testCollection[@conusDomain] =getpolicyPasswdTest
        return testCollection
      rescue Exception => e
-       puts "error in SecurityMop2_4.getPasswdPolicyTests"
-       puts "#{e.class}: #{e.message}"
-       puts e.backtrace.join("\n")
+       logInfoMsg "error in SecurityMop2_4.getPasswdPolicyTests"
+       logInfoMsg "#{e.class}: #{e.message}"
+       logInfoMsg e.backtrace.join("\n")
      end
        
   end
   
    def getCertPolicyTests
      begin
-       #puts "calling getCertPolicyTests "
+       #logInfoMsg "calling getCertPolicyTests "
        testCollection = {}
        testCollection[@conusDomain] =getpolicyCertTest
        return testCollection
@@ -563,7 +559,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
       conusAgent = run.society.agents['ConusPolicyDomainManagerServlet']
       transAgent = run.society.agents['1-ad-divsupPolicyDomainManagerServlet']
       @fwdAgent   = fwdAgent
-      puts "run:#{run}, #{fwdAgent}" if $VerboseDebugging
+      logInfoMsg "run:#{run}, #{fwdAgent}" if $VerboseDebugging
       
       if (PingSociety.isPingSociety)
         unless fwdAgent or rearAgent or conusAgent or transAgent
@@ -571,7 +567,7 @@ class  SecurityMop2_4 < AbstractSecurityMop
         end
         conusUser = "ConusPolicyUser"
         rearUser  = "RearPolicyUser"
-        puts "calling test on conus user "
+        logInfoMsg "calling test on conus user "
         testCollection = {}
         [[@conusDomain, conusAgent, conusUser, rearUser]].each do |x|
           domain = x.shift
@@ -610,8 +606,8 @@ class  SecurityMop2_4 < AbstractSecurityMop
   def testSet(agent, user, otherUser)
 
     if $VerboseDebugging  
-      puts "agent: #{agent.name}, #{user}, #{otherUser}" if $VerboseDebugging 
-      puts "Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}"
+      logInfoMsg "agent: #{agent.name}, #{user}, #{otherUser}" if $VerboseDebugging 
+      logInfoMsg "Test set called with ------------->> >>   agent: #{agent.name}, #{user}, #{otherUser}"
     end
     agent = run.society.agents[agent] if agent.kind_of?(String)
 
