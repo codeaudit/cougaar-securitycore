@@ -427,7 +427,7 @@ public class KeyManagement
 
   /**
    * @param replyInHtml true if the reply is in HTML format. Set to true when the request comes from a browser.
-   * 
+   *
    */
   public String processPkcs10Request(InputStream request,
 				     boolean replyInHtml)
@@ -983,10 +983,20 @@ public class KeyManagement
 
     // Set validity
     // Certificate can be used right away
-    Date date_notbefore = new Date();
+    // move back 1 hour for time difference
+    Date curdate = new Date();
+    long dtime = curdate.getTime() - 3600L * 1000L;
+    Date date_notbefore = new Date(dtime);
+
     // Certificate is valid for a number of days
-    Date date_notafter = new Date();
-    date_notafter.setTime(date_notbefore.getTime() + caPolicy.howLong * 1000L);
+    dtime = curdate.getTime() + caPolicy.howLong * 1000L;
+    Date date_notafter = new Date(dtime);
+
+    if (log.isDebugEnabled()) {
+      log.debug("Certificate validity is " + date_notbefore + " to " + date_notafter);
+      log.debug("Current time: " + curdate + " and howLong: " + caPolicy.howLong);
+    }
+
     CertificateValidity certValidity = new CertificateValidity(date_notbefore, date_notafter);
     clientCertInfo.set("validity", certValidity);
 
