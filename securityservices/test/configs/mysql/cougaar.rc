@@ -44,3 +44,9 @@ org.cougaar.domain.mlm.ui.grabber.config.DBConfig.connectionURL=jdbc:mysql://fer
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.user=ultralog
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.password=ul-password
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.syntax=MySQL
+
+
+#org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
+
+#org.cougaar.web.keystore=tomcatKeystore
+#org.cougaar.web.keypass=changeit
