@@ -35,7 +35,7 @@ def getMissingAgents
   getExpectedAgents - getRegisteredAgents
 end
 
-def testAgentRegistrations(interval = 5.minutes, delay = 5.minutes)
+def testAgentRegistrations(interval = 2.minutes, delay = 2.minutes)
 #  puts "********************************************** testing agent fork"
   Thread.fork {
 #    puts "running test agents"
@@ -131,6 +131,7 @@ module Cougaar
         super(run)
         @interval = interval
         @delay = delay
+        Cougaar::Actions::Stressors.addStressIds(['wp_registration'])
       end #initialize
 
       def perform
@@ -139,15 +140,15 @@ module Cougaar
         testAgentRegistrations(@interval, @delay) { |missing, expected|
 #puts "#{Time.now} WP Registration: callback"
           if missing.empty?
-            @run.info_message("All agents have registered to the white pages")
+            saveResults(true, "wp_registration", "All agents have registered to the white pages")
 #            puts("All agents have registered to the white pages")
           else
             if (lastCheck == missing.length)
-              @run.warn_message("No new agents have registered to the white pages for #{interval} seconds")
+              saveResults(false, "wp_registration", "No new agents have registered to the white pages for #{interval} seconds")
 #              puts("No new agents have registered to the white pages for #{interval} seconds")
             end
-            @run.info_message("Agents who haven't registered with the white pages: #{missing.join(" ")}")
-            @run.info_message("Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
+            saveAssertion("wp_registration", "Agents who haven't registered with the white pages: #{missing.join(" ")}")
+            saveAssertion("wp_registration", "Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
 #            puts("#{Time.now} Agents who haven't registered with the white pages: #{missing.join(" ")}")
 #            puts("#{Time.now} Agents who have registered with the white pages: #{(expected - missing).join(" ")}")
           end
