@@ -1,3 +1,4 @@
+
 /* 
  * <copyright> 
  *  Copyright 1999-2004 Cougaar Software, Inc.
@@ -26,7 +27,12 @@
 
 package org.cougaar.core.security.provider;
 
+import java.util.List;
+
+import org.cougaar.core.component.BindingSite;
 import org.cougaar.core.component.ComponentSupport;
+import org.cougaar.core.component.ServiceBroker;
+import org.cougaar.core.service.LoggingService;
 
 /**
  * Base class for SecurityComponents.  Acceptable security managers must implement this 
@@ -39,6 +45,54 @@ public abstract class SecurityComponent
 {
   public final static String PROP_PREFIX = "org.cougaar.core.security";
   public final static String SMC_PROP = PROP_PREFIX+".Component";
+  protected BindingSite bindingSite = null;
+  protected  LoggingService log;
+  protected  String mySecurityCommunity;
+  
   public SecurityComponent() {
   }
+  public void setParameter(Object o) {
+    if (!(o instanceof List)) {
+      throw new IllegalArgumentException("Expecting a List argument to setParameter");
+    }
+    List l = (List) o;
+    if (l.size() != 1) {
+      throw new IllegalArgumentException(this.getClass().getName()
+					 + " should take 1 parameter, got " + l.size()
+					 + ". Fix configuration file");
+    }
+    else {
+      mySecurityCommunity = l.get(0).toString();
+    }
+  }
+
+  private void setLoggingService() {
+    if (log == null) {
+      if(bindingSite!=null){
+      ServiceBroker sb = bindingSite.getServiceBroker();
+      log = (LoggingService)	sb.getService(this,
+		      LoggingService.class, null);
+      }
+    }
+  }
+
+  public void setBindingSite(BindingSite bs) {
+    bindingSite = bs;
+    setLoggingService();
+  }
+
+  public void load() {
+    super.load();
+    setLoggingService();
+    
+  }
+  public void setState(Object loadState) {}
+  public Object getState() {return null;}
+
+  public synchronized void unload() {
+    super.unload();
+    // unload services in reverse order of "load()"
+    // release services
+  }
+    
 }
