@@ -6,6 +6,7 @@ import org.cougaar.util.UnaryPredicate;
 import org.w3c.dom.Document;
 import org.cougaar.domain.planning.ldm.policy.Policy;
 import org.cougaar.core.security.policy.XMLPolicyCreator;
+import org.cougaar.core.security.policy.TypedPolicy;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -247,16 +248,18 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
                                 XMLPolicyCreator policyCreator = new XMLPolicyCreator(xmlContent);
                                 Policy[] policies = policyCreator.getPolicies();
                                 for (int i=0; i<policies.length; i++) {
-                                  binderType = policies[i].getType();
-				  // put the policy object into the attribute table
-				  attributes1.put(POLICY_OBJECT_KEY, policies[i]);
-				  // put the updated table into the cloned message
-				  policy1.addSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL,
+				  if (policies[i] instanceof TypedPolicy){
+                                    binderType = (TypedPolicy)policies[i].getType();
+				    // put the policy object into the attribute table
+				    attributes1.put(POLICY_OBJECT_KEY, policies[i]);
+				    // put the updated table into the cloned message
+				    policy1.addSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL,
 								  attributes1);
-				  // set the binder type of the message
-				  policy1.addSymbol("PolicyType", binderType);
-				  // add the message to the expanded policy messages
-				  expandedPolicies.addElement(policy1);
+				    // set the binder type of the message
+				    policy1.addSymbol("PolicyType", binderType);
+				    // add the message to the expanded policy messages
+				    expandedPolicies.addElement(policy1);
+                                  }
                                 }
 				
 				return expandedPolicies;		
