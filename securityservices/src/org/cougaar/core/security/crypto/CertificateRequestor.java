@@ -92,7 +92,7 @@ import sun.security.x509.X509CertImpl;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class CertificateRequestor {
   private ServiceBroker serviceBroker;
@@ -653,6 +653,7 @@ public class CertificateRequestor {
     return reply;
   }
 
+  Boolean _pkcsLock = new Boolean(true);
   private String sendPKCS(String request, String nodeSignature, String pkcs,
     TrustedCaPolicy trustedCaPolicy, String nodeName) {
     String reply = "";
@@ -680,7 +681,7 @@ public class CertificateRequestor {
         }
       }
 
-
+synchronized (_pkcsLock) {
   while (true) {
     try {
       URL url = new URL(trustedCaPolicy.caURL);
@@ -741,6 +742,7 @@ public class CertificateRequestor {
       log.warn("Thread interruped: ", ex);
     }
   }
+}
     return reply;
   }
 
@@ -901,7 +903,6 @@ public class CertificateRequestor {
     return request;
   }
 
-
   private String sendPKCS(String request, String pkcs,
     TrustedCaPolicy trustedCaPolicy) {
     String reply = "";
@@ -928,8 +929,7 @@ public class CertificateRequestor {
           log.warn("Unable to parse configpoll property: " + ex.toString());
         }
       }
-
-
+synchronized (_pkcsLock) {
   while (true) {
     try {
       URL url = new URL(trustedCaPolicy.caURL);
@@ -986,7 +986,7 @@ public class CertificateRequestor {
       log.warn("Thread interruped: ", ex);
     }
   }
-
+}
     return reply;
   }
 
