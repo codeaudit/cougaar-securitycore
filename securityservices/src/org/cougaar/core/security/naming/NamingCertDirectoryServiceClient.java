@@ -237,15 +237,14 @@ public class NamingCertDirectoryServiceClient {
 	      /** Handle a WhitePagesService response. */
 	      public void execute(Response res) {
 		if ( ((Response.Bind) res).didBind() ) {
-
-		  // naming bug: naming service is enabled before naming thread is created
-		  // so there is a problem updating naming even though naming service is available
-		  // need to wait until we successfully updated naming for an entry (should happen
-		  // after agents registers
+		  // naming bug: naming service is enabled before
+		  // naming thread is created so there is a problem
+		  // updating naming even though naming service is available
+		  // need to wait until we successfully updated naming
+		  // for an entry (should happen after agents registers.
 		  if (!certCache.isEmpty()) {
 		    updateCertEntryFromCache();
 		  }
-
 		  if (log.isDebugEnabled()) {
 		    log.debug("Successfully updated naming: " + cname);
 		  }

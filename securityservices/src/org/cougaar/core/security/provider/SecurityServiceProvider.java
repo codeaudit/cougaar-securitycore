@@ -300,6 +300,22 @@ public class SecurityServiceProvider
       services.put(CryptoPolicyService.class, newSP);
       rootServiceBroker.addService(CryptoPolicyService.class, newSP);
 
+      // Request the CryptoPolicyService now. This will create the
+      // singleton instance of the CryptoPolicyService, which means
+      // other requests will not have to instantiate a new
+      // CryptoPolicyService.
+      // The CryptoPolicyService registers itself with the guard,
+      // which in turns sends a Relay message to the Policy Domain
+      // manager.
+      // If we didn't do this, we could have deadlock issues. For example,
+      // a component could try to persist the blackboard, which would
+      // lock the blackboard. The distributor would then invoke
+      // the data protection service to protect the blackboard,
+      // and the data protection service would request the
+      // CryptoPolicyService, which would cause the guard to publish a Relay,
+      // but the blackboard is locked.
+      rootServiceBroker.getService(this, CryptoPolicyService.class, null);
+
       newSP = new ServletPolicyServiceProvider(serviceBroker, mySecurityCommunity);
       services.put(ServletPolicyService.class, newSP);
       rootServiceBroker.addService(ServletPolicyService.class, newSP);
