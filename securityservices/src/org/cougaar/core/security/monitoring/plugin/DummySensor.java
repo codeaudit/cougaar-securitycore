@@ -83,7 +83,8 @@ public class DummySensor
     if (factory == null) {
       log.debug("Error: Unable to get Monitoring Factory");
       return;
-    }    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
+    }    
+    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
     DummySensor sensor=new DummySensor();
 	
     // create list of capabilities
@@ -98,7 +99,7 @@ public class DummySensor
     // no need to specify targets since we may not know of the targets
     RegistrationAlert reg=
       imessage.createRegistrationAlert(this,
-				       capabilities,IdmefMessageFactory.newregistration);
+				       capabilities,IdmefMessageFactory.newregistration,IdmefMessageFactory.SensorType);
     // log.debug(" Registration object is :"+reg);
     log.debug("factory is :"+factory.toString());
     NewEvent event=factory.newEvent(reg);
