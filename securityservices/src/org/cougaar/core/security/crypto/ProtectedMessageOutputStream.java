@@ -98,17 +98,17 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     byte[] senderSecret   = null;
     byte[] receiverSecret = null;
 
-    getCertificates(policy);
-
-    SecretKey secret = null;
-    if (_log.isDebugEnabled()) {
-      _log.debug("Policy = " + policy);
-    }
     if (policy == null) {
       dropMessage();
       throw new IOException("This message was denied by policy. " +
                             "There are no possible encryption algorithms " +
                             "to send it.");
+    }
+    getCertificates(policy);
+
+    SecretKey secret = null;
+    if (_log.isDebugEnabled()) {
+      _log.debug("Policy = " + policy);
     }
     policy = modifyPolicy(policy, encryptedSocket);
 
