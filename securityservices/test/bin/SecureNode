@@ -34,6 +34,12 @@ if ($user eq 'ychen') {
 } elsif ($user eq 'junittest') {
   $httpport=5570;
   $httpsport=6670;
+} elsif ($user eq 'csmart1') {
+  $httpport=5571;
+  $httpsport=6671;
+} elsif ($user eq 'csmart2') {
+  $httpport=5575;
+  $httpsport=6675;
 } else {
   print STDERR "WARNING: Setting HTTP port to default port number. You should edit SecureNode\n";
   $httpport=8800;
