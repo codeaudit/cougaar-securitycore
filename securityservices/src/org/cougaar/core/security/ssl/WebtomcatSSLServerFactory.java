@@ -51,7 +51,6 @@ public class WebtomcatSSLServerFactory
    */
   public WebtomcatSSLServerFactory() {
     // check permission
-    System.out.println("Creating WebtomcatSSLServerFactory");
   }
 
   public synchronized static void init(WebserverIdentityService webssl) {
