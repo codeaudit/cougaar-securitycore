@@ -1,9 +1,61 @@
+        
+require 'ultralog/scripting'
+require 'ultralog/services' 
+
 require 'security/lib/jar_util'
 require 'security/lib/misc'
+
 
 if ! defined? CIP
   CIP = ENV['CIP']
 end
+
+if ! defined?(bootPoliciesIntialized)
+  bootPolicies = []
+end
+
+
+class PolicyWaiter
+  def initialize(run, node)
+    @run = run
+    @node = node
+    @found = false
+#    @run.info_message("Starting wait for policy commit at #{node}")
+    @thread = 
+      Thread.new() do
+      begin 
+        me = 
+         @run.comms.on_cougaar_event do |event|
+          if (event.data.include?("Guard on node " + node + 
+                                  " received policy update")) then
+            @found = true
+            @run.comms.remove_on_cougaar_event(me)
+          end
+        end
+      rescue => ex
+        @run.info_message("exception in waiter thread = #{ex}")
+        @run.info_message("#{ex.backtrace.join("\n")}")
+      end
+    end
+  end
+
+  def wait(timeout)
+    t = 0
+    while (!@found && timeout > t) do
+      t += 1
+      sleep 1
+    end
+    if (@found) then
+#      @run.info_message("waited #{t} seconds for the policy")
+      return true
+    else
+      Thread.kill(@thread)
+#      @run.info_message("Policy did not propagate")
+      return false
+    end
+  end      
+end
+
 
 def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   agent = run.society.agents[agent]
@@ -73,10 +125,11 @@ def getPolicyManager(enclave)
   [host, port, manager]
 end
 
-def getPolicyFile(enclave)
-  filename = File.join(CIP,"workspace","policy","#{enclave}")
-  Dir.mkdirs(File.dirname(filename));
-  filename
+def getPolicyDir()
+  dir = "/tmp/bootPolicies-#{rand(1000000)}"
+  Dir.mkdir(dir)
+  `cd #{dir} && jar xf #{CIP}/configs/security/bootpolicies.jar`
+  dir
 end
 
 def commitPolicy(host, port, manager, args, filename)
@@ -126,42 +179,31 @@ def getPolicyLock(enclave)
   mutex
 end
 
-def bootPoliciesLoaded(enclave)
+def loadBootPolicies(enclave)
   host, port, manager = getPolicyManager(enclave)
   waitForUserManager(manager)
   mutex = getPolicyLock(enclave)
   mutex.synchronize {
     #puts "TRYING TO GET POLICY FILE FOR ENCLAVE #{enclave}"
-    policyFile = getPolicyFile(enclave)
-   # begin
-   #   File.stat(policyFile)
-   #   fileExists = true
-   # rescue
-     fileExists = false
-   # end
-    #puts "boot policy file exists #{fileExists}"
-    if !fileExists
-      #puts "load the boot policies -- we haven't done any delta yet"
-      bootPolicyFile = File.join(CIP, "configs", "security",
-                                 "OwlBootPolicyList")
-      result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
-      #puts " result after commitPolicy #{result}"
-#      logInfoMsg result
+    policyDir = getPolicyDir()
+    #puts "load the boot policies -- we haven't done any delta yet"
+    PolicyWaiter pw = PolicyWaiter.new(run, run.society.agents[manager].node)
+    bootPolicyFile = File.join(policyDir, OwlBootPolicyList)
+    result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
+    if (! pw.wait(120)) then
+      raise "Boot policies did not propagate for enclave #{enclave}"
     end
-    fileExists  
+    #      logInfoMsg result
+    `rm -rf #{dir}`
   }
 end 
 
 def deltaPolicy(enclave, text)
   host, port, manager = getPolicyManager(enclave)
   #puts "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}"
-  bootPoliciesAlreadyLoaded = bootPoliciesLoaded(enclave)
-  #puts " CHECKING IF bootPoliciesLoaded ALREADY LOADED FOR #{enclave}"
-  if !bootPoliciesAlreadyLoaded
-     #puts "first time so sleeping for 30 seconds"
-    sleep 30.seconds
-  else 
-     #puts "second time so I don't need to sleep"
+  if ! bootPoliciesInitialized.includes(enclave) then
+    loadBootPolicies(enclave)
+    bootPoliciesInitialized.push(enclave)
   end
   #puts " TRY TO GET LOCK TO POLICY FILE"
   mutex = getPolicyLock(enclave)
@@ -176,146 +218,4 @@ def deltaPolicy(enclave, text)
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
   }
 #    logInfoMsg result
-end
-
-module Cougaar
-   module Actions
-      class CreateBootPolicies < Cougaar::Action
-        DENIED = { "10" => ["11","12","13","21",
-                            "22", "23"], 
-                   "11" => ["12","13","21",
-                            "22", "23"], 
-                   "12" => ["13","21",
-                            "22", "23"], 
-                   "13" => ["21", "22", "23"], 
-                   "21" => ["22", "23"], 
-                   "22" => ["23"], 
-                   "03" => ["20", "21", "22", "23"],
-                   "20" => [ "04", 
-                             "11","12","13","10"],
-                   "04" => ["21", "22", "23"] } 
-
-        def perform
-          # read the original file
-          lines = []
-          run.society.each_agent(true) { |agent|
-            lines << "Agent %\##{agent.name}\n"
-          }
-          clouds = {}
-          run.society.each_host { |host|
-            group = host.get_facet("group")
-            if (group != nil) 
-#              puts("group \##{group}: #{host.name}")
-              if clouds[group] == nil
-                clouds[group] = []
-              end
-              clouds[group] << host
-            end
-          }
-          clouds.each_key { |key|
-#            puts("looking at group #{key}");
-            agents = []
-            clouds[key].each { |host|
-#              puts("looking at host #{host.name}");
-              host.each_node { |node|
-#                puts("looking at node #{node.name}");
-                agents << "\"#{node.name}\""
-                node.each_agent { |agent|
-                  agents << "\"#{agent.name}\""
-                }
-              }
-            }
-#            puts("finished looking at all hosts and nodes");
-            if !agents.empty?
-              jval = '", "'
-              line = "AgentGroup Cloud#{key} = { \"#{agents.join(jval)}\" }\n"
-              lines << line
-            end
-          }
-
-          newPolicies = []
-          DENIED.each_pair { |cloud1, list|
-            list.each { |cloud2|
-              if (clouds.has_key?(cloud1) && clouds.has_key?(cloud2))
-#              newPolicies << "Policy \"Deny#{cloud1}-to-#{cloud2}\" = [\n"
-#              newPolicies << "  MessageAuthTemplate\n"
-#              newPolicies << "  Deny messages from members of $AgentsInGroup\#Cloud#{cloud1} to members of $AgentsInGroup\#Cloud#{cloud2}\n"
-#              newPolicies << "]\n"
-#              newPolicies << "Policy \"Deny#{cloud2}-to-#{cloud1}\" = [\n"
-#              newPolicies << "  MessageAuthTemplate\n"
-#              newPolicies << "  Deny messages from members of $AgentsInGroup\#Cloud#{cloud2} to members of $AgentsInGroup\#Cloud#{cloud1}\n"
-#              newPolicies << "]\n"
-
-                newPolicies << "Policy \"Deny#{cloud1}-to-#{cloud2}\" = [\n"
-                newPolicies <<  "GenericTemplate\n"
-                newPolicies << "Priority = 3,\n"
-                newPolicies << "$AgentsInGroup\#Cloud#{cloud1} is not authorized to perform\n"
-                newPolicies << "$Action.owl#EncryptedCommunicationAction as long as\n"
-                newPolicies << "the value of $Action.owl#hasDestination\n"
-                newPolicies << "is a subset of the set $AgentsInGroup\#Cloud#{cloud2}\n"
-                newPolicies << "and \n"
-                newPolicies << "the value of $Ultralog/UltralogAction.owl#hasSubject\n"
-                newPolicies << "is a subset of the complement of the set\n"
-                newPolicies << "{ $Ultralog/Names/EntityInstances.owl#NoVerb }\n"
-                newPolicies << "]\n"
-
-                newPolicies << "Policy \"Deny#{cloud2}-to-#{cloud1}\" = [\n"
-                newPolicies <<  "GenericTemplate\n"
-                newPolicies << "Priority = 3,\n"
-                newPolicies << "$AgentsInGroup\#Cloud#{cloud2} is not authorized to perform\n"
-                newPolicies << "$Action.owl#EncryptedCommunicationAction as long as\n"
-                newPolicies << "the value of $Action.owl#hasDestination\n"
-                newPolicies << "is a subset of the set $AgentsInGroup\#Cloud#{cloud1}\n"
-                newPolicies << "and \n"
-                newPolicies << "the value of $Ultralog/UltralogAction.owl#hasSubject\n"
-                newPolicies << "is a subset of the complement of the set\n"
-                newPolicies << "{ $Ultralog/Names/EntityInstances.owl#NoVerb }\n"
-                newPolicies << "]\n"
-              end
-
-            }
-          }
-          origFile = "#{CIP}/configs/security/OwlBootPolicyList.orig"
-          prevFile = "#{CIP}/configs/security/OwlBootPolicyList"
-          stopFile = "#{CIP}/configs/security/OwlBootPolicyList.completed"
-#          puts("finished creating lines")
-          origLines = File.readlines(origFile)
-          policyLines = lines.concat(origLines).concat(newPolicies)
-          prevLines = File.readlines(prevFile)
-          rebuild = true
-#          puts("new policy file = #{policyLines.join}")
-          if policyLines == prevLines
-            begin
-              statCompleted = File.stat(stopFile)
-              statPrev = File.stat(prevFile)
-              if statCompleted.mtime > statPrev.mtime
-                rebuild = false
-              end
-            rescue
-            end
-          end
-          if rebuild
-#            puts("rebuilding file")
-            File.open(prevFile, "w") { |file|
-              file.write(policyLines.join())
-            }
-#            puts("wrote to file... starting policyUtil #{Time.now}")
-            output = policyUtil("--maxReasoningDepth 150 build --info #{prevFile}", nil, "#{CIP}/configs/security")
-#            puts("done with policyUtil #{Time.now}")
-#            puts(output)
-
-            File.open(stopFile, "w") { }
-            # add the files to the security config jar file
-            configJar = "#{CIP}/configs/security/securityservices_config.jar"
-            replaceFileInJar(configJar,
-                             "#{CIP}/configs/security/OwlBootPolicyList")
-            Dir["#{CIP}/configs/security/*.info"].each { |file|
-              replaceFileInJar(configJar, file)
-            }
-            signJar(configJar, "#{CIP}/operator/signingCA_keystore", 
-                    "privileged")
-          end
-        end
-      end
-   end
 end
