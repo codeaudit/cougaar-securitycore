@@ -46,7 +46,7 @@
 # be used - if desired - to arrange that built policies reside in a
 # subdirectory.
 #
-PolicyPrefix=%DamlBootPolicy
+PolicyPrefix=%Boot/
 
 
 #
