@@ -22,6 +22,7 @@
           <param-name>servletClass</param-name>
           <param-value>org.cougaar.lib.web.tomcat.HookServlet</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <!-- specify an error page for custom error messages -->
