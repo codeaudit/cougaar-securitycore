@@ -13,15 +13,19 @@ require 'tmpdir'
 module Cougaar
   module Actions
     class BuildCoordinatorPolicies < Cougaar::Action
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
       def perform
         init()
         compilePolicies()
         packageAndSignJar()
-#        deleteStagingDir()
+        deleteStagingDir()
       end
 
       def init
-        BuildPolicies.new().perform
         @cip = ENV['COUGAAR_INSTALL_PATH']
         @stagingdir = "#{CIP}/workspace/BootPolicies-#{rand(1000000)}"
         Dir.mkdir(@stagingdir)
