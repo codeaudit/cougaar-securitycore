@@ -38,7 +38,7 @@ public class AuthenticatedClassLoader extends URLClassLoader {
   private static int loudness = 0;
   private static final List exclusions = new ArrayList();
   private static HashSet suspiciousClasses = new HashSet();
-  protected static Hashtable loadedClasses = new Hashtable();
+  protected static  Hashtable loadedClasses = new Hashtable();
 
   static {
     String sdebug = System.getProperty("org.cougaar.core.security.bootstrapper.loud");
@@ -60,6 +60,7 @@ public class AuthenticatedClassLoader extends URLClassLoader {
     exclusions.add("com.sun.");
     exclusions.add("sun.");
     exclusions.add("net.jini.");
+    exclusions.add("com.nai.security.certauthority.LdapEntry");
     String s = System.getProperty("org.cougaar.bootstrapper.exclusions");
     if (s != null) {
       List extras = explode(s, ':');
@@ -251,7 +252,20 @@ public class AuthenticatedClassLoader extends URLClassLoader {
     }
     if (loudness > 0) {
       if (c != null) {
-	System.out.println("Loaded class: " + name + " with " + c.getClassLoader());
+	final Class c1 = c;
+	String cl = (String)
+	  AccessController.doPrivileged(new PrivilegedAction() {
+	      public Object run() {
+		ClassLoader cl = c1.getClassLoader();
+		if (cl == null) {
+		  return "System Class Loader";
+		}
+		else {
+		  return cl.toString();
+		}
+	      }
+	    });
+	System.out.println("Loaded class: " + name + " with " + cl);
       }
       else {
 	System.out.println("Unable to load class: " + name);
@@ -289,4 +303,11 @@ public class AuthenticatedClassLoader extends URLClassLoader {
     }
   }
 }
+
+
+
+
+
+
+
 
