@@ -45,6 +45,10 @@ org.cougaar.domain.mlm.ui.grabber.config.DBConfig.user=ultralog
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.password=ul-password
 org.cougaar.domain.mlm.ui.grabber.config.DBConfig.syntax=MySQL
 
+# ACME database configuration
+org.cougaar.refconfig.database=jdbc:mysql://mango/acme1020
+org.cougaar.refconfig.user=ultralog
+org.cougaar.refconfig.password=ul-password
 
 #org.cougaar.lib.web.https.factory=org.cougaar.core.security.ssl.WebtomcatSSLServerFactory
 
