@@ -240,10 +240,10 @@ public class UserManagerPlugin extends ComponentPlugin {
       getBlackboardService().publishAdd(_userCache);
 
       try {
-        File userFile = ConfigFinder.getInstance().locateFile("UserFile.xml");
-        if (userFile != null) {
-          _log.info("Reading users from " + userFile);
-          readUsers(new FileInputStream(userFile));
+        InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
+        if (userIs != null) {
+          _log.info("Reading users from " + userIs);
+          readUsers(userIs);
         } else {
           _log.info("UserFile.xml does not exist -- no users or role");
         }

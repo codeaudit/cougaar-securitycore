@@ -25,6 +25,7 @@ package org.cougaar.core.security.services.util;
 
 import java.io.Serializable;
 import java.io.File;
+import java.io.InputStream;
 import sun.security.x509.*;
 import org.w3c.dom.*;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ import org.cougaar.core.security.config.PolicyUpdateException;
  */
 public interface ConfigParserService extends Service {
 
-  File findPolicyFile(String policyfilename);
+  InputStream findPolicyFile(String policyfilename);
 
   /** The mode of operation
    * @return true if executing as a certificate authority
@@ -55,7 +56,7 @@ public interface ConfigParserService extends Service {
    */
   CaPolicy getCaPolicy(String aDN);
 
-  void parsePolicy(InputStream policy, String fileName);
+  void parsePolicy(InputStream policy);
   SecurityPolicy[] getSecurityPolicies();
   SecurityPolicy[] getSecurityPolicies(Class policyClass);
  

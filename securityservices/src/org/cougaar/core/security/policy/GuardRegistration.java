@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Inc
+ *  Copyright 1997-2003 Cougaar Software, Inc
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -395,7 +395,7 @@ public abstract class GuardRegistration
       }
       ba = out.toByteArray();
       ByteArrayInputStream in = new ByteArrayInputStream(ba);
-      cps.parsePolicy(in, "KAoS propagated policy");
+      cps.parsePolicy(in);
       SecurityPolicy[] p = cps.getSecurityPolicies(pt);
       
       if (log.isDebugEnabled()) {

@@ -76,17 +76,19 @@ public class PolicyHandler
 
   public void addCaPolicy(Hashtable attributeTable) {
     ConfigFinder confFinder = ConfigFinder.getInstance();
-    File file = null;
-
-    file = confFinder.locateFile("caPolicyTemplate.xml");
-    String xmlTemplateFile = file.getPath();
-
-    file = configParser.findPolicyFile("cryptoPolicy.xml");
-    String policyFile = file.getPath();
+    InputStream xmlTemplateIs = null;
+    try {
+      xmlTemplateIs = confFinder.open("caPolicyTemplate.xml");
+    }
+    catch (IOException e) {
+      log.error("Unable to open caPolicyTemplate.xml: " + e);
+      return;
+    }
+    InputStream policyIs = configParser.findPolicyFile("cryptoPolicy.xml");
 
     // First, read the XML template
     ByteArrayOutputStream newPolicyOutputStream =
-      parseXmlTemplate(xmlTemplateFile, attributeTable);
+      parseXmlTemplate(xmlTemplateIs, attributeTable);
 
     log.debug("NEW CA POLICY:");
     log.debug(newPolicyOutputStream.toString());
@@ -107,7 +109,7 @@ public class PolicyHandler
       return;
     }
     log.debug("Parsing policy file");
-    parseXmlFile(policyFile, writer);
+    parseXmlFile(policyIs, writer);
     log.debug("Parsing policy file done");
 
     FileOutputStream newPolicyFile = null;
@@ -122,6 +124,8 @@ public class PolicyHandler
     String fileName = null;
     String finderClass = System.getProperty(
       "org.cougaar.util.ConfigFinder.ClassName", null);
+    File file = null;
+
     if (finderClass == null ||
       !finderClass.equals("org.cougaar.core.security.config.jar.SecureConfigFinder")) {
       fileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
@@ -145,10 +149,10 @@ public class PolicyHandler
 
     // now read in the policy to ConfigParserService
     ByteArrayInputStream bis = new ByteArrayInputStream(newPolicyOutputStream.toByteArray());
-    configParser.parsePolicy(bis, fileName);
+    configParser.parsePolicy(bis);
   }
 
-  public ByteArrayOutputStream parseXmlTemplate(String xmlTemplateFile,
+  public ByteArrayOutputStream parseXmlTemplate(InputStream xmlTemplateFile,
 						Hashtable attributeTable) {
 
     ConfigWriter writer = new ConfigWriter(serviceBroker);
@@ -168,7 +172,7 @@ public class PolicyHandler
     return newPolicyOutputStream;
   }
 
-  public void parseXmlFile(String xmlTemplateFile,
+  public void parseXmlFile(InputStream xmlTemplateFile,
 			   ConfigWriter writer) {
     XMLReader parser = null;
     try {
@@ -188,7 +192,7 @@ public class PolicyHandler
     }
 
     try {
-      parser.parse(xmlTemplateFile);
+      parser.parse(new InputSource(xmlTemplateFile));
     }
     catch (SAXParseException e) {
       // ignore

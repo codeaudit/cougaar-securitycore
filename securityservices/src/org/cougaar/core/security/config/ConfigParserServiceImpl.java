@@ -153,8 +153,14 @@ public class ConfigParserServiceImpl
   //read in boot policy file list
   private void processBootPolicyFiles(String filename){
 
-    File f = confFinder.locateFile(filename);
-    if (f == null) {
+    InputStream is = null;
+    try {
+      is = confFinder.open(filename);
+    }
+    catch (IOException e) {
+      log.fatal("Unable to open policy file:" + e);
+    }
+    if (is == null) {
       if (isNode) {
 	log.fatal("Unable to get list of policy files. Install the BootPolicyList.ini file");
       }
@@ -165,8 +171,7 @@ public class ConfigParserServiceImpl
 	RuntimeException("Unable to get list of policy files. Install the BootPolicyList.ini file");
     }
     try {
-      FileReader filereader=new FileReader(f);
-      BufferedReader buffreader=new BufferedReader(filereader);
+      BufferedReader buffreader=new BufferedReader(new InputStreamReader(is));
       String linedata=new String();
 
       while((linedata=buffreader.readLine())!=null) {
@@ -197,12 +202,20 @@ public class ConfigParserServiceImpl
    *  First, search in the workspace.
    *  Second, search using ConfigFinder.
    */
-  public File findPolicyFile(String policyfilename) {
-    File f = null;
+  public InputStream findPolicyFile(String policyfilename) {
 
     // Search using the config finder.
-    f = confFinder.locateFile(policyfilename);
-    if (f == null) {
+    InputStream is = null;
+    URL aURL = null;
+    try {
+      is = confFinder.open(policyfilename);
+      aURL = confFinder.find(policyfilename);
+    }
+    catch (IOException e) {
+      log.fatal("Unable to open policy file:" + e);
+    }
+
+    if (is == null) {
       if (log.isErrorEnabled()) {
 	// Cannot proceed without policy
 	log.error("Cannot continue secure execution without policy");
@@ -212,24 +225,14 @@ public class ConfigParserServiceImpl
       throw new RuntimeException("No policy available");
     }
     if(log.isDebugEnabled()) {
-      log.debug("Policy file:" + f.getPath());
+      log.debug("Policy file:" + aURL);
     }
-    return f;
+    return is;
   }
 
   private void setConfigurationFile(String defaultFile) {
-    try {
-      String configPath = null;
-      configPath = findPolicyFile(defaultFile).getPath();
-      FileInputStream fis = new FileInputStream(configPath);
-      parsePolicy(fis, configPath);
-    }
-    catch (IOException e) {
-      if (log.isErrorEnabled()) {
-	log.error("Unable to read configFile: " + e);
-	e.printStackTrace();
-      }
-    }
+    InputStream policyIs = findPolicyFile(defaultFile);
+    parsePolicy(policyIs);
   }
   
   /*
@@ -276,9 +279,9 @@ public class ConfigParserServiceImpl
     return null;
   }
 
-  public void parsePolicy(InputStream policy, String fileName) {
+  public void parsePolicy(InputStream policy) {
     if (log.isDebugEnabled()) {
-      log.debug("Reading policy object from " + fileName);
+      log.debug("Reading policy object");
     }
     try {
       // Parse the file...
@@ -291,12 +294,10 @@ public class ConfigParserServiceImpl
     catch (Exception e) {
       // This is OK for standalone applications, but not for nodes.
       if (isNode == true) {
-	log.warn("Unable to parse policy from " + fileName +
-		 ". Reason:" + e);
+	log.warn("Unable to parse policy. Reason:" + e);
       }
       else {
-	log.debug("Unable to parse policy from " + fileName +
-		  ". Reason:" + e);
+	log.debug("Unable to parse policy. Reason:" + e);
       }
     }
   }
