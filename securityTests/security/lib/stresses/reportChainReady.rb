@@ -132,16 +132,16 @@ class TestReportChainReady < SecurityStressFramework
     regexp = /Interception: ReportChainReady : (.*) : (.*)$/
     parsed = regexp.match(line)
     if parsed != nil
-      subordinate = parsed.to_a[0].split(" ").last
-      superior    = parsed.to_a[1].split(" ").last
+      subordinate = parsed.to_a[1].split(" ").last
+      superior    = parsed.to_a[0].split(" ").last
 #      role        = parsed.to_a[3]
 #      if role == "Subordinate"
       if (!(subordinate == superior)) then
         addFoundSubordinate(subordinate, superior)
-        if superior == "OSD.GOV" then
-          puts("subordinate = #{subordinate}")
-          puts(line)
-        end
+#        if superior == "OSD.GOV" then
+#          puts("subordinate = #{subordinate}")
+#          puts(line)
+#        end
       end
     end
   end
