@@ -4,7 +4,7 @@ http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBoo
 # Encrypt communication
 http://ontology.coginst.uwf.edu/Action.daml#EncryptedCommunicationAction DamlBootPolicyEncryptCommunication.info
 #Temporary Policies
-http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyTempEnableServlet.info
+#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyTempEnableServlet.info
 #
 #Temporary? Blackboard policy
 http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyAllowBlackboard.info
@@ -12,56 +12,48 @@ http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess Da
 # Allow access to unrestricted servlets 
 # Restricted servlets are all servlets except other servlets, caread
 # servlets, and ca request servlets.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUnrestServlet.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUnrestServlet.info
 # Require a password or a certificate for restricted servlets.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyServletRestAuth.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyServletRestAuth.info
 #
 # Allow PolicyAdministrator to access the PolicyServlet
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyPolicyServlet.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyPolicyServlet.info
 #
 # Allow MonitorManager users to access SCmrmanager servlets
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySCmrManager.info
 #
 # Allow Logisticians to access NCA servlets
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyNCAServlet.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyNCAServlet.info
 #
 # Allow Logisticians to access aggregator servlets
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianAgg.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianAgg.info
 #
 # Allow LogisticianViews to access aggregator servlets
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianViewAgg.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianViewAgg.info
 #
 # Allow UserManagers to access useradmin servlets.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUserAdminServlets.info
-#
-# Allow Logistician to access Data Grabber servlets.
-# commented to allow automated tests... For now DataGrabbers sevlets are other servlets...
-###http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianDataGrabber.info
-#
-# commented to allow automated tests... For now DataGrabbers sevlets are other servlets...
-# Allow Logistics Viewer to access Data Grabber servlets.
-###http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerDataGrabber.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyUserAdminServlets.info
 #
 # Allow Logistician to take inventory.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianInventory.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianInventory.info
 #
 # Allow Logistics Viewer to take inventory.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerInventory.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerInventory.info
 #
 # Allow logistician to access hierarchy servlets
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianHierarchy.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticianHierarchy.info
 #
 # Allow logisticsviewer to access hierarchy servlets.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerHierarchy.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyLogisticsViewerHierarchy.info
 #
 # Allow users to request certificates.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertReq.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertReq.info
 #
 # Allow users to read certificates.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertRead.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertRead.info
 #
 # Allow a CA Administrator to manage the CA Database.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertWrite.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicyCertWrite.info
 #
 # Allow the society admin to administrate the society.
-#http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySocietyAdmin.info
+http://ontology.coginst.uwf.edu/Action.daml#AccessAction DamlBootPolicySocietyAdmin.info
