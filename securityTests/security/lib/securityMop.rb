@@ -21,8 +21,8 @@
 
 require 'thread'
 require 'ftools'
-require 'framework/scripting'
-require 'framework/securityMop2.4'
+require 'lib/scripting'
+require 'lib/securityMop2.4'
 require 'pstore'
 
 SecurityMopDir = "#{ENV['CIP']}/workspace/security/mops"

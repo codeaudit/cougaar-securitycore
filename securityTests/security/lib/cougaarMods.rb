@@ -1,8 +1,8 @@
 require "cgi"
 begin
-  require 'framework/policy_util'
+  require 'lib/policy_util'
 rescue Exception
-  puts "WARNING:  couldn't load framework/policy_util"
+  puts "WARNING:  couldn't load lib/policy_util"
 end
 
 # The section contains the additions or modifications to the existing ACME environment.

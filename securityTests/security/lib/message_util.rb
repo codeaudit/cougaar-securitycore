@@ -1,4 +1,4 @@
-require 'framework/misc'
+require 'lib/misc'
 
 MESSAGE_EVENTS = [ "Sent", "Received", "Responded", "ResponseReceived" ]
 

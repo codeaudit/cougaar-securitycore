@@ -1,50 +1,49 @@
 require 'cougaar/scripting'
 require 'ultralog/scripting'
+
+require 'actions/configFiles'
+require 'actions/cond_policy.rb'
+
 begin
   require 'assessment/scripting'
 rescue Exception => e
   puts "error while loading assessment/scripting, will skip ..."
 end
-require 'framework/cougaarMods'
+require 'lib/cougaarMods'
 
-require 'framework/doIrb'
-require 'framework/experimentFramework'
+require 'lib/doIrb'
+require 'lib/experimentFramework'
 
-require 'framework/summary'
-require 'framework/rules'
-require 'framework/web'
-require 'framework/misc'
-require 'framework/webFramework'
-require 'framework/userDomain'
-require 'framework/loadSociety'
-require 'framework/useExperiment'
-require 'framework/checkAllJabberHosts'
-require 'framework/caDomain'
-require 'framework/security'
-require 'framework/configFiles'
+require 'lib/summary'
+require 'lib/rules'
+require 'lib/web'
+require 'lib/misc'
+require 'lib/webFramework'
+require 'lib/userDomain'
+require 'lib/loadSociety'
+require 'lib/useExperiment'
+require 'lib/checkAllJabberHosts'
+require 'lib/caDomain'
+require 'lib/security'
 begin
-  require 'framework/securityMop'
+  require 'lib/securityMop'
 rescue LoadError => e
   # globals.rb doesn't exist for security services
   puts "didn't load securityMop.rb"
 end
-require 'framework/securityMopActions'
-require 'framework/mergeMopAnalysis'
-require 'framework/namedCollection'
-# require 'framework/securityMopAnalysis'
+require 'lib/securityMopActions'
+require 'lib/mergeMopAnalysis'
+require 'lib/namedCollection'
+# require 'lib/securityMopAnalysis'
 
-require 'framework/dataProtection'
+require 'lib/dataProtection'
 
-require 'framework/runSecurity'
+require 'lib/runSecurity'
 begin
-  require 'framework/policy_util'
+  require 'lib/policy_util'
 rescue Exception
-  puts "WARNING:  couldn't load framework/policy_util"
+  puts "WARNING:  couldn't load lib/policy_util"
 end
-require 'framework/society_util'
-require 'framework/message_util'
-begin
-  require 'framework/cond_policy.rb'
-rescue Exception
-  puts "WARNING: not loading framework/cond_policy.rb -- does not exist"
-end
+require 'lib/society_util'
+require 'lib/message_util'
+

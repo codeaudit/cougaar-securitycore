@@ -231,7 +231,7 @@ class SecurityMop23 < AbstractSecurityMop
   def startTcpCapture(agentnames)
     # executable attribute not set when first unzipped.
     %w(runsnort runsnort-aux analyzesnort analyzesnort-aux).each do |file|
-      f = "#{ENV['CIP']}/csmart/assessment/lib/framework/#{file}"
+      f = "#{ENV['CIP']}/csmart/assessment/lib/lib/#{file}"
       `chmod a+x #{f}`
     end
     hosts = []

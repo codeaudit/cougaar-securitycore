@@ -1,5 +1,5 @@
 
-require 'framework/common_security_rules'
+require 'lib/common_security_rules'
 
 class CertRevocation
    attr_accessor :management

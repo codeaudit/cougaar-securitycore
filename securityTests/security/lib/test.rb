@@ -2,11 +2,11 @@
 
 $LOAD_PATH.unshift "../../lib03"
 
-require 'framework/web'
-require 'framework/misc'
-require 'framework/doIrb'
+require 'lib/web'
+require 'lib/misc'
+require 'lib/doIrb'
 
-require 'framework/userDomainAux'
+require 'lib/userDomainAux'
 
 
 #---------------------------------------------------

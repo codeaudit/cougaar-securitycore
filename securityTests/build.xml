@@ -14,6 +14,7 @@ ARCHIVE_TIME=${build.time}
 	<property name="zip" value="SRI_auto.zip"/>
 	<delete dir="staging"/>			
   <mkdir dir="staging/csmart/assessment/"/>
+    <!--
 	<copy todir="staging/csmart/assessment/configs/">
 		<fileset dir="configs"/>
 	</copy>
@@ -26,6 +27,7 @@ ARCHIVE_TIME=${build.time}
 	<copy todir="staging/csmart/assessment/assess/">
 		<fileset dir="assess03"/>
 	</copy>
+ -->
 	<copy todir="staging/Manifest">
 		<fileset dir="Manifest"/>
 	</copy>

@@ -1,4 +1,4 @@
-require 'framework/policy_util'
+require 'lib/policy_util'
 
 # CIP is defined in policy_util
 

@@ -1,4 +1,4 @@
-require "framework/cougaarMods"
+require "lib/cougaarMods"
 
 def getRegisteredAgents
   nameServers = run.society.name_servers

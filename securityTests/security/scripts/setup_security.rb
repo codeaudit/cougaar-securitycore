@@ -7,12 +7,9 @@ description: special initialization for security
 
 CIP = ENV['CIP']
 
-$:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
-$:.unshift File.join(CIP, 'csmart', 'assessment', 'scripts')
+$:.unshift File.join(CIP, 'csmart', 'lib', 'security')
 
-require 'framework/scripting'
-require 'cougaar/scripting'
-require 'framework/configFiles'
+require 'lib/scripting'
 
 insert_before :setup_run do
   do_action "BuildConfigJarFiles"

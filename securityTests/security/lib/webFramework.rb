@@ -1,7 +1,7 @@
 
 # This file provides web requests to the hosts, etc.
 
-require 'framework/scripting'
+require 'lib/scripting'
 
 class ExperimentFramework
    def checkHostTomcatServers
