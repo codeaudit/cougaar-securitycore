@@ -220,6 +220,18 @@
         <echo message="+++++ Installed Cougaar CA"/>
     </target>
     
+    <!-- install Cougaar CA -->
+    <target name="install-daml" depends="sign-jars">
+        <echo message="+++++ Installing DAML configs"/>
+        <mkdir dir="${cougaar.install.path}/configs/daml"/>
+        <copy todir="${cougaar.install.path}/configs/daml">
+            <fileset dir="${securityservices.configs}/daml">
+                <include name="*"/>
+            </fileset>
+        </copy>
+        <echo message="+++++ Installed DAML configs"/>
+    </target>
+    
     <!-- install security services -->
     <target name="install-signed-jars" depends="sign-jars">
         <echo message="+++++ Installing signed jar files"/>
@@ -263,7 +275,7 @@
     </target>
     
     <!-- install config files -->
-    <target name="install-conf" depends="install-cougaarCA">
+    <target name="install-conf" depends="install-cougaarCA, install-daml">
         <echo message="+++++ Installing configuration files"/>
 	<mkdir dir="${cougaar.install.path}/configs/security"/>
         <copy todir="${cougaar.install.path}/configs/security">

@@ -57,7 +57,7 @@ java.class.path=/mnt/shared/integ/lib/CougaarCRLextensions.jar
 # Here we override the default configuration path to include both
 # the "common" directory and "GLMTrans" directory.
 #org.cougaar.config.path="/mnt/shared/integ/configs/common\;/mnt/shared/integ/configs/glmtrans\;"
-org.cougaar.config.path=".;/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;"
+org.cougaar.config.path=".;/mnt/shared/integ/configs/security;/mnt/shared/integ/configs/common;/mnt/shared/integ/configs/glmtrans;/mnt/shared/integ/configs/daml;"
 #org.cougaar.config.path=".;/mnt/shared/integ/configs/security;"
 
 # Some standard memory settings.

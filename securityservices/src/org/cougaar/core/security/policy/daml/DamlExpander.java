@@ -93,8 +93,7 @@ public class DamlExpander  extends SimplePlugin {
 
   private static final UnaryPredicate FIRST_EXPANSION = new UnaryPredicate() {
       public boolean execute(Object o) {
-        return (o instanceof UnexpandedPolicyUpdate &&
-                !(o instanceof DamlPolicyExpansion));
+        return (o instanceof UnexpandedPolicyUpdate);
       }
     };
 
@@ -208,7 +207,7 @@ public class DamlExpander  extends SimplePlugin {
 	      policy.read(new FileReader(file), "", "RDF/XML");
 	      debuglog("Found daml policy"); 
 	      debuglogModel(policy);
-	      expansion.add(Forgetful.copy(policy));
+	      expansion.add(policy);
 	  } else {
 	      debuglog("Trying xml policy expansion");
 	      Document xmlDoc = db.parse(file);
@@ -282,12 +281,25 @@ public class DamlExpander  extends SimplePlugin {
     //    checkRemovedList();
     // check for added UnexpandedPolicyUpdates
     Enumeration upuEnum = _upu.getAddedList();
-    List expandedPolicies = new ArrayList();
+    List expandedPolicies = new Vector();
     while (upuEnum.hasMoreElements()) {
       debuglog("In upu Enum loop");
 
-      UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) upuEnum.nextElement();
-      List policies = upu.getPolicies();
+      Object update = upuEnum.nextElement();
+      String updateType;
+      List policies;
+      List locators;
+      if (update instanceof UnexpandedPolicyUpdate) {
+	UnexpandedPolicyUpdate upu = (UnexpandedPolicyUpdate) update;
+	policies = upu.getPolicies();
+	updateType = upu.getUpdateType();
+	locators = upu.getLocators();
+      } else {
+	DamlPolicyExpansion upu = (DamlPolicyExpansion) update;
+	policies = upu.getPolicies();
+	updateType = upu.getUpdateType();
+	locators = upu.getLocators();
+      }
       Iterator policyIt = policies.iterator();
 
       while (policyIt.hasNext()) {
@@ -302,29 +314,35 @@ public class DamlExpander  extends SimplePlugin {
 
 	try {
 	    PolicyMsg[] newMessages = expandPolicy(policyMsg);
+	    debuglog("After expandPolicy, received attributes size = " +
+		     policyMsg.getAttributes().size());
 	    if (newMessages != null) {
+	        debuglog("After expandPolicy, newMessages size = " +
+			 newMessages.length);
 		// replace the newMessage
 		for (int i = 0; i < newMessages.length; i++) {
 		    debuglog("writing out policy: " + newMessages[i]);
 		    expandedPolicies.add(newMessages[i]);
 		} // end of for (int i = 0; i < newMessages.length; i++)
-	    }  // end of if (newMessages != null)
+	    } else {
+	      debuglog("After expandPolicy, newMessages = null");
+	    } // end of if (newMessages != null)
 	} catch (Exception xcp) {
 	    _log.error("Expansion #" + _expansionNum + 
 		       ": Error expanding policy:\n" + policyMsg,
 		       xcp);
 	}
       }
-      publishRemove(upu);
+      publishRemove(update);
       
       Object newPolicy;
       if (_lastExpansion) {
-        newPolicy = new ExpandedPolicyUpdate(upu.getUpdateType(),
-                                             upu.getLocators(),
+        newPolicy = new ExpandedPolicyUpdate(updateType,
+                                             locators,
                                              expandedPolicies);
       } else {
-        newPolicy = new DamlPolicyExpansion(upu.getUpdateType(),
-                                            upu.getLocators(),
+        newPolicy = new DamlPolicyExpansion(updateType,
+                                            locators,
                                             expandedPolicies,
                                             _expansionNum + 1);
       } 
@@ -368,8 +386,6 @@ public class DamlExpander  extends SimplePlugin {
       debuglog("Comparing against: ");
       debuglogModel(daml);
 
-      // Why do I need a forgetful copy here ????!
-      // It may have something to do with casts from Model to DAMLModel???
       try {
 	  if (Forgetful.copy(daml).equals(Forgetful.copy(damlContent))) {
 	      debuglog("Got a match.");
@@ -386,6 +402,8 @@ public class DamlExpander  extends SimplePlugin {
 		      // XML content
 		      newPolicy = policyFromXML(policyMsg, (Document) map[i]);
 		  } 
+		  debuglog("Size of attributes in outgoing policy msg" +
+			   newPolicy.getAttributes().size());
 		  pm.add(newPolicy);
 	      }
 	      return (PolicyMsg[]) pm.toArray(new PolicyMsg[pm.size()]);
@@ -451,7 +469,7 @@ public class DamlExpander  extends SimplePlugin {
       return damlContent;
   }
 
-  private static PolicyMsg policyFromXML(PolicyMsg policyMsg,
+  private PolicyMsg policyFromXML(PolicyMsg policyMsg,
                                          Document xmlDoc) {
     Element l = xmlDoc.getDocumentElement();
     String type = l.getAttribute("type");
@@ -464,13 +482,14 @@ public class DamlExpander  extends SimplePlugin {
                                  policyMsg.getAdministrator(),
                                  policyMsg.getSubjects(),
                                  policyMsg.isInForce());
+    debuglog("Making PolicyMsg from xml: "+ xmlDoc.toString());
     AttributeMsg msg = 
       new AttributeMsg(AttributeMsg.XML_CONTENT, xmlDoc, true);
     pm.setAttribute(msg);
     return pm;
   }
 
-  private static PolicyMsg policyFromModel(PolicyMsg policyMsg, Model model) {
+  private PolicyMsg policyFromModel(PolicyMsg policyMsg, Model model) {
     PolicyMsg pm = new PolicyMsg(UniqueIdentifier.GenerateUID(),
                                  policyMsg.getName(),
                                  policyMsg.getDescription(),
@@ -478,9 +497,14 @@ public class DamlExpander  extends SimplePlugin {
                                  policyMsg.getAdministrator(),
                                  policyMsg.getSubjects(),
                                  policyMsg.isInForce());
+    debuglog("Making PolicyMsg from daml");
+    debuglogModel(model);
     AttributeMsg msg = 
       new AttributeMsg(AttributeMsg.DAML_CONTENT, model, true);
-    pm.setAttribute(msg);
+    if (! pm.setAttribute(msg)) {
+      _log.error("Expansion #" + _expansionNum + 
+		 "PolicyMsg.setAttribute failed");
+    }
     return pm;
   }
 

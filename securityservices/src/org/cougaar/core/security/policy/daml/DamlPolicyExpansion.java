@@ -30,13 +30,29 @@ package org.cougaar.core.security.policy.daml;
 import safe.util.UnexpandedPolicyUpdate;
 import java.util.List;
 
-public class DamlPolicyExpansion extends UnexpandedPolicyUpdate {
+public class DamlPolicyExpansion {
   private int _expansionNum;
+  private List _locators, _policies;
+  private String _updateType;
 
   public DamlPolicyExpansion(String updateType, List locators, List policies,
                              int expansionNum) {
-    super(updateType, locators, policies);
+    _updateType = updateType;
+    _locators = locators;
+    _policies = policies;
     _expansionNum = expansionNum;
+  }
+
+  public String getUpdateType() { 
+    return _updateType;
+  }
+
+  public List getLocators() {
+    return _locators;
+  }
+
+  public List getPolicies() {
+    return _policies;
   }
 
   public int getExpansionNum() {
