@@ -67,6 +67,11 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}sunjce_provider.jar" 
 	permission java.security.SecurityPermission "putProviderProperty.SunJCE";
 };
 
+grant codeBase "file:${org.cougaar.install.path}${/}lib${/}Commons_isat_plugins.jar" {
+	// setIO is required for the ACME environment only.
+	permission java.lang.RuntimePermission "setIO";
+};
+
 grant codeBase "file:${org.cougaar.install.path}${/}sys${/}IBMJCEProvider.jar" {
 	// Refer to SUN Java Cryptography Extension (JCE) 1.2.1
 	// documentation for a description of the following permissions.
@@ -142,6 +147,9 @@ grant codeBase "file:${org.cougaar.install.path}${/}sys${/}tomcat_40.jar" signed
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}core.jar" signedBy "privileged" {
+	// setIO is required for the ACME environment only.
+	permission java.lang.RuntimePermission "setIO";
+
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
@@ -173,6 +181,9 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}aggagent.jar" signedB
 };
 
 grant codeBase "file:${org.cougaar.install.path}${/}lib${/}util.jar" signedBy "privileged" {
+	// setIO is required for the ACME environment only.
+	permission java.lang.RuntimePermission "setIO";
+
         permission java.security.SecurityPermission "getPolicy";
         permission java.lang.RuntimePermission "getClassLoader";
 	permission java.lang.RuntimePermission "createClassLoader";
@@ -231,6 +242,7 @@ grant codeBase "file:${org.cougaar.install.path}${/}lib${/}securityservices.jar"
 	permission java.io.FilePermission "${/}usr${/}java${/}-", "read";
 	permission java.io.FilePermission "${/}usr${/}java${/}", "read";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.javac";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.net.www.protocol.http";
 };
 
 ////////////////////////////////////////////////////////////
