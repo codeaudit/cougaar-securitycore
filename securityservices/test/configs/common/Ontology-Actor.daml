@@ -53,32 +53,13 @@
 
     <daml:Class rdf:ID="Actor">
         <rdfs:comment>
-            It is a thing capable of performing (initiating) an action. Because of that it is a subject of policies.
+            It is an entiry capable of performing (initiating) an action; because of that it is a subject of policies.
         </rdfs:comment>
     </daml:Class>
-    
-    <daml:Class rdf:ID="Agent">
-        <rdfs:subClassOf rdf:resource="#AutomatedActor"/>
-        <rdfs:subClassOf>
-            <daml:Restriction>
-                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
-                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
-             </daml:Restriction>
-         </rdfs:subClassOf>
-    </daml:Class>
 
-    <daml:Class rdf:ID="AutomatedActor">
+    <daml:Class rdf:ID="NaturalActor">
         <rdfs:subClassOf rdf:resource="#Actor"/>
-        <rdfs:subClassOf>
-            <daml:Restriction>
-                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
-                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
-             </daml:Restriction>
-         </rdfs:subClassOf>
-    </daml:Class>
-    
-    <daml:Class rdf:ID="Person">
-        <rdfs:subClassOf rdf:resource="#Actor"/>
+        <daml:disjointWith rdf:resource="#ArtificialActor"/>
         <rdfs:subClassOf>
             <daml:Restriction>
                 <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
@@ -87,31 +68,52 @@
         </rdfs:subClassOf>
     </daml:Class>
 
-    <daml:Class rdf:about="#Actor">
-        <daml:disjointUnionOf rdf:parseType="daml:collection">
-            <daml:Class rdf:about="#AutomatedActor"/> 
-            <daml:Class rdf:about="#Person"/> 
-        </daml:disjointUnionOf>
+    <daml:Class rdf:ID="Person">
+        <rdfs:subClassOf rdf:resource="#NaturalActor"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Human">
+        <rdfs:subClassOf rdf:resource="#Person"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ArtificialActor">
+        <rdfs:subClassOf rdf:resource="#Actor"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="HardwareActor">
+        <rdfs:subClassOf rdf:resource="#ArtificialActor"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#PhysicalPlace"/>
+             </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Robot">
+        <rdfs:subClassOf rdf:resource="#HardwareActor"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="SoftwareActor">
+        <rdfs:subClassOf rdf:resource="#ArtificialActor"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
+                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
+             </daml:Restriction>
+         </rdfs:subClassOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="Agent">
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
     </daml:Class>
 
     <daml:Class rdf:ID="Guard">
-        <rdfs:subClassOf rdf:resource="#Agent"/>
-        <rdfs:subClassOf>
-            <daml:Restriction>
-                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
-                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
-             </daml:Restriction>
-         </rdfs:subClassOf>
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
     </daml:Class>
 
     <daml:Class rdf:ID="DomainManager">
-        <rdfs:subClassOf rdf:resource="#Agent"/>
-        <rdfs:subClassOf>
-            <daml:Restriction>
-                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#hasPlace"/>
-                <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Place.daml#ComputationalPlace"/>
-             </daml:Restriction>
-         </rdfs:subClassOf>
+        <rdfs:subClassOf rdf:resource="#SoftwareActor"/>
     </daml:Class>
 
 </rdf:RDF>

@@ -61,15 +61,19 @@
         <rdfs:subClassOf rdf:resource="#Entity"/>
     </daml:Class>
 
-    <daml:Class rdf:ID="ComputingEntity">
+    <daml:Class rdf:ID="LogicalEntity">
         <rdfs:subClassOf rdf:resource="#Entity"/>
     </daml:Class>
     
     <daml:Class rdf:about="#Entity">
         <daml:disjointUnionOf rdf:parseType="daml:collection">
             <daml:Class rdf:about="#PhysicalEntity" /> 
-            <daml:Class rdf:about="#ComputingEntity" /> 
+            <daml:Class rdf:about="#LogicalEntity" /> 
         </daml:disjointUnionOf>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ComputingEntity">
+        <rdfs:subClassOf rdf:resource="#LogicalEntity"/>
     </daml:Class>
 
     <daml:Class rdf:ID="DurationLimitedEntity">

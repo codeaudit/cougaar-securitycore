@@ -129,4 +129,8 @@
         </daml:oneOf>
     </daml:Class>
 
+    <daml:Class rdf:ID="ConflictedPolicies">
+        <rdfs:subClassOf rdf:resource="#Policy"/>
+    </daml:Class>
+
 </rdf:RDF>

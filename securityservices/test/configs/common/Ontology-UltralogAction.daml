@@ -65,24 +65,24 @@
 <!-- Section with class definitions--> 
 
      <daml:Class rdf:ID="BlackBoardAccess">
-        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#ResourceAction" />
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#ResourceAction"/>
         <rdfs:subClassOf>
            <daml:Restriction>
               <daml:onProperty rdf:resource="blackBoardAccessObject"/>
-              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#BlackBoardObjects" />
+              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#BlackBoardObjects"/>
            </daml:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
            <daml:Restriction>
               <daml:onProperty rdf:resource="blackBoardAccessMode"/>
-              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#BlackBoardAccessMode" />
+              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#BlackBoardAccessMode"/>
            </daml:Restriction>
         </rdfs:subClassOf>
         <!-- Why doesn't this work?
         <rdfs:subClassOf>
            <daml:Restriction>
-              <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy" />
-              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#UltralogPlugIns" />
+              <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedBy"/>
+              <daml:toClass rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltraActor.daml#UltralogPlugIns"/>
            </daml:Restriction>
         </rdfs:subClassOf>
         -->

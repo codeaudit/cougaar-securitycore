@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/KAoSOntologies.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+            This ontology includes a list of references (through the daml:imports statment) to
+            core KAoS ontologies.
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Action.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Entity.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/ActorAttribute.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/AttributeAction.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/DomainManagementAction.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/PolicyAction.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Place.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Message.daml"/>
+    </daml:Ontology>
+
+</rdf:RDF>

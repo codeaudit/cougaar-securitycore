@@ -10,7 +10,7 @@
             $ http://ontology.coginst.uwf.edu/Ultralog/UltralogOntologies.daml $
         </daml:versionInfo>
         <rdfs:comment>
-            An ontology created manually by Andrzej Uszok (auszok@ai.uwf.edu).
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
             This ontology includes a list of references (through the daml:imports statment) to
             ontologies describing the Ultralog environment.
         </rdfs:comment>
@@ -18,7 +18,6 @@
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogActor.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml"/>
-        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogDefaultPolicy.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/ActorClasses.daml"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml"/>

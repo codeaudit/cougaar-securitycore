@@ -27,7 +27,8 @@
 <!-- Section with class definitions--> 
 
     <daml:Class rdf:ID="UltralogPlugins">
-       <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#AutomatedActor" />
-       <daml:disjointWith rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent" />
+       <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#SoftwareActor"/>
+       <daml:disjointWith rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Agent"/>
     </daml:Class>
+
 </rdf:RDF>

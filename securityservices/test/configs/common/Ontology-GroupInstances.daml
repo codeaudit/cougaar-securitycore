@@ -16,7 +16,7 @@
         </rdfs:comment>
         <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
         <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
-	  <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml"/>
+	<daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogGroup.daml"/>
     </daml:Ontology>
 
     <ultralogGroup:Role rdf:ID="AdministratorRole"/>
@@ -66,6 +66,5 @@
     <ultralogGroup:Community rdf:ID="CommunityEnclave3-COMM"/>
     <ultralogGroup:Community rdf:ID="CommunityEnclave4-COMM"/>
     <ultralogGroup:Community rdf:ID="CommunityDisallowedCommunication-COMM"/>
-
 
 </rdf:RDF>

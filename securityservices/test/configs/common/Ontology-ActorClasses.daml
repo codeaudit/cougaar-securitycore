@@ -28,7 +28,6 @@
         </rdfs:subClassOf>
     </daml:Class>
 
-
     <daml:Class rdf:ID="CAAdministrator">
         <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
         <rdfs:subClassOf>
@@ -118,6 +117,5 @@
             </daml:Restriction>
         </rdfs:subClassOf>
     </daml:Class>
-
 
 </rdf:RDF>

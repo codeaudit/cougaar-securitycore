@@ -1,0 +1,56 @@
+<?xml version='1.0'?>
+<!--DAML+OIL Language, version 03/2001-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:daml="http://www.daml.org/2001/03/daml+oil#" 
+         xmlns="http://ontology.coginst.uwf.edu/DomainManagementAction.daml#">
+    
+    <daml:Ontology rdf:about="">
+        <daml:versionInfo>
+            $ http://ontology.coginst.uwf.edu/DomainManagementAction.daml $
+        </daml:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+        </rdfs:comment>
+        <daml:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Action.daml"/>
+        <daml:imports rdf:resource="http://ontology.coginst.uwf.edu/Group.daml"/>
+    </daml:Ontology>
+
+<!--Section with property definitions-->
+
+    <daml:ObjectProperty rdf:ID="hasDomain">
+        <rdfs:subPropertyOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#performedOn"/>
+        <rdfs:domain rdf:resource="#DomainManagementAction"/>
+        <rdfs:range rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#Domain"/>
+    </daml:ObjectProperty>
+
+<!--Section with class definitions-->
+
+    <daml:Class rdf:ID="DomainManagementAction">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Action.daml#Action"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="RegisterAction">
+        <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="DeregisterAction">
+         <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
+         <daml:disjointWith rdf:resource="#RegistrationAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="ObtainMembersAction">
+         <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="CreateDomainAction">
+         <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
+    </daml:Class>
+
+    <daml:Class rdf:ID="RemoveDomainAction">
+         <rdfs:subClassOf rdf:resource="#DomainManagementAction"/>
+    </daml:Class>
+
+</rdf:RDF>

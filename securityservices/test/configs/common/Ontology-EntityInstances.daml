@@ -213,27 +213,4 @@
        </daml:oneOf>
     </daml:Class>
 
-
-    <!--
-    <daml:Class rdf:ID="OtherBlackBoardObjects">
-       <rdfs:subClassOf 
-         rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects" />
-       <daml:intersectionOf rdf:parseType="daml:collection">
-          <daml:class>
-             <daml:complementOf>
-                <daml:class>
-                   <daml:oneOf rdf:parseType="daml:collection">
-                      <ultralogEntity:BlackBoardObjects rdf:ID="BlackboardOpPlanObject" />
-                      <ultralogEntity:BlackBoardObjects rdf:ID="SafeRelay" />
-                   </daml:oneOf>
-                </daml:class>
-             </daml:complementOf>
-          </daml:class>
-          <daml:class rdf:about="http://ontology.coginst.uwf.edu/Ultralog/UltralogEntity.daml#BlackboardObjects"/>
-       </daml:intersectionOf>
-    </daml:Class>
-    -->
-
-
-
 </rdf:RDF>
