@@ -282,12 +282,16 @@ public class AccessAgentProxy
 	
       mtc.receiveMessage(contents);
       return;
-    } 
+    }
     else {
       if (log.isWarnEnabled()) {
 	log.warn("Dropping message. It should be wrapped in a MessageWithTrust: "
 		 + m.toString(), new Throwable());
       }
+      /*
+	Binders cannot be attached to Node agents so For now we will allow node agent messages to go through 
+       */
+      mtc.receiveMessage(m);
       return;
     }
   }
