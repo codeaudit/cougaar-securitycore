@@ -66,6 +66,7 @@ public class CryptoClientPolicyHandler
 
   // Certificate Attributes
   private static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
+  private static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
   private static final String OU_ELEMENT           = "ou";
   private static final String O_ELEMENT            = "o";
   private static final String L_ELEMENT            = "l";
@@ -108,8 +109,14 @@ public class CryptoClientPolicyHandler
       cryptoClientPolicy.addTrustedCaPolicy(currentTrustedCa);
     }
     if (localName.equals(CERTIFICATE_ATTR_ELEMENT)) {
+    // default cert attribute
       currentCertAttr = new CertificateAttributesPolicy();
       cryptoClientPolicy.setCertificateAttributesPolicy(currentCertAttr);
+    }
+    if (localName.equals(CACERTIFICATE_ATTR_ELEMENT)) {
+    // cert attribute for specific CA
+      currentCertAttr = new CertificateAttributesPolicy();
+      currentTrustedCa.setCertificateAttributesPolicy(currentCertAttr);
     }
 
   }
@@ -154,7 +161,7 @@ public class CryptoClientPolicyHandler
     else if (localName.equals(KEYSTORE_USE_SMART_CARD)) {
       cryptoClientPolicy.setUseSmartCard(true);
     } // end of if (localName.equals(KEYSTORE_USE_SMART_CARD))
-    
+
     // trusted CA keystore
     else if (localName.equals(CA_KEYSTORE_ELEMENT)) {
       cryptoClientPolicy.setTrustedCaKeystoreName(getContents());
