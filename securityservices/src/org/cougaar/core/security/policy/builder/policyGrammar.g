@@ -27,12 +27,20 @@ header {
 
 class PolicyParser extends Parser;
 
-policies
-returns [List ppl]
+policyFile
+returns [ParsedPolicyFile ppf]
 throws PolicyCompilerException
-{   ppl = new Vector();
-    ParsedPolicy pp;}
-    : ( pp = policy { ppl.add(pp); })+
+{   ppf = new ParsedPolicyFile();
+    ParsedPolicy pp;  }
+    :   ( declaration[ppf] )*
+        ( pp = policy { ppf.addPolicy(pp); })+
+    ;
+
+declaration[ParsedPolicyFile ppf]
+throws PolicyCompilerException
+    : "declareInstance" instanceName:URI className:URI
+        { ppf.declareInstance(ParsedPolicy.tokenToURI(instanceName), 
+                              ParsedPolicy.tokenToURI(className)); }
     ;
 
 policy 
