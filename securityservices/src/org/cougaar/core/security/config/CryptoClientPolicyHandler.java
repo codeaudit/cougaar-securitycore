@@ -93,7 +93,7 @@ public class CryptoClientPolicyHandler
 
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
-    
+   if(sb != null) {
     // construct the crypto client policy file name.  should be of the form
     // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
@@ -105,7 +105,10 @@ public class CryptoClientPolicyHandler
     String nodeDirectory = topDirectory + nodeName;
     cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
     sb.releaseService(this, SecurityPropertiesService.class, sps);
-   
+    }
+    else {
+      cryptoPolicyFileName = "/home/mluu/UL/cougaar/workspace/security/keystores/testNode/cryptoPolicy.xml"; 
+    }
   }
 
   public void collectPolicy(XMLReader parser,
@@ -296,6 +299,7 @@ public class CryptoClientPolicyHandler
     }
   }
   
+  // this should only be package level access
   public void updatePolicy(CryptoClientPolicy policy) 
     throws PolicyUpdateException {
     /*
@@ -330,6 +334,10 @@ public class CryptoClientPolicyHandler
    
       FileOutputStream fos = new FileOutputStream(newPolicyFile);
       OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
+      // no line wrapping
+      of.setLineWidth(0);
+      // indent 2 spaces
+      of.setIndent(2);
       XMLSerializer xs = new XMLSerializer(fos, of);
       xs.serialize(updatedPolicy);
       fos.flush();
