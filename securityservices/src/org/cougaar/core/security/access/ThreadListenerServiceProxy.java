@@ -32,7 +32,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 import java.util.Hashtable;
 import java.util.TimerTask;
 
-// this class is a proxy for the alarm service 
+// this class is a proxy for the ThreadListenerService
 class ThreadListenerServiceProxy extends SecureServiceProxy 
   implements ThreadListenerService {
   private final ThreadListenerService _tls;

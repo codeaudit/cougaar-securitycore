@@ -28,7 +28,7 @@ import org.cougaar.util.UnaryPredicate;
 
 import org.cougaar.core.security.auth.ExecutionContext;
 
-// this class is a proxy for the BlackboardMetricsServiceProxy
+// this class is a proxy for the BlackboardMetricsService
 class BlackboardMetricsServiceProxy extends SecureServiceProxy 
   implements BlackboardMetricsService {
   private BlackboardMetricsService _bms;

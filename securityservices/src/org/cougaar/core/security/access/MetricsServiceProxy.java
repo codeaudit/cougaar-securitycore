@@ -35,7 +35,7 @@ import java.util.Observer;
 import java.util.Observable;
 import java.util.Properties;
 
-// this class is a proxy for the real time service 
+// this class is a proxy for the MetricsService
 class MetricsServiceProxy extends SecureServiceProxy 
   implements MetricsService {
   private final MetricsService _ms;

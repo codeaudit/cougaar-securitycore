@@ -31,7 +31,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Comparator;
 
-// this class is a proxy for the alarm service 
+// this class is a proxy for the ThreadControlService
 class ThreadControlServiceProxy extends SecureServiceProxy 
   implements ThreadControlService {
   private final ThreadControlService _tcs;

@@ -30,7 +30,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Collection;
 
-// this class is a proxy for the BlackboardQueryServiceProxy 
+// this class is a proxy for the BlackboardQueryService
 class BlackboardQueryServiceProxy extends SecureServiceProxy 
   implements BlackboardQueryService {
   private BlackboardQueryService _bqs;

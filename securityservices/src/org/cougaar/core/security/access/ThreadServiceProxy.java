@@ -30,7 +30,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.TimerTask;
 
-// this class is a proxy for the alarm service 
+// this class is a proxy for the ThreadService
 class ThreadServiceProxy extends SecureServiceProxy 
   implements ThreadService {
   private final ThreadService _ts;

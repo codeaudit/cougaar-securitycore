@@ -33,7 +33,6 @@ import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.component.ServiceRevokedListener;
-import org.cougaar.core.node.service.RealTimeService;
 import org.cougaar.planning.service.PrototypeRegistryService;
 import org.cougaar.core.qos.metrics.MetricsService;
 import org.cougaar.core.service.AlarmService;
@@ -127,7 +126,6 @@ public class PluginServiceFilter extends ServiceFilter {
         else if(service instanceof ServletService) {
           return new ServletServiceProxy((ServletService) service, client, _sb);
         }
-        /*
         else if(service instanceof AlarmService) {
           return new AlarmServiceProxy((AlarmService) service, client, _sb);
         }
@@ -146,9 +144,6 @@ public class PluginServiceFilter extends ServiceFilter {
         else if(service instanceof PrototypeRegistryService) {
           return new PrototypeRegistryServiceProxy((PrototypeRegistryService) service, client, _sb);           
         }
-        else if(service instanceof RealTimeService) {
-          return new RealTimeServiceProxy((RealTimeService) service, client, _sb);           
-        }
         else if(service instanceof ThreadService) {
           return new ThreadServiceProxy((ThreadService) service, client, _sb); 
         }
@@ -158,7 +153,6 @@ public class PluginServiceFilter extends ServiceFilter {
         else if(service instanceof ThreadListenerService) {
           return new ThreadListenerServiceProxy((ThreadListenerService) service, client, _sb); 
         }
-        */ 
         return null;
       }
       

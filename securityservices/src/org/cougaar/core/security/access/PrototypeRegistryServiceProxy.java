@@ -35,7 +35,7 @@ import org.cougaar.core.security.auth.ExecutionContext;
 
 import java.util.Collection;
 
-// this class is a proxy for the alarm service 
+// this class is a proxy for the PrototypeRegistryService
 class PrototypeRegistryServiceProxy extends SecureServiceProxy 
   implements PrototypeRegistryService {
   private final PrototypeRegistryService _prs;
