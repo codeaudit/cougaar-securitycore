@@ -761,6 +761,39 @@ final public class KeyRing  implements KeyRingService  {
 */
   }
 
+  public PrivateKey findPrivateKey(final X509Certificate cert) {
+    try {
+      X500Name x500Name = new X500Name(cert.getSubjectDN().getName());
+      final String name = x500Name.getCommonName();
+    
+      // relieve messages to naming, for local keys
+      // do not need to go to naming
+      List nameList = getX500NameFromNameMapping(name);
+      Iterator iter = nameList.iterator();
+      while (iter.hasNext()) {
+        X500Name dname = (X500Name) iter.next();
+        List pkCerts = findPrivateKey(dname);
+        Iterator jter = pkCerts.iterator();
+        while (jter.hasNext()) {
+          PrivateKeyCert pkc = (PrivateKeyCert) jter.next();
+          if (cert.equals(pkc.cert.getCertificate())) {
+            return pkc.pk;
+          }
+        }
+      }
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get private key of " + 
+                 cert + " -- does not exist.");
+      }
+    } catch (Exception e) {
+      if (log.isWarnEnabled()) {
+        log.warn("Unable to get private key of " + 
+                 cert + " -- dn is not well formed.");
+      }
+    }
+    return null;
+  }
+
   public List findPrivateKey(X500Name x500name) {
     return  findPrivateKey(x500name,true);
   }

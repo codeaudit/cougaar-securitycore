@@ -34,6 +34,9 @@ public final class SecureMethodParam
   public static final int SIGNENCRYPT = 4;
   public static final int INVALID = 5;
 
+  public static final String SECURE_METHODS[] = {
+    "INVALID", "PLAIN", "SIGN", "ENCRYPT", "SIGNENCRYPT" };
+
   public int secureMethod;
   public String symmSpec;
   public String asymmSpec;
@@ -47,21 +50,15 @@ public final class SecureMethodParam
     secureMethod = value;
   }
 
-  public String getSecureMethodToString() {
-    switch (secureMethod) {
-    case PLAIN:
-      return "PLAIN";
-    case SIGN:
-      return "SIGN";
-    case ENCRYPT:
-      return "ENCRYPT";
-    case SIGNENCRYPT:
-      return "SIGNENCRYPT";
-    case INVALID:
-      return "INVALID";
-    default:
-      return "UNKNOWN";
+  public static String secureMethodToString(int method) {
+    if (method < SECURE_METHODS.length && method >= 0) {
+      return SECURE_METHODS[method];
     }
+    return "UNKNOWN";
+  }
+
+  public String getSecureMethodToString() {
+    return secureMethodToString(secureMethod);
   }
 
   public String toString() {

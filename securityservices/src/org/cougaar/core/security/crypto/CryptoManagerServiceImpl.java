@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,6 @@
  *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
- * Created on September 12, 2001, 10:55 AM
  */
 
 package org.cougaar.core.security.crypto;
@@ -55,11 +54,7 @@ import org.cougaar.core.security.crypto.SecureMethodParam;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.policy.CryptoPolicy;
-import org.cougaar.core.security.util.DumpOutputStream;
-import org.cougaar.core.security.util.OnTopCipherOutputStream;
-import org.cougaar.core.security.util.OnTopCipherInputStream;
-import org.cougaar.core.security.util.SignatureOutputStream;
-import org.cougaar.core.security.util.SignatureInputStream;
+import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.security.util.ErasingMap;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 
@@ -67,13 +62,6 @@ public class CryptoManagerServiceImpl
   implements EncryptionService
 {
   private static final MessageFormat MF = new MessageFormat("{0} -");
-  public final static String DUMP_PROPERTY =
-    "org.cougaar.core.security.crypto.dumpMessages";
-  /** Set to true to dump messages to a file (for debug purposes) */
-  private static final boolean DUMP_MESSAGES = 
-    Boolean.getBoolean(DUMP_PROPERTY);
-  private static final long RANDOM = (new Random()).nextLong();
-  private static int        _fileno = 10000;
   private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
 
   private KeyRingService keyRing;
@@ -138,42 +126,6 @@ public class CryptoManagerServiceImpl
       throw new NoValidKeyException(message);
     }
     return pkList;
-  }
-
-  private PrivateKey getPrivateKey(final String name, 
-                                   final X509Certificate cert) 
-    throws GeneralSecurityException {
-    PrivateKey pk = (PrivateKey) 
-        AccessController.doPrivileged(new PrivilegedAction() {
-          public Object run(){
-            // relieve messages to naming, for local keys
-            // do not need to go to naming
-            List nameList = keyRing.getX500NameFromNameMapping(name);
-            //List nameList = keyRing.findDNFromNS(name);
-            Iterator iter = nameList.iterator();
-            while (iter.hasNext()) {
-              X500Name dname = (X500Name) iter.next();
-              List pkCerts = keyRing.findPrivateKey(dname);
-              Iterator jter = pkCerts.iterator();
-              while (jter.hasNext()) {
-                PrivateKeyCert pkc = (PrivateKeyCert) jter.next();
-                if (cert.equals(pkc.cert.getCertificate())) {
-                  return pkc.pk;
-                }
-              }
-            }
-            return null;
-          }
-        });
-    if (pk == null) {
-      String message = "Unable to get private key of " + 
-        cert + " -- does not exist.";
-      if (log.isWarnEnabled()) {
-        log.warn(message);
-      }
-      throw new NoValidKeyException(message);
-    }
-    return pk;
   }
 
   public SignedObject sign(String name,
@@ -409,13 +361,29 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private SecretKey decryptSecretKey(String name, String spec, byte[] encKey,
-                                     String keySpec,
-                                     X509Certificate cert)
+  private PrivateKey getPrivateKey(final X509Certificate cert) 
+    throws GeneralSecurityException {
+    PrivateKey pk = (PrivateKey) 
+      AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run(){
+            return keyRing.findPrivateKey(cert);
+          }
+        });
+    if (pk == null) {
+      String message = "Unable to get private key of " + 
+        cert + " -- does not exist.";
+      throw new NoValidKeyException(message);
+    }
+    return pk;
+  }
+
+  public SecretKey decryptSecretKey(String spec, byte[] encKey,
+                                    String keySpec,
+                                    X509Certificate cert)
     throws GeneralSecurityException {
     Cipher ci = null;
     try {
-      PrivateKey key = getPrivateKey(name, cert);
+      PrivateKey key = getPrivateKey(cert);
       ci=getCipher(spec);
       ci.init(Cipher.UNWRAP_MODE, key);
       return (SecretKey) ci.unwrap(encKey, keySpec, Cipher.SECRET_KEY);
@@ -1319,55 +1287,6 @@ public class CryptoManagerServiceImpl
     public X509Certificate receiverCert;
   }
 
-  private static synchronized int getNextNum() { return _fileno++; }
-
-  private static SecretKey createSecretKey(SecureMethodParam policy)
-    throws NoSuchAlgorithmException {
-    int i = policy.symmSpec.indexOf("/");
-    String a =  (i > 0) 
-      ? policy.symmSpec.substring(0,i) 
-      : policy.symmSpec;
-    SecureRandom random = new SecureRandom();
-    KeyGenerator kg = KeyGenerator.getInstance(a);
-    kg.init(random);
-    return kg.generateKey();
-  }
-
-  public ProtectedOutputStream protectOutputStream(OutputStream out,
-                                                   SecureMethodParam policy,
-                                                   MessageAddress source,
-                                                   MessageAddress target,
-                                                   boolean encryptedSocket,
-                                                   Object link) 
-    throws GeneralSecurityException, IOException {
-    return new ProtectedMessageOutputStream(out, policy, source, target,
-                                            encryptedSocket, link);
-  }
-
-  public ProtectedInputStream protectInputStream(InputStream stream,
-                                                 MessageAddress source,
-                                                 MessageAddress target,
-                                                 boolean encryptedSocket,
-                                                 Object link,
-                                                 CryptoPolicyService cps)
-    throws GeneralSecurityException, IOException {
-    return new ProtectedMessageInputStream(stream, source, target,
-                                           encryptedSocket, link, cps);
-  }
-    
-  private static String getDumpFilename() {
-    return "msgDump-" + RANDOM + "-" + getNextNum() + ".dmp";
-  }
-
-  private static SecureMethodParam copyPolicy(SecureMethodParam policy) {
-    SecureMethodParam newPolicy = new SecureMethodParam();
-    newPolicy.secureMethod = policy.secureMethod;
-    newPolicy.symmSpec = policy.symmSpec;
-    newPolicy.asymmSpec = policy.asymmSpec;
-    newPolicy.signSpec = policy.signSpec;
-    return newPolicy;
-  }
-
   private static void removeEncrypt(SecureMethodParam policy) {
     if (policy.secureMethod == policy.ENCRYPT) {
       policy.secureMethod = policy.PLAIN;
@@ -1401,80 +1320,6 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private SecureMethodParam modifyPolicy(SecureMethodParam policy,
-                                         boolean encryptedSocket,
-                                         Object link,
-                                         String source,
-                                         String target) {
-    policy = copyPolicy(policy);
-
-    if (encryptedSocket) {
-      removeEncrypt(policy); // no need for double-encryption
-    }
-
-    if (policy.secureMethod == policy.SIGN && encryptedSocket && 
-        link != null) {
-      Set sentSet = getSentSet(link);
-      synchronized (sentSet) {
-        if (sentSet.contains(source)) {
-          policy.secureMethod = policy.PLAIN;
-        }
-      }
-    }
-    return policy;
-  }
-
-  private Collection modifyPolicies(Collection policies,
-                                    boolean encryptedSocket,
-                                    Object link,
-                                    String source,
-                                    String target) {
-    Collection newPolicies = new LinkedList();
-    Iterator iter = policies.iterator();
-    while (iter.hasNext()) {
-      SecureMethodParam policy = 
-        modifyPolicy((SecureMethodParam)iter.next(),
-                     encryptedSocket, link, source, target);
-      newPolicies.add(policy);
-      if (log.isDebugEnabled()) {
-        log.debug("Policy from " + source + " to " + target + " = " + policy);
-      }
-    }
-    return newPolicies;
-  }
-
-  private boolean ignoreSignature(boolean encryptedSocket,
-                                  Object link,
-                                  String source,
-                                  String target) {
-    if (log.isDebugEnabled()) {
-      log.debug("Checking ignore of signature -- encrypted: " + 
-		encryptedSocket +
-		", link = " + link +
-		", source = " + source +
-		", target = " + target);
-    }
-
-    if (encryptedSocket && link != null) {
-      Set sentSet = getSentSet(link);
-      if (log.isDebugEnabled()) {
-        log.debug("Sent set for " + link + " = " + sentSet);
-      }
-      synchronized (sentSet) {
-        if (sentSet.contains(source)) {
-          if (log.isDebugEnabled()) {
-	  log.debug("found the source when checking " + source + 
-		    " to " + target);
-          }
-          return true;
-        }
-	log.debug("could not find the source when checking " + source + 
-		  " to " + target);
-      }
-    }
-    return false;
-  }
-
   private void setSent(String source, Object link) {
     if (link != null) {
       Set sentSet = getSentSet(link);
@@ -1484,424 +1329,67 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  private class ProtectedMessageOutputStream extends ProtectedOutputStream {
-    private SignatureOutputStream _signature;
-    private boolean               _eom = false;
-    private boolean               _sign;
-    private boolean               _encrypt;
-    private EventPublisher        _eventPublisher;
-    private X509Certificate       _senderCert;
-    private Cipher                _cipher;
-    private String                _symmSpec;
-    private Object                _link;
-    private String                _sender;
-    private OnTopCipherOutputStream _cipherOut;
-
-    public ProtectedMessageOutputStream(OutputStream stream,
-                                        SecureMethodParam policy,
-                                        MessageAddress source,
-                                        MessageAddress target,
-                                        boolean encryptedSocket,
-                                        Object link) 
-      throws GeneralSecurityException, IOException {
-      super(null);
-
-      log.debug("ProtectedMessageOutputStream: (" + link + 
-                "), " + source + " -> " + target + 
-                " " + stream);
-      // FIXME!! need a better way to do that...
-      link = stream;
-      _sender = source.toAddress();
-
-      _link   = link;
-      // secret key encrypted by sender or receiver's certificate
-      byte[] senderSecret   = null;
-      byte[] receiverSecret = null;
-
-      Hashtable certTable = keyRing.
-        findCertPairFromNS(_sender, target.toAddress());
-      _senderCert = (X509Certificate) certTable.get(_sender);
-
-      this.out = (stream instanceof ObjectOutputStream) 
-        ? (ObjectOutputStream) stream 
-        : new ObjectOutputStream(stream);
-
-      X509Certificate receiverCert = (X509Certificate) 
-          certTable.get(target.toAddress());
-      if (_senderCert == null || receiverCert == null) {
-        // send a message to receiver that this message is bad:
-        if (_senderCert == null && log.isDebugEnabled()) {
-          log.debug("Could not find sender certificate for " + _sender);
-        }
-        if (receiverCert == null && log.isDebugEnabled()) {
-          log.debug("Could not find target certificate for " + 
-                    target.toAddress());
-        }
-        ((ObjectOutputStream) this.out).writeObject("Please wait. I don't have certificates, yet");
-        throw new NoKeyAvailableException("No valid key pair found for the " +
-					  "2 message address " + 
-					  _sender + " -> " +
-					  target.toAddress());
-      }
-
-      SecretKey secret = null;
-      if (log.isDebugEnabled()) {
-        log.debug("ProtectedMessageOutputStream: policy = " + policy);
-      }
-      policy = modifyPolicy(policy, encryptedSocket, link, 
-                            _sender, target.toAddress());
-
-      if (log.isDebugEnabled()) {
-        log.debug("ProtectedMessageOutputStream: modified policy = " + policy);
-      }
-      if (policy.secureMethod == policy.ENCRYPT ||
-          policy.secureMethod == policy.SIGNENCRYPT) {
-        _encrypt = true;
-        // first encrypt the secret key with the target's public key
-        secret = createSecretKey(policy);
-        try {
-          senderSecret = encryptSecretKey(policy.asymmSpec,
-                                          secret, _senderCert);
-          receiverSecret = encryptSecretKey(policy.asymmSpec,
-                                            secret, receiverCert);
-        } catch (GeneralSecurityException e) {
-          log.error("Could not encrypt secret key. This message will not " +
-                    "go out properly! -- we'll retry later", e);
-          throw new IOException(e.getMessage());
-        }
-      }
-
-      ProtectedMessageHeader header = 
-        new ProtectedMessageHeader(_senderCert, receiverCert, policy,
-                                   receiverSecret, senderSecret);
-      if (log.isDebugEnabled()) {
-        log.debug("Sending " + header);
-      }
-      ((ObjectOutputStream) this.out).writeObject(header);
-
-      if (_encrypt) {
-        _symmSpec = policy.symmSpec;
-        _cipher = getCipher(policy.symmSpec);
-        _cipher.init(Cipher.ENCRYPT_MODE, secret);
-        _cipherOut = new OnTopCipherOutputStream(this.out, _cipher);
-        this.out = _cipherOut;
-      }
-      if (policy.secureMethod == policy.SIGNENCRYPT ||
-          policy.secureMethod == policy.SIGN) {
-        _sign = true;
-        PrivateKey priv = getPrivateKey(_sender);
-        _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
-                                                priv);
-        this.out = _signature;
-      }
-      if (DUMP_MESSAGES) {
-        String filename = getDumpFilename();
+  public boolean receiveNeedsSignature(String source) {
+    Principal p = KeyRingSSLServerFactory.getPrincipal();
+    if (p != null) {
+      String strP = p.getName();
+      Set sentSet = getSentSet(strP);
+      synchronized (sentSet) {
         if (log.isDebugEnabled()) {
-          log.debug("Dumping message content to file " + filename);
+          log.debug("receiveNeedsSignature(" + source + ") " +
+                    strP + " -> " + (!sentSet.contains(source)));
         }
-        this.out = new DumpOutputStream(this.out, filename);
+        return !sentSet.contains(source);
       }
     }
-
-    public void close() throws IOException {
-      if (!_eom) {
-        throw new IOException("Buffered data cannot be flushed until end of message");
-      }
-      super.close();
+    if (log.isDebugEnabled()) {
+      log.debug("receiveNeedsSignature(" + source + ") not SSL");
     }
-
-    /* **********************************************************************
-     * ProtectedOutputStream implementation
-     */
-
-    public void finishOutput(MessageAttributes attributes)
-      throws java.io.IOException {
-      if (DUMP_MESSAGES) {
-        ((DumpOutputStream) out).stopDumping();
-      }
-      if (_sign) {
-        _signature.writeSignature();
-        setSent(_sender, _link); // verified ok.
-      }
-//       this.flush();
-      _eom = true;
-      if (_encrypt) {
-        _cipherOut.doFinal();
-        this.flush();
-        this.out = null;
-        returnCipher(_symmSpec, _cipher);
-        _cipher = null;
-        this.out = null; // so we can't use the cipher anymore
-      }
-      log.debug("finishOutputStream from " + _sender);
-    }
-
+    return true;
   }
 
-  private class ProtectedMessageInputStream extends ProtectedInputStream {
-    private SignatureInputStream  _signature;
-    private boolean               _eom;
-    private boolean               _sign;
-    private boolean               _encrypt;
-    private EventPublisher        _eventPublisher;
-    private X509Certificate       _senderCert;
-    private Cipher                _cipher;
-    private String                _symmSpec;
-    private Object                _link;
-    private String                _sender;
-    private OnTopCipherInputStream _cypherIn;
-
-    public ProtectedMessageInputStream(InputStream stream, 
-                                       MessageAddress source,
-                                       MessageAddress target,
-                                       boolean encryptedSocket,
-                                       Object link,
-                                       CryptoPolicyService cps) 
-      throws GeneralSecurityException, IOException {
-      super(null);
-      log.debug("ProtectedMessageInputStream: (" + link + 
-                "), " + source + " -> " + target + 
-                " " + stream);
-
-      _link = link;
-
-      // first get the header:
-      ProtectedMessageHeader header = readHeader(stream);
-      String sourceName = header.getSenderName();
-      String targetName = header.getReceiverName();
-      checkAddresses(sourceName, source, targetName, target);
-      keyRing.checkCertificateTrust(header.getSender());
-      keyRing.checkCertificateTrust(header.getReceiver());
-      _sender = sourceName;
-
-      // check the policy
-      boolean ignoreSignature = ignoreSignature(encryptedSocket, link,
-                                                sourceName, targetName);
-      SecureMethodParam headerPolicy = header.getPolicy();
-      boolean goodPolicy = cps.isReceivePolicyValid(sourceName, targetName,
-                                                    headerPolicy,
-                                                    encryptedSocket,
-                                                    ignoreSignature);
-
-      if (!goodPolicy) {
-        String message = "Policy mismatch. Could not find matching policy " +
-          "for received message policy " + headerPolicy + " from " +
-	  sourceName + " to " + targetName;
-        log.debug(message);
-        throw new GeneralSecurityException(message);
-      }
+  public boolean sendNeedsSignature(String source, String target) {
+    Set sentSet = getSentSet(source);
+    synchronized (sentSet) {
+      boolean needsSig = !sentSet.contains(target);
       if (log.isDebugEnabled()) {
-        log.debug("InputStream using policy: " + headerPolicy);
+        log.debug("From " + source + " to " + target + ": need signature? " +
+                  needsSig);
       }
-
-      if (headerPolicy.secureMethod == SecureMethodParam.ENCRYPT ||
-          headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-        decryptStream(header, targetName);
-      }
-
-      if (headerPolicy.secureMethod == SecureMethodParam.SIGNENCRYPT ||
-          headerPolicy.secureMethod == SecureMethodParam.SIGN) {
-        unsignStream(header);
-      }
-      if (log.isDebugEnabled()) {
-        log.debug("InputStream ready. Reading signed = " + 
-                  _sign + ", encrypted = " + _encrypt);
-      }
+      return needsSig;
     }
+  }
 
-    /* **********************************************************************
-     * ProtectedOutputStream implementation
-     */
-
-    public void finishInput(MessageAttributes attributes)
-      throws java.io.IOException {
-      if (_sign) {
-        log.debug("trying to verify signature");
-        try {
-          _signature.verifySignature();
-        } catch (SignatureException e) {
-          log.debug("Could not verify signature", e);
-          throw new IOException(e.getMessage());
-        } catch (Exception e) {
-          log.debug("Other exception verifying signature", e);
-          throw new IOException(e.getMessage());
-        }
-	if (log.isDebugEnabled()) {
-          log.debug("Signature was verified from " + _sender +
-                    " for " + _link);
-	}
-        setSent(_sender, _link); // verified ok.
-      }
-      _eom = true;
-      if (_encrypt) {
-        _cypherIn.doFinal();
-        returnCipher(_symmSpec, _cipher);
-        _cipher = null;
-        this.in = null; // so you can't use the Cipher anymore
-      }
+  public void setSendNeedsSignature(String source, String target) {
+    Set sentSet = getSentSet(source);
+    synchronized (sentSet) {
+      sentSet.remove(target);
     }
+  }
 
-    private ProtectedMessageHeader readHeader(InputStream stream)
-      throws IOException {
+  public void removeSendNeedsSignature(String source, String target) {
+    Set sentSet = getSentSet(source);
+    synchronized (sentSet) {
+      sentSet.add(target);
+    }
+  }
 
-      ObjectInputStream ois = (stream instanceof ObjectInputStream) 
-        ? (ObjectInputStream) stream
-        : new ObjectInputStream(stream);
-      this.in = ois;
-
-      try {
-        Object headerObj = ois.readObject();
-        if (!(headerObj instanceof ProtectedMessageHeader)) {
-          this.in = null;
-          throw new MessageDumpedException(headerObj.toString());
-        }
-
-        ProtectedMessageHeader header = (ProtectedMessageHeader) headerObj;
+  public void setReceiveSignatureValid(String source) {
+    Principal p = KeyRingSSLServerFactory.getPrincipal();
+    if (p != null) {
+      String strP = p.getName();
+      Set sentSet = getSentSet(strP);
+      synchronized (sentSet) {
         if (log.isDebugEnabled()) {
-          log.debug("ProtectedMessageInputStream header = " + header);
+          log.debug("setReceiveSignatureValid(" + source + ") adding to " +
+                    strP);
         }
-        return header;
-      } catch (ClassNotFoundException e) {
-        throw new IOException(e.getMessage());
+        sentSet.add(source);
       }
-    }
-    
-    private void checkAddresses(String sourceName, MessageAddress source,
-                                String targetName, MessageAddress target) 
-      throws GeneralSecurityException {
-      if (!sourceName.equals(source.toAddress()) ||
-          !targetName.equals(target.toAddress())) {
-        String message = "Break-in attempt: got a message supposedly from " +
-          source.toAddress() + " to " + target.toAddress() +
-          ", but certificates said " +
-          sourceName + " to " + targetName;
-        log.warn(message);
-        throw new GeneralSecurityException(message);
-      }
-    }
-
-    private void decryptStream(ProtectedMessageHeader header, 
-                               String targetName) 
-      throws GeneralSecurityException, IOException {
-      _encrypt = true;
-      // first decrypt the secret key with my private key
-      X509Certificate receiverCert = header.getReceiver();
-      byte[] encKey = header.getEncryptedSymmetricKey();
-      SecureMethodParam policy = header.getPolicy();
-      try {
-        SecretKey skey = decryptSecretKey(targetName, policy.asymmSpec,
-                                          encKey, policy.symmSpec,
-                                          receiverCert);
-        if (skey == null) {
-          throw new DecryptSecretKeyException("Can't find secret key for " +
-                                              header.getReceiver());
-        }
-        _symmSpec = policy.symmSpec;
-        _cipher = getCipher(policy.symmSpec);
-        _cipher.init(Cipher.DECRYPT_MODE, skey);
-        _cypherIn = new OnTopCipherInputStream(this.in, _cipher);
-        this.in = _cypherIn;
-      } catch (Exception e) {
-        log.warn("Could not decrypt secret key");
-        log.debug("Here's the exception", e);
-      }
-    }
-
-    private void unsignStream(ProtectedMessageHeader header) 
-      throws CertificateChainException, NoSuchAlgorithmException,
-      CertificateExpiredException, InvalidKeyException, 
-      CertificateNotYetValidException, CertificateRevokedException {
-      _sign = true;
-      X509Certificate senderCert = header.getSender();
-      keyRing.checkCertificateTrust(senderCert);
-      PublicKey pub = senderCert.getPublicKey();
-      SecureMethodParam policy = header.getPolicy();
+    } else {
       if (log.isDebugEnabled()) {
-        log.debug("unsigning the message using " + policy.signSpec +
-                  " and public key " + pub);
-      }
-      _signature = new SignatureInputStream(this.in, policy.signSpec, pub);
-      this.in = _signature;
-    }
-                     
-    public void close() throws IOException {
-      if (!_eom) {
-        log.error("can't close");
-        throw new IOException("Buffered data cannot be flushed until end of message");
-      }
-      this.in.close();
-    }
-
-    /* this was only for debugging... 
-    public int available() throws IOException {
-      try {
-        return this.in.available();
-      } catch (Exception e) {
-        log.debug("available: ", e);
-        return 0;
+        log.debug("setReceiveSignatureValid(" + source + ") not SSL");
       }
     }
-
-    public boolean markSupported() {
-      try {
-        return this.in.markSupported();
-      } catch (Exception e) {
-        log.debug("markSupported: ", e);
-        return false;
-      }
-    }
-
-    public void mark(int readlimit) {
-      try {
-        this.in.mark(readlimit);
-      } catch (Exception e) {
-        log.debug("mark: ", e);
-      }
-    }
-
-    public long skip(long n) throws IOException {
-      try {
-        return this.in.skip(n);
-      } catch (Exception e) {
-        log.debug("skip: ", e);
-        return 0;
-      }
-    }
-
-    public void reset() throws IOException {
-      try {
-        this.in.reset();
-      } catch (Exception e) {
-        log.debug("reset: ", e);
-      }
-    }
-    
-    public int read() {
-      try {
-        return this.in.read();
-      } catch (Exception e) {
-        log.debug("shouldn't be here", e);
-        return -1;
-      }
-    }
-
-    public int read(byte[] b) throws IOException {
-      try {
-        return this.in.read(b);
-      } catch (Exception e) {
-        log.debug("read: ", e);
-        return -1;
-      }
-    }
-
-    public int read(byte[] b, int off, int len) throws IOException {
-      try {
-        return this.in.read(b, off, len);
-      } catch (Exception e) {
-        log.debug("read: ", e);
-        return -1;
-      }
-    }
-    */
   }
 }

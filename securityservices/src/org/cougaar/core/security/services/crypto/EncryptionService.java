@@ -27,6 +27,7 @@ import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import javax.crypto.*;
+import java.security.cert.*;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -45,26 +46,50 @@ import org.cougaar.core.security.policy.enforcers.ULMessageNodeEnforcer;
  */
 public interface EncryptionService extends Service {
 
-  /** Protect an OutputStream by signing and/or encrypting the contents
+  /**
+   * Returns whether or not the send needs a signature when encryption
+   * is available.
    */
-  public ProtectedOutputStream protectOutputStream(OutputStream out,
-                                                   SecureMethodParam policy,
-                                                   MessageAddress source,
-                                                   MessageAddress target,
-                                                   boolean encryptedSocket,
-                                                   Object link)
-    throws GeneralSecurityException, IOException;
+  public boolean sendNeedsSignature(String source, String target);
 
-  /** Read a protected InputStream by checking signature and/or
-   *  encrypting the contents
+  /**
+   * Returns whether or not a received message needs a signature
+   * when the socket is encrypted.
    */
-  public ProtectedInputStream protectInputStream(InputStream stream,
-                                                 MessageAddress source,
-                                                 MessageAddress target,
-                                                 boolean encryptedSocket,
-                                                 Object link,
-                                                 CryptoPolicyService cps)
-    throws GeneralSecurityException, IOException;
+  public boolean receiveNeedsSignature(String source);
+
+  /**
+   * Sets that sending a message from the source needs a signature when
+   * using SSL.
+   */
+  public void setSendNeedsSignature(String source, String target);
+
+  /**
+   * Sets that sending a message from the source does not need a signature
+   * when using SSL.
+   */
+  public void removeSendNeedsSignature(String source, String target);
+
+  /**
+   * Sets that a received message has a valid signature when using
+   * SSL.
+   */
+  public void setReceiveSignatureValid(String source);
+
+  /**
+   * Encrypt a secret key with a certificate's public key
+   */
+  public byte[] encryptSecretKey(String algorithm, SecretKey skey,
+                                 X509Certificate cert) 
+    throws GeneralSecurityException;
+
+  /**
+   * Decrypt a secret key with the secret key for the given certificate
+   */
+  public SecretKey decryptSecretKey(String publicKeyAlg, byte[] sKeyBytes,
+                                    String secretKeyAlg,
+                                    X509Certificate cert)
+    throws GeneralSecurityException;
 
   /** Sign an object.
    *

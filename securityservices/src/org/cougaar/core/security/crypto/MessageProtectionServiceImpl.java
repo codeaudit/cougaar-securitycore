@@ -89,9 +89,6 @@ public class MessageProtectionServiceImpl
   private EventPublisher eventPublisher = null;
   private MessageFormat exceptionFormat = new MessageFormat("{0} -");
 
-  public static final String NEW_CERT = 
-    "org.cougaar.core.security.crypto.newcert";
-
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
     log = (LoggingService)
@@ -163,7 +160,7 @@ public class MessageProtectionServiceImpl
       //       for the FakeRequestMessage constructor).
       AttributedMessage msg = 
         new AttributedMessage(new CertificateRequestMessage(source, destination));
-      msg.setAttribute(NEW_CERT, certificate);
+      msg.setAttribute(MessageProtectionAspectImpl.NEW_CERT, certificate);
       msg.setContentsId(certificate.hashCode());
       return msg;
     } catch (CertificateException e) {
@@ -626,23 +623,10 @@ public class MessageProtectionServiceImpl
     }
 
     try {
-      SecureMethodParam policy = 
-        cps.getSendPolicy(source.getAddress(), destination.getAddress());
-      if (log.isDebugEnabled()) {
-        log.debug("Policy = " + policy);
-      }
-      if (policy == null) {
-        log.error("Policy is null. The message cannot be protected. " +
-                  "Likely cause is DAML policy enforcer.");
-        throw new IOException("Protection policy is null");
-      }
       boolean encryptedSocket = isEncrypted(attrs);
-      Object link = 
-        attrs.getAttribute(MessageProtectionAspectImpl.TARGET_LINK);
       log.debug("returning encrypted service");
-      return encryptService.
-        protectOutputStream(os, policy, source, destination, encryptedSocket,
-                            link);
+      return new ProtectedMessageOutputStream(os, source, destination, 
+                                              encryptedSocket, serviceBroker);
     } catch (DecryptSecretKeyException e) {
       AttributedMessage msg = getCertificateMessage(source, destination);
       if (msg != null) {
@@ -683,6 +667,9 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       throw new IOException(reason);
+    } catch (Exception e) {
+      log.debug("Caught unexpected Exception", e);
+      return null;
     }
   }
 
@@ -741,16 +728,14 @@ public class MessageProtectionServiceImpl
       log.info("Incoming target postmaster message. Protecting with node key");
     }
 
+    boolean encryptedSocket = isEncrypted(attrs);
     try {
-      boolean encryptedSocket = isEncrypted(attrs);
-      String strPrinc = null;
-      Principal principal = KeyRingSSLServerFactory.getPrincipal();
-      if (principal != null) {
-        strPrinc = principal.getName();
-      }
-      return encryptService.
-        protectInputStream(is, source, destination,
-                           encryptedSocket, strPrinc, cps);
+      return new ProtectedMessageInputStream(is, source, destination,
+                                             encryptedSocket, serviceBroker);
+    } catch (IncorrectProtectionException e) {
+      // The stream has already reported the error. Just throw
+      // an IOException
+      throw new IOException(e.getMessage());
     } catch (GeneralSecurityException e) {
       String reason = MessageFailureEvent.UNKNOWN_FAILURE;
     
@@ -777,11 +762,9 @@ public class MessageProtectionServiceImpl
                  source + " to " + destination + ": " + e.getMessage());
       }
       throw e;
-      /*
     } catch (Exception e) {
       log.warn("Unexpected Exception when reading input stream", e);
       return null;
-      */
     }
   }
   

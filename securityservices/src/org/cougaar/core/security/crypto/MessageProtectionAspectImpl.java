@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
 /**
  * This class adds the necessary
@@ -43,9 +44,18 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
   private static SendQueue _sendQ;
   private KeyRingService _keyRing;
   private LoggingService _log;
+  private EncryptionService _crypto;
 
-  public static final String NODE_LINK_PRINCIPAL = "org.cougaar.core.security.nodeLinkPrincipal";
-  public static final String TARGET_LINK = "org.cougaar.core.security.target.link";
+  public static final String NODE_LINK_PRINCIPAL = 
+    "org.cougaar.core.security.nodeLinkPrincipal";
+  public static final String TARGET_LINK = 
+    "org.cougaar.core.security.target.link";
+
+  public static final String SIGNATURE_NEEDED = 
+    "org.cougaar.core.security.crypto.sign";
+  public static final String NEW_CERT = 
+    "org.cougaar.core.security.crypto.newcert";
+
 
   static SendQueue getSendQueue() {
     return _sendQ;
@@ -55,6 +65,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     super.load();
     _keyRing = (KeyRingService)
       getServiceBroker().getService(this, KeyRingService.class, null);
+    _crypto = (EncryptionService)
+      getServiceBroker().getService(this, EncryptionService.class, null);
     _log = (LoggingService)
       getServiceBroker().getService(this, LoggingService.class, null);
   }
@@ -70,8 +82,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
       _sendQ = new CertificateSendQueueDelegate((SendQueue) paramDelegate);
       delegate = _sendQ;
     } else if (type == DestinationLink.class) {
-      delegate =
-        new ProtectionDestinationLink((DestinationLink) paramDelegate);
+//       delegate =
+//         new ProtectionDestinationLink((DestinationLink) paramDelegate);
     }
 
     return delegate;
@@ -94,17 +106,40 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     }
 
     public MessageAttributes deliverMessage(AttributedMessage msg) {
-      Principal p = org.cougaar.core.security.ssl.KeyRingSSLServerFactory.getPrincipal();
-//       System.out.println("delivering message: " + msg + ", " + p);
-      if (p != null) {
-        msg.setAttribute(NODE_LINK_PRINCIPAL, p.getName());
+      Object sign = msg.getAttribute(SIGNATURE_NEEDED);
+      _log.debug("delivering: " + msg);
+      if (sign != null) {
+        String source = msg.getOriginator().toAddress();
+        String target = msg.getTarget().toAddress();
+        if (_log.isInfoEnabled()) {
+          _log.info("Got a message from " + source +
+                    " to switch signing from " + target +
+                    " to " + sign);
+        }
+        boolean signMessage;
+        if (sign instanceof Boolean) {
+          signMessage = ((Boolean) sign).booleanValue();
+        } else {
+          signMessage = Boolean.valueOf(sign.toString()).booleanValue();
+        }
+        if (signMessage) {
+          _crypto.setSendNeedsSignature(target, source);
+        } else {
+          _crypto.removeSendNeedsSignature(target, source);
+        }
+        MessageAttributes meta = new SimpleMessageAttributes();
+        meta.setAttribute(MessageAttributes.DELIVERY_ATTRIBUTE,
+                          MessageAttributes.DELIVERY_STATUS_DELIVERED);
+        return meta;
       }
-      Object cert = msg.getAttribute(MessageProtectionServiceImpl.NEW_CERT);
+
+      Object cert = msg.getAttribute(NEW_CERT);
       if (cert != null) {
         // Just refresh the LDAP, it is easier than modifying the certificate
         // in the cache. Perhaps a performance improvement later?
         if (_log.isInfoEnabled()) {
-          _log.info("Got a certificate change message from " + msg.getOriginator().toAddress());
+          _log.info("Got a certificate change message from " + 
+                    msg.getOriginator().toAddress());
         } // end of if (_log.isInfoEnabled())
         
         List certs = _keyRing.findCert(msg.getOriginator().toAddress(), 

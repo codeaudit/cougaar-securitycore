@@ -57,6 +57,11 @@ public interface KeyRingService extends Service {
   void setKeyManager(KeyManager km);
   void finishInitialization();
 
+  /**
+   * return a private key for the given certificate or null if not found
+   */
+  PrivateKey findPrivateKey(X509Certificate cert);
+
    /**
    * @return A list of PrivateKeyCert
    */
