@@ -190,6 +190,9 @@ org.cougaar.core.security.useAuthenticatedLoader=true
 # This property is used to set the interval (in seconds) at which CRLs are checked
 org.cougaar.core.security.crypto.crlpoll=60
 
+# Intervals at which validity is checked
+org.cougaar.core.security.crypto.validitypoll=600
+
 # Enable/disable use of component execution using multiple subjects.
 # Not used anymore.
 #org.cougaar.core.security.useJaas=true
