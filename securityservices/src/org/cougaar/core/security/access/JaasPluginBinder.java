@@ -100,11 +100,9 @@ public class JaasPluginBinder
   }
   
   private String getPluginName(){
-    /*
-    Component c = getPlugin();
-    return c.getClass().getName();
-    */
-    return getComponentDescription().getClassname();
+    // this method is exposed in cougaar 10.x release
+    //return getComponentDescription().getClassname();
+    return "dummy-plugin";
   }
 
   private void doLoad() {
@@ -123,7 +121,10 @@ public class JaasPluginBinder
       sb.getService(this, SecurityContextService.class, null);
     AuthorizationService as = (AuthorizationService)
 	    sb.getService(this, AuthorizationService.class, null);
-    _ec = as.createExecutionContext(getClusterIdentifier(), getComponentDescription());
+    // the getComponentDescription is exposed in cougaar 10.x
+    //_ec = as.createExecutionContext(getClusterIdentifier(), getComponentDescription());
+    // component description is null for now
+    _ec = as.createExecutionContext(getClusterIdentifier(), null);
     _scs.setExecutionContext(_ec);
     JaasClient jc = new JaasClient(_ec);
     jc.doAs(getPluginName(),
