@@ -51,14 +51,18 @@
     <path id="core.class.path">    
         <!-- Cougaar 3rd party support packages -->
         <pathelement location="${cougaar.install.path}/sys/antlr.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
-        <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
         <pathelement location="${cougaar.install.path}/sys/concurrent.jar"/>
         <pathelement location="${cougaar.install.path}/sys/ibmpkcs.jar"/>
         <pathelement location="${cougaar.install.path}/sys/idmef.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/icu4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/iw.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/jdom.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jpython.jar"/>
         <pathelement location="${cougaar.install.path}/sys/jtp.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/log4j.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/mail.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/servlet.jar"/>
+        <pathelement location="${cougaar.install.path}/sys/silk.jar"/>
         <pathelement location="${cougaar.install.path}/sys/xerces.jar"/>
         <!-- don't point to the signed version of jasper-runtime.jar or the jspc task will puke! -->
         <pathelement location="${securityservices.base}/build/jasper/lib/jasper-runtime.jar"/>
@@ -148,7 +152,17 @@
         <echo message="+++++ Built JavaIDMEF"/>
     </target>
 
-    <target name="build-policyparser" depends="init">
+
+    <target name="check-policyParserUptodate">
+      <uptodate property="policyParserUptodate"
+                srcfile="${securityservices.src}/org/cougaar/core/security/policy/builder/policyGrammar.g"
+                targetfile="${securityservices.src}/org/cougaar/core/security/policy/builder/PolicyParser.java" 
+                />
+    </target>
+
+
+    <target name="build-policyparser" depends="init, check-policyParserUptodate"
+            unless="policyParserUptodate" >
       <java classname="antlr.Tool"
             fork="true"
             dir="${securityservices.src}/org/cougaar/core/security/policy/builder"
@@ -202,8 +216,32 @@
         <echo message="+++++ Built jar files"/>
     </target>
  
+    <target name="check-policiesUptodate">
+      <uptodate property="policiesUptodate"
+                targetfile="${securityservices.configs}/common/DamlBootPolicyAllowCommunication.info" >
+        <srcfiles dir="${securityservices.configs}/common"
+                  includes="DamlBootPolicyList" />
+        <srcfiles dir="${securityservices.lib}"
+                  includes="kaos.jar" />
+      </uptodate>
+    </target>
 
-    <target name="jar-configs">
+    <target name="build-bootpolicies" 
+            depends="jar-securityservices, check-policiesUptodate"
+            unless="policiesUptodate">
+      <echo message="++++++ Building boot policies"/>
+      <java classname="org.cougaar.core.security.policy.builder.Main" 
+            fork="true"
+            dir="${securityservices.configs}/common">
+        <classpath refid="core.class.path" />
+        <!-- this is done before signing so I need an explicit path -->
+        <classpath 
+           path="${securityservices.base}/classes/securityservices.jar" />
+        <arg line="buildSilent DamlBootPolicyList" />
+      </java>
+    </target>
+
+    <target name="jar-configs" depends="build-bootpolicies">
         <echo message="+++++ Building configuration jar files"/>
         <jar jarfile="${securityservices.classes}/securityservices_config.jar" 
             basedir="${securityservices.configs}"
