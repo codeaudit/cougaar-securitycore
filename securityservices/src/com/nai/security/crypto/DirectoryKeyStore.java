@@ -573,7 +573,7 @@ public class DirectoryKeyStore
   }
 
   public void installCertificate(String alias,
-				 X509Certificate[] certificateChain) 
+				 X509Certificate[] certificateChain)
     throws CertificateException, KeyStoreException,
     NoSuchAlgorithmException, UnrecoverableKeyException
   {
@@ -693,7 +693,7 @@ public class DirectoryKeyStore
     if (CryptoDebug.debug) {
       System.out.println("Removing entry from keystore:" + commonName);
     }
-    
+
     String alias = findAlias(commonName);
     deleteEntry(alias);
 
@@ -1057,7 +1057,8 @@ public class DirectoryKeyStore
     if(principal.equals(principal1)) {
       // Self-signed certificate
       vector.addElement(x509certificate);
-      CertificateStatus cs = (CertificateStatus) list1.get(0);
+      CertificateStatus cs = (CertificateStatus)list1.get(0);
+      //  ((list1 == null) ? null : list1.get(0));
 
       if (cs != null && cs.getCertificateType() == CertificateType.CERT_TYPE_CA) {
 	// This is a trusted certificate authority.
@@ -1594,7 +1595,7 @@ public class DirectoryKeyStore
     }
   }
 
-  private String findAlias(String commonName) {
+  public String findAlias(String commonName) {
     Key[] keys = getCertificates();
     String alias = null;
     for (int i = 0 ; i < keys.length ; i++) {
@@ -1693,7 +1694,7 @@ public class DirectoryKeyStore
     if (CryptoDebug.debug) {
       System.out.println("Make key pair:" + alias + ", cn=" + commonName
 			 + ", ou=" + nodePolicy.ou
-			 + ",o=" + nodePolicy.o 
+			 + ",o=" + nodePolicy.o
 			 + ",l=" + nodePolicy.l
 			 + ",st=" + nodePolicy.st
 			 + ",c=" + nodePolicy.c);
@@ -1958,7 +1959,7 @@ public class DirectoryKeyStore
 	if (CryptoDebug.debug) {
 	  System.out.println("Reply: " + reply);
 	}
- 
+
       } catch(Exception e) {
 	System.err.println("Error: sending PKCS request to CA failed--"
 			   + e.getMessage());
@@ -1995,7 +1996,7 @@ public class DirectoryKeyStore
       System.err.println("Error: can't get the certificate signed--"
 			 + e.getMessage());
       e.printStackTrace();
-    }    
+    }
     return baos.toString();
   }
 
