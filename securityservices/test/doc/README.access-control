@@ -1,0 +1,109 @@
+This file documents the access control policy implemented in the NAI Labs 
+security services packages.
+
+Policy Overview
+===============
+
+Access control policy rules have two main function: to perform actions (i.e. 
+quarantine or accept messages) and to assign degrees of trust to messages and
+their contents. Access control policy is specified using standard COUGAAR
+policy rulesets. In functional languages, the actions to be performed resemble 
+rules while the trust level assignment rules would be considered facts.
+
+Implementation
+==============
+An AccessControlPoilcy instance contains a set of policies which can be 
+retrieved by name. The current implementation supports the following case
+sensitive named types:	
+
+	IncomingMessageCriticality	OutgoingMessageCriticality
+	IncomingMessageIntegrity	OutgoingMessageIntegrity
+	IncomingVerb			OutgoingVerb
+	IncomingMessageAction		OutgoingMessageAction
+	IncomingAgentAction		OutgoingAgentAction
+	
+
+
+Assignment Rules
+================
+Assigment rules for a single agent or node should be placed in a single XML. If
+the following XML rule were placed in a file called "TRANSCOM-ThreatCon2-
+Policy.ldm.xml", then this rule should applied by the security aspect only
+when the ThreatCon level is 2.
+
+    <!--Incoming message trust attribut assignment of criticality-->
+    <RuleParam name="IncomingMessageCriticality">
+      <!--The default value is 3-->
+      <KeySet value="3">
+	<KeyValue key="3-69-ARBN" value="2">
+	<KeyValue key="Alpha-Airlines" value="4">
+      </KeySet>
+    </RuleParam>
+
+This rule says that incoming messages (and their contents) originating at 
+3-69-ARBN should have a criticality level set to 2 while message from Alpha-
+Airlines should have a criticality of 4. The enforcement will use the default
+value of 3 if the message originator has no specific rules which match it.
+
+Action Rules
+============
+Action rules can have Incoming or Outgoing pre-fixed rules for the following 
+categories: MessageAction, AgentAction, and Verb. The verb rules apply 
+specifically to DirectiveMessages which contain an array of Tasks. Each task 
+is must explicitly match in order for any action rules to apply. For example,
+all task which match the verb Transport are processed by the action rules. 
+Here is an XML ruleset example:
+
+  <RuleParam name="IncomingVerb">
+    <KeySet value="Transport">
+      <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/>
+    </KeySet>
+  </RuleParam>
+
+This rule states that only Transport tasks will be monitored by default, but
+Transport and AssetTransfer tasks which originated at 3-69-ARBN will be applied
+to the action rule enforcement.
+
+MessageAction rules apply to trust attribute level while AgentAction rules to
+a message source and destination. In the case of the DirectiveMesaage each 
+individual directive is processed by the action rules. If a directive is to
+be set aside, it is removed from the DirectiveMessage. 
+
+MessageAction Example
+=====================
+
+Here is an example of a general message action for incoming messages:
+
+  <RuleParam name="IncomingMessageAction">
+    <KeySet value="">
+      <KeyValue key="Criticality0" value="SetAside" />
+      <KeyValue key="Criticality1" value="SetAside" />
+      <KeyValue key="Criticality2" value="AcceptMessage" />
+      <KeyValue key="Criticality3" value="AcceptMessage" />
+      <KeyValue key="Criticality4" value="AcceptMessage" />
+      <KeyValue key="Criticality5" value="AcceptMessage" />
+    </KeySet>
+  </RuleParam>
+
+Each KeyValue tag has a key-value pair. Currently supported values are SetAside
+and AcceptMessage. The key "Criticality4" is used to match a MissionCriticality
+attribute with a value of 4. This entire rule says to set aside messages with a
+criticality level 0-1 and to accept message with criticality levels between the
+range of 2-5. 
+
+
+AgentAction Example
+===================
+
+Here is an example of an AgentAgent rule:
+
+  <RuleParam name="OutgoingAgentAction">
+    <KeySet value="AcceptMessage">
+      <KeyValue key="3-69-ARBN" value="SetAside" />
+      <KeyValue key="2-7-INFBN" value="SetAside" />
+    </KeySet>
+  </RuleParam>
+
+This rule states that outgoing messages destined for 3-69-ARBN or 2-7-INFBN 
+should be set aside. All other messages should be allowed to be sent via the 
+MessageTransportService.
