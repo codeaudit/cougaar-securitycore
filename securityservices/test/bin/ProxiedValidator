@@ -1,0 +1,25 @@
+#!/bin/sh
+
+VALIDATOR_LIB=
+
+CP=${VALIDATOR_LIB}/daml-validator-20020416.jar
+CP=${VALIDATOR_LIB}/rdf-api-2001-01-19-mod.jar:${CP}
+CP=${VALIDATOR_LIB}/xerces.jar:${CP}
+CP=${VALIDATOR_LIB}/xml-datatype-validator-20011001.jar:${CP}
+CP=${VALIDATOR_LIB}/xmlparserv2.jar:${CP}
+CP=${VALIDATOR_LIB}/xschema.jar:${CP}
+
+
+#
+# The following are needed by any WebProxyInstaller script
+#
+CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:$CP
+CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
+
+DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
+
+java $DEFS -classpath $CP \
+   org.cougaar.core.security.policy.webproxy.WebProxyInstaller \
+   org.daml.validator.Validator  $*
