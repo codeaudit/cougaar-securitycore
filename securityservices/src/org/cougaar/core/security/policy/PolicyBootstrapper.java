@@ -27,10 +27,12 @@ import java.util.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.URL;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -96,16 +98,18 @@ public class PolicyBootstrapper
     _damlBootMap = new HashMap();
 
     ConfigFinder cf = ConfigFinder.getInstance();
-    File damlPoliciesFile = cf.locateFile(_damlBootPolicies);
-    File policyFile = null;
+    InputStream damlPoliciesFile = null;
+    InputStream policyStream = null;
+    URL policyFileURL = null;
 
     try {
       String line;
 
       log.debug(".PolicyBootStrapper: Reading daml policies file "
-                + damlPoliciesFile);
+                + cf.find(_damlBootPolicies));
+      damlPoliciesFile = cf.open(_damlBootPolicies);
       BufferedReader damlReader 
-        = new BufferedReader(new FileReader(damlPoliciesFile));
+        = new BufferedReader(new InputStreamReader(damlPoliciesFile));
       while ((line = damlReader.readLine()) != null) {
         if (line.startsWith("#")) { continue; }
 
@@ -113,24 +117,25 @@ public class PolicyBootstrapper
         if ((spacePt = line.indexOf(' ')) == -1) { continue; }
         String type = line.substring(0,spacePt);
         String fileName = line.substring(spacePt+1);
-        policyFile = cf.locateFile(fileName);
+        policyStream = cf.open(fileName);
+	policyFileURL = cf.find(fileName);
         log.debug(".PolicyBootStrapper: for policy type " + type +
-                  " I am looking in the policy file " + policyFile);
+                  " I am looking in the policy file " + 
+		  policyFileURL);
 
-	if (policyFile == null) {
+	if (policyStream == null) {
           if (log.isErrorEnabled()) {
             log.error("Policy not found: " + fileName);
           }
           continue;
         }
 
-        FileInputStream policyStream = new FileInputStream(policyFile);
         ObjectInputStream policyObjectStream 
           = new ObjectInputStream(policyStream);
         PolicyMsg policy = (PolicyMsg) policyObjectStream.readObject();
         policyObjectStream.close();
         log.debug(".PolicyBootStrapper: retrieved " + policy + 
-                  "from the file " + policyFile);
+                  "from the file " + policyFileURL);
 
 
         Object lookup = _damlBootMap.get(type);
@@ -144,7 +149,7 @@ public class PolicyBootstrapper
     } catch (IOException e) {
       log.warn("Exception reading daml policies file" + e);
     } catch (ClassNotFoundException e) {
-      log.error("Policy file " + policyFile + 
+      log.error("Policy file " + policyFileURL + 
                 " does not contain PolicyMsg object!", e);
     } catch (RuntimeException e) {
       log.warn("Exception reading daml policies file" + e);
