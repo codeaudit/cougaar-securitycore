@@ -105,7 +105,6 @@ public class MnRResponseViewerComponent
      this.cs=cs;
    }
   public void setNamingService(NamingService ns) {
-     System.out.println(" set  Naming services call for Servlet component :");
      this.ns=ns;
   }
   public void setLoggingService(LoggingService ls) {
