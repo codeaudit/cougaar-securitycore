@@ -85,6 +85,12 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
   public void setBlackboardService(BlackboardService blackboard) {
     this.blackboard = blackboard;
   }
+  public void setAgentIdentificationService(AgentIdentificationService ais) {
+    this.ais=ais;
+    if(ais!=null) {
+       agentId = ais.getMessageAddress();
+    }
+  }
 
   public void setDomainService(DomainService ds) {
     this.ds = ds;
@@ -98,6 +104,13 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
   }
   
   protected Servlet createServlet() {
+    if(agentId==null) {
+      ais = (AgentIdentificationService)
+        serviceBroker.getService(this, AgentIdentificationService.class, null);
+      if(ais!=null) {
+        agentId = ais.getMessageAddress();
+      }
+    }
     return new CRLRegistrationViewerServlet();
   }
 
@@ -106,6 +119,15 @@ public class CRLRegistrationInfo extends BaseServletComponent implements Blackbo
     // FIXME release the rest!
   }
   
+  public void init(ServletConfig config)
+    throws ServletException {
+    ais = (AgentIdentificationService)
+      serviceBroker.getService(this, AgentIdentificationService.class, null);
+    if(ais!=null) {
+      agentId = ais.getMessageAddress();
+    }
+  }
+
   public String getBlackboardClientName() {
     return toString();
   }
