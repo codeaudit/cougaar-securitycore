@@ -39,7 +39,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class BaseClassLoader
-  extends XURLClassLoader
+extends XURLClassLoader
 {
   private static final Logger _logger = Logger.getInstance();
   private static final String PROP_EXCLUSIONS =
@@ -113,11 +113,14 @@ public class BaseClassLoader
 	}
 	catch (ClassNotFoundException e) {
 	  _logger.warn("Class not found  Exception:" + e);
+          throw e;
+       
 	  // If still not found, then call findClass in order
 	  // to find the class.
 	}
       }
     }
+    
     if (c == null) {
       ClassLoader parent = getParent();
       if (parent == null) parent = getSystemClassLoader();
@@ -130,7 +133,8 @@ public class BaseClassLoader
 	// set in the Java policy file).
 	// Therefore, we need to execute the following piece of code
 	// in a doPrivileged() call.
-	final Class c1 = c;
+        
+        final Class c1 = c;
 	AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run() {
 	      ProtectionDomain p = c1.getProtectionDomain();
@@ -159,16 +163,16 @@ public class BaseClassLoader
 
   protected boolean checkPackageAccess(String classpath)
     throws SecurityException
-  {
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      String pkg = getPackageName(classpath);
-      if (pkg != null) {
-	sm.checkPackageAccess(pkg);
+    {
+      SecurityManager sm = System.getSecurityManager();
+      if (sm != null) {
+        String pkg = getPackageName(classpath);
+        if (pkg != null) {
+          sm.checkPackageAccess(pkg);
+        }
       }
+      return true;
     }
-    return true;
-  }
 
   /** helper method to extract package name */
   protected String getPackageName(String name) {
