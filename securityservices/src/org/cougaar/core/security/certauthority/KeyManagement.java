@@ -268,52 +268,41 @@ public class KeyManagement
 
   private synchronized void publishCAinLdap()
   {
-    log.debug("calling publish CA in ldap :");
     Certificate c=null;
     List certList = null;
      Enumeration enum=keyRing.getAliasList();
      if(enum!=null) {
        for(;enum.hasMoreElements();) {
 	 String a = (String)enum.nextElement();
-	 String cn=null;
-	 try {
-	   cn = keyRing.getCommonName(a);
-	   log.debug("got common name from alias : " + a
-		     + " cn = " + cn);
-	   certList = keyRing.findCert(cn, KeyRingService.LOOKUP_LDAP);
+         String cn = keyRing.getCommonName(a);
+         certList = keyRing.findCert(cn);
+         // is there any valid certificate here?
+         if (certList == null || certList.size() == 0)
+           continue;
 
-	   if (certList != null && certList.size() > 0) {
-	     c = ((CertificateStatus)certList.get(0)).getCertificate();
-	   }
-	   if(c==null) {
-	     log.debug("Found no certificate in LDAP for --> "
-		       + cn);
-	   }
-	   else {
-	     log.debug("found CA cert in ldap for :"
-		       + cn
-		       + " going to try next from ca keyStore");
-	     continue;
-	   }
-	 }
-	 catch (Exception exp) {
-	   log.warn("Found no certificate in LDAP for: " + cn
-		     + " - " + exp);
+         // is it a CA certificate? (not node, server, agent ...)
+         c=((CertificateStatus)certList.get(0)).getCertificate();
+         if (((CertificateStatus)certList.get(0)).getCertificateType()
+           != CertificateType.CERT_TYPE_CA)
+           continue;
 
-	   //exp.printStackTrace();
+         log.debug("got common name from alias : " + a
+                   + " cn = " + cn);
 
-	 }
-	 log.debug("trying to get with cn name :: "+ cn);
-	 try {
-	   certList = keyRing.findCert(cn);
-	   c=((CertificateStatus)certList.get(0)).getCertificate();
-	   log.debug("got certificate with cn ---> =" +cn);
-	 }
-	 catch (Exception exp2) {
-	   log.debug("got second exp while trying to find certificate for alias  : "+a + "in keystore");
-
-	 }
-	 log.debug("going to call for publishing ca with ca  : "+cn);
+         List ldapList = keyRing.findCert(cn, KeyRingService.LOOKUP_LDAP);
+         Certificate ldapcert = null;
+         if (ldapList != null && ldapList.size() > 0)
+           ldapcert = ((CertificateStatus)certList.get(0)).getCertificate();
+         if(ldapcert==null) {
+           log.debug("Found no certificate in LDAP for --> "
+                     + cn);
+         }
+         else {
+           log.debug("found CA cert in ldap for :"
+                     + cn
+                     + " going to try next from ca keyStore");
+           continue;
+         }
 
 	 List pkc = keyRing.findPrivateKey(cn);
 	 PrivateKey pk = ((PrivateKeyCert)pkc.get(0)).getPrivateKey();
@@ -1051,17 +1040,24 @@ public class KeyManagement
           //log.debug("=====> ObjectIdentifier: " + s);
 
       KeyUsageExtension keyusage = new KeyUsageExtension();
-      keyusage.set("digital_signature", new Boolean(true));
-      keyusage.set("key_encipherment", new Boolean(true));
-      keyusage.set("data_encipherment", new Boolean(true));
+      boolean isSigner = false;
+      if (title.equals(DirectoryKeyStore.CERT_TITLE_CA))
+        isSigner = true;
+      else {
+        keyusage.set("digital_signature", new Boolean(true));
+        keyusage.set("key_encipherment", new Boolean(true));
+        keyusage.set("data_encipherment", new Boolean(true));
 
-      // Set keyusage
-      if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
-        // need signing capability?
-        // only for node with key signing ability defined in CA crypto policy
-        if (caPolicy.nodeIsSigner)
-          keyusage.set("key_certsign", new Boolean(true));
+        // Set keyusage
+        if (title.equals(DirectoryKeyStore.CERT_TITLE_NODE)) {
+          // need signing capability?
+          // only for node with key signing ability defined in CA crypto policy
+          if (caPolicy.nodeIsSigner)
+            isSigner = true;
+        }
       }
+      if (isSigner)
+          keyusage.set("key_certsign", new Boolean(true));
       if(s != null) {
         clientCertificate.set(s, keyusage);
       }
