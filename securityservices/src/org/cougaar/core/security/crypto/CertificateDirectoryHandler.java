@@ -7,6 +7,7 @@ import java.util.Date;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.Service;
 
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.*;
 
 public class CertificateDirectoryHandler implements CertDirectoryServiceClient {
