@@ -6,10 +6,10 @@ rearCaHost = nil
 conusCaHost = nil
 transCaHost = nil
 society.each_node do |node|
-  if node.name == 'FWD-CA-NODE'
-    fwdCaHost = node.host.name 
-  elsif node.name == 'REAR-CA-NODE'
+  if node.name == 'REAR-CA-NODE'
     rearCaHost = node.host.name 
+  elsif node.name == 'FWD-CA-NODE'
+    fwdCaHost = node.host.name 
   elsif node.name == 'CONUS-CA-NODE'
     conusCaHost = node.host.name 
   elsif node.name == 'TRANS-CA-NODE'
