@@ -34,6 +34,8 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.MessageProtectionService;
 import org.cougaar.core.service.ThreadService;
 import org.cougaar.multicast.AttributeBasedAddress;
@@ -140,7 +142,8 @@ public class UserManagerPlugin extends ComponentPlugin {
     public Object value;
   }
 
-  private void setDomain(CommunityService cs, AgentIdentificationService ais) {
+  private void setDomain(final CommunityService cs, 
+                         AgentIdentificationService ais) {
     _log.debug("searching for domain for this manager");
     //String myAddress = ais.getName();
 
@@ -178,6 +181,31 @@ public class UserManagerPlugin extends ComponentPlugin {
       if (_log.isDebugEnabled()) {
         _log.debug("Domain for this user manager is " + _domain);
       }
+    } else {
+      CommunityChangeListener listener = new CommunityChangeListener() {
+          public void communityChanged(CommunityChangeEvent event) {
+            Community community = event.getCommunity();
+            try {
+              Attributes attrs = community.getAttributes();
+              Attribute attr = attrs.get("CommunityType");
+              if (attr != null) {
+                for (int i = 0; i < attr.size(); i++) {
+                  Object type = attr.get(i);
+                  if (type.equals(AgentUserService.COMMUNITY_TYPE)) {
+                    _domain = community.getName();
+                    cs.removeListener(this);
+                  }
+                }
+              }
+            } catch (NamingException e) {
+              throw new RuntimeException("This should never happen");
+            }
+          }
+          public String getCommunityName() {
+            return null; // all MY communities
+          }
+        };
+      cs.addListener(listener);
     }
   }
 

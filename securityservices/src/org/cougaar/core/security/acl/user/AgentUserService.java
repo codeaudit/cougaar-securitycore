@@ -153,49 +153,73 @@ public class AgentUserService implements UserService, BlackboardClient {
     Collection communities = 
       _communityService.searchCommunity(null, filter, true,
                                         Community.COMMUNITIES_ONLY, crl);
-    if (communities != null) {
+    if (communities != null && !communities.isEmpty()) {
       setupRole(communities);
+    } else {
+      startRoleListener();
     }
+  }
+
+  private void startRoleListener() {
+    CommunityChangeListener listener = new CommunityChangeListener() {
+        public void communityChanged(CommunityChangeEvent event) {
+          Community community = event.getCommunity();
+          try {
+            Attributes attrs = community.getAttributes();
+            Attribute attr = attrs.get("CommunityType");
+            if (attr != null) {
+              for (int i = 0; i < attr.size(); i++) {
+                Object type = attr.get(i);
+                if (type.equals(COMMUNITY_TYPE)) {
+                  if (setupRole(community)) {
+                    _communityService.removeListener(this);
+                  }
+                }
+              }
+            }
+          } catch (NamingException e) {
+            throw new RuntimeException("This should never happen");
+          }
+        }
+        
+        public String getCommunityName() {
+          return null; // all MY communities
+        }
+      };
+    _communityService.addListener(listener);
+  }
+
+  private boolean setupRole(Community community) {
+    String communityName = community.getName();
+    String filter = "(Role=" + MANAGER_ROLE + ")";
+    Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
+    Iterator it = mgrAgents.iterator();
+    while (it.hasNext()) {
+      Entity entity = (Entity) it.next();
+      if (entity.getName().equals(_source.toString())) {
+        MessageAddress defaultTarget = _source;
+        if (_log.isDebugEnabled()) {
+          _log.debug("default target = " + defaultTarget);
+        }
+        synchronized (_targets) {
+          _targets.put(communityName, defaultTarget);
+        }
+      }
+      _defaultDomain = communityName;
+      return true;
+    }
+    return false;
   }
 
   private void setupRole(Collection communities) {
     Iterator iter = communities.iterator();
     while (iter.hasNext()) {
       Community community = (Community)iter.next();
-      String communityName = community.getName();
-      /*
-      Attributes attrs = c.getAttributes();
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-	try {
-	for (int i = 0; i < attr.size(); i++) {
-	if (COMMUNITY_TYPE.equals(attr.get(i).toString())) {
-
-      // do I have the role in this community?
-      Collection myRoles = 
-	_communityService.getEntityRoles(community,
-					 _source.getAddress());
-      if (myRoles.contains(MANAGER_ROLE)) {
-      */
-      String filter = "(Role=" + MANAGER_ROLE + ")";
-      Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
-      Iterator it = mgrAgents.iterator();
-      while (it.hasNext()) {
-	Entity entity = (Entity) it.next();
-	if (entity.getName().equals(_source.toString())) {
-	  MessageAddress defaultTarget = _source;
-	  if (_log.isDebugEnabled()) {
-	    _log.debug("default target = " + defaultTarget);
-	  }
-	  synchronized (_targets) {
-	    _targets.put(communityName, defaultTarget);
-	  }
-	}
-	_defaultDomain = communityName;
-	return;
+      if (setupRole(community)) {
+        return;
       }
     }
+    startRoleListener(); // didn't find what we needed ...
   }
 
   public long currentTimeMillis() {

@@ -69,6 +69,8 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.Entity;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceAvailableEvent;
@@ -161,7 +163,7 @@ public class LdapUserServiceImpl implements UserService {
     public Object value;
   }
 
-  private void setDefaultDomain(CommunityService cs, String agent) {
+  private void setDefaultDomain(final CommunityService cs, String agent) {
 
     final Status status = new Status();
     final Semaphore s = new Semaphore(0);
@@ -194,6 +196,31 @@ public class LdapUserServiceImpl implements UserService {
     if (!communities.isEmpty()) {
       Community c = (Community) communities.iterator().next();
       _defaultDomain = c.getName();
+    } else {
+      CommunityChangeListener listener = new CommunityChangeListener() {
+          public void communityChanged(CommunityChangeEvent event) {
+            Community community = event.getCommunity();
+            try {
+              Attributes attrs = community.getAttributes();
+              Attribute attr = attrs.get("CommunityType");
+              if (attr != null) {
+                for (int i = 0; i < attr.size(); i++) {
+                  Object type = attr.get(i);
+                  if (type.equals(AgentUserService.COMMUNITY_TYPE)) {
+                    _defaultDomain = community.getName();
+                    cs.removeListener(this);
+                  }
+                }
+              }
+            } catch (NamingException e) {
+              throw new RuntimeException("This should never happen");
+            }
+          }
+          public String getCommunityName() {
+            return null; // all MY communities
+          }
+        };
+      cs.addListener(listener);
     }
   }
 
