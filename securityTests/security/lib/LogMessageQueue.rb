@@ -15,20 +15,17 @@ module Cougaar
         @parturl="/message/queues?frame=dataFrame&agent=*"
         logInfoMsg "initialize LogMessageQueue done"
         Cougaar::Actions::Stressors.addStressIds(['LogMessageQueue'])
-        puts "initialize LogMessageQueue done"
+        #puts "initialize LogMessageQueue done"
       end
    
 
       def perform
-        #puts "setup called of LogMessageQueue"
-        #@file =File.new(@filename, File::RDWR | File::APPEND | File::CREAT)
         @run.society.each_node do |node|
           filename = "#{@dirname}/#{node.name}.log"
           file = File.new("#{filename}", File::RDWR | File::APPEND | File::CREAT) 
-          logInfoMsg "Created file : #{file}"
+          #logInfoMsg "Created file : #{file}"
           @nodefilename["#{node.name}"] = file
-          logInfoMsg "node #{node.name}"
-          puts "node #{node.name}"
+          #logInfoMsg "node #{node.name}"
           startMonitoring node
         end
       end
@@ -36,15 +33,13 @@ module Cougaar
       def startMonitoring node
         begin 
           Thread.fork {
-            logInfoMsg " Thread started for node -->#{node.name}"
+            #logInfoMsg " Thread started for node -->#{node.name}"
             loop = true
             myfile = @nodefilename["#{node.name}"]
             myfile << "<HTML><HEAD> <TITLE> Message Queue Logs for #{node.name} </TITLE> </HEAD><BODY>"
             #logInfoMsg "gotfile #{myfile}"
             url="#{node.uri}/$#{node.name}#{@parturl}"
             while true
-              #logInfoMsg "Inside while loop" 
-              #logInfoMsg "connecting to #{url}"
               result = Cougaar::Communications::HTTP.get(url)
               #logInfoMsg "Result before procesing : #{result}"
               processedresult = stripHtmltags (result.to_s)
