@@ -33,6 +33,7 @@ import java.security.*;
 import java.security.cert.*;
 
 import org.cougaar.core.security.ssl.ui.*;
+import org.cougaar.core.security.crypto.*;
 
 public class KeyRingUserAuthImpl extends AuthenticationHandler {
   protected KeyStore keystore = null;
@@ -46,6 +47,26 @@ public class KeyRingUserAuthImpl extends AuthenticationHandler {
   protected PasswordAuthentication getUserAliasPwd(String username) {
     UserAliasPwdDialog dialog = new UserAliasPwdDialog();
     dialog.setAlias(username);
+
+    ArrayList aliasList = new ArrayList();
+    try {
+      Enumeration aliases = keystore.aliases();
+      while (aliases.hasMoreElements()) {
+        try {
+          String alias = (String)aliases.nextElement();
+          java.security.cert.Certificate[] certChain = keystore.getCertificateChain(alias);
+          if (certChain.length <= 1)
+            continue;
+          String dname = ((X509Certificate)certChain[0]).getSubjectDN().getName();
+          String title = CertificateUtility.findAttribute(dname, "t");
+          if (!title.equals(DirectoryKeyStore.CERT_TITLE_USER))
+            continue;
+          aliasList.add(alias + " (" + dname + ")");
+        }
+        catch (KeyStoreException ksx) {}
+      }
+    } catch (KeyStoreException kex) {}
+    dialog.setAliasList(aliasList);
 
     boolean ok = dialog.showDialog();
 
