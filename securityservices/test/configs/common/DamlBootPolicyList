@@ -254,8 +254,7 @@ Policy UnrestServlet = [
 
 Policy RequireAudit = [
    AuditTemplate
-   Require audit for all accesses to servlet CAReadServlet,
-   CertReqServlet
+   Require audit for all accesses to all servlets
 ]
 
 Policy PolicyServletRear  = [ 
