@@ -77,7 +77,6 @@ public class CaServletComponent
     SecurityPolicy[] sp =
       configParser.getSecurityPolicies(CryptoClientPolicy.class);
     CryptoClientPolicy cryptoClientPolicy = (CryptoClientPolicy) sp[0];
-    cryptoClientPolicy.setIsCertificateAuthority(true);
   }
 
   /**
