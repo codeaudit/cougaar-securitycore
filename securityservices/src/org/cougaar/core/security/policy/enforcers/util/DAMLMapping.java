@@ -62,7 +62,10 @@ public class DAMLMapping {
       AgentUri agUriPattern = new AgentUri(pattern);
       if (agUri.match(agUriPattern)) {
         _log.debug("Found Match");
-        String ret = (String) (_uriMap.get((Object) pattern));
+        String ret = 
+          org.cougaar.core.security.policy.enforcers.ontology
+          .EntityInstancesConcepts.EntityInstancesDamlURL
+          + (String) (_uriMap.get((Object) pattern));
         _log.debug("Returning " + ret);
         return ret;
       }
@@ -91,6 +94,7 @@ public class DAMLMapping {
     BufferedReader damlReader 
       = new BufferedReader(new FileReader(mappingFile));
     while ((line = damlReader.readLine()) != null) {
+      if (line.startsWith("#")) { continue; }
 
       int spacePt;
       if ((spacePt = line.indexOf(' ')) == -1) { continue; }
