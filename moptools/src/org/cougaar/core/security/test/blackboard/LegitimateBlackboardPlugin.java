@@ -119,8 +119,8 @@ public class LegitimateBlackboardPlugin extends AbstractBlackboardPlugin {
       logging.debug("publishAddOrgActivity");
     }
     OrgActivity oa = OplanFactory.newOrgActivity(pluginName, uidService.nextUID());
-    oa.setActivityName("LegitimatePlugingActivityName");
-    oa.setActivityType("LegitimatePlugingActivityType");
+    oa.setActivityName("LegitimateBlackboardPlugingActivityName");
+    oa.setActivityType("LegitimateBlackboardPlugingActivityType");
     oa.setUID(uidService.nextUID());
     MessageAddress ma = null;
     AgentIdentificationService ais = (AgentIdentificationService)
