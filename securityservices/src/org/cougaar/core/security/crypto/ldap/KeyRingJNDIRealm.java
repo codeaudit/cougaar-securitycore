@@ -164,16 +164,6 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     "CERTIFICATE_REQUIRED",
     "INSUFFICIENT_PRIVILEGES"};
 
-  protected static final AdditionalData REASONS[][] = 
-    new AdditionalData[FAILURE_REASONS.length][1];
-
-  static {
-    for (int i = 0; i < FAILURE_REASONS.length; i++) {
-      REASONS[i][0] = new AdditionalData(AdditionalData.STRING, FAILURE_REASON,
-                                         FAILURE_REASONS[i]);
-    } // end of for (int i = 0; i < FAILURE_REASONS.length; i++)
-  }
-
   /** 
    * Default constructor. Uses <code>LdapUserService</code>
    * given in the setDefaultLdapUserService call.
@@ -727,7 +717,9 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     AdditionalData additionalData = 
       _idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
     List addData = new ArrayList();
-    addData.add(REASONS[failureType]);
+    addData.add(_idmefFactory.
+                createAdditionalData(AdditionalData.STRING, FAILURE_REASON,
+                                     FAILURE_REASONS[failureType]));
     addData.add(additionalData);
     return addData;
   }
@@ -738,7 +730,7 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
                                 String url) {
     if (!isAlertInitialized()) {
       log.debug("Couldn't alert about " + 
-                         REASONS[failureType][0].getAdditionalData() +
+                         FAILURE_REASONS[failureType] +
                          ", userName1: " + userName1 + ", userName2: " +
                          userName2);
       return; // can't alert without IDMEF factory
