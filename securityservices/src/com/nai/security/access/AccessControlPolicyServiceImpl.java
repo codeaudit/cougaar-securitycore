@@ -313,7 +313,7 @@ public class AccessControlPolicyServiceImpl implements AccessControlPolicyServic
 				     String policyType) {
       if(policy == null)return;
       //whom is the policy for?
-      if((policySubjectName!=agent) && (agent!="DEFAULT")) {
+      if((policySubjectName.equals(agent)) && (agent.equals("DEFAULT"))){
 	if (debug) {
 	  System.out.println("policy not for:"+agent);
 	}
