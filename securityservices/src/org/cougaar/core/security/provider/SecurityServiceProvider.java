@@ -228,25 +228,47 @@ public class SecurityServiceProvider
 		 new ServletPolicyServiceProvider());
     serviceBroker.addService(ServletPolicyService.class, this);
 
+    SecurityPropertiesService secprop = (SecurityPropertiesService)
+      serviceBroker.getService(this, SecurityPropertiesService.class, null);
+    boolean standalone = false;
+    try {
+    standalone = (Boolean.valueOf(secprop.getProperty(secprop.STAND_ALONE_MODE,
+						"false"))).booleanValue();
+    } catch (Exception ex) {}
+    if (!standalone) {
+      services.put(ServletPolicyService.class,
+                   new ServletPolicyServiceProvider());
+      serviceBroker.addService(ServletPolicyService.class, this);
+
     /* ********************************
      * SSL services
      */
-    services.put(SSLService.class,
-		 new SSLServiceProvider());
-    serviceBroker.addService(SSLService.class, this);
-    // SSLService and WebserverIdentityService are self started
-    // they offer static functions to get socket factory
-    // in the functions the permission will be checked.
-    serviceBroker.getService(this, SSLService.class, null);
-    services.put(WebserverIdentityService.class,
-		 new WebserverSSLServiceProvider());
-    serviceBroker.addService(WebserverIdentityService.class, this);
-    serviceBroker.getService(this, WebserverIdentityService.class, null);
+      services.put(SSLService.class,
+                   new SSLServiceProvider());
+      serviceBroker.addService(SSLService.class, this);
+      // SSLService and WebserverIdentityService are self started
+      // they offer static functions to get socket factory
+      // in the functions the permission will be checked.
+      serviceBroker.getService(this, SSLService.class, null);
+
+      // configured to use SSL?
+      if (secprop.getProperty(secprop.WEBSERVER_HTTPS_PORT, null) != null) {
+        services.put(WebserverIdentityService.class,
+                     new WebserverSSLServiceProvider());
+        serviceBroker.addService(WebserverIdentityService.class, this);
+        serviceBroker.getService(this, WebserverIdentityService.class, null);
+      }
+    }
+    else {
+      services.put(UserSSLService.class,
+                   new UserSSLServiceProvider());
+      serviceBroker.addService(UserSSLService.class, this);
+    }
 
     /* ********************************
      * LDAP user administration
      */
-    services.put(LdapUserService.class, 
+    services.put(LdapUserService.class,
                  new LdapUserServiceProvider());
     serviceBroker.addService(LdapUserService.class, this);
     org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm.
