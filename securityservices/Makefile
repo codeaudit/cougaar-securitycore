@@ -23,9 +23,9 @@ clean:
 clean-data:
 	@echo +++++++ Removing configuration data
 
-	rm -rf ${COUGAAR_INSTALL_PATH}/configs/small135/Crypto-*
-	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small135/keystore-*
-	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small135/*.log
+	rm -rf ${COUGAAR_INSTALL_PATH}/configs/small-135/Crypto-*
+	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small-135/keystore-*
+	rm -f  ${COUGAAR_INSTALL_PATH}/configs/small-135/*.log
 
 	rm -rf test/configs/ul-mini-config-openldap/Crypto-*
 	rm -f  test/configs/ul-mini-config-openldap/*.log

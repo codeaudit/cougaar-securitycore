@@ -12,11 +12,11 @@
     <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
 
     <!-- Certificate directory service for certificate storage -->
-    <CertDirectoryURL>ldap://pear:389/dc=cougaar,dc=org</CertDirectoryURL>
-    <CertDirectoryURL role="ychen">ldap://pear:389/dc=ychen,dc=cougaar,dc=org</CertDirectoryURL>
-    <CertDirectoryURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
-    <CertDirectoryURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
-    <CertDirectoryURL role="jjacobs">ldap://pear:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="srosset">ldap://yew:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="rtripath">ldap://yew:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
+    <CertDirectoryURL role="jjacobs">ldap://yew:389/dc=jjacobs,dc=cougaar,dc=org</CertDirectoryURL>
     <CertDirectoryURL role="isat">ldap://u034e:389/dc=isat,dc=cougaar,dc=org</CertDirectoryURL>
 
     <!-- Organizational unit -->

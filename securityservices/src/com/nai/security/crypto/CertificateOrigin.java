@@ -21,26 +21,28 @@
  * Created on September 12, 2001, 10:55 AM
  */
 
+
 package com.nai.security.crypto;
 
-import java.security.*;
-
-/** A custom permission to control access to the KeyRing class
- * The following permissions are defined:
- *
- * readPrivateKey   : get a private key by providing private key properties
- * createPrivateKey : create a new private key
- * modifyPrivateKey : modify (overwrite) an existing private key
- * writeCrlParam    : configure CRL polling parameters
- * getKeyStore      : get full access to key store
- **/
-
-public final class KeyRingPermission extends BasicPermission {
-
-  public KeyRingPermission(String name) {
-    super(name);
+class CertificateOrigin {
+  // enumerator name
+  private final String enum_name;
+  
+  // private constructor, called only within this class
+  private CertificateOrigin(String name) {
+    enum_name = name;
   }
-  public KeyRingPermission(String name, String actions) {
-    super(name);
+    
+  // return the enumerator name
+  public String toString() {
+    return enum_name;
   }
+
+  // The certificate is in a local keystore
+  public static final CertificateOrigin CERT_ORI_KEYSTORE =
+    new CertificateOrigin("CERT_ORI_KEYSTORE");
+
+  // The certificate was retrieved from an LDAP directory
+  public static final CertificateOrigin CERT_ORI_LDAP =
+    new CertificateOrigin("CERT_ORI_LDAP");
 }

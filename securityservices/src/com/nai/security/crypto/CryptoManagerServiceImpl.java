@@ -27,6 +27,8 @@ import java.security.*;
 import java.util.HashMap;
 import java.security.cert.CertificateException;
 
+import org.cougaar.core.security.bootstrap.BaseBootstrapper;
+
 import javax.crypto.*;
 
 public class CryptoManagerServiceImpl implements CryptoManagerService {
@@ -46,11 +48,13 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	  
 	});
       Signature se;
-      if(spec==null||spec=="")spec=pk.getAlgorithm();
+      // if(spec==null||spec=="")spec=pk.getAlgorithm();
+      spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
       se=Signature.getInstance(spec);
       return new SignedObject(obj, pk, se);
     } catch (Exception e) {
       e.printStackTrace();
+      BaseBootstrapper.printProviderProperties();
       throw new RuntimeException(e.toString());
     }
   }
@@ -64,7 +68,8 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
        try {
 	 PublicKey pk = c.getPublicKey();
 	 Signature ve;
-	 if(spec==null||spec=="")spec=pk.getAlgorithm();
+	 //if(spec==null||spec=="")spec=pk.getAlgorithm();
+	 spec = AlgorithmParam.getSigningAlgorithm(pk.getAlgorithm());
 	 ve=Signature.getInstance(spec);
 	 if (obj.verify(pk,ve)) {
 	   return obj.getObject();

@@ -381,6 +381,9 @@ public class BaseBootstrapper
 	  index=linedata.indexOf('=');
 	  if(index!=-1) {
 	    providerclassname=linedata.substring(index+1);
+	    if (loudness > 0) {
+	      System.out.println("Loading provider " + providerclassname);
+	    }
 	    try {
 	      Class c = Class.forName(providerclassname,true,baseclassloader);
 	      Object o = c.newInstance();
@@ -390,9 +393,6 @@ public class BaseBootstrapper
 	    } 
 	    catch(Exception e) {
 	      System.err.println("Error loading security provider (" + e + ")"); 
-	    }
-	    if (loudness>0) {
-	      printProviderProperties();
 	    }
 	  }
 	}
@@ -406,18 +406,24 @@ public class BaseBootstrapper
       System.err.println("Cannot read cryptographic provider configuration file: " + ioexp);
       ioexp.printStackTrace();
     }
+    if (loudness>0) {
+      printProviderProperties();
+    }
   }
 
   public static void printProviderProperties() {
     Provider[] pv = Security.getProviders();
     for (int i = 0 ; i < pv.length ; i++) {
-      System.out.println("Provider[" + i + "]: " + pv[i].getName() + " - Version: " + pv[i].getVersion());
+      System.out.println("Provider[" + i + "]: "
+			 + pv[i].getName() + " - Version: " + pv[i].getVersion());
       System.out.println(pv[i].getInfo());
       // List properties
-      Enumeration properties = pv[i].propertyNames();
-      while (properties.hasMoreElements()) {
+      String[] properties = new String[1];
+      properties = (String[]) pv[i].keySet().toArray(properties);
+      Arrays.sort(properties);
+      for (int j = 0 ; j < properties.length ; j++) {
 	String key, value;
-	key = (String) properties.nextElement();
+	key = (String) properties[j];
 	value = pv[i].getProperty(key);
 	System.out.println("Key: " + key + " - Value: " + value);
       }
@@ -454,24 +460,5 @@ public class BaseBootstrapper
 	System.out.println("Element in list  is::"+codearc.getURL().toString()); 
       }
     }
-    
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

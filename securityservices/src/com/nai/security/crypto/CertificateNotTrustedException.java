@@ -26,16 +26,17 @@
 
 package com.nai.security.crypto;
 
-import java.io.*;
 import java.security.cert.*;
 
-public class Key
-{
-  public Key(Certificate c, String aAlias) {
-    cert = c;
-    alias = aAlias;
-  }
+/** This exception is being thrown when a Base64 encode block does not
+    contain the appropriate header or trailer.
+ */
 
-  public Certificate cert;
-  public String alias;
+public class CertificateNotTrustedException extends CertificateException {
+  public String message;
+  public CertificateTrust cause;
+  public CertificateNotTrustedException(String aMsg, CertificateTrust aCause) {
+    message = aMsg;
+    cause = aCause;
+  }
 }

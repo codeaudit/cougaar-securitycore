@@ -24,47 +24,16 @@
  * - 
  */
 
-package com.nai.security.certauthority;
+package com.nai.security.crypto;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
 import java.security.cert.*;
-import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.MessageDigest;
-import java.math.BigInteger;
 
-import sun.security.pkcs.*;
-import sun.security.x509.*;
-import sun.security.util.*;
-import sun.security.provider.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+public class CertificateChainException extends CertificateException {
+  public String message;
+  public CertificateTrust cause;
 
-import org.cougaar.util.ConfigFinder;
-
-import com.nai.security.policy.*;
-import com.nai.security.crypto.*;
-import com.nai.security.util.*;
-
-public class KeyTest implements Runnable
-{
-  private String commonName = null;
-
-  public KeyTest(String aCN)
-  {
-    commonName = aCN;
+  public CertificateChainException(String aMsg, CertificateTrust aCause) {
+    message = aMsg;
+    cause = aCause;
   }
-
-  public void run() {
-    // Retrieve same key from multiple threads.
-    Certificate c = KeyRing.findCert(commonName, DirectoryKeyStore.LOOKUP_LDAP);
-  }
-
 }

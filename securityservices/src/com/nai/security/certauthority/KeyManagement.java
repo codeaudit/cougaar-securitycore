@@ -183,7 +183,6 @@ public class KeyManagement
       }
 
     }
-    //caX509cert = findCert(caPolicy.caCommonName);
     caX509cert = findCert(caX500Name.getCommonName());
     x509DirectoryName =  confDirectoryName + File.separatorChar + "x509certificates";
     pkcs10DirectoryName = confDirectoryName +  File.separatorChar + "pkcs10requests";
@@ -822,11 +821,15 @@ public class KeyManagement
     try {
       inputstream.mark(inputstream.available());
       X509CertImpl x509certimpl = new X509CertImpl(inputstream);
-      System.out.println("X509: " + x509certimpl);
+      if (debug) {
+	System.out.println("X509: " + x509certimpl);
+      }
       
       // Print DN
       X500Name x500Name = new X500Name(x509certimpl.getSubjectDN().toString());
-      System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
+      if (debug) {
+	System.out.println("DN: " + x509certimpl.getSubjectDN().toString());
+      }
       return Arrays.asList(new X509Certificate[] {
 	x509certimpl
       });
@@ -931,6 +934,7 @@ public class KeyManagement
 
     String caDN = "CN=NCA_CA, OU=CONUS, O=DLA, L=Washington D.C., ST=DC, C=US";
     try {
+
       KeyManagement km = null;
       km = new KeyManagement(caDN, role);
       if (debug) {
@@ -941,24 +945,6 @@ public class KeyManagement
 	FileInputStream f = new FileInputStream(args[2]);
 	PrintStream ps = new PrintStream(System.out);
 	km.processPkcs10Request(ps, f);
-	/*
-	  BufferedReader pkcs10stream = null;
-	  PrintStream dbgout = new PrintStream(System.out);
-	  String pkcs10filename = args[2];
-	  PKCS10 pkcs10Request = null;
-	  ArrayList pkcs7Certificates = new ArrayList();
-	  try {
-	  ArrayList pkcs10req = km.getSigningRequests(pkcs10filename);
-	  for (int i = 0 ; i < pkcs10req.size() ; i++) {
-	  pkcs7Certificates.add(km.signX509Certificate((PKCS10)pkcs10req.get(i)));
-	  }
-	  }
-	  catch (Exception e) {
-	  System.out.println("Exception: " + e);
-	  e.printStackTrace();
-	  }
-	*/
-
       }
       else if (option.equals("-7")) {
 	FileInputStream is = new FileInputStream(args[2]);
@@ -971,7 +957,7 @@ public class KeyManagement
 	}
 	PrivateKey pk = KeyRing.findPrivateKey(args[2]);
 	if (debug) {
-	  System.out.println(" ========================================");
+	  System.out.println("Private key is : " + pk);
 	  System.out.println(" ========================================");
 	  System.out.println("Search cert for " + args[2]);
 	}
@@ -979,11 +965,7 @@ public class KeyManagement
 	if (debug) {
 	  System.out.println("Certificate is : " + c);
 	}
-	KeyTest p = new KeyTest(args[2]);
-	for (int i = 0 ; i < 100 ; i++) {
-	  System.out.println("Starting thread " + i);
-	  new Thread(p).start();
-	}
+	System.out.println(" ========================================");
       }
     } catch (Exception e) {
       System.out.println("Exception: " + e);
@@ -1017,5 +999,4 @@ public class KeyManagement
     }
     return buff.toString();
   }
-
 }

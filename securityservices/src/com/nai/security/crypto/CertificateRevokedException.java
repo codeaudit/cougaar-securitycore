@@ -26,16 +26,11 @@
 
 package com.nai.security.crypto;
 
-import java.io.*;
 import java.security.cert.*;
 
-public class Key
-{
-  public Key(Certificate c, String aAlias) {
-    cert = c;
-    alias = aAlias;
+public class CertificateRevokedException extends CertificateException {
+  public String message;
+  public CertificateRevokedException(String aMsg) {
+    message = aMsg;
   }
-
-  public Certificate cert;
-  public String alias;
 }

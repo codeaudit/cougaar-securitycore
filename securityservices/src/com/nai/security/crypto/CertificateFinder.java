@@ -54,21 +54,27 @@ public class CertificateFinder
   static private int ldapType = OPENLDAP;
 
   /** Creates new CertificateFinder */
-  private String Provider_Url;
+  private String provider_Url;
   private LdapClient client;
+
   public CertificateFinder(String url) 
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
     try{
-      Provider_Url=url;
-      client=new LdapClient(Provider_Url);
-    }catch(Exception e){
+      if(url.length()>5) {
+	provider_Url=url;
+	client=new LdapClient(provider_Url);
+      }
+    } catch(Exception e) {
       System.err.println("failed to start LDAP client");
     }
   }
   public X509Certificate getCertificate(String commonName)
   { 
+    if (client == null) {
+      return null;
+    }
     NamingEnumeration search_results = client.search(commonName);
     int counter=0;
     X509Certificate certificate=null;
@@ -183,48 +189,45 @@ public class CertificateFinder
     }
     return certificate; 
   }
+
   public Hashtable getCRL()
   {
+    if (client == null) {
+      return null;
+    }
     if(ldapType == OPENLDAP)return new Hashtable();
     String filter="(cert_status=3)";
     NamingEnumeration search_results= client.searchwithfilter(filter);
     int counter=0;
     Hashtable crl=new Hashtable();
     java.security.cert.Certificate certificate=null;
-    while((search_results!=null)&&(search_results.hasMoreElements()))
-      {
-	try
-	  {
-	    SearchResult singleentry=(SearchResult)search_results.next();
-	    Attributes completeattributes=singleentry.getAttributes();
-	    Attribute x509cert=completeattributes.get("pem_x509");
-	    Attribute aliasName=completeattributes.get("cn");
-	    String cn =(String)aliasName.get();
-	    String cert=(String)x509cert.get();
-	    char[] charcert=cert.toCharArray();
-	    byte[] certdata=Base64.decode(charcert);
-	    try
-	      {
-		CertificateFactory certfactory=CertificateFactory.getInstance("X.509");
-		InputStream instream=new ByteArrayInputStream(certdata);
-		certificate=(java.security.cert.Certificate)certfactory.generateCertificate(instream);
-                                        
-	      }
-	    catch(CertificateException certexp)
-	      {
-		System.out.println("Could not generate certificate");
-		certexp.printStackTrace();
-
-	      }
-	    crl.put(cn, cert);
-	  }
-	catch(NamingException nameexception)
-	  {
-	    nameexception.printStackTrace();
-	    System.out.println("Problem in getting individual object from result");
-	  }
+    while((search_results!=null)&&(search_results.hasMoreElements())) {
+      try {
+	SearchResult singleentry=(SearchResult)search_results.next();
+	Attributes completeattributes=singleentry.getAttributes();
+	Attribute x509cert=completeattributes.get("pem_x509");
+	Attribute aliasName=completeattributes.get("cn");
+	String cn =(String)aliasName.get();
+	String cert=(String)x509cert.get();
+	char[] charcert=cert.toCharArray();
+	byte[] certdata=Base64.decode(charcert);
+	try {
+	  CertificateFactory certfactory=CertificateFactory.getInstance("X.509");
+	  InputStream instream=new ByteArrayInputStream(certdata);
+	  certificate=(java.security.cert.Certificate)certfactory.generateCertificate(instream);
+	  
+	}
+	catch(CertificateException certexp) {
+	  System.out.println("Could not generate certificate");
+	  certexp.printStackTrace();
+	}
+	crl.put(cn, cert);
       }
-                                        
+      catch(NamingException nameexception) {
+	nameexception.printStackTrace();
+	System.out.println("Problem in getting individual object from result");
+      }
+    }
     return crl;	
   }
   /*    public static void main (String args[])

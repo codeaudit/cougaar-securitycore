@@ -37,7 +37,7 @@ import com.nai.security.certauthority.LdapEntry;
 
 public class LdapClient 
 {
-  public String Provider_Url;
+  public String provider_Url;
   private DirContext  context;
   static private boolean debug = false;
   private boolean initializationOK = false;
@@ -49,11 +49,11 @@ public class LdapClient
     
     	/** Creates new LdapClient */
 
-  public LdapClient(String provider_url) 
+  public LdapClient(String aURL) 
   {
     debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
 						"false"))).booleanValue();
-    Provider_Url=provider_url;
+    provider_Url=aURL;
     init();
   }
 
@@ -61,7 +61,7 @@ public class LdapClient
   {
     Hashtable env=new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
-    env.put(Context.PROVIDER_URL,Provider_Url);
+    env.put(Context.PROVIDER_URL, provider_Url);
     if(ldapMode == OPENLDAP) {
       env.put(Context.SECURITY_PRINCIPAL,"cn=manager,dc=cougaar,dc=org");
       env.put(Context.SECURITY_CREDENTIALS,"secret");
@@ -69,13 +69,15 @@ public class LdapClient
     try {
       context=new InitialDirContext(env);
       if (debug) {
-	System.out.println("Using LDAP certificate directory: " + Provider_Url);
+	System.out.println("Using LDAP certificate directory: "
+			   + provider_Url);
       }
       initializationOK = true;
     }
     catch(NamingException nexp) {
       if (debug) {
-	System.err.println("Warning:can't connect to LDAP server: " + Provider_Url);
+	System.err.println("Warning:can't connect to LDAP server: "
+			   + provider_Url);
 	System.err.println("Reason: " + nexp + ". Use local keystore only.");
 	nexp.printStackTrace();
       }
@@ -130,7 +132,7 @@ public class LdapClient
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
     try {
       if (context != null) {
-	results=context.search(Provider_Url,filter.toString(),constrains);
+	results=context.search(provider_Url,filter.toString(),constrains);
       }
     }
     catch(NamingException searchexp) {
@@ -149,11 +151,13 @@ public class LdapClient
     NamingEnumeration results=null;
     SearchControls constrains=new SearchControls();
     constrains.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    System.out.println("Filters provided for search ..........."+filter);
-    System.out.println("Provider url is  ..........."+Provider_Url);
+    if (debug) {
+      System.out.println("Filters provided for search ..........."+filter);
+      System.out.println("Provider url is  ..........."+provider_Url);
+    }
     try {
       if (context != null) {
- 				results=context.search(Provider_Url,filter,constrains);
+ 				results=context.search(provider_Url,filter,constrains);
  			}
     }
     catch(NamingException searchexp) {
@@ -165,20 +169,23 @@ public class LdapClient
 
   public String getLdapEntry(String name) {
     String pem_cert=null;
-    System.out.println("look up for name ::"+name);
-    synchronized(context)
-      {
-    try {
-      System.out.println("Context is ::"+context.toString());
-      pem_cert = (String) context.lookup(name);
+    if (debug) {
+      System.out.println("look up:"+name);
     }
-    catch(Exception ex) {
-      if(debug) {
-	System.out.print("Unable to fetch ldap entry for " + name);
-	ex.printStackTrace();
+    synchronized(context) {
+      try {
+	if (debug) {
+	  System.out.println("Context is:"+context.toString());
+	}
+	pem_cert = (String) context.lookup(name);
+      }
+      catch(Exception ex) {
+	if(debug) {
+	  System.out.print("Unable to fetch ldap entry for " + name);
+	  ex.printStackTrace();
+	}
       }
     }
-      }
     return pem_cert;
   }
 

@@ -30,38 +30,141 @@
 package com.nai.security.crypto;
 
 import java.security.cert.*;
+import java.util.Date;
+
 public class CertificateStatus
 {
+  private boolean debug = false;
 
   /** Creates new CertificateStatus */
   private java.security.cert.Certificate certificate = null;
-  private boolean isValid = true;
-  private int certificateOrigin;
+
+  /** true: certificate has not been revoked.
+   * false: certificate has been revoked */
+  private boolean certificateIsValid = true;
+
+  /** The alias of the entry in the keystore. */
+  private String alias = null;
+
+  /** The origin of the certificate (from local keystore,
+   *  LDAP certificate directory... */
+  private CertificateOrigin certificateOrigin;
+
+  /** The type of the certificate: end entity or trusted certificate
+      authority */
+  private CertificateType certificateType;
+
+  /** The trust status of this certificate.
+   * When a key pair has been generated but not submitted to a CA yet,
+   * the certificate cannot be used because other parties will not trust
+   * the certificate. */
+  private CertificateTrust certificateTrust;
   
-  /** Possible values for certificateOrigin */
-  public static final int CERT_KEYSTORE = 1;
-  public static final int CERT_LDAP = 2;
+  public CertificateStatus(java.security.cert.Certificate cert,
+			   boolean isValid,
+			   CertificateOrigin origin, CertificateType type,
+			   CertificateTrust trust,
+			   String a) {
+    debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
 
-  public CertificateStatus(java.security.cert.Certificate cert, boolean status, int origin) {
     certificate = cert;
-    isValid = status;
+    certificateIsValid = isValid;
+    certificateOrigin = origin;
+    certificateType = type;
+    alias = a;
+    if (type == CertificateType.CERT_TYPE_CA) {
+      // The certificate is necessarily trusted, regardless
+      // of the trust parameter.
+      certificateTrust = CertificateTrust.CERT_TRUST_CA_CERT;
+    }
+    else {
+      certificateTrust = trust;
+    }
   }
 
-  /*
-  public CertificateStatus(Certificate cert) {
-    certificate = cert;
+  /** Return true if the certificate is valid */
+  public void checkCertificateValidity()
+    throws CertificateExpiredException, CertificateNotYetValidException,
+	   CertificateRevokedException, CertificateNotTrustedException
+  {
+    if (debug) {
+      System.out.println("Checking certificate validity for "
+			 + ((X509Certificate) getCertificate()).getSubjectDN());
+    }
+
+    if (getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_SIGNED ||
+	getCertificateTrust() == CertificateTrust.CERT_TRUST_CA_CERT) {
+      // The certificate is trusted. Check revocation, expiration date
+      // and "not before" date.
+      if (isValid()) {
+	X509Certificate c = (X509Certificate) getCertificate();
+	c.checkValidity();
+	// 1- Certificate can be used now ("not before" date is not in the future)
+	// 2- Certificate has not expired ("not after" date is not in the past)
+      }
+      else {
+	if (debug) {
+	  System.out.println("Certificate has been revoked");
+	}
+	throw new CertificateRevokedException("Certificate has been revoked");
+      }
+    }
+    else {
+      if (debug) {
+	System.out.println("Certificate not trusted: " + getCertificateTrust());
+      }
+      throw new CertificateNotTrustedException("Certificate not trusted:",
+					       getCertificateTrust());
+    }
   }
-  */
 
   public java.security.cert.Certificate getCertificate() {
     return certificate;
   }
 
   public boolean isValid() {
-    return isValid;
+    return certificateIsValid;
   }
 
-  public int getCertificateOrigin() {
+  public String getCertificateAlias() {
+    return alias;
+  }
+
+  public CertificateOrigin getCertificateOrigin() {
     return certificateOrigin;
+  }
+
+  public CertificateType getCertificateType() {
+    return certificateType;
+  }
+
+  public CertificateTrust getCertificateTrust() {
+    return certificateTrust;
+  }
+
+  public void setCertificateTrust(CertificateTrust trust) {
+    certificateTrust = trust;
+  }
+
+  public void setCertificate(Certificate c) {
+    certificate = c;
+  }
+
+  public String toString()
+  {
+    String status = null;
+    if (isValid()) {
+      status = "Not revoked";
+    }
+    else {
+      status = "Revoked";
+    }
+    return "DN: " + ((X509Certificate) certificate).getSubjectDN().toString() +
+      "\n     Alias: " + getCertificateAlias() +
+      "\n     Status: " + status +
+      " - Origin: " + getCertificateOrigin() +
+      " - Type: " + getCertificateType() +
+      " - Trust: " + getCertificateTrust();
   }
 }

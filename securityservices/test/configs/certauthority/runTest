@@ -1,26 +1,35 @@
 #!/bin/tcsh
 
-#setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
 
 setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/sys/jdom.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/xerces.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/jaas.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/jce1_2-do.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-api.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/sys/cryptix-jce-provider.jar
 
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
 setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/core.jar
-setenv CLASSPATH ${CLASSPATH}:../../../classes
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securityservices.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/securebootstrapper.jar
+setenv CLASSPATH ${CLASSPATH}:${COUGAAR_INSTALL_PATH}/lib/bootstrapper.jar
 
+	#-Xdebug \
+	#-Xrunjdwp:transport=dt_socket,server=y,suspend=n \
 # Cougaar node simulation
 java \
+	-Dorg.cougaar.core.security.policy.debug=true \
+	-Dorg.cougaar.core.security.bootstrapper.policydebug=all \
+	-Dorg.cougaar.core.society.bootstrapper.loud=shout \
+	-Dorg.cougaar.core.security.crypto.debug=true \
+\
 	-Dorg.cougaar.security.crypto.config=cryptoPolicy.xml \
 	-Dorg.cougaar.install.path=${COUGAAR_INSTALL_PATH} \
 	-Dorg.cougaar.security.keystore.password="Ultra*Log" \
 	-Dorg.cougaar.security.keystore=keystoreTest \
 	-Dorg.cougaar.node.name=TEST3ID-HHC \
 	-Dorg.cougaar.security.role=srosset \
-	-Dorg.cougaar.core.security.crypto.debug=true \
+\
 	com.nai.security.certauthority.KeyManagement  \
 	-1 srosset testalias
 	#-10 certSignReq-ROOT-CA-CONUS-3ID-HHC.cer

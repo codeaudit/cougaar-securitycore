@@ -1,0 +1,12 @@
+#!/bin/tcsh
+
+set alias=Bob-5
+set cn=Bob
+set password='Ultra*Log'
+set keystore=keystoreTest
+
+keytool -genkey -alias ${alias} -v -keyalg rsa -keysize 1024 -sigalg sha1withrsa \
+	-keystore ${keystore} -storepass "${password}" -keypass "${password}" \
+	-dname "cn=${alias}, ou=CONUS, o=DLA, l=San Francisco, st=CA, c=CA"
+
+keytool -list -v -keystore ${keystore} -storepass "${password}"

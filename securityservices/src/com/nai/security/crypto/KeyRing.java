@@ -171,28 +171,14 @@ final public class KeyRing {
 
   public static synchronized Certificate findCert(String commonName) {
     if(debug)
-      System.out.println("Looking for common name "+commonName +"in keystore ");
+      System.out.println("Looking for common name "+commonName + " in keystore ");
     return keystore.findCert(commonName);
   }
 
-  public static synchronized Certificate findCert(String commonName, boolean lookupLDAP) {
+  public static synchronized Certificate findCert(String commonName, int lookupType) {
     Certificate c = null;
     try {
-      c = keystore.findCert(commonName, lookupLDAP, true, true);
-    }
-    catch (Exception e) {
-    }
-    return c;
-  }
-
-  /** Lookup a certificate. If lookupLDAP is true, search in the keystore only.
-   * Otherwise, search in the keystore then in the LDAP directory service.
-   */
-  public static synchronized Certificate findCert(String commonName, boolean lookupLDAP,
-				     boolean lookupHashMap, boolean lookupKeyStore) {
-    Certificate c = null;
-    try {
-      c = keystore.findCert(commonName, lookupLDAP, lookupHashMap, lookupKeyStore);
+      c = keystore.findCert(commonName, lookupType);
     }
     catch (Exception e) {
     }

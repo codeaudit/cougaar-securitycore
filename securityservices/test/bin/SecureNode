@@ -143,21 +143,16 @@ if ( "$useCryptoAspect" == "true") then
 	# Fully-qualified class name of the security aspect
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.aspects=com.nai.security.crypto.SecurityAspect"
 	# Print transport-related debug information about the security aspect
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
+	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.message.transport.debug=security"
 
 	# Name of configuration file for cryptographic service provider
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.crypto.config=cryptoPolicy.xml"
 
 	# Print crypto-related debug information about the security aspect
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
+	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.security.crypto.debug=true"
 
 	# Role to take when making LDAP requests
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=rtripath"
-
-	# Certificate server LDAP address
-	# Obsolete
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.ldapserver=ldap://pear:389"
-
+	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=${USER}"
 
 endif
 
@@ -173,7 +168,7 @@ endif
 
 if ( "$usePersistence" == "true") then
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.enable=true"
-	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
+	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.debug=true"
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.core.cluster.persistence.lazy=false"
 endif
 
@@ -218,7 +213,7 @@ if ("$os" == "Linux") then
     #setenv JAVA_COMPILER javacomp
 endif
 
-set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.transport.debug=true"
+set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath ${LIBPATHS} "
 set javaargs="$javaargs -Xbootclasspath/a:$COUGAAR_INSTALL_PATH/sys/jaas.jar"
 
 #set javaargs="$osargs $MYPROPERTIES $MYMEMORY -classpath $LIBPATHS -Dorg.cougaar.message.isLogging=true -Djava.rmi.server.logCalls=true -Dsun.rmi.server.exceptionTrace=true -Dsun.rmi.transport.tcp.readTimeout=150000 "
@@ -236,10 +231,9 @@ endif
 # exec instead of eval
 if ( "$useBootstrapper" == "true") then
 	#exec java $javaargs org.cougaar.core.security.bootstrap.Bootstrapper org.cougaar.core.society.Node $args
-	echo $****************************
-	echo $javaargs
-
-	echo $****************************
+	#echo $****************************
+	#echo $javaargs
+	#echo $****************************
 	exec java $javaargs com.nai.security.bootstrap.SecureBootstrapper org.cougaar.core.society.Node $args
 else
 	exec java $javaargs org.cougaar.core.society.Node $args

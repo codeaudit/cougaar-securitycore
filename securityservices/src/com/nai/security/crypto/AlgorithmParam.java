@@ -17,30 +17,54 @@
  *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
- *
- * Created on September 12, 2001, 10:55 AM
+ * Created on September 12, 2001, 4:01 PM
  */
 
 package com.nai.security.crypto;
 
+
+import java.util.*;
 import java.security.*;
 
-/** A custom permission to control access to the KeyRing class
- * The following permissions are defined:
- *
- * readPrivateKey   : get a private key by providing private key properties
- * createPrivateKey : create a new private key
- * modifyPrivateKey : modify (overwrite) an existing private key
- * writeCrlParam    : configure CRL polling parameters
- * getKeyStore      : get full access to key store
- **/
+public class AlgorithmParam {
+  private static final String SHA1 = "SHA-1";
+  private static final String MD5 = "MD5";
+  private static final String MD2 = "MD2";
 
-public final class KeyRingPermission extends BasicPermission {
+  private static ArrayList hashList = new ArrayList();
 
-  public KeyRingPermission(String name) {
-    super(name);
+  static
+  {
+    hashList.add("SHA-1/");
+    hashList.add("SHA1/");
+    hashList.add("SHA1with");
+
+    hashList.add("MD5/");
+    hashList.add("MD5with");
+
+    hashList.add("MD2/");
+    hashList.add("MD2with");
+
   }
-  public KeyRingPermission(String name, String actions) {
-    super(name);
+
+  public static String getSigningAlgorithm(String keyalg)
+  {
+    String signAlg = null;
+    String defaultDigest = "SHA1with";
+
+    /* Supported signature algorithms
+     * RSA: SHA1withRSA, MD5withRSA, MD2withRSA
+     * DSA: SHA1withDSA
+     */
+
+    if (keyalg.equals("RSA")) {
+      signAlg = defaultDigest + keyalg;
+    }
+    else if (keyalg.equals("DSA")) {
+      signAlg = defaultDigest + keyalg;
+    }
+    return signAlg;
   }
 }
+
+

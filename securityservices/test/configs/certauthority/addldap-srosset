@@ -1,4 +1,4 @@
 #!/bin/tcsh
 set user=srosset
-ldapdelete -x -r -D "cn=manager, dc=cougaar, dc=org" -w secret -h pear "dc=${user}, dc=cougaar, dc=org"
-ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${user}.ldif -w secret -h pear
+ldapdelete -x -r -D "cn=manager, dc=cougaar, dc=org" -w secret -h yew "dc=${user}, dc=cougaar, dc=org"
+ldapadd -x -D "cn=manager, dc=cougaar, dc=org" -f ${user}.ldif -w secret -h yew

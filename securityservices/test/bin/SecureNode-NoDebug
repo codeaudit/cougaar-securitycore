@@ -153,11 +153,6 @@ if ( "$useCryptoAspect" == "true") then
 	# Role to take when making LDAP requests
 	set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.role=srosset"
 
-	# Certificate server LDAP address
-	# Obsolete
-	#set MYPROPERTIES="$MYPROPERTIES -Dorg.cougaar.security.ldapserver=ldap://pear:389"
-
-
 endif
 
 if ( "$useGuardedNode" == "true") then

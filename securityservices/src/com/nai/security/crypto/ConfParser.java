@@ -167,7 +167,7 @@ public class ConfParser {
     String defaultValue = null;
     List conf = top.getChildren(elementName);
     if (debug) {
-      System.out.println("Looking up role:" + role + " for " + elementName);
+      System.out.print("Looking up role:" + role + " for " + elementName);
     }
     Iterator it = conf.iterator();
     while (it.hasNext()) {
@@ -192,7 +192,7 @@ public class ConfParser {
       value = defaultValue;
     }
     if (debug) {
-      System.out.println("Found value:" + value);
+      System.out.println(" - Found value:" + value);
     }
     
     return value;

@@ -79,21 +79,21 @@ description: Directory Manager
   After running ldapadd, both entries should be visible using the gq browser.
   To configure gq, use File->Preferences, then click on the servers tab. Click
   the NEW button and enter the Name, LDAP host, LDAP Port (in the examples 
-  so far these would be pear, pear, and 389). For full access, click on the
+  so far these would be yew, yew, and 389). For full access, click on the
   details tab and enter the rootdn and rootpw from slapd.com in Bind DN and
   Bind Password. Authentication is the above examples is simple. WARNING: THIS
   ALLOWS A USER TO REMOVE AND MODIFY CERTIFICATES AND THE DIRECTORY STRUCTURE!
 
 
 5 The LDAP servers are configured using an URI such as:
-	   ldap://pear:389/dc=cougaar,dc=org 
-  This URL specifies pear on port 389 which a base distinguished name equal
+	   ldap://yew:389/dc=cougaar,dc=org 
+  This URL specifies yew on port 389 which a base distinguished name equal
   to "dc=cougaar,dc=org".
 
 NOTE: URL's should look like the following without any trailing slashes:
 
-		   ldap://pear:389/dc=cougaar,dc=org 
-		   ldap://pear:389/dc=nai,dc=cougaar,dc=org 
+		   ldap://yew:389/dc=cougaar,dc=org 
+		   ldap://yew:389/dc=nai,dc=cougaar,dc=org 
 
 
 
@@ -103,14 +103,14 @@ Before running the examples below make sure your $CLASSPATH is set include the $
 
 Listing the contexts of a directory:
 
-java com.nai.security.certauthority.LDAPCert list "ldap://pear:389/dc=cougaar,dc=org"
+java com.nai.security.certauthority.LDAPCert list "ldap://yew:389/dc=cougaar,dc=org"
 
 Removing a certificate from the directory:
 
-java com.nai.security.certauthority.LDAPCert remove "ldap://pear:389/dc=cougaar,dc=org" cn=69fe38e2af8910d646d43e1666901133
+java com.nai.security.certauthority.LDAPCert remove "ldap://yew:389/dc=cougaar,dc=org" cn=69fe38e2af8910d646d43e1666901133
 
 Adding certificates to the directory:
 
-java com.nai.security.certauthority.LDAPCert put "ldap://pear:389/dc=cougaar,dc=org" ~/tools/certificates/CaSignedCertificates/SignedReq-ROOT-CA-CONUS-TEST-NODE-NCA.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
+java com.nai.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaSignedCertificates/SignedReq-ROOT-CA-CONUS-TEST-NODE-NCA.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
 
-java com.nai.security.certauthority.LDAPCert put "ldap://pear:389/dc=cougaar,dc=org" ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
+java com.nai.security.certauthority.LDAPCert put "ldap://yew:389/dc=cougaar,dc=org" ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer ~/tools/certificates/CaCertificates/ROOT-CA-CONUS.cer
