@@ -168,6 +168,8 @@ grant signedBy "privileged" {
 
 	// ICIS database
 	permission java.util.PropertyPermission "icis.database", "read";
+	permission java.util.PropertyPermission "icis.database.user", "read";
+	permission java.util.PropertyPermission "icis.database.password", "read";
 
 	// BlackJack permissions
 	permission java.util.PropertyPermission "blackjack_debug_messages", "read";
