@@ -30,18 +30,19 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.LoggingService;
 
 public class RegexpStringMapping extends StringPairMapping
 {
-  List _regexpMapping;
+  private List _regexpMapping;
 
   public RegexpStringMapping(ServiceBroker sb, String fileName)
-    throws IOException, RESyntaxException
+    throws IOException, PatternSyntaxException
   {
     super(sb, fileName);
 
@@ -64,7 +65,17 @@ public class RegexpStringMapping extends StringPairMapping
     for (Iterator mappingIt = _regexpMapping.iterator();
          mappingIt.hasNext();) {
       RegexpPair rp = (RegexpPair) mappingIt.next();
-      if (rp._first.match(key)) {
+      Matcher m = rp._pattern.matcher(key);
+      
+      // WARNING: The use of m.find() vs. m.matches() is VERY important.
+      //
+      // Consider the following "OwlMapUri" file:
+      //   /\$.*/CA/Index CAReadServlet
+      //   /\$.*/CA/Browser CAReadServlet
+      //   /.* OtherServlets
+      // Using a partial match (e.g. with m.find()) is more conservative.
+
+      if (m.find()) {
         if (_log.isDebugEnabled()) {
           _log.debug("" + key + " maps to " + rp._second);
         }
@@ -84,7 +95,9 @@ public class RegexpStringMapping extends StringPairMapping
     for (Iterator mappingIt = _regexpMapping.iterator();
          mappingIt.hasNext();) {
       RegexpPair rp = (RegexpPair) mappingIt.next();
-      if (rp._first.match(key)) {
+      Matcher m = rp._pattern.matcher(key);
+      //
+      if (m.find()) {
         values.add(rp._second);
       }
     }
@@ -93,12 +106,12 @@ public class RegexpStringMapping extends StringPairMapping
 
   private class RegexpPair
   {
-    public RE _first;
+    public Pattern _pattern;
     public String _second;
-    RegexpPair(String first, String second)
-      throws RESyntaxException
+    RegexpPair(String pattern, String second)
+      throws PatternSyntaxException
     {
-      _first  = new RE(first);
+      _pattern  = Pattern.compile(pattern);
       _second = second;
     }
   }
