@@ -5,6 +5,7 @@ require 'ultralog/services'
 require 'security/lib/jar_util'
 require 'security/lib/misc'
 
+$VerboseDebugging=false
 
 if ! defined? CIP
   CIP = ENV['CIP']
@@ -62,10 +63,10 @@ def waitForUserManager(agent, path="/userManagerReady", path2=nil)
   url = agent.node.agent.uri + path
   while (true)
     begin
-      puts "Connecting to #{url}" if $COUGAAR_DEBUG
+      logInfoMsg "Connecting to #{url}" if $COUGAAR_DEBUG
       result, url2 = Cougaar::Communications::HTTP.get(url, 30.seconds)
-      puts url2 if $COUGAAR_DEBUG
-      puts result if $COUGAAR_DEBUG
+      logInfoMsg url2 if $COUGAAR_DEBUG
+      logInfoMsg result if $COUGAAR_DEBUG
       re1 = %r"<user>(.*)</user>"
       re2 = %r"<domain>(.*)</domain>"
       userMatch = re1.match(result)
@@ -77,11 +78,11 @@ def waitForUserManager(agent, path="/userManagerReady", path2=nil)
       end
       sleep 3.seconds
     rescue => e
-      puts "Exception! #{e.message}"
-      puts e.backtrace.join("\n")
+      logInfoMsg "Exception! #{e.message}"
+      logInfoMsg e.backtrace.join("\n")
       sleep 3.seconds
     rescue Timeout::Error => e
-      puts "Timeout connecting to #{url}" if $COUGAAR_DEBUG
+      logInfoMsg "Timeout connecting to #{url}" if $COUGAAR_DEBUG
       sleep 3.seconds
     end
   end
@@ -103,7 +104,7 @@ def getPolicyManager(enclave)
   port    = nil
   host    = nil
   run.society.each_agent_with_component("safe.policyManager.PolicyAdminServletComponent") { |agent|
-    #puts("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}")
+    logInfoMsg("looking at agent #{agent.name} which has enclave #{agent.enclave} comparing against enclave #{enclave}") if $VerboseDebugging
     if (agent.enclave.downcase == enclave.downcase)
       #url = agent.uri
       #re = %r"http://([^:]*):([^/]*)/\$([^/]*)"
@@ -127,6 +128,7 @@ end
 
 def getPolicyDir()
   dir = "/tmp/bootPolicies-#{rand(1000000)}"
+  logInfoMsg "temporary policy dir = #{dir}" if $VerboseDebugging
   Dir.mkdir(dir)
   `cd #{dir} && jar xf #{CIP}/configs/security/bootpolicies.jar`
   dir
@@ -167,9 +169,9 @@ $policyLock = Hash.new
 
 def getPolicyLock(enclave)
   mutex = nil
-  #puts "will try to get policy lock"
+  puts "will try to get policy lock" if $VerboseDebugging
   $policyLockLock.synchronize {
-    #puts "GOT policy lock"
+    puts "GOT policy lock" if $VerboseDebugging
     mutex = $policyLock[enclave]
     if mutex == nil
       mutex = Mutex.new
@@ -184,32 +186,30 @@ def loadBootPolicies(enclave)
   waitForUserManager(manager)
   mutex = getPolicyLock(enclave)
   mutex.synchronize {
-    #puts "TRYING TO GET POLICY FILE FOR ENCLAVE #{enclave}"
     policyDir = getPolicyDir()
-    #puts "load the boot policies -- we haven't done any delta yet"
-    PolicyWaiter pw = PolicyWaiter.new(run, run.society.agents[manager].node)
-    bootPolicyFile = File.join(policyDir, OwlBootPolicyList)
+    puts "load the boot policies -- we haven't done any delta yet" if $VerboseDebugging
+    pw = PolicyWaiter.new(run, run.society.agents[manager].node.name)
+    bootPolicyFile = File.join(policyDir, "OwlBootPolicyList")
     result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
     if (! pw.wait(120)) then
       raise "Boot policies did not propagate for enclave #{enclave}"
     end
-    #      logInfoMsg result
-    `rm -rf #{dir}`
+    logInfoMsg result if $VerboseDebugging
+    `rm -rf #{policyDir}`
   }
 end 
 
 def deltaPolicy(enclave, text)
   host, port, manager = getPolicyManager(enclave)
-  #puts "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}"
+  logInfoMsg "Got policy manager for #{enclave} host #{host} port #{port} manager #{manager}" if $VerboseDebugging
   if ! bootPoliciesInitialized.includes(enclave) then
     loadBootPolicies(enclave)
     bootPoliciesInitialized.push(enclave)
   end
-  #puts " TRY TO GET LOCK TO POLICY FILE"
+  logInfoMsg " TRY TO GET LOCK TO POLICY FILE" if $VerboseDebugging
   mutex = getPolicyLock(enclave)
-  # puts " GOT LOCK TO POLICY FILE"
+  logInfoMsg " GOT LOCK TO POLICY FILE" if $VerboseDebugging
   mutex.synchronize {
-    
     policyFile = getPolicyFile(enclave)
     # now create the delta file
     File.open(policyFile, "w") { |file|
@@ -217,5 +217,5 @@ def deltaPolicy(enclave, text)
     }
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
   }
-#    logInfoMsg result
+  logInfoMsg result if $VerboseDebugging
 end
