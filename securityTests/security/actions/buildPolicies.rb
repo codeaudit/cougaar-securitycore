@@ -171,8 +171,8 @@ END
               end
             end
           end
-          file.write("/\\$.*/.* OtherServlets")
-          file.write("/.* OtherServlets")
+          file.write("/\\$.*/.* OtherServlets\n")
+          file.write("/.* OtherServlets\n")
         }
       end # def buildUriMap
 
