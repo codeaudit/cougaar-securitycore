@@ -34,7 +34,21 @@
             todir="${securityservices.staging}/csmart/lib/security/actions"/>
     </target>
 
-    <target name="custom-install-conf" id="custom.install" depends="install-reporting">
+    <!-- install config files -->
+
+    <target name="custom-install-conf" 
+            id="custom.install" 
+            depends="install-reporting">
+      <mkdir dir="${securityservices.staging}/configs/testKeystore"/>
+      <copy todir="${securityservices.staging}/configs/testKeystore">
+        <fileset dir="${securityservices.base}/test/configs/testKeystore">
+          <patternset>
+            <include name="test_bootstrap_keystore"/>
+            <include name="testSigningCA_keystore"/>
+          </patternset>
+        </fileset>
+      </copy>
     </target>
+
 
 </project>
