@@ -189,7 +189,7 @@ public class MessageInputStream
       throw new IOException("Unexpected data in the stream:" + e);
     }
 
-    SecureMethodParam smp = null;
+    SecureMethodParam smp = new SecureMethodParam();
     CryptoPolicy cp = cps.getOutgoingPolicy(source.toAddress());
     byte[] rawData = null;
     

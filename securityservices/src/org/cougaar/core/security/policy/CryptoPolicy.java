@@ -104,10 +104,26 @@ public class CryptoPolicy extends SecurityPolicy {
     }
   }
 
-  public Vector getSecuMethod(String key){ return (Vector)secuMethod.get(key); }
-  public Vector getSymmSpec(String key) { return (Vector)symmSpec.get(key); }
-  public Vector getAsymmSpec(String key) { return (Vector)asymmSpec.get(key); }
-  public Vector getSignSpec(String key) { return (Vector)signSpec.get(key); }
+  public Vector getSecuMethod(String key){ 
+    Vector v = (Vector)secuMethod.get(key);
+    if(v==null) v = (Vector)secuMethod.get("DEFAULT");
+    return v; 
+  }
+  public Vector getSymmSpec(String key) { 
+    Vector v = (Vector)symmSpec.get(key);
+    if(v==null) v = (Vector)symmSpec.get("DEFAULT");
+    return v; 
+  }
+  public Vector getAsymmSpec(String key) { 
+    Vector v = (Vector)asymmSpec.get(key);
+    if(v==null) v = (Vector)asymmSpec.get("DEFAULT");
+    return v; 
+  }
+  public Vector getSignSpec(String key) { 
+    Vector v = (Vector)signSpec.get(key);
+    if(v==null) v = (Vector)signSpec.get("DEFAULT");
+    return v; 
+  }
 
   //for backward compatiblity
   public SecureMethodParam getSecureMethodParam(String key){
