@@ -1,3 +1,7 @@
+/$RearPolicyDomainManagerServlet/policyAdmin
+/$FwdPolicyDomainManagerServlet/policyAdmin
+/$ConusPolicyDomainManagerServlet/policyAdmin
+/$TransPolicyDomainManager/policyAdmin
 /$baz/policyAdmin
 /$SCmrmanager/foo
 /$NCA/glsinit

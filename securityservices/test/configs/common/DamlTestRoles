@@ -5,6 +5,10 @@ MonitorManager
 MoveAgent
 MnRResponder
 PolicyAdministrator
+RearPolicyAdministrator
+FwdPolicyAdministrator
+ConusPolicyAdministrator
+TransPolicyAdministrator
 Rover
 RoverManager
 SocietyAdmin
