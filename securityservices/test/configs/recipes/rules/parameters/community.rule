@@ -70,13 +70,16 @@ society.each_enclave do |enclave|
   society.communities.add("#{enclave.capitalize}UserDomainComm") do |community|
     community.add_attribute("CommunityType", "User")
     society.each_enclave_node(enclave) do |node|
-      community.add_entity(node.name, "Agent") do |entity|
+     # community.add_entity(node.name, "Agent") do |entity|
+     #   entity.add_role("Member")
+     # end
+      community.add_agent(node.name) do |entity|
         entity.add_role("Member")
       end
-      community.add_agent("#{enclave.capitalize}UserAdminAgent") do |entity|
-        entity.add_role("Member")
-        entity.add_role("UserManager")
-      end
+    end
+    community.add_agent("#{enclave.capitalize}UserAdminAgent") do |entity|
+      entity.add_role("Member")
+      entity.add_role("UserManager")
     end
   end
   
