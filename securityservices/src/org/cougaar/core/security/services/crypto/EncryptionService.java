@@ -25,11 +25,9 @@ package org.cougaar.core.security.services.crypto;
 
 import java.io.Serializable;
 import java.io.IOException;
-import java.security.SignedObject;
-import java.security.GeneralSecurityException;
+import java.security.*;
 import java.security.cert.CertificateException;
-import javax.crypto.SealedObject;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 
 // Cougaar core services
 import org.cougaar.core.component.Service;
@@ -156,5 +154,10 @@ public interface EncryptionService extends Service {
 				ProtectedObject envelope,
 				CryptoPolicy policy)
     throws GeneralSecurityException, IOException;
+
+  public Cipher getCipher(String spec)
+    throws NoSuchAlgorithmException, NoSuchPaddingException;
+
+  public void returnCipher(String spec, Cipher ci);
 }
 
