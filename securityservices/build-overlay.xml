@@ -1,34 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project basedir="." default="create_cougaar_overlay" name="securityservices">
-
-	<property environment="env"/>
-	<property name="cougaar" value="${env.COUGAAR_INSTALL_PATH}"/>
-	<property name="src" value="src"/>
-	<property name="lib" value="lib"/>
-	<property name="sys" value="sys"/>
-	<property name="build" value="build"/>
-	<property name="configs" value="test/configs"/>
-	<property name="jar" value="securityservices.jar"/>
-	
-  <path id="all.libs">
-	 <pathelement location="/var/www/html/jars/Security_csi_overlay_HEAD_B10_2.jar"/>
-   <fileset dir="${sys}">
-     <include name="**/*.jar"/>
-   </fileset>
-   <fileset dir="${lib}">
-     <include name="**/*.jar"/>
-   </fileset>
-   <fileset dir="${cougaar}/lib">
-     <include name="**/*.jar"/>
-   </fileset>
-   <fileset dir="${cougaar}/sys">
-     <include name="**/*.jar"/>
-   </fileset>
-	 <pathelement location="/home/build/hourly/jakarta-tomcat-4.0.3/lib/jasper-compiler.jar"/>
-	 <pathelement location="${build}"/>
-  </path>
-
 	<target name="create_cougaar_overlay">
 		<exec dir="." executable="test/bin/installsecurity" os="Linux">
 		</exec>
