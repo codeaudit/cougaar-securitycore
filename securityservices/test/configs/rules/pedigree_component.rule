@@ -1,0 +1,52 @@
+#!/usr/bin/ruby
+####################################################
+# PedigreeComponent
+
+=begin
+# The rule is commented out until Cougaar core supports
+# binders around LogicProviders.
+
+pedigreeService = "org.cougaar.core.security.pedigree.PedigreeComponentFactory"
+clsBinder = "org.cougaar.core.security.pedigree.ServiceBrokerFilterBinderFactory"
+clsNameTest = "org.cougaar.core.security.test.pedigree.PedigreeTestPlugin"
+
+society.each_node do |node|
+  node.add_component do |c|
+    c.name = pedigreeService
+    c.classname = pedigreeService
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+  end
+end
+
+#"Node.AgentManager.Agent.PluginManager.Binder"
+
+society.each_agent(true) do |agent|
+  agent.add_component do |c|
+    c.name = pedigreeService
+    c.classname = pedigreeService
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+  end
+  agent.add_component do |c|
+    c.insertionpoint = "Node.AgentManager.Agent.DomainManager.Binder"
+    c.priority = "BINDER"
+    c.classname = clsBinder
+    c.name = clsBinder
+    c.add_argument("domainManager.binder")
+  end
+  agent.add_component do |c|
+    c.insertionpoint = "Node.AgentManager.Agent.Binder"
+    c.priority = "BINDER"
+    c.classname = clsBinder
+    c.name = clsBinder
+    c.add_argument("agent.binder")
+  end
+  if (clsNameTest != nil)
+    agent.add_component do |c|
+      c.classname = clsNameTest
+    end
+  end
+end
+
+=end
