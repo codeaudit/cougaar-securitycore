@@ -286,7 +286,6 @@ puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
 
   def stopTcpCapture
     return unless @hosts
-puts "Stopping/processing TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}"
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
     @hosts.each do |host|
       doRemoteCmd(host.name, "#{@scriptsdir}/analyzesnort #{@datadir} #{@cipuser}")
@@ -340,13 +339,9 @@ def doRemoteCmd(hostname, cmd, timeout=30)
   end
   cmd = "command[rexec]#{cmd}"
   logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}" if $VerboseDebugging
-
-logInfoMsg "doRemoteCmd: #{hostname}, #{cmd}"
-
   begin
     answer = run.comms.new_message(host).set_body(cmd).request(timeout)
     logInfoMsg "doRemoteCmd answer #{hostname}: #{answer.class}, #{answer}" if $VerboseDebugging
-puts answer
     if answer
       return getRexecBody(answer.to_s).chomp
     else
