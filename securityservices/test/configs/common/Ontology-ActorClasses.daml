@@ -109,5 +109,15 @@
         </rdfs:subClassOf>
     </daml:Class>
 
+    <daml:Class rdf:ID="SocietyAdmin">
+        <rdfs:subClassOf rdf:resource="http://ontology.coginst.uwf.edu/Actor.daml#Person"/>
+        <rdfs:subClassOf>
+            <daml:Restriction>
+                <daml:onProperty rdf:resource="http://ontology.coginst.uwf.edu/Group.daml#isMemberOf"/>
+                <daml:hasValue rdf:resource="http://ontology.coginst.uwf.edu/Ultralog/Names/GroupInstances.daml#SocietyAdminRole"/>
+            </daml:Restriction>
+        </rdfs:subClassOf>
+    </daml:Class>
+
 
 </rdf:RDF>

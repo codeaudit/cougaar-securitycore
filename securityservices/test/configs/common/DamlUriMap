@@ -27,8 +27,9 @@
 #
 # Servlets with no particular agent.
 #
-/$*/datagatherer DataGrabberServlet
-/$*/log_inventory DataGrabberServlet
+#  datagatherer is not included so the automated tests work...
+#/$*/datagatherer DataGrabberServlet
+#/$*/log_inventory DataGrabberServlet
 #
 /$*/CA/CertificateSigningRequest CertReqServlet
 /$*/CA/BrowserSigningRequest CertReqServlet
