@@ -42,12 +42,19 @@ import org.cougaar.core.mts.MessageAttributes;
 import org.cougaar.core.mts.ProtectedInputStream;
 import org.cougaar.core.mts.ProtectedOutputStream;
 import org.cougaar.core.service.MessageProtectionService;
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.util.FailureEvent;
+import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.util.IdmefHelper;
 
 /** Cryptographic Service used to cryptographically protect incoming
  * and outgoing messages.
@@ -70,6 +77,7 @@ public class MessageProtectionServiceImpl
 
   private LoggingService log;
   private boolean isInitialized = false;
+  private static IdmefHelper msgFailureHelper = null;
 
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
@@ -87,8 +95,7 @@ public class MessageProtectionServiceImpl
     
     // Retrieve KeyRing service
     this.keyRing = (KeyRingService)
-      serviceBroker.getService(
-	this, KeyRingService.class, null);
+      serviceBroker.getService(this, KeyRingService.class, null);
 
     // Retrieve Encryption service
     this.encryptService = (EncryptionService)
@@ -99,6 +106,14 @@ public class MessageProtectionServiceImpl
     }
   }
 
+  // static method used to initialize IdmefHelper
+  public static synchronized void initIdmefHelper(BlackboardService bbs, CmrFactory cmrFactory, 
+    LoggingService logger, SensorInfo info) {
+    if(msgFailureHelper == null) {
+      msgFailureHelper = new IdmefHelper(bbs, cmrFactory, logger, info); 
+    }
+  }
+  
   private synchronized void setPolicyService() {
     // Retrieve policy service
     cps = (CryptoPolicyService)
@@ -106,7 +121,7 @@ public class MessageProtectionServiceImpl
     if (cps == null) {
       log.error("Unable to get crypto policy service");
       throw new
-	RuntimeException("MessageProtectionService. No crypto policy service");
+	      RuntimeException("MessageProtectionService. No crypto policy service");
     }
     if (log.isDebugEnabled()) {
       log.debug("Done initializing MessageProtectionServiceImpl");
@@ -150,19 +165,23 @@ public class MessageProtectionServiceImpl
 			+ destination.getAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
-	log.warn("protectHeader NOK: " + source.toAddress()
-		 + " -> " + destination.toAddress()
-		 + " (No policy)");
+	      log.warn("protectHeader NOK: " + source.toAddress()
+		      + " -> " + destination.toAddress()
+		      + " (No policy)");
       }
-      throw new
-	GeneralSecurityException("Could not find message policy between "
-				 + source.getAddress()
-				 + " and " + destination.getAddress());
+      GeneralSecurityException gse = new
+	      GeneralSecurityException("Could not find message policy between "
+				  + source.getAddress()
+				  + " and " + destination.getAddress());
+		  publishMessageFailure(source.toString(), destination.toString(),
+        MessageFailureEvent.INVALID_POLICY, gse.toString());
+      
+      throw gse;
     }     
     if (log.isDebugEnabled()) {
       log.debug("protectHeader: " + source.toAddress()
-		+ " -> " + destination.toAddress()
-		+ " (" + policy.getSecureMethodToString() + ")");
+		    + " -> " + destination.toAddress()
+		    + " (" + policy.getSecureMethodToString() + ")");
     }
 
     ProtectedObject po =
@@ -202,19 +221,22 @@ public class MessageProtectionServiceImpl
 			   +destination.toAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
-	log.warn("unprotectHeader NOK: " + source.toAddress()
-		 + " -> " + destination.toAddress()
-		 + " (No policy)");
+	      log.warn("unprotectHeader NOK: " + source.toAddress()
+		      + " -> " + destination.toAddress()
+		      + " (No policy)");
       }
-      throw new
-	GeneralSecurityException("Could not find message policy between "
-				 + source.getAddress()
-				 + " and " + destination.getAddress());
+      GeneralSecurityException gse = new
+	      GeneralSecurityException("Could not find message policy between "
+				  + source.getAddress()
+				  + " and " + destination.getAddress());
+      publishMessageFailure(source.toString(), destination.toString(),
+        MessageFailureEvent.INVALID_POLICY, gse.toString());
+      throw gse;
     }     
     if (log.isDebugEnabled()) {
       log.debug("unprotectHeader: " + source.toAddress()
-		+ " -> " + destination.toAddress()
-		+ " (" + policy.getSecureMethodToString() + ")");
+		    + " -> " + destination.toAddress()
+		    + " (" + policy.getSecureMethodToString() + ")");
     }
 
     ByteArrayInputStream bais = new ByteArrayInputStream(rawData);
@@ -225,9 +247,9 @@ public class MessageProtectionServiceImpl
     }
     catch (ClassNotFoundException e) {
       if (log.isWarnEnabled()) {
-	log.warn("unprotectHeader NOK: " + source.toAddress()
-		 + " -> " + destination.toAddress()
-		 + " (Class not found)");
+	      log.warn("unprotectHeader NOK: " + source.toAddress()
+		      + " -> " + destination.toAddress()
+		      + " (Class not found)");
       }
       throw new IOException(e.toString());
     }
@@ -235,7 +257,7 @@ public class MessageProtectionServiceImpl
       encryptService.unprotectObject(source, destination, po, policy);
     if (log.isDebugEnabled()) {
       log.debug("unprotectHeader OK: " + source.toAddress()
-		+ " -> " + destination.toAddress());
+		    + " -> " + destination.toAddress());
     }
 
     return (byte[])o;
@@ -326,5 +348,24 @@ public class MessageProtectionServiceImpl
       new MessageInputStream(is, encryptService, cps,
 			     source, destination, serviceBroker);
     return pis;
+  }
+  
+  /**
+   * publish a message failure idmef alert
+   */
+  private void publishMessageFailure(String source, String target,
+    String reason, String data) {
+    FailureEvent event = new MessageFailureEvent(source,
+                                                 target,
+                                                 reason,
+                                                 data);
+    if(msgFailureHelper != null) {
+      msgFailureHelper.publishIDMEFAlert(event); 
+    }
+    else {
+      if(log.isDebugEnabled()) {
+        log.debug("IdmefHelper uninitialized, unable to publish event:\n" + event);
+      }
+    }  
   }
 }

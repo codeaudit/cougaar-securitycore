@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.io.IOException;
 import java.security.*;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.security.cert.CertificateException;
@@ -36,10 +37,10 @@ import java.security.cert.X509Certificate;
 import org.cougaar.core.component.ServiceRevokedListener;
 import org.cougaar.core.component.ServiceRevokedEvent;
 import org.cougaar.core.mts.MessageAddress;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.component.ServiceBroker;
-
+import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.LoggingService;
 
 // Cougaar Security Services
 import org.cougaar.core.security.services.crypto.KeyRingService;
@@ -47,6 +48,11 @@ import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.provider.SecurityServiceProvider;
 import org.cougaar.core.security.crypto.PublicKeyEnvelope;
 import org.cougaar.core.security.crypto.SecureMethodParam;
+import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
+import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.monitoring.util.FailureEvent;
+import org.cougaar.core.security.monitoring.util.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.util.IdmefHelper;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
@@ -54,7 +60,9 @@ public class CryptoManagerServiceImpl
   private KeyRingService keyRing;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-
+  // helper class to publish message failure events as idmef messages
+  private static IdmefHelper msgFailureHelper = null;
+    
   public CryptoManagerServiceImpl(KeyRingService aKeyRing, ServiceBroker sb) {
     keyRing = aKeyRing;
     serviceBroker = sb;
@@ -63,22 +71,31 @@ public class CryptoManagerServiceImpl
 			       LoggingService.class, null);
   }
 
+  // static method used to initialize IdmefHelper
+  public static synchronized void initIdmefHelper(BlackboardService bbs, CmrFactory cmrFactory, 
+    LoggingService logger, SensorInfo info) {
+    if(msgFailureHelper == null) {
+      msgFailureHelper = new IdmefHelper(bbs, cmrFactory, logger, info); 
+    }
+  }
+  
   public SignedObject sign(final String name,
 			   String spec,
 			   Serializable obj)
-  throws GeneralSecurityException,
-	 IOException {
+    throws GeneralSecurityException, IOException {
     List pkList = (List)
-      AccessController.doPrivileged(new PrivilegedAction() {
-	  public Object run(){
-	    return keyRing.findPrivateKey(name);
-	  }
-	});
+    AccessController.doPrivileged(new PrivilegedAction() {
+	    public Object run(){
+	      return keyRing.findPrivateKey(name);
+	    }
+	  });
     if (pkList == null || pkList.size() == 0) {
+      String message = "Unable to sign object. Private key of " + name
+	      + " does not exist."; 
       if (log.isWarnEnabled()) {
-	log.warn("Unable to sign object. Private key of " + name
-	  + " does not exist.");
+	      log.warn(message);
       }
+      
       throw new CertificateException("Private key not found.");
     }
     PrivateKey pk = ((PrivateKeyCert)pkList.get(0)).getPrivateKey();
@@ -283,7 +300,7 @@ public class CryptoManagerServiceImpl
 				       SecureMethodParam policy)
   throws GeneralSecurityException, IOException {
     ProtectedObject po = null;
-
+    String failureIfOccurred = null;
     if (object == null) {
       throw new IllegalArgumentException("Object to protect is null");
     }
@@ -309,15 +326,19 @@ public class CryptoManagerServiceImpl
 	po = new ProtectedObject(policy, object);
 	break;
       case SecureMethodParam.SIGN:
+      failureIfOccurred = MessageFailureEvent.SIGNING_FAILURE;
 	po = sign(object, source, target, policy);
 	break;
       case SecureMethodParam.ENCRYPT:
+      failureIfOccurred = MessageFailureEvent.ENCRYPT_FAILURE;
 	po = encrypt(object, source, target, policy);
 	break;
       case SecureMethodParam.SIGNENCRYPT:
+      failureIfOccurred = MessageFailureEvent.SIGN_AND_ENCRYPT_FAILURE;
 	po = signAndEncrypt(object, source, target, policy);
 	break;
       default:
+      failureIfOccurred = MessageFailureEvent.INVALID_POLICY;
 	throw new GeneralSecurityException("Invalid policy");
       }
     }
@@ -326,6 +347,10 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to protect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            failureIfOccurred,
+                            e.toString());
       throw e;
     }
     catch (IOException e) {
@@ -333,6 +358,10 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to protect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            failureIfOccurred,
+                            e.toString());
       throw e;
     }
     return po;
@@ -344,6 +373,7 @@ public class CryptoManagerServiceImpl
 				SecureMethodParam policy)
   throws GeneralSecurityException {
     Object theObject = null;
+    String failureIfOccurred = null;
     if (protectedObject == null) {
       throw new IllegalArgumentException("Object to protect is null");
     }
@@ -360,7 +390,13 @@ public class CryptoManagerServiceImpl
     // Check the policy.
     if (policy.secureMethod != protectedObject.getSecureMethod().secureMethod) {
       // The object does not comply with the policy
-      throw new GeneralSecurityException("Object does not comply with the policy");
+      GeneralSecurityException gse = 
+        new GeneralSecurityException("Object does not comply with the policy");
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            MessageFailureEvent.INVALID_POLICY,
+                            gse.toString());
+      throw gse;
     }
 
     // Unprotect the message.
@@ -376,21 +412,25 @@ public class CryptoManagerServiceImpl
 	theObject = protectedObject.getObject();
 	break;
       case SecureMethodParam.SIGN:
+      failureIfOccurred = MessageFailureEvent.VERIFICATION_FAILURE;
 	theObject = verify(source, target,
 			   (PublicKeyEnvelope)protectedObject,
 			   policy);
 	break;
       case SecureMethodParam.ENCRYPT:
+	    failureIfOccurred = MessageFailureEvent.DECRYPT_FAILURE;
 	theObject = decrypt(source, target,
 			    (PublicKeyEnvelope)protectedObject,
 			    policy);
 	break;
       case SecureMethodParam.SIGNENCRYPT:
+      failureIfOccurred = MessageFailureEvent.DECRYPT_AND_VERIFY_FAILURE;
 	theObject = decryptAndVerify(source, target,
 				     (PublicKeyEnvelope)protectedObject,
 				     policy);
 	break;
       default:
+      failureIfOccurred = MessageFailureEvent.INVALID_POLICY;
 	throw new GeneralSecurityException("Invalid policy");
       }
     }
@@ -399,6 +439,10 @@ public class CryptoManagerServiceImpl
 	log.warn("Unable to unprotect object: " + source.toAddress()
 		 + " -> " + target.toAddress() + " - policy=" + method);
       }
+      publishMessageFailure(source.toString(),
+                            target.toString(),
+                            failureIfOccurred,
+                            e.toString());
       throw e;
     }
     return theObject;
@@ -681,6 +725,24 @@ public class CryptoManagerServiceImpl
 	       (SignedObject)envelope.getObject());
     return o;
   }
-
+  
+  /**
+   * publish a message failure idmef alert
+   */
+  private void publishMessageFailure(String source, String target,
+    String reason, String data) {
+    FailureEvent event = new MessageFailureEvent(source,
+                                                 target,
+                                                 reason,
+                                                 data);
+    if(msgFailureHelper != null) {
+      msgFailureHelper.publishIDMEFAlert(event); 
+    }
+    else {
+      if(log.isDebugEnabled()) {
+        log.debug("IdmefHelper uninitialized, unable to publish event:\n" + event);
+      }
+    }  
+  }
 }
 
