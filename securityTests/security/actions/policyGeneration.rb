@@ -7,7 +7,9 @@ module Cougaar
   module Actions
     class GeneratePoliciesAction < Cougaar::Action
       def initialize(run)
+	super(run)
         @run = run
+        @staging = File.join(CIP, "workspace", "URPolicies")
       end
     
       def policyFileName
@@ -23,26 +25,25 @@ module Cougaar
       end
 
       def compilePolicies
-        file = "#{@policiesFileName}-AllEnclaves"
-                        
-        output = policyUtil("--maxReasoningDepth 150 build #{file}")
-        debug(output)
+        file = policyFileName()+"-AllEnclaves"
+        output = policyUtil("--maxReasoningDepth 150 build #{file}", nil,@staging)
+        puts"#{output}"
       end
 
       def commitPolicies
         @run.society.each_enclave do |enclave|
           file = "#{policyFileName()}-#{enclave}"
           host, port, manager = getPolicyManager(enclave)
-          debug("for enclave found #{host}, #{port}, #{manager}")
-          debug("waiting for user manager")
+          puts "for enclave found #{host}, #{port}, #{manager}"
+          puts "waiting for user manager"
           waitForUserManager(manager)
-          debug("user manager ready")
+          puts "user manager ready"
           mutex = getPolicyLock(enclave)
           mutex.synchronize do
-            debug("committing policy")
+          puts "committing policy"
             result = commitPolicy(host, port, manager, 
-                                  @delta ? "setpolicies" : "commit", file)
-            debug("policy committed")
+                                  isDelta()? "setpolicies" : "commit", file,@staging)
+            puts "policy committed"
           end
         end
       end
@@ -53,13 +54,14 @@ module Cougaar
 
     class BuildURPolicies < Cougaar::Actions::GeneratePoliciesAction
       def initialize(run)
+	super(run)
         @run = run
-        @staging = File.join(CIP, "workspace", "URPolicies")
+        #@staging = File.join(CIP, "workspace", "URPolicies")
         @debug = false
       end
 
       def policyFileName
-        File.join("#{staging}", "policies")
+        File.join("#{@staging}", "policies")
       end
 
       def isDelta
@@ -67,9 +69,9 @@ module Cougaar
       end
 
       def calculatePolicies
-        debug("calculating policies")
+        puts"calculating policies"
         Dir.mkdir(@staging)
-        p = CommPolicies.new(run)
+        p = CommPolicies.new(@run)
         p.commonDecls()
         p.allowNameService()
         p.allowSpecialCommunity()
@@ -78,9 +80,9 @@ module Cougaar
         p.allowInterMnR()
         p.allowServiceProviders()
         p.allowTalkToSelf()
-        debug("writing policies")
-        p.writePolicies(@staging)
-        debug("policies written")
+        puts"writing policies #{@staging}"
+        p.writePolicies(policyFileName())
+        puts "policies written"
       end
 
       def perform
@@ -92,14 +94,14 @@ module Cougaar
 
     class InstallURPolicies < Cougaar::Actions::GeneratePoliciesAction
       def initialize(run)
+	super(run)
         @run = run
-        @staging = File.join(CIP, "workspace", "URPolicies")
+        #@staging = File.join(CIP, "workspace", "URPolicies")
         @debug = false
       end
 
       def policyFileName
-        File.join("#{staging}", "policies")
-        raise "Abstract Class"
+        File.join("#{@staging}", "policies")
       end
 
       def isDelta
@@ -124,7 +126,7 @@ module Cougaar
         @run = run
         @node = node
         @enclave = enclave
-        @staging = File.join(CIP, "workspace", "URPolicies")
+        #@staging = File.join(CIP, "workspace", "URPolicies")
         @debug = false
       end
 
@@ -137,14 +139,14 @@ module Cougaar
       end
 
       def calculatePolicies
-        debug("calculating policies")
+	puts "calculating policies"
         Dir.mkdir(@staging)
         p = CommPolicies.new(run)
         p.commonDeclsMigrate(@node, @enclave)
         p.allowSecurityManagementMigrate(@enclave)
-        debug("writing policies")
+        puts "writing policies"
         p.writePolicies(@policyFileName)
-        debug("policies written")
+        puts "policies written"
       end
 
       def perform
