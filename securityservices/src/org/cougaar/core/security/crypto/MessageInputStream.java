@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
+import java.text.MessageFormat;
+import java.text.ParseException;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedInputStream;
@@ -40,6 +42,9 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.crypto.ProtectedObject;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.policy.CryptoPolicy;
 
 public class MessageInputStream
@@ -58,7 +63,9 @@ public class MessageInputStream
   private ByteArrayInputStream plainTextInputStream;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-
+  private EventPublisher eventPublisher;
+  private MessageFormat messageFormat = new MessageFormat("{0}-");
+  
   public MessageInputStream(InputStream stream,
 			    EncryptionService enc,
 			    CryptoPolicyService cps,
@@ -82,6 +89,13 @@ public class MessageInputStream
 
   }
 
+  // initialize the event publisher
+  public void addPublisher(EventPublisher publisher) {
+    if(eventPublisher == null) {
+      eventPublisher = publisher;
+    } 
+  }
+  
   /* ************************************************************************
    * FilterInputStream implementation
    */
@@ -161,17 +175,17 @@ public class MessageInputStream
     throws IOException {
     if (isClosed) {
       if (log.isWarnEnabled()) {
-	log.warn("readInputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + " - Stream is closed");
+      	log.warn("readInputStream NOK: " + source.toAddress()
+      		 + " -> " + target.toAddress()
+      		 + " - Stream is closed");
       }
       throw new IOException("InputStream is closed");
     }
     ObjectInputStream ois = new ObjectInputStream(inputStream);
 
     if (log.isDebugEnabled()) {
-      log.debug("readInputStream: " + source.toAddress()
-		+ " -> " + target.toAddress());
+        log.debug("readInputStream: " + source.toAddress()
+  		+ " -> " + target.toAddress());
     }
 
     // The object should be a ProtectedObject
@@ -181,9 +195,9 @@ public class MessageInputStream
     }
     catch (ClassNotFoundException e) {
       if (log.isWarnEnabled()) {
-	log.warn("readInputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + " - Class not found: " + e);
+      	log.warn("readInputStream NOK: " + source.toAddress()
+      		 + " -> " + target.toAddress()
+      		 + " - Class not found: " + e);
       }
       throw new IOException("Unexpected data in the stream:" + e);
     }
@@ -192,13 +206,17 @@ public class MessageInputStream
       cps.getIncomingPolicy(target.toAddress());
     if (policy == null) {
       if (log.isWarnEnabled()) {
-	log.warn("readInputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + " - No policy");
+        log.warn("readInputStream NOK: " + source.toAddress()
+        	 + " -> " + target.toAddress()
+        	 + " - No policy");
       }
-      throw new IOException("Could not find message policy between "
-			    + source.toAddress()
-			    + " and " + target.toAddress());
+     
+      IOException ioe = new IOException("Could not find message policy between "
+    	   + source.toAddress()
+    	   + " and " + target.toAddress());
+    	publishMessageFailure(MessageFailureEvent.INVALID_POLICY,
+    	                      ioe.toString());
+      throw ioe; 
     }
     byte[] rawData = null;
     try {
@@ -208,13 +226,19 @@ public class MessageInputStream
     }
     catch (GeneralSecurityException e) {
       if (log.isWarnEnabled()) {
-	log.warn("readInputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + e);
+      	log.warn("readInputStream NOK: " + source.toAddress()
+      		 + " -> " + target.toAddress()
+      		 + e);
       }
+      
+      publishMessageFailure(e);
       throw new IOException(e.toString());
     }
-
+    catch (IOException ioe) {
+      publishMessageFailure(MessageFailureEvent.IO_EXCEPTION,
+                            ioe.toString());
+      throw ioe;
+    }
     if (log.isDebugEnabled()) {
       log.debug("readInputStream OK: " + source.toAddress()
 		+ " -> " + target.toAddress());
@@ -222,5 +246,38 @@ public class MessageInputStream
 
     plainTextInputStream = new ByteArrayInputStream(rawData);
     isEndOfMessage = true;
+  }
+  
+   /**
+   * publish a message failure idmef alert
+   */
+  private void publishMessageFailure(String reason, String data) {
+    FailureEvent event = new MessageFailureEvent(source.toString(),
+                                                 target.toString(),
+                                                 reason,
+                                                 data);
+    if(eventPublisher != null) {
+      eventPublisher.publishEvent(event); 
+    }
+    else {
+      if(log.isDebugEnabled()) {
+        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
+      }
+    }  
+  }
+  
+  private void publishMessageFailure(GeneralSecurityException gse) {
+    String reason = MessageFailureEvent.UNKNOWN_FAILURE;
+      try {
+        Object []objs = messageFormat.parse(gse.getMessage());
+        if(objs.length == 2) {
+          reason = (String)objs[0];
+        }
+      }
+      catch(ParseException pe) {
+        // eat this exception?
+      }
+      publishMessageFailure(reason,
+                            gse.toString());  
   }
 }

@@ -31,6 +31,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.lang.ClassNotFoundException;
 import java.security.GeneralSecurityException;
+import java.text.MessageFormat;
+import java.text.ParseException;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -50,8 +52,6 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
-import org.cougaar.core.security.monitoring.blackboard.CmrFactory;
-import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
@@ -80,7 +80,8 @@ public class MessageProtectionServiceImpl
   private boolean isInitialized = false;
   // event publisher to publish message failure
   private EventPublisher eventPublisher = null;
-
+  private MessageFormat exceptionFormat = new MessageFormat("{0}-");
+  
   public MessageProtectionServiceImpl(ServiceBroker sb) {
     serviceBroker = sb;
     log = (LoggingService)
@@ -112,10 +113,16 @@ public class MessageProtectionServiceImpl
     }
   }
 
-  // static method used to initialize event publisher
+  // method used to initialize event publisher
   public synchronized void addPublisher(EventPublisher publisher) {
     if(eventPublisher == null) {
-      eventPublisher = publisher; 
+      eventPublisher = publisher;
+      if(pos != null) {
+        pos.addPublisher(publisher);
+      }
+      if(pis != null) {
+        pis.addPublisher(publisher);
+      }
     }
   }
   
@@ -187,19 +194,26 @@ public class MessageProtectionServiceImpl
 		    + " -> " + destination.toAddress()
  		    + " (" + policy.toString() + ")");
     }
-
-    ProtectedObject po =
-      encryptService.protectObject(rawData, source, destination, policy);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
-    oos.writeObject(po);
-
-    if (log.isDebugEnabled()) {
-      log.debug("protectHeader OK: " + source.toAddress()
-		+ " -> " + destination.toAddress());
+    ByteArrayOutputStream baos = null;
+    try {
+      ProtectedObject po =
+        encryptService.protectObject(rawData, source, destination, policy);
+      baos = new ByteArrayOutputStream();
+  
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(po);
+  
+      if (log.isDebugEnabled()) {
+        log.debug("protectHeader OK: " + source.toAddress()
+  		+ " -> " + destination.toAddress());
+      }
     }
-
+    catch(GeneralSecurityException gse) {
+      publishMessageFailure(source.toString(),
+                            destination.toString(),
+                            gse);
+      throw gse;
+    }
     return baos.toByteArray();
   }
 
@@ -255,13 +269,20 @@ public class MessageProtectionServiceImpl
       }
       throw new IOException(e.toString());
     }
-    Object o =
-      encryptService.unprotectObject(source, destination, po, policy);
-    if (log.isDebugEnabled()) {
-      log.debug("unprotectHeader OK: " + source.toAddress()
-		    + " -> " + destination.toAddress());
+    Object o = null;
+    try {
+      o = encryptService.unprotectObject(source, destination, po, policy);
+      if (log.isDebugEnabled()) {
+        log.debug("unprotectHeader OK: " + source.toAddress()
+		      + " -> " + destination.toAddress());
+      }
     }
-
+    catch(GeneralSecurityException gse) {
+      publishMessageFailure(source.toString(),
+                            destination.toString(),
+                            gse);
+      throw gse;
+    }
     return (byte[])o;
   }
 
@@ -306,6 +327,7 @@ public class MessageProtectionServiceImpl
     pos =
       new MessageOutputStream(os, encryptService, cps,
 			      source, destination, serviceBroker);
+	  pos.addPublisher(eventPublisher);
     return pos;
   }
 
@@ -349,6 +371,7 @@ public class MessageProtectionServiceImpl
     pis =
       new MessageInputStream(is, encryptService, cps,
 			     source, destination, serviceBroker);
+	  pis.addPublisher(eventPublisher);
     return pis;
   }
   
@@ -369,5 +392,24 @@ public class MessageProtectionServiceImpl
         log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
       }
     }  
+  }
+  
+  private void publishMessageFailure(String source, String target,
+    GeneralSecurityException gse) {
+    String reason = MessageFailureEvent.UNKNOWN_FAILURE;
+    
+    try {
+      Object []objs = exceptionFormat.parse(gse.getMessage());
+      if(objs.length == 1) {
+        reason = (String)objs[0];
+      }
+    }
+    catch(ParseException pe) {
+      // eat this exception?
+    }
+    publishMessageFailure(source,
+                          target,
+                          reason,
+                          gse.toString());  
   }
 }

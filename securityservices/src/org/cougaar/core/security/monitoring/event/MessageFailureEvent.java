@@ -47,6 +47,7 @@ public class MessageFailureEvent extends FailureEvent {
   public final static String DECRYPT_FAILURE = "Decryption Failure";
   public final static String SIGN_AND_ENCRYPT_FAILURE = "Sign and Encrypt Failure";
   public final static String DECRYPT_AND_VERIFY_FAILURE = "Decrypt and Verify Failure";
+  public final static String IO_EXCEPTION = "IO Exception";
   public final static String UNKNOWN_FAILURE = "Unknown Failure";
   
   public MessageFailureEvent(String source, String target, String reason, String data){

@@ -29,6 +29,8 @@ import java.io.ObjectOutputStream;
 import java.security.GeneralSecurityException;
 import java.util.Random;
 import java.io.FileOutputStream;
+import java.text.MessageFormat;
+import java.text.ParseException;
 
 // Cougaar core services
 import org.cougaar.core.mts.ProtectedOutputStream;
@@ -41,6 +43,9 @@ import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 import org.cougaar.core.security.crypto.ProtectedObject;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.MessageFailureEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.policy.CryptoPolicy;
 
 public class MessageOutputStream
@@ -58,7 +63,9 @@ public class MessageOutputStream
   private MessageAddress target;
   private ServiceBroker serviceBroker;
   private LoggingService log;
-
+  private EventPublisher eventPublisher;
+  private MessageFormat messageFormat = new MessageFormat("{0}-");
+  
   /** Set to true to dump messages to a file (for debug purposes) */
   private static boolean dumpMessages = 
   Boolean.valueOf(
@@ -102,13 +109,27 @@ public class MessageOutputStream
     }
   }
 
+ // initialize the event publisher
+  public void addPublisher(EventPublisher publisher) {
+    if(eventPublisher == null) {
+      eventPublisher = publisher;
+    } 
+  }
+  
   /* ***********************************************************************
    * FilterOutputStream implementation
    */
 
   public void write(byte[] b)
     throws IOException {
-    dataOut.write(b);
+    try {
+      dataOut.write(b);
+    }
+    catch(IOException ioe) {
+      publishMessageFailure(MessageFailureEvent.IO_EXCEPTION,
+                            ioe.toString());
+      throw ioe; 
+    }
   }
 
   public void write(byte[] b, int off, int len)
@@ -141,9 +162,15 @@ public class MessageOutputStream
     throws java.io.IOException {
     ProtectedObject pm = protectMessage();
     isEndOfMessage = true;
-
-    ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-    oos.writeObject(pm);
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+      oos.writeObject(pm);
+    }
+    catch(IOException ioe) {
+      publishMessageFailure(MessageFailureEvent.IO_EXCEPTION,
+                            ioe.toString());
+      throw ioe; 
+    }
   }
 
   /* ***********************************************************************
@@ -156,13 +183,16 @@ public class MessageOutputStream
 
     if (policy == null) {
       if (log.isWarnEnabled()) {
-	log.warn("sendOutputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + " - No policy");
+      	log.warn("sendOutputStream NOK: " + source.toAddress()
+      		 + " -> " + target.toAddress()
+      		 + " - No policy");
       }
-      throw new IOException("Could not find message policy between "
+      IOException ioe = new IOException("Could not find message policy between "
 			    + source.toAddress()
 			    + " and " + target.toAddress());
+			publishMessageFailure(MessageFailureEvent.INVALID_POLICY,
+			                      ioe.toString());
+      throw ioe;
     }
     if (log.isDebugEnabled()) {
       log.debug("protectMessage: " + source.toAddress()
@@ -172,34 +202,72 @@ public class MessageOutputStream
     // Dump the message.
     if (dumpMessages) {
       try {
-	fileMsgDumper.write(dataOut.toByteArray());
-	fileMsgDumper.close();
+      	fileMsgDumper.write(dataOut.toByteArray());
+      	fileMsgDumper.close();
       }
       catch (Exception e) {
-	log.warn("Unable to dump message: " + e);
+	      log.warn("Unable to dump message: " + e);
       }
     }
 
     ProtectedObject protectedMessage = null;
     try {
-      protectedMessage =
-	enc.protectObject(dataOut.toByteArray(),
-			  source,
-			  target,
-			  policy);
+      protectedMessage = enc.protectObject(dataOut.toByteArray(),
+			                                     source,
+			                                     target,
+			                                     policy);
     }
     catch (GeneralSecurityException e) {
       if (log.isWarnEnabled()) {
-	log.warn("sendOutputStream NOK: " + source.toAddress()
-		 + " -> " + target.toAddress()
-		 + e);
+      	log.warn("sendOutputStream NOK: " + source.toAddress()
+      		 + " -> " + target.toAddress()
+      		 + e);
       }
+      publishMessageFailure(e);
       throw new IOException(e.toString());
+    }
+    catch (IOException ioe) {
+      publishMessageFailure(MessageFailureEvent.IO_EXCEPTION,
+                            ioe.toString());
+      throw ioe; 
     }
     if (log.isDebugEnabled()) {
       log.debug("protectMessage OK: " + source.toAddress()
 		+ " -> " + target.toAddress());
     }
     return protectedMessage;
+  }
+   /**
+   * publish a message failure idmef alert
+   */
+  private void publishMessageFailure(String reason, String data) {
+    FailureEvent event = new MessageFailureEvent(source.toString(),
+                                                 target.toString(),
+                                                 reason,
+                                                 data);
+    if(eventPublisher != null) {
+      eventPublisher.publishEvent(event); 
+    }
+    else {
+      if(log.isDebugEnabled()) {
+        log.debug("EventPublisher uninitialized, unable to publish event:\n" + event);
+      }
+    }  
+  }
+  
+  private void publishMessageFailure(GeneralSecurityException gse) {
+    String reason = MessageFailureEvent.UNKNOWN_FAILURE;
+    
+      try {
+        Object []objs = messageFormat.parse(gse.getMessage());
+        if(objs.length == 1) {
+          reason = (String)objs[0];
+        }
+      }
+      catch(ParseException pe) {
+        // eat this exception?
+      }
+      publishMessageFailure(reason,
+                            gse.toString());  
   }
 }

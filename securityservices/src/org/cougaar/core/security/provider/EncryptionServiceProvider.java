@@ -69,10 +69,7 @@ public class EncryptionServiceProvider
     if (encryptionService == null) {
       encryptionService = new CryptoManagerServiceImpl(ksr, sb);
     }
-    if(requestor != null && requestor instanceof EventPublisher) {
-      EventPublisher publisher = (EventPublisher)requestor;
-      ((CryptoManagerServiceImpl)encryptionService).addPublisher(publisher);
-    }
+    
     return encryptionService;
   }
 

@@ -94,10 +94,11 @@ public class IdmefEventPublisher implements EventPublisher {
    * @param events a collection of events to publish as IDMEF messages
    */
   public void publishEvents(List events) {
-    if(m_logger != null && 
-       (events == null || 
+    if((events == null || 
         events.size() > 0)){
-      m_logger.warn("event list is empty!");
+      if(m_logger != null) {
+        m_logger.warn("event list is empty!");
+      }
       return; 
     }
    
@@ -123,9 +124,10 @@ public class IdmefEventPublisher implements EventPublisher {
    * @param event a failure event
    */
   public void publishEvent(FailureEvent event) {
-    if(m_logger != null &&
-       event == null){
-      m_logger.warn("no event to publish!");
+    if(event == null){
+      if(m_logger != null) {
+        m_logger.warn("no event to publish!");
+      }
       return; 
     }
     if(m_blackboard != null) {
@@ -154,9 +156,7 @@ public class IdmefEventPublisher implements EventPublisher {
     String src = event.getSource();
     String tgt = event.getTarget();
     
-    // the 2 list specify agent reference the source and target object respectively
-    // since there isn't a data model for cougaar Agents, the Agent object is
-    // added to the AdditionalData of an IDMEF message
+    // create source information for the IDMEF event
     if(src != null) {
       List sRefList = new ArrayList(1);
       Address sAddr = m_idmefFactory.createAddress(src, null, Address.URL_ADDR);
@@ -166,6 +166,7 @@ public class IdmefEventPublisher implements EventPublisher {
       sAgent = m_idmefFactory.createAgent(src, null, null, sAddr, sRefList);
       sources.add(s);
     }
+    // create target information for the IDMEF event
     if(tgt != null) {
       List tRefList = new ArrayList(1);
       Address tAddr = m_idmefFactory.createAddress(tgt, null, Address.URL_ADDR);
@@ -181,15 +182,16 @@ public class IdmefEventPublisher implements EventPublisher {
     String evtData = event.getData(); 
     if(reason != null) {
       data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
-			                           event.getReasonIdentifier(),
-			                           event.getReason()));
+			                                             event.getReasonIdentifier(),
+			                                             event.getReason()));
     }
     if(evtData != null) {
       data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
-		                                   event.getDataIdentifier(),
-			                           event.getData()));
+		                                               event.getDataIdentifier(),
+			                                             event.getData()));
     }
-    // add the agent information to the additional data
+    // since there isn't a data model for cougaar Agents, the Agent object is
+    // added to the AdditionalData of an IDMEF message
     if(sAgent != null) {
       data.add(m_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
     }

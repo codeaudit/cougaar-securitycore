@@ -141,11 +141,7 @@ public class MessageFailureSensor extends ComponentPlugin {
     EventPublisher publisher = 
       new IdmefEventPublisher(m_blackboard, m_cmrFactory, logger, m_sensorInfo);
     AccessAgentProxy.addPublisher(publisher);
-    sb.getService(publisher, EncryptionService.class, null);
     sb.getService(publisher, MessageProtectionService.class, null);
-    
-    //CryptoManagerServiceImpl.initIdmefHelper(idmefHelper);
-    //MessageProtectionServiceImpl.initIdmefHelper(idmefHelper);
   }  
   
   /**
