@@ -172,6 +172,8 @@ public class AgentIdentityServiceImpl
             dname = new X500Name(requestorAddress.toAddress() + title);
           }
 	  keyRing.checkOrMakeCert(dname, isCACert);
+          if (isCACert)
+            keyRing.updateNS(dname);
 	}
 	catch (Exception e) {
 	  if (log.isErrorEnabled()) {
@@ -237,7 +239,7 @@ public class AgentIdentityServiceImpl
     policy.symmSpec = "DES";
     policy.asymmSpec = "RSA";
     policy.signSpec = "MD5withRSA";
-    
+
 /*      cps.getSendPolicy(thisNodeAddress.toAddress() + ":"
 			  + targetNode.toAddress());
     if (policy == null) {
@@ -349,12 +351,12 @@ public class AgentIdentityServiceImpl
 	       + " to " + thisNodeAddress.toAddress());
     }
 
-    SecureMethodParam policy = 
+    SecureMethodParam policy =
       new SecureMethodParam(SecureMethodParam.SIGNENCRYPT);
     policy.symmSpec = "DES";
     policy.asymmSpec = "RSA";
     policy.signSpec = "MD5withRSA";
-    
+
 /*      cps.getReceivePolicy(sender
 			   +":"
 			   +thisNodeAddress.toAddress());
