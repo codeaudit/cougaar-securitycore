@@ -92,8 +92,7 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
     }
 
     if (type == SendQueue.class) {
-      _sendQ = new CertificateSendQueueDelegate((SendQueue) paramDelegate);
-      delegate = _sendQ;
+      _sendQ = (SendQueue) paramDelegate;
     } else if (type == ReceiveLink.class) {
       return new RefreshCertRecieveLinkDelegate((ReceiveLink) delegatee);
     }
@@ -142,66 +141,5 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
         return super.deliverMessage(msg);
       } 
     }
-  }
-
-  public static class CertificateSendQueueDelegate 
-    extends SendQueueDelegateImplBase {
-    public CertificateSendQueueDelegate(SendQueue queue) {
-      super(queue);
-    }
-    
-    public synchronized void sendMessage(AttributedMessage msg) {
-      super.sendMessage(msg);
-    }
-  }
-
-  private static class ProtectionDestinationLink
-    extends DestinationLinkDelegateImplBase {
-    public ProtectionDestinationLink(DestinationLink link) {
-      super(link);
-    }
-
-    public void addMessageAttributes(MessageAttributes attrs) {
-      Object remoteRef = getRemoteReference();
-      /*
-      if (remoteRef instanceof MT) {
-        try {
-          MT mt = (MT) remoteRef;
-          System.out.println("remote address = " + mt.getMessageAddress());
-        } catch (Exception e) {
-        }
-      }
-      System.out.println("Adding remote reference: " + remoteRef);
-      System.out.println("Destination: " + getDestination());
-      System.out.println("Protocol Class: " + getProtocolClass());
-      */
-      if (remoteRef != null) {
-        attrs.setAttribute(TARGET_LINK, new TargetLinkRef(remoteRef));
-      }
-      super.addMessageAttributes(attrs);
-    }
-  }
-
-
-  private static class TargetLinkRef implements java.io.Serializable {
-    private int              _hashCode;
-    private transient Object _ref;
-    public TargetLinkRef(Object obj) {
-      _ref = obj;
-      _hashCode = _ref.toString().hashCode();
-    }
-
-    public String toString() {
-      return _ref.toString();
-    }
-
-    public boolean equals(Object obj) {
-      if (obj instanceof TargetLinkRef) {
-        return ((TargetLinkRef) obj)._ref == _ref;
-      }
-      return false;
-    }
-
-    public int hashCode() { return _hashCode; }
   }
 }
