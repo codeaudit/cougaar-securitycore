@@ -57,8 +57,8 @@ public class XMLPolicyCreator {
 			   * implement a node-level service to assign UIDs */
 
   public static void main (String[] args) {
-    XMLPolicyCreator xmlpc = new XMLPolicyCreator( args[0], new ConfigFinder(), "TestOwner");
-    //Policy policies[] = xmlpc.getPoliciesByType("com.nai.security.policy.CryptoPolicy1");
+    XMLPolicyCreator xmlpc =
+      new XMLPolicyCreator( args[0], new ConfigFinder(), "TestOwner");
     Policy policies[] = xmlpc.getPolicies();
     if (policies != null) {
       System.out.println("there are " + policies.length + " policies");
@@ -67,14 +67,20 @@ public class XMLPolicyCreator {
       System.out.println("Couldn't parse file");
   }
 
-  /** this constructor will be called from SAFE.PolicyManager.PolicyExpanderPlugin */
+  /** This constructor will be called from
+   *   safe.policyManager.PolicyExpanderPlugin
+   */
   public XMLPolicyCreator(Document xmldoc, String anOwner) {
-    debug = System.getProperty("org.cougaar.core.security.policy.debug", "false").equalsIgnoreCase("true");
+    debug = System.getProperty("org.cougaar.core.security.policy.debug",
+			       "false").equalsIgnoreCase("true");
     owner = anOwner;
     doc = xmldoc;
   }
 
-  public XMLPolicyCreator(String xmlfilename, ConfigFinder configFinder, String anOwner) {
+  public XMLPolicyCreator(String xmlfilename,
+			  ConfigFinder configFinder,
+			  String anOwner)
+  {
     try {
       doc = configFinder.parseXMLConfigFile(xmlfilename);
       if (doc == null) {
@@ -83,7 +89,8 @@ public class XMLPolicyCreator {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    debug = System.getProperty("org.cougaar.core.security.policy.debug", "false").equalsIgnoreCase("true");
+    debug = System.getProperty("org.cougaar.core.security.policy.debug",
+			       "false").equalsIgnoreCase("true");
     owner = anOwner;
   }
 
@@ -103,7 +110,6 @@ public class XMLPolicyCreator {
     }
     return null;
   }
-
 
   public Policy[] getPoliciesByType(String type) {
     try {
@@ -132,7 +138,8 @@ public class XMLPolicyCreator {
       requestedType = "";
     }
     if (debug) {
-      System.out.println("XMLPolicyCreator: Request for policy of type " + requestedType);
+      System.out.println("XMLPolicyCreator: Request for policy of type "
+			 + requestedType);
     }
     Element root = doc.getDocumentElement();
     Vector policyVector = new Vector();
@@ -141,7 +148,7 @@ public class XMLPolicyCreator {
       NodeList nlist = root.getChildNodes();
       int nlength = nlist.getLength();
       if (debug) {
-	System.out.println("There are " + nlength + " Child Nodes");
+	System.out.println("Policy has " + nlength + " Child Nodes");
       }
       for (int i=0; i<nlength; i++) {
 	Node policyNode = nlist.item(i);
@@ -150,8 +157,8 @@ public class XMLPolicyCreator {
         }
         String policyType = null;
         if (policyNode.getNodeName().equals( "Policy" )){
-          //String policyName = policyNode.getAttributes().getNamedItem("name").getNodeValue();
-          policyType  = policyNode.getAttributes().getNamedItem("type").getNodeValue();
+          policyType  = policyNode.getAttributes().
+	    getNamedItem("type").getNodeValue();
         }
         if (policyType == null) {
           continue;

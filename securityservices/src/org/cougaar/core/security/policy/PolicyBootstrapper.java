@@ -35,14 +35,23 @@ public class PolicyBootstrapper {
   XMLPolicyCreator xpc;
   static private boolean debug = false;
 
-  static String PolicyPath = System.getProperty("org.cougaar.core.security.BootPolicy", "BootPolicy.ldm.xml");
+  static String PolicyPath =
+    System.getProperty("org.cougaar.core.security.BootPolicy",
+		       "BootPolicy.ldm.xml");
   
   public PolicyBootstrapper(){
-    debug = System.getProperty("org.cougaar.core.security.policy.debug", "false").equalsIgnoreCase("true");
-    xpc = new XMLPolicyCreator(PolicyPath, new ConfigFinder(), "PolicyBootstrapper");
+    debug = System.getProperty("org.cougaar.core.security.policy.debug",
+			       "false").equalsIgnoreCase("true");
+
+    if (debug) {
+      System.out.println("Initializing Policy bootstrapper");
+    }
+    xpc = new XMLPolicyCreator(PolicyPath, new ConfigFinder(),
+			       "PolicyBootstrapper");
   }
   
-  public Policy[] getBootPolicy(String type){
+  public Policy[] getBootPolicy(String type)
+  {
     if (debug) {
       System.out.println("getBootPolicy: " + type);
     }

@@ -27,6 +27,7 @@
 package org.cougaar.core.security.policy;
 
 import org.cougaar.planning.ldm.policy.Policy;
+import org.cougaar.planning.ldm.policy.RuleParameter;
 
 public class TypedPolicy extends Policy { 
 
@@ -47,10 +48,18 @@ public class TypedPolicy extends Policy {
     return type;
   }
 
-
   public void setType(String type) {
     this.type = type;
   }
 
+  public String toString() {
+    String s = "Name: " + getName() + " - Type: " + getType();
+    RuleParameter[] rules = getRuleParameters();
+    for (int i = 0 ; i < rules.length ; i++) {
+      s = s + " / r[" + i + "]: " + rules[i].getName()
+	+ "=" + rules[i].getValue().toString();
+    }
+    return s;
+  }
 }
 
