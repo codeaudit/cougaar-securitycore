@@ -97,17 +97,25 @@ public class MessageReaderAspect extends StandardAspect {
         for (int i = 0; i < directives.length; i++) {
           if (directives[i] instanceof Task) {
             Task t = (Task) directives[i];
-            logEvent(sender, receiver, t.getVerb().toString());
+            if (log.isDebugEnabled()) {
+              logEvent(sender, receiver, t.getVerb().toString(), null);
+            }
           } else {
-            logEvent(sender, receiver, directives[i].getClass().getName());
+            if (log.isDebugEnabled()) {
+              logEvent(sender, receiver, directives[i].getClass().getName(),
+                       "Interception: Additional info: " + directives[i]);
+            }
           }
         }
       } else if (o instanceof ReportChainReadyRelay) {
-        logEvent(sender, receiver, "ReportChainReadyRelay Intercept");
+        if (log.isDebugEnabled()) {
+          logEvent(sender, receiver, "ReportChainReadyRelay Intercept", null);
+        }
       } else  {
-        logEvent(sender, receiver, type);
-        log.debug("Interception: Additional info: " 
-                       + msg.getRawMessage().toString());
+        if (log.isDebugEnabled()) {
+          logEvent(sender, receiver, type,
+                   "Interception: Additional info: " + msg.getRawMessage());
+        }
       }
       super.sendMessage(msg);
     }
@@ -116,12 +124,16 @@ public class MessageReaderAspect extends StandardAspect {
 
   public void logEvent(String sender, 
                        String receiver,
-                       String type)
+                       String type,
+                       String additionalInfo)
   {
     Event  e        = new Event(sender, receiver, type);
     if (!existingEvents.contains(e)) {
       log.debug("Interception: message :" + sender + " : -> : " +
                     receiver + ": type : " + type);
+      if (additionalInfo != null) {
+        log.debug(additionalInfo);
+      }
       existingEvents.add(e);
     }
   }
