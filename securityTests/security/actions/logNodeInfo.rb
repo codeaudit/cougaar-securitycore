@@ -6,10 +6,11 @@ module Cougaar
         # By default, we retrieve the process info every 60 seconds.
         # However, the action can take two additional parameters which allows
         # to get the process info faster on one specific node.
-        def initialize(run, nodename=nil, frequency=5.seconds)
+        def initialize(run, nodename=nil, frequency=5.seconds, getStackTrace=true)
           super(run)
           @nodename = nodename
           @frequency = frequency
+          @getStackTrace = getStackTrace
           @nodeInfoMap = {}
           dirname = "#{CIP}/workspace/test"
           Dir.mkdir("#{CIP}/workspace") unless File.exist?("#{CIP}/workspace")
@@ -102,6 +103,12 @@ module Cougaar
                   if (response != nil)
                     gotResults = true
                     parseMemoryUsage(nodeInfo, response.body)
+                  end
+                  if (@nodename != nil && nodeInfo.name == @nodename && @getStackTrace)
+                    command = "kill -QUIT #{nodeInfo.pid}"
+                    #puts "Send QUIT signal :#{command} ..."
+		    res = @run.comms.new_message(nodeInfo.host).set_body("command[rexec]#{command}").request(300)
+                    #puts "Done Send QUIT signal :#{res}"
                   end
 
                   # Get load information
