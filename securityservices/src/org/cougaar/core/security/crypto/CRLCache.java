@@ -170,6 +170,8 @@ public class CRLCache implements Runnable
     }
   }
 
+  /**
+   */
   private void updateCRLInCertCache(String distingushName) {
     X509CRL crl=null;
     CRLWrapper wrapper=null;
@@ -192,7 +194,8 @@ public class CRLCache implements Runnable
 
   }
 
-
+  /**
+   */
   private void updateCRLCache(String distingushname) {
     if(log.isDebugEnabled()) {
       log.debug(" Updating crl cache for :"+distingushname);

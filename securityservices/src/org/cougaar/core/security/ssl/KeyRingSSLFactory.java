@@ -28,6 +28,7 @@ package org.cougaar.core.security.ssl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.cert.X509Certificate;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -59,7 +60,13 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   static SSLContext        _ctx;
   static Logger            _log;
 
-  SSLSocketFactory         _fact;
+  private SSLSocketFactory _fact;
+  private static SSLSocketCache   _socketCache;
+
+  static {
+    _socketCache = new SSLSocketCache();
+  }
+
   /**
    * Default constructor.
    */
@@ -69,6 +76,7 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   }
 
   protected KeyRingSSLFactory(SSLContext ctx) {
+    _socketCache = new SSLSocketCache();
     _fact = ctx.getSocketFactory();
     _log = LoggerFactory.getInstance().createLogger(KeyRingSSLFactory.class);
   }
@@ -107,7 +115,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket()
    */
   public Socket createSocket() throws IOException {
-    return _fact.createSocket();
+    Socket socket = _fact.createSocket();
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket());
   }
 
@@ -118,7 +128,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    */
   public Socket createSocket(Socket sock, String host, int port,
                              boolean autoClose) throws IOException {
-    return _fact.createSocket(sock,host,port,autoClose);
+    Socket socket = _fact.createSocket(sock,host,port,autoClose);
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket(sock,host,port,autoClose));
   }
 
@@ -128,7 +140,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(InetAddress, int)
    */
   public Socket createSocket(InetAddress host, int port) throws IOException {
-    return _fact.createSocket(host,port);
+    Socket socket = _fact.createSocket(host,port);
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket(host,port));
   }
 
@@ -140,7 +154,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(InetAddress host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
-    return _fact.createSocket(host,port,localAddress,localPort);
+    Socket socket = _fact.createSocket(host,port,localAddress,localPort);
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket(host,port,localAddress,localPort));
   }
 
@@ -150,7 +166,9 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
    * @see javax.net.ssl.SSLSocketFactory#createSocket(String, int)
    */
   public Socket createSocket(String host, int port) throws IOException {
-    return _fact.createSocket(host,port);
+    Socket socket = _fact.createSocket(host,port);
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket(host,port));
   }
 
@@ -162,8 +180,20 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
   public Socket createSocket(String host, int port,
                              InetAddress localAddress, int localPort)
     throws IOException {
-    return _fact.createSocket(host,port,localAddress,localPort);
+    Socket socket = _fact.createSocket(host,port,localAddress,localPort);
+    updateSocketCache(socket);
+    return socket;
 //     return new WrapSSLSocket(_fact.createSocket(host,port,localAddress,localPort));
+  }
+
+  private void updateSocketCache(Socket socket) {
+    SSLSession session = null;
+    if (socket instanceof SSLSocket) {
+      session = ((SSLSocket)socket).getSession();
+    }
+    if (session != null) {
+      _socketCache.put(session, socket);
+    }
   }
 
   /**
@@ -197,6 +227,13 @@ public class KeyRingSSLFactory extends SSLSocketFactory {
       //System.out.println("SSLContext is already set!");
       return;
     }
+  }
+
+  /** Provide the opportunity to invalidate existing or future
+   *  SSL sessions that use a given certificate.
+   */
+  public static void invalidateSession(X509Certificate aCert) {
+    _socketCache.closeSockets(aCert);
   }
 
   private static final class WrapSSLSocket extends SSLSocket {

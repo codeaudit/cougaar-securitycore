@@ -38,7 +38,7 @@ import sun.security.x509.*;
 import org.cougaar.core.service.LoggingService;
 
 // Cougaar security services
-
+import org.cougaar.core.security.ssl.KeyRingSSLFactory;
 
 /** A hash table to store certificates from keystore, caKeystore and
  * the LDAP directory service, indexed by distinguished name.
@@ -207,6 +207,11 @@ public class CertificateCache
 	found=true;
 	aCertEntry.setCertificateTrust( CertificateTrust. CERT_TRUST_REVOKED_CERT);
 	aCertEntry.setValidity(false);
+
+	// Give the opportunity to invalidate existing or future sessions that
+	// currently use this certificate.
+	invalidateSessions(c1);
+
 	log.debug("revoked status in cache:");
 	X500Name subjectname=null;
 	try {
@@ -239,6 +244,12 @@ public class CertificateCache
         }
       }
     }
+  }
+
+  /** Provide the opportunity to invalidate existing or future sessions that use a given certificate.
+   */
+  private void invalidateSessions(X509Certificate cert) {
+    KeyRingSSLFactory.invalidateSession(cert);
   }
 
   private CertificateStatus addCertStatus(List list, CertificateStatus certEntry,
