@@ -2,13 +2,22 @@
 ####################################################
 # enclave_persistence_mgrs.rule
 
-society.each_node do |node|
-  agentname = ""
-  node.each_facet(:role) do |facet|
-    if facet[:role] == 'RedundantPersistenceManager'
-      facetval = node.host.get_facet(:enclave)
-      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "RedundantPersistenceManager"
-      node.add_agent(agentname) do |agent|
+society.each_agent do |agent|
+#  agentname = ""
+  agent.each_facet(:role) do |facet|
+#    if facet[:role] == 'RedundantPersistenceManager'
+    if facet[:role] == $facetRedundantPersistenceManagerAgent
+      # The PM agent should not be restarted. Robustness of the PM
+      # is not supported by the standard robustness restart mechanism.
+      # This facet is used by the robustness manager
+      if !agent.has_facet?("Restartable")
+        agent.add_facet({"Restartable" => 'false'})
+      end
+
+#      facetval = node.host.get_facet(:enclave)
+#      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "RedundantPersistenceManager"
+#      node.add_agent(agentname) do |agent|
+        run.info_message("adding redundant servlets for #{agent.name}")
         agent.add_component do |c|
           c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
         end
@@ -23,7 +32,7 @@ society.each_node do |node|
         agent.add_component do |c|
            c.classname="org.cougaar.core.security.dataprotection.plugin.RevokeSessionKeyPlugin"
         end
-      end
+#      end
     end
   end
 end
