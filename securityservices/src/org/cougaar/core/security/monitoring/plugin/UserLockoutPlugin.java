@@ -53,7 +53,7 @@ import org.cougaar.core.security.monitoring.blackboard.NewEvent;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
-
+import org.cougaar.core.security.util.CommunityServiceUtil;
 
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -395,7 +395,8 @@ public class UserLockoutPlugin extends ResponderPlugin {
 	}
       };
 
-    String filter = "(CommunityType=Security)";
+    String filter = "(CommunityType=" +
+      CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
     Collection communities =
       cs.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
     if (communities != null) {

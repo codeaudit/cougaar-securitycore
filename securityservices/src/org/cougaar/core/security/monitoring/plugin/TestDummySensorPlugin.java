@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,12 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.multicast.AttributeBasedAddress;
-
 import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;
+import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.StateModelException ;
-import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.planning.ldm.plan.*;
 import org.cougaar.planning.ldm.asset.*;
 import org.cougaar.core.service.*;
@@ -39,10 +39,12 @@ import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.Entity;
+
+// Cougaar security services
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 
-import org.cougaar.core.mts.MessageAddress;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -315,7 +317,8 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
       };
 
     // Request security community.
-    String filter="(CommunityType=Security)";
+    String filter="(CommunityType=" +
+      CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
     Collection communities =
       communityService.searchCommunity(null, filter, false, Community.COMMUNITIES_ONLY, crl);
     if (communities != null) {
@@ -389,7 +392,8 @@ public class TestDummySensorPlugin  extends  ComponentPlugin   {
     else if(role.equalsIgnoreCase("SecurityMnRManager-Enclave")) {
       destrole="SecurityMnRManager-Society";
     }
-    String filter="(CommunityType=Security)";
+    String filter="(CommunityType=" + 
+      CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
     Collection securitycol= null; //communityService.search(filter);
     Iterator itersecurity=securitycol.iterator();
     String comm=null;

@@ -68,6 +68,8 @@ import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityResponse;
+import org.cougaar.core.service.community.CommunityChangeListener;
+import org.cougaar.core.service.community.CommunityChangeEvent;
 import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.service.BlackboardQueryService;
 import org.cougaar.core.blackboard.BlackboardClient;
@@ -124,7 +126,7 @@ final public class CRLCache
   private CertificateCacheService cacheservice=null;
   private KeyRingService keyRingService=null;
   
-  private Collection mySecurityCommunities = null;
+  private Collection _mySecurityCommunities = null;
   private final String CRL_Provider_Role="CrlProvider";
   private MessageAddress myAddress;
   private boolean _listening = false;
@@ -238,9 +240,9 @@ final public class CRLCache
         AttributeBasedAddress aba = null;
         CrlRelay crlregrelay = null;
 
-        if (mySecurityCommunities != null && 
-            !mySecurityCommunities.isEmpty()) {
-	  Iterator it = mySecurityCommunities.iterator();
+        if (_mySecurityCommunities != null && 
+            !_mySecurityCommunities.isEmpty()) {
+	  Iterator it = _mySecurityCommunities.iterator();
           synchronized (_blackboardLock) {
             try {
           blackboardService.openTransaction();
@@ -786,8 +788,8 @@ final public class CRLCache
                                  wrapper.getCertDirectoryType());
       AttributeBasedAddress aba=null;
 
-      if (mySecurityCommunities != null && !mySecurityCommunities.isEmpty()) {
-	Iterator it = mySecurityCommunities.iterator();
+      if (_mySecurityCommunities != null && !_mySecurityCommunities.isEmpty()) {
+	Iterator it = _mySecurityCommunities.iterator();
 
         synchronized (_blackboardLock) {
           try {
@@ -805,7 +807,7 @@ final public class CRLCache
           blackboardService.publishAdd(crlregrelay);
         }
           } finally {
-        blackboardService.closeTransaction();
+	    blackboardService.closeTransaction();
           }
         }
       }
@@ -816,24 +818,28 @@ final public class CRLCache
     log.debug("Setting Security Communities");
     CommunityResponseListener listener = new GetCommunities();
     Collection communities = 
-      _communityService.searchCommunity(null, "(CommunityType=Security)", 
-                                        true, Community.COMMUNITIES_ONLY, 
-                                        listener);
+      _communityService.searchCommunity(
+	null, "(CommunityType=" +
+	CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")", 
+	true, Community.COMMUNITIES_ONLY, 
+	listener);
     if (communities == null) {
       _listening = true;
     } else {
       setMySecurityCommunity(communities);
     }
+    CommunityChangeListener changeListener = new GetChangedCommunities();
+    _communityService.addListener(changeListener);
   }
 
   private void setMySecurityCommunity(Collection c) {
-    mySecurityCommunities = c;
-    if (mySecurityCommunities.isEmpty()) {
+    _mySecurityCommunities = c;
+    if (_mySecurityCommunities.isEmpty()) {
       log.warn("Agent is NOT part of ANY SECURITY COMMUNITY:" +
                myAddress);
     } else if (log.isDebugEnabled()) {
       log.debug("Agent " + myAddress + " security communities: " +
-                mySecurityCommunities);
+                _mySecurityCommunities);
     }
   }
 
@@ -876,12 +882,12 @@ final public class CRLCache
 
   private synchronized void setServices() {
     if (_communityService != null &&
-        mySecurityCommunities == null && !_listening) {
+        _mySecurityCommunities == null && !_listening) {
       setSecurityCommunity();
     }
     if (!_crlRegistered && 
         crlMgmtService != null && blackboardService != null &&
-        mySecurityCommunities != null) {
+        _mySecurityCommunities != null) {
       publishCrlRegistration();
     }
     if (myAddress != null && blackboardService != null) {
@@ -903,6 +909,35 @@ final public class CRLCache
       setMySecurityCommunity((Set)resp);
       _listening = false;
       setServices(); // try that again...
+    }
+  }
+
+  private class GetChangedCommunities implements CommunityChangeListener {
+    public void communityChanged(CommunityChangeEvent event) {
+      Community community = event.getCommunity();
+      try {
+	Attributes attrs = community.getAttributes();
+	Attribute attr = attrs.get("CommunityType");
+	if (attr != null) {
+	  for (int i = 0; i < attr.size(); i++) {
+	    Object type = attr.get(i);
+	    if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
+	      if (log.isInfoEnabled()) {
+		log.info("Adding security community: " +
+		  community.getName());
+	      }
+	      synchronized (_mySecurityCommunities) {
+		_mySecurityCommunities.add(community);
+	      }
+	    }
+	  }
+	}
+      } catch (NamingException e) {
+	throw new RuntimeException("This should never happen");
+      }
+    }
+    public String getCommunityName() {
+      return null;  // all MY communities
     }
   }
 

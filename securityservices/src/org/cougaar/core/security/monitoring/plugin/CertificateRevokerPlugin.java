@@ -48,6 +48,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -471,7 +472,8 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
 	}
       };
     // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=Security)";
+    String filter = "(CommunityType=" +
+      CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
     Collection communities = 
       cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
     if (communities == null) {

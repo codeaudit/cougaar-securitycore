@@ -25,7 +25,6 @@ package org.cougaar.core.security.monitoring.plugin;
 import java.io.*;
 import java.util.*;
 
-import org.cougaar.mlm.plugin.ldm.LDMEssentialPlugin;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.component.ServiceBroker;
 

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -341,7 +341,7 @@ public class MnRQueryServletComponent
        //}
        
        out.println(" Going to get community with community Type Security =============================<br>");
-       String filter="(CommunityType=Security)";
+       String filter="(CommunityType=" + CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ")";
        Collection parent=cs.search(filter);
        Iterator itercommember=parent.iterator();
         String comm;

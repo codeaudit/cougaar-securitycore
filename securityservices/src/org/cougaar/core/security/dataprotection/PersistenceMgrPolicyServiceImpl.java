@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2003 Cougaar Software
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  *
@@ -47,6 +47,7 @@ import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.util.PersistenceMgrPolicyService;
 import org.cougaar.core.security.services.util.WhitePagesUtil;
 import org.cougaar.core.security.services.util.SecurityPropertiesService;
+import org.cougaar.core.security.util.CommunityServiceUtil;
 
 // java
 import java.net.URI;
@@ -214,7 +215,8 @@ public class PersistenceMgrPolicyServiceImpl
 	  }
 	};
 
-      String filter = "(& (CommunityType=Security) (Role=" + PM_ROLE +") )";
+      String filter = "(& (CommunityType="+
+	CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ") (Role=" + PM_ROLE +") )";
       Collection communities = _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
       if (communities != null) {
         configureCommunity((Set) communities);

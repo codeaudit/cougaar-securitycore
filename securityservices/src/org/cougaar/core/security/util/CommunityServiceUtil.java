@@ -65,6 +65,7 @@ public class CommunityServiceUtil {
     _sb.releaseService(this, LoggingService.class, _log);
   }
 
+  public static final String SECURITY_COMMUNITY_TYPE = "Security";
   private static final String MANAGER_ROLE = "Manager";
 
   /**
@@ -101,7 +102,8 @@ public class CommunityServiceUtil {
 	}
       };
 
-    String filter = "(& (CommunityType=Security) (Role=" + MANAGER_ROLE +") )";
+    String filter = "(& (CommunityType=" + SECURITY_COMMUNITY_TYPE
+      + ") (Role=" + MANAGER_ROLE +") )";
     Collection agents = 
       _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
     if (agents != null) {
@@ -131,7 +133,7 @@ public class CommunityServiceUtil {
 	}
       };
     // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=Security)";
+    String filter = "(CommunityType=" + SECURITY_COMMUNITY_TYPE + ")";
     Collection communities = 
       _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
 
@@ -219,7 +221,7 @@ public class CommunityServiceUtil {
 	}
       };
     // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=Security)";
+    String filter = "(CommunityType=" + SECURITY_COMMUNITY_TYPE + ")";
     Collection communities = 
       _cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
 
