@@ -1,0 +1,9 @@
+#!/bin/tcsh
+
+setenv CLASSPATH ${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:../../../classes
+
+java \
+	-Dorg.cougaar.security.keystore=signingCA_keystore \
+	-Dorg.cougaar.security.keystore.password=keystore \
+	com.nai.security.certauthority.KeyManagement  \
+	certSignReq-ROOT-CA-CONUS-3ID-HHC.cer
