@@ -44,7 +44,6 @@ import java.security.KeyPair;
 import sun.security.pkcs.*;
 
 import org.cougaar.util.ConfigFinder;
-import com.nai.security.certauthority.CAClient;
 import com.nai.security.policy.NodePolicy;
 
 //import com.nai.security.certauthority.KeyManagement;
@@ -55,6 +54,7 @@ import com.nai.security.policy.NodePolicy;
 final public class KeyRing {
   // keystore stores private keys and well-know public keys
   private static DirectoryKeyStore keystore;
+  private static DirectoryKeyStoreParameters param;
   private static boolean debug = false;
   private static ConfParser confParser = null;
 
@@ -77,23 +77,27 @@ final public class KeyRing {
       String defaultKeystorePath = installpath + File.separatorChar
 	+ "configs" + File.separatorChar + "common"
 	+ File.separatorChar + "keystore";
-      String ksPass = System.getProperty("org.cougaar.security.keystore.password",
-					 "alpalp");
-      String ksPath = System.getProperty("org.cougaar.security.keystore",
-					 defaultKeystorePath);
-      File file = new File(ksPath);
+      param = new DirectoryKeyStoreParameters();
+      param.keystorePassword =
+	System.getProperty("org.cougaar.security.keystore.password",
+			   "alpalp").toCharArray();
+      param.keystorePath =
+	System.getProperty("org.cougaar.security.keystore",
+			     defaultKeystorePath);
+      File file = new File(param.keystorePath);
       if (!file.exists()){
 	if (debug) {
-	  System.out.println("Could not find keystore in:" + ksPath + ". Creating...");
+	  System.out.println("Could not find keystore in:" + param.keystorePath
+			     + ". Creating...");
 	}
         KeyStore k = KeyStore.getInstance(KeyStore.getDefaultType());
-        FileOutputStream fos = new FileOutputStream(ksPath);
-	k.load(null, ksPass.toCharArray());
-        k.store(fos, ksPass.toCharArray());
+        FileOutputStream fos = new FileOutputStream(param.keystorePath);
+	k.load(null, param.keystorePassword);
+        k.store(fos, param.keystorePassword);
 	fos.close();
         
       }
-      FileInputStream   kss = new FileInputStream(ksPath);
+      param.keystoreStream = new FileInputStream(param.keystorePath);
       
       // CA keystore parameters
       confParser = new ConfParser();
@@ -104,52 +108,40 @@ final public class KeyRing {
       NodePolicy nodePolicy = confParser.readNodePolicy(role);
       ConfigFinder configFinder = new ConfigFinder();
       File f = configFinder.locateFile(nodePolicy.CA_keystore);
-      String caksPass = null;
-      String caksPath = null;
       if (f != null) {
-	caksPath = f.getPath();
-	caksPass = nodePolicy.CA_keystorePassword;
+	param.caKeystorePath = f.getPath();
+	param.caKeystorePassword = nodePolicy.CA_keystorePassword.toCharArray();
       }
 
-      /*caksPass = System.getProperty("org.cougaar.security.cakeystore.password",
-					   "alpalp");
-       caksPath = System.getProperty("org.cougaar.security.cakeystore",
-					   defaultCaKeystorePath);
-      */
-      FileInputStream cakss = null;
       try {
-	cakss = new FileInputStream(caksPath);
+	param.caKeystoreStream = new FileInputStream(param.caKeystorePath);
       }
       catch (Exception e) {
 	if (debug) {
 	  System.out.println("Could not open CA keystore: " + e);
 	}
-	cakss = null;
-	caksPass = null;
-	caksPath = null;
+	param.caKeystoreStream = null;
+	param.caKeystorePath = null;
+	param.caKeystorePassword = null;
       }
 
       if (debug) {
-	System.out.println("Secure message keystore: path=" + ksPath);
-	System.out.println("Secure message CA keystore: path=" + caksPath);
+	System.out.println("Secure message keystore: path=" + param.keystorePath);
+	System.out.println("Secure message CA keystore: path=" + param.caKeystorePath);
       }
     
       // LDAP certificate directory
-      String provider_url = nodePolicy.certDirectoryURL;
+      param.ldapServerUrl = nodePolicy.certDirectoryUrl;
+      param.ldapServerType = nodePolicy.certDirectoryType;
 
-      /* Old system property not used anymore:
-	 System.getProperty("org.cougaar.security.ldapserver",
-	 "ldap://localhost");
-      */
+      param.standalone = false;
+      keystore = new DirectoryKeyStore(param);
 
-      keystore = new DirectoryKeyStore(provider_url,
-				       kss, ksPass.toCharArray(), ksPath,
-				       cakss, caksPass.toCharArray(), caksPath, false);
-      if (kss != null) {
-	kss.close();
+      if (param.keystoreStream != null) {
+	param.keystoreStream.close();
       }
-      if (cakss != null) {
-	cakss.close();
+      if (param.caKeystoreStream != null) {
+	param.caKeystoreStream.close();
       }
 
     } catch (Exception e) {
@@ -158,20 +150,29 @@ final public class KeyRing {
   }
 
   public static synchronized KeyStore getKeyStore() { 
+    if (keystore == null) {
+      return null;
+    }
     return keystore.getKeyStore();
   }
 
   public static synchronized PrivateKey findPrivateKey(String commonName) {
+    if (keystore == null) {
+      return null;
+    }
     return keystore.findPrivateKey(commonName);
   }
 
   public static synchronized Certificate findCert(Principal p) {
+    if (keystore == null) {
+      return null;
+    }
     return keystore.findCert(p);
   }
 
   public static synchronized Certificate findCert(String commonName) {
     if(debug)
-      System.out.println("Looking for common name "+commonName + " in keystore ");
+      System.out.println("Looking for common name " + commonName + " in keystore ");
     return keystore.findCert(commonName);
   }
 
@@ -187,27 +188,35 @@ final public class KeyRing {
 
   public static synchronized void setSleeptime(long sleeptime)
   {
+    if (keystore == null) {
+      return;
+    }
     keystore.setSleeptime(sleeptime);
   }
 
   public static synchronized long getSleeptime()
   {
+    if (keystore == null) {
+      return -1;
+    }
     return keystore.getSleeptime();
   }
 
   public static synchronized Vector getCRL()
   {
+    if (keystore == null) {
+      return null;
+    }
     return keystore.getCRL();
   }
 
   public static synchronized void checkOrMakeCert(String name)
   {
-      keystore.checkOrMakeCert(name);
+    if (keystore == null) {
       return;
+    }
+    keystore.checkOrMakeCert(name);
+    return;
   }
-  /** Generate a PKCS10 request from a public key */
-  //public static String generateSigningCertificateRequest(byte[] dervalue) {
-  //  return keystore.generateSigningCertificateRequest(dervalue);
-  //}
 }
 

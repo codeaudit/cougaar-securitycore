@@ -102,7 +102,8 @@ public class ConfParser {
   public static final String NODE_CA_KEYSTORE_ELEMENT  = "CA_keystore";
   public static final String NODE_CA_KEYSTORE_PWD_ELEMENT  = "CA_keystorePassword";
 
-  public static final String NODE_CERTDIRURL_ELEMENT  = "CertDirectoryURL";
+  public static final String NODE_CERTDIRURL_ELEMENT   = "CertDirectoryURL";
+  public static final String NODE_CERTDIRTYPE_ELEMENT = "CertDirectoryType";
 
   // CA policy
   public static final String CA_POLICY_ELEMENT         = "certificateAuthority";
@@ -110,6 +111,7 @@ public class ConfParser {
   public static final String CA_KEYSTORE_PWD_ELEMENT   = "keystorePassword";
   public static final String CA_CN_ELEMENT             = "caCommonName";
   public static final String CA_LDAP_URL_ELEMENT       = "ldapURL";
+  public static final String CA_LDAP_TYPE_ELEMENT      = "ldapType";
   public static final String CA_SERIAL_NB_FILE_ELEMENT = "serialNumberFile";
   public static final String CA_PKCS10_DIR_ELEMENT     = "pkcs10Directory";
   public static final String CA_X509_CERT_DIR_ELEMENT  = "x509CertDirectory";
@@ -135,6 +137,7 @@ public class ConfParser {
       System.out.println("Reading node policy");
     }
     Element nodePolicyElement = configDoc.getRootElement().getChild(NODE_POLICY_ELEMENT);
+
     NodePolicy nodePolicy = new NodePolicy();
 
     nodePolicy.CA_DN = getElementValue(nodePolicyElement, NODE_CA_DN_ELEMENT, role);
@@ -143,8 +146,15 @@ public class ConfParser {
     nodePolicy.CA_keystorePassword = getElementValue(nodePolicyElement,
                         NODE_CA_KEYSTORE_PWD_ELEMENT, role);
 
-    nodePolicy.certDirectoryURL = getElementValue(nodePolicyElement, NODE_CERTDIRURL_ELEMENT, role);
+    nodePolicy.certDirectoryUrl = getElementValue(nodePolicyElement, NODE_CERTDIRURL_ELEMENT, role);
+    String type = getElementValue(nodePolicyElement, NODE_CERTDIRTYPE_ELEMENT, role);
 
+    if (type.equalsIgnoreCase("NetTools")) {
+      nodePolicy.certDirectoryType = NodePolicy.NETTOOLS; 
+    }
+    else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
+      nodePolicy.certDirectoryType = NodePolicy.COUGAAR_OPENLDAP;
+    }
 
     nodePolicy.ou = getElementValue(nodePolicyElement, NODE_OU_ELEMENT, role);
     nodePolicy.o = getElementValue(nodePolicyElement, NODE_O_ELEMENT, role);
@@ -227,6 +237,22 @@ public class ConfParser {
       caPolicy.caCommonName      = getElementValue(caPolicyElement, CA_CN_ELEMENT, role);
       caPolicy.ldapURL           = getElementValue(caPolicyElement, CA_LDAP_URL_ELEMENT, role);
 
+      String type = getElementValue(caPolicyElement, CA_LDAP_TYPE_ELEMENT, role);
+
+      if (type != null) {
+	if (type.equalsIgnoreCase("NetTools")) {
+	  caPolicy.ldapType = CaPolicy.NETTOOLS; 
+	}
+	else if (type.equalsIgnoreCase("CougaarOpenLdap")) {
+	  caPolicy.ldapType = CaPolicy.COUGAAR_OPENLDAP;
+	}
+      }
+      else {
+	if (debug) { 
+	  System.out.println("No LDAP server type specified.");
+	}
+      }
+
       //caPolicy.ldapURL           = caPolicyElement.getChildText(CA_LDAP_URL_ELEMENT);
       caPolicy.serialNumberFile  = getElementValue(caPolicyElement, CA_SERIAL_NB_FILE_ELEMENT, role);
 
@@ -258,4 +284,55 @@ public class ConfParser {
     }
     return caPolicy;
   }
+
+  public X500Name[] getCaDNs()
+  {
+    X500Name[] caDNs = new X500Name[0];
+    ArrayList caList = new ArrayList();
+
+    List conf = configDoc.getRootElement().getChildren(CA_POLICY_ELEMENT);
+    Iterator it = conf.iterator();
+
+    while (it.hasNext()) {
+      Element element = (Element) it.next();
+      try {
+	X500Name aDN = new X500Name(element.getAttributeValue("name"));
+	System.out.println(aDN.toString());
+	caList.add(aDN);
+      }
+      catch (Exception e) {
+      }
+    }
+    caDNs = (X500Name[]) caList.toArray(caDNs);
+    return caDNs;
+  }
+
+  /** Retrieve all the roles */
+  public String[] getRoles()
+  {
+    HashSet roleSet = new HashSet();
+    String[] roles = new String[0];
+
+    addRole(configDoc.getRootElement(), roleSet);
+    return (String[]) roleSet.toArray(roles);
+  }
+
+  private void addRole(Element e, HashSet set)
+  {
+    if (e == null) {
+      return;
+    }
+    List list = e.getChildren();
+    Iterator it = list.iterator();
+
+    while (it.hasNext()) {
+      Element element = (Element) it.next();
+      addRole(element, set);
+      String aRole = element.getAttributeValue("role");
+      if (aRole != null) {
+	set.add(aRole);
+      }
+    }
+  }
+
 }

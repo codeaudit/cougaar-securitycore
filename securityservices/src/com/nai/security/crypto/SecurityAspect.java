@@ -71,7 +71,7 @@ public class SecurityAspect extends StandardAspect
   //  private static String nodeName= null;
   //private static Verb TRANSPORT = new Verb("Transport");
   private static String SECURE_PROPERTY = 
-      "org.cougaar.message.transport.secure";
+    "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
   private ServiceBroker sb=null;
 
@@ -90,180 +90,180 @@ public class SecurityAspect extends StandardAspect
 
   }
 
-    private static class SecurityEnvelope extends MessageEnvelope {
-        //for access control
-        private TrustSet[] set = null;
-        //for crypto
-        private SignedObject signedMsg = null;
-        private SealedObject sealedMsg = null;
-        private SealedObject secret = null;    // The encrypted session key
-        private Message msg = null;
+  private static class SecurityEnvelope extends MessageEnvelope {
+    //for access control
+    private TrustSet[] set = null;
+    //for crypto
+    private SignedObject signedMsg = null;
+    private SealedObject sealedMsg = null;
+    private SealedObject secret = null;    // The encrypted session key
+    private Message msg = null;
         
-	SecurityEnvelope(Message m, TrustSet[] ts) 
+    SecurityEnvelope(Message m, TrustSet[] ts) 
       throws RuntimeException, CertificateException,
 	     java.security.NoSuchAlgorithmException, java.security.InvalidKeyException,
 	     java.io.IOException, javax.crypto.NoSuchPaddingException,
 	     javax.crypto.IllegalBlockSizeException {
-                 //we don't want m to be the contend, so just make a null one.
-                 super(null, m.getOriginator(), m.getTarget());
-                 //SET UP TRUST ATTRIBUTES
-                 set = new TrustSet[ts.length];
-                 for(int i=0; i<ts.length; i++){
-                     set[i]=ts[i];
-                 }
+      //we don't want m to be the contend, so just make a null one.
+      super(null, m.getOriginator(), m.getTarget());
+      //SET UP TRUST ATTRIBUTES
+      set = new TrustSet[ts.length];
+      for(int i=0; i<ts.length; i++){
+	set[i]=ts[i];
+      }
                  
-                 //NOW ENCRYPT
-              String Origin = m.getOriginator().getAddress();
-              String Target = m.getTarget().getAddress();
-              String keyName;
-              SecureMethodParam s = cps.getSendPolicy(Origin+":"+Target);
-              if(s==null) throw new RuntimeException("no policy available for securing the message:"+m);
-              if(debug) System.out.println("securing message with method "+smlist[s.secureMethod]+":"+Origin+"--"+Target);
+      //NOW ENCRYPT
+      String Origin = m.getOriginator().getAddress();
+      String Target = m.getTarget().getAddress();
+      String keyName;
+      SecureMethodParam s = cps.getSendPolicy(Origin+":"+Target);
+      if(s==null) throw new RuntimeException("no policy available for securing the message:"+m);
+      if(debug) System.out.println("securing message with method "+smlist[s.secureMethod]+":"+Origin+"--"+Target);
 
-              if(s.secureMethod==s.PLAIN){
-                msg = m;
-                return;
-              }else if(s.secureMethod==s.SIGN){
-                keyName = Origin;
-                signedMsg = cms.sign(keyName,s.signSpec,m);
-              }else if(s.secureMethod==s.ENCRYPT){
-                /*generate the secret key*/
-                int i=s.symmSpec.indexOf("/");
-                String a;
-                a =  i > 0 ? s.symmSpec.substring(0,i) : s.symmSpec;
-                SecureRandom random = new SecureRandom();
-                KeyGenerator kg=KeyGenerator.getInstance(a);
-                kg.init(random);
-                SecretKey sk=kg.generateKey();
-                keyName = Target;
-                secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
-                sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
+      if(s.secureMethod==s.PLAIN){
+	msg = m;
+	return;
+      }else if(s.secureMethod==s.SIGN){
+	keyName = Origin;
+	signedMsg = cms.sign(keyName,s.signSpec,m);
+      }else if(s.secureMethod==s.ENCRYPT){
+	/*generate the secret key*/
+	int i=s.symmSpec.indexOf("/");
+	String a;
+	a =  i > 0 ? s.symmSpec.substring(0,i) : s.symmSpec;
+	SecureRandom random = new SecureRandom();
+	KeyGenerator kg=KeyGenerator.getInstance(a);
+	kg.init(random);
+	SecretKey sk=kg.generateKey();
+	keyName = Target;
+	secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
+	sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
 
-              }else if(s.secureMethod==s.SIGNENCRYPT){
-                /*generate the secret key*/
-                int i=s.symmSpec.indexOf("/");
-                String a;
-                a =  i > 0 ? s.symmSpec.substring(0,i) : s.symmSpec;
-                if(debug) {
-                  System.out.println("Secret Key Parameters: " + a);
-                }
-                SecureRandom random = new SecureRandom();
-                KeyGenerator kg=KeyGenerator.getInstance(a);
-                kg.init(random);
-                SecretKey sk=kg.generateKey();
-                keyName = Target;
-
-                // Encrypt session key
-                secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
-
-                // Encrypt message itself
-                sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
-
-                keyName = Origin;
-                // Sign message
-                signedMsg = cms.sign(keyName,s.signSpec,sealedMsg);
-              }else {
-                throw new RuntimeException("SecurityAspect: incorrect secureMethod parameter.");
-              }
+      }else if(s.secureMethod==s.SIGNENCRYPT){
+	/*generate the secret key*/
+	int i=s.symmSpec.indexOf("/");
+	String a;
+	a =  i > 0 ? s.symmSpec.substring(0,i) : s.symmSpec;
+	if(debug) {
+	  System.out.println("Secret Key Parameters: " + a);
 	}
-/*
+	SecureRandom random = new SecureRandom();
+	KeyGenerator kg=KeyGenerator.getInstance(a);
+	kg.init(random);
+	SecretKey sk=kg.generateKey();
+	keyName = Target;
+
+	// Encrypt session key
+	secret=cms.asymmEncrypt(keyName,s.asymmSpec,sk);
+
+	// Encrypt message itself
+	sealedMsg = cms.symmEncrypt(sk,s.symmSpec,m);
+
+	keyName = Origin;
+	// Sign message
+	signedMsg = cms.sign(keyName,s.signSpec,sealedMsg);
+      }else {
+	throw new RuntimeException("SecurityAspect: incorrect secureMethod parameter.");
+      }
+    }
+    /*
         protected TrustSet[] getTrustSets(){
             return set;
         }
 */
-	public Message getContents() {
-        try{
-            //unsecure the message
-            Message m = unsecure();
-            //check tags
-            if (m == null) return null;
-            //TrustSet[] ts = getTrustSets();
-            if (set == null) return m;
+    public Message getContents() {
+      try{
+	//unsecure the message
+	Message m = unsecure();
+	//check tags
+	if (m == null) return null;
+	//TrustSet[] ts = getTrustSets();
+	if (set == null) return m;
                  
-            incomingTrust(m, set);
-            if(!incomingMessageAction(m, set[0])) return null;
-            if(!incomingAgentAction(m)) return null;
+	incomingTrust(m, set);
+	if(!incomingMessageAction(m, set[0])) return null;
+	if(!incomingAgentAction(m)) return null;
             
-            return m;
-        }catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
+	return m;
+      }catch(Exception e){
+	e.printStackTrace();
+	return null;
+      }
+    }
+
+    //check if the secure method being used matches
+    //the content of message
+    private boolean policyMatch(int method)
+    {
+      if(method==SecureMethodParam.PLAIN){
+	if(msg != null) {
+	  return true;
 	}
-
-      //check if the secure method being used matches
-      //the content of message
-      private boolean policyMatch(int method)
-      {
-          if(method==SecureMethodParam.PLAIN){
-            if(msg != null) {
-              return true;
-            }
-          }else if(method==SecureMethodParam.ENCRYPT){
-            if(secret!=null && sealedMsg!=null) {
-              return true;
-            }
-          }else if(method==SecureMethodParam.SIGN){
-            if(signedMsg != null) {
-              return true;
-            }
-          }else if(method==SecureMethodParam.SIGNENCRYPT){
-            if(signedMsg!=null && secret!=null && sealedMsg!=null) {
-              return true;
-            }
-          }
-
-        return false;
+      }else if(method==SecureMethodParam.ENCRYPT){
+	if(secret!=null && sealedMsg!=null) {
+	  return true;
+	}
+      }else if(method==SecureMethodParam.SIGN){
+	if(signedMsg != null) {
+	  return true;
+	}
+      }else if(method==SecureMethodParam.SIGNENCRYPT){
+	if(signedMsg!=null && secret!=null && sealedMsg!=null) {
+	  return true;
+	}
       }
 
-      private Message unsecure()
-        throws RuntimeException, CertificateException {
-          String Origin = getOriginator().getAddress();
-          String Target = getTarget().getAddress();
-          SecureMethodParam param = null;
-          param = cps.getReceivePolicy(Origin+":"+Target);
-          if(!policyMatch(param.secureMethod)){
-            //try boot policy
-            if(debug) System.out.println("unmatching unsecuring method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
-            param = cps.getReceivePolicy("BOOT"+":"+"DEFAULT");
-            if(!policyMatch(param.secureMethod)){
-              if(debug) System.out.println("couldn't match unsecuring method "+smlist[param.secureMethod]+" for :"+Origin+"--"+Target);
-              //boot didn't match, quit.
-              return null;
-            }
-          }
+      return false;
+    }
 
-          if(param==null) throw new RuntimeException("no policy available for un-securing the message:"+this);
-          String keyName;
-
-          if(debug) System.out.println("unsecuring message with method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
-          if(param.secureMethod==SecureMethodParam.PLAIN){
-            return msg;
-
-          }else if(param.secureMethod==SecureMethodParam.ENCRYPT){
-            keyName = Target;
-            SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
-            return (Message)cms.symmDecrypt(sk,sealedMsg);
-
-          }else if(param.secureMethod==SecureMethodParam.SIGN){
-            keyName = Origin;
-            return (Message)cms.verify(keyName, param.signSpec, signedMsg);
-
-          }else if(param.secureMethod==SecureMethodParam.SIGNENCRYPT){
-            keyName = Origin;
-
-            // Verify the signature
-            SealedObject so=(SealedObject)cms.verify(keyName, param.signSpec, signedMsg);
-            if (so==null) return null;    //should we do something more???
-            keyName = Target;
-
-            // Retrieving the secret key, which was encrypted using the public key
-            // of the target.
-            SecretKey sk=(SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
-            return (Message)cms.symmDecrypt(sk, so);
-          }
-          return null;
+    private Message unsecure()
+      throws RuntimeException, CertificateException {
+      String Origin = getOriginator().getAddress();
+      String Target = getTarget().getAddress();
+      SecureMethodParam param = null;
+      param = cps.getReceivePolicy(Origin+":"+Target);
+      if(!policyMatch(param.secureMethod)){
+	//try boot policy
+	if(debug) System.out.println("unmatching unsecuring method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
+	param = cps.getReceivePolicy("BOOT"+":"+"DEFAULT");
+	if(!policyMatch(param.secureMethod)){
+	  if(debug) System.out.println("couldn't match unsecuring method "+smlist[param.secureMethod]+" for :"+Origin+"--"+Target);
+	  //boot didn't match, quit.
+	  return null;
+	}
       }
+
+      if(param==null) throw new RuntimeException("no policy available for un-securing the message:"+this);
+      String keyName;
+
+      if(debug) System.out.println("unsecuring message with method "+smlist[param.secureMethod]+":"+Origin+"--"+Target);
+      if(param.secureMethod==SecureMethodParam.PLAIN){
+	return msg;
+
+      }else if(param.secureMethod==SecureMethodParam.ENCRYPT){
+	keyName = Target;
+	SecretKey sk = (SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	return (Message)cms.symmDecrypt(sk,sealedMsg);
+
+      }else if(param.secureMethod==SecureMethodParam.SIGN){
+	keyName = Origin;
+	return (Message)cms.verify(keyName, param.signSpec, signedMsg);
+
+      }else if(param.secureMethod==SecureMethodParam.SIGNENCRYPT){
+	keyName = Origin;
+
+	// Verify the signature
+	SealedObject so=(SealedObject)cms.verify(keyName, param.signSpec, signedMsg);
+	if (so==null) return null;    //should we do something more???
+	keyName = Target;
+
+	// Retrieving the secret key, which was encrypted using the public key
+	// of the target.
+	SecretKey sk=(SecretKey)cms.asymmDecrypt(keyName, param.asymmSpec, secret);
+	return (Message)cms.symmDecrypt(sk, so);
+      }
+      return null;
+    }
         
     private void compare(TrustSet msgSet, TrustSet policySet) {
       if(policySet == null || msgSet == null)return;
@@ -286,17 +286,17 @@ public class SecurityAspect extends StandardAspect
     private boolean matchInVerb(String target, String source, Verb verb) {
       Object[] verbs = acps.getIncomingVerbs(target, source);
       if(verb == null || verbs.length == 0) {
-	  if(debug)System.out.println("SecurityAspect: no incoming verbs for"
-				      + target + ", " + source + ", " + verb);
+	if(debug)System.out.println("SecurityAspect: no incoming verbs for"
+				    + target + ", " + source + ", " + verb);
 	return true;		// we have no policy so return true
       }
       for(int i = 0; i < verbs.length; i++) {
-	  if(!(verbs[i] instanceof Verb))continue;
-	  if(verb.equals((Verb)verbs[i])) {
-	    if(debug)System.out.println("SecurityAspect: matched in verbs "
-					+ verbs[i] + " == " + verb);
-	    return true;	// we found a match so return success
-	  }
+	if(!(verbs[i] instanceof Verb))continue;
+	if(verb.equals((Verb)verbs[i])) {
+	  if(debug)System.out.println("SecurityAspect: matched in verbs "
+				      + verbs[i] + " == " + verb);
+	  return true;	// we found a match so return success
+	}
       }
       return false;		// we found no matches so return false
     }
@@ -306,114 +306,114 @@ public class SecurityAspect extends StandardAspect
       TrustSet policySet;
 
       try {
-	  policySet = acps.getIncomingTrust
-	      (msg.getTarget().toString(), 
-	       msg.getOriginator().toString());
+	policySet = acps.getIncomingTrust
+	  (msg.getTarget().toString(), 
+	   msg.getOriginator().toString());
       }
       catch(Exception ex) {
-	      System.out.println("Warning: no msg incoming trust for type = "
-				 + msg.getClass());  
-	  return;
+	System.out.println("Warning: no msg incoming trust for type = "
+			   + msg.getClass());  
+	return;
       }
       if(policySet!=null){
-          compare(set[0], policySet);
+	compare(set[0], policySet);
       }
       if(msg instanceof DirectiveMessage) {
-          Directive directive[] = ((DirectiveMessage)msg).getDirectives();
-          TrustSet policy;
+	Directive directive[] = ((DirectiveMessage)msg).getDirectives();
+	TrustSet policy;
 
-          if (set.length < directive.length+1){
-              for (int j = 0; j < directive.length - set.length + 1; j++){
-                  set[j+set.length] = new TrustSet();
-                  //set[j+set.length] = null;
-              }
-          }
-          for(int i = 0; i < directive.length; i++) {
-            policy = acps.getIncomingTrust
-              (directive[i].getDestination().toString(),
-               directive[i].getSource().toString());
-            if(set[i+1] == null){
-                set[i+1] = policy; //new TrustSet();
-            }else{
-		if(directive[i] instanceof Task) {
-		    Task task = (Task)directive[i];
-		    if(matchInVerb(task.getDestination().toString(), 
-				   task.getSource().toString(),
-				    task.getVerb())) {
-			set[i+1] = policy;
-		    } else {
-			compare(set[i+1], policy);
-		    }
-		} else {		    
-		    compare(set[i+1], policy);
-		}
+	if (set.length < directive.length+1){
+	  for (int j = 0; j < directive.length - set.length + 1; j++){
+	    set[j+set.length] = new TrustSet();
+	    //set[j+set.length] = null;
+	  }
+	}
+	for(int i = 0; i < directive.length; i++) {
+	  policy = acps.getIncomingTrust
+	    (directive[i].getDestination().toString(),
+	     directive[i].getSource().toString());
+	  if(set[i+1] == null){
+	    set[i+1] = policy; //new TrustSet();
+	  }else{
+	    if(directive[i] instanceof Task) {
+	      Task task = (Task)directive[i];
+	      if(matchInVerb(task.getDestination().toString(), 
+			     task.getSource().toString(),
+			     task.getVerb())) {
+		set[i+1] = policy;
+	      } else {
+		compare(set[i+1], policy);
+	      }
+	    } else {		    
+	      compare(set[i+1], policy);
 	    }
 	  }
+	}
       }
     }
 	
     private boolean incomingAgentAction(Message msg) {
-	String action;
+      String action;
 
-	try {
-        	action = acps.getIncomingAgentAction
-		    (msg.getTarget().toString(), msg.getOriginator().toString());
-	}
-	catch(Exception ex) {
-	    System.out.println("Warning: no access control for message type " + msg.getClass());
-	    return true;
-	}
-	if(debug)System.out.println("SecurityAspect: action(in) = " + action);
-	if(action == null)
-	    return true;
-	if(msg instanceof DirectiveMessage)
-	    return incomingAgentAction((DirectiveMessage)msg) &
-		!action.equals(AccessControlPolicy.SET_ASIDE);
-	return (!action.equals(AccessControlPolicy.SET_ASIDE));
+      try {
+	action = acps.getIncomingAgentAction
+	  (msg.getTarget().toString(), msg.getOriginator().toString());
+      }
+      catch(Exception ex) {
+	System.out.println("Warning: no access control for message type " + msg.getClass());
+	return true;
+      }
+      if(debug)System.out.println("SecurityAspect: action(in) = " + action);
+      if(action == null)
+	return true;
+      if(msg instanceof DirectiveMessage)
+	return incomingAgentAction((DirectiveMessage)msg) &
+	  !action.equals(AccessControlPolicy.SET_ASIDE);
+      return (!action.equals(AccessControlPolicy.SET_ASIDE));
     }
 
     private boolean incomingAgentAction(DirectiveMessage msg) {
-	String action = null;
-	Directive directive[] = 
-	    ((DirectiveMessage)msg).getDirectives();
-	for(int i = 0; i < directive.length; i++) {
-	    if(!(directive[i] instanceof Task))
-		continue;
-	    if(debug)System.out.println("SecurityAscpect: processing in task "
-					+ i);
-	    Task task = (Task)directive[i];
-	    if(matchInVerb(task.getDestination().toString(), 
-			   task.getSource().toString(),
-			   task.getVerb()))
-		action = acps.getIncomingAgentAction
-		    (task.getDestination().toString(), 
-		     task.getSource().toString());
-	    if(action == null)
-		continue;
-	    if(action.equals(AccessControlPolicy.SET_ASIDE))
-		removeDirective((DirectiveMessage)msg, i);
-	}
-	//return (msg.getDirectives().length > 0);
-	return true;
+      String action = null;
+      Directive directive[] = 
+	((DirectiveMessage)msg).getDirectives();
+      for(int i = 0; i < directive.length; i++) {
+	if(!(directive[i] instanceof Task))
+	  continue;
+	if(debug)System.out.println("SecurityAscpect: processing in task "
+				    + i);
+	Task task = (Task)directive[i];
+	if(matchInVerb(task.getDestination().toString(), 
+		       task.getSource().toString(),
+		       task.getVerb()))
+	  action = acps.getIncomingAgentAction
+	    (task.getDestination().toString(), 
+	     task.getSource().toString());
+	if(action == null)
+	  continue;
+	if(action.equals(AccessControlPolicy.SET_ASIDE))
+	  removeDirective((DirectiveMessage)msg, i);
+      }
+      //return (msg.getDirectives().length > 0);
+      return true;
     }
 	
     private boolean incomingMessageAction(Message msg, TrustSet t) {
       //if(!(msg instanceof DirectiveMessage))
-	//return true;
+      //return true;
       String action;
-	try {
-            action = acps.getIncomingAction
-		    (msg.getTarget().toString(), (String)t.getAttribute(MissionCriticality.name).getValue());
-	}
-	catch(Exception ex) {
-	    System.out.println("Warning: no access control for message" + msg);
-	    return true;
-	}
-	if(debug)System.out.println("SecurityAspect: message action(in) = " + action);
-	if(action == null)
-	    return true;
-	return (!action.equals(AccessControlPolicy.SET_ASIDE));
-   }
+      try {
+	action = acps.getIncomingAction
+	  (msg.getTarget().toString(), (String)t.getAttribute(MissionCriticality.name).getValue());
+      }
+      catch(Exception ex) {
+	System.out.println("Warning: no access control for message" + msg);
+	return true;
+      }
+      if(debug)System.out.println("SecurityAspect: message action(in) = " + action);
+      if(action == null)
+	return true;
+      return (!action.equals(AccessControlPolicy.SET_ASIDE));
+    }
 
     /** removes the nth directive and trust set from a directive message */
     private void removeDirective(DirectiveMessage msg, int index) {
@@ -432,11 +432,11 @@ public class SecurityAspect extends StandardAspect
 
     }
     
-    }
+  }
     
   private void init(){
     enabled = true;
-//    sb = getServiceBroker();
+    //    sb = getServiceBroker();
     if (sb != null){
       try{
 	cms = (CryptoManagerService)sb.getService(this, CryptoManagerService.class, null);
@@ -455,39 +455,39 @@ public class SecurityAspect extends StandardAspect
 
     
 
-    public Object getDelegate(Object delegate, Class type) 
-    {
-        //make sure we are initialized
-        if(!enabled) init();
-	if (type ==  DestinationLink.class) {
-	    DestinationLink link = (DestinationLink) delegate;
-//	    if (link.getProtocolClass() == LoopbackLinkProtocol.class)
-//		return null;
-//	    else
-		return new SecureDestinationLink(link);
-	} else {
-	    return null;
-	}
+  public Object getDelegate(Object delegate, Class type) 
+  {
+    //make sure we are initialized
+    if(!enabled) init();
+    if (type ==  DestinationLink.class) {
+      DestinationLink link = (DestinationLink) delegate;
+      //	    if (link.getProtocolClass() == LoopbackLinkProtocol.class)
+      //		return null;
+      //	    else
+      return new SecureDestinationLink(link);
+    } else {
+      return null;
     }
+  }
 
 
-    public Object getReverseDelegate(Object delegate, Class type) 
-    {
-        //make sure we are initialized
-        if(!enabled) init();
-	if (type == MessageDeliverer.class) {
-	    return new SecureDeliverer((MessageDeliverer) delegate);
-	} else {
-	    return null;
-	}
+  public Object getReverseDelegate(Object delegate, Class type) 
+  {
+    //make sure we are initialized
+    if(!enabled) init();
+    if (type == MessageDeliverer.class) {
+      return new SecureDeliverer((MessageDeliverer) delegate);
+    } else {
+      return null;
     }
+  }
     
-    private class SecureDestinationLink 
-	extends DestinationLinkDelegateImplBase 
-    {
-	private SecureDestinationLink(DestinationLink link) {
-	    super(link);
-	}
+  private class SecureDestinationLink 
+    extends DestinationLinkDelegateImplBase 
+  {
+    private SecureDestinationLink(DestinationLink link) {
+      super(link);
+    }
 
     public void forwardMessage(Message message) 
       throws UnregisteredNameException, 
@@ -496,15 +496,15 @@ public class SecurityAspect extends StandardAspect
 	     MisdeliveredMessageException
     {
       try {
-          TrustSet[] ts;
-          ts = checkOutgoing(message);
+	TrustSet[] ts;
+	ts = checkOutgoing(message);
 	if(ts==null) {
-	    if(debug) {
-		System.out.println("Rejecting outgoing message: " + 
-				   ((message != null)? message.toString():
-				   "Null Message"));
-	    }
-	    return;		// the message is rejected so we abort here
+	  if(debug) {
+	    System.out.println("Rejecting outgoing message: " + 
+			       ((message != null)? message.toString():
+				"Null Message"));
+	  }
+	  return;		// the message is rejected so we abort here
 	}
 	SecurityEnvelope se;
 	//mSecured = (secure)? secure(message): message;
@@ -533,12 +533,12 @@ public class SecurityAspect extends StandardAspect
 	
 
     private TrustSet[] checkOutgoing(Message msg) {
-          if(msg == null)return null;
-          TrustSet[] trust;
-          trust = outgoingTrust(msg);
-          if(!outgoingMessageAction(msg, trust[0])) return null;
-          if(!outgoingAgentAction(msg)) return null;
-          return trust;
+      if(msg == null)return null;
+      TrustSet[] trust;
+      trust = outgoingTrust(msg);
+      if(!outgoingMessageAction(msg, trust[0])) return null;
+      if(!outgoingAgentAction(msg)) return null;
+      return trust;
     }
 
     private void compare(TrustSet msgSet, TrustSet policySet) {
@@ -563,44 +563,44 @@ public class SecurityAspect extends StandardAspect
       TrustSet policySet;
 
       try {
-	  policySet = acps.getOutgoingTrust
-	      (msg.getOriginator().toString(), 
-	       msg.getTarget().toString());
+	policySet = acps.getOutgoingTrust
+	  (msg.getOriginator().toString(), 
+	   msg.getTarget().toString());
       }
       catch(Exception ex) {
-	      System.out.println("Warning: no msg outgoing trust for type = "
-				 + msg.getClass());  
-	  return null;
+	System.out.println("Warning: no msg outgoing trust for type = "
+			   + msg.getClass());  
+	return null;
       }
       if(policySet!=null){
-          set[0] = policySet;
+	set[0] = policySet;
       }
       if(msg instanceof DirectiveMessage) {
-          Directive directive[] = ((DirectiveMessage)msg).getDirectives();
-          set = new TrustSet[directive.length+1];
-          set[0] = policySet;
-          TrustSet policy;
+	Directive directive[] = ((DirectiveMessage)msg).getDirectives();
+	set = new TrustSet[directive.length+1];
+	set[0] = policySet;
+	TrustSet policy;
 
-          for(int i = 0; i < directive.length; i++) {
-            policy = acps.getOutgoingTrust
-              (directive[i].getSource().toString(),
-               directive[i].getDestination().toString());
-            if(set[i+1] == null){
+	for(int i = 0; i < directive.length; i++) {
+	  policy = acps.getOutgoingTrust
+	    (directive[i].getSource().toString(),
+	     directive[i].getDestination().toString());
+	  if(set[i+1] == null){
+	    set[i+1] = policy;
+	  }else{
+	    if(directive[i] instanceof Task) {
+	      Task task = (Task)directive[i];
+	      if(matchOutVerb(task.getDestination().toString(), 
+			      task.getSource().toString(),
+			      task.getVerb())) {
 		set[i+1] = policy;
-            }else{
-		if(directive[i] instanceof Task) {
-		    Task task = (Task)directive[i];
-		    if(matchOutVerb(task.getDestination().toString(), 
-				   task.getSource().toString(),
-				   task.getVerb())) {
-			set[i+1] = policy;
-		    } else {
-			compare(set[i+1], policy);
-		    }
-		} else 
-		    compare(set[i+1], policy);		
-	    }
+	      } else {
+		compare(set[i+1], policy);
+	      }
+	    } else 
+	      compare(set[i+1], policy);		
 	  }
+	}
       }
       return set;        
     }
@@ -613,81 +613,85 @@ public class SecurityAspect extends StandardAspect
 	return true;		// we have no policy so return true
       }
       for(int i = 0; i < verbs.length; i++) {
-	  if(!(verbs[i] instanceof Verb))continue;
-	  if(verb.equals((Verb)verbs[i])) {
-	      if(debug)System.out.println("SecurityAspect: matched out verbs " 
-					  + verbs[i] + " == " + verb);
-	      return true;	// we found a match so return success
-	  }
+	if(!(verbs[i] instanceof Verb))continue;
+	if(verb.equals((Verb)verbs[i])) {
+	  if(debug)System.out.println("SecurityAspect: matched out verbs " 
+				      + verbs[i] + " == " + verb);
+	  return true;	// we found a match so return success
+	}
       }
       return false;		// we found no matches so return false
     }
       
     private boolean outgoingAgentAction(Message msg) {
-	String action;
+      String action;
 
-	try {
-	  action = acps.getOutgoingAgentAction
-	    (msg.getOriginator().toString(), msg.getTarget().toString());
-	}
-	catch(Exception ex) {
-	    System.out.println("Warning: no access control for message type " + msg.getClass());
-	    return true;
-	}
-	if(debug)System.out.println("SecurityAspect: action(out) = " + action);
-	if(action == null)
-	    return true;
-	if(msg instanceof DirectiveMessage)
-	    return outgoingAgentAction((DirectiveMessage)msg) &
-		action.equals(AccessControlPolicy.ACCEPT);
-	return action.equals(AccessControlPolicy.ACCEPT);
+      try {
+	action = acps.getOutgoingAgentAction
+	  (msg.getOriginator().toString(), msg.getTarget().toString());
+      }
+      catch(Exception ex) {
+	System.out.println("Warning: no access control for message type " + msg.getClass());
+	return true;
+      }
+      if(debug)System.out.println("SecurityAspect: action(out) = " + action);
+      if(action == null)
+	return true;
+      if(msg instanceof DirectiveMessage)
+	return outgoingAgentAction((DirectiveMessage)msg) &
+	  action.equals(AccessControlPolicy.ACCEPT);
+      return action.equals(AccessControlPolicy.ACCEPT);
     }
 
     private boolean outgoingAgentAction(DirectiveMessage msg) {
-	String action = null;
-	Directive directive[] = 
-	    ((DirectiveMessage)msg).getDirectives();
-	for(int i = 0; i < directive.length; i++) {
-	    if(!(directive[i] instanceof Task))
-		continue;
-	    Task task = (Task)directive[i];
-	    if (matchOutVerb(task.getSource().toString(),
-			     task.getDestination().toString(),
-			     task.getVerb()))
-		action = acps.getOutgoingAgentAction
-		    (task.getSource().toString(), 
-		     task.getDestination().toString());
-	    if(action == null)
-		continue;
-	    if(action.equals(AccessControlPolicy.SET_ASIDE)) 
-		removeDirective((DirectiveMessage)msg, i);
-	}
-	if(debug)System.out.println("SecurityAspect: DirectiveMessage now contains " + 
-				    msg.getDirectives().length + 
-				    " directives.");
-	//return (msg.getDirectives().length > 0);
-	return true;
+      String action = null;
+      Directive directive[] = 
+	((DirectiveMessage)msg).getDirectives();
+      for(int i = 0; i < directive.length; i++) {
+	if(!(directive[i] instanceof Task))
+	  continue;
+	Task task = (Task)directive[i];
+	if (matchOutVerb(task.getSource().toString(),
+			 task.getDestination().toString(),
+			 task.getVerb()))
+	  action = acps.getOutgoingAgentAction
+	    (task.getSource().toString(), 
+	     task.getDestination().toString());
+	if(action == null)
+	  continue;
+	if(action.equals(AccessControlPolicy.SET_ASIDE)) 
+	  removeDirective((DirectiveMessage)msg, i);
+      }
+      if(debug)System.out.println("SecurityAspect: DirectiveMessage now contains " + 
+				  msg.getDirectives().length + 
+				  " directives.");
+      //return (msg.getDirectives().length > 0);
+      return true;
     }
 
     private boolean outgoingMessageAction(Message msg, TrustSet trust) {
-     // if(!(msg instanceof DirectiveMessage))
-	//return true;
+      // if(!(msg instanceof DirectiveMessage))
+      //return true;
       String act;
-	try {
-                act = acps.getOutgoingAction
-		    (msg.getOriginator().toString(), (String)trust.getAttribute(MissionCriticality.name).getValue());
-	}
-	catch(Exception ex) {
-	    ex.printStackTrace();
-            System.out.println("SecurityAspect: Warning: no access control for message" + msg);
+      try {
+	act = acps.getOutgoingAction
+	  (msg.getOriginator().toString(),
+	   (String)trust.getAttribute(MissionCriticality.name).getValue());
+      }
+      catch(Exception ex) {
+	ex.printStackTrace();
+	System.out.println("SecurityAspect: Warning: no access control for message" + msg);
             
-	    return true;
-	}
-	if(debug)System.out.println("SecurityAspect: message action(out) = " + act);
-	if(act == null)
-	    return true;
-	return (!act.equals(AccessControlPolicy.SET_ASIDE));
-   }
+	return true;
+      }
+      if(debug) {
+	System.out.println("SecurityAspect: message action(out) = " + 
+			   (act == null ? "No policy (pass through)" : act));
+      }
+      if(act == null)
+	return true;
+      return (!act.equals(AccessControlPolicy.SET_ASIDE));
+    }
    
     /** removes the nth directive and trust set from a directive message */
     private void removeDirective(DirectiveMessage msg, int index) {
@@ -708,38 +712,38 @@ public class SecurityAspect extends StandardAspect
 
 
 
-    private class SecureDeliverer extends MessageDelivererDelegateImplBase {
+  private class SecureDeliverer extends MessageDelivererDelegateImplBase {
 
-	private SecureDeliverer(MessageDeliverer deliverer) {
-	    super(deliverer);
-	}
+    private SecureDeliverer(MessageDeliverer deliverer) {
+      super(deliverer);
+    }
 
     public void deliverMessage(Message m, MessageAddress dest) 
       throws MisdeliveredMessageException
     {
       try {
         if (m instanceof SecurityEnvelope ) {
-            SecurityEnvelope se = (SecurityEnvelope)m;
-            if (se == null) {
-              if(debug) {
-                System.out.println("Unable to deliver message (msg is null) to " + dest);
-              }
-              throw new MisdeliveredMessageException(m);
-            }
-            Message contents = se.getContents();
-            if(contents == null) {
-                if(debug) {
-                  System.out.println("Rejecting incoming message: "
-                                     + se.toString());
-                }
-                return;
-            }else{
-                //System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
-                deliverer.deliverMessage(contents, dest);
-            }
+	  SecurityEnvelope se = (SecurityEnvelope)m;
+	  if (se == null) {
+	    if(debug) {
+	      System.out.println("Unable to deliver message (msg is null) to " + dest);
+	    }
+	    throw new MisdeliveredMessageException(m);
+	  }
+	  Message contents = se.getContents();
+	  if(contents == null) {
+	    if(debug) {
+	      System.out.println("Rejecting incoming message: "
+				 + se.toString());
+	    }
+	    return;
+	  }else{
+	    //System.out.println("________delivering this:"+contents+" to:"+dest+"using:"+deliverer);
+	    deliverer.deliverMessage(contents, dest);
+	  }
         } else {
-            System.err.println("Warning: Not a SecurityEnvelope: " + m);
-            deliverer.deliverMessage(m, dest);
+	  System.err.println("Warning: Not a SecurityEnvelope: " + m);
+	  deliverer.deliverMessage(m, dest);
         }
       } catch (Exception e) {
 	System.out.println("Unable to unsecure message: " + m + ". Reason: " + e.getMessage());

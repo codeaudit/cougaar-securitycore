@@ -53,6 +53,10 @@ public class CertificateStatus
   /** The type of the certificate: end entity or trusted certificate
       authority */
   private CertificateType certificateType;
+  
+  /** The last time a certificate signing request was sent to the
+   * certificate authority. */
+  private Date lastTimeSigningRequest;
 
   /** The trust status of this certificate.
    * When a key pair has been generated but not submitted to a CA yet,
@@ -151,6 +155,14 @@ public class CertificateStatus
     certificate = c;
   }
 
+  public void setPKCS10Date(Date aDate) {
+    lastTimeSigningRequest = aDate;
+  }
+
+  public Date getPKCS10Date() {
+    return lastTimeSigningRequest;
+  }
+
   public String toString()
   {
     String status = null;
@@ -160,11 +172,23 @@ public class CertificateStatus
     else {
       status = "Revoked";
     }
-    return "DN: " + ((X509Certificate) certificate).getSubjectDN().toString() +
-      "\n     Alias: " + getCertificateAlias() +
+    String alias = getCertificateAlias();
+    String theString =
+      "DN: " + ((X509Certificate) certificate).getSubjectDN().toString();
+    if (alias != null || lastTimeSigningRequest != null) {
+      theString = theString + "\n     ";
+    }
+    if (alias != null) {
+      theString = theString + "Alias: " + alias + " - ";
+    }
+    if (lastTimeSigningRequest != null) {
+      theString = theString + "PKCS10 sent on " + lastTimeSigningRequest;
+    }
+    theString = theString +
       "\n     Status: " + status +
       " - Origin: " + getCertificateOrigin() +
       " - Type: " + getCertificateType() +
       " - Trust: " + getCertificateTrust();
+    return theString;
   }
 }

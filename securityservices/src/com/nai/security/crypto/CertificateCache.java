@@ -56,6 +56,9 @@ public class CertificateCache
   private Hashtable cn2dn = new Hashtable(50);
   private boolean debug = false;
 
+  /** How long do we wait before retrying to send a certificate signing
+   * request to a certificate authority? */
+  private long pkcs10MinInterval = 10;
 
   /** A cross-reference to the directory key store. Used to make PKCS#10
    * requests to the CA as needed. */
@@ -135,9 +138,7 @@ public class CertificateCache
 	  /* Certificate has not been signed by a CA. Either the CA has refused
 	   * to issue the certificate or communication with the CA was not
 	   * possible. */
-	  if (debug) {
-	    System.out.println("Certificate is not signed by a trusted CA");
-	  }
+
 	  /* There are two cases:
 	   * 1) If this is a remote entity certificate, then we need to send
 	   * a message to that remote entity, notifying that the certificate
@@ -150,16 +151,12 @@ public class CertificateCache
 	   * signing request to the CA. If the certificate has a matching private key,
 	   * then it is considered a local entity.
 	   */
-	  if (getPrivateKey(x500Name) != null) {
-	    // This is a local entity
-	    // Send a PKCS#10 request to the CA.
-	    try {
-	      directorykeystore.addKeyPair(x500Name.getCommonName(),
-					   cs.getCertificateAlias());
-	    }
-	    catch (Exception exp) {
-	      // Unable to send request. Give up.
-	    }
+
+	  // See getPrivateKey code. It will send a PKCS10 request to the CA
+	  // if this is a local key.
+	  if (getPrivateKey(x500Name) == null) {
+	    // Was unable to get trusted key
+	    reply = null;
 	  }
 	}
 	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
@@ -167,9 +164,11 @@ public class CertificateCache
 	  if (debug) {
 	    System.out.println("Certificate trust is unknown");
 	  }
+	  reply = null;
 	}
 	else {
 	  // Otherwise, certificate is not trusted.
+	  reply = null;
 	}
 	// TODO: mechanism by which one can send a message to a remote entity
 	// requesting for that entity to generate a certificate that we can use.
@@ -278,8 +277,10 @@ public class CertificateCache
 	}
       }
       if (debug) {
-	System.out.print("Alias: " + certEntry.getCertificateAlias()
-			 + ". Trust:" + certEntry.getCertificateTrust()
+	String a = certEntry.getCertificateAlias();
+	
+	System.out.print((a != null ? "Alias: " + a + "." : "" )
+			 + "Trust:" + certEntry.getCertificateTrust()
 			 + ". Type: " + certEntry.getCertificateType()
 			 + ". Origin: " + certEntry.getCertificateOrigin()
 			 + ". Valid: " + certEntry.isValid());
@@ -474,16 +475,33 @@ public class CertificateCache
 	  /* Certificate has not been signed by a CA. Either the CA has refused
 	   * to issue the certificate or communication with the CA was not
 	   * possible. */
-	  if (debug) {
-	    System.out.println("Certificate is not signed by a trusted CA");
+	  Date lastTime = pcert.getCertificateStatus().getPKCS10Date();
+	  Date now = new Date();
+	  long timeDiff = (lastTime.getTime() - now.getTime()) / 1000;
+	  if ( timeDiff < pkcs10MinInterval) {
+	    if (debug) {
+	      System.out.println("Waiting " +
+				 (pkcs10MinInterval - timeDiff) 
+				 + "s before send PKCS10 request");
+	    }
+	    privkey = null;
 	  }
-	  // Send a PKCS#10 request to the CA.
-	  try {
-	    directorykeystore.addKeyPair(x500Name.getCommonName(),
-					 pcert.getCertificateStatus().getCertificateAlias());
-	  }
-	  catch (Exception exp) {
-	    // Unable to send request. Give up.
+	  else {
+	    if (debug) {
+	      System.out.println("Self-signed certificate.");
+	    }
+	    // Send a PKCS#10 request to the CA.
+	    try {
+	      directorykeystore.addKeyPair(x500Name.getCommonName(),
+					   pcert.getCertificateStatus().getCertificateAlias());
+	    }
+	    catch (Exception exp) {
+	      // Unable to send request. Give up.
+	      if (debug) {
+		System.out.println("Unable to send PKCS10 request to CA");
+	      }
+	      privkey = null;
+	    }
 	  }
 	}
 	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
@@ -491,10 +509,12 @@ public class CertificateCache
 	  if (debug) {
 	    System.out.println("Certificate trust is unknown");
 	  }
+	  privkey = null;
 	}
 	else {
 	  // Otherwise, certificate is not trusted.
 	  // Request a new certificate to the Certificate Authority?
+	  privkey = null;
 	}
       }
       catch (CertificateException e) {
@@ -503,6 +523,7 @@ public class CertificateCache
 	if (debug) {
 	  System.out.println("Invalid certificate: " + e);
 	}
+	privkey = null;
       }
     }
     return privkey;

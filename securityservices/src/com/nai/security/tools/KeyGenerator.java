@@ -93,7 +93,7 @@ public class KeyGenerator {
 
   public static void iterateKeyStore(Element element, int action) {
     
-    List societyChildren = element.getMixedContent();
+    List societyChildren = element.getContent();
     Iterator keyStoreIterator = societyChildren.iterator();
     // Iterate through each key store
     while (keyStoreIterator.hasNext()) {
@@ -106,7 +106,7 @@ public class KeyGenerator {
 		
 	System.out.println("keystore: " + keyStoreName);
 
-	List keyStoreChildren = keyNode.getMixedContent();
+	List keyStoreChildren = keyNode.getContent();
 	Iterator keyIterator = keyStoreChildren.iterator();
 
 	// Iterate through keys
@@ -462,7 +462,7 @@ public class KeyGenerator {
     // Iterate through all parents (keystores) and store public key in all keystores
     // Except for the current key store, since the key is already there.
 
-    List keyStore = element.getParent().getParent().getMixedContent();
+    List keyStore = element.getParent().getParent().getContent();
     Iterator keyStoreIterator = keyStore.iterator();
 
     while (keyStoreIterator.hasNext()) {

@@ -31,22 +31,27 @@ import java.net.*;
 
 public class NodePolicy {
   // Client policy
-  public String CA_DN = null;
-  public String CA_URL = null;
-  public String CA_keystore = null;
-  public String CA_keystorePassword = null;
+  public String CA_DN;
+  public String CA_URL;
+  public String CA_keystore;
+  public String CA_keystorePassword;
 
 
-  public String certDirectoryURL = null;
+  public String certDirectoryUrl;
+  public int certDirectoryType;
 
-  public String ou = null;
-  public String o = null;
-  public String l = null;
-  public String st = null;
-  public String c = null;
+  // Values for certDirectoryType
+  static public final int NETTOOLS = 1;
+  static public final int COUGAAR_OPENLDAP = 2;
 
-  public String keyAlgName = null;
-  public int keysize = 0;
-  public long howLong = 0;
-  public String sigAlgName = null;
+  public String ou;
+  public String o;
+  public String l;
+  public String st;
+  public String c;
+
+  public String keyAlgName;
+  public int keysize;
+  public long howLong;
+  public String sigAlgName;
 };

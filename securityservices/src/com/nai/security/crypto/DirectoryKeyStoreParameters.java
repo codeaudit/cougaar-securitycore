@@ -24,30 +24,26 @@
  * - 
  */
 
-package com.nai.security.policy;
+package com.nai.security.crypto;
 
-import sun.security.x509.*;
-import java.net.*;
+import java.io.InputStream;
 
-public class CaPolicy {
+public class DirectoryKeyStoreParameters {
+  // LDAP server parameters
+  public String ldapServerUrl;
+  public int ldapServerType;
 
-  public String keyStoreFile;
-  public String keyStorePassword;
-  public String caCommonName;
+  // Keystore parameters
+  public InputStream keystoreStream;
+  public char[] keystorePassword;
+  public String keystorePath;
 
-  public String ldapURL;
-  public int ldapType;
-  // Values for ldapType
-  static public final int NETTOOLS = 1;
-  static public final int COUGAAR_OPENLDAP = 2;
+  // CA Keystore parameters
 
-  public String serialNumberFile;
-  public String pkcs10Directory;
-  public String x509CertDirectory;
+  public InputStream caKeystoreStream;
+  public char[] caKeystorePassword;
+  public String caKeystorePath;
 
-  // Client policy
-  public int certVersion;
-  public AlgorithmId algorithmId;
-  public int keySize;
-  public long howLong;
-};
+  // Run within a node or used as utility class by a CA?
+  public boolean standalone;
+}

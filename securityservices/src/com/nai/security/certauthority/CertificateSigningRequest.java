@@ -1,3 +1,29 @@
+/*
+ * <copyright>
+ *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  under sponsorship of the Defense Advanced Research Projects
+ *  Agency (DARPA).
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the Cougaar Open Source License as published by
+ *  DARPA on the Cougaar Open Source Website (www.cougaar.org).  
+ *  
+ *  THE COUGAAR SOFTWARE AND ANY DERIVATIVE SUPPLIED BY LICENSOR IS 
+ *  PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR 
+ *  IMPLIED, INCLUDING (BUT NOT LIMITED TO) ALL IMPLIED WARRANTIES OF 
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND WITHOUT 
+ *  ANY WARRANTIES AS TO NON-INFRINGEMENT.  IN NO EVENT SHALL COPYRIGHT 
+ *  HOLDER BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT OR CONSEQUENTIAL 
+ *  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE OF DATA OR PROFITS, 
+ *  TORTIOUS CONDUCT, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+ *  PERFORMANCE OF THE COUGAAR SOFTWARE.  
+ * 
+ * </copyright>
+ *
+ * CHANGE RECORD
+ * - 
+ */
+
 package com.nai.security.certauthority;
 
 import java.io.*;
@@ -10,64 +36,60 @@ import org.jdom.*;
 import org.jdom.input.SAXBuilder;
 import org.jdom.input.*;
 
-
 public class CertificateSigningRequest extends  HttpServlet
 {
   private KeyManagement signer;
 
   public void init(ServletConfig config) throws ServletException
   {
-        super.init(config);
-        String file= config.getInitParameter("configfile");;
-         try
-             {
-                SAXBuilder builder = new SAXBuilder();
-                Document doc = builder.build(new File(file));
-                Element root = doc.getRootElement();
-                setjavaproperty(root);
-             }
-             catch(org.jdom.JDOMException jdexp)
-             {
-                 jdexp.printStackTrace();
-             }
+    super.init(config);
+    String file= config.getInitParameter("configfile");;
+    try
+      {
+	SAXBuilder builder = new SAXBuilder();
+	Document doc = builder.build(new File(file));
+	Element root = doc.getRootElement();
+	setjavaproperty(root);
+      }
+    catch(org.jdom.JDOMException jdexp)
+      {
+	jdexp.printStackTrace();
+      }
   }
   public void setjavaproperty(Element root)
   {
     javax.servlet.ServletContext context=null;
     context=getServletContext();
-    List Children = root.getMixedContent();
+    List Children = root.getContent();
     Iterator propertyIterator = Children.iterator();
-         // Iterate through javaproperty
-        while (propertyIterator.hasNext())
-        {
-            Object o = propertyIterator.next();
-            if (o instanceof Element && ((Element)o).getName().equals("servletjavaproperties"))
-            {
-                Element propertyelement = (Element)o;
-                String propertyName =  propertyelement.getChildText("propertyname");
-                String propertyValue = propertyelement.getChildText("propertyvalue");
-                if((propertyName==null )||(propertyValue==null))
-                {
-                    System.out.println("wrong xml format error");
-                    return;
-                }
-                try
-                {
-                        System.setProperty(propertyName,propertyValue);
-                        //System.out.println("setting property name :"+propertyName);
-                        //System.out.println("setting property value ::"+propertyValue);
-                        context.setAttribute(propertyName,(Object)propertyValue);
-
-                }
-                catch(SecurityException sexp)
-                {
-                       sexp.printStackTrace();
-                }
-            }
-        }
+    // Iterate through javaproperty
+    while (propertyIterator.hasNext()) {
+      Object o = propertyIterator.next();
+      if (o instanceof Element &&
+	  ((Element)o).getName().equals("servletjavaproperties")) {
+	Element propertyelement = (Element)o;
+	String propertyName =  propertyelement.getChildText("propertyname");
+	String propertyValue = propertyelement.getChildText("propertyvalue");
+	if((propertyName==null )||(propertyValue==null)) {
+	  System.out.println("wrong xml format error");
+	  return;
+	}
+	try {
+	  System.setProperty(propertyName,propertyValue);
+	  //System.out.println("setting property name :"+propertyName);
+	  //System.out.println("setting property value ::"+propertyValue);
+	  context.setAttribute(propertyName,(Object)propertyValue);
+	  
+	}
+	catch(SecurityException sexp) {
+	  sexp.printStackTrace();
+	}
+      }
+    }
   }
 
-  public void doPost (HttpServletRequest  req, HttpServletResponse res) throws ServletException,IOException
+  public void doPost (HttpServletRequest  req, HttpServletResponse res)
+    throws ServletException,IOException
   {
     String pkcs=null;
     String type=null;
@@ -89,23 +111,23 @@ public class CertificateSigningRequest extends  HttpServlet
       return;
     }
     try
-    {
+      {
         if(( role==null)||( role==""))
-        {
-                signer=new KeyManagement(CA_DN_name,null);
-        }
+	  {
+	    signer=new KeyManagement(CA_DN_name,null);
+	  }
         else
-        {
-                signer=new KeyManagement(CA_DN_name,role);
-        }
-    }
+	  {
+	    signer=new KeyManagement(CA_DN_name,role);
+	  }
+      }
     catch (Exception exp)
-    {
-      printstream.print("Error ---" + exp.toString());
-      printstream.flush();
-      printstream.close();
-      return;
-    }
+      {
+	printstream.print("Error ---" + exp.toString());
+	printstream.flush();
+	printstream.close();
+	return;
+      }
 
     type=req.getParameter("pkcs");
     if((type==null)||(type==""))
@@ -118,38 +140,38 @@ public class CertificateSigningRequest extends  HttpServlet
     pkcs=(String)req.getParameter("pkcsdata");
     try
       {
-                if(type.equalsIgnoreCase("pkcs7"))
-                {
-                bytedata=pkcs.getBytes();
-                bytestream=new ByteArrayInputStream(bytedata);
-                signer.processX509Request(printstream,(InputStream)bytestream);
+	if(type.equalsIgnoreCase("pkcs7"))
+	  {
+	    bytedata=pkcs.getBytes();
+	    bytestream=new ByteArrayInputStream(bytedata);
+	    signer.processX509Request(printstream,(InputStream)bytestream);
 
-                }
-                else if(type.equalsIgnoreCase("pkcs10"))
-                {
-                bytedata=pkcs.getBytes();
-                bytestream=new ByteArrayInputStream(bytedata);
-                signer.processPkcs10Request(printstream,(InputStream)bytestream);
+	  }
+	else if(type.equalsIgnoreCase("pkcs10"))
+	  {
+	    bytedata=pkcs.getBytes();
+	    bytestream=new ByteArrayInputStream(bytedata);
+	    signer.processPkcs10Request(printstream,(InputStream)bytestream);
 
 
-                }
-                else
-                {
-                printstream.print("Error ----Got a wrong parameter for type"+type);
-                }
-    }
+	  }
+	else
+	  {
+	    printstream.print("Error ----Got a wrong parameter for type"+type);
+	  }
+      }
     catch (Exception  exp)
       {
-                printstream.print("Error ------"+exp.toString());
-                printstream.flush();
-                printstream.close();
+	printstream.print("Error ------"+exp.toString());
+	printstream.flush();
+	printstream.close();
 
-        }
+      }
     finally
       {
-            printstream.flush();
-             printstream.close();
-        }
+	printstream.flush();
+	printstream.close();
+      }
 
   }
   protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException, IOException

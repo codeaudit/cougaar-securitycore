@@ -30,6 +30,7 @@ import java.io.*;
 
 import com.nai.security.policy.NodePolicy;
 import com.nai.security.crypto.ConfParser;
+import com.nai.security.crypto.CertificateUtility;
 
 public class CAClient {
 
@@ -121,7 +122,7 @@ public class CAClient {
       KeyManagement km = new KeyManagement(nodeDN, role);
       X509Certificate[] cf = km.processPkcs10Request(new ByteArrayInputStream(request.getBytes()));
       PrintStream ps = new PrintStream(baos);
-      km.base64EncodeCertificates(ps, cf);
+      CertificateUtility.base64EncodeCertificates(ps, cf);
       //get the output to the CA
       String req = baos.toString();
       String reply = sendPKCS(req, "PKCS7");
