@@ -29,7 +29,7 @@ society.each_host do |host|
     xms = xms.floor
     xmx = xmx.floor
 
-  puts "for host #{host.name}"
+#  puts "for host #{host.name}"
     host.each_node do |node|
       node_xms = xms
       node_xmx = nil
@@ -40,7 +40,7 @@ society.each_host do |host|
           node_xmx = xmx
         end # if
 
-    puts "node #{node.name} xms #{node_xms}, xmx #{node_xmx}"
+#    puts "node #{node.name} xms #{node_xms}, xmx #{node_xmx}"
 
         node.replace_parameter(/\-Xms/, "-Xms#{node_xms}m")
         node.replace_parameter(/\-Xmx/, "-Xmx#{node_xmx}m")
