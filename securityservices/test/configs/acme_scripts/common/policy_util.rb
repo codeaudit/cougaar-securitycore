@@ -114,7 +114,7 @@ def getPolicyLock(enclave)
   mutex
 end
 
-def deltaPolicy(enclave, text)
+def bootPoliciesLoaded(enclave)
   host, port, manager = getPolicyManager(enclave)
   waitForUserManager(manager)
   mutex = getPolicyLock(enclave)
@@ -132,15 +132,30 @@ def deltaPolicy(enclave, text)
                                  "OwlBootPolicyList")
       result = commitPolicy(host, port, manager, "commit --dm", bootPolicyFile)
 #      logInfoMsg result
-      sleep 30.seconds
     end
+    fileExists  
+  }
+end 
+
+def deltaPolicy(enclave, text)
+  host, port, manager = getPolicyManager(enclave)
+  bootPoliciesAlreadyLoaded = bootPoliciesLoaded(enclave)
+  if !bootPoliciesAlreadyLoaded
+     puts "first time so sleeping for 30 seconds"
+     sleep 30.seconds
+  else 
+     puts "second time so I don't need to sleep"
+  end
+  mutex = getPolicyLock(enclave)
+  mutex.synchronize {
+    policyFile = getPolicyFile(enclave)
     # now create the delta file
     File.open(policyFile, "w") { |file|
       file.write(text)
     }
     result = commitPolicy(host, port, manager, "addpolicies --dm", policyFile)
-#    logInfoMsg result
   }
+#    logInfoMsg result
 end
 
 module Cougaar
