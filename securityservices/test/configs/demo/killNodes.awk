@@ -3,6 +3,8 @@
 #
 
 
+BEGIN { "pwd" | getline curdir }
+
 # Search for lines that do not start with the # character
 # Then execute the launchNode function for each line in the configuration file
 ! /^\#/  { nodeName=$1 ; killNode(nodeName) } 
@@ -12,7 +14,7 @@
 func killNode( nodeName )
 { 
 	printf "%15-s", nodeName
-	command="~/demo/remote-kill " nodeName 
+	command= "ssh " nodeName " /usr/bin/killall -w -KILL java" 
 	print command
 	system( command )
 }
