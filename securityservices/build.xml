@@ -96,6 +96,7 @@
     </target>
     
     <!-- jar security services -->
+    <!-- TODO: SecurityComponent.class is a hack until KAOS has been fixed -->
     <target name="jar-securityservices" depends="build-securityservices">
         <echo message="+++++ Building jar files"/>
         <jar jarfile="${securityservices.classes}/bootstrapper.jar" 
@@ -106,7 +107,8 @@
             includes="org/cougaar/core/security/securebootstrap/*.class"/>
         <jar jarfile="${securityservices.classes}/securityservices.jar"
             basedir="${securityservices.classes}"
-            includes="org/cougaar/core/security/**/*.class"
+            includes="org/cougaar/core/security/**/*.class,
+		     org/cougaar/core/security/SecurityComponent.class"
             excludes="org/cougaar/core/security/*bootstrap/**,
                       org/cougaar/core/security/**/test/**,
                       org/cougaar/core/security/oldmonitoring/**"/>
