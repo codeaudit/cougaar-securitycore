@@ -682,6 +682,43 @@
             inheritRefs="true">
        </ant>
     </target>
+
+    <target name="confjar" depends="confnai">
+        
+        <delete quiet="true">
+          <fileset  dir="${cougaar.install.path}/configs/common" includes="*.jar"/>
+        </delete>
+        <delete quiet="true">
+          <fileset  dir="${cougaar.install.path}/configs/glmtrans" includes="*.jar"/>
+        </delete>
+        <delete quiet="true">
+          <fileset  dir="${cougaar.install.path}/planning/data/common" includes="*.jar"/>
+        </delete>
+
+        <jar jarfile="${securityservices.classes}/config_common.jar" 
+            basedir="${cougaar.install.path}/configs/common/"
+            excludes="*.jar"/>
+        <jar jarfile="${securityservices.classes}/config_glmtrans.jar"
+            basedir="${cougaar.install.path}/configs/glmtrans/"
+            excludes="*.jar"/>
+        <jar jarfile="${securityservices.classes}/config_planning.jar"
+            basedir="${cougaar.install.path}/planning/data/common/"
+            excludes="*.jar"/>
+ 
+        <signjar jar="${securityservices.classes}/config_common.jar" alias="privileged" 
+            signedjar="${cougaar.install.path}/configs/common/config_common.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/config_glmtrans.jar" alias="privileged"
+            signedjar="${cougaar.install.path}/configs/glmtrans/config_glmtrans.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore"
+            storepass="keystore" verbose="false"/>
+        <signjar jar="${securityservices.classes}/config_planning.jar" alias="privileged"
+            signedjar="${cougaar.install.path}/planning/data/common/config_planning.jar"
+            keystore="${securityservices.configs}/sign-jars/signingCA_keystore"
+            storepass="keystore" verbose="false"/>
+
+    </target>
  </project>
 
 <!-- End Ultra*Log/securityservices ant build script -->
