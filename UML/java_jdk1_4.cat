@@ -1,0 +1,670 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "java"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C92389402D8"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class_Category "util"
+	    quid       	"3C9238F001A4"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "HashMap"
+		    quid       	"3C9238F001AF"
+		    module     	"Component View::java::util::HashMap"
+		    quidu      	"39CD6B7A0148"
+		    language   	"Java")
+		(object Class "Map"
+		    quid       	"3C9239010181"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Map"
+		    quidu      	"39CD6B220226"
+		    language   	"Java"
+		    nestedClasses 	(list nestedClasses
+			(object Class "Entry"
+			    quid       	"3C923AE6030E"
+			    stereotype 	"Interface"
+			    module     	"Component View::java::util::Map"
+			    quidu      	"39CD6B220226")))
+		(object Class "Timer"
+		    quid       	"3C92390102D5"
+		    module     	"Component View::java::util::Timer"
+		    quidu      	"39CD6D9A0333"
+		    language   	"Java")
+		(object Class "List"
+		    quid       	"3C9239020377"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::List"
+		    quidu      	"39CD6BA9032F"
+		    language   	"Java")
+		(object Class "Set"
+		    quid       	"3C92392301BB"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Set"
+		    quidu      	"39CD6C67022D"
+		    language   	"Java")
+		(object Class "HashSet"
+		    quid       	"3C923923022A"
+		    module     	"Component View::java::util::HashSet"
+		    quidu      	"39CD6C7A014F"
+		    language   	"Java")
+		(object Class "Comparator"
+		    quid       	"3C923957030B"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Comparator"
+		    quidu      	"39CD6C360006"
+		    language   	"Java")
+		(object Class "EventObject"
+		    quid       	"3C92395A01B1"
+		    module     	"Component View::java::util::EventObject"
+		    quidu      	"39CD6AE102DA"
+		    language   	"Java")
+		(object Class "Collection"
+		    quid       	"3C92395A0265"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Collection"
+		    quidu      	"39CD6C1101DA"
+		    language   	"Java")
+		(object Class "ArrayList"
+		    quid       	"3C92395B00B8"
+		    module     	"Component View::java::util::ArrayList"
+		    quidu      	"39CD6BAA028F"
+		    language   	"Java")
+		(object Class "TreeSet"
+		    quid       	"3C92395B00EA"
+		    module     	"Component View::java::util::TreeSet"
+		    quidu      	"39CD6DAA02AA"
+		    language   	"Java")
+		(object Class "EventListener"
+		    quid       	"3C92395D00ED"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::EventListener"
+		    quidu      	"39CD6AE30169"
+		    language   	"Java")
+		(object Class "Date"
+		    quid       	"3C923A2E038C"
+		    module     	"Component View::java::util::Date"
+		    quidu      	"39CD6D0B03CE"
+		    language   	"Java")
+		(object Class "SortedSet"
+		    quid       	"3C923A310390"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::SortedSet"
+		    quidu      	"39CD6D570264"
+		    language   	"Java")
+		(object Class "Iterator"
+		    quid       	"3C923A6B00D7"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Iterator"
+		    quidu      	"39CD6C1A03B3"
+		    language   	"Java")
+		(object Class "TimerTask"
+		    quid       	"3C923A6E02EE"
+		    module     	"Component View::java::util::TimerTask"
+		    quidu      	"39CD6D9A01FC"
+		    language   	"Java")
+		(object Class "Random"
+		    quid       	"3C923AD20053"
+		    module     	"Component View::java::util::Random"
+		    quidu      	"39CD6C7001D6"
+		    language   	"Java")
+		(object Class "Hashtable"
+		    quid       	"3C923ADC00C5"
+		    module     	"Component View::java::util::Hashtable"
+		    quidu      	"39CD6AEB00F2"
+		    language   	"Java")
+		(object Class "Enumeration"
+		    quid       	"3C923ADF0250"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::Enumeration"
+		    quidu      	"39CD6C440327"
+		    language   	"Java")
+		(object Class "Properties"
+		    quid       	"3C923AE000CB"
+		    module     	"Component View::java::util::Properties"
+		    quidu      	"39CD6B180291"
+		    language   	"Java")
+		(object Class "StringTokenizer"
+		    quid       	"3C923AE80018"
+		    module     	"Component View::java::util::StringTokenizer"
+		    quidu      	"39CD6D9801BD"
+		    language   	"Java")
+		(object Class "Vector"
+		    quid       	"3C923AEC005A"
+		    module     	"Component View::java::util::Vector"
+		    quidu      	"39CD6AF10045"
+		    language   	"Java")
+		(object Class "Observable"
+		    quid       	"3C923B0302C0"
+		    module     	"Component View::java::util::Observable"
+		    quidu      	"39CD6D8D00F9"
+		    language   	"Java")
+		(object Class "AbstractCollection"
+		    quid       	"3C923BC40123"
+		    module     	"Component View::java::util::AbstractCollection"
+		    quidu      	"39CD6D420033"
+		    language   	"Java")
+		(object Class "ListIterator"
+		    quid       	"3C923BE30005"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::util::ListIterator"
+		    quidu      	"39CD6D43017F"
+		    language   	"Java")
+		(object Class "AbstractList"
+		    quid       	"3C923C400320"
+		    module     	"Component View::java::util::AbstractList"
+		    quidu      	"39CD6D42032C"
+		    language   	"Java")
+		(object Class "BitSet"
+		    quid       	"3C923C430067"
+		    module     	"Component View::java::util::BitSet"
+		    quidu      	"39CD6CC201B6"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "lang"
+	    quid       	"3C9238F001E0"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "ThreadLocal"
+		    quid       	"3C9238F001E2"
+		    module     	"Component View::java::lang::ThreadLocal"
+		    quidu      	"39CD6C6E0120"
+		    language   	"Java")
+		(object Class "String"
+		    quid       	"3C92390101B3"
+		    module     	"Component View::java::lang::String"
+		    quidu      	"39CD6AE10114"
+		    language   	"Java")
+		(object Class "Object"
+		    quid       	"3C923901032F"
+		    module     	"Component View::java::lang::Object"
+		    quidu      	"39CD6AF403E7"
+		    language   	"Java")
+		(object Class "Thread"
+		    quid       	"3C92390103A7"
+		    module     	"Component View::java::lang::Thread"
+		    quidu      	"39CD6B1E0176"
+		    language   	"Java")
+		(object Class "Runnable"
+		    quid       	"3C92390203DB"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::lang::Runnable"
+		    quidu      	"39CD6B1901FC"
+		    language   	"Java")
+		(object Class "RuntimeException"
+		    quid       	"3C92390800EA"
+		    module     	"Component View::java::lang::RuntimeException"
+		    quidu      	"39CD6B0003A3"
+		    language   	"Java")
+		(object Class "Class"
+		    quid       	"3C92395903B8"
+		    module     	"Component View::java::lang::Class"
+		    quidu      	"39CD6AE10132"
+		    language   	"Java")
+		(object Class "Exception"
+		    quid       	"3C92395A00B6"
+		    module     	"Component View::java::lang::Exception"
+		    quidu      	"39CD6AE4000D"
+		    language   	"Java")
+		(object Class "Comparable"
+		    quid       	"3C923A0600C8"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::lang::Comparable"
+		    quidu      	"39CD6C3F00C7"
+		    language   	"Java")
+		(object Class "Throwable"
+		    quid       	"3C923A20036E"
+		    module     	"Component View::java::lang::Throwable"
+		    quidu      	"39CD6C6903C0"
+		    language   	"Java")
+		(object Class "IllegalArgumentException"
+		    quid       	"3C923A3100D3"
+		    module     	"Component View::java::lang::IllegalArgumentException"
+		    quidu      	"39CD6C6D0163"
+		    language   	"Java")
+		(object Class "StringBuffer"
+		    quid       	"3C923AD6035C"
+		    module     	"Component View::java::lang::StringBuffer"
+		    quidu      	"39CD6C2E028F"
+		    language   	"Java")
+		(object Class "Float"
+		    quid       	"3C923B560189"
+		    module     	"Component View::java::lang::Float"
+		    quidu      	"39CD6BC50158"
+		    language   	"Java")
+		(object Class "Cloneable"
+		    quid       	"3C923B6D0060"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::lang::Cloneable"
+		    quidu      	"39CD6B2D0181"
+		    language   	"Java")
+		(object Class "ClassLoader"
+		    quid       	"3C923BC00087"
+		    module     	"Component View::java::lang::ClassLoader"
+		    quidu      	"39CD6BFF0346"
+		    language   	"Java")
+		(object Class "Boolean"
+		    quid       	"3C923BF5025A"
+		    module     	"Component View::java::lang::Boolean"
+		    quidu      	"39CD6BC6004B"
+		    language   	"Java")
+		(object Class "Double"
+		    quid       	"3C923BF60338"
+		    module     	"Component View::java::lang::Double"
+		    quidu      	"39CD6C6A0304"
+		    language   	"Java")
+		(object Class "Integer"
+		    quid       	"3C923BF800CE"
+		    module     	"Component View::java::lang::Integer"
+		    quidu      	"39CD6BC50324"
+		    language   	"Java")
+		(object Class "Long"
+		    quid       	"3C923BFA001C"
+		    module     	"Component View::java::lang::Long"
+		    quidu      	"39CD6C700009"
+		    language   	"Java")
+		(object Class "ThreadGroup"
+		    quid       	"3C923C5D01E1"
+		    module     	"Component View::java::lang::ThreadGroup"
+		    quidu      	"39CD6C780123"
+		    language   	"Java")
+		(object Class "SecurityManager"
+		    quid       	"3C9BC6910028"
+		    module     	"Component View::java::lang::SecurityManager"
+		    quidu      	"39CD6C620280"
+		    language   	"Java")
+		(object Class_Category "ref"
+		    quid       	"3C923A27031E"
+		    exportControl 	"Public"
+		    logical_models 	(list unit_reference_list
+			(object Class "ReferenceQueue"
+			    quid       	"3C923A270320"
+			    module     	"Component View::java::lang::ref::ReferenceQueue"
+			    quidu      	"39CD6C9A0263"
+			    language   	"Java")
+			(object Class "WeakReference"
+			    quid       	"3C923A3200D5"
+			    module     	"Component View::java::lang::ref::WeakReference"
+			    quidu      	"39CD6B25036D"
+			    language   	"Java"))
+		    logical_presentations 	(list unit_reference_list))
+		(object Class_Category "reflect"
+		    quid       	"3C923B1A016F"
+		    exportControl 	"Public"
+		    logical_models 	(list unit_reference_list
+			(object Class "Method"
+			    quid       	"3C923B1A017A"
+			    module     	"Component View::java::lang::reflect::Method"
+			    quidu      	"39CD6C0203CD"
+			    language   	"Java"))
+		    logical_presentations 	(list unit_reference_list)))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "io"
+	    quid       	"3C923903002F"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "Serializable"
+		    quid       	"3C923903003A"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::io::Serializable"
+		    quidu      	"39CD6AED037F"
+		    language   	"Java")
+		(object Class "Externalizable"
+		    quid       	"3C923A22006E"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::io::Externalizable"
+		    quidu      	"39CD6BA40132"
+		    language   	"Java")
+		(object Class "PrintWriter"
+		    quid       	"3C923A2603B3"
+		    module     	"Component View::java::io::PrintWriter"
+		    quidu      	"39CD6C420374"
+		    language   	"Java")
+		(object Class "PrintStream"
+		    quid       	"3C923A5B0232"
+		    module     	"Component View::java::io::PrintStream"
+		    quidu      	"39CD6C42016C"
+		    language   	"Java")
+		(object Class "PipedInputStream"
+		    quid       	"3C923A730183"
+		    module     	"Component View::java::io::PipedInputStream"
+		    quidu      	"39CD6C4002DB"
+		    language   	"Java")
+		(object Class "PipedOutputStream"
+		    quid       	"3C923A7301B5"
+		    module     	"Component View::java::io::PipedOutputStream"
+		    quidu      	"39CD6C41008E"
+		    language   	"Java")
+		(object Class "ObjectInputStream"
+		    quid       	"3C923A7301E7"
+		    module     	"Component View::java::io::ObjectInputStream"
+		    quidu      	"39CD6C090247"
+		    language   	"Java")
+		(object Class "ObjectOutputStream"
+		    quid       	"3C923A730223"
+		    module     	"Component View::java::io::ObjectOutputStream"
+		    quidu      	"39CD6C3100BD"
+		    language   	"Java")
+		(object Class "OutputStream"
+		    quid       	"3C923A7702DD"
+		    module     	"Component View::java::io::OutputStream"
+		    quidu      	"39CD6C200253"
+		    language   	"Java")
+		(object Class "File"
+		    quid       	"3C923B1300CE"
+		    module     	"Component View::java::io::File"
+		    quidu      	"39CD6C23006D"
+		    language   	"Java")
+		(object Class "ByteArrayOutputStream"
+		    quid       	"3C923B1303A9"
+		    module     	"Component View::java::io::ByteArrayOutputStream"
+		    quidu      	"39CD6C20023F"
+		    language   	"Java")
+		(object Class "FileOutputStream"
+		    quid       	"3C923B1702BF"
+		    module     	"Component View::java::io::FileOutputStream"
+		    quidu      	"39CD6C2402A9"
+		    language   	"Java")
+		(object Class "FilterInputStream"
+		    quid       	"3C923B1A0269"
+		    module     	"Component View::java::io::FilterInputStream"
+		    quidu      	"39CD6C1E0232"
+		    language   	"Java")
+		(object Class "FilterOutputStream"
+		    quid       	"3C923C300331"
+		    module     	"Component View::java::io::FilterOutputStream"
+		    quidu      	"39CD6C1E034A"
+		    language   	"Java")
+		(object Class "FilterWriter"
+		    quid       	"3C923C3F02A6"
+		    module     	"Component View::java::io::FilterWriter"
+		    quidu      	"39CD6C280236"
+		    language   	"Java")
+		(object Class "InputStream"
+		    quid       	"3C923C5B0166"
+		    module     	"Component View::java::io::InputStream"
+		    quidu      	"39CD6C20014F"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "net"
+	    quid       	"3C9239230157"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "URLClassLoader"
+		    quid       	"3C9239230159"
+		    module     	"Component View::java::net::URLClassLoader"
+		    quidu      	"39CD6CAA036A"
+		    language   	"Java")
+		(object Class "URL"
+		    quid       	"3C923959012D"
+		    module     	"Component View::java::net::URL"
+		    quidu      	"39CD6C0103C2"
+		    language   	"Java")
+		(object Class "Socket"
+		    quid       	"3C923A75021C"
+		    module     	"Component View::java::net::Socket"
+		    quidu      	"39CD6CB103D8"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "beans"
+	    quid       	"3C923A2100EE"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "SimpleBeanInfo"
+		    quid       	"3C923A2100F9"
+		    module     	"Component View::java::beans::SimpleBeanInfo"
+		    quidu      	"39CD6C04038A"
+		    language   	"Java")
+		(object Class "PropertyDescriptor"
+		    quid       	"3C923B690277"
+		    module     	"Component View::java::beans::PropertyDescriptor"
+		    quidu      	"39CD6C0403C5"
+		    language   	"Java")
+		(object Class "PropertyChangeSupport"
+		    quid       	"3C923B6D02B8"
+		    module     	"Component View::java::beans::PropertyChangeSupport"
+		    quidu      	"39CD6B0200FE"
+		    language   	"Java")
+		(object Class "BeanInfo"
+		    quid       	"3C923B80016B"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::beans::BeanInfo"
+		    quidu      	"39CD6BFF0183"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "text"
+	    quid       	"3C923A270039"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "DateFormat"
+		    quid       	"3C923A270044"
+		    module     	"Component View::java::text::DateFormat"
+		    quidu      	"39CD6D1F03C2"
+		    language   	"Java")
+		(object Class "SimpleDateFormat"
+		    quid       	"3C923A2E03BE"
+		    module     	"Component View::java::text::SimpleDateFormat"
+		    quidu      	"39CD6D370240"
+		    language   	"Java")
+		(object Class "DecimalFormat"
+		    quid       	"3C923B0D022E"
+		    module     	"Component View::java::text::DecimalFormat"
+		    quidu      	"39CD6D2401C1"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "rmi"
+	    quid       	"3C923A6501B4"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "RemoteException"
+		    quid       	"3C923A6501B6"
+		    module     	"Component View::java::rmi::RemoteException"
+		    quidu      	"39CD6CC2033D"
+		    language   	"Java")
+		(object Class "Remote"
+		    quid       	"3C923A660025"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::rmi::Remote"
+		    quidu      	"39CD6CC60189"
+		    language   	"Java")
+		(object Class_Category "server"
+		    quid       	"3C923A6601E8"
+		    exportControl 	"Public"
+		    logical_models 	(list unit_reference_list
+			(object Class "UnicastRemoteObject"
+			    quid       	"3C923A6601EA"
+			    module     	"Component View::java::rmi::server::UnicastRemoteObject"
+			    quidu      	"39CD6CCD0175"
+			    language   	"Java")
+			(object Class "RMISocketFactory"
+			    quid       	"3C923A7602D1"
+			    module     	"Component View::java::rmi::server::RMISocketFactory"
+			    quidu      	"39CD6CD90137"
+			    language   	"Java")
+			(object Class "RMIClientSocketFactory"
+			    quid       	"3C923AE40348"
+			    stereotype 	"Interface"
+			    module     	"Component View::java::rmi::server::RMIClientSocketFactory"
+			    quidu      	"39CD6CD801FD"
+			    language   	"Java")
+			(object Class "RMIServerSocketFactory"
+			    quid       	"3C923AE4037A"
+			    stereotype 	"Interface"
+			    module     	"Component View::java::rmi::server::RMIServerSocketFactory"
+			    quidu      	"39CD6CD80239"
+			    language   	"Java"))
+		    logical_presentations 	(list unit_reference_list)))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "security"
+	    quid       	"3C923AF201B7"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "KeyStore"
+		    quid       	"3C923AF201B9"
+		    module     	"Component View::java::security::KeyStore"
+		    quidu      	"39CD6CEB0038"
+		    language   	"Java")
+		(object Class "SignedObject"
+		    quid       	"3C923B030053"
+		    module     	"Component View::java::security::SignedObject"
+		    quidu      	"39CD6CF901E7"
+		    language   	"Java")
+		(object Class "SecureClassLoader"
+		    quid       	"3C923B67024C"
+		    module     	"Component View::java::security::SecureClassLoader"
+		    quidu      	"39CD6CBF00A3"
+		    language   	"Java")
+		(object Class "AccessControlContext"
+		    quid       	"3C923B6702E2"
+		    module     	"Component View::java::security::AccessControlContext"
+		    quidu      	"39CD6C920225"
+		    language   	"Java")
+		(object Class "GeneralSecurityException"
+		    quid       	"3C9BC66D01C1"
+		    module     	"Component View::java::security::GeneralSecurityException"
+		    quidu      	"39CD6CE302AE"
+		    language   	"Java")
+		(object Class "Principal"
+		    quid       	"3C9BC67E0175"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::security::Principal"
+		    quidu      	"39CD6CE503DD"
+		    language   	"Java")
+		(object Class "PrivateKey"
+		    quid       	"3C9BC6F900C8"
+		    module     	"Component View::java::security::PrivateKey"
+		    quidu      	"39CD6CE803E2"
+		    language   	"Java")
+		(object Class "SecureRandom"
+		    quid       	"3C9BC71302C4"
+		    module     	"Component View::java::security::SecureRandom"
+		    quidu      	"39CD6CF3036F"
+		    language   	"Java")
+		(object Class "KeyPairGenerator"
+		    quid       	"3C9BC71303A0"
+		    module     	"Component View::java::security::KeyPairGenerator"
+		    quidu      	"39CD6CE901C6"
+		    language   	"Java")
+		(object Class "PublicKey"
+		    quid       	"3C9BC71303E7"
+		    module     	"Component View::java::security::PublicKey"
+		    quidu      	"39CD6CE60059"
+		    language   	"Java")
+		(object Class "BasicPermission"
+		    quid       	"3C9BC71601EC"
+		    module     	"Component View::java::security::BasicPermission"
+		    quidu      	"39CD6AE400D4"
+		    language   	"Java")
+		(object Class_Category "cert"
+		    quid       	"3C9BC67C021D"
+		    exportControl 	"Public"
+		    logical_models 	(list unit_reference_list
+			(object Class "X509Certificate"
+			    quid       	"3C9BC67C0228"
+			    module     	"Component View::java::security::cert::X509Certificate"
+			    quidu      	"39CD6D0102F7"
+			    language   	"Java")
+			(object Class "CertificateException"
+			    quid       	"3C9BC6F9026D"
+			    module     	"Component View::java::security::cert::CertificateException"
+			    quidu      	"39CD6CFE03E3"
+			    language   	"Java")
+			(object Class "X509CRL"
+			    quid       	"3C9BC7070371"
+			    module     	"Component View::java::security::cert::X509CRL"
+			    quidu      	"39CD6D020095"
+			    language   	"Java")
+			(object Class "Certificate"
+			    quid       	"3C9BC7120395"
+			    module     	"Component View::java::security::cert::Certificate"
+			    quidu      	"39CD6C6701FC"
+			    language   	"Java"))
+		    logical_presentations 	(list unit_reference_list)))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "sql"
+	    quid       	"3C923B130042"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "Connection"
+		    quid       	"3C923B13004D"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::sql::Connection"
+		    quidu      	"39CD6D0A0169"
+		    language   	"Java")
+		(object Class "DatabaseMetaData"
+		    quid       	"3C923B130092"
+		    module     	"Component View::java::sql::DatabaseMetaData"
+		    quidu      	"39CD6D0A0245"
+		    language   	"Java")
+		(object Class "PreparedStatement"
+		    quid       	"3C923B13010A"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::sql::PreparedStatement"
+		    quidu      	"39CD6D0A0097"
+		    language   	"Java")
+		(object Class "Statement"
+		    quid       	"3C923B14010C"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::sql::Statement"
+		    quidu      	"39CD6D0E0327"
+		    language   	"Java")
+		(object Class "CallableStatement"
+		    quid       	"3C923B1402F7"
+		    stereotype 	"Interface"
+		    module     	"Component View::java::sql::CallableStatement"
+		    quidu      	"39CD6D0A0079"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "awt"
+	    quid       	"3C923C550348"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "Dimension"
+		    quid       	"3C923C5A01BF"
+		    module     	"Component View::java::awt::Dimension"
+		    quidu      	"39CD6B000213"
+		    language   	"Java")
+		(object Class "RenderingHints"
+		    quid       	"3C923C6201FD"
+		    module     	"Component View::java::awt::RenderingHints"
+		    quidu      	"39CD6B7E001F"
+		    language   	"Java")
+		(object Class "Color"
+		    quid       	"3C923C6C0323"
+		    module     	"Component View::java::awt::Color"
+		    quidu      	"39CD6AF30051"
+		    language   	"Java")
+		(object Class_Category "event"
+		    quid       	"3C923C55034A"
+		    exportControl 	"Public"
+		    logical_models 	(list unit_reference_list
+			(object Class "ActionListener"
+			    quid       	"3C923C550353"
+			    stereotype 	"Interface"
+			    module     	"Component View::java::awt::event::ActionListener"
+			    quidu      	"39CD6AE90364"
+			    language   	"Java")
+			(object Class "MouseListener"
+			    quid       	"3C923C620397"
+			    stereotype 	"Interface"
+			    module     	"Component View::java::awt::event::MouseListener"
+			    quidu      	"39CD6B000335"
+			    language   	"Java"))
+		    logical_presentations 	(list unit_reference_list)))
+	    logical_presentations 	(list unit_reference_list))
+	(object Class_Category "math"
+	    quid       	"3C9BC70701B8"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "BigInteger"
+		    quid       	"3C9BC70701C3"
+		    module     	"Component View::java::math::BigInteger"
+		    quidu      	"39CD6BEC0390"
+		    language   	"Java"))
+	    logical_presentations 	(list unit_reference_list)))
+    logical_presentations 	(list unit_reference_list))

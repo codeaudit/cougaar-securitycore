@@ -1,0 +1,3122 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "domain"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C9239000143"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class "LDMServesPlugin"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C9239000145"
+	    documentation 	
+|* Plugins primary interface to the LDM.
+| *
+| * @see org.cougaar.core.plugin.LDMPluginServesLDM
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A3F0033"
+		    supplier   	"Logical View::org::cougaar::core::domain::LDMServesClient"
+		    quidu      	"3C9239060079"))
+	    operations 	(list Operations
+		(object Operation "cachePrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0034"
+		    documentation 	
+|   * getPrototype(aTypeName) is likely to return aPrototype
+|   * without having to make calls to PrototypeProvider.getPrototype(aTypeName).
+|   * Note that the lifespan of a prototype in the prototype registry may
+|   * be finite (or even zero!).
+|   * Note: this method should be used only by PrototypeProvider LDM Plugins.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923A3F003D"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "aPrototype"
+			    quid       	"3C923A3F0047"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "isPrototypeCached"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0048"
+		    documentation 	
+|   * the prototype cache?
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923A3F005B"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F005C"
+		    documentation 	
+|   * will actually be provided by a PrototypeProvider via a call to
+|   * getPrototype(aTypeName).
+|   * It will return null if no prototype is found or can be created
+|   * with that name.
+|   * There is no need for a client of this method to call cachePrototype
+|   * on the returned object (that task is left to whatever prototypeProvider
+|   * was responsible for generating the prototype).
+|   *
+|   * Some future release might want to throw an exception if not found.
+|   * An example aTypeName: "NSN/12345678901234".
+|   *
+|   * The returned Asset will usually, but not always have a primary 
+|   * type identifier that is equal to the aTypeName.  In cases where
+|   * it does not match, aTypeName must appear as one of the extra type
+|   * identifiers of the returned asset.  PrototypeProviders should cache
+|   * the prototype under both type identifiers in these cases.
+|   *
+|   * @param aTypeName specifies an Asset description. 
+|   * @param anAssetClassHint is an optional hint to LDM plugins
+|   * to reduce their potential work load.  If non-null, the returned asset 
+|   * (if any) should be an instance the specified class or one of its
+|   * subclasses.  When null, each PrototypeProvider will attemt to decode
+|   * the aTypeName enough to determine if it can supply prototypes of that
+|   * type.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923A3F0065"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "anAssetClass"
+			    quid       	"3C923A3F006F"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "getPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0079"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923A3F0083"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "fillProperties"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F008D"
+		    documentation 	
+|   * of LDMPlugins, but others may use it to request that propertygroups
+|   * of the new Asset be filled in from various data sources.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "anAsset"
+			    quid       	"3C923A3F0097"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "lateFillPropertyGroup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0098"
+		    documentation 	
+|   * Called as late as possible when it is not yet known if there is
+|   * a PG for an asset.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "anAsset"
+			    quid       	"3C923A3F00AB"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B")
+			(object Parameter "pg"
+			    quid       	"3C923A3F00AC"
+			    type       	"Class"
+			    quidu      	"3C92395903B8")
+			(object Parameter "time"
+			    quid       	"3C923A3F00AD"
+			    type       	"long"))
+		    result     	"PropertyGroup"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B7102D2"))
+	    module     	"Component View::org::cougaar::core::domain::LDMServesPlugin"
+	    quidu      	"3C83C34E02DD"
+	    language   	"Java")
+	(object Class "LDMServesClient"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C9239060079"
+	    documentation 	
+|* LDM instances can serve many different sorts of clients.
+| * this api is the commonality.
+| *
+| * @see org.cougaar.core.domain.LDMServesPlugin
+| * @see org.cougaar.core.agent.ClusterServesLogicProvider
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A3E0321"
+		    supplier   	"Logical View::org::cougaar::core::agent::ClusterContext"
+		    quidu      	"3C9238EF0365"))
+	    operations 	(list Operations
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E032B"
+		    documentation 	
+|   * (RootFactory)getFactory("Root") except will be somewhat more efficient.
+|   *
+		    
+		    result     	"RootFactory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A0900E0")
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E032C"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "domain"
+			    quid       	"3C923A3E0335"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Factory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A3E015E")
+		(object Operation "getLdmFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E0336"
+		    documentation 	
+|   * @deprecated Use getFactory()
+|   *
+		    
+		    result     	"RootFactory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A0900E0")
+		(object Operation "getLDMClassLoader"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E0337"
+		    documentation 	
+|   * Domain Plugins should not use this, as they will have been themselves
+|   * loaded by this ClassLoader.  Some infrastructure components which are
+|   * not loaded in the same way will require this for correct operation.
+|   *
+		    
+		    result     	"ClassLoader"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923BC00087"))
+	    class_attributes 	(list class_attribute_list
+		(object ClassAttribute "UNSPECIFIED_TIME"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E0322"
+		    documentation 	" the (internal) time to mean unspecified *"
+		    type       	"long"
+		    initv      	"0L"
+		    exportControl 	"Implementation"))
+	    module     	"Component View::org::cougaar::core::domain::LDMServesClient"
+	    quidu      	"3C83C3500041"
+	    language   	"Java")
+	(object Class "Domain"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A0900AE"
+	    documentation 	
+|* Describe an COUGAAR "Pluggable Domain Package" which consists of
+| * a set of domain-specific LDM objects as represented by a 
+| * Factory class, and a set of LogicProviders.
+| *
+| * Domain classes must also implement a static
+| * create() method so that they can be constructed
+| * by the infrastructure.
+| *
+| * Domains may optionally implement <pre>Collection<String> getAliases()</pre>
+| * to present alias names to the domain manager.  This feature is likely
+| * to be removed in short order, as it is only to allow backward-compatability
+| * when domain names change.  Use of domain aliases may result in warnings.
+| *
+	    
+	    stereotype 	"Interface"
+	    operations 	(list Operations
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3D01EA"
+		    documentation 	
+|   * construct an LDM factory to serve the specified LDM instance.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "ldm"
+			    quid       	"3C923A3D01EB"
+			    type       	"LDMServesPlugin"
+			    quidu      	"3C9239000145"))
+		    result     	"Factory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A3E015E")
+		(object Operation "initialize"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3D01EC"
+		    documentation 	
+|   * after creating the Domain instance via the zero-argument constructor,
+|   * but before the DomainManager adds the Domain to the domain list.
+|   *
+		    
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "createLogicProviders"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3D01F3"
+		    documentation 	
+|   * Create new Domain-specific LogicProviders for loading into the LogPlan.
+|   * @return a Collection of the LogicProvider instances or null.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "logplan"
+			    quid       	"3C923A3D01F4"
+			    type       	"BlackboardServesLogicProvider"
+			    quidu      	"3C923A1C0137")
+			(object Parameter "cluster"
+			    quid       	"3C923A3D01F5"
+			    type       	"ClusterServesLogicProvider"
+			    quidu      	"3C9238ED00EC"))
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92395A0265")
+		(object Operation "createXPlan"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3D01F6"
+		    documentation 	
+|   * Allow the domain to specify an XPlan for use by its LogicProviders.
+|   * This allows the domain's LPs to have custom collections/subscriptions
+|   * for efficiency rather than having to do slow searches every time.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "existingXPlans"
+			    quid       	"3C923A3D01F7"
+			    type       	"java.util.Collection"))
+		    result     	"XPlanServesBlackboard"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A1D016B"))
+	    module     	"Component View::org::cougaar::core::domain::Domain"
+	    quidu      	"3C83C36401F8"
+	    language   	"Java")
+	(object Class "RootFactory"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A0900E0"
+	    documentation 	
+|* Factory methods for all LDM objects.
+| *
+	    
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A490291"
+		    supplier   	"Logical View::org::cougaar::planning::ldm::plan::ClusterObjectFactoryImpl"
+		    quidu      	"3C923A49027D"))
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4902A5"
+		    supplier   	"Logical View::org::cougaar::core::domain::Factory"
+		    quidu      	"3C923A3E015E")
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4902D8"
+		    supplier   	"Logical View::org::cougaar::planning::ldm::plan::ClusterObjectFactory"
+		    quidu      	"3C923A4902C3"))
+	    operations 	(list Operations
+		(object Operation "RootFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490359"
+		    documentation 	
+|   *   Constructor. Create a new instance of the Factory.
+|   * @param ldm LDM object so that Factory can provide convenience aliases to 
+|   * prototype cache, etc.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "ldm"
+			    quid       	"3C923A49035A"
+			    type       	"LDMServesPlugin"
+			    quidu      	"3C9239000145")
+			(object Parameter "cid"
+			    quid       	"3C923A49035B"
+			    type       	"ClusterIdentifier"
+			    quidu      	"3C9238EC0339"))
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "addPropertyGroupFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A49035C"
+		    documentation 	
+|   * property group names may be used in createPropertyGroup(String).
+|   * Either a PropertyGroupFactory class or an instance of such may be passed in.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "pf"
+			    quid       	"3C923A490363"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "containsPropertyGroupFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490364"
+		    documentation 	
+|   * propertygroup factory.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "pf"
+			    quid       	"3C923A490365"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "findPropertyGroupFactoryMethod"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A49036D"
+		    parameters 	(list Parameters
+			(object Parameter "name"
+			    quid       	"3C923A49036E"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Method"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0
+		    quidu      	"3C923B1A017A")
+		(object Operation "addAssetFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A49036F"
+		    documentation 	
+|   * (1) find an asset class from an asset name and (2)
+|   * can figure out which factory to use for a given 
+|   * asset class.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "af"
+			    quid       	"3C923A490370"
+			    type       	"EssentialAssetFactory"
+			    quidu      	"3C923B6F02F7"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "containsAssetFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490377"
+		    parameters 	(list Parameters
+			(object Parameter "f"
+			    quid       	"3C923A490378"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "trimPackage"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490379"
+		    parameters 	(list Parameters
+			(object Parameter "classname"
+			    quid       	"3C923A490381"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "findAssetClass"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490382"
+		    parameters 	(list Parameters
+			(object Parameter "name"
+			    quid       	"3C923A490383"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Class"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0
+		    quidu      	"3C92395903B8")
+		(object Operation "getPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A49038B"
+		    documentation 	
+|   * (e.g. "NSN/1234567890123") either by looking up an existing
+|   * object or by creating one of the appropriate type.
+|   *
+|   * Shorthand for LDMServesPlugin.getPrototype(aTypeName);
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923A49038C"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createAsset"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A49038D"
+		    documentation 	
+|   * which are PrototypeProviders.
+|   * The asset created will have *no* propertygroups.
+|   * This *always* creates a prototype of the specific class.
+|   * most plugins want to call getPrototype(String typeid);
+|   *
+|   * @param classname One of the defined LDM class names.  This must
+|   * be the actual class name without the package path.  For example,
+|   * "Container" is correct, "org.cougaar.planning.ldm.asset.Container" is not.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "classname"
+			    quid       	"3C923A49038E"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createAsset"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490395"
+		    documentation 	
+|   * which are PrototypeProviders.
+|   * The asset created will have *no* propertygroups.
+|   * This *always* creates a prototype of the specific class.
+|   * most plugins want to call getPrototype(String typeid);
+|   *
+|   * @param class an LDM Asset class.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "assetClass"
+			    quid       	"3C923A490396"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A490397"
+		    documentation 	
+|   * does a createAsset followed by setting the TypeIdentification
+|   * to the specified string.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "classname"
+			    quid       	"3C923A490398"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "typeid"
+			    quid       	"3C923A49039F"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903A0"
+		    documentation 	
+|   * does a createAsset followed by setting the TypeIdentification
+|   * to the specified string.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "assetclass"
+			    quid       	"3C923A4903A1"
+			    type       	"Class"
+			    quidu      	"3C92395903B8")
+			(object Parameter "typeid"
+			    quid       	"3C923A4903A9"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903AA"
+		    documentation 	
+|   * does a createAsset followed by setting the TypeIdentification
+|   * and the nomenclature to the specified string.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "classname"
+			    quid       	"3C923A4903AB"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "typeid"
+			    quid       	"3C923A4903B3"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "nomen"
+			    quid       	"3C923A4903B4"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903B5"
+		    documentation 	
+|   * This variation does <em>not</em> add an ItemIdentificationCode
+|   * to the constructed asset instance.  Without itemIDs,
+|   * multiple instances of a prototype will test as .equals(), and
+|   * can be confusing if they're added to the logplan.
+|   * Most users will find #createInstance(Asset, String) more convenient.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAsset"
+			    quid       	"3C923A4903B6"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903BD"
+		    documentation 	
+|   * This variation does <em>not</em> add an ItemIdentificationCode
+|   * to the constructed asset instance.  Without itemIDs,
+|   * multiple instances of a prototype will test as .equals(), and
+|   * can be confusing if they're added to the logplan.
+|   * Most users will find #createInstance(String, String) more convenient.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAssetTypeId"
+			    quid       	"3C923A4903BE"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903BF"
+		    documentation 	
+|   * UniqueID for its itemIdentificationPG .
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAsset"
+			    quid       	"3C923A4903C7"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B")
+			(object Parameter "uniqueId"
+			    quid       	"3C923A4903C8"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903C9"
+		    documentation 	
+|   * for its itemIdentificationPG.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAssetTypeId"
+			    quid       	"3C923A4903CA"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "uniqueId"
+			    quid       	"3C923A4903D1"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "copyInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903D2"
+		    documentation 	
+|   * of the original - that is, it will share most PropertyGroups with the
+|   * original instance.  The differences will be that the copy's PGs will
+|   * be locked and the copy will have a different UID.
+|   * The copy will truly be a different asset which happens to (initially) have
+|   * identical propertygroups.
+|   * This method should be used to create new assets which are very much
+|   * like another instance.  The use of this method is a less-desirable alternative
+|   * to creating a new instance of your original's prototype and then adding back
+|   * any extra properties.  This is less desirable because it doesn't allow the
+|   * LDM to participate in the construction of the copy.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "asset"
+			    quid       	"3C923A4903D3"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "cloneInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903DB"
+		    documentation 	
+|   * original (as in copyInstance), with locked PropertyGroups. The copy
+|   * <em> will </em> have the same UID as the original, so will, in a systems sense
+|   * actually be the same asset.  It could be very bad for multiple clones of an
+|   * asset to show up in someone's LogPlan.  
+|   * This method should be used when subsetting the capabilities of an asset
+|   * for some other consumer.  Eg. when you want to allow a client to use just one
+|   * capability of your organization.
+|   * Note: This method name may change.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "asset"
+			    quid       	"3C923A4903DC"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createAggregate"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903DD"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAsset"
+			    quid       	"3C923A4903DE"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B")
+			(object Parameter "quantity"
+			    quid       	"3C923A4903E5"
+			    type       	"int"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createAggregate"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4903E6"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAssetTypeId"
+			    quid       	"3C923A4903E7"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "quantity"
+			    quid       	"3C923A4A0007"
+			    type       	"int"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createInstance"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A0008"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "prototypeAssetTypeId"
+			    quid       	"3C923A4A0009"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "quantity"
+			    quid       	"3C923A4A0011"
+			    type       	"int"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "createPropertyGroup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A0012"
+		    documentation 	
+|   * The name should not have any package prefix and should
+|   * be the cannonical name (not the implementation class name).
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "propertyName"
+			    quid       	"3C923A4A0013"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"PropertyGroup"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B7102D2")
+		(object Operation "createPropertyGroup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A0014"
+		    documentation 	
+|   * The name should not have any package prefix and should
+|   * be the cannonical name (not the implementation class name).
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "propertyClass"
+			    quid       	"3C923A4A001B"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"PropertyGroup"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B7102D2")
+		(object Operation "createPropertyGroup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A001C"
+		    documentation 	" @return a copy of another property group *"
+		    parameters 	(list Parameters
+			(object Parameter "originalProperty"
+			    quid       	"3C923A4A001D"
+			    type       	"PropertyGroup"
+			    quidu      	"3C923B7102D2"))
+		    result     	"PropertyGroup"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923B7102D2")
+		(object Operation "create"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A0025"
+		    documentation 	" dummy for create(String) *"
+		    parameters 	(list Parameters
+			(object Parameter "objectname"
+			    quid       	"3C923A4A0026"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Object"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923901032F")
+		(object Operation "create"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4A0027"
+		    documentation 	" dummy for create(Class) *"
+		    parameters 	(list Parameters
+			(object Parameter "objectclass"
+			    quid       	"3C923A4A0028"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"Object"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923901032F"))
+	    module     	"Component View::org::cougaar::core::domain::RootFactory"
+	    quidu      	"3C83C35A0348"
+	    language   	"Java")
+	(object Class "Registry"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	TRUE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A0D010E"
+	    operations 	(list Operations
+		(object Operation "size"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0156"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "Registry"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3F0157"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "findDomainName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	TRUE))
+		    quid       	"3C923A3F0158"
+		    documentation 	
+|   *   Retrieve the RegistryTerm containing a particular Domain Name 
+|   *   @param aDomainName The String containing the Domain Name to be looked up
+|   *   @return Search succeeded: A RegistryTerm representing the Domain Name.
+|   *   Search failed: null 
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aDomainName"
+			    quid       	"3C923A3F0159"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Object"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923901032F")
+		(object Operation "createRegistryTerm"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	TRUE))
+		    quid       	"3C923A3F015A"
+		    documentation 	
+|   *  Method to create a new RegistryTerm.
+|   *  @param aDomainName The string containing the name.
+|   *  @param aRegistryConcept A reference to the concept this name refers to.
+|   *  @exception RegistryException If connecting the name to the concept fails
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aDomainName"
+			    quid       	"3C923A3F0160"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "aRegistryConcept"
+			    quid       	"3C923A3F0161"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"Object"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923901032F"))
+	    class_attributes 	(list class_attribute_list
+		(object ClassAttribute "THE_INITIAL_REGISTRY_SIZE"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3F012E"
+		    documentation 	
+|   *   which contains the Strings of RegistryTerms
+|   *
+		    
+		    type       	"int"
+		    initv      	"89"
+		    static     	TRUE))
+	    module     	"Component View::org::cougaar::core::domain::Registry"
+	    quidu      	"3C83C34E02BF"
+	    language   	"Java")
+	(object Class "DomainManager"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	TRUE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A3E0000"
+	    documentation 	
+|* Manage a per-VM set of Domain instances.
+| *
+| * The set of domains loaded is based on the System properties
+| * starting with org.cougaar.domain.  For example, the "foo" domain would
+| * be initialized on demand from the value of the system property
+| * "org.cougaar.domain.foo=com.FooCo.org.cougaar.FooDomain"
+| *
+| * Also will attempt to load domains from a config file "LDMDomains.ini".
+| * This file has lines of the form (matching the above example):
+| *   foo=com.FooCo.org.cougaar.FooDomain
+| * @property org.cougaar.domain.foo The fully qualified classname of the Domain to be
+| * loaded with the name "foo".  All properties with the "org.cougaar.domain." prefix
+| * are loaded as domains by the DomainManager.  See the DomainManager documentation for more
+| * information.
+| * @property org.cougaar.verbose Enabled extended debugging information on domain loading.
+| *
+	    
+	    operations 	(list Operations
+		(object Operation "DomainManager"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00AF"
+		    documentation 	" Should not be constructed *"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0)
+		(object Operation "find"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00B4"
+		    documentation 	
+|   * Looks in System property "org.cougaar.domain.domainName" for the 
+|   * class to instantiate.  As a special case, the "root" domain
+|   * always maps to "org.cougaar.core.domain.RootDomain"
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "key"
+			    quid       	"3C923A3E00B5"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"Domain"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923A0900AE")
+		(object Operation "setup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00B6"
+		    documentation 	
+|   * Must be called in a context where domains is synchronized.
+|   * @param domainName the name to register the domain under.
+|   * @param className the name of the class to instantiate as the domain.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "domainName"
+			    quid       	"3C923A3E00B7"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "className"
+			    quid       	"3C923A3E00BE"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0)
+		(object Operation "initializeFromProperties"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00BF"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0)
+		(object Operation "initializeFromConfigFiles"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00C0"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0)
+		(object Operation "initialize"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00C8"
+		    documentation 	" initialize the domain set from system properties *"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "values"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00C9"
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92395A0265")
+		(object Operation "keySet"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E00CA"
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92395A0265"))
+	    class_attributes 	(list class_attribute_list
+		(object ClassAttribute "PREFIXLENGTH"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E003C"
+		    type       	"int"
+		    initv      	"PREFIX.length()"
+		    static     	TRUE)
+		(object ClassAttribute "verbose"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E003D"
+		    type       	"boolean"
+		    initv      	
+|"true".equals(System.getProperty("org.cougaar.verbose", "false"))
+		    
+		    static     	TRUE)
+		(object ClassAttribute "isInitialized"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E008C"
+		    documentation 	" have the domains been initialized? *"
+		    type       	"boolean"
+		    initv      	"false"
+		    static     	TRUE))
+	    module     	"Component View::org::cougaar::core::domain::DomainManager"
+	    quidu      	"3C92390300B1"
+	    language   	"Java")
+	(object Class "Factory"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A3E015E"
+	    documentation 	
+|* Marker for LDM factory instances.  Although no particular API
+| * is specified, instances will support domain-specific factory methods
+| * and constants for the use of domain-specific plugins.
+| * 
+| * Factory instances are created exclusively by their matching Domain object.
+| * 
+| * @see org.cougaar.core.domain.RootFactory for the factory used to create infrastructure objects.
+| *
+	    
+	    stereotype 	"Interface"
+	    module     	"Component View::org::cougaar::core::domain::Factory"
+	    quidu      	"3C83C35A03CB"
+	    language   	"Java")
+	(object Class "FactoryException"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A3E0213"
+	    documentation 	
+|* A runtime exception thrown by Factory.
+| *
+	    
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A3E023B"
+		    supplier   	"Logical View::java::lang::RuntimeException"
+		    quidu      	"3C92390800EA"))
+	    operations 	(list Operations
+		(object Operation "FactoryException"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E025B"
+		    parameters 	(list Parameters
+			(object Parameter "s"
+			    quid       	"3C923A3E025C"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "FactoryException"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E025D"
+		    parameters 	(list Parameters
+			(object Parameter "s"
+			    quid       	"3C923A3E0263"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "e"
+			    quid       	"3C923A3E0264"
+			    type       	"Exception"
+			    quidu      	"3C92395A00B6"))
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "FactoryException"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E0265"
+		    parameters 	(list Parameters
+			(object Parameter "e"
+			    quid       	"3C923A3E0266"
+			    type       	"Exception"
+			    quidu      	"3C92395A00B6"))
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "getException"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A3E0267"
+		    result     	"Exception"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92395A00B6"))
+	    module     	"Component View::org::cougaar::core::domain::FactoryException"
+	    quidu      	"3C923A3E01EA"
+	    language   	"Java")
+	(object Class "RootDomain"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A4801C7"
+	    documentation 	
+|* This is the "root" or infrastructure domain, defining the
+| * objects and behavior shared by all COUGAAR-based systems.
+| *
+	    
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4801EF"
+		    supplier   	"Logical View::org::cougaar::core::domain::Domain"
+		    quidu      	"3C923A0900AE"))
+	    operations 	(list Operations
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4801F0"
+		    documentation 	
+|   * construct an LDM factory to serve the specified LDM instance.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "ldm"
+			    quid       	"3C923A4801F1"
+			    type       	"LDMServesPlugin"
+			    quidu      	"3C9239000145"))
+		    result     	"Factory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923A3E015E")
+		(object Operation "initialize"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4801F2"
+		    documentation 	
+|   * after creating the Domain instance via the zero-argument constructor.
+|   *
+		    
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "createXPlan"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4801F9"
+		    parameters 	(list Parameters
+			(object Parameter "existingXPlans"
+			    quid       	"3C923A4801FA"
+			    type       	"Collection"
+			    quidu      	"3C92395A0265"))
+		    result     	"XPlanServesBlackboard"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923A1D016B")
+		(object Operation "createLogicProviders"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4801FB"
+		    documentation 	
+|   * Create new Domain-specific LogicProviders for loading into the LogPlan.
+|   * @return a Collection of the LogicProvider instances or null.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "alpplan"
+			    quid       	"3C923A4801FC"
+			    type       	"BlackboardServesLogicProvider"
+			    quidu      	"3C923A1C0137")
+			(object Parameter "cluster"
+			    quid       	"3C923A4801FD"
+			    type       	"ClusterServesLogicProvider"
+			    quidu      	"3C9238ED00EC"))
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92395A0265"))
+	    module     	"Component View::org::cougaar::core::domain::RootDomain"
+	    quidu      	"3C83C365019F"
+	    language   	"Java")
+	(object Association "$UNNAMED$0"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3E0032"
+	    roles      	(list role_list
+		(object Role "PREFIX"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	(value Text 
+|"org.cougaar.domain."
+			    ))
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E0033"
+		    label      	"PREFIX"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$1"
+		    quid       	"3C923A3E0035"
+		    supplier   	"Logical View::org::cougaar::core::domain::DomainManager"
+		    quidu      	"3C923A3E0000")))
+	(object Association "$UNNAMED$2"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3E005A"
+	    roles      	(list role_list
+		(object Role "domains"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashMap (11)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E0064"
+		    documentation 	" a map of domainName to Domain Instance *"
+		    label      	"domains"
+		    supplier   	"Logical View::java::util::HashMap"
+		    quidu      	"3C9238F001AF"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$3"
+		    quid       	"3C923A3E0066"
+		    supplier   	"Logical View::org::cougaar::core::domain::DomainManager"
+		    quidu      	"3C923A3E0000")))
+	(object Association "$UNNAMED$4"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3E0082"
+	    roles      	(list role_list
+		(object Role "aliases"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashMap (11)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E0083"
+		    documentation 	
+|   * Access is guarded by synchronizing on <em>domains</em>
+|   *
+		    
+		    label      	"aliases"
+		    supplier   	"Logical View::java::util::HashMap"
+		    quidu      	"3C9238F001AF"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$5"
+		    quid       	"3C923A3E0085"
+		    supplier   	"Logical View::org::cougaar::core::domain::DomainManager"
+		    quidu      	"3C923A3E0000")))
+	(object Association "$UNNAMED$6"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3E00AA"
+	    roles      	(list role_list
+		(object Role "keylist"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"null")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E00AB"
+		    label      	"keylist"
+		    supplier   	"Logical View::java::util::Collection"
+		    quidu      	"3C92395A0265"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$7"
+		    quid       	"3C923A3E00AD"
+		    supplier   	"Logical View::org::cougaar::core::domain::DomainManager"
+		    quidu      	"3C923A3E0000")))
+	(object Association "$UNNAMED$8"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3E024F"
+	    roles      	(list role_list
+		(object Role "inner"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"null")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3E0250"
+		    label      	"inner"
+		    supplier   	"Logical View::java::lang::Exception"
+		    quidu      	"3C92395A00B6"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$9"
+		    quid       	"3C923A3E0259"
+		    supplier   	"Logical View::org::cougaar::core::domain::FactoryException"
+		    quidu      	"3C923A3E0213")))
+	(object Association "$UNNAMED$10"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A3F014C"
+	    roles      	(list role_list
+		(object Role "theRegistry"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashMap (THE_INITIAL_REGISTRY_SIZE)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A3F014D"
+		    documentation 	
+|   *   When a client requests retrieval of the RegistryTerm instance using
+|   *   a Domain Name as the lookup key, this HashMap is used to execute 
+|   *   the lookup.
+|   *
+		    
+		    label      	"theRegistry"
+		    supplier   	"Logical View::java::util::HashMap"
+		    quidu      	"3C9238F001AF"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$11"
+		    quid       	"3C923A3F014F"
+		    supplier   	"Logical View::org::cougaar::core::domain::Registry"
+		    quidu      	"3C923A0D010E")))
+	(object Association "$UNNAMED$12"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A4902EB"
+	    roles      	(list role_list
+		(object Role "propertyNames"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashMap (89)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4902EC"
+		    documentation 	" map of propertyclassname to factorymethod *"
+		    label      	"propertyNames"
+		    supplier   	"Logical View::java::util::Map"
+		    quidu      	"3C9239010181"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$13"
+		    quid       	"3C923A4902F6"
+		    supplier   	"Logical View::org::cougaar::core::domain::RootFactory"
+		    quidu      	"3C923A0900E0")))
+	(object Association "$UNNAMED$14"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A490313"
+	    roles      	(list role_list
+		(object Role "assetClasses"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashMap (89)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A490314"
+		    documentation 	" map of assetname -> assetClass *"
+		    label      	"assetClasses"
+		    supplier   	"Logical View::java::util::Map"
+		    quidu      	"3C9239010181"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$15"
+		    quid       	"3C923A490316"
+		    supplier   	"Logical View::org::cougaar::core::domain::RootFactory"
+		    quidu      	"3C923A0900E0")))
+	(object Association "$UNNAMED$16"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A490331"
+	    roles      	(list role_list
+		(object Role "propertyFactories"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashSet (11)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A490332"
+		    documentation 	" set of property(group) factory classes *"
+		    label      	"propertyFactories"
+		    supplier   	"Logical View::java::util::Set"
+		    quidu      	"3C92392301BB"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$17"
+		    quid       	"3C923A490334"
+		    supplier   	"Logical View::org::cougaar::core::domain::RootFactory"
+		    quidu      	"3C923A0900E0")))
+	(object Association "$UNNAMED$18"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A49034F"
+	    roles      	(list role_list
+		(object Role "assetFactories"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new HashSet (11)")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A490350"
+		    documentation 	" set of assetFactories *"
+		    label      	"assetFactories"
+		    supplier   	"Logical View::java::util::Set"
+		    quidu      	"3C92392301BB"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$19"
+		    quid       	"3C923A490352"
+		    supplier   	"Logical View::org::cougaar::core::domain::RootFactory"
+		    quidu      	"3C923A0900E0"))))
+    logical_presentations 	(list unit_reference_list))

@@ -1,0 +1,2298 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "servlet"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C923B53009E"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class "BaseServletComponent"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B5300A0"
+	    documentation 	
+|* Abstract base-class for a Component that obtains the ServletService
+| * and registers a Servlet.
+	    
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B5300D0"
+		    supplier   	"Logical View::org::cougaar::util::GenericStateModelAdapter"
+		    quidu      	"3C92395703B5"))
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B5300EE"
+		    supplier   	"Logical View::org::cougaar::core::component::Component"
+		    quidu      	"3C92395702CF"))
+	    operations 	(list Operations
+		(object Operation "BaseServletComponent"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53016C"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "setBindingSite"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530171"
+		    parameters 	(list Parameters
+			(object Parameter "bindingSite"
+			    quid       	"3C923B530172"
+			    type       	"BindingSite"
+			    quidu      	"3C9238DF018C"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "setParameter"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530173"
+		    documentation 	
+|   * Capture the (optional) load-time parameters.
+|   * <p>
+|   * This is typically a List of Strings.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B530174"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "load"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530175"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "unload"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53017B"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "getPath"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53017C"
+		    documentation 	"   * Get the path for the Servlet's registration."
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Protected"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "createServlet"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53017D"
+		    documentation 	
+|   * Create the Servlet instance.
+|   * <p>
+|   * This is done within "load()", and is also a good time to 
+|   * aquire additional services from the "serviceBroker"
+|   * (for example, BlackboardService).
+		    
+		    result     	"Servlet"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Protected"
+		    uid        	0
+		    quidu      	"3C927E2D00F7"))
+	    module     	"Component View::org::cougaar::core::servlet::BaseServletComponent"
+	    quidu      	"3C83C39503E4"
+	    language   	"Java"
+	    abstract   	TRUE)
+	(object Class "ServletService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B530149"
+	    documentation 	
+|* Service that can be used to register a <code>Servlet</code>
+| * for all HTTP requests that match a specified String path.
+| * <p>
+| * This is analogous to a <code>java.util.Map</code>:<pre>
+| *   - register with "put(name, value)"
+| *   - unregister with "remove(name)"
+| *   - unregister-all with "clear()"
+| * </pre>
+| * <p>
+| * "Servlet.init(..)" will be called upon <tt>register</tt>
+| * and "Servlet.destroy()" will be called upon <tt>unregister</tt>.
+| * Note that a <i>dummy</i> ServletConfig implementation will
+| * be passed in both cases, where most methods return <tt>null</tt>.
+| * This is done partially as a security precaution...
+| * <p>
+| * Also note that multiple concurrent "Servlet.service(..)" calls 
+| * can occur, so your Servlet must be reentrant.
+| * <p>
+| * See:
+| *  <a href=
+| *  "http://java.sun.com/docs/books/tutorial/servlets">
+| *   http://java.sun.com/docs/books/tutorial/servlets</a> for
+| * tutorials on how to write Servlets and HttpServlets.
+| *
+| * @see ServletServiceProvider
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B530293"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "register"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530294"
+		    documentation 	
+|   * Register a path to call the given <code>Servlet</code>.
+|   * <p>
+|   * This method will throw an <code>IllegalArgumentException</code>
+|   * if the path has already been registered by another ServletService
+|   * instance..
+|   * 
+|   * @see #unregister
+		    
+		    parameters 	(list Parameters
+			(object Parameter "path"
+			    quid       	"3C923B530295"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "servlet"
+			    quid       	"3C923B53029D"
+			    type       	"Servlet"
+			    quidu      	"3C927E2D00F7"))
+		    result     	"void"
+		    exceptions 	"Exception"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "unregister"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53029E"
+		    documentation 	
+|   * Unregister the <code>Servlet</code> with the specified path.
+|   * <p>
+|   * This method can only be used to unregister Servlets that have 
+|   * been registered with <b>this</b> service instance.
+|   *
+|   * @see #registerServlet
+|   * @see #unregisterAll
+		    
+		    parameters 	(list Parameters
+			(object Parameter "path"
+			    quid       	"3C923B53029F"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "unregisterAll"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5302A0"
+		    documentation 	
+|   * Unregister all <code>Servlet</code>s that have been registered
+|   * by <b>this</b> registration service instance.
+|   * <p>
+|   * This can be used as a one-stop cleanup utility.
+|   *
+|   * @see #unregister
+		    
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::servlet::ServletService"
+	    quidu      	"3C83C3960150"
+	    language   	"Java")
+	(object Class "ServletUtil"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	TRUE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B53033D"
+	    documentation 	"* Utility methods that may assist in writing Servlets."
+	    operations 	(list Operations
+		(object Operation "ServletUtil"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53035B"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Private"
+		    uid        	0)
+		(object Operation "getEncodedAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53035C"
+		    documentation 	
+|   * Get the "/$name" encoded Agent name from the request path.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "request"
+			    quid       	"3C923B53035D"
+			    type       	"HttpServletRequest"
+			    quidu      	"3C927E2A03B0"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "getPath"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B53035E"
+		    documentation 	
+|   * Get the path after the "/$name".
+		    
+		    parameters 	(list Parameters
+			(object Parameter "request"
+			    quid       	"3C923B53035F"
+			    type       	"HttpServletRequest"
+			    quidu      	"3C927E2A03B0"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "encodeForHTML"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530365"
+		    documentation 	
+|   * Encode a String for HTML.
+|   * <p>
+|   * The String should only be one line (i.e. no CRLFs).
+|   * <pre>
+|   * Converts:
+|   *   &amp; to &amp;amp;
+|   *   &lt; to &amp;lt;
+|   *   &gt; to &amp;gt;
+|   * </pre>
+		    
+		    parameters 	(list Parameters
+			(object Parameter "s"
+			    quid       	"3C923B530366"
+			    type       	"final String"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "encodeForJava"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530367"
+		    documentation 	
+|   * Encode a String for Java.
+|   * <pre>
+|   * Converts:
+|   *   " to \\\"
+|   *   \ to \\
+|   *   CRLF to \\n
+|   * </pre>
+|   * Can be used to create javascript pages.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "s"
+			    quid       	"3C923B530368"
+			    type       	"final String"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "parseParams"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530369"
+		    documentation 	
+|   * Make the GET and POST passing of parameters transparent to 
+|   * the user.
+|   * <p>
+|   * Determine either GET or POST methods, call with respective 
+|   * ServletUtil methods.
+|   *
+|   * @see ParamVisitor inner-class defined at the end of this class
+		    
+		    parameters 	(list Parameters
+			(object Parameter "vis"
+			    quid       	"3C923B53036A"
+			    type       	"ParamVisitor"
+			    quidu      	"3C923B530373")
+			(object Parameter "req"
+			    quid       	"3C923B53036F"
+			    type       	"HttpServletRequest"
+			    quidu      	"3C927E2A03B0"))
+		    result     	"void"
+		    exceptions 	"IOException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "parseParams"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B530370"
+		    documentation 	
+|   * Given a <code>Map</code> of (name, value) pairs, call back 
+|   * to the given <code>ParamVisitor</code>'s "setParam(name,value)"
+|   * method.
+|   *
+|   * @see ParamVisitor inner-class defined at the end of this class
+		    
+		    parameters 	(list Parameters
+			(object Parameter "vis"
+			    quid       	"3C923B530371"
+			    type       	"ParamVisitor"
+			    quidu      	"3C923B530373")
+			(object Parameter "m"
+			    quid       	"3C923B530372"
+			    type       	"Map"
+			    quidu      	"3C9239010181"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::servlet::ServletUtil"
+	    quidu      	"3C83C3960312"
+	    language   	"Java"
+	    nestedClasses 	(list nestedClasses
+		(object Class "ParamVisitor"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B530373"
+		    documentation 	
+|* Simple callback API for use with "setParams(..)".
+		    
+		    stereotype 	"Interface"
+		    operations 	(list Operations
+			(object Operation "setParam"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B530375"
+			    parameters 	(list Parameters
+				(object Parameter "key"
+				    quid       	"3C923B530379"
+				    type       	"String"
+				    quidu      	"3C92390101B3")
+				(object Parameter "value"
+				    quid       	"3C923B53037A"
+				    type       	"String"
+				    quidu      	"3C92390101B3"))
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0))
+		    module     	"Component View::org::cougaar::core::servlet::ServletUtil"
+		    quidu      	"3C83C3960312")))
+	(object Class "SimpleServletComponent"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B54023A"
+	    documentation 	
+|* Component that loads a <code>Servlet</code> and provides
+| * the <code>SimpleServletSupport</code>.
+| * <p>
+| * Usage in an ".ini" file is:<pre>
+| *   ...
+| *   plugin = &lt;this-class&gt;(&lt;servlet-class&gt;, &lt;path&gt;)
+| *   ...</pre><br>
+| * where<pre>
+| *   &lt;this-class&gt; is "org.cougaar.core.servlet.SimpleServletComponent"
+| *   &lt;servlet-class&gt; is the class name of a Servlet.  If the
+| *      Servlet has a "public classname(SimpleServletSupport support)"
+| *      constructor then a SimpleServletSupport is passed.
+| *   &lt;path&gt; is the path for the Servlet, such as "/test".
+| * </pre><br>
+| * <p>
+| *
+| * Most of this code is "reflection-glue" to:<ul>
+| *   <li>capture the (classname, path) parameters</li>
+| *   <li>examine the class's constructor method(s)</li>
+| *   <li>construct the class instance</li>
+| *   <li>setup and create a <code>SimpleServletSupportImpl</code>
+| *       instance</li>
+| * </ul>
+| * Most subclass developers have the classname and path hard-coded,
+| * so they should consider not extending SimpleServletComponent and
+| * instead use <code>BaseServletComponent</code> and 
+| * SimpleServletSupportImpl directly.
+| *
+| * @see SimpleServletSupport
+	    
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B54026C"
+		    supplier   	"Logical View::org::cougaar::core::servlet::BaseServletComponent"
+		    quidu      	"3C923B5300A0"))
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B54028A"
+		    supplier   	"Logical View::org::cougaar::core::blackboard::BlackboardClient"
+		    quidu      	"3C923A1C0173"))
+	    operations 	(list Operations
+		(object Operation "SimpleServletComponent"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B54033F"
+		    documentation 	"   * Standard constructor."
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "setBindingSite"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540340"
+		    documentation 	"   * Save our binding info during initialization."
+		    parameters 	(list Parameters
+			(object Parameter "bindingSite"
+			    quid       	"3C923B540341"
+			    type       	"BindingSite"
+			    quidu      	"3C9238DF018C"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "setParameter"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540349"
+		    documentation 	
+|   * Save our Servlet's configurable path, for example
+|   * "/test/FOO".
+|   *
+|   * This is only set during initialization and is constant
+|   * for the lifetime of the Servlet.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B54034A"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "getPath"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B54034B"
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Protected"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "createServlet"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B54034C"
+		    result     	"Servlet"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Protected"
+		    uid        	0
+		    quidu      	"3C927E2D00F7")
+		(object Operation "createSimpleServletSupport"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540353"
+		    result     	"SimpleServletSupport"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Protected"
+		    uid        	0
+		    quidu      	"3C923B5500AB")
+		(object Operation "unload"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540354"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "toString"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540355"
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "getBlackboardClientName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540356"
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "currentTimeMillis"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B540357"
+		    result     	"long"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "triggerEvent"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B54035D"
+		    parameters 	(list Parameters
+			(object Parameter "event"
+			    quid       	"3C923B54035E"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::servlet::SimpleServletComponent"
+	    quidu      	"3C923B540212"
+	    language   	"Java")
+	(object Class "SimpleServletSupport"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B5500AB"
+	    documentation 	
+|* This is a simple API for a <code>Servlet</code> to access
+| * COUGAAR Services, such as the Blackboard.
+| * <p>
+| * This is for Servlets that are loaded by the
+| * <code>SimpleServletComponent</code>.  See SimplerServletComponent
+| * for loading details (".ini" usage, etc).
+| * <p>
+| * The Servlet class (e.g. "MyServlet") must have either a
+| * "support" constructor:<pre>
+| *    ... 
+| *    public MyServlet(SimpleServletSupport support) {
+| *      // save support for later use
+| *    }
+| *    ...</pre><br>
+| * or the default constructor:<pre>
+| *    ...
+| *    public MyServlet() {
+| *      // load with no support
+| *    }
+| *    ...</pre><br>
+| * The default constructor can be used to load pure Servlets (i.e. 
+| * Servlets without Cougaar references).
+| * <p>
+| *
+| * @see SimpleServletComponent
+	    
+	    stereotype 	"Interface"
+	    operations 	(list Operations
+		(object Operation "getPath"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500CA"
+		    documentation 	
+|   * Get the path that this Servlet was loaded under.
+|   * <p>
+|   * This can also be obtained from the 
+|   * <tt>HttpServletRequest.getRequestURI()</tt>, which
+|   * will be "/$encoded-agent-name/path".
+		    
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "queryBlackboard"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500CB"
+		    documentation 	
+|   * Query the blackboard for all Objects that match the
+|   * given predicate.
+|   * <p>
+|   * Each call to "query" is a snapshot of the blackboard
+|   * that may contain different information than the last
+|   * "query" call, even within the same Servlet 
+|   * "service(..)" request.  The Objects returned should
+|   * be considered read-only!
+|   * <p>
+|   * This is the only blackboard access that is provided
+|   * to <i>simple</i> Servlets.  Servlets that need
+|   * to publish/subscribe/etc will require more complex
+|   * transaction open/close logic -- they should 
+|   * obtain the <code>ServletService</code> directly.
+|   * See <code>SimpleServletComponent</code> as a guide.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "pred"
+			    quid       	"3C923B5500CC"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296"))
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92395A0265")
+		(object Operation "getEncodedAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500D3"
+		    documentation 	
+|   * Get the URL- and HTML-safe (encoded) name of the
+|   * Agent that contains this Servlet instance.
+|   * <p>
+|   * Equivalent to 
+|   * <tt>encodeAgentName(getAgentIdentifier().getAddress())</tt>.
+|   * <p>
+|   * All "/$name/*" URLS must use the encoded Agent name.
+|   * In general the raw "agentName" may contain characters
+|   * that are not URL/HTML safe, such as:
+|   * <ul>
+|   *   <li>URL reserved characters  (" ", ":", "/", etc)</li>
+|   *   <li>HTML reserved characters ("&gt;", "&lt;")</li>
+|   *   <li>Arbitrary control characters ("\\n", "\\t", etc)</li>
+|   * </ul>
+|   *
+|   * @see #encodeAgentName
+		    
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "getAgentIdentifier"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500D4"
+		    documentation 	
+|   * Get the Agent's identifier for the Agent that contains
+|   * this Servlet instance.
+|   * <p>
+|   * The <tt>getAgentIdentifier().getAddress()</tt> is the 
+|   * "raw" name of the agent and may contain unsafe URL/HTML
+|   * characters.
+|   *
+|   * @see #getEncodedAgentName
+		    
+		    result     	"ClusterIdentifier"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C9238EC0339")
+		(object Operation "getAllEncodedAgentNames"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500D5"
+		    documentation 	
+|   * Equivalent to 
+|   * <tt>getAllEncodedAgentNames(new ArrayList())</tt>.
+		    
+		    result     	"List"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C9239020377")
+		(object Operation "getAllEncodedAgentNames"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500D6"
+		    documentation 	
+|   * Fill the given <tt>toList</tt> with all the 
+|   * <code>String</code> encoded Agent names in the society.
+|   * <p>
+|   * This includes both local and remote Agent names.
+|   *
+|   * @see #getEncodedAgentName
+		    
+		    parameters 	(list Parameters
+			(object Parameter "toList"
+			    quid       	"3C923B5500DD"
+			    type       	"List"
+			    quidu      	"3C9239020377"))
+		    result     	"List"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C9239020377")
+		(object Operation "encodeAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5500DE"
+		    documentation 	
+|   * Utility method to encode an Agent name -- 
+|   * equivalent to <tt>java.net.URLEncoder.encode(name)</tt>.
+|   *
+|   * @see #getEncodedAgentName
+		    
+		    parameters 	(list Parameters
+			(object Parameter "name"
+			    quid       	"3C923B5500DF"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92390101B3"))
+	    module     	"Component View::org::cougaar::core::servlet::SimpleServletSupport"
+	    quidu      	"3C83C3970025"
+	    language   	"Java")
+	(object Class "SimpleServletSupportImpl"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B550214"
+	    documentation 	
+|* This is a generic API, provided by "SimpleServletComponent",
+| * that allows a Servlet to access COUGAAR Services.
+| * <p>
+| * The SimpleServletComponent class passes an instance of 
+| * SimpleServletSupport to a Servlet's constructor.  This API
+| * abstracts away the Component and Service details from the
+| * Servlet.
+	    
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B550246"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupport"
+		    quidu      	"3C923B5500AB"))
+	    operations 	(list Operations
+		(object Operation "SimpleServletSupportImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5502FA"
+		    parameters 	(list Parameters
+			(object Parameter "path"
+			    quid       	"3C923B5502FB"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "agentId"
+			    quid       	"3C923B550304"
+			    type       	"ClusterIdentifier"
+			    quidu      	"3C9238EC0339")
+			(object Parameter "blackboard"
+			    quid       	"3C923B550305"
+			    type       	"BlackboardService"
+			    quidu      	"3C923A350057")
+			(object Parameter "ns"
+			    quid       	"3C923B550306"
+			    type       	"NamingService"
+			    quidu      	"3C923901014E"))
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "getPath"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B550307"
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "queryBlackboard"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B55030E"
+		    parameters 	(list Parameters
+			(object Parameter "pred"
+			    quid       	"3C923B55030F"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296"))
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92395A0265")
+		(object Operation "getEncodedAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B550310"
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "getAgentIdentifier"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B550311"
+		    result     	"ClusterIdentifier"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C9238EC0339")
+		(object Operation "getAllEncodedAgentNames"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B550318"
+		    result     	"List"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C9239020377")
+		(object Operation "getAllEncodedAgentNames"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B550319"
+		    parameters 	(list Parameters
+			(object Parameter "toList"
+			    quid       	"3C923B55031A"
+			    type       	"List"
+			    quidu      	"3C9239020377"))
+		    result     	"List"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C9239020377")
+		(object Operation "encodeAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B55031B"
+		    parameters 	(list Parameters
+			(object Parameter "name"
+			    quid       	"3C923B55031C"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C92390101B3"))
+	    module     	"Component View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+	    quidu      	"3C923B5501E2"
+	    language   	"Java")
+	(object Association "$UNNAMED$0"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B530102"
+	    roles      	(list role_list
+		(object Role "bindingSite"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B530103"
+		    label      	"bindingSite"
+		    supplier   	"Logical View::org::cougaar::core::component::BindingSite"
+		    quidu      	"3C9238DF018C"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$1"
+		    quid       	"3C923B53010C"
+		    supplier   	"Logical View::org::cougaar::core::servlet::BaseServletComponent"
+		    quidu      	"3C923B5300A0")))
+	(object Association "$UNNAMED$2"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B53012B"
+	    roles      	(list role_list
+		(object Role "serviceBroker"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B53012C"
+		    label      	"serviceBroker"
+		    supplier   	"Logical View::org::cougaar::core::component::ServiceBroker"
+		    quidu      	"3C92395701E8"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$3"
+		    quid       	"3C923B53012E"
+		    supplier   	"Logical View::org::cougaar::core::servlet::BaseServletComponent"
+		    quidu      	"3C923B5300A0")))
+	(object Association "$UNNAMED$4"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B530167"
+	    roles      	(list role_list
+		(object Role "servletService"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B530168"
+		    label      	"servletService"
+		    supplier   	"Logical View::org::cougaar::core::servlet::ServletService"
+		    quidu      	"3C923B530149"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$5"
+		    quid       	"3C923B53016A"
+		    supplier   	"Logical View::org::cougaar::core::servlet::BaseServletComponent"
+		    quidu      	"3C923B5300A0")))
+	(object Association "$UNNAMED$6"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B54029E"
+	    roles      	(list role_list
+		(object Role "classname"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B54029F"
+		    documentation 	
+|   * Servlet classname from "setParameter(..)".
+		    
+		    label      	"classname"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$7"
+		    quid       	"3C923B5402A9"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletComponent"
+		    quidu      	"3C923B54023A")))
+	(object Association "$UNNAMED$8"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B5402C7"
+	    roles      	(list role_list
+		(object Role "path"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B5402C8"
+		    documentation 	
+|   * Servlet path from "setParameter(..)".
+		    
+		    label      	"path"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$9"
+		    quid       	"3C923B5402D1"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletComponent"
+		    quidu      	"3C923B54023A")))
+	(object Association "$UNNAMED$10"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B5402EF"
+	    roles      	(list role_list
+		(object Role "agentId"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B5402F0"
+		    documentation 	"   * Agent identifier for the Agent that loaded this Component."
+		    label      	"agentId"
+		    supplier   	"Logical View::org::cougaar::core::agent::ClusterIdentifier"
+		    quidu      	"3C9238EC0339"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$11"
+		    quid       	"3C923B5402F9"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletComponent"
+		    quidu      	"3C923B54023A")))
+	(object Association "$UNNAMED$12"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B540317"
+	    roles      	(list role_list
+		(object Role "blackboard"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B540318"
+		    label      	"blackboard"
+		    supplier   	"Logical View::org::cougaar::core::service::BlackboardService"
+		    quidu      	"3C923A350057"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$13"
+		    quid       	"3C923B54031A"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletComponent"
+		    quidu      	"3C923B54023A")))
+	(object Association "$UNNAMED$14"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B540335"
+	    roles      	(list role_list
+		(object Role "ns"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B540336"
+		    label      	"ns"
+		    supplier   	"Logical View::org::cougaar::core::service::NamingService"
+		    quidu      	"3C923901014E"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$15"
+		    quid       	"3C923B540338"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletComponent"
+		    quidu      	"3C923B54023A")))
+	(object Association "$UNNAMED$16"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B55025A"
+	    roles      	(list role_list
+		(object Role "path"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B55025B"
+		    label      	"path"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$17"
+		    quid       	"3C923B550265"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+		    quidu      	"3C923B550214")))
+	(object Association "$UNNAMED$18"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B550282"
+	    roles      	(list role_list
+		(object Role "agentId"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B550283"
+		    label      	"agentId"
+		    supplier   	"Logical View::org::cougaar::core::agent::ClusterIdentifier"
+		    quidu      	"3C9238EC0339"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$19"
+		    quid       	"3C923B55028D"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+		    quidu      	"3C923B550214")))
+	(object Association "$UNNAMED$20"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B5502AA"
+	    roles      	(list role_list
+		(object Role "blackboard"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B5502AB"
+		    label      	"blackboard"
+		    supplier   	"Logical View::org::cougaar::core::service::BlackboardService"
+		    quidu      	"3C923A350057"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$21"
+		    quid       	"3C923B5502AD"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+		    quidu      	"3C923B550214")))
+	(object Association "$UNNAMED$22"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B5502C8"
+	    roles      	(list role_list
+		(object Role "ns"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B5502C9"
+		    label      	"ns"
+		    supplier   	"Logical View::org::cougaar::core::service::NamingService"
+		    quidu      	"3C923901014E"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$23"
+		    quid       	"3C923B5502CB"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+		    quidu      	"3C923B550214")))
+	(object Association "$UNNAMED$24"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923B5502E6"
+	    roles      	(list role_list
+		(object Role "encAgentName"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923B5502E7"
+		    label      	"encAgentName"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Protected"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$25"
+		    quid       	"3C923B5502F1"
+		    supplier   	"Logical View::org::cougaar::core::servlet::SimpleServletSupportImpl"
+		    quidu      	"3C923B550214"))))
+    logical_presentations 	(list unit_reference_list))

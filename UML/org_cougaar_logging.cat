@@ -1,0 +1,676 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "logging"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C923A4A03C8"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class "LoggingControlService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A4A03CA"
+	    documentation 	
+|* Marker interface for a Service that provides the
+| * generic LoggerController API.
+| *
+| * @see LoggerController
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4B0028"
+		    supplier   	"Logical View::org::cougaar::util::log::LoggerController"
+		    quidu      	"3C923A4B000A")
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4B003B"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    module     	"Component View::org::cougaar::core::logging::LoggingControlService"
+	    quidu      	"3C83C3650345"
+	    language   	"Java")
+	(object Class "LoggingServiceProvider"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	TRUE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A4B0302"
+	    documentation 	
+|* This LoggingServiceProvider is a ServiceProvider which provides
+| * two services<ol><p>
+| *   <li>LoggingService<br>
+| *       Used by developers to write log statements</li><p>
+| *   <li>LoggingControlService<br>
+| *       Used by privledged Components to alter the logging levels
+| *       and add/remove logging destinations</li>
+| * </ol>.
+| * <p>
+| * System properties that start with "org.cougaar.core.logging."
+| * are used to configure the logger.  The
+| * "org.cougaar.core.logging." prefix is removed before the
+| * properties are passed off to the LoggerFactory.
+| * <p>
+| * One special property is the
+| * "org.cougaar.core.logging.config.filename",
+| * which is used to (optionally) load a second properties
+| * file.  The properties in this file should not be prefixed
+| * with the "org.cougaar.core.logging." prefix.
+| * <p>
+| * The javadocs for <tt>LoggerFactory.configure(Map)</tt> define
+| * the valid logging configuration properties.
+| *
+| * @see Logger
+| * @see LoggerController
+| *
+| * <pre>
+| * @property org.cougaar.core.logging.config.filename
+| *    Load logging properties from the named file, which is
+| *    found using the ConfigFinder.  Currently uses log4j-style
+| *    properties; see
+| *    <a href="http://jakarta.apache.org/log4j/docs/manual.html"
+| *    >the log4j manual</a> for valid file contents.
+| * @property org.cougaar.core.logging.*
+| *    Non-"config.filename" properties are stripped of their 
+| *    "org.cougaar.core.logging." prefix and passed to the
+| *    logger configuration.  These properties override any 
+| *    properties defined in the (optional) 
+| *    "org.cougaar.core.logging.config.filename=STRING" 
+| *    property.
+| * </pre>
+	    
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4B0334"
+		    supplier   	"Logical View::org::cougaar::core::component::ServiceProvider"
+		    quidu      	"3C92395D011F"))
+	    operations 	(list Operations
+		(object Operation "LoggingServiceProvider"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4B03B1"
+		    documentation 	
+|   * Create a LoggingServiceProvider and set the default logging
+|   * levels.
+|   *
+|   * @param props "org.cougaar.core.logging." system properties
+|   *    to configure the logger.  In particular,
+|   *    "org.cougaar.core.logging.config.filename=STRING"
+|   *    will read properties from a file.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "props"
+			    quid       	"3C923A4B03B6"
+			    type       	"Properties"
+			    quidu      	"3C923AE000CB"))
+		    exceptions 	"IOException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0)
+		(object Operation "getService"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4B03B7"
+		    documentation 	
+|   * Used to obtain either LoggingService or LoggingControlService.
+|   *
+|   * @param sb service broker
+|   * @param requestor The object requesting the service used to mark
+|   *                  the object category
+|   * @param serviceClass The service requested. It will be either
+|   *                     LoggingService or LoggingControlService.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "sb"
+			    quid       	"3C923A4B03B8"
+			    type       	"ServiceBroker"
+			    quidu      	"3C92395701E8")
+			(object Parameter "requestor"
+			    quid       	"3C923A4B03B9"
+			    type       	"Object"
+			    quidu      	"3C923901032F")
+			(object Parameter "serviceClass"
+			    quid       	"3C923A4B03BA"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"Object"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923901032F")
+		(object Operation "releaseService"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4B03C0"
+		    documentation 	
+|   * Used to release either LoggingService or LoggingControlService.
+|   *
+|   * Currently does nothing because no resources need to be released.
+|   * However, users should aways call "releaseService(..)" in case
+|   * this implementation is modified...
+|   *
+|   * @param sb The ServiceBroker controlling this service
+|   * @param requestor The object requesting the service used to mark
+|   *                  the object category
+|   * @param serviceClass The service requested. It will be either
+|   *                     LoggingService or LoggingControlService.
+|   * @param service The actual service being released
+		    
+		    parameters 	(list Parameters
+			(object Parameter "sb"
+			    quid       	"3C923A4B03C1"
+			    type       	"ServiceBroker"
+			    quidu      	"3C92395701E8")
+			(object Parameter "requestor"
+			    quid       	"3C923A4B03C2"
+			    type       	"Object"
+			    quidu      	"3C923901032F")
+			(object Parameter "serviceClass"
+			    quid       	"3C923A4B03C3"
+			    type       	"Class"
+			    quidu      	"3C92395903B8")
+			(object Parameter "service"
+			    quid       	"3C923A4B03CA"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0))
+	    class_attributes 	(list class_attribute_list
+		(object ClassAttribute "PREFIX_LENGTH"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4B0355"
+		    type       	"int"
+		    static     	TRUE))
+	    module     	"Component View::org::cougaar::core::logging::LoggingServiceProvider"
+	    quidu      	"3C923A4B02E4"
+	    language   	"Java"
+	    nestedClasses 	(list nestedClasses
+		(object Class "LoggingServiceImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE))
+		    quid       	"3C923A4B03CB"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923A4C0014"
+			    supplier   	"Logical View::org::cougaar::util::log::LoggerProxy"
+			    quidu      	"3C923A4C0000"))
+		    realized_interfaces 	(list realize_rel_list
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923A4C003D"
+			    supplier   	"Logical View::org::cougaar::core::service::LoggingService"
+			    quidu      	"3C923A4C0028"))
+		    exportControl 	"Private"
+		    operations 	(list Operations
+			(object Operation "LoggingServiceImpl"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923A4C0046"
+			    parameters 	(list Parameters
+				(object Parameter "l"
+				    quid       	"3C923A4C0047"
+				    type       	"Logger"
+				    quidu      	"3C923B4E02B4"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0))
+		    module     	"Component View::org::cougaar::core::logging::LoggingServiceProvider"
+		    quidu      	"3C923A4B02E4")
+		(object Class "LoggingControlServiceImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE))
+		    quid       	"3C923A4C0048"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923A4C0078"
+			    supplier   	"Logical View::org::cougaar::util::log::LoggerControllerProxy"
+			    quidu      	"3C923A4C005A"))
+		    realized_interfaces 	(list realize_rel_list
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923A4C008C"
+			    supplier   	"Logical View::org::cougaar::core::logging::LoggingControlService"
+			    quidu      	"3C923A4A03CA"))
+		    exportControl 	"Private"
+		    operations 	(list Operations
+			(object Operation "LoggingControlServiceImpl"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923A4C008D"
+			    parameters 	(list Parameters
+				(object Parameter "lc"
+				    quid       	"3C923A4C0096"
+				    type       	"LoggerController"
+				    quidu      	"3C923A4B000A"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0))
+		    module     	"Component View::org::cougaar::core::logging::LoggingServiceProvider"
+		    quidu      	"3C923A4B02E4")))
+	(object Class "NullLoggingServiceImpl"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A4C01CD"
+	    documentation 	
+|* LoggingService where all "is*()" methods return
+| * false, and all "log()" methods are ignored.
+| * <p>
+| * This is handle if<pre> 
+| *   serviceBroker.getService(.., LoggingService.class, ..);
+| * </pre>
+| * returns null.
+	    
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4C0213"
+		    supplier   	"Logical View::org::cougaar::util::log::NullLogger"
+		    quidu      	"3C923A4C01F5"))
+	    realized_interfaces 	(list realize_rel_list
+		(object Realize_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923A4C0227"
+		    supplier   	"Logical View::org::cougaar::core::service::LoggingService"
+		    quidu      	"3C923A4C0028"))
+	    operations 	(list Operations
+		(object Operation "getNullLoggingServiceImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923A4C0247"
+		    result     	"NullLoggingServiceImpl"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Public"
+		    uid        	0
+		    quidu      	"3C923A4C01CD"))
+	    module     	"Component View::org::cougaar::core::logging::NullLoggingServiceImpl"
+	    quidu      	"3C83C36600E3"
+	    language   	"Java")
+	(object Association "$UNNAMED$0"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A4B0348"
+	    roles      	(list role_list
+		(object Role "PREFIX"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	(value Text 
+|"org.cougaar.core.logging."
+			    ))
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4B0349"
+		    label      	"PREFIX"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$1"
+		    quid       	"3C923A4B0353"
+		    supplier   	"Logical View::org::cougaar::core::logging::LoggingServiceProvider"
+		    quidu      	"3C923A4B0302")))
+	(object Association "$UNNAMED$2"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A4B0370"
+	    roles      	(list role_list
+		(object Role "FILE_NAME_PROPERTY"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	(value Text 
+|PREFIX + "config.filename"
+			    ))
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4B0371"
+		    label      	"FILE_NAME_PROPERTY"
+		    supplier   	"Logical View::java::lang::String"
+		    quidu      	"3C92390101B3"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE
+		    static     	TRUE)
+		(object Role "$UNNAMED$3"
+		    quid       	"3C923A4B0373"
+		    supplier   	"Logical View::org::cougaar::core::logging::LoggingServiceProvider"
+		    quidu      	"3C923A4B0302")))
+	(object Association "$UNNAMED$4"
+	    attributes 	(list Attribute_Set)
+	    quid       	"3C923A4B03AC"
+	    roles      	(list role_list
+		(object Role "lf"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4B03AD"
+		    label      	"lf"
+		    supplier   	"Logical View::org::cougaar::util::log::LoggerFactory"
+		    quidu      	"3C923A4B038E"
+		    exportControl 	"Private"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$5"
+		    quid       	"3C923A4B03AF"
+		    supplier   	"Logical View::org::cougaar::core::logging::LoggingServiceProvider"
+		    quidu      	"3C923A4B0302")))
+	(object Association "$UNNAMED$6"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"?_Touched_?"
+		    value      	"?_Touched_?"))
+	    quid       	"3C923A4C023B"
+	    roles      	(list role_list
+		(object Role "NULL_LOGGING_SERVICE_IMPL_SINGLETON"
+		    quid       	"3C923A4C023C"
+		    label      	"NULL_LOGGING_SERVICE_IMPL_SINGLETON"
+		    supplier   	"Logical View::org::cougaar::core::logging::NullLoggingServiceImpl"
+		    quidu      	"3C923A4C01CD"
+		    is_navigable 	TRUE)
+		(object Role "$UNNAMED$7"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"InitialValue"
+			    value      	"new NullLoggingServiceImpl ()")
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	TRUE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Transient"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Volatile"
+			    value      	FALSE))
+		    quid       	"3C923A4C0245"
+		    supplier   	"Logical View::org::cougaar::core::logging::NullLoggingServiceImpl"
+		    quidu      	"3C923A4C01CD"
+		    exportControl 	"Private"
+		    static     	TRUE))))
+    logical_presentations 	(list unit_reference_list))

@@ -1,0 +1,3370 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "service"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C9239000229"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class "MessageTransportService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923900022B"
+	    documentation 	
+|* Abstract MessageTransport layer for Society interaction.
+| *
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4F00CB"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "sendMessage"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00CC"
+		    documentation 	
+|     * message.getTarget() names the destination.  The client must be
+|     * registered, otherwise the message will not be sent.
+|     *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "m"
+			    quid       	"3C923B4F00D5"
+			    type       	"Message"
+			    quidu      	"3C9238C8022B"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "registerClient"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00D6"
+		    documentation 	
+|     * Register a client with MessageTransport.  A client is any
+|     * object which can receive Messages directed to it as the Target
+|     * of a message.
+|     *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "client"
+			    quid       	"3C923B4F00DF"
+			    type       	"MessageTransportClient"
+			    quidu      	"3C9239000189"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "unregisterClient"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00E0"
+		    documentation 	
+|     * Unregister a client with MessageTransport.  No further
+|     * sendMessage calls will be accepted, and any queued messages
+|     * which aren't successfully delivered will be dropped.
+|     *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "client"
+			    quid       	"3C923B4F00E9"
+			    type       	"MessageTransportClient"
+			    quidu      	"3C9239000189"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "flushMessages"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00EA"
+		    documentation 	
+|     * Block until all queued messages have been sent (or dropped).
+|     * @return The list of dropped messages (could be null).
+		    
+		    result     	"java.util.ArrayList"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getIdentifier"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00EB"
+		    documentation 	
+|     * @return the name of the entity that this MessageTransport
+|     * represents.  Will usually be the name of a node.
+|     *
+		    
+		    result     	"String"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92390101B3")
+		(object Operation "addressKnown"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F00F3"
+		    documentation 	" @return true IFF the MessageAddress is known to the nameserver *"
+		    parameters 	(list Parameters
+			(object Parameter "a"
+			    quid       	"3C923B4F00F4"
+			    type       	"MessageAddress"
+			    quidu      	"3C9238F0029E"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::MessageTransportService"
+	    quidu      	"3C83C36E0170"
+	    language   	"Java")
+	(object Class "MessageStatisticsService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923900025B"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4E039A"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getMessageStatistics"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E039B"
+		    parameters 	(list Parameters
+			(object Parameter "reset"
+			    quid       	"3C923B4E039C"
+			    type       	"boolean"))
+		    result     	"MessageStatistics.Statistics"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::MessageStatisticsService"
+	    quidu      	"3C83C393025A"
+	    language   	"Java")
+	(object Class "MessageWatcherService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923900028D"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4F0215"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "addMessageTransportWatcher"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F0216"
+		    documentation 	
+|     * Add a MessageTransportWatcher to the server.
+|     *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "watcher"
+			    quid       	"3C923B4F0217"
+			    type       	"MessageTransportWatcher"
+			    quidu      	"3C923A64023F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "removeMessageTransportWatcher"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F0218"
+		    documentation 	
+|     * Remove a MessageTransportWatcher from the server.
+|     *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "watcher"
+			    quid       	"3C923B4F021F"
+			    type       	"MessageTransportWatcher"
+			    quidu      	"3C923A64023F"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::MessageWatcherService"
+	    quidu      	"3C83C3940053"
+	    language   	"Java")
+	(object Class "UIDService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C92390002FC"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B51024A"
+		    supplier   	"Logical View::org::cougaar::core::service::UIDServer"
+		    quidu      	"3C923B5100B9"))
+	    module     	"Component View::org::cougaar::core::service::UIDService"
+	    quidu      	"3C83C35501ED"
+	    language   	"Java")
+	(object Class "PrototypeRegistryService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C9239000338"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B50011C"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "addPrototypeProvider"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B50011D"
+		    parameters 	(list Parameters
+			(object Parameter "prov"
+			    quid       	"3C923B500126"
+			    type       	"PrototypeProvider"
+			    quidu      	"3C923DEF026C"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "addPropertyProvider"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500127"
+		    parameters 	(list Parameters
+			(object Parameter "prov"
+			    quid       	"3C923B500128"
+			    type       	"PropertyProvider"
+			    quidu      	"3C923DEF01AD"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "addLatePropertyProvider"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500130"
+		    parameters 	(list Parameters
+			(object Parameter "lpp"
+			    quid       	"3C923B500131"
+			    type       	"LatePropertyProvider"
+			    quidu      	"3C923B2600D6"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "cachePrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500132"
+		    documentation 	
+|   * getPrototype(aTypeName) is likely to return aPrototype
+|   * without having to make calls to PrototypeProvider.getPrototype(aTypeName).
+|   * Note that the lifespan of a prototype in the prototype registry may
+|   * be finite (or even zero!).
+|   * Note: this method should be used only by PrototypeProvider LDM Plugins.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923B50013A"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "aPrototype"
+			    quid       	"3C923B50013B"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "isPrototypeCached"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500144"
+		    documentation 	
+|   * the prototype cache?
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923B500145"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500146"
+		    documentation 	
+|   * will actually be provided by a PrototypeProvider via a call to
+|   * getPrototype(aTypeName).
+|   * It will return null if no prototype is found or can be created
+|   * with that name.
+|   * There is no need for a client of this method to call cachePrototype
+|   * on the returned object (that task is left to whatever prototypeProvider
+|   * was responsible for generating the prototype).
+|   *
+|   * Some future release might want to throw an exception if not found.
+|   * An example aTypeName: "NSN/12345678901234".
+|   *
+|   * The returned Asset will usually, but not always have a primary 
+|   * type identifier that is equal to the aTypeName.  In cases where
+|   * it does not match, aTypeName must appear as one of the extra type
+|   * identifiers of the returned asset.  PrototypeProviders should cache
+|   * the prototype under both type identifiers in these cases.
+|   *
+|   * @param aTypeName specifies an Asset description. 
+|   * @param anAssetClassHint is an optional hint to LDM plugins
+|   * to reduce their potential work load.  If non-null, the returned asset 
+|   * (if any) should be an instance the specified class or one of its
+|   * subclasses.  When null, each PrototypeProvider will attemt to decode
+|   * the aTypeName enough to determine if it can supply prototypes of that
+|   * type.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923B50014E"
+			    type       	"String"
+			    quidu      	"3C92390101B3")
+			(object Parameter "anAssetClass"
+			    quid       	"3C923B50014F"
+			    type       	"Class"
+			    quidu      	"3C92395903B8"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "getPrototype"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500158"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "aTypeName"
+			    quid       	"3C923B500159"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Asset"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B69023B")
+		(object Operation "fillProperties"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B50015A"
+		    documentation 	
+|   * of LDMPlugins, but others may use it to request that propertygroups
+|   * of the new Asset be filled in from various data sources.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "anAsset"
+			    quid       	"3C923B500162"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "lateFillPropertyGroup"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500163"
+		    documentation 	
+|   * Called as late as possible when it is not yet known if there is
+|   * a PG for an asset.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "anAsset"
+			    quid       	"3C923B50016C"
+			    type       	"Asset"
+			    quidu      	"3C923B69023B")
+			(object Parameter "pg"
+			    quid       	"3C923B50016D"
+			    type       	"Class"
+			    quidu      	"3C92395903B8")
+			(object Parameter "time"
+			    quid       	"3C923B50016E"
+			    type       	"long"))
+		    result     	"PropertyGroup"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B7102D2")
+		(object Operation "getPrototypeProviderCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500176"
+		    documentation 	" @return int Count of Prototype Providers  *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPropertyProviderCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500177"
+		    documentation 	" @return int Count of Property Providers *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getCachedPrototypeCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500180"
+		    documentation 	" @return int Count of Cached Prototypes *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::PrototypeRegistryService"
+	    quidu      	"3C83C3540227"
+	    language   	"Java")
+	(object Class "DomainService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C92390003D8"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4E0173"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getClusterObjectFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E0174"
+		    documentation 	
+|   * Answer with a reference to the Factory
+|   * It is inteded that there be one and only one ClusterObjectFactory
+|   * per Cluster instance.  Hence, ClusterManagment will always provide
+|   * plugins with access to the ClusterObjectFactory
+|   *
+		    
+		    result     	"ClusterObjectFactory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A4902C3")
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E017D"
+		    documentation 	
+|   *  @return LdmFactory The fatory object to use in constructing LDM Objects
+|   *
+		    
+		    result     	"RootFactory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A0900E0")
+		(object Operation "getLdmFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E017E"
+		    documentation 	" @deprecated use getFactory() *"
+		    result     	"RootFactory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A0900E0")
+		(object Operation "getFactory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E0187"
+		    documentation 	" create a domain-specific factory *"
+		    parameters 	(list Parameters
+			(object Parameter "domainname"
+			    quid       	"3C923B4E0188"
+			    type       	"String"
+			    quidu      	"3C92390101B3"))
+		    result     	"Factory"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A3E015E"))
+	    module     	"Component View::org::cougaar::core::service::DomainService"
+	    quidu      	"3C83C3530334"
+	    language   	"Java")
+	(object Class "NamingService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923901014E"
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4F02C9"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getRootContext"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F02CA"
+		    result     	"InitialDirContext"
+		    exceptions 	"NamingException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::NamingService"
+	    quidu      	"3C83C3940161"
+	    language   	"Java")
+	(object Class "AlarmService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C9239FD01D3"
+	    documentation 	
+|a Service for getting at Metrics information
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4D005A"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "currentTimeMillis"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D005B"
+		    result     	"long"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "addAlarm"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D005C"
+		    parameters 	(list Parameters
+			(object Parameter "alarm"
+			    quid       	"3C923B4D005D"
+			    type       	"Alarm"
+			    quidu      	"3C9239FD00CF"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "addRealTimeAlarm"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0064"
+		    parameters 	(list Parameters
+			(object Parameter "alarm"
+			    quid       	"3C923B4D0065"
+			    type       	"Alarm"
+			    quidu      	"3C9239FD00CF"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::AlarmService"
+	    quidu      	"3C83C3520148"
+	    language   	"Java")
+	(object Class "DemoControlService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A070246"
+	    documentation 	
+|a Service for controlling COUGAAR demonstration facilities 
+| * from loaded components. 
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4E00C9"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "setTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00CA"
+		    parameters 	(list Parameters
+			(object Parameter "time"
+			    quid       	"3C923B4E00CB"
+			    type       	"long"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "setTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00CC"
+		    parameters 	(list Parameters
+			(object Parameter "time"
+			    quid       	"3C923B4E00D3"
+			    type       	"long")
+			(object Parameter "foo"
+			    quid       	"3C923B4E00D4"
+			    type       	"boolean"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "setTimeRate"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00D5"
+		    parameters 	(list Parameters
+			(object Parameter "rate"
+			    quid       	"3C923B4E00D6"
+			    type       	"double"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "advanceTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00D7"
+		    parameters 	(list Parameters
+			(object Parameter "period"
+			    quid       	"3C923B4E00DD"
+			    type       	"long"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "advanceTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00DE"
+		    parameters 	(list Parameters
+			(object Parameter "period"
+			    quid       	"3C923B4E00DF"
+			    type       	"long")
+			(object Parameter "foo"
+			    quid       	"3C923B4E00E0"
+			    type       	"boolean"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "advanceTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00E7"
+		    parameters 	(list Parameters
+			(object Parameter "period"
+			    quid       	"3C923B4E00E8"
+			    type       	"long")
+			(object Parameter "rate"
+			    quid       	"3C923B4E00E9"
+			    type       	"double"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "advanceTime"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00EA"
+		    parameters 	(list Parameters
+			(object Parameter "changes"
+			    quid       	"3C923B4E00EB"
+			    type       	"ExecutionTimer.Change[]"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getExecutionRate"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4E00F1"
+		    result     	"double"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::DemoControlService"
+	    quidu      	"3C83C3530121"
+	    language   	"Java")
+	(object Class "SchedulerService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A15019B"
+	    documentation 	
+|* Scheduler API for Component use.
+| *
+| * @see TriggerRegistry
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B50032F"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D")
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B500362"
+		    supplier   	"Logical View::org::cougaar::util::TriggerRegistry"
+		    quidu      	"3C923B50034D"))
+	    operations 	(list Operations
+		(object Operation "register"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B500363"
+		    documentation 	
+|   * Register a client trigger, returning a "schedulerTrigger"
+|   * for the client to use.
+|   * <p>
+|   * <em>IMPORTANT:</em><br>
+|   * See the notes in <tt>TriggerRegistry.register(Trigger)</tt>
+|   * for threading issues.
+|   *
+|   * @return a "schedulerTrigger" that the caller can use to tell 
+|   * the scheduler that it wants to be "clientTrigger.trigger()"ed.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "clientTrigger"
+			    quid       	"3C923B50036B"
+			    type       	"Trigger"
+			    quidu      	"3C923A1502AA"))
+		    result     	"Trigger"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A1502AA")
+		(object Operation "unregister"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B50036C"
+		    documentation 	
+|   * Release a scheduler Trigger that was generated by 
+|   * <tt>register(..)</tt>.
+		    
+		    parameters 	(list Parameters
+			(object Parameter "schedulerTrigger"
+			    quid       	"3C923B50036D"
+			    type       	"Trigger"
+			    quidu      	"3C923A1502AA"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::SchedulerService"
+	    quidu      	"3C83C3950040"
+	    language   	"Java")
+	(object Class "BlackboardMetricsService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A1E0357"
+	    documentation 	
+|A BlackboardMetricsService is an API which may be supplied by a 
+| * ServiceProvider registered in a ServiceBroker that provides metrics for
+| * the entire Blackboard.
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4D00F0"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getBlackboardCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D00F1"
+		    documentation 	
+|   * @param predicate Specify the objects to count in the Blackboard.
+|   * @return int The count of objects that match the predicate.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "predicate"
+			    quid       	"3C923B4D00F2"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296"))
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getAssetCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D00F3"
+		    documentation 	" @return int A count of the Asset's currently found in the Blackboard *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPlanElementCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D00FA"
+		    documentation 	" @return int A count of the PlanElements currently found in the Blackbaord *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getTaskCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D00FB"
+		    documentation 	" @return int A count of the Tasks currently found in the Blackbaord *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getBlackboardObjectCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0104"
+		    documentation 	"   * found in the Blackbaord *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::BlackboardMetricsService"
+	    quidu      	"3C83C35701D1"
+	    language   	"Java")
+	(object Class "BlackboardService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A350057"
+	    documentation 	
+|A BlackboardService is an API which may be supplied by a 
+| * ServiceProvider registered in a ServiceBroker that provides basic
+| * blackboard publish, subscription and transaction services.
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4D0280"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getSubscriber"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0281"
+		    result     	"Subscriber"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A1C010F")
+		(object Operation "subscribe"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D028A"
+		    documentation 	
+|   * isMember.execute(object) is true.  The returned Collection
+|   * is a transactionally-safe set of these objects which is
+|   * guaranteed not to change out from under you during run()
+|   * execution.
+|   * 
+|   * subscribe() may be called any time after 
+|   * load() completes.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "isMember"
+			    quid       	"3C923B4D0294"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296"))
+		    result     	"Subscription"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A2101A3")
+		(object Operation "subscribe"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0295"
+		    documentation 	
+|   * some other type of Collection object as the internal representation
+|   * of the collection.
+|   * Alias for getSubscriber().subscribe(UnaryPredicate, Collection);
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "isMember"
+			    quid       	"3C923B4D029E"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296")
+			(object Parameter "realCollection"
+			    quid       	"3C923B4D02A8"
+			    type       	"Collection"
+			    quidu      	"3C92395A0265"))
+		    result     	"Subscription"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A2101A3")
+		(object Operation "subscribe"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02A9"
+		    documentation 	
+|   * Alias for getSubscriber().subscribe(UnaryPredicate, boolean);
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "isMember"
+			    quid       	"3C923B4D02B2"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296")
+			(object Parameter "isIncremental"
+			    quid       	"3C923B4D02B3"
+			    type       	"boolean"))
+		    result     	"Subscription"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A2101A3")
+		(object Operation "subscribe"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02B4"
+		    documentation 	
+|   * Alias for <code>getSubscriber().subscribe(UnaryPredicate, Collection, boolean);</code>
+|   * @param isMember a predicate to execute to ascertain
+|   * membership in the collection of the subscription.
+|   * @param realCollection a container to hold the contents of the subscription.
+|   * @param isIncremental should be true if an incremental subscription is desired.
+|   * An incremental subscription provides access to the incremental changes to the subscription.
+|   * @return the Subsciption.
+|   * @see org.cougaar.core.blackboard.Subscriber#subscribe
+|   * @see org.cougaar.core.blackboard.Subscription
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "isMember"
+			    quid       	"3C923B4D02BC"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296")
+			(object Parameter "realCollection"
+			    quid       	"3C923B4D02C6"
+			    type       	"Collection"
+			    quidu      	"3C92395A0265")
+			(object Parameter "isIncremental"
+			    quid       	"3C923B4D02C7"
+			    type       	"boolean"))
+		    result     	"Subscription"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A2101A3")
+		(object Operation "query"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02C8"
+		    documentation 	
+|   * opening a new subscription, getting the results and immediately
+|   * closing the subscription, but can be implemented much more efficiently.
+|   * Note: the initial implementation actually does exactly this.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "isMember"
+			    quid       	"3C923B4D02D0"
+			    type       	"UnaryPredicate"
+			    quidu      	"3C923A1C0296"))
+		    result     	"Collection"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C92395A0265")
+		(object Operation "unsubscribe"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02DB"
+		    documentation 	
+|   * Cancels the given Subscription which must have been returned by a
+|   * previous invocation of subscribe().  Alias for
+|   * <code> getSubscriber().unsubscribe(Subscription)</code>.
+|   * @param subscription the subscription to cancel
+|   * @see org.cougaar.core.blackboard.Subscriber#unsubscribe
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "subscription"
+			    quid       	"3C923B4D02DC"
+			    type       	"Subscription"
+			    quidu      	"3C923A2101A3"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getSubscriptionCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02E5"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getSubscriptionSize"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02EF"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPublishAddedCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02F0"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPublishChangedCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D02F9"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPublishRemovedCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0303"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "haveCollectionsChanged"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D030D"
+		    documentation 	
+|   * transaction.
+|   *
+		    
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "publishAdd"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0317"
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B4D0318"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "publishRemove"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0321"
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B4D032B"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "publishChange"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D032C"
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B4D0335"
+			    type       	"Object"
+			    quidu      	"3C923901032F"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "publishChange"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0336"
+		    documentation 	
+|   * Behavior is not defined if the object is not a member of the plan.
+|   * There is no need to call this if the object was added or removed,
+|   * only if the contents of the object itself has been changed.
+|   * The changes parameter describes a set of changes made to the
+|   * object beyond those tracked automatically by the object class
+|   * (see the object class documentation for a description of which
+|   * types of changes are tracked).  Any additional changes are
+|   * merged in <em>after</em> automatically collected reports.
+|   * @param changes a set of ChangeReport instances or null.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B4D033F"
+			    type       	"Object"
+			    quidu      	"3C923901032F")
+			(object Parameter "changes"
+			    quid       	"3C923B4D0340"
+			    type       	"Collection"
+			    quidu      	"3C92395A0265"))
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "openTransaction"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0349"
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "tryOpenTransaction"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D034A"
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "closeTransaction"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0353"
+		    result     	"void"
+		    exceptions 	"SubscriberException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "closeTransaction"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D035D"
+		    parameters 	(list Parameters
+			(object Parameter "resetp"
+			    quid       	"3C923B4D0367"
+			    type       	"boolean"))
+		    result     	"void"
+		    exceptions 	"SubscriberException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "signalClientActivity"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0368"
+		    documentation 	
+|   * by default, just calls wakeSubscriptionWatchers, but subclasses
+|   * may be more circumspect.
+|   *
+		    
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "registerInterest"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0371"
+		    documentation 	" register a watcher of subscription activity *"
+		    parameters 	(list Parameters
+			(object Parameter "w"
+			    quid       	"3C923B4D037B"
+			    type       	"SubscriptionWatcher"
+			    quidu      	"3C923A3603A2"))
+		    result     	"SubscriptionWatcher"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A3603A2")
+		(object Operation "registerInterest"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D037C"
+		    documentation 	" register a watcher of subscription activity *"
+		    result     	"SubscriptionWatcher"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A3603A2")
+		(object Operation "unregisterInterest"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0385"
+		    documentation 	" stop watching subscription activity *"
+		    parameters 	(list Parameters
+			(object Parameter "w"
+			    quid       	"3C923B4D038F"
+			    type       	"SubscriptionWatcher"
+			    quidu      	"3C923A3603A2"))
+		    result     	"void"
+		    exceptions 	"SubscriberException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "setShouldBePersisted"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D0390"
+		    documentation 	
+|   * be persisted.
+|   *
+		    
+		    parameters 	(list Parameters
+			(object Parameter "value"
+			    quid       	"3C923B4D0399"
+			    type       	"boolean"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "shouldBePersisted"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D039A"
+		    documentation 	" @return the current value of the persistence setting *"
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "didRehydrate"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D03A3"
+		    documentation 	
+|   * snapshot? 
+|   *
+		    
+		    result     	"boolean"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "persistNow"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D03AD"
+		    documentation 	
+|   * Take a persistence snapshot now. If called from inside a
+|   * transaction (the usual case for a plugin), the transaction will
+|   * be closed and reopened. This means that a plugin must first
+|   * process all of its existing envelopes before calling
+|   * <code>persistNow()</code> and then process a potential new set of
+|   * envelopes after re-opening the transaction. Otherwise, the
+|   * changes will be lost.
+|   * @exception PersistenceNotEnabledException
+|   *
+		    
+		    result     	"void"
+		    exceptions 	"PersistenceNotEnabledException"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getPersistence"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4D03B7"
+		    documentation 	" Hook to allow access to Blackboard persistence mechanism *"
+		    result     	"Persistence"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A2602B8"))
+	    module     	"Component View::org::cougaar::core::service::BlackboardService"
+	    quidu      	"3C83C3850052"
+	    language   	"Java")
+	(object Class "LoggingService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923A4C0028"
+	    documentation 	
+|* Marker interface for a Service that provides the
+| * generic Logger API.
+| *
+| * @see Logger
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4E02C9"
+		    supplier   	"Logical View::org::cougaar::util::log::Logger"
+		    quidu      	"3C923B4E02B4")
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4E02E6"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    module     	"Component View::org::cougaar::core::service::LoggingService"
+	    quidu      	"3C83C36601E7"
+	    language   	"Java")
+	(object Class "NodeMetricsService"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923AFC01D0"
+	    documentation 	
+|A NodeMetricsService is an API which may be supplied by a 
+| * ServiceProvider registered in a ServiceBroker that provides metrics for
+| * the Node (VM).
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4F0374"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getFreeMemory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F0375"
+		    documentation 	
+|   * the method call.
+|  *
+		    
+		    result     	"long"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getTotalMemory"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F0376"
+		    documentation 	"   * method call"
+		    result     	"long"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0)
+		(object Operation "getActiveThreadCount"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B4F037E"
+		    documentation 	" The number of active Threads in the main COUGAAR threadgroup *"
+		    result     	"int"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::NodeMetricsService"
+	    quidu      	"3C83C37E01CD"
+	    language   	"Java")
+	(object Class "UIDServer"
+	    attributes 	(list Attribute_Set
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateFinalizer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateStaticInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateInstanceInitializer"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"GenerateDefaultConstructor"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Final"
+		    value      	FALSE)
+		(object Attribute
+		    tool       	"Java"
+		    name       	"Static"
+		    value      	FALSE))
+	    quid       	"3C923B5100B9"
+	    documentation 	
+|Now an interface for backwards compatability.
+| ** Real stuff is in UIDServiceImpl and the real interface
+| ** should be UIDService(which is a marker for now).
+| *
+	    
+	    stereotype 	"Interface"
+	    superclasses 	(list inheritance_relationship_list
+		(object Inheritance_Relationship
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B5100EC"
+		    supplier   	"Logical View::org::cougaar::core::component::Service"
+		    quidu      	"3C92395B034D"))
+	    operations 	(list Operations
+		(object Operation "getClusterIdentifier"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5100F6"
+		    documentation 	
+|   *  This might go away if we ever really separated proxy 
+|   * servers from clusters.
+|   *
+		    
+		    result     	"ClusterIdentifier"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C9238EC0339")
+		(object Operation "nextUID"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5100F7"
+		    documentation 	
+|   * at this server.
+|   * It is better for Factories to use the registerUniqueObject method.
+|   *
+		    
+		    result     	"UID"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B5903C8")
+		(object Operation "registerUniqueObject"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5100F8"
+		    documentation 	"   *"
+		    parameters 	(list Parameters
+			(object Parameter "o"
+			    quid       	"3C923B5100F9"
+			    type       	"UniqueObject"
+			    quidu      	"3C923B590396"))
+		    result     	"UID"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923B5903C8")
+		(object Operation "getPersistenceState"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B5100FA"
+		    result     	"PersistenceState"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0
+		    quidu      	"3C923A1702F5")
+		(object Operation "setPersistenceState"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Abstract"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Native"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Synchronized"
+			    value      	FALSE))
+		    quid       	"3C923B510100"
+		    documentation 	" called during persistence rehydration to reset the state *"
+		    parameters 	(list Parameters
+			(object Parameter "state"
+			    quid       	"3C923B510101"
+			    type       	"PersistenceState"
+			    quidu      	"3C923A1702F5"))
+		    result     	"void"
+		    concurrency 	"Sequential"
+		    opExportControl 	"Implementation"
+		    uid        	0))
+	    module     	"Component View::org::cougaar::core::service::UIDServer"
+	    quidu      	"3C83C38503C3"
+	    language   	"Java"))
+    logical_presentations 	(list unit_reference_list))

@@ -1,0 +1,2425 @@
+
+(object Petal
+    version    	44
+    _written   	"Rose 7.1.9642.32"
+    charSet    	0)
+
+(object Class_Category "qos"
+    is_unit    	TRUE
+    is_loaded  	TRUE
+    quid       	"3C923B470368"
+    exportControl 	"Public"
+    logical_models 	(list unit_reference_list
+	(object Class_Category "monitor"
+	    quid       	"3C923B470373"
+	    exportControl 	"Public"
+	    logical_models 	(list unit_reference_list
+		(object Class "QosImplBase"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B470375"
+		    operations 	(list Operations
+			(object Operation "QosImplBase"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B48000C"
+			    parameters 	(list Parameters
+				(object Parameter "nameSupport"
+				    quid       	"3C923B48000D"
+				    type       	"NameSupport"
+				    quidu      	"3C923A57033B")
+				(object Parameter "sb"
+				    quid       	"3C923B48000E"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "ensureService"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B480016"
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Private"
+			    uid        	0)
+			(object Operation "getAgentState"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B480017"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B480018"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"AgentStatusService.AgentState"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0))
+		    class_attributes 	(list class_attribute_list
+			(object ClassAttribute "STALE_TIME"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	TRUE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B470386"
+			    type       	"int"
+			    initv      	"10000"
+			    exportControl 	"Implementation"
+			    static     	TRUE))
+		    module     	"Component View::org::cougaar::core::qos::monitor::QosImplBase"
+		    quidu      	"3C83C3900148"
+		    language   	"Java")
+		(object Class "QosMonitorService"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B4800F3"
+		    stereotype 	"Interface"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B48012F"
+			    supplier   	"Logical View::org::cougaar::core::component::Service"
+			    quidu      	"3C92395B034D"))
+		    operations 	(list Operations
+			(object Operation "lookupAgentStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B480157"
+			    documentation 	"     * Uses the naming service to determine the status of an Agent"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B480158"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getAgentStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B480159"
+			    documentation 	
+|     * Get the cached status, or look it up if the cache is stale. 
+|     *
+			    
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B480161"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getAgentCommStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B480162"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B480163"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0))
+		    class_attributes 	(list class_attribute_list
+			(object ClassAttribute "UNKNOWN"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480130"
+			    type       	"int"
+			    initv      	"0"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "NOT_CREATED"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480131"
+			    type       	"int"
+			    initv      	"1"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "ACTIVE"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480139"
+			    type       	"int"
+			    initv      	"2"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "MOVING"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480143"
+			    type       	"int"
+			    initv      	"3"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "RESTARTED"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480144"
+			    type       	"int"
+			    initv      	"4"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "MISSING"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B48014D"
+			    type       	"int"
+			    initv      	"5"
+			    exportControl 	"Implementation")
+			(object ClassAttribute "FAILING"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B48014E"
+			    type       	"int"
+			    initv      	"6"
+			    exportControl 	"Implementation"))
+		    module     	"Component View::org::cougaar::core::qos::monitor::QosMonitorService"
+		    quidu      	"3C83C39002EC"
+		    language   	"Java")
+		(object Class "QosMonitorServiceImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B48025B"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B48028D"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosImplBase"
+			    quidu      	"3C923B470375"))
+		    realized_interfaces 	(list realize_rel_list
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B4802AB"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorService"
+			    quidu      	"3C923B4800F3"))
+		    operations 	(list Operations
+			(object Operation "QosMonitorServiceImpl"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4802AC"
+			    parameters 	(list Parameters
+				(object Parameter "nameSupport"
+				    quid       	"3C923B4802AD"
+				    type       	"NameSupport"
+				    quidu      	"3C923A57033B")
+				(object Parameter "sb"
+				    quid       	"3C923B4802AE"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "lookupAgentStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4802AF"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4802B0"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getAgentStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4802B5"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4802B6"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getAgentCommStatus"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4802B7"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4802B8"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"int"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0))
+		    module     	"Component View::org::cougaar::core::qos::monitor::QosMonitorServiceImpl"
+		    quidu      	"3C83C3910044"
+		    language   	"Java")
+		(object Class "QosMonitorServiceProvider"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B490357"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B490389"
+			    supplier   	"Logical View::org::cougaar::core::component::ContainerSupport"
+			    quidu      	"3C92395B000D"))
+		    realized_interfaces 	(list realize_rel_list
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B49039D"
+			    supplier   	"Logical View::org::cougaar::core::component::ContainerAPI"
+			    quidu      	"3C923957021A")
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B4903BB"
+			    supplier   	"Logical View::org::cougaar::core::component::ServiceProvider"
+			    quidu      	"3C92395D011F"))
+		    operations 	(list Operations
+			(object Operation "QosMonitorServiceProvider"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A009B"
+			    parameters 	(list Parameters
+				(object Parameter "id"
+				    quid       	"3C923B4A009C"
+				    type       	"String"
+				    quidu      	"3C92390101B3")
+				(object Parameter "owner"
+				    quid       	"3C923B4A009D"
+				    type       	"ContainerAPI"
+				    quidu      	"3C923957021A"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "initialize"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00A5"
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "findOrMakeQMS"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	TRUE))
+			    quid       	"3C923B4A00A6"
+			    parameters 	(list Parameters
+				(object Parameter "sb"
+				    quid       	"3C923B4A00A7"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8"))
+			    result     	"QosMonitorService"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Private"
+			    uid        	0
+			    quidu      	"3C923B4800F3")
+			(object Operation "findOrMakeRMS"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	TRUE))
+			    quid       	"3C923B4A00A8"
+			    parameters 	(list Parameters
+				(object Parameter "sb"
+				    quid       	"3C923B4A00AF"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8"))
+			    result     	"ResourceMonitorService"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Private"
+			    uid        	0
+			    quidu      	"3C923B4A000F")
+			(object Operation "getService"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00B0"
+			    parameters 	(list Parameters
+				(object Parameter "sb"
+				    quid       	"3C923B4A00B1"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8")
+				(object Parameter "requestor"
+				    quid       	"3C923B4A00B2"
+				    type       	"Object"
+				    quidu      	"3C923901032F")
+				(object Parameter "serviceClass"
+				    quid       	"3C923B4A00B9"
+				    type       	"Class"
+				    quidu      	"3C92395903B8"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "releaseService"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00BA"
+			    parameters 	(list Parameters
+				(object Parameter "sb"
+				    quid       	"3C923B4A00BB"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8")
+				(object Parameter "requestor"
+				    quid       	"3C923B4A00BC"
+				    type       	"Object"
+				    quidu      	"3C923901032F")
+				(object Parameter "serviceClass"
+				    quid       	"3C923B4A00C3"
+				    type       	"Class"
+				    quidu      	"3C92395903B8")
+				(object Parameter "service"
+				    quid       	"3C923B4A00C4"
+				    type       	"Object"
+				    quidu      	"3C923901032F"))
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "specifyContainmentPoint"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00C5"
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Protected"
+			    uid        	0
+			    quidu      	"3C92390101B3")
+			(object Operation "requestStop"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00CD"
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "setBindingSite"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	TRUE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00CE"
+			    parameters 	(list Parameters
+				(object Parameter "bs"
+				    quid       	"3C923B4A00CF"
+				    type       	"BindingSite"
+				    quidu      	"3C9238DF018C"))
+			    result     	"void"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "specifyChildBindingSite"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00D0"
+			    result     	"Class"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Protected"
+			    uid        	0
+			    quidu      	"3C92395903B8")
+			(object Operation "getContainerProxy"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A00D7"
+			    result     	"ContainerAPI"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923957021A"))
+		    module     	"Component View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+		    quidu      	"3C923AFC01F0"
+		    language   	"Java")
+		(object Class "ResourceMonitorService"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B4A000F"
+		    stereotype 	"Interface"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B4A0236"
+			    supplier   	"Logical View::org::cougaar::core::component::Service"
+			    quidu      	"3C92395B034D"))
+		    operations 	(list Operations
+			(object Operation "getExpectedMaxMJipsForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0237"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0240"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getExpectedMaxJipsForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0241"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0242"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedMaxMJipsForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0243"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0244"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedEffectiveMJipsForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A024A"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A024B"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getExpectedEffectiveMJipsForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A024C"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A024D"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedEffectiveMJipsForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0254"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0255"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedBandwidthForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0256"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0257"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getExpectedBandwidthForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0258"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A025E"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedBandwidthForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A025F"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0260"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedCapacityForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0261"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0268"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0)
+			(object Operation "getExpectedCapacityForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0269"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A026A"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedCapacityForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A026B"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0272"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getHostForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0273"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0274"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C92390101B3")
+			(object Operation "getNodeForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4A0275"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4A0276"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Implementation"
+			    uid        	0
+			    quidu      	"3C92390101B3"))
+		    module     	"Component View::org::cougaar::core::qos::monitor::ResourceMonitorService"
+		    quidu      	"3C83C39101F3"
+		    language   	"Java")
+		(object Class "ResourceMonitorServiceImpl"
+		    attributes 	(list Attribute_Set
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateFinalizer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateStaticInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateInstanceInitializer"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"GenerateDefaultConstructor"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Final"
+			    value      	FALSE)
+			(object Attribute
+			    tool       	"Java"
+			    name       	"Static"
+			    value      	FALSE))
+		    quid       	"3C923B4A03D1"
+		    superclasses 	(list inheritance_relationship_list
+			(object Inheritance_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B4B001B"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosImplBase"
+			    quidu      	"3C923B470375"))
+		    realized_interfaces 	(list realize_rel_list
+			(object Realize_Relationship
+			    attributes 	(list Attribute_Set)
+			    quid       	"3C923B4B0039"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::ResourceMonitorService"
+			    quidu      	"3C923B4A000F"))
+		    operations 	(list Operations
+			(object Operation "ResourceMonitorServiceImpl"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B007F"
+			    parameters 	(list Parameters
+				(object Parameter "nameSupport"
+				    quid       	"3C923B4B0080"
+				    type       	"NameSupport"
+				    quidu      	"3C923A57033B")
+				(object Parameter "sb"
+				    quid       	"3C923B4B0081"
+				    type       	"ServiceBroker"
+				    quidu      	"3C92395701E8"))
+			    concurrency 	"Sequential"
+			    opExportControl 	"Protected"
+			    uid        	0)
+			(object Operation "getExpectedMaxMJipsForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B0082"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B0083"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getExpectedMaxJipsForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B0089"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B008A"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedMaxMJipsForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B008B"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B008C"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedEffectiveMJipsForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B008D"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B0093"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getExpectedEffectiveMJipsForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B0094"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B0095"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedEffectiveMJipsForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B0096"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B0097"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedBandwidthForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B009D"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B009E"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getExpectedBandwidthForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B009F"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00A0"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedBandwidthForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00A1"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00A7"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "getExpectedCapacityForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00A8"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00A9"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"double"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0)
+			(object Operation "getExpectedCapacityForAgentObservable"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00AA"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00AB"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Observable"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923B0302C0")
+			(object Operation "getExpectedCapacityForAgentSyscond"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00B1"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00B2"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"Object"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C923901032F")
+			(object Operation "lookupHostForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00B3"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00B4"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C92390101B3")
+			(object Operation "lookupNodeForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00BB"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00BC"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C92390101B3")
+			(object Operation "getNodeForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00BD"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00BE"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C92390101B3")
+			(object Operation "getHostForAgent"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Abstract"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Static"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Native"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Synchronized"
+				    value      	FALSE))
+			    quid       	"3C923B4B00BF"
+			    parameters 	(list Parameters
+				(object Parameter "agentAddress"
+				    quid       	"3C923B4B00C5"
+				    type       	"MessageAddress"
+				    quidu      	"3C9238F0029E"))
+			    result     	"String"
+			    concurrency 	"Sequential"
+			    opExportControl 	"Public"
+			    uid        	0
+			    quidu      	"3C92390101B3"))
+		    module     	"Component View::org::cougaar::core::qos::monitor::ResourceMonitorServiceImpl"
+		    quidu      	"3C923B4A03A8"
+		    language   	"Java")
+		(object Association "$UNNAMED$0"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4703A4"
+		    roles      	(list role_list
+			(object Role "sb"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4703A5"
+			    label      	"sb"
+			    supplier   	"Logical View::org::cougaar::core::component::ServiceBroker"
+			    quidu      	"3C92395701E8"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$1"
+			    quid       	"3C923B4703AF"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosImplBase"
+			    quidu      	"3C923B470375")))
+		(object Association "$UNNAMED$2"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4703CC"
+		    roles      	(list role_list
+			(object Role "statusService"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4703CD"
+			    label      	"statusService"
+			    supplier   	"Logical View::org::cougaar::core::mts::AgentStatusService"
+			    quidu      	"3C923A5403AF"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$3"
+			    quid       	"3C923B4703CF"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosImplBase"
+			    quidu      	"3C923B470375")))
+		(object Association "$UNNAMED$4"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B480002"
+		    roles      	(list role_list
+			(object Role "nameSupport"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B480003"
+			    label      	"nameSupport"
+			    supplier   	"Logical View::org::cougaar::core::mts::NameSupport"
+			    quidu      	"3C923A57033B"
+			    exportControl 	"Protected"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$5"
+			    quid       	"3C923B480005"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosImplBase"
+			    quidu      	"3C923B470375")))
+		(object Association "$UNNAMED$6"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4903CF"
+		    roles      	(list role_list
+			(object Role "qms"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4903D0"
+			    label      	"qms"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorService"
+			    quidu      	"3C923B4800F3"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$7"
+			    quid       	"3C923B4903DA"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+			    quidu      	"3C923B490357")))
+		(object Association "$UNNAMED$8"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4A0023"
+		    roles      	(list role_list
+			(object Role "rms"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4A0024"
+			    label      	"rms"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::ResourceMonitorService"
+			    quidu      	"3C923B4A000F"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$9"
+			    quid       	"3C923B4A0026"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+			    quidu      	"3C923B490357")))
+		(object Association "$UNNAMED$10"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4A0041"
+		    roles      	(list role_list
+			(object Role "owner"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4A0042"
+			    label      	"owner"
+			    supplier   	"Logical View::org::cougaar::core::component::ContainerAPI"
+			    quidu      	"3C923957021A"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$11"
+			    quid       	"3C923B4A004C"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+			    quidu      	"3C923B490357")))
+		(object Association "$UNNAMED$12"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4A0069"
+		    roles      	(list role_list
+			(object Role "nameSupport"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4A006A"
+			    label      	"nameSupport"
+			    supplier   	"Logical View::org::cougaar::core::mts::NameSupport"
+			    quidu      	"3C923A57033B"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$13"
+			    quid       	"3C923B4A006C"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+			    quidu      	"3C923B490357")))
+		(object Association "$UNNAMED$14"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4A0087"
+		    roles      	(list role_list
+			(object Role "id"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4A0088"
+			    label      	"id"
+			    supplier   	"Logical View::java::lang::String"
+			    quidu      	"3C92390101B3"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$15"
+			    quid       	"3C923B4A0091"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::QosMonitorServiceProvider"
+			    quidu      	"3C923B490357")))
+		(object Association "$UNNAMED$16"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4B004D"
+		    roles      	(list role_list
+			(object Role "nodes"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4B004E"
+			    label      	"nodes"
+			    supplier   	"Logical View::java::util::HashMap"
+			    quidu      	"3C9238F001AF"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$17"
+			    quid       	"3C923B4B0058"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::ResourceMonitorServiceImpl"
+			    quidu      	"3C923B4A03D1")))
+		(object Association "$UNNAMED$18"
+		    attributes 	(list Attribute_Set)
+		    quid       	"3C923B4B0075"
+		    roles      	(list role_list
+			(object Role "hosts"
+			    attributes 	(list Attribute_Set
+				(object Attribute
+				    tool       	"Java"
+				    name       	"InitialValue"
+				    value      	"")
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Final"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Transient"
+				    value      	FALSE)
+				(object Attribute
+				    tool       	"Java"
+				    name       	"Volatile"
+				    value      	FALSE))
+			    quid       	"3C923B4B0076"
+			    label      	"hosts"
+			    supplier   	"Logical View::java::util::HashMap"
+			    quidu      	"3C9238F001AF"
+			    exportControl 	"Private"
+			    is_navigable 	TRUE)
+			(object Role "$UNNAMED$19"
+			    quid       	"3C923B4B0078"
+			    supplier   	"Logical View::org::cougaar::core::qos::monitor::ResourceMonitorServiceImpl"
+			    quidu      	"3C923B4A03D1"))))
+	    logical_presentations 	(list unit_reference_list)))
+    logical_presentations 	(list unit_reference_list))
