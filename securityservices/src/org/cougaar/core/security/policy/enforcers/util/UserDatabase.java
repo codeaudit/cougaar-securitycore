@@ -28,12 +28,29 @@ import java.util.Set;
 public class UserDatabase
 {
   private static HashMap userToRoles = new HashMap();
+  static {
+    userToRoles.put(anybody(), new HashSet());
+  }
   private static String  userPrefix  = "----User";
   private static int     userCounter = 0;
 
-  public static String anybody()   // need to think about this
-  {                                // for now semantic matcher always says match
-    return "Everybody";          // maybe need NO_INSTANCE_FOUND???
+
+  /**
+   * The user in no roles.
+   * 
+   * This is a bit of a dangerous function.  Its use depends strongly on 
+   * the assumption that policies involving users and servlets are
+   * all positive policies.  Thus a user cannot be denied access to a
+   * servlet because he is in a certain role.  
+   * 
+   * Thus if the user anybody() is allowed access to a servlet then
+   * anybody (with any roles) is allowed access to the servlet.  This
+   * is needed because we have to determine if a user is allowed to
+   * access a servlet in the case where we know nothing about the user.
+   */
+  public static String anybody()
+  {                             
+    return userPrefix + "Everybody";         
   }
 
   public static synchronized String login(Set roles)
