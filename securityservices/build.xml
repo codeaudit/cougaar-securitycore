@@ -273,10 +273,13 @@
                 </patternset>
             </fileset>
         </copy>
-        <copy todir="${cougaar.install.path}/configs/security"
-            file="${securityservices.configs}/adaptiveMnR/AMnRPlays.txt"/>    
-        <copy todir="${cougaar.install.path}/configs/security"
-            file="${securityservices.configs}/adaptiveMnR/AMnRPlaysEnclave.txt"/>    
+        <copy todir="${cougaar.install.path}/configs/security">
+            <fileset dir="${securityservices.configs}/adaptiveMnR">
+                <patternset>
+                    <include name="AMnR*.txt"/>
+                </patternset>
+            </fileset>
+        </copy>
         <copy todir="${cougaar.install.path}/webtomcat/data/conf"
             file="${securityservices.configs}/tomcat4/server.xml"/>    
         <copy todir="${cougaar.install.path}/webtomcat/data/webapps/ROOT/WEB-INF"
