@@ -3,8 +3,8 @@
   xsi:noNamespaceSchemaLocation='http:/www.cougaar.org/2003/society.xsd'> 
   <host name='HOST1'> 
     <facet enclave='EnclaveA'/> 
-    <facet role="NameServer"/> 
     <node name='ROOT-CA-NODE'> 
+      <facet role="NameServer"/> 
       <facet role="RootCertificateAuthority"/> 
     </node> 
     <node name='CA-NODE'> 
