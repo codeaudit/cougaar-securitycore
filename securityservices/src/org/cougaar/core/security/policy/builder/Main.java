@@ -29,6 +29,7 @@ import com.hp.hpl.jena.ontology.impl.OntModelImpl;
 import com.hp.hpl.jena.rdf.model.RDFException;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
@@ -57,6 +58,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.builder.PolicyParser;
 import org.cougaar.core.security.util.webproxy.WebProxyInstaller;
+import org.cougaar.util.ConfigFinder;
 import org.cougaar.util.log.LoggerFactory;
 import org.cougaar.util.log.Logger;
 
@@ -84,12 +86,15 @@ class Main
   private static final String _conditionName 
     = "org.cougaar.core.security.policy.PREVENTIVE_MEASURE_POLICY";
 
+  private static  boolean _stdout = true;
+
   private int     _maxReasoningDepth = -1;
   private int     _cmd;
   private boolean _quiet;
   private boolean _buildinfo;
   private boolean _checkDepth = false;
   private String  _policyFile;
+  private boolean _useConfig = false;
   private boolean _useDomainManager;
   private boolean _cmdLineAuth;
   private String  _cmdLineUser;
@@ -118,6 +123,9 @@ class Main
         } else if (args[counter].equals("--disableChecking")) {
           counter++;
           OntologyConnection.disableChecking();
+        } else if (args[counter].equals("--useConfig")) {
+          counter++;
+          _useConfig=true;
         } else {
           break;
         }
@@ -178,9 +186,7 @@ class Main
         usage();
       }
     } catch (IndexOutOfBoundsException e) {
-      if (_log.isWarnEnabled()) {
-        _log.warn("Too many arguments");
-      }
+      printMessage("Too many arguments");
       usage();
     }
   }
@@ -210,9 +216,7 @@ class Main
     String port     = args[counter++];
     String agent    = args[counter++];
     _url = "http://" + hostname + ":" + port + "/$" + agent + "/policyAdmin";
-    if (_log.isInfoEnabled()) {
-      _log.info("_url = " + _url);
-    }
+    printMessage("_url = " + _url);
     return counter;
   }
 
@@ -223,11 +227,12 @@ class Main
     
     sb.append("The arguments consist of common options\n");
     sb.append("followed by a command\n");
-    sb.append("There are two common option at the moment:\n");
+    sb.append("There are three common option at the moment:\n");
     sb.append("{--maxReasoningDepth num}  This controls how much\n");
     sb.append("\tjtp searches for the answer to a question.\n");
     sb.append("{--disableChecking}  This disables consistency checking\n");
     sb.append("\tIt is not recommended unless you are in a hurry\n");
+    sb.append("{--useConfig} Read the policy file from configs rather than disk\n");
     sb.append("The command then has one of the following forms:\n");
     sb.append("" + (counter++) + ". build {--quiet} {--info} policiesFile\n");
     sb.append("\tTo build policies from a grammar\n");
@@ -260,9 +265,7 @@ class Main
                        + "on the domain manager intact\n");
     sb.append("Conditional policies on the domain manager are " +
                        "always replaced.\n");
-    if (_log.isWarnEnabled()) {
-      _log.warn(sb.toString());
-    }
+    printMessage(sb.toString());
     System.exit(-1);
   }
 
@@ -274,8 +277,9 @@ class Main
       Main env = new Main(args);
       env.run();
     } catch (Exception e) {
+      printMessage("Unable to parse security policy");
       if (_log.isWarnEnabled()) {
-        _log.warn("Unable to parse security policy", e);
+        _log.warn("", e);
       }
       System.exit(-1);
     }
@@ -323,6 +327,11 @@ class Main
     }
   }
 
+  public void setOntologyConnection(OntologyConnection o)
+  {
+    _ontology = o;
+  }
+
 
   /** 
    * Set the reasoning depth
@@ -342,9 +351,7 @@ class Main
   protected void buildPolicies()
     throws IOException, PolicyCompilerException
   {
-    if (_log.isInfoEnabled()) {
-      _log.info("Parsing Policies");
-    }
+    printMessage("Parsing Policies");
     ParsedPolicyFile parsed = compile(_policyFile);
     List          ppolicies = parsed.policies();
     if (_log.isDebugEnabled()) {
@@ -355,28 +362,21 @@ class Main
       }
     }
 
-    if (_log.isInfoEnabled()) {
-      _log.info("Loading ontologies & declarations");
-    }
+    printMessage("Loading ontologies & declarations");
     _ontology = new LocalOntologyConnection(parsed.declarations(), 
                                             parsed.agentGroupMap());
-    if (_log.isInfoEnabled()) {
-      _log.info("Ontologies loaded");
-    }
+    printMessage("Ontologies loaded");
 
     if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
       String s = "Reasoning depth insufficient. Try setting a larger value with the\n"
         + "--maxdepth option\n"
         + "Policies not built as they would be incorrect";
-      if (_log.isWarnEnabled()) {
-        _log.warn(s);
-      }
+
+      printMessage(s);
       System.exit(-1);
     }
 
-    if (_log.isInfoEnabled()) {
-      _log.info("Writing Policies");
-    }
+    printMessage("Writing Policies");
     for(Iterator builtPolicyIt = buildUnconditionalPolicies(ppolicies)
                                                                 .iterator();
         builtPolicyIt.hasNext();) {
@@ -400,9 +400,8 @@ class Main
   private boolean checkDepth(Map agentGroupMap)
   {
     try {
-      if (_log.isInfoEnabled()) {
-        _log.info("Checking reasoning depth");
-      }
+      printMessage("Checking reasoning depth");
+
       for (Iterator agentGroupIt = agentGroupMap.keySet().iterator();
            agentGroupIt.hasNext();) {
         String agentGroup = (String) agentGroupIt.next();
@@ -410,23 +409,19 @@ class Main
         Set    agents = _ontology.getInstancesOf(ULOntologyNames.agentGroupPrefix +
                                                  agentGroup);
         if (agents.size() < size) {
-          if (_log.isWarnEnabled()) {
-            _log.warn("Insufficient reasoning depth");
-            _log.warn("for agent group " + agentGroup + 
-                " the agent set should have size "
-                + size + "  but actually has size " + 
-                +agents.size());
-          }
+          printMessage("Insufficient reasoning depth");
+          printMessage("for agent group " + agentGroup + 
+                       " the agent set should have size "
+                       + size + "  but actually has size " + 
+                       +agents.size());
           return false;
         } else if (agents.size() > size) {
-          if (_log.isWarnEnabled()) {
-            _log.warn("Say what???");
-            _log.warn("for agent group " + agentGroup + 
-                " the agent set should be \n\n"
-                + agentGroupMap.get(agentGroup) + 
-                "\n\n(size=" + size + ")  but actually is\n\n" 
-                + agents + "\n\n(size="+agents.size() + ")");
-          }
+          printMessage("Say what???");
+          printMessage("for agent group " + agentGroup + 
+                       " the agent set should be \n\n"
+                       + agentGroupMap.get(agentGroup) + 
+                       "\n\n(size=" + size + ")  but actually is\n\n" 
+                       + agents + "\n\n(size="+agents.size() + ")");
           return false;
         }
       }
@@ -451,30 +446,27 @@ class Main
     throws IOException
   {
     try {
-      System.out.println("Parsing policies from grammar");
+      printMessage("Parsing policies from grammar");
       ParsedPolicyFile parsed = compile(_policyFile);
       List deletePolicies = parsed.getDeletedList();
       List parsedPolicies = parsed.policies();
-      System.out.println("Connecting to domain manager & loading declarations");
+      printMessage("Connecting to domain manager & loading declarations");
       connectDomainManager();
       PolicyUtils.verbsLoaded();
       PolicyUtils.autoGenerateGroups(parsed.declarations(), 
                                      parsed.agentGroupMap());
 
       if (_checkDepth && !checkDepth(parsed.agentGroupMap())) {
-        System.out.println
-          ("Reasoning depth insufficient. Try setting a larger value with the");
-        System.out.println
-          ("--maxdepth option");
-        System.out.println
-          ("Policies not built as they would be incorrect");
+        printMessage("Reasoning depth insufficient. Try setting a larger value with the");
+        printMessage("--maxdepth option");
+        printMessage("Policies not built as they would be incorrect");
         System.exit(-1);
       }
       commitUnconditionalPolicies(parsedPolicies, deletePolicies);
       commitConditionalPolicies(parsedPolicies);
     } catch (Exception e) {
       e.printStackTrace();
-      System.out.println("Error Committing policies");
+      printMessage("Error Committing policies");
     }
   }
 
@@ -486,7 +478,7 @@ class Main
   protected void commitUnconditionalPolicies(List    parsed, List deletePolicies)
     throws Exception
   {
-    System.out.println("Constructing New Unconditional Policy Msgs");
+    printMessage("Constructing New Unconditional Policy Msgs");
     List   newPolicies         = new Vector();
 
     if (_useDomainManager) {
@@ -510,7 +502,7 @@ class Main
         } 
       }
     }
-    System.out.println("Getting Existing Policies from servlet");
+    printMessage("Getting Existing Policies from servlet");
     List oldPolicies = _ontology.getPolicies();
     List oldPolicyMsgs = new Vector();
     for (Iterator oldPoliciesIt = oldPolicies.iterator();
@@ -540,8 +532,8 @@ class Main
    * and deletion statements are added.
    */
   protected void updatePolicies(List    newPolicies,
-                             List    oldPolicies,
-                             List    deletePolicies)
+                                List    oldPolicies,
+                                List    deletePolicies)
     throws IOException
   {
     List oldIds = new Vector();
@@ -586,9 +578,9 @@ class Main
       }
     }
 
-    System.out.println("Unconditional Policies Obtained - committing");
+    printMessage("Unconditional Policies Obtained - committing");
     _ontology.updatePolicies(addedPolicies, changedPolicies, removedPolicies);
-    System.out.println("Policies sent...");
+    printMessage("Policies sent...");
   }
 
 
@@ -599,7 +591,7 @@ class Main
   protected void commitConditionalPolicies(List parsed)
     throws Exception
   {
-    System.out.println("Obtaining Conditional Policies");
+    printMessage("Obtaining Conditional Policies");
 
     Vector conditionalPolicies = new Vector();
 
@@ -622,9 +614,9 @@ class Main
         ois.close();
       }
     }
-    System.out.println("Sending Conditional Policies");
+    printMessage("Sending Conditional Policies");
     _ontology.setConditionalPolicies(conditionalPolicies);
-    System.out.println("Conditional Policies Sent");
+    printMessage("Conditional Policies Sent");
   }
 
   /**
@@ -632,13 +624,13 @@ class Main
    * Essentially manages the IO portion of the compile and hands the
    * work off to the policy parser routines.
    */
-   protected static ParsedPolicyFile compile(String file)
+   protected ParsedPolicyFile compile(String file)
     throws IOException, PolicyCompilerException
   {
-    FileInputStream  fis = new FileInputStream(file);
+    InputStream is = openFile(file);
     ParsedPolicyFile ppf = null;
     try {
-      PolicyLexer lexer = new PolicyLexer(fis);
+      PolicyLexer lexer = new PolicyLexer(is);
       PolicyParser parser = new PolicyParser(lexer);
       ppf = parser.policyFile();
     } catch (Exception e) {
@@ -647,7 +639,7 @@ class Main
       pce.initCause(e);
       throw pce;
     } finally {
-      fis.close();
+      is.close();
     }
     return ppf;
   }
@@ -701,19 +693,21 @@ class Main
   protected void examinePolicyFile()
     throws IOException, RDFException
   {
-    FileInputStream   fis = new FileInputStream(_policyFile);
-    ObjectInputStream ois = new ObjectInputStream(fis);
-    PolicyMsg          pm = null;
+    InputStream       is  = openFile(_policyFile);
+    ObjectInputStream ois = new ObjectInputStream(is);
+    PolicyMsg         pm  = null;
 
     try {
       Object obj = ois.readObject();
       pm = (PolicyMsg) obj;
     } catch (ClassCastException e) {
-      System.out.println("File is not a policy message file");
+      printMessage("File is not a policy message file");
     } catch (ClassNotFoundException e) {
-      System.out.println("File has unknown format");
+      printMessage("File has unknown format");
+    } finally {
+      ois.close();
     }
-    System.out.println("Policy = " + pm);
+    printMessage("Policy = " + pm);
     examineOntMsg(pm);
   }
 
@@ -740,19 +734,19 @@ class Main
         OntologyConditionContainer condition = null;
         OntModelImpl               model     = null;
 
-        System.out.println("Policy Model = ");
+        printMessage("Policy Model = ");
         dpc.getPolicyModel().write(new PrintWriter(System.out),
                                    "RDF/XML-ABBREV");
-        System.out.println("controls = ");
+        printMessage("controls = ");
         dpc.getControlActionModel().write(new PrintWriter(System.out),
                                            "RDF/XML-ABBREV");
         if ((model = dpc.getTriggerActionModel()) != null) {
-          System.out.println("trigger = ");
+          printMessage("trigger = ");
           model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
         }
         if (((condition = dpc.getCondition()) != null) &&
             (model = condition.getConditionModel()) != null) {
-          System.out.println("Condition = ");
+          printMessage("Condition = ");
           model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
         }
       }
@@ -775,7 +769,7 @@ class Main
       if (pp.getConditionalMode() == null) {
         built.add(pp.buildPolicy(_ontology));
         if (!_quiet) {
-          System.out.println("Built Policy: " + pp.getPolicyName());
+          printMessage("Built Policy: " + pp.getPolicyName());
         }
       }
     }
@@ -803,7 +797,7 @@ class Main
 
         if (mode != null) {
           if (!_quiet) {
-            System.out.println("Parsed Policy: " + pp.getPolicyName());
+            printMessage("Parsed Policy: " + pp.getPolicyName());
           }
           Vector existingPoliciesForMode = (Vector) built.get(mode);
           if (existingPoliciesForMode == null) {
@@ -855,7 +849,7 @@ class Main
            policiesIt.hasNext();) {
         PolicyMsg policy = convertMsgToPolicyMsg((Msg) policiesIt.next());
         String name = policy.getName();
-        System.out.println("Policy " + name + " found");
+        printMessage("Policy " + name + " found");
         PolicyUtils.writeObject(name + ".msg", policy);
       }
     } catch (SymbolNotFoundException snfe) {
@@ -863,6 +857,48 @@ class Main
       ioe.initCause(snfe);
       throw ioe;
     }
+  }
+
+  private static void printMessage(String s)
+  {
+    if (_stdout) {
+      System.out.println(s);
+    } else {
+      if (_log.isInfoEnabled()) {
+        _log.info(s);
+      }
+    }
+  }
+
+  private InputStream openFile(String file)
+    throws IOException
+  {
+    if (_useConfig) {
+      ConfigFinder cf = ConfigFinder.getInstance();
+      return cf.open(file);
+    } else {
+      return new FileInputStream(file);
+    }
+  }
+
+  /*
+   * Non-command line support
+   *   Historically the command line interface came first or this would 
+   *   have been designed differently.
+   */
+
+  /*
+   * this constructor is not used from the command line tool
+   */
+  public Main()
+  {
+    _stdout = false;
+    
+  }
+
+  public void setPolicyFile(String p)
+  {
+    _policyFile = p;
   }
 }
 
