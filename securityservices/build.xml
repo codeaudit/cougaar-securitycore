@@ -288,7 +288,7 @@
     </target>
     
     <target name="confnai">
-        <copy todir="${cougaar.install.path}/configs/security"
+        <copy todir="${cougaar.install.path}/configs/common"
             file="${securityservices.configs}/mysql/cougaar.rc"/>
     </target>
     
