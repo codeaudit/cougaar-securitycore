@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+####################################################
+# Rule to insert PolicyViewerServlet to all node agents
+# plugin = safe.guard.PolicyViewerServletComponent
+
+plugin = "safe.guard.ChangePMServletComponent"
+
+if !$disableKaosPolicy
+  society.each_node_agent() do |node_agent|
+     node_agent.add_component do |c|
+        c.classname = plugin
+      end
+   end
+end
