@@ -20,9 +20,16 @@
         <pathelement location="${cougaar.install.path}/lib/util.jar"/>
         <pathelement location="${cougaar.install.path}/lib/bootstrap.jar"/>
         <pathelement location="${cougaar.install.path}/lib/community.jar"/>
+        <!-- KAoS libraries -->
+        <pathelement location="${securityservices.base}/lib/kaos.jar"/>
+        <pathelement location="${securityservices.base}/lib/safe.jar"/>
+        <pathelement location="${securityservices.base}/sys/jpcsc.jar"/>
+        <pathelement location="${securityservices.base}/sys/jas.jar"/>
+        
     	<!-- Other security services jar files -->
         <pathelement location="${securityservices.base}/lib/security/coordinator.jar"/>
 	<pathelement location="${securityservices.base}/lib/security/secure_util.jar"/>
+        <pathelement location="${securityservices.base}/lib/security/securityservices.jar"/>
     </path>
 
 </project>
