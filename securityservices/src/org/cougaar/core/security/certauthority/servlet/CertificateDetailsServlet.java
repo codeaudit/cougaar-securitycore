@@ -146,32 +146,17 @@ public class CertificateDetailsServlet
     if(ldapentries==null || ldapentries.length == 0) {
       out.println("Error: no such certificate in LDAP ");
       */
-    List l = search.findCertByDistinguishedName(distinguishedName);
-    if (l == null || l.size() == 0) {
+    // 
+    CertificateEntry ce = search.findCertByIdentifier(distinguishedName);
+    if (ce == null) {
       out.println("Error: no such certificate in cert directory ");
-      out.flush();
-      out.close();
-      return;
-    }
-    //if (ldapentries.length != 1) {
-    if (l.size() != 1) {
-      out.println("Error: there are multiple certificates with the same UID");
       out.flush();
       out.close();
       return;
     }
 
     X509Certificate  certimpl;
-    try {
-      //certimpl=ldapentries[0].getCertificate();
-      certimpl=((CertificateEntry)l.get(0)).getCertificate();
-    }
-    catch (Exception exp) {
-      out.println("error-----------  "+exp.toString());
-      out.flush();
-      out.close();
-      return;
-    }
+    certimpl=ce.getCertificate();
 
     String uri = req.getRequestURI();
     String certRevokeUri = uri.substring(0, uri.lastIndexOf('/')) + "/RevokeCertificateServlet";
