@@ -40,9 +40,9 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   private UserCertificateUI userUI;
 
   // hash map from domain to alias
-  private Hashtable domainTable = new Hashtable();
+  private Hashtable domainTable;
   // hash map from alias to cert
-  private Hashtable aliasTable = new Hashtable();
+  private Hashtable aliasTable;
 
   public UserKeyManager(KeyRingService krs) {
     super(krs);
@@ -53,9 +53,13 @@ public final class UserKeyManager extends org.cougaar.core.security.ssl.KeyManag
   }
 
   public synchronized void updateKeystore() {
+    if (domainTable == null) {
+      domainTable = new Hashtable();
+      aliasTable = new Hashtable();
+    }
+
     // update domain to alias map table
     domainTable.clear();
-
     aliasTable.clear();
     KeyStore ks = keyRing.getKeyStore();
     try {
