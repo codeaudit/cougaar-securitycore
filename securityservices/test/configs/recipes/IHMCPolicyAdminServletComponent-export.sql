@@ -21,7 +21,7 @@ REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VAL
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Component Name',0.000000000000000000000000000000,'safe.policyManager.PolicyAdminServletComponent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Component Priority',2.000000000000000000000000000000,'COMPONENT');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Number of Arguments',3.000000000000000000000000000000,'0');
-REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryDomainManagerAgent');
+REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Target Component Selection Query',5.000000000000000000000000000000,'recipeQueryDomainManagerServletAgent');
 REPLACE INTO lib_mod_recipe_arg (MOD_RECIPE_LIB_ID, ARG_NAME, ARG_ORDER, ARG_VALUE) VALUES ('RECIPE-IHMCPolicyAdminServletComponent','Type of Insertion',1.000000000000000000000000000000,'plugin');
 UNLOCK TABLES;
 

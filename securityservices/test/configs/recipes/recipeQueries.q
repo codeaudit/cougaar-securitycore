@@ -102,12 +102,23 @@ SELECT C.COMPONENT_ALIB_ID \
     AND H.ASSEMBLY_ID :assembly_match:
 
 
-# Find all agents that are DomainManger
+# Find all agents that are DomainManager
 recipeQueryDomainManagerAgent=\
  SELECT C.COMPONENT_ALIB_ID \
    FROM alib_component C, asb_component_hierarchy H \
-  WHERE C.COMPONENT_TYPE='agent' AND C.COMPONENT_ALIB_ID = \
-                               'DomainManager' AND \
+  WHERE C.COMPONENT_TYPE='agent' AND \
+    (C.COMPONENT_ALIB_ID like '%PolicyDomainManager%Agent' AND C.COMPONENT_ALIB_ID not like '%PolicyDomainManager%ServletAgent') \
+     AND \
+    (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
+    AND H.ASSEMBLY_ID :assembly_match:
+
+# Find all agents that are DomainManger Servlet Agents
+recipeQueryDomainManagerServletAgent=\
+ SELECT C.COMPONENT_ALIB_ID \
+   FROM alib_component C, asb_component_hierarchy H \
+  WHERE C.COMPONENT_TYPE='agent' AND \
+    C.COMPONENT_ALIB_ID like '%PolicyDomainManager%ServletAgent' \
+     AND \
     (H.COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID OR H.PARENT_COMPONENT_ALIB_ID = C.COMPONENT_ALIB_ID) \
     AND H.ASSEMBLY_ID :assembly_match:
 
