@@ -798,7 +798,13 @@ try {
 */
   }
 
-  public PrivateKey findPrivateKey(final X509Certificate cert) {
+  public PrivateKey findPrivateKey(final X509Certificate cert) 
+  {
+    return findPrivateKey(cert, true);
+  }
+
+  private PrivateKey findPrivateKey(final X509Certificate cert, boolean warn)
+  {
     try {
       X500Name x500Name = new X500Name(cert.getSubjectDN().getName());
       final String name = x500Name.getCommonName();
@@ -821,17 +827,22 @@ try {
           }
         }
       }
-      if (log.isWarnEnabled()) {
+      if (warn && log.isWarnEnabled()) {
         log.warn("Unable to get private key of " +
                  cert + " -- does not exist.");
       }
     } catch (Exception e) {
-      if (log.isWarnEnabled()) {
+      if (warn && log.isWarnEnabled()) {
         log.warn("Unable to get private key of " +
                  cert + " -- dn is not well formed.", e);
       }
     }
     return null;
+  }
+
+  public boolean checkPrivateKey(final CertificateStatus certStatus)
+  {
+    return findPrivateKey(certStatus.getCertificate(), false) != null;
   }
 
   public List findPrivateKey(X500Name x500name) {
@@ -1047,8 +1058,9 @@ try {
   private Object findCertLock = new Object();
 //  public synchronized  List findCert(X500Name dname,
   public List findCert(X500Name dname,
-                                     int lookupType, boolean validOnly)
-    {
+                       int lookupType, 
+                       boolean validOnly)
+  {
     // findCert is called very frequently
     // we should not place a lock on the KeyRing class itself,
     // if we lock on findCert itself we only need to iliminate
@@ -1258,7 +1270,7 @@ try {
    */
   public Hashtable findCertPairFromNS(String source, String target)
     throws CertificateException, IOException  {
-    Hashtable certTable = findCertStatusPairFromNS(source, target);
+    Hashtable certTable = findCertStatusPairFromNS(source, target, false);
     CertificateStatus srcStatus = (CertificateStatus)certTable.get(source);
     CertificateStatus tgtStatus = (CertificateStatus)certTable.get(target);
     certTable.put(source, srcStatus.getCertificate());
@@ -1266,8 +1278,14 @@ try {
     return certTable;
   }
 
-  public Hashtable findCertStatusPairFromNS(String source, String target)
-    throws CertificateException, IOException  {
+  public Hashtable findCertStatusPairFromNS(String source, 
+                                            String target,
+                                            boolean sourceNeedsPrivateKey)
+    throws CertificateException, IOException  
+  {
+    // Look in revisions before 1.83 for many commented out alternative 
+    // 1implementations of this code
+
 
     // check whether agent has started yet, this fixes the problem where
     // LDAP is dirty and returning old certificates. If agent has started
@@ -1288,48 +1306,16 @@ try {
     // TODO: if there is multiple trusted path choose the shortest one
 
     // how deep is the trusted cert
-    /*
-    X509Certificate [] tgtCerts = null;
-    int trustedIndex = -1;
-    TrustedCaPolicy [] tc = cryptoClientPolicy.getTrustedCaPolicy();
-    Hashtable tcTable = new Hashtable();
-    for (int i = 0; i < tc.length; i++) {
-      tcTable.put(tc[i].caDN, tc[i].caDN);
-    }
-    // CA will be communicating now, so need to add them too
-    if (cryptoClientPolicy.isCertificateAuthority()) {
-      X500Name [] caDNs = configParser.getCaDNs();
-      for (int i = 0; i < caDNs.length; i++) {
-        tcTable.put(caDNs[i].getName(), caDNs[i].getName());
-      }
-    }
-    */
 
-    /*
-    Iterator it = tgtdns.iterator();
-    while (it.hasNext()) {
-      X500Name dname = (X500Name)it.next();
-      List tgtList = findCert(dname,
-                              KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
-      if (tgtList != null && tgtList.size() != 0) {
-        // this should not have certificate exception because the cert
-        // path is supposed to be established and valid
-        CertificateStatus cs = (CertificateStatus)tgtList.get(0);
-
-        // there must be one that matches, otherwise check trust is not correct
-        certTable.put(target, cs.getCertificate());
-      }
-    }
-    */
-
-    CertificateStatus cs = findOrRefreshCert(source);
+    CertificateStatus cs = findOrRefreshCert(source,
+                                             sourceNeedsPrivateKey);
     if (cs != null) {
       certTable.put(source, cs);
     }
 
     // if source and target is the same no need to redo the whole thing
     if (!source.equals(target) || cs == null) {
-      cs = findOrRefreshCert(target);
+      cs = findOrRefreshCert(target, false);
       if (cs != null) {
         certTable.put(target, cs);
       }
@@ -1338,58 +1324,6 @@ try {
       certTable.put(target, cs);
     }
 
-    /*
-    // find the matching source path
-    if (certTable.get(target) == null || trustedIndex == -1) {
-      String errMsg = "No trusted path found for " + target;
-      if (log.isDebugEnabled()) {
-        log.debug(errMsg);
-      }
-      throw new CertificateException(errMsg);
-    }
-    String trustedPrincipal = tgtCerts[trustedIndex].getSubjectDN().getName();
-    if (log.isDebugEnabled()) {
-      log.debug("Found trusted cert : " + certTable.get(target) + " for " + target
-                + ", the shortest path to trusted ca: " + trustedPrincipal);
-    }
-    */
-
-    /*
-    X509Certificate [] srcCerts = null;
-    boolean found = false;
-    it = srcdns.iterator();
-    while (it.hasNext() && !found) {
-      X500Name dname = (X500Name)it.next();
-      List srcList = findCert(dname,
-                              KeyRingService.LOOKUP_KEYSTORE | KeyRingService.LOOKUP_LDAP, true);
-      if (srcList != null && srcList.size() != 0) {
-        CertificateStatus cs = (CertificateStatus)srcList.get(0);
-        // the trust chain should be valid
-        //srcCerts = checkCertificateTrust((X509Certificate)cs.getCertificate());
-        */
-
-        /*
-        // we can communicate now, put a cert that is trusted by both sides here
-        // if we find a cert that has the shortest path to target then replace
-        // the hashtable entry with that one
-        certTable.put(source, srcCerts[0]);
-
-        for (int i = 1; i < srcCerts.length; i++) {
-          // principal matched?
-          if (trustedPrincipal.equals(srcCerts[i].getSubjectDN().getName())) {
-            certTable.put(source, srcCerts[0]);
-            found = true;
-          }
-        }
-        */
-        /*
-        certTable.put(source, cs.getCertificate());
-      }
-    }
-    */
-
-    // is it successful?
-    //if (!found) {
     if (certTable.get(source) == null || certTable.get(target) == null) {
       String errMsg = "Cannot find matching cert with same trust. " +
         "source: " + certTable.get(source) + " vs target: " + certTable.get(target);
@@ -1402,7 +1336,10 @@ try {
     return certTable;
   }
 
-  private CertificateStatus findOrRefreshCert(String name) throws IOException {
+  private CertificateStatus findOrRefreshCert(String name,
+                                              boolean requirePrivateKey) 
+    throws IOException 
+  {
     List nameList = null;
     int lookupFlags[] = { KeyRingService.LOOKUP_KEYSTORE |
                           KeyRingService.LOOKUP_LDAP,
@@ -1430,12 +1367,19 @@ try {
           if (certList == null || certList.size() == 0) {
             continue;
           }
-
-          return (CertificateStatus)certList.get(0);
+          for (Iterator certIt = certList.iterator();
+               certIt.hasNext();) {
+            CertificateStatus certStatus = (CertificateStatus) certIt.next();
+            if (!requirePrivateKey || 
+                checkPrivateKey(certStatus)) {
+              return certStatus;
+            }
+          }
         }
       }
     return null;
   }
+
 
   public List findDNFromNS(String name) {
     /*
