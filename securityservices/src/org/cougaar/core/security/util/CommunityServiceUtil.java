@@ -20,6 +20,9 @@
  */
 package org.cougaar.core.security.util;
 
+import org.cougaar.community.manager.Request;
+
+import org.cougaar.community.manager.Request;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
@@ -33,6 +36,7 @@ import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.Entity;
 import org.cougaar.core.thread.Schedulable;
+
 
 import java.util.Collection;
 import java.util.Collections;
@@ -72,7 +76,7 @@ public class CommunityServiceUtil {
   private static final String ROLE_FILTER = "(Role=" + MANAGER_ROLE +")";
   private static final String ROLE_MEMBER_FILTER = "(Role=" + MEMBER_ROLE +")";
   private static final String ROOT_FILTER = "(&(Role=" + MANAGER_ROOT +")" +
-  "(Role=" + MANAGER_ROOT + "))";
+  "(Role=" + MANAGER_ROLE + "))";
 
   
   public CommunityServiceUtil(ServiceBroker sb) {
@@ -1459,5 +1463,21 @@ public class CommunityServiceUtil {
       return null; // all MY communities
     }
   }
- 
+  
+  public static boolean isRequestValid(Request request, String msgSource) {
+    boolean valid = true;
+    int requestType = request.getRequestType();
+    if(requestType == Request.JOIN  ||
+       requestType == Request.LEAVE ||
+       requestType == Request.MODIFY_ATTRIBUTES) {
+      // hard coded for now, but in the future, we will have a policy that may allow
+      // an agent to issue community service request on behalf of another agent.
+      if(!(request.getSource().toString().equals(msgSource) &&
+           request.getEntity() != null &&
+           request.getEntity().getName().equals(msgSource))) {
+        valid = false;
+      }
+    }
+    return valid; 
+  }
 }

@@ -37,6 +37,9 @@ public class MessageFailureEvent extends CryptoFailureEvent {
   public final static String SETASIDE_INCOMING_AGENT_ACTION = "Set Aside Incoming Agent Action";
   public final static String SETASIDE_OUTGOING_AGENT_ACTION = "Set Aside Outgoing Agent Action";
   public final static String INVALID_MESSAGE_CONTENTS = "Invalid Message Contents";
+  public final static String SOURCE_ADDRESS_MISMATCH = "Source Address Mismatch";
+  public final static String VERB_DENIED = "Verb Denied";
+  public final static String INVALID_COMMUNITY_REQUEST = "Invalid Community Request";
   
   public MessageFailureEvent(String source, String target, String reason, String data){
     super(IdmefClassifications.MESSAGE_FAILURE, source, 
