@@ -99,6 +99,13 @@ public class SecureConfigFinder
 
   private void initialize() {
     _certificateVerifier = CertificateVerifierImpl.getInstance();
+    if (_certificateVerifier == null) {
+      String s = "Unable to get certificate verifier";
+      if (_logger.isWarnEnabled()) {
+	_logger.warn(s);
+      }
+      throw new RuntimeException(s);
+    }
     _securelog = SecurityLogImpl.getInstance();
     _exceptionListRegularExpressions = new ArrayList();
     readExceptionList();
