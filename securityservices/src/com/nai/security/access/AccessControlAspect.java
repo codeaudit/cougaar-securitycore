@@ -61,7 +61,7 @@ public class AccessControlAspect extends StandardAspect
   private static String SECURE_PROPERTY = 
       "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
-  private ServiceBroker sb=null;
+  private ServiceBroker serviceBroker=null;
   
   public AccessControlAspect() {
     // TODO. Modify following line to use service broker instead
@@ -78,17 +78,19 @@ public class AccessControlAspect extends StandardAspect
   
   private void init(){
     enabled = true;
-    if (sb != null){
+    serviceBroker = getServiceBroker();
+    if (serviceBroker != null){
       try{
 	acps = (AccessControlPolicyService)
-	  sb.getService(this, AccessControlPolicyService.class, null);
+	  serviceBroker.getService(this,
+				   AccessControlPolicyService.class, null);
       }
       catch(Exception e){
-	throw new RuntimeException("failed to initialize Access Control Aspect:"
+	throw new RuntimeException("Access Control Aspect:"
 				   +e.toString());
       }
     }else{
-      throw new RuntimeException("No service broker when trying to initialize AccessControlAspect.");
+      throw new RuntimeException("Access Control Aspect: no service broker");
     }
   }
 

@@ -71,7 +71,7 @@ public class CryptoAspect extends StandardAspect
   private static String SECURE_PROPERTY = 
     "org.cougaar.message.transport.secure";
   private boolean firsttime=true;
-  private ServiceBroker sb=null;
+  private ServiceBroker serviceBroker=null;
 
   private SecurityPropertiesService secprop = null;
   
@@ -88,20 +88,21 @@ public class CryptoAspect extends StandardAspect
 
   private void init(){
     enabled = true;
-    //    sb = getServiceBroker();
-    if (sb != null){
+    serviceBroker = getServiceBroker();
+    if (serviceBroker != null){
       try{
 	cms = (EncryptionService)
-	  sb.getService(this, EncryptionService.class, null);
+	  serviceBroker.getService(this, EncryptionService.class, null);
 	cps = (CryptoPolicyService)
-	  sb.getService(this, CryptoPolicyService.class, null);
+	  serviceBroker.getService(this, CryptoPolicyService.class, null);
       }
       catch(Exception e){
 	throw new RuntimeException("failed to initialize security Aspect:"
 				   +e.toString());
       }
     } else {
-      throw new RuntimeException("No service broker when trying to initialize SecurityAspect.");
+      throw new
+	RuntimeException("CryptoAspect init: No service broker");
     }
   }
 
