@@ -23,6 +23,7 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.multicast.AttributeBasedAddress;
 import org.cougaar.core.mts.MessageAddress;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
@@ -56,6 +57,7 @@ import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 
 // Cougaar overlay
@@ -289,10 +291,23 @@ public class UserLockoutPlugin extends ResponderPlugin {
       _lockoutTime = ((Number) _lockoutDurationOM.getValue()).longValue() * 1000;
     } // end of else
 
-    setupCommunity();
-
     ServiceBroker        sb           = getBindingSite().getServiceBroker();
-    CommunityService     cs           = (CommunityService)
+    ThreadService        ts           = (ThreadService)
+      sb.getService(this, ThreadService.class, null);
+   
+    // get a thread to set up the community stuff for registration
+    ts.getThread(this, new Runnable() {
+        public void run() {
+          setupCommunity();
+          addCommunityListener(); 
+        }
+      }
+    ).start();
+  }
+
+  private void addCommunityListener() {
+    ServiceBroker sb = getServiceBroker();
+    CommunityService cs = (CommunityService)
       sb.getService(this, CommunityService.class,null);
     cs.addListener(new CommunityChangeListener() {
       public String getCommunityName() {
@@ -334,10 +349,9 @@ public class UserLockoutPlugin extends ResponderPlugin {
 
       }
     });
-
     sb.releaseService(this, CommunityService.class, cs);
   }
-
+  
    /**
    * method that takes an action against the culprit
    */
@@ -433,17 +447,17 @@ public class UserLockoutPlugin extends ResponderPlugin {
     } // end of if (cs == null)
 
     CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    _log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-          configureCommunity((Set)response);
-	}
-      };
+    	public void getResponse(CommunityResponse resp) {
+    	  Object response = resp.getContent();
+    	  if (!(response instanceof Set)) {
+    	    String errorString = "Unexpected community response class:"
+    	      + response.getClass().getName() + " - Should be a Set";
+    	    _log.error(errorString);
+    	    throw new RuntimeException(errorString);
+    	  }
+        configureCommunity((Set)response);
+    	}
+    };
 
     String filter = "(CommunityType=Security)";
     Collection communities =
@@ -532,7 +546,7 @@ public class UserLockoutPlugin extends ResponderPlugin {
     }
 
     public String getManufacturer() {
-      return "NAI Labs";
+      return "CSI";
     }
 
     public String getModel() {

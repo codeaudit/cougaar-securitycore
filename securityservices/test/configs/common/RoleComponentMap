@@ -19,8 +19,6 @@ org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.cogins
 org.cougaar.logistics.plugin.demand.DemandForecastPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 org.cougaar.logistics.plugin.inventory.LogisticsOPlanPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
 org.cougaar.logistics.plugin.inventory.LogisticsOPlanPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
-org.cougaar.logistics.servlet.OplanEditServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
-org.cougaar.logistics.servlet.OplanEditServlet http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityChangeRole
 org.cougaar.glm.plugins.projection.SupplyProjectionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 
 org.cougaar.mlm.construction.ConstructionProjectionPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole
 org.cougaar.mlm.construction.ConstructionInventoryPlugin http://ontology.coginst.uwf.edu/Ultralog/Names/EntityInstances.daml#OrgActivityQueryRole 

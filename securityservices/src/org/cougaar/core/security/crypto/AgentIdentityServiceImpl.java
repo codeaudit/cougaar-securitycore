@@ -357,8 +357,8 @@ public class AgentIdentityServiceImpl
                         thisNodeAddress,
                         targetNode,
                         policy,
-                        envelope.getEncryptedSymmetricKey(),
                         envelope.getEncryptedSymmetricKeySender(),
+                        envelope.getEncryptedSymmetricKey(),
                         envelope.getObject());
 
       if (log.isDebugEnabled()) {

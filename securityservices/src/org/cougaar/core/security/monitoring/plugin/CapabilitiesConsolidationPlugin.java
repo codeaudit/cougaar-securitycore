@@ -186,13 +186,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
           + myAddress.toAddress());
       loggingService.debug("Using CommunityServiceUtil for getSecurityCommunity:");
     }
-    _csu.getSecurityCommunity(myAddress.toAddress(), 
-                              new RegistrationListener());
-    /*
-    if(!_csu.amIRoot( myAddress.toAddress())) {
-      registerManager();
-    }
-    */
+    _csu.amIRoot(new RegistrationListener());
         
     modifiedcapabilities= (IncrementalSubscription)getBlackboardService().subscribe(new ModifiedCapabilitiesPredicate(loggingService));
     capabilitiesRelays= (IncrementalSubscription)getBlackboardService().subscribe(new ConsolidatedCapabilitiesRelayPredicate(loggingService));
@@ -1202,27 +1196,16 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
 	  }
 	}
       };
-    _csu.findSecurityManager(myAddress.toString(), listener);
+    _csu.findSecurityManager(listener);
   }
 
   private class RegistrationListener implements CommunityServiceUtilListener {
     public void getResponse(Set entities) {
       if (entities == null || entities.isEmpty()) {
-        // probably won't get here
-        loggingService.warn("Could not find any managed " +
-                            "security communities!");
-        return;
-      }
-      Community community = (Community) entities.iterator().next();
-      if (loggingService.isInfoEnabled()) {
-        loggingService.info("Got managed security community: " + 
-                            community.getName());
-      }
-      if (_csu.isRoot(community)) {
+        registerManager();
+      } else {
         loggingService.info("I am the root security manager. " +
                             "Not registering.");
-      } else {
-        registerManager();
       }
     }
   }

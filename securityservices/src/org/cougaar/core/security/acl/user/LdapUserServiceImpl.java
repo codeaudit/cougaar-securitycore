@@ -63,6 +63,8 @@ import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.policy.GuardRegistration;
 import org.cougaar.core.security.policy.LdapUserServicePolicy;
 import org.cougaar.core.security.policy.SecurityPolicy;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
@@ -163,64 +165,21 @@ public class LdapUserServiceImpl implements UserService {
     public Object value;
   }
 
-  private void setDefaultDomain(final CommunityService cs, String agent) {
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    _log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
-    Collection communities = 
-      cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
-    if (communities == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        _log.error("Error in searchByCommunity:", ie);
-      }
-      communities=(Set)status.value;
-    }
-
-    if (!communities.isEmpty()) {
-      Community c = (Community) communities.iterator().next();
-      _defaultDomain = c.getName();
-    } else {
-      CommunityChangeListener listener = new CommunityChangeListener() {
-          public void communityChanged(CommunityChangeEvent event) {
-            Community community = event.getCommunity();
-            try {
-              Attributes attrs = community.getAttributes();
-              Attribute attr = attrs.get("CommunityType");
-              if (attr != null) {
-                for (int i = 0; i < attr.size(); i++) {
-                  Object type = attr.get(i);
-                  if (type.equals(AgentUserService.COMMUNITY_TYPE)) {
-                    _defaultDomain = community.getName();
-                    cs.removeListener(this);
-                  }
-                }
-              }
-            } catch (NamingException e) {
-              throw new RuntimeException("This should never happen");
-            }
-          }
-          public String getCommunityName() {
-            return null; // all MY communities
+  private synchronized void setDefaultDomain(final CommunityService cs, 
+                                             String agent) {
+    if (_defaultDomain == null) {
+      final CommunityServiceUtil csu = 
+        new CommunityServiceUtil(_serviceBroker);
+      CommunityServiceUtilListener listener =
+        new CommunityServiceUtilListener() {
+          public void getResponse(Set communities) {
+            _defaultDomain = 
+              ((Community) communities.iterator().next()).getName();
+            csu.releaseServices();
           }
         };
-      cs.addListener(listener);
+      csu.getCommunity(AgentUserService.COMMUNITY_TYPE, 
+                       AgentUserService.MANAGER_ROLE, listener);
     }
   }
 

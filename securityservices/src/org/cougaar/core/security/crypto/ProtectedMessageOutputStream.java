@@ -120,7 +120,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
         policy.secureMethod == policy.SIGNENCRYPT) {
       _encrypt = true;
       // first encrypt the secret key with the target's public key
-      secret = createSecretKey(policy);
+      secret = _crypto.createSecretKey(policy.symmSpec);
       try {
         senderSecret = 
           _crypto.encryptSecretKey(policy.asymmSpec, secret, _sourceCert);
@@ -134,8 +134,9 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     }
 
     ProtectedMessageHeader header = 
-      new ProtectedMessageHeader(_sourceCert, _targetCert, policy,
-                                 receiverSecret, senderSecret);
+      new ProtectedMessageHeader(_keyRing.buildCertificateChain(_sourceCert),
+                                 _targetCert,
+                                 policy, receiverSecret, senderSecret);
     if (_log.isDebugEnabled()) {
       _log.debug("Sending " + header);
     }
@@ -168,6 +169,9 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
         _log.debug("Dumping message content to file " + filename);
       }
       this.out = new DumpOutputStream(this.out, filename);
+    }
+    if (_log.isDebugEnabled()) {
+      _log.debug("Stream from " + source + " to " + target + " ready!");
     }
   }
 
@@ -255,6 +259,15 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     super.close();
   }
 
+//   public void write(int b) throws IOException {
+//     try {
+//       super.write(b);
+//     } catch (IOException e) {
+//       _log.debug("caught exception when writing", e);
+//       throw e;
+//     }
+//   }
+
   /* **********************************************************************
    * ProtectedOutputStream implementation
    */
@@ -341,18 +354,6 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     return bout;
   }
 
-  private static SecretKey createSecretKey(SecureMethodParam policy)
-    throws NoSuchAlgorithmException {
-    int i = policy.symmSpec.indexOf("/");
-    String a =  (i > 0) 
-      ? policy.symmSpec.substring(0,i) 
-      : policy.symmSpec;
-    SecureRandom random = new SecureRandom();
-    KeyGenerator kg = KeyGenerator.getInstance(a);
-    kg.init(random);
-    return kg.generateKey();
-  }
-
   private PrivateKey getPrivateKey(final X509Certificate cert) 
     throws GeneralSecurityException {
     PrivateKey pk = (PrivateKey) 
@@ -373,7 +374,7 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     return "msgDump-" + RANDOM + "-" + _fileno++ + ".dmp";
   }
 
-  private MessageDigest getMessageDigest(String signatureSpec) 
+  public static MessageDigest getMessageDigest(String signatureSpec) 
     throws NoSuchAlgorithmException {
     String digestSpec = signatureSpec.toLowerCase();
     int withIndex = digestSpec.indexOf("with");

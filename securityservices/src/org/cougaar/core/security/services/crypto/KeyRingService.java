@@ -111,6 +111,9 @@ public interface KeyRingService extends Service {
   X509Certificate[] buildCertificateChain(X509Certificate certificate);
   X509Certificate[] checkCertificateTrust(X509Certificate certificate)throws CertificateChainException,
     CertificateExpiredException, CertificateNotYetValidException, CertificateRevokedException ;
+  X509Certificate[] checkCertificateTrust(X509Certificate certificate[])
+    throws CertificateChainException, CertificateExpiredException, 
+    CertificateNotYetValidException, CertificateRevokedException;
 
   boolean checkCertificate(CertificateStatus cs,
 			   boolean buildChain, boolean changeStatus);

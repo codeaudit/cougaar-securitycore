@@ -41,7 +41,7 @@ import org.cougaar.core.security.config.PolicyHandler;
 import org.cougaar.core.security.services.crypto.*;
 import org.cougaar.core.security.crypto.*;
 import org.cougaar.core.security.services.util.*;
-import org.cougaar.core.security.util.NodeInfo;
+import org.cougaar.core.security.util.*;
 import org.cougaar.core.security.certauthority.servlet.CAIdentityClientImpl;
 import org.cougaar.core.security.certauthority.servlet.CAInfo;
 import org.cougaar.core.security.policy.*;
@@ -68,7 +68,7 @@ public class ConfigPlugin
   private String caDN = null;
   private String ldapURL = null;
   private String upperCA = null;
-  private String httpport = null;
+  public static String httpport = null;
   private String httpsport = null;
 
   public void setBindingSite(BindingSite bs) {
@@ -256,7 +256,8 @@ public class ConfigPlugin
         try {
           Thread.currentThread().sleep(waittime);
 
-          ObjectInputStream ois = new ObjectInputStream(sendRequest(infoURL, ""));
+          ObjectInputStream ois = new ObjectInputStream(
+            new ServletRequestUtil().sendRequest(infoURL, "", waittime));
           // return a trusted policy for this plug to send PKCS request
           // also return a certificate to install in the trusted store
           // the certificate may not be the same as the one specified by
@@ -410,44 +411,6 @@ public class ConfigPlugin
       return;
     }
 
-  }
-
-  public static InputStream sendRequest(String requestURL, Object req)
-    throws Exception
-  {
-    URL url = new URL(requestURL);
-    HttpURLConnection huc = (HttpURLConnection)url.openConnection();
-    // Don't follow redirects automatically.
-    huc.setInstanceFollowRedirects(false);
-    // Let the system know that we want to do output
-    huc.setDoOutput(true);
-    // Let the system know that we want to do input
-    huc.setDoInput(true);
-    // No caching, we want the real thing
-    huc.setUseCaches(false);
-    // Specify the content type
-    huc.setRequestProperty("Content-Type",
-                           "application/x-www-form-urlencoded");
-    huc.setRequestMethod("POST");
-    if (req instanceof String) {
-      PrintWriter out = new PrintWriter(huc.getOutputStream());
-      String content = (String)req;
-      out.println(content);
-      out.flush();
-      out.close();
-
-    }
-    else if (req instanceof Serializable) {
-      ObjectOutputStream out = new ObjectOutputStream(huc.getOutputStream());
-      out.writeObject(req);
-      out.flush();
-      out.close();
-    }
-    else {
-      throw new Exception("The input object type is not valid.");
-    }
-
-    return huc.getInputStream();
   }
 
   protected void setupSubscriptions() {

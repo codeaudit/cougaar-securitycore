@@ -115,6 +115,7 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
   private IncrementalSubscription capabilitiesobject;
   private IncrementalSubscription newQueryRelays;
   private IncrementalSubscription remoteQueryRelays;
+  private CapabilitiesObject      _capabilities;
   
   // private String param;
   private boolean root = false;
@@ -142,55 +143,40 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     
     super.setupSubscriptions();    
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called :"
-          + myAddress.toString());
+      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin " +
+                           "called :" + myAddress);
     }
     
-/*
-    Community mySecurityCommunity = getMySecurityCommunity();
-    if (loggingService.isDebugEnabled()) {
-      String communityName = null;
-      if (mySecurityCommunity != null) {
-	communityName = mySecurityCommunity.getName();
-      }
-      loggingService.debug("My security community :" + communityName
-          +" agent name :"+myAddress.toString());  
-    }
-    if(mySecurityCommunity == null) {
-      loggingService.error("No Info about My SecurityCommunity"+myAddress.toString());  
-      return;
-    }
- */
-   
-    capabilitiesobject= (IncrementalSubscription)getBlackboardService().subscribe
-      (new CapabilitiesObjectPredicate());
+    capabilitiesobject= (IncrementalSubscription)
+      getBlackboardService().subscribe(new CapabilitiesObjectPredicate());
 
-    newQueryRelays=(IncrementalSubscription)getBlackboardService().subscribe
-      (new NewQueryRelayPredicate(myAddress));
+    newQueryRelays =(IncrementalSubscription) getBlackboardService().
+      subscribe(new NewQueryRelayPredicate(myAddress));
 
-    remoteQueryRelays= (IncrementalSubscription)getBlackboardService().subscribe
-      (new RemoteQueryRelayPredicate(myAddress));
+    remoteQueryRelays = (IncrementalSubscription)getBlackboardService().
+      subscribe(new RemoteQueryRelayPredicate(myAddress));
+
     if (loggingService.isDebugEnabled()) {
-      if(amIRoot()) {
-        loggingService.debug("security community set as ROOT:");
+      if (amIRoot()) {
+        loggingService.debug("security community set as ROOT");
       }
     }
-
   }
  
-  protected void execute () {
+  protected synchronized void execute () {
     loggingService.debug(myAddress + " execute().....");
     CapabilitiesObject capabilities=null;
     Collection capabilitiesCollection;
     Collection newQueryCollection;
     Collection removedRemoteQueryCol;
     boolean removedRelays=false;
-
+    
     if (remoteQueryRelays == null) {
       // Configuration problem. Did not go through setupSubscription.
       // Issue should have already reported during setupSubscription()
       return;
     }
+
     if(remoteQueryRelays.hasChanged()) {
       removedRemoteQueryCol=remoteQueryRelays.getRemovedCollection();
       if(removedRemoteQueryCol.size()>0) {
@@ -201,19 +187,31 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
     }
     if(capabilitiesobject.hasChanged()) {
       loggingService.debug(" Capabilities HAS CHANGED ----");
-      if(amIRoot()) {
-        capabilitiesCollection=capabilitiesobject.getChangedCollection();
-        if(capabilitiesCollection.size()>0){
-          Iterator i=capabilitiesCollection.iterator();
-          if(i.hasNext()) {
-            capabilities=(CapabilitiesObject) i.next();
-          } 
-          processPersistantQueries(capabilities);
-          return;
+      capabilitiesCollection=capabilitiesobject.getChangedCollection();
+      if (!capabilitiesCollection.isEmpty()) {
+        if (!isRootReady()) {
+          // store it for later...
+          if (!capabilitiesCollection.isEmpty()) {
+            _capabilities = (CapabilitiesObject)
+              capabilitiesCollection.iterator().next();
+            return;
+          }
+        } else {
+          if (_capabilities != null) {
+            if (amIRoot()) {
+              processPersistantQueries(_capabilities);
+            }
+            _capabilities = null;
+          }
+          if(amIRoot()) {
+            capabilities = (CapabilitiesObject)
+              capabilitiesCollection.iterator().next();
+            processPersistantQueries(capabilities);
+            return;
+          }
         }
       }
-    }
-    else {
+    } else {
       capabilitiesCollection=capabilitiesobject.getCollection();
       Iterator i=capabilitiesCollection.iterator();
       if(i.hasNext()) {
@@ -229,7 +227,8 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
      
   }
 
-  private void processPersistantQueries(CapabilitiesObject capabilities) {
+  private void processPersistantQueries(final
+                                        CapabilitiesObject capabilities) {
     QueryMapping mapping;
     MRAgentLookUp agentlookupquery;
     CmrRelay relay;
@@ -271,26 +270,31 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
         continue;
       }
       if(agentlookupquery.updates) {
+        final CmrRelay fRelay = relay;
         mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
-        List response= findAgent(agentlookupquery, capabilities, false);
-        if (loggingService.isDebugEnabled()) {
-          loggingService.debug("Found response for manager and size of response :"
-              +response.size() );
-        }
-        createSubQuery(capabilities,response,relay );
+        FindAgentCallback fac = new FindAgentCallback() {
+            public void execute(Collection agents) {
+              if (loggingService.isDebugEnabled()) {
+                loggingService.debug("Found response for manager and size " +
+                                     "of response :" + agents.size() );
+              }
+              createSubQuery(capabilities, agents, fRelay);
+            }
+          };
+        findAgent(agentlookupquery, capabilities, false, fac);
       }// end agentlookupquery.updates
     }//end while()
   }  
 
-  private void processNewQueries(CapabilitiesObject capabilities, Collection newQueries) {
-    CmrRelay relay;
+  private void processNewQueries(final CapabilitiesObject capabilities, 
+                                 final Collection newQueries) {
     QueryMapping mapping;
     Iterator iter=newQueries.iterator();
     MRAgentLookUp agentlookupquery;
     Collection queryMappingCollection=getBlackboardService().query(new QueryMappingPredicate());
     while(iter.hasNext()) {
       mapping=null;
-      relay = (CmrRelay)iter.next();
+      final CmrRelay relay = (CmrRelay)iter.next();
       agentlookupquery=(MRAgentLookUp)relay.getContent();
       if(agentlookupquery==null) {
         loggingService.warn("Contents of the relay is null:"+relay.toString());
@@ -298,12 +302,16 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
       }
       mapping=findQueryMappingFromBB(relay.getUID(),queryMappingCollection) ;
       if(mapping==null) {
-        List response= findAgent(agentlookupquery, capabilities, false);
-        if (loggingService.isDebugEnabled()) {
-          loggingService.debug("Found response for manager and size of response :"
-              +response.size() );
-        }
-        createSubQuery(capabilities,response,relay );
+        FindAgentCallback fac = new FindAgentCallback() {
+            public void execute(Collection agents) {
+              if (loggingService.isDebugEnabled()) {
+                loggingService.debug("Found response for manager and size " +
+                                     "of response :" + agents.size() );
+              }
+              createSubQuery(capabilities, agents, relay);
+            }
+          };
+        findAgent(agentlookupquery, capabilities, false, fac);
       }
       else {
         loggingService.error(" There should have been No Mapping object for :"+relay.getUID());
@@ -312,7 +320,8 @@ public class MnRQueryReceiverPlugin extends MnRQueryBase {
   }// end  processNewQueries
   
 
-  private void createSubQuery(CapabilitiesObject capabilities,List subManager,CmrRelay relay) {
+  private void createSubQuery(CapabilitiesObject capabilities, 
+                              Collection subManager, CmrRelay relay) {
     QueryMapping mapping;
     MRAgentLookUp agentlookupquery=null;
     CmrFactory factory=(CmrFactory)getDomainService().getFactory("cmr");

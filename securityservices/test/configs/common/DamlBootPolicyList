@@ -11,7 +11,7 @@ http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess Da
 # Blackboard policy for changing an OrgActivity
 http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityChange.info
 # Blackboard policy for querying an OrgActivity, but not read it
-#http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQueryNoRead.info
+http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQueryNoRead.info
 # Blackboard policy for querying an OrgActivity
 http://ontology.coginst.uwf.edu/Ultralog/UltralogAction.daml#BlackBoardAccess DamlBootPolicyOrgActivityQuery.info
 # Blackboard policy for removing an OrgActivity

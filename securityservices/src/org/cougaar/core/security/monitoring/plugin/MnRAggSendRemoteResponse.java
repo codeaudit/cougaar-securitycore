@@ -116,26 +116,17 @@ public class MnRAggSendRemoteResponse extends MnRAggQueryBase {
   }
   */
 
-  protected void setupSubscriptions() {
-   /* myAddress = getAgentIdentifier();
-    if(loggingService == null) {
-      loggingService = (LoggingService)
-        getServiceBroker().getService(this, LoggingService.class, null); 
-    }
-    if (loggingService.isDebugEnabled()) {
-      loggingService.debug("setupSubscriptions of MnRAggSendRemoteResponse called :"+myAddress.toString() );
-    }
-    */
-     super.setupSubscriptions();
-    consolidatedResponse= (IncrementalSubscription)getBlackboardService().subscribe
-      (new AggConsolidatedResponsePredicate());
-    detailedResponse= (IncrementalSubscription)getBlackboardService().subscribe
-      (new DetailsDrillDownPredicate(myAddress));
-    idmefEventResponse= (IncrementalSubscription)getBlackboardService().subscribe
-      (new IdmefAndRemoteEventPredicate());
+  protected synchronized void setupSubscriptions() {
+    super.setupSubscriptions();
+    consolidatedResponse = (IncrementalSubscription)getBlackboardService().
+      subscribe(new AggConsolidatedResponsePredicate());
+    detailedResponse = (IncrementalSubscription)getBlackboardService().
+      subscribe(new DetailsDrillDownPredicate(myAddress));
+    idmefEventResponse = (IncrementalSubscription)getBlackboardService().
+      subscribe(new IdmefAndRemoteEventPredicate());
   }
   
-  protected void execute() {
+  protected synchronized void execute() {
     Collection responsecol=null;
     if(consolidatedResponse.hasChanged()) {
       responsecol=consolidatedResponse.getAddedCollection();

@@ -71,6 +71,8 @@ import org.cougaar.core.security.acl.user.CasRelay.CasRequest;
 import org.cougaar.core.security.acl.user.CasRelay.CasResponse;
 import org.cougaar.core.security.services.acl.UserServiceException;
 import org.cougaar.core.security.crypto.ldap.KeyRingJNDIRealm;
+import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 
 // JavaIDMEF classes
@@ -142,71 +144,33 @@ public class UserManagerPlugin extends ComponentPlugin {
     public Object value;
   }
 
-  private void setDomain(final CommunityService cs, 
+  private void setDomain(CommunityService cs, 
                          AgentIdentificationService ais) {
-    _log.debug("searching for domain for this manager");
-    //String myAddress = ais.getName();
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    _log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
-    Collection communities = cs.searchCommunity(null, filter, true,
-                                                Community.COMMUNITIES_ONLY, 
-                                                crl);
-    if (communities == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        _log.error("Error in searchByCommunity:", ie);
-      }
-
-      communities = (Set) status.value;
-    }
-    if (!communities.isEmpty()) {
-      _domain = communities.iterator().next().toString();
-      if (_log.isDebugEnabled()) {
-        _log.debug("Domain for this user manager is " + _domain);
-      }
-    } else {
-      CommunityChangeListener listener = new CommunityChangeListener() {
-          public void communityChanged(CommunityChangeEvent event) {
-            Community community = event.getCommunity();
-            try {
-              Attributes attrs = community.getAttributes();
-              Attribute attr = attrs.get("CommunityType");
-              if (attr != null) {
-                for (int i = 0; i < attr.size(); i++) {
-                  Object type = attr.get(i);
-                  if (type.equals(AgentUserService.COMMUNITY_TYPE)) {
-                    _domain = community.getName();
-                    cs.removeListener(this);
-                  }
-                }
-              }
-            } catch (NamingException e) {
-              throw new RuntimeException("This should never happen");
+    final CommunityServiceUtil csu = 
+      new CommunityServiceUtil(getServiceBroker());
+    CommunityServiceUtilListener listener = 
+      new CommunityServiceUtilListener() {
+        public void getResponse(Set communities) {
+          _domain = communities.iterator().next().toString();
+          if (_log.isDebugEnabled()) {
+            _log.debug("Domain for this user manager is " + _domain);
+          }
+          csu.releaseServices();
+          try {
+            InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
+            if (userIs != null) {
+              _log.info("Reading users from " + userIs);
+              readUsers(userIs);
+            } else {
+              _log.info("UserFile.xml does not exist -- no users or role");
             }
+          } catch (Exception e) {
+            _log.warn("Couldn't load users from file: ", e);
           }
-          public String getCommunityName() {
-            return null; // all MY communities
-          }
-        };
-      cs.addListener(listener);
-    }
+        }
+      };
+    csu.getCommunity(AgentUserService.COMMUNITY_TYPE, 
+                     AgentUserService.MANAGER_ROLE, listener);
   }
 
   /**
@@ -239,17 +203,6 @@ public class UserManagerPlugin extends ComponentPlugin {
       _userCache = new UserEntries(uidService.nextUID());
       getBlackboardService().publishAdd(_userCache);
 
-      try {
-        InputStream userIs = ConfigFinder.getInstance().open("UserFile.xml");
-        if (userIs != null) {
-          _log.info("Reading users from " + userIs);
-          readUsers(userIs);
-        } else {
-          _log.info("UserFile.xml does not exist -- no users or role");
-        }
-      } catch (Exception e) {
-        _log.warn("Couldn't load users from file: ", e);
-      }
     }
     _relaySub = (IncrementalSubscription) 
       getBlackboardService().subscribe(CAS_TARGETS);
@@ -482,7 +435,8 @@ public class UserManagerPlugin extends ComponentPlugin {
 
   private class MyServiceListener implements ServiceAvailableListener {
     private AgentIdentificationService _ais;
-    private CommunityService     _cs;
+    private CommunityService           _cs;
+    private boolean                    _completed;
 
     public MyServiceListener(AgentIdentificationService ais,
                              CommunityService cs) {
@@ -502,12 +456,15 @@ public class UserManagerPlugin extends ComponentPlugin {
       }
       if (_ais != null && _cs != null) {
         ae.getServiceBroker().removeServiceListener(this);
-        setDomain(_cs, _ais);
-        getServiceBroker().releaseService(UserManagerPlugin.this, 
-                                          CommunityService.class, _cs);
-        getServiceBroker().releaseService(UserManagerPlugin.this, 
-                                          AgentIdentificationService.class,
-                                          _ais);
+        if (!_completed) {
+          _completed = true;
+          setDomain(_cs, _ais);
+          getServiceBroker().releaseService(UserManagerPlugin.this, 
+                                            CommunityService.class, _cs);
+          getServiceBroker().releaseService(UserManagerPlugin.this, 
+                                            AgentIdentificationService.class,
+                                            _ais);
+        }
       }
     }
   }

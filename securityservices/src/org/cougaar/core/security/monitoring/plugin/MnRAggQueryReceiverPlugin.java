@@ -163,6 +163,7 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
   private IncrementalSubscription capabilities;
   private IncrementalSubscription newAggQueryRelays;
   private IncrementalSubscription remoteAggQueryRelays;
+  private CapabilitiesObject      _capabilities;
   UIDService uidService=null;
   SensorInfo _sensorInfo=null;
 
@@ -170,33 +171,28 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
   protected void setupSubscriptions() {
     super.setupSubscriptions();    
     if (loggingService.isDebugEnabled()) {
-      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin called :"
-                           + myAddress.toString());
+      loggingService.debug("setupSubscriptions of MnRQueryReceiverPlugin " +
+                           "called :" + myAddress);
     }
    
-    capabilities = (IncrementalSubscription)getBlackboardService().subscribe
-      (new AggCapabilitiesPredicate());
+    capabilities = (IncrementalSubscription)getBlackboardService().
+      subscribe (new AggCapabilitiesPredicate());
    
-    newAggQueryRelays=(IncrementalSubscription)getBlackboardService().subscribe
-      (new  NewAggQueryRelayPredicate(myAddress));
-    remoteAggQueryRelays=(IncrementalSubscription)getBlackboardService().subscribe
-      (new  RemoteAggQueryRelayPredicate(myAddress));
-    if (loggingService.isDebugEnabled()) {
-      if(amIRoot()) {
-        loggingService.debug("security community set as ROOT:");
+    newAggQueryRelays=(IncrementalSubscription)getBlackboardService().
+      subscribe(new  NewAggQueryRelayPredicate(myAddress));
+    remoteAggQueryRelays=(IncrementalSubscription)getBlackboardService().
+      subscribe(new  RemoteAggQueryRelayPredicate(myAddress));
+    uidService=(UIDService) 
+      getServiceBroker().getService(this,UIDService.class,null);
+    if (uidService==null) {
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug(" Unable to get UIDService in " +
+                             "processNewAggQuery");
       }
-    }
-    uidService=(UIDService) getServiceBroker().getService(this,UIDService.class,null);
-    if(uidService==null) {
-      if( loggingService.isDebugEnabled()) {
-        loggingService.debug(" Unable to get UIDService in processNewAggQuery");
-      }
-    }
-   
+    }   
   }
   
   protected void execute () {
-    
     Collection removedRemoteAggQuery=null;
     Collection capabilitiesCollection=null;
     Collection newRemoteAggQuery=null;
@@ -226,17 +222,29 @@ public class MnRAggQueryReceiverPlugin extends MnRAggQueryBase  {
       query relays only at agent with role "Root"
     */
     if(capabilities.hasChanged()) {
-      if(amIRoot()) {
-        if (loggingService.isDebugEnabled()) {
-          loggingService.debug("MnRAggQueryReceiverPlugin  Capabilities HAS CHANGED ----");
-        }
-        capabilitiesCollection=capabilities.getChangedCollection();
-        if(capabilitiesCollection.size()>0){
-          Iterator i=capabilitiesCollection.iterator();
-          if(i.hasNext()) {
-            capabilitiesTable=(CapabilitiesObject) i.next();
-          } 
-          processPersistentQueries(capabilitiesTable);
+      capabilitiesCollection=capabilities.getChangedCollection();
+      if (!capabilitiesCollection.isEmpty()) {
+        if (isRootReady()) {
+          if (_capabilities != null) {
+            if (amIRoot()) {
+              processPersistentQueries(_capabilities);
+            }
+            _capabilities = null;
+          }
+          if(amIRoot()) {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug("MnRAggQueryReceiverPlugin  Capabilities " +
+                                   " HAS CHANGED ----");
+            }
+            capabilitiesTable=(CapabilitiesObject)
+              capabilitiesCollection.iterator().next();
+            processPersistentQueries(capabilitiesTable);
+            return;
+          }
+        } else {
+          // root is not ready... store for later
+          _capabilities = (CapabilitiesObject)
+            capabilitiesCollection.iterator().next();
           return;
         }
       }

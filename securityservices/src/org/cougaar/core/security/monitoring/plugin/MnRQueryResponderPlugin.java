@@ -96,15 +96,18 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
   private IncrementalSubscription queryResponse;
   private IncrementalSubscription querymapping;
   
-  protected void setupSubscriptions() {
+  protected synchronized void setupSubscriptions() {
   
     super.setupSubscriptions();
-    loggingService.debug("setupSubscriptions of MnRQueryResponderPlugin called : "+ myAddress.toString());
-    queryResponse= (IncrementalSubscription)getBlackboardService().subscribe(new QueryRespondRelayPredicate(myAddress));
-    querymapping= (IncrementalSubscription)getBlackboardService().subscribe(new QueryMappingObjectPredicate());
+    loggingService.debug("setupSubscriptions of MnRQueryResponderPlugin " +
+                         "called : "+ myAddress);
+    queryResponse = (IncrementalSubscription)getBlackboardService().
+      subscribe(new QueryRespondRelayPredicate(myAddress));
+    querymapping = (IncrementalSubscription)getBlackboardService().
+      subscribe(new QueryMappingObjectPredicate());
   }
   
-  protected void execute () {
+  protected synchronized void execute () {
     Collection addedQueryMappingCollection;
     if(querymapping.hasChanged()) {
       addedQueryMappingCollection=querymapping.getAddedCollection();
@@ -203,48 +206,51 @@ public class MnRQueryResponderPlugin extends MnRQueryBase {
     }// end while
   }
 
-  private void processLocalSensors(CapabilitiesObject capObj,CmrRelay relay) {
-    String key=null;
-    RegistrationAlert reg;
-    MessageAddress dest_address;
-    MRAgentLookUp query;
-    if(relay!=null){
-      query=(MRAgentLookUp)relay.getContent();
-    }
-    else{
+  private void processLocalSensors(final CapabilitiesObject capObj,
+                                   final CmrRelay relay) {
+    if (relay == null) {
       loggingService.error("Relay was null in processLocalSensors:");
       return;
     }
-    List res= findAgent(query,capObj,true);
-    if(res.isEmpty()) {
-      if (loggingService.isDebugEnabled()) {
-        loggingService.debug("No Local agents are present with the capabilities. Returning");
-      }
-      relay.updateResponse(relay.getSource(),new MRAgentLookUpReply(new ArrayList()));
-      getBlackboardService().publishChange(relay);
-      return;
-    }
-    if (loggingService.isDebugEnabled()) {
-      loggingService.debug("Local agents are present with the capabilities. no of agents are :"+
-          res.size());
-    }
-    Iterator response_iterator=res.iterator();
-    ArrayList relay_uid_list=new ArrayList();
-    while(response_iterator.hasNext()) {
-      key=(String)response_iterator.next();
-      //reg=(RegistrationAlert)capabilities.get(key);
-      dest_address=MessageAddress.getMessageAddress(key);
-      if (loggingService.isDebugEnabled()) {
-        loggingService.debug("Adding sensor agent to response :"+ dest_address.toString());
-      }
-      relay_uid_list.add(dest_address);
-    }
-    if (loggingService.isDebugEnabled()) {
-      loggingService.debug("Update response is being done for source :"+relay.getSource().toString() );
-    }
-    relay.updateResponse(relay.getSource(),new MRAgentLookUpReply(relay_uid_list));
-    loggingService.debug("Update response is being done for relay :"+relay.toString());
-    getBlackboardService().publishChange(relay); 
+    final MRAgentLookUp query = (MRAgentLookUp)relay.getContent();
+    FindAgentCallback fac = new FindAgentCallback() {
+        public void execute(Collection res) {
+          String key=null;
+          RegistrationAlert reg;
+          MessageAddress dest_address;
+          if(res.isEmpty()) {
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug("No Local agents are present with the capabilities. Returning");
+            }
+            relay.updateResponse(relay.getSource(),new MRAgentLookUpReply(new ArrayList()));
+            getBlackboardService().publishChange(relay);
+            return;
+          }
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug("Local agents are present with the capabilities. no of agents are :"+
+                                 res.size());
+          }
+          Iterator response_iterator=res.iterator();
+          ArrayList relay_uid_list=new ArrayList();
+          while(response_iterator.hasNext()) {
+            key=(String)response_iterator.next();
+            //reg=(RegistrationAlert)capabilities.get(key);
+            dest_address=MessageAddress.getMessageAddress(key);
+            if (loggingService.isDebugEnabled()) {
+              loggingService.debug("Adding sensor agent to response :"+ dest_address.toString());
+            }
+            relay_uid_list.add(dest_address);
+          }
+          if (loggingService.isDebugEnabled()) {
+            loggingService.debug("Update response is being done for source :"+relay.getSource().toString() );
+          }
+          relay.updateResponse(relay.getSource(),new MRAgentLookUpReply(relay_uid_list));
+          loggingService.debug("Update response is being done for relay :"+relay.toString());
+          getBlackboardService().publishChange(relay); 
+        }
+      };
+    findAgent(query,capObj,true, fac);
+    
   }
   
   public boolean findQueryStatus(QueryMapping map) {

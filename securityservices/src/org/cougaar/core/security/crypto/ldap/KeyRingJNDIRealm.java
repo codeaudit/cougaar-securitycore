@@ -752,11 +752,15 @@ public class KeyRingJNDIRealm extends RealmBase implements BlackboardClient {
     }
     */
 
+    String exceptionString = null;
+    if (ex != null) {
+      exceptionString = ex.toString();
+    }
     String [] targets = new String[] {url, new Integer(serverPort).toString(), protocol, userName};
     FailureEvent event = new LoginFailureEvent(new String[]{remoteAddr},
                                               targets,
                                               LoginFailureEvent.FAILURE_REASONS[failureType],
-                                              ex.toString());
+                                              exceptionString);
     LoginFailureSensor.publishEvent(event);
   }
 

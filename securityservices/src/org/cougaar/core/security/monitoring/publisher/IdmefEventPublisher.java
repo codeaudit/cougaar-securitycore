@@ -40,6 +40,8 @@ import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.plugin.UnknownSensorInfo;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.AdditionalData;
@@ -77,15 +79,18 @@ public class IdmefEventPublisher implements EventPublisher {
   /**
    * Constructor
    */
-  public IdmefEventPublisher(BlackboardService bbs, CmrFactory cmrFactory,
-    LoggingService logger, SensorInfo info) {
-    m_blackboard = bbs;
-    m_logger = logger;
-    m_cmrFactory = cmrFactory;
-    m_idmefFactory = m_cmrFactory.getIdmefMessageFactory();
-    m_sensorInfo = info;
+  public IdmefEventPublisher(BlackboardService bbs, SecurityContextService scs, 
+    CmrFactory cmrFactory, LoggingService logger, SensorInfo info) {
+    _blackboard = bbs;
+    _scs = scs;
+    _logger = logger;
+    _cmrFactory = cmrFactory;
+    _idmefFactory = _cmrFactory.getIdmefMessageFactory();
+    _sensorInfo = info;
+    // get the sensor's execution context
+    _ec = _scs.getExecutionContext();
   }
-
+  
   /**
    * method to publish an IDMEF message based on the events in the Collection.
    *
@@ -94,25 +99,14 @@ public class IdmefEventPublisher implements EventPublisher {
   public void publishEvents(List events) {
     if((events == null ||
         events.size() == 0)){
-      if(m_logger != null) {
-        m_logger.warn("event list is empty!");
+      if(_logger != null) {
+        _logger.warn("event list is empty!");
       }
       return;
     }
-
-    if(m_blackboard != null) {
-      boolean debug = m_logger.isDebugEnabled();
-      Iterator i = events.iterator();
-      while(i.hasNext()) {
-        FailureEvent evt = (FailureEvent)i.next();
-        if(debug) {
-          m_logger.debug("publishing message failure:\n" + evt);
-        }
-        Event e = createIDMEFAlert(evt);
-        m_blackboard.openTransaction();
-        m_blackboard.publishAdd(e);
-        m_blackboard.closeTransaction();
-      }
+    Iterator i = events.iterator();
+    while(i.hasNext()) {
+      publishEvent((FailureEvent)i.next());
     }
   }
 
@@ -122,31 +116,29 @@ public class IdmefEventPublisher implements EventPublisher {
    * @param event a failure event
    */
   public void publishEvent(final FailureEvent event) {
-      Thread tt = new Thread() {
-	      public void run() {
-		  boolean openTransaction=false;
-		  if(event == null){
-		      if(m_logger != null) {
-			  m_logger.warn("no event to publish!");
-		      }
-		      return;
+    //boolean openTransaction = false;
+    if(event == null){
+      if(_logger != null) {
+			  _logger.warn("no event to publish!");
 		  }
-		  if(m_blackboard != null) {
-		      if(m_logger.isDebugEnabled()) {
-			  m_logger.debug("publishing message failure:\n" + event);
-		      }
-		      openTransaction= m_blackboard.isTransactionOpen();
-		      if(!openTransaction) {
-			  m_blackboard.openTransaction();
-		      }
-		      m_blackboard.publishAdd(createIDMEFAlert(event));
-		      if(!openTransaction) {
-			  m_blackboard.closeTransaction();
-		      }
+		  return;
+		}
+		
+		if(_blackboard != null) {
+		  if(_logger.isDebugEnabled()) {
+			  _logger.debug("publishing message failure:\n" + event);
 		  }
-	      }
-	  };
-      tt.start();
+		  //openTransaction= _blackboard.isTransactionOpen();
+		  //if(!openTransaction) {
+		  _scs.setExecutionContext(_ec);
+			_blackboard.openTransaction();
+		  //}
+		  _blackboard.publishAdd(createIDMEFAlert(event));
+		    //if(!openTransaction) {
+		  _blackboard.closeTransaction();
+		  _scs.resetExecutionContext();
+		    //}
+	  }
   }
 
   /**
@@ -168,81 +160,85 @@ public class IdmefEventPublisher implements EventPublisher {
     // create source information for the IDMEF event
     if(src != null) {
       List sRefList = new ArrayList(1);
-      Address sAddr = m_idmefFactory.createAddress(src, null, Address.URL_ADDR);
+      Address sAddr = _idmefFactory.createAddress(src, null, Address.URL_ADDR);
       sources = new ArrayList(1);
-      s = m_idmefFactory.createSource(null, null, null, null, null);
+      s = _idmefFactory.createSource(null, null, null, null, null);
       sRefList.add(s.getIdent());
-      sAgent = m_idmefFactory.createAgent(src, null, null, sAddr, sRefList);
+      sAgent = _idmefFactory.createAgent(src, null, null, sAddr, sRefList);
       sources.add(s);
     }
     // create target information for the IDMEF event
     if(tgt != null) {
       List tRefList = new ArrayList(1);
-      Address tAddr = m_idmefFactory.createAddress(tgt, null, Address.URL_ADDR);
+      Address tAddr = _idmefFactory.createAddress(tgt, null, Address.URL_ADDR);
       targets = new ArrayList(1);
-      t = m_idmefFactory.createTarget(null, null, null, null, null, null);
+      t = _idmefFactory.createTarget(null, null, null, null, null, null);
       tRefList.add(t.getIdent());
-      tAgent = m_idmefFactory.createAgent(tgt, null, null, tAddr, tRefList);
+      tAgent = _idmefFactory.createAgent(tgt, null, null, tAddr, tRefList);
       targets.add(t);
     }
     // add the event classification to the classification list
-    classifications.add(m_idmefFactory.createClassification(event.getClassification(), null));
+    classifications.add(_idmefFactory.createClassification(event.getClassification(), null));
     String reason = event.getReason();
     String evtData = event.getData();
     if(reason != null) {
-      data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
+      data.add(_idmefFactory.createAdditionalData(AdditionalData.STRING,
 			                                             event.getReasonIdentifier(),
 			                                             event.getReason()));
     }
     if(evtData != null) {
-      data.add(m_idmefFactory.createAdditionalData(AdditionalData.STRING,
+      data.add(_idmefFactory.createAdditionalData(AdditionalData.STRING,
 		                                               event.getDataIdentifier(),
 			                                             event.getData()));
     }
     // since there isn't a data model for cougaar Agents, the Agent object is
     // added to the AdditionalData of an IDMEF message
     if(sAgent != null) {
-      data.add(m_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
+      data.add(_idmefFactory.createAdditionalData(Agent.SOURCE_MEANING, sAgent));
     }
     if(tAgent != null) {
-      data.add(m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
+      data.add(_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, tAgent));
     }
     // check if any data has been added to the additional data
     if(data.size() == 0) {
       data = null;
     }
     // create the alert for this event
-    Alert alert = m_idmefFactory.createAlert(m_sensorInfo,
+    Alert alert = _idmefFactory.createAlert(_sensorInfo,
                                              event.getDetectTime(),
                                              sources,
                                              targets,
                                              classifications,
                                              data);
     /*
-    if(m_logger.isDebugEnabled()) {
+    if(_logger.isDebugEnabled()) {
       try {
-        m_logger.debug("Alert in XML format:\n");
-        DocumentBuilder m_docBuilder =
+        _logger.debug("Alert in XML format:\n");
+        DocumentBuilder _docBuilder =
           DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = m_docBuilder.newDocument();
+        Document document = _docBuilder.newDocument();
         document.appendChild(alert.convertToXML(document));
-        m_logger.debug(XMLUtils.doc2String(document));
+        _logger.debug(XMLUtils.doc2String(document));
       }
       catch( Exception e ){
         e.printStackTrace();
       }
     }
     */
-    return m_cmrFactory.newEvent(alert);
+    return _cmrFactory.newEvent(alert);
   }
 
   // service needed to publish idmef messages
-  protected BlackboardService m_blackboard = null;
+  protected BlackboardService _blackboard = null;
+  // service used to track the security context
+  protected SecurityContextService _scs = null;
   // service needed to do some appropriate logging
-  protected LoggingService m_logger = null;
+  protected LoggingService _logger = null;
   // factory used to create events that are published to the blackboard
-  protected CmrFactory m_cmrFactory = null;
+  protected CmrFactory _cmrFactory = null;
   // factory used to create idmef objects
-  protected IdmefMessageFactory m_idmefFactory = null;
-  protected SensorInfo m_sensorInfo = null;
+  protected IdmefMessageFactory _idmefFactory = null;
+  protected SensorInfo _sensorInfo = null;
+  private final ExecutionContext _ec;
 }
+ 

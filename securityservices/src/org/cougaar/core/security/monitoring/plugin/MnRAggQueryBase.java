@@ -36,6 +36,7 @@ import org.cougaar.core.mts.MessageAddress;
 import org.cougaar.core.service.*;
 import org.cougaar.core.service.community.*;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 import org.cougaar.core.util.UID;
 
@@ -48,6 +49,8 @@ import org.cougaar.core.security.monitoring.util.DrillDownQueryConstants;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TimerTask;
 
 
 
@@ -93,7 +96,8 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
   protected DomainService domainService;
   protected MessageAddress myAddress;
   protected CommunityServiceUtil _csu;
-  private Boolean _isRoot;
+  private boolean _isRoot;
+  private boolean _rootReady;
   /**
    * Used by the binding utility through reflection to set my DomainService
    */
@@ -132,24 +136,27 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
 
 
   protected void setupSubscriptions() {
-    
-    myAddress = getAgentIdentifier();
-    if(loggingService == null) {
-      loggingService = (LoggingService)
-        getServiceBroker().getService(this, LoggingService.class, null); 
+    if (myAddress == null) {
+      myAddress = getAgentIdentifier();
+      if(loggingService == null) {
+        loggingService = (LoggingService)
+          getServiceBroker().getService(this, LoggingService.class, null); 
+      }
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug("setupSubscriptions of MnRAggResponseAggregator called :"
+                             + myAddress.toString());
+      }
+      _csu = new CommunityServiceUtil(getServiceBroker());
+      _csu.amIRoot(new RootListener());
     }
-    if (loggingService.isDebugEnabled()) {
-      loggingService.debug("setupSubscriptions of MnRAggResponseAggregator called :"
-                           + myAddress.toString());
-    }
-    _csu = new CommunityServiceUtil(getServiceBroker());
   }
   
+  protected boolean isRootReady() {
+    return _rootReady;
+  }
+
   protected boolean amIRoot() {
-    if (_isRoot == null) {
-      _isRoot = new Boolean(_csu.amIRoot(myAddress.toString()));
-    }
-    return _isRoot.booleanValue();
+    return _isRoot;
   } 
   
   protected AggQueryMapping findAggQueryMappingFromBB(UID givenUID, Collection aggQueryMappingCol ) {
@@ -211,4 +218,26 @@ public abstract class MnRAggQueryBase extends ComponentPlugin {
     
   } 
    
+  private class RootListener 
+    extends TimerTask
+    implements CommunityServiceUtilListener {
+    public void getResponse(Set entities) {
+      _isRoot = !(entities == null || entities.isEmpty());
+      _rootReady = true;
+      loggingService.info("The agent " + myAddress + " is root? " + _isRoot);
+      ThreadService ts = (ThreadService)
+        getServiceBroker().getService(this, ThreadService.class, null);
+      ts.schedule(this, 0);
+      getServiceBroker().releaseService(this, ThreadService.class, ts);
+    }
+
+    public void run() {
+      getBlackboardService().openTransaction();
+      try {
+        execute();
+      } finally {
+        getBlackboardService().closeTransaction();
+      }
+    }
+  }
 }

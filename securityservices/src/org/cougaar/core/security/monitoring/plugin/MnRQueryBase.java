@@ -38,6 +38,7 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.security.monitoring.blackboard.*;
 import org.cougaar.core.security.monitoring.idmef.*;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 //IDMEF
 import edu.jhuapl.idmef.*;
@@ -48,7 +49,10 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.TimerTask;
+import java.util.Collections;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
@@ -59,7 +63,8 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   protected CommunityServiceUtil _csu;
   protected MessageAddress myAddress;
  
-  private Boolean _isRoot;
+  private boolean _isRoot;
+  private boolean _rootReady;
  
   /**
    * Used by the binding utility through reflection to set my DomainService
@@ -98,22 +103,26 @@ public abstract class MnRQueryBase extends ComponentPlugin {
   }
   
   protected void setupSubscriptions() {
-    myAddress = getAgentIdentifier();
-    if(loggingService == null) {
-      loggingService = (LoggingService)
-        getServiceBroker().getService(this, LoggingService.class, null); 
+    if (myAddress == null) {
+      myAddress = getAgentIdentifier();
+      if(loggingService == null) {
+        loggingService = (LoggingService)
+          getServiceBroker().getService(this, LoggingService.class, null); 
+      }
+      _csu = new CommunityServiceUtil(getServiceBroker());
+
+      _csu.amIRoot(new RootListener());
     }
-    _csu = new CommunityServiceUtil(getServiceBroker());
-    
   }
 
-  protected synchronized boolean amIRoot() {
-    if (_isRoot == null) {
-      _isRoot = new Boolean(_csu.amIRoot(myAddress.toString()));
-    }
-    return _isRoot.booleanValue();
+  protected boolean amIRoot() {
+    return _isRoot;
   } 
 
+  protected boolean isRootReady() {
+    return _rootReady;
+  } 
+  
 /*
   protected Community getMySecurityCommunity() {   
     Community mySecurityCommunity= _csu.getSecurityCommunity(myAddress.toString());
@@ -130,15 +139,20 @@ public abstract class MnRQueryBase extends ComponentPlugin {
    * @param sensors - true when the search is performed on the local sensors.
    *                  false when the search is performed on the subordinate managers.
    */
-  protected List findAgent(MRAgentLookUp query, CapabilitiesObject caps, boolean sensors) {
+  protected void findAgent(final MRAgentLookUp query, 
+                           final CapabilitiesObject caps, 
+                           final boolean sensors, 
+                           final FindAgentCallback callback) {
   
     if(query==null) {
       loggingService.error("Query was null in findAgent. Sensor type :"+sensors);
-      return new ArrayList();
+      callback.execute(Collections.EMPTY_LIST);
+      return;
     }
     if(caps==null) {
       loggingService.error("Capabilities was null returning");
-      return  new ArrayList();
+      callback.execute(Collections.EMPTY_LIST);
+      return;
     }
     if(sensors){
       loggingService.debug("Looking for Local Sensors");
@@ -148,62 +162,75 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     }
     
     //printhash(caps);
+    String community=query.community;
+    String role=query.role;
+    loggingService.debug("Query receive in  findAgent is :"+ query.toString());
+
+    if (community != null) {
+      CommunityServiceUtilListener listener = 
+        new CommunityServiceUtilListener() {
+          public void getResponse(Set agents) {
+            finishFindAgent(query, caps, sensors, agents, callback);
+          }
+        };
+      if (loggingService.isDebugEnabled()) {
+        loggingService.debug("Searching with community (" +
+                             community + ") and role (" +
+                             role + ")");
+      }
+      if (role != null) {
+        searchByCommunityAndRole(community, role, listener);
+      } else {
+        searchByCommunity(community, listener); 
+      }
+    } else if (role!=null)  {
+      loggingService.error("Cannot search by role only. " + 
+                           "A community name must be provided.");
+      callback.execute(Collections.EMPTY_LIST);
+    } else {
+      finishFindAgent(query, caps, sensors, Collections.EMPTY_LIST, callback);
+    }
+  }
+
+  private void finishFindAgent(MRAgentLookUp query, CapabilitiesObject caps, 
+                               boolean sensors, Collection commagents,
+                               FindAgentCallback callback) {
     Enumeration keys=caps.keys();
     Classification queryClassification=query.classification;
     Source querySource=query.source;
     Target queryTarget=query.target;
-    String community=query.community;
-    String role=query.role;
     String sourceOfAttack=query.source_agent;
     String targetOfAttack=query.target_agent;
-    loggingService.debug("Query receive in  findAgent is :"+ query.toString());
-    ArrayList commagents=new ArrayList();
-    if((community!=null) && (role!=null)) {
-      //  loggingService.debug("Searching with community and role combination :");
-      commagents=(ArrayList)searchByCommunityAndRole(community,role);
-    }
-    else if((community==null)&&(role!=null))  {
-      //loggingService.debug("Searching with  role Only :");
-      commagents=(ArrayList)searchByRole(role); 
-      
-    }
-    else if((role==null)&&(community!=null) ) {
-      //loggingService.debug("Searching with  community Only :");
-      commagents=(ArrayList)searchByCommunity(community); 
-    }
-    loggingService.debug("Printing result of community and role combination :");
-    for(int i=0;i<commagents.size();i++) {
-      //loggingService.debug("Community and Role result at i:" + i
-      //    +". Agent is :" +(String)commagents.get(i));  
-    }
-    ArrayList classagents;
-    ArrayList sourceagents;
-    ArrayList targetagents;
-    ArrayList sourceofAttackAgents;
-    ArrayList targetofAttackAgents;
-    ArrayList commonAgents=null;
-    classagents=(ArrayList)searchByClassification(queryClassification,caps,sensors);
+    String community=query.community;
+    String role=query.role;
+
+    List classagents;
+    List sourceagents;
+    List targetagents;
+    List sourceofAttackAgents;
+    List targetofAttackAgents;
+    Collection commonAgents=null;
+    classagents=searchByClassification(queryClassification,caps,sensors);
     // loggingService.debug("Size of result with classification is " +classagents.size() );
     
    
-    sourceagents=(ArrayList)searchBySource(querySource,caps,sensors);
+    sourceagents=searchBySource(querySource,caps,sensors);
     // loggingService.debug("Size of result with source  is :" +sourceagents.size() );
    
-    targetagents=(ArrayList)searchByTarget(queryTarget,caps,sensors);
+    targetagents=searchByTarget(queryTarget,caps,sensors);
     // loggingService.debug("Size of result with target is :" +targetagents.size() );
     
     //loggingService.debug("Size of result with target is :" +targetagents.size() );
-    sourceofAttackAgents=(ArrayList)searchBySourceOfAttack(sourceOfAttack,caps,sensors);
+    sourceofAttackAgents=searchBySourceOfAttack(sourceOfAttack,caps,sensors);
     //loggingService.debug("Size of result with source of ATTACK  is :" +sourceofAttackAgents.size() );
    
-    targetofAttackAgents=(ArrayList)searchByTargetOfAttack(targetOfAttack,caps,sensors);
+    targetofAttackAgents=searchByTargetOfAttack(targetOfAttack,caps,sensors);
     // loggingService.debug("Size of result with target of ATTACK  is :" +targetofAttackAgents.size() );
     
-    if(((community!=null) || (role!=null))&& (commagents.isEmpty())) {
+    if (((community!=null) || (role!=null))&& (commagents.isEmpty())) {
       loggingService.debug(" Community Rol combination is empty :");
-      commonAgents=new ArrayList();
-    }
-    else {
+      commonAgents=Collections.EMPTY_LIST;
+    } else {
       boolean iscomagentset=false;
       if((community!=null) || (role!=null)) {
         iscomagentset=true;
@@ -215,35 +242,35 @@ public abstract class MnRQueryBase extends ComponentPlugin {
         iscomagentset=true;
       }
       else {
-        commonAgents=(ArrayList)findCommanAgents(commagents,classagents);
+        commonAgents=findCommanAgents(commagents,classagents);
       }
       if(!iscomagentset) {
         commonAgents=sourceagents;
         iscomagentset=true;
       }
       else{
-        commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceagents);
+        commonAgents=findCommanAgents(commonAgents,sourceagents);
       }
       if(!iscomagentset) {
         commonAgents=targetagents;
         iscomagentset=true;
       }
       else {
-        commonAgents=(ArrayList)findCommanAgents(commonAgents,targetagents);
+        commonAgents=findCommanAgents(commonAgents,targetagents);
       }
       if(!iscomagentset) {
         commonAgents=sourceofAttackAgents;
         iscomagentset=true;
       }
       else {
-        commonAgents=(ArrayList)findCommanAgents(commonAgents,sourceofAttackAgents);
+        commonAgents=findCommanAgents(commonAgents,sourceofAttackAgents);
       }
       if(!iscomagentset) {
         commonAgents=targetofAttackAgents;
         iscomagentset=true;
       }
       else {
-        commonAgents=(ArrayList)findCommanAgents(commonAgents,targetofAttackAgents);
+        commonAgents=findCommanAgents(commonAgents,targetofAttackAgents);
       }
     }
     /*
@@ -252,30 +279,15 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       loggingService.debug("result at i:"+i +" agent is :"+(String)commonAgents.get(i));  
       }
      */
-    return commonAgents;
+    callback.execute(commonAgents);
     
   }
   
   
-  private List findCommanAgents(List list1,List list2) {
-    ArrayList commonList=new ArrayList();
-    /*
-      if(list1.isEmpty()) {
-      return list2;
-      }
-      if(list2.isEmpty()){
-      return list1;
-      }
-     */
-    Iterator iter=list1.iterator();
-    String agentname;
-    while(iter.hasNext()) {
-      agentname=(String)iter.next();
-      if(list2.contains(agentname)) {
-        commonList.add(agentname);
-      } 
-    }
-    return commonList;
+  private Collection findCommanAgents(Collection list1, Collection list2) {
+    HashSet common = new HashSet(list1);
+    common.retainAll(list2);
+    return common;
   }
   
   private List searchByClassification(Classification searchClassification,CapabilitiesObject caps, boolean sensors) {
@@ -667,156 +679,29 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     public Object value;
   }
 
-  protected List searchByCommunity (String community) {
-    ArrayList list=new ArrayList();
-    if(communityService==null) {
-      //loggingService.error(" Community Service is null in searchByCommunity " +myAddress.toString()); 
-      return list;
-    }
-    if(community==null) {
-      //loggingService.error("Community is null in searchByCommunity " +myAddress.toString()); 
-      return list;
-    }
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Community)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Community";
-	    loggingService.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Community) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    communityService.getCommunity(community, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      loggingService.error("Error in searchByCommunity:", ie);
-    }
-
-    Collection agents=((Community)status.value).getEntities();
-    Iterator agentiter=agents.iterator();
-    MessageAddress agent;
-    while(agentiter.hasNext()) {
-      agent=(MessageAddress)agentiter.next();
-      list.add(agent.toString());
-    }
-    
-    return list;
+  protected void searchByCommunity (String community,
+                                    CommunityServiceUtilListener callback) {
+    searchByCommunityAndRole(community, CommunityServiceUtil.MEMBER_ROLE,
+                             callback);
   }
 
-  protected List searchByRole(String role) {
-    ArrayList list=new ArrayList();
-    if(communityService==null) {
-      //loggingService.error(" Community Service is null in searchByRole " +myAddress.toString()); 
-      return list;
+  protected void searchByCommunityAndRole(String community, String role,
+                                          CommunityServiceUtilListener csul) {
+    if (communityService==null) {
+      loggingService.error("Community Service is null in " + 
+                           "searchByCommunityAndRole " + myAddress); 
+      csul.getResponse(Collections.EMPTY_SET);
+    } else if (community==null) {
+      loggingService.error("community is null in searchByCommunityAndRole " +
+                           myAddress); 
+      csul.getResponse(Collections.EMPTY_SET);
+    } if (role==null) {
+      loggingService.error("Role is null in searchByCommunityAndRole " +
+                           myAddress); 
+      csul.getResponse(Collections.EMPTY_SET);
+    } else {
+      _csu.getAgents(community, role, csul);
     }
-    if(role==null) {
-      loggingService.error(" Role  is null in searchByRole " +myAddress.toString()); 
-      return list;
-    }
-    
-    // This used to be:
-    //     Collection communities =communityService.listAllCommunities();
-    // However, listAllCommunities is no longer supported.
-    loggingService.warn("Query with empty community is no longer supported."
-      + " The community must be specified in the security console.");
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    loggingService.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(Role=" + role + ")";
-    Collection agents =
-      communityService.searchCommunity(null, filter, 
-                                       true, Community.AGENTS_ONLY, crl);
-    if (agents == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        loggingService.error("Error in searchByCommunity:", ie);
-      }
-      agents=(Set)status.value;
-    }
-
-    Iterator iter=agents.iterator();
-    while(iter.hasNext()) {
-      Entity entity = (Entity)iter.next();
-      list.add(entity.getName());
-    }
-    return list; 
-     
-  }
-  protected List searchByCommunityAndRole(String community,String role) {
-    ArrayList list= new ArrayList();
-    if(communityService==null) {
-      loggingService.error(" Community Service is null in searchByCommunityAndRole " +myAddress.toString()); 
-      return list;
-    }
-    if(community==null) {
-      loggingService.error(" community is null in searchByCommunityAndRole " +myAddress.toString()); 
-      return list;
-    } 
-    if(role==null) {
-      loggingService.error(" Role  is null in searchByCommunityAndRole " +myAddress.toString()); 
-      return list;
-    }
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    loggingService.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(Role=" + role + ")";
-    Collection agents =
-      communityService.searchCommunity(community, filter, true,
-                                       Community.AGENTS_ONLY, crl);
-    if (agents == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        loggingService.error("Error in searchByCommunity:", ie);
-      }
-      agents=(Set)status.value;
-    }
-
-    //Collection searchresult=communityService.searchByRole(community,role);
-    Iterator roleiter=agents.iterator();
-    while(roleiter.hasNext()) {
-      Entity entity = (Entity) roleiter.next();
-      list.add(entity.getName());
-    }	
-    return list;
   }
   
   protected boolean areClassificationsEqual(Classification existingclassification,Classification newclassification) {
@@ -1300,5 +1185,31 @@ public abstract class MnRQueryBase extends ComponentPlugin {
     }
     return relay;
   } 
-  
+
+  private class RootListener 
+    extends TimerTask
+    implements CommunityServiceUtilListener {
+    public void getResponse(Set entities) {
+      _isRoot = !(entities == null || entities.isEmpty());
+      _rootReady = true;
+      loggingService.info("The agent " + myAddress + " is root? " + _isRoot);
+      ThreadService ts = (ThreadService)
+        getServiceBroker().getService(this, ThreadService.class, null);
+      ts.schedule(this, 0);
+      getServiceBroker().releaseService(this, ThreadService.class, ts);
+    }
+
+    public void run() {
+      getBlackboardService().openTransaction();
+      try {
+        execute();
+      } finally {
+        getBlackboardService().closeTransaction();
+      }
+    }
+  }
+
+  public interface FindAgentCallback {
+    void execute(Collection agents);
+  }
 }

@@ -63,6 +63,7 @@ import org.cougaar.core.service.wp.Callback;
 import org.cougaar.core.service.wp.Response;
 
 // Cougaar security services
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.EncryptionService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
@@ -220,51 +221,6 @@ public class MessageProtectionServiceImpl
    *    message to the output stream.
    * 7) The encrypted message is actually sent over the network.
    *
-   * @param rawData     The unencrypted header
-   * @param source      The source of the message
-   * @param destination The destination of the message
-   * @return the protected header (sign and/or encrypted)
-   */
-  public byte[] protectHeader(byte[] rawData,
-			      MessageAddress source,
-			      MessageAddress target)
-    throws GeneralSecurityException, IOException
-  {
-    // decode the raw data until method changes...
-    ByteArrayInputStream bin = new ByteArrayInputStream(rawData);
-    ObjectInputStream oin = new ObjectInputStream(bin);
-    try {
-      MessageAttributes attributes = (MessageAttributes) oin.readObject();
-      return protectHeader(attributes, source, target);
-    } catch (IOException e) {
-      throw e;
-    } catch (ClassNotFoundException e) {
-      log.error("This shouldn't happen!");
-      return null;
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  /**
-   * Sign and/or encrypt the header of an outgoing message.
-   *
-   * When a message is sent out:
-   * 1) The aspect calls protectHeader().
-   * 2) The data protection service encrypts/signs the header.
-   *    It uses the information provided in the source and destination
-   *    to decide how to encrypt and/or sign.
-   * 3) The encrypted header is returned.
-   * 4) The aspect calls getOuputStream.
-   *    - The source and destination should be the same as what was found
-   *      in the call to protectHeader().
-   * 5) The service returns an output stream where the MTS will serialize
-   *    the clear-text message.
-   * 6) The service encrypts the message and write the encrypte/signed
-   *    message to the output stream.
-   * 7) The encrypted message is actually sent over the network.
-   *
    * @param attributes  The attributes to be protected
    * @param source      The source of the message
    * @param target      The destination of the message
@@ -331,6 +287,7 @@ public class MessageProtectionServiceImpl
                 " for agents " + source + " -> " + target +
                 " (" + policy + ")");
     }
+    
     try {
       ProtectedObject po =
         encryptService.protectObject(attributes, _localNode, targetNode, 
@@ -350,8 +307,8 @@ public class MessageProtectionServiceImpl
       // Don't throw a security exception, otherwise the MTS will never
       // retry to send the message.
       throw ioex;
-    } catch (Throwable t) {
-      t.printStackTrace();
+//     } catch (Throwable t) {
+//       t.printStackTrace();
     }
     oout.close();
     return bout.toByteArray();
@@ -514,6 +471,10 @@ public class MessageProtectionServiceImpl
     if (rawData == null) {
       throw new IOException("Empty header");
     }
+    if (!isInitialized) {
+      setPolicyService();
+    }
+
     ByteArrayInputStream bin = new ByteArrayInputStream(rawData);
     ObjectInputStream oin = new ObjectInputStream(bin);
     
@@ -553,10 +514,6 @@ public class MessageProtectionServiceImpl
       String sourceName = sourceNode.toAddress();
       String targetName = _localNode.toAddress();
     
-      if (!isInitialized) {
-        setPolicyService();
-      }
-
       SecureMethodParam policy;
       try {
         policy = (SecureMethodParam) oin.readObject();

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 Networks Associates Technology, Inc.
+ *  Copyright 1997-2003 Cougaar Software, Inc.
  *  under sponsorship of the Defense Advanced Research Projects
  *  Agency (DARPA).
  * 
@@ -44,14 +44,14 @@ public class KeyIdentity
   implements TransferableIdentity
 {
 
-  public KeyIdentity(X509Certificate asender,
+  public KeyIdentity(X509Certificate asender[],
 		     X509Certificate areceiver,
 		     MessageAddress areceiverAddress,
 		     MessageAddress asenderAddress,
 		     SecureMethodParam policy,
-		     byte[] sKey,
 		     byte[] sKeySender,
+		     byte[] sKeyReceiver,
 		     Object encObj) {
-    super(asender, areceiver, areceiverAddress, asenderAddress, policy, sKey, sKeySender, encObj);
+    super(asender, areceiver, areceiverAddress, asenderAddress, policy, sKeySender, sKeyReceiver, encObj);
   }
 }

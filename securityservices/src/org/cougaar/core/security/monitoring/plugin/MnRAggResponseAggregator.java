@@ -133,14 +133,15 @@ public class MnRAggResponseAggregator extends MnRAggQueryBase  {
   private DocumentBuilderFactory _parserFactory = 
   DocumentBuilderFactory.newInstance();
 
-  protected void setupSubscriptions() {
+  protected synchronized void setupSubscriptions() {
     super.setupSubscriptions();
     localResponse = (IncrementalSubscription)getBlackboardService().subscribe
       (new LocalResponsePredicate());
     remoteResponse=(IncrementalSubscription)getBlackboardService().subscribe
       (new  RemoteResponsePredicate(myAddress));
   }
-  protected void execute () {
+
+  protected synchronized void execute () {
     if(localResponse.hasChanged()) {
       Collection col=localResponse.getChangedCollection();
       if(!col.isEmpty()){

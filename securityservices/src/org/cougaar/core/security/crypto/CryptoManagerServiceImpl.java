@@ -57,18 +57,25 @@ import org.cougaar.core.security.policy.CryptoPolicy;
 import org.cougaar.core.security.ssl.KeyRingSSLServerFactory;
 import org.cougaar.core.security.util.ErasingMap;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 
 public class CryptoManagerServiceImpl
   implements EncryptionService
 {
   private static final MessageFormat MF = new MessageFormat("{0} -");
   private static final int DEFAULT_INIT_BUFFER_SIZE = 200;
+  private static final char KEY_LEN_DELIM = '#';
+  private static final char PROVIDER_DELIM_START = '{';
+  private static final char PROVIDER_DELIM_END   = '}';
+
 
   private KeyRingService keyRing;
+  private CertificateCacheService cacheService;
   private ServiceBroker serviceBroker;
   private LoggingService log;
   private Hashtable ciphers = new Hashtable();
   private Map _sent = new ErasingMap();
+  private Map _keyGenerators = new HashMap();
 
   /** A hashtable that contains encrypted session keys.
    *  The session keys may be used for multiple messages instead of having to generate and encrypt
@@ -85,6 +92,8 @@ public class CryptoManagerServiceImpl
       serviceBroker.getService(this,
 			       LoggingService.class, null);
     sessionKeys = new Hashtable();
+    cacheService = (CertificateCacheService) 
+      sb.getService(this, CertificateCacheService.class, null);
   }
 
   private PrivateKey getPrivateKey(String name) 
@@ -152,7 +161,8 @@ public class CryptoManagerServiceImpl
   }
 
   public Cipher getCipher(String spec)
-    throws NoSuchAlgorithmException, NoSuchPaddingException {
+    throws NoSuchAlgorithmException, NoSuchPaddingException,
+    NoSuchProviderException {
     ArrayList list;
     cipherTry++;
     if (log.isDebugEnabled()) {
@@ -175,7 +185,158 @@ public class CryptoManagerServiceImpl
         return (Cipher) list.remove(list.size() - 1);
       }
     }
-    return Cipher.getInstance(spec);
+    String alg = specToTransformation(spec);
+    String provider = specToProvider(spec);
+    if (provider == null) {
+      return Cipher.getInstance(alg);
+    } else {
+      return Cipher.getInstance(alg, provider);
+    }
+  }
+
+  public static String specToTransformation(String spec) {
+    int index = spec.indexOf('/');
+    int jndex = spec.indexOf(KEY_LEN_DELIM);
+    String alg;
+    if (jndex != -1) {
+      if (index != -1) {
+        alg = spec.substring(0,jndex) + spec.substring(index);
+      } else {
+        alg = spec.substring(0,jndex);
+      }
+    } else {
+      alg = spec;
+    }
+    index = alg.indexOf(PROVIDER_DELIM_START);
+    if (index != -1) {
+      return alg.substring(0, index);
+    }
+    return alg;
+  }
+
+  public int specToKeyLength(String spec) {
+    String origSpec = spec;
+    int index = spec.indexOf(PROVIDER_DELIM_START);
+    if (index != -1) {
+      spec = spec.substring(0,index);
+    }
+    index = spec.indexOf('/');
+    if (index != -1) {
+      spec = spec.substring(0,index);
+    }
+    index = spec.indexOf(KEY_LEN_DELIM);
+    if (index != -1) {
+      try {
+        return Integer.parseInt(spec.substring(index+1));
+      } catch (NumberFormatException e) {
+        log.error("Error getting key length of spec " + origSpec,
+                  e);
+      }
+    }
+    return -1;
+  }
+
+  public static String specToAlgorithm(String spec) {
+    int index = spec.indexOf(PROVIDER_DELIM_START);
+    if (index != -1) {
+      spec = spec.substring(0, index);
+    }
+    index = spec.indexOf('/');
+    if (index != -1) {
+      spec = spec.substring(0,index);
+    }
+    index = spec.indexOf(KEY_LEN_DELIM);
+    if (index != -1) {
+      spec = spec.substring(0, index);
+    }
+    return spec;
+  }
+
+  public static String specToProvider(String spec) {
+    int index = spec.indexOf(PROVIDER_DELIM_START);
+    if (index != -1) {
+      int jndex = spec.indexOf(PROVIDER_DELIM_END, index);
+      return spec.substring(index + 1, jndex);
+    }
+    return null;
+  }
+
+  /**
+   * Creates a secret key from a symmetric key spec.
+   * The spec format is similar to the algorithm
+   * used in the getInstance with two additions. The
+   * transformation (RC4/DES/etc) can be followed by
+   * a hyphen and key length. The provider can follow
+   * the entire algorithm in parentheses. A complex
+   * example is:<p>
+   * <tt>AES-192/CBC/WithCTS(BC)</tt>
+   * <p>
+   * The key length and provider are optional.
+   *
+   * @param spec The symmetric spec described above
+   * @return A new secret key following the given spec
+   */
+  public SecretKey createSecretKey(String spec) 
+    throws NoSuchAlgorithmException, NoSuchProviderException {
+    KeyGenerator kg;
+    String origSpec = spec;
+    synchronized (_keyGenerators) {
+      kg = (KeyGenerator) _keyGenerators.get(spec);
+      if (kg == null) {
+        int keyLen;
+        String alg;
+        String provider;
+        SecureRandom random = new SecureRandom();
+
+        int index = spec.indexOf(PROVIDER_DELIM_START);
+        if (index != -1) {
+          provider = spec.substring(index + 1, 
+                                    spec.indexOf(PROVIDER_DELIM_END, index));
+          spec = spec.substring(0, index);
+        } else {
+          provider = null;
+        }
+
+        index = spec.indexOf(KEY_LEN_DELIM);
+        int jndex = spec.indexOf('/');
+        if (index != -1) {
+          try {
+            if (jndex != -1) {
+              keyLen = Integer.parseInt(spec.substring(index + 1, jndex));
+            } else {
+              keyLen = Integer.parseInt(spec.substring(index + 1));
+            }
+          } catch (NumberFormatException e) {
+            log.error("Error getting key length of spec " + origSpec,
+                      e);
+            keyLen = -1;
+          }
+        } else {
+          index = jndex;
+          keyLen = -1;
+        }
+        if (index != -1) {
+          alg = spec.substring(0, index);
+        } else {
+          alg = spec;
+        }
+        
+        
+        if (provider != null) {
+          kg = KeyGenerator.getInstance(alg, provider);
+        } else {
+          kg = KeyGenerator.getInstance(alg);
+        }
+
+        if (keyLen != -1) {
+          kg.init(keyLen, random);
+        } else {
+          kg.init(random);
+        }
+        _keyGenerators.put(spec, kg);
+      }
+    }
+    return kg.generateKey();
   }
 
   public void returnCipher(String spec, Cipher cipher) {
@@ -265,7 +426,7 @@ public class CryptoManagerServiceImpl
 					 + " key is null. Unable to verify signature");
     }
 
-    List certList = Collections.singletonList(cert);
+    List certList = Collections.singletonList(new CertificateStatus(cert, null, null, null, null, null));
     Object o = verify(certList, obj, expiredOk, signatureIssues);
     if (o != null) {
       return o;
@@ -387,8 +548,8 @@ public class CryptoManagerServiceImpl
     Cipher ci = null;
     try {
       ci = getCipher(spec);
-      ci.init(Cipher.WRAP_MODE, key);
-      return ci.wrap(skey);
+      ci.init(Cipher.ENCRYPT_MODE, key);
+      return ci.doFinal(skey.getEncoded());
 //       SealedObject so = new SealedObject(obj,ci);
 //       return so;
     } finally {
@@ -426,7 +587,8 @@ public class CryptoManagerServiceImpl
       PrivateKey key = getPrivateKey(cert);
       ci=getCipher(spec);
       ci.init(Cipher.UNWRAP_MODE, key);
-      return (SecretKey) ci.unwrap(encKey, keySpec, Cipher.SECRET_KEY);
+      String alg = specToAlgorithm(keySpec);
+      return (SecretKey) ci.unwrap(encKey, alg, Cipher.SECRET_KEY);
     } finally {
       if (ci != null) {
         returnCipher(spec, ci);
@@ -498,7 +660,7 @@ public class CryptoManagerServiceImpl
     }
   }
 
-  public Object symmDecrypt(SecretKey sk, SealedObject obj){
+  public Object symmDecrypt(SecretKey sk, SealedObject obj, String spec){
     Object o = null;
     if (sk == null) {
       if (log.isErrorEnabled()) {
@@ -507,10 +669,9 @@ public class CryptoManagerServiceImpl
       return o;
     }
 
-    String alg = obj.getAlgorithm();
     Cipher ci = null;
     try{
-      ci = getCipher(alg);
+      ci = getCipher(spec);
       ci.init(Cipher.DECRYPT_MODE, sk);
       o = obj.getObject(ci);
       return o;
@@ -551,7 +712,7 @@ public class CryptoManagerServiceImpl
     }
     finally {
       if (ci != null) {
-        returnCipher(alg,ci);
+        returnCipher(spec,ci);
       }
     }
   }
@@ -734,9 +895,12 @@ public class CryptoManagerServiceImpl
     synchronized (targets) {
       SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
       // Find target & receiver certificates
-      Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), target.toAddress());
-      X509Certificate sender = (X509Certificate)certTable.get(source.toAddress());
-      X509Certificate receiver = (X509Certificate)certTable.get(target.toAddress());
+      Hashtable certTable = keyRing.findCertPairFromNS(source.toAddress(), 
+						       target.toAddress());
+      X509Certificate sender = (X509Certificate)
+	certTable.get(source.toAddress());
+      X509Certificate receiver = (X509Certificate)
+	certTable.get(target.toAddress());
       if (sender == null) {
 	String msg = "Cannot create session key. Sender certificate not found: "
 	  + source.toAddress();
@@ -753,17 +917,14 @@ public class CryptoManagerServiceImpl
 	}
 	throw new CertificateException(msg);
       }
+
       if (so == null || !so.receiverCert.equals(receiver) ||
           !so.senderCert.equals(sender)) {
 	/*generate the secret key*/
-	int i = policy.symmSpec.indexOf("/");
-	String a;
-	a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
-	SecureRandom random = new SecureRandom();
-	KeyGenerator kg = KeyGenerator.getInstance(a);
-	kg.init(random);
-	SecretKey sk = kg.generateKey();
-
+        SecretKey sk = createSecretKey(policy.symmSpec);
+	if (log.isDebugEnabled()) {
+	  log.debug("Generating new secret key: " + source + " -> " + target);
+	}
 
 	// Encrypt session key
 	byte[] secretReceiver = encryptSecretKey(policy.asymmSpec, sk, receiver);
@@ -771,6 +932,14 @@ public class CryptoManagerServiceImpl
 	so = new SessionKeySet(sk, secretSender, secretReceiver,
                                sender, receiver);
 	targets.put(target.toAddress(), so);
+	if (log.isDebugEnabled()) {
+	  log.debug("Encrypted secret key " + source + " -> " + target +
+		    " of " +
+		    ProtectedMessageInputStream.byteArray2String(sk.getEncoded()) +
+		    " to " +
+		    ProtectedMessageInputStream.byteArray2String(secretReceiver) +
+		    " using public key of " + receiver);
+	}
       }
       else {
 	skeyHit++;
@@ -796,7 +965,10 @@ public class CryptoManagerServiceImpl
     SecretKey sk = so.secretKey;
     SealedObject sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
 
-    pke = new PublicKeyEnvelope(so.senderCert, so.receiverCert, source, target, policy, secretReceiver, secretSender, sealedMsg);
+    pke = new PublicKeyEnvelope(keyRing.buildCertificateChain(so.senderCert),
+                                so.receiverCert,
+                                source, target, policy, secretSender,
+                                secretReceiver, sealedMsg);
     return pke;
   }
 
@@ -811,12 +983,16 @@ public class CryptoManagerServiceImpl
     }
 
     PublicKeyEnvelope envelope = null;
-
+    try {
     SessionKeySet so = getSessionKeySet(source, target, policy);
     byte[] secretReceiver = so.receiverSecretKey;
     byte[] secretSender = so.senderSecretKey;
     SecretKey sk = so.secretKey;
 
+    if (log.isDebugEnabled()) {
+      log.debug("Encrypting " + source + " -> " + target + ": " +
+		ProtectedMessageInputStream.byteArray2String(sk.getEncoded()));
+    }
     if(log.isDebugEnabled()) {
       log.debug("Signing object with " + source.toAddress() + " key");
     }
@@ -827,20 +1003,36 @@ public class CryptoManagerServiceImpl
       log.debug("Encrypting object");
     }
     // Encrypt object
-    SealedObject sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
-
+    SealedObject sealedObject;
+    try {
+    sealedObject = symmEncrypt(sk, policy.symmSpec, signedObject);
+    } catch (GeneralSecurityException e) {
+      log.shout("error!", e);
+      throw e;
+    } catch (RuntimeException e) {
+      log.shout("error!", e);
+      throw e;
+    } catch (Throwable e) {
+      log.shout("error!", e);
+      sealedObject = null;
+    }
     if(log.isDebugEnabled()) {
       log.debug("Looking up source & target certificate");
     }
 
+    envelope =
+      new PublicKeyEnvelope(keyRing.buildCertificateChain(so.senderCert),
+                            so.receiverCert, source, target, policy,
+			    secretSender, secretReceiver, sealedObject);
     if(log.isDebugEnabled()) {
-      log.debug("Creating secure envelope");
+      log.debug("Created secure envelope: " + envelope);
     }
 
-    envelope =
-      new PublicKeyEnvelope(so.senderCert, so.receiverCert, source, target, policy,
-			    secretReceiver, secretSender, sealedObject);
     return envelope;
+    } catch (Throwable e) {
+      log.shout("error!", e);
+      return null;
+    }
   }
 
   int cipherTry = 0;
@@ -881,13 +1073,16 @@ public class CryptoManagerServiceImpl
       SessionKeySet so = (SessionKeySet) targets.get(target.toAddress());
       if (so != null) {
 	keyHit++;
-	if (!so.receiverSecretKey.equals(envelope.getEncryptedSymmetricKey()) &&
-	    !so.senderSecretKey.equals(envelope.getEncryptedSymmetricKey())) {
+	if (!Arrays.equals(so.receiverSecretKey,
+			   envelope.getEncryptedSymmetricKey()) ||
+	    !Arrays.equals(so.senderSecretKey,
+			   envelope.getEncryptedSymmetricKeySender())) {
 	  so = null; // The key used is actually different - reset it.
 	} else {
 	  sk = so.secretKey;
 	}
       }
+
       if (sk != null) {
 	return sk;
       }
@@ -903,7 +1098,7 @@ public class CryptoManagerServiceImpl
       if (envelope.getEncryptedSymmetricKey() == null) {
 	log.warn("EncryptedSymmetricKey of receiver null");
       }
-      X509Certificate sender = envelope.getSender();
+      X509Certificate sender[] = envelope.getSender();
       X509Certificate receiver = envelope.getReceiver();
 /*
       if (sender == null || receiver == null) {
@@ -913,12 +1108,24 @@ public class CryptoManagerServiceImpl
       }
 */
       if (sender != null && receiver != null) {
+        keyRing.checkCertificateTrust(receiver);
+        for (int i = sender.length - 1; i >= 0; i--) {
+          keyRing.checkCertificateTrust(sender[i]);
+          cacheService.addSSLCertificateToCache(sender[i]);
+        }
 	try {
 	  sk = (SecretKey)
 	    decryptSecretKey(policy.asymmSpec,
 			     envelope.getEncryptedSymmetricKey(),
 			     policy.symmSpec,
 			     receiver);
+	  if (log.isDebugEnabled()){
+	    log.debug("Decrypted secret key " + source + " -> " + target +
+		      " from " +
+		      ProtectedMessageInputStream.byteArray2String(envelope.getEncryptedSymmetricKey()) +
+		      " to " + ProtectedMessageInputStream.byteArray2String(sk.getEncoded()) +
+		      " using private key of " + receiver);
+	  }
 	} catch (GeneralSecurityException e) {
 	  // Try with the source address
 	  if (envelope.getEncryptedSymmetricKeySender() == null) {
@@ -929,19 +1136,20 @@ public class CryptoManagerServiceImpl
 	      decryptSecretKey(policy.asymmSpec,
 			       envelope.getEncryptedSymmetricKeySender(),
 			       policy.symmSpec,
-			       sender);
+			       sender[0]);
 	  } catch (GeneralSecurityException e2) {
 	    return null;
 	  }
 	}
       }
+      log.debug("decrypted secret key: " + sk);
 
       if (sk != null) {
 // 	byte[] secretReceiver = encryptSecretKey(policy.asymmSpec, sk, receiver);
 // 	byte[] secretSender = encryptSecretKey(policy.asymmSpec, sk, sender);
 	SessionKeySet sks = new SessionKeySet(sk, envelope.getEncryptedSymmetricKeySender(),
 					      envelope.getEncryptedSymmetricKey(),
-					      sender,  receiver);
+					      sender[0],  receiver);
 	targets.put(target.toAddress(), sks);
       }
     }
@@ -975,41 +1183,37 @@ public class CryptoManagerServiceImpl
 
     // Retrieve the secret key, which was encrypted using the public key
     // of the target.
-    SignedObject signedObject;
-    int tries = 0;
-    do {
-      if(log.isDebugEnabled()) {
-	log.debug("Retrieving secret key");
+    SignedObject signedObject = null;
+    if(log.isDebugEnabled()) {
+      log.debug("Retrieving secret key");
+    }
+    SecretKey sk = null;
+    try {
+      sk = getSecretKey(source, target, envelope, policy);
+      if (log.isDebugEnabled()){
+	log.debug("Decrypting " + source + " -> " + target + ": " +
+		  ProtectedMessageInputStream.byteArray2String(sk.getEncoded()));
       }
-      SecretKey sk = null;
-      try {
-	sk = getSecretKey(source, target, envelope, policy);
+    }
+    catch (Exception ex) {
+      if (log.isWarnEnabled()) {
+	log.warn("DecryptAndVerify: ", ex);
       }
-      catch (Exception ex) {
-	if (log.isWarnEnabled()) {
-	  log.warn("DecryptAndVerify: " + ex);
-	}
-      }
-      if (sk == null) {
-	if (log.isErrorEnabled()) {
-	  log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
-		    + " -> " + target.toAddress());
-	}
-	throw new DecryptSecretKeyException("can't get secret key.");
+    }
+    if (sk == null) {
+      if (log.isErrorEnabled()) {
+	log.error("DecryptAndVerify: unable to retrieve secret key. Msg:" + source.toAddress()
+		  + " -> " + target.toAddress());
       }
 
-      if(log.isDebugEnabled()) {
-	log.debug("Decrypting object");
-      }
-      // Decrypt the object
-      signedObject =
-	(SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject());
-      if (signedObject == null) {
-	tries++;
-	// clear the cache
- 	clearSecretKey(source, target);
-      }
-    } while (signedObject == null && tries < 3);
+    if(log.isDebugEnabled()) {
+      log.debug("Decrypting object");
+    }
+    // Decrypt the object
+    log.shout("decrypting " + sk.getAlgorithm() + " with " + policy.symmSpec);
+    signedObject =
+      (SignedObject)symmDecrypt(sk, (SealedObject)envelope.getObject(), 
+                                policy.symmSpec);
 
     if(log.isDebugEnabled()) {
       log.debug("Verifying signature");
@@ -1017,7 +1221,8 @@ public class CryptoManagerServiceImpl
     // Verify the signature
     Object o = null;
     try {
-      o = verify(envelope.getSender(), policy.signSpec, signedObject, false);
+      o = verify(envelope.getSender()[0], policy.signSpec, 
+                 signedObject, false);
     }
     catch (CertificateException e) {
       if(log.isErrorEnabled()) {
@@ -1057,7 +1262,7 @@ public class CryptoManagerServiceImpl
     }
     // Decrypt the object
     Object o =
-      symmDecrypt(sk, (SealedObject)envelope.getObject());
+      symmDecrypt(sk, (SealedObject)envelope.getObject(), policy.symmSpec);
     return o;
   }
 

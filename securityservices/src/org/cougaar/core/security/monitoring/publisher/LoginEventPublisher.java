@@ -37,6 +37,7 @@ import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.LoginFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.UnknownSensorInfo;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 
 import edu.jhuapl.idmef.Alert;
 import edu.jhuapl.idmef.AdditionalData;
@@ -62,9 +63,9 @@ import java.util.HashMap;
 
 public class LoginEventPublisher extends IdmefEventPublisher {
 
-  public LoginEventPublisher(BlackboardService bbs, CmrFactory cmrFactory,
-    LoggingService logger, SensorInfo info) {
-    super(bbs, cmrFactory, logger, info);
+  public LoginEventPublisher(BlackboardService bbs, SecurityContextService scs, 
+    CmrFactory cmrFactory, LoggingService logger, SensorInfo info) {
+    super(bbs, scs, cmrFactory, logger, info);
   }
 
   private List createClassifications() {
@@ -75,12 +76,12 @@ public class LoginEventPublisher extends IdmefEventPublisher {
 
   private List createSources(String remoteAddr) {
     List addrs = new ArrayList();
-    Address addr = m_idmefFactory.createAddress( remoteAddr, null,
+    Address addr = _idmefFactory.createAddress( remoteAddr, null,
                                                 Address.IPV4_ADDR );
     addrs.add(addr);
-    IDMEF_Node node = m_idmefFactory.createNode( null, addrs );
+    IDMEF_Node node = _idmefFactory.createNode( null, addrs );
 
-    Source src = m_idmefFactory.createSource(node, null, null, null, null);
+    Source src = _idmefFactory.createSource(node, null, null, null, null);
 
     List srcs = new ArrayList();
     srcs.add(src);
@@ -89,7 +90,7 @@ public class LoginEventPublisher extends IdmefEventPublisher {
 
   private List createTargets(String url, int serverPort, String protocol,
                              String userName) {
-    IDMEF_Node node = m_idmefFactory.getNodeInfo();
+    IDMEF_Node node = _idmefFactory.getNodeInfo();
     List addrs = new ArrayList();
     if (node.getAddresses() != null) {
       Address[] a = node.getAddresses();
@@ -98,24 +99,24 @@ public class LoginEventPublisher extends IdmefEventPublisher {
       } // end of for (int i = 0; i < a.length; i++)
     }
 
-    addrs.add(m_idmefFactory.createAddress(url, null, Address.URL_ADDR));
+    addrs.add(_idmefFactory.createAddress(url, null, Address.URL_ADDR));
 
-    node = m_idmefFactory.createNode(node.getName(), addrs);
+    node = _idmefFactory.createNode(node.getName(), addrs);
 
-    IDMEF_Process process = m_idmefFactory.getProcessInfo();
-    Service service = m_idmefFactory.createService("Cougaar Web Server",
+    IDMEF_Process process = _idmefFactory.getProcessInfo();
+    Service service = _idmefFactory.createService("Cougaar Web Server",
                                                   new Integer(serverPort),
                                                   protocol);
 
     User user = null;
     List uids = new ArrayList();
     if (userName != null) {
-      uids.add(m_idmefFactory.createUserId( userName ));
+      uids.add(_idmefFactory.createUserId( userName ));
     }
     if (uids.size() > 0) {
-      user = m_idmefFactory.createUser( uids );
+      user = _idmefFactory.createUser( uids );
     }
-    Target target = m_idmefFactory.createTarget(node, user, process, service,
+    Target target = _idmefFactory.createTarget(node, user, process, service,
                                                null, null);
     List targets = new ArrayList();
     targets.add(target);
@@ -124,7 +125,7 @@ public class LoginEventPublisher extends IdmefEventPublisher {
 
   private List createAdditionalData(String reason, String targetIdent,
                                     String data) {
-    Agent agentinfo = m_idmefFactory.getAgentInfo();
+    Agent agentinfo = _idmefFactory.getAgentInfo();
     String [] ref=null;
     if (agentinfo.getRefIdents()!=null) {
       String[] originalref=agentinfo.getRefIdents();
@@ -138,14 +139,14 @@ public class LoginEventPublisher extends IdmefEventPublisher {
     agentinfo.setRefIdents(ref);
 
     AdditionalData additionalData =
-      m_idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
+      _idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
     List addData = new ArrayList();
-    addData.add(m_idmefFactory.
+    addData.add(_idmefFactory.
                 createAdditionalData(AdditionalData.STRING, LoginFailureEvent.FAILURE_REASON,
                                      reason));
     addData.add(additionalData);
     if (data != null) {
-      addData.add(m_idmefFactory.
+      addData.add(_idmefFactory.
                   createAdditionalData(AdditionalData.STRING,
                                        "Exception", data));
     }
@@ -172,11 +173,11 @@ public class LoginEventPublisher extends IdmefEventPublisher {
     List additionalData = createAdditionalData(
       event.getReasonIdentifier(), targetIdent,
       event.getDataIdentifier());
-    Alert alert = m_idmefFactory.createAlert(m_sensorInfo, new DetectTime(),
+    Alert alert = _idmefFactory.createAlert(_sensorInfo, new DetectTime(),
                                             sources, targets,
                                             classifications,
                                             additionalData);
 
-    return m_cmrFactory.newEvent(alert);
+    return _cmrFactory.newEvent(alert);
   }
 }

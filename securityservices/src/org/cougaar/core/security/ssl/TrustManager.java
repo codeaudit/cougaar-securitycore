@@ -214,7 +214,7 @@ public class TrustManager implements X509TrustManager {
       if (log.isWarnEnabled()) {
 	  log.warn("Failed to verify certificate: "
 		 + chain[0].getSubjectDN().getName()
-		 + ". Reason: " + e);
+		 + ". Reason: ", e);
       }
       throw new CertificateException("Failed to build chain.");
     }

@@ -1,0 +1,25 @@
+####################################################
+# Rule to insert JaasAgentBinder
+
+plugin = "org.cougaar.core.security.naming.servlet.NameServerCertificateComponent"
+servletComp = "org.cougaar.core.security.certauthority.CaServletComponent"
+servlet = "org.cougaar.core.security.certauthority.servlet.NameServerCertificateServlet"
+uri = "NameServerCertificateServlet"
+
+society.each_node do |node|
+  node.add_component do |c|
+      c.classname = plugin
+      c.add_argument(uri)
+  end
+end
+
+society.each_agent() do |agent|
+  if agent.name =~ /CaManager/
+    agent.add_component do |c|
+      c.classname = servletComp
+      c.add_argument(servlet)
+      c.add_argument("/CA/" + uri)
+    end
+  end
+end
+

@@ -263,6 +263,10 @@ public class PersistenceMgrPolicyServiceImpl
    */
    /*
   class PersistenceMgrSearchTask extends TimerTask  {
+
+  *** This is commented out. If you see this, then please change this
+  *** code to use CommunityServiceUtil!
+
     // list of persistence managers
     private List _agents;
     public PersistenceMgrSearchTask() {
@@ -289,10 +293,10 @@ public class PersistenceMgrPolicyServiceImpl
 
       String filter = "(& (CommunityType="+
 	CommunityServiceUtil.SECURITY_COMMUNITY_TYPE + ") (Role=" + PM_ROLE +") )";
-
       if (_log.isDebugEnabled()) {
         _log.debug("searching PM " + filter);
       }
+
       Collection communities = _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
 
       if (_log.isDebugEnabled()) {

@@ -113,6 +113,7 @@ final public class CertificateCache implements CertificateCacheService  {
   private NameMapping nameMapping;
   private CryptoClientPolicy cachecryptoClientPolicy;
   private CRLCacheServiceAvailableListener crlCacheServiceAvailable=null;
+  private CRLCacheService _crlCacheService;
    
 /** Cache to store strings containing revoked certificate DN, issuer DN, and serial number,
  * The certificate being revoked may not be in cert cache.
@@ -794,9 +795,6 @@ final public class CertificateCache implements CertificateCacheService  {
   /** Add a certificate to the cache */
   public CertificateStatus addCertificate(CertificateStatus certEntry)  {
 
-    CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
-                                                                              CRLCacheService.class,
-                                                                              null);
     CertificateStatus ret = certEntry;
     if(certEntry != null) {
       X509Certificate cert = certEntry.getCertificate();
@@ -834,9 +832,9 @@ final public class CertificateCache implements CertificateCacheService  {
       }
       ret = addCertStatus(list, certEntry, null);
       certsCache.put(principal.getName(), list);
-      if(crlCacheService!=null) {
+      if(_crlCacheService!=null) {
         if(certEntry.getCertificateType()==CertificateType.CERT_TYPE_CA) {
-          crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
+          _crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
           log.debug("Update CRL Cache with DN :"+ cert.getSubjectDN().getName());
         }
       }
@@ -1220,9 +1218,6 @@ final public class CertificateCache implements CertificateCacheService  {
       log.warn("Unable to add null certificate to cache");
       throw new IllegalArgumentException("Unable to add null certificate to cache");
     }
-    CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
-                                                                              CRLCacheService.class,
-                                                                              null);
     CertificateStatus certstatus = null;
     CertificateTrust trust = CertificateTrust.CERT_TRUST_UNKNOWN;
     try {
@@ -1260,9 +1255,9 @@ final public class CertificateCache implements CertificateCacheService  {
     // Update Common Name to DN hashtable
     nameMapping.addName(certstatus);
     if(certType == CertificateType.CERT_TYPE_CA) {
-      if(crlCacheService!=null) {
+      if(_crlCacheService!=null) {
         log.debug("Adding to  CRL cache dn:"+certificate.getSubjectDN().getName());
-        crlCacheService.addToCRLCache(certificate.getSubjectDN().getName());
+        _crlCacheService.addToCRLCache(certificate.getSubjectDN().getName());
       }
       else {
         log.debug ("CRL cache Service is NULL in addKeyToCache method  . Unable to update CRL cache for dn:"
@@ -1282,9 +1277,6 @@ final public class CertificateCache implements CertificateCacheService  {
       // Add the private key to the cache
       addPrivateKey(key, certstatus);
     }
-    serviceBroker.releaseService(this,
-                                 CRLCacheService.class,
-                                 crlCacheService);
     return certstatus;
   }
 
@@ -1375,9 +1367,6 @@ final public class CertificateCache implements CertificateCacheService  {
     String dname = sslCert.getSubjectDN().getName();
     X500Name x500name = CertificateUtility.getX500Name(dname);
     List certList = getCertificates(x500name);
-    CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.getService(this,
-                                                                              CRLCacheService.class,
-                                                                              null);
 
     // if found don't add it again
     if (certList != null && certList.size() != 0) {
@@ -1395,11 +1384,11 @@ final public class CertificateCache implements CertificateCacheService  {
                             certType,
                             CertificateTrust.CERT_TRUST_CA_SIGNED, null);
     if (log.isDebugEnabled()) {
-      log.debug("Update sslCert status in hash map.");
+      log.debug("Update sslCert status in hash map: " + dname);
     }
     if(certType == CertificateType.CERT_TYPE_CA ) {
-      if(crlCacheService!=null) {
-        crlCacheService.addToCRLCache(dname);
+      if(_crlCacheService!=null) {
+        _crlCacheService.addToCRLCache(dname);
       }
       else {
         log.warn("Unable to add ssl certificate to CRL Cache as cl Cache service is null:"+dname); 
@@ -1409,9 +1398,6 @@ final public class CertificateCache implements CertificateCacheService  {
     }
     addCertificate(certstatus);
     nameMapping.addName(certstatus);
-    serviceBroker.releaseService(this,
-                                 CRLCacheService.class,
-                                 crlCacheService);
   }
 
   public void removeEntryFromCache(String commonName) {
@@ -1658,10 +1644,10 @@ final public class CertificateCache implements CertificateCacheService  {
   public void updateCRLCache()  {
     
     log.debug(" UpdateCRLCache called from CRLCacheServiceAvailableListener");
-    CRLCacheService crlCacheService=(CRLCacheService)serviceBroker.
-      getService(this,
-                 CRLCacheService.class,
-                 null);
+    if (_crlCacheService == null) {
+      _crlCacheService=(CRLCacheService)
+        serviceBroker.getService(this, CRLCacheService.class, null);
+    }
     Enumeration e = certsCache.keys();
     while (e.hasMoreElements()) {
       String name = (String) e.nextElement();
@@ -1672,10 +1658,10 @@ final public class CertificateCache implements CertificateCacheService  {
         CertificateStatus cs = (CertificateStatus) it.next();
         if(cs!=null) {
           if(cs.getCertificateType()==CertificateType.CERT_TYPE_CA){
-            if(crlCacheService!=null) {
+            if(_crlCacheService!=null) {
               X509Certificate cert=cs.getCertificate();
               if(cert!=null) {
-                crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
+                _crlCacheService.addToCRLCache(cert.getSubjectDN().getName());
               }
               else {
                 log.warn("get certifcate with cs returned null for dn ="+name);

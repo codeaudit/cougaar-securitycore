@@ -58,21 +58,21 @@ public class PublicKeyEnvelope
   /** The certificate corresponding to the private key that was used
       to sign the object.
    */
-  private X509Certificate sender;
+  private X509Certificate sender[];
 
   private MessageAddress receiverAddress;
   private MessageAddress senderAddress;
 
-  public PublicKeyEnvelope(X509Certificate asender,
+  public PublicKeyEnvelope(X509Certificate asender[],
 			   X509Certificate areceiver,
 			   MessageAddress asenderAddress,
 			   MessageAddress areceiverAddress,
 			   SecureMethodParam policy,
-			   byte[] sKey,
 			   byte[] sKeySender,
+			   byte[] sKeyReceiver,
 			   Object encObj) {
     super(policy, encObj);
-    encryptedSymmetricKey = sKey;
+    encryptedSymmetricKey = sKeyReceiver;
     encryptedSymmetricKeySender = sKeySender;
 
     sender = asender;
@@ -93,7 +93,7 @@ public class PublicKeyEnvelope
   public X509Certificate getReceiver() {
     return receiver;
   }
-  public X509Certificate getSender() {
+  public X509Certificate[] getSender() {
     return sender;
   }
 

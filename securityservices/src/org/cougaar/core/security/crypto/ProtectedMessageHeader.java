@@ -58,14 +58,14 @@ public class ProtectedMessageHeader implements java.io.Serializable {
   /** The certificate corresponding to the private key that was used
    *  to sign the object.
    */
-  private X509Certificate _sender;
+  private X509Certificate _sender[];
 
   /**
    * The protection method
    */
   private SecureMethodParam _policy;
 
-  public ProtectedMessageHeader(X509Certificate sender,
+  public ProtectedMessageHeader(X509Certificate sender[],
                                 X509Certificate receiver,
                                 SecureMethodParam policy,
                                 byte[] sKey,
@@ -89,7 +89,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
   public X509Certificate getReceiver() {
     return _receiver;
   }
-  public X509Certificate getSender() {
+  public X509Certificate[] getSender() {
     return _sender;
   }
 
@@ -107,7 +107,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     if (_sender == null) {
       return null;
     }
-    return SimpleMessageAddress.getSimpleMessageAddress(toCN(_sender));
+    return SimpleMessageAddress.getSimpleMessageAddress(toCN(_sender[0]));
   }
 
   public String getReceiverName() {
@@ -121,7 +121,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     if (_sender == null) {
       return null;
     }
-    return toCN(_sender);
+    return toCN(_sender[0]);
   }
 
   private static String toCN(X509Certificate x509) {
@@ -165,7 +165,7 @@ public class ProtectedMessageHeader implements java.io.Serializable {
     return "ProtectedMessageHeader " +
       ((_sender == null) 
        ? "null" 
-       : _sender.getSubjectX500Principal().getName()) +
+       : _sender[0].getSubjectX500Principal().getName()) +
       " -> " + 
       ((_receiver == null)
        ? "null" 

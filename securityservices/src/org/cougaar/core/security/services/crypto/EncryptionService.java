@@ -173,10 +173,13 @@ public interface EncryptionService extends Service {
    *
    *  @param secretKey     the secret key used to encrypt the object.
    *  @param sealedObject  the encrypted object.
+   *  @param symmSpec      the key spec for the decryption key
    *  @return the decrypted object
+   *  @see createSecretKey
    */
   public Object symmDecrypt(SecretKey secretKey,
-			    SealedObject sealedObject);
+			    SealedObject sealedObject,
+                            String symmSpec);
 
 
   public ProtectedObject protectObject(Serializable object,
@@ -204,8 +207,28 @@ public interface EncryptionService extends Service {
     throws GeneralSecurityException, IOException;
 
   public Cipher getCipher(String spec)
-    throws NoSuchAlgorithmException, NoSuchPaddingException;
+    throws NoSuchAlgorithmException, NoSuchPaddingException, 
+    NoSuchProviderException;
 
   public void returnCipher(String spec, Cipher ci);
+
+  /**
+   * Creates a secret key from a symmetric key spec.
+   * The spec format is similar to the algorithm
+   * used in the getInstance with two additions. The
+   * transformation (RC4/DES/etc) can be followed by
+   * a hash(#) and key length. The provider can follow
+   * the entire algorithm in curly braces. A complex
+   * example is:<p>
+   * <tt>AES#192/CBC/WithCTS{BC}</tt>
+   * <p>
+   * The key length and provider are optional.
+   *
+   * @param spec The symmetric spec described above
+   * @return A new secret key following the given spec
+   */
+  public SecretKey createSecretKey(String spec) 
+    throws NoSuchAlgorithmException, NoSuchProviderException;
+
 }
 

@@ -207,11 +207,11 @@ public class HardWired {
   public static final CipherSuite nsaApproved;
   static {
     nsaApproved = new CipherSuite();
-    nsaApproved.addSymmetric("RC4");
-    nsaApproved.addSymmetric("DESede");
-    nsaApproved.addSymmetric("Blowfish");
-    nsaApproved.addSymmetric("AES");
-    nsaApproved.addAsymmetric("RSA");
+    nsaApproved.addSymmetric("RC4#128");
+    nsaApproved.addSymmetric("DESede#128");
+    nsaApproved.addSymmetric("Blowfish#128");
+    nsaApproved.addSymmetric("AES#128");
+    nsaApproved.addAsymmetric("RSA/ECB/PKCS1Padding");
     nsaApproved.addSignature("MD5withRSA");
   }
 
@@ -219,7 +219,7 @@ public class HardWired {
   static {
     secretCrypto = new CipherSuite();
     secretCrypto.addSymmetric("DES");
-    secretCrypto.addAsymmetric("RSA");
+    secretCrypto.addAsymmetric("RSA/ECB/PKCS1Padding");
     secretCrypto.addSignature("MD5withRSA");
   }
 

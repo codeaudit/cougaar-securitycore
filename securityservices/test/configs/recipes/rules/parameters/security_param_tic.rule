@@ -134,7 +134,10 @@ society.each_host do |host|
     # Here we override the default configuration path to include both
     # the "common" directory and "GLMTrans" directory.
     #node.override_parameter("-Dorg.cougaar.config.path", "\"#{cip}/configs/common\;#{cip}/configs/glmtrans\;\"")
-    node.override_parameter("-Dorg.cougaar.config.path", "\".;$COUGAAR_INSTALL_PATH/configs/security;$COUGAAR_INSTALL_PATH/configs/common;$COUGAAR_INSTALL_PATH/configs/glmtrans;$COUGAAR_INSTALL_PATH/configs/daml\"")
+    #node.override_parameter("-Dorg.cougaar.config.path", "\".;$COUGAAR_INSTALL_PATH/configs/security;$COUGAAR_INSTALL_PATH/configs/common;$COUGAAR_INSTALL_PATH/configs/glmtrans;$COUGAAR_INSTALL_PATH/configs/daml\"")
+    node.prepend_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH/configs/security")
+    node.append_value_on_parameter("-Dorg.cougaar.config.path", "$COUGAAR_INSTALL_PATH/configs/daml")
+
     #node.override_parameter("-Dorg.cougaar.config.path", "\".;#{cip}/configs/security\;\"")
     
     # Some standard memory settings.

@@ -23,6 +23,7 @@ package org.cougaar.core.security.monitoring.event;
 
 import edu.jhuapl.idmef.DetectTime;
 
+import java.util.Date;
 /**
  * A base representation of an Failure Event that could occurs in the cougaar
  * services, agents, or nodes.   This data structure represent events that are
@@ -52,6 +53,13 @@ public class FailureEvent implements java.io.Serializable {
     m_data = data;    
     m_dataId = dataId;
     m_detectTime = new DetectTime();
+  }
+  
+  public FailureEvent(String classification, String source, String target, 
+    String reason, String reasonId, String data, String dataId, Date detectTime){
+    this(classification, source, target, reason, reasonId, data, dataId);
+    m_detectTime.setIdmefDate(detectTime);
+    m_detectTime.setNtpstamp(detectTime);
   }
   
   /**

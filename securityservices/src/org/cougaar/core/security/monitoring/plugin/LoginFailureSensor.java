@@ -52,14 +52,16 @@ import org.cougaar.core.security.monitoring.idmef.RegistrationAlert;
 import org.cougaar.core.security.monitoring.idmef.IdmefMessageFactory;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.idmef.Agent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.LoginEventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 
 import edu.jhuapl.idmef.Target;
 import edu.jhuapl.idmef.IDMEF_Node;
 import edu.jhuapl.idmef.IDMEF_Process;
 import edu.jhuapl.idmef.AdditionalData;
-
 
 import org.cougaar.core.security.constants.IdmefClassifications;
 
@@ -77,10 +79,8 @@ import org.cougaar.core.security.constants.IdmefClassifications;
  * this sensor belongs to.
  */
 public class LoginFailureSensor extends SensorPlugin {
-  /* private DomainService  _domainService;
-  private LoggingService _log;
-  */
-  private String         _managerRole   = "SecurityMnRManager-Enclave";
+ 
+  private String         _managerRole   = "Manager";
 
   private final  String[] CLASSIFICATIONS = {IdmefClassifications.LOGIN_FAILURE};
   private SensorInfo  sensor=null;
@@ -138,108 +138,13 @@ public class LoginFailureSensor extends SensorPlugin {
 
     super.setupSubscriptions();
 
-    if ( m_log.isInfoEnabled()) {
-      m_log.info("Setting Security Manager role to " + _managerRole);
+    if ( _log.isInfoEnabled()) {
+      _log.info("Setting Security Manager role to " + _managerRole);
     }
-
-    SensorInfo           sensor       = new LFSensor();
-
-    /*
-    BlackboardService    bbs          = getBlackboardService();
-    DomainService        ds           = getDomainService();
-    CmrFactory           cmrFactory   = (CmrFactory) ds.getFactory("cmr");
-    IdmefMessageFactory  idmefFactory = cmrFactory.getIdmefMessageFactory();
-    ServiceBroker        sb           = getBindingSite().getServiceBroker();
-    AgentIdentificationService ais    = (AgentIdentificationService)
-      sb.getService(this, AgentIdentificationService.class, null);
-    String               agentName    = ais.getName();
-    MessageAddress       myAddress    = ais.getMessageAddress();
-    CommunityService     cs           = (CommunityService)
-      sb.getService(this, CommunityService.class,null);
-
-    setLoggingService();
-
-    IDMEF_Node node = idmefFactory.getNodeInfo();
-    IDMEF_Process process = idmefFactory.getProcessInfo();
-    Agent agentinfo = idmefFactory.getAgentInfo();
-
-    Target target = idmefFactory.createTarget(node, null, process,
-                                              null, null, null);
-    String [] ref=null;
-    if (agentinfo.getRefIdents()!=null) {
-      String[] originalref=agentinfo.getRefIdents();
-      ref=new String[originalref.length+1];
-      System.arraycopy(originalref,0,ref,0,originalref.length);
-      ref[originalref.length]=target.getIdent();
-    } else {
-      ref=new String[1];
-      ref[0]=target.getIdent();
-    }
-    agentinfo.setRefIdents(ref);
-
-    AdditionalData additionalData =
-      idmefFactory.createAdditionalData(Agent.TARGET_MEANING, agentinfo);
-
-    List capabilities = new ArrayList();
-    List targets = new ArrayList();
-    List addData = new ArrayList();
-    capabilities.add(KeyRingJNDIRealm.LOGINFAILURE);
-    targets.add(target);
-    addData.add(additionalData);
-
-    RegistrationAlert reg =
-      idmefFactory.createRegistrationAlert( sensor, null,
-                                            targets,
-                                            capabilities,
-                                            addData,
-                                            idmefFactory.newregistration ,
-                                            idmefFactory.SensorType,
-                                            myAddress.toString());
-
-    NewEvent regEvent = cmrFactory.newEvent(reg);
-    Collection communities = cs.listParentCommunities(agentName);
-    Iterator iter = communities.iterator();
-    boolean addedOne = false;
-    while (iter.hasNext()) {
-      String community = iter.next().toString();
-      Attributes attrs = cs.getCommunityAttributes(community);
-      boolean isSecurityCommunity = false;
-      if (attrs != null) {
-        Attribute  attr  = attrs.get("CommunityType");
-        if (attr != null) {
-          try {
-            for (int i = 0; !isSecurityCommunity && i < attr.size(); i++) {
-              if ("Security".equals(attr.get(i).toString())) {
-                isSecurityCommunity = true;
-              }
-            }
-          } catch (NamingException e) {
-            // error reading value, so it can't be a Security community
-          }
-        }
-      }
-      if (isSecurityCommunity) {
-        AttributeBasedAddress messageAddress =
-          AttributeBasedAddress.getAttributeBasedAddress(community, "Role", _managerRole);
-        CmrRelay relay = cmrFactory.newCmrRelay(regEvent, messageAddress);
-        if (m_log.isInfoEnabled()) {
-          m_log.info("Sending sensor capabilities to community '" +
-                    community + "'");
-        }
-        bbs.publishAdd(relay);
-        addedOne = true;
-      }
-    }
-    if (!addedOne) {
-      m_log.warn("This agent does not belong to any community. Login failures won't be reported.");
-    }
-    */
-    //KeyRingJNDIRealm.initAlert(m_idmefFactory,m_cmrFactory, m_blackboard, getSensorInfo());
-    m_publisher =
-      new LoginEventPublisher(m_blackboard,
-                              m_cmrFactory,
-                              m_log,
-                              getSensorInfo());
+    
+    EventPublisher publisher =
+      new LoginEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+    setPublisher(publisher);
     publishIDMEFEvent();
   }
 
@@ -259,7 +164,7 @@ public class LoginFailureSensor extends SensorPlugin {
     }
 
     public String getManufacturer() {
-      return "NAI Labs";
+      return "CSI";
     }
 
     public String getModel() {

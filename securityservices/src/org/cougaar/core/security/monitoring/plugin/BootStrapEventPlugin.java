@@ -64,285 +64,129 @@ import org.cougaar.core.adaptivity.OperatingModeImpl;
 import org.cougaar.core.security.securebootstrap.CougaarSecurityManager;
 import org.cougaar.core.security.monitoring.plugin.SensorInfo;
 import org.cougaar.core.security.monitoring.blackboard.*;
+import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.monitoring.event.SecurityExceptionEvent;
+import org.cougaar.core.security.monitoring.publisher.EventPublisher;
+import org.cougaar.core.security.monitoring.publisher.SecurityExceptionPublisher;
 import org.cougaar.core.security.monitoring.idmef.*;
 import  org.cougaar.core.security.securebootstrap.BootstrapEvent;
+import org.cougaar.core.security.auth.ExecutionContext;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 
 import edu.jhuapl.idmef.*;
 
-public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
-  
-  //private EventHolder eventholder=null;
+public class BootStrapEventPlugin extends SensorPlugin implements Observer {  
+  /*
   private Condition sensorCondition;
   private int numberOfEvents = 0;
-  private SensorInfo m_sensorInfo;
-  private final  String[] CLASSIFICATIONS = {IdmefClassifications.SECURITY_MANAGER_EXCEPTION,IdmefClassifications.JAR_VERIFICATION_FAILURE};
-  private boolean openTransaction=false; 
-  /**
-   * subscribe to
-   */
+  */
+  private SensorInfo _sensorInfo;
+  private final  String[] CLASSIFICATIONS = { IdmefClassifications.SECURITY_MANAGER_EXCEPTION,
+                                              IdmefClassifications.JAR_VERIFICATION_FAILURE };
+  
   protected synchronized void setupSubscriptions() {
-    // For test purposes
-    
     super.setupSubscriptions();
-    /* Fix for nested open transaction
-       openTransaction=true;
-     */
-    sensorCondition = new BootstrapEventCondition(numberOfEvents);
-    m_blackboard.publishAdd(sensorCondition);
-
-    registerforEvents();
+    // sensorCondition = new BootstrapEventCondition(numberOfEvents);
+    //_blackboard.publishAdd(sensorCondition);
+    EventPublisher publisher = new SecurityExceptionPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+    setPublisher(publisher);
+    // initialize the publisher
+    publishIDMEFEvent();
+    // register this observer with the security manager
+    registerForEvents();
   }
   
   protected void execute() {
-
   }
+  
   protected SensorInfo getSensorInfo() {
-    if(m_sensorInfo == null) {
-      m_sensorInfo = new BootstrapSensorInfo();  
+    if(_sensorInfo == null) {
+      _sensorInfo = new BootstrapSensorInfo();  
     } 
-    return m_sensorInfo;
+    return _sensorInfo;
   }
+  
+  public static void publishEvent(FailureEvent event) {
+    publishEvent(BootStrapEventPlugin.class, event);
+  }
+  
   public void update(Observable o, Object arg) {
-    // System.out.println(" New M&R boot strap events :");
-    
-    ArrayList eventList=(ArrayList)arg;
-    Iterator iterator= eventList.iterator();
-    BootstrapEvent event=null;
-    Object obj=null;
-    Vector events=new Vector();
-    while(iterator.hasNext())  {
-      obj=iterator.next();
-      event=constructbootstrapevent(obj);
-      if(event!=null) {
-	events.add(event);
-	m_log.debug(" Got event after reconstruction :"+event.toString());
+    ArrayList eventList =(ArrayList)arg;
+    Iterator i = eventList.iterator();
+    while(i.hasNext()) {
+      Object obj = i.next();
+      FailureEvent event = createSecurityExceptionEvent(obj);
+      if(event != null) {
+        publishEvent(event);
       }
-      else {
-        if(m_log.isDebugEnabled()) 
-          m_log.debug(" Got event as null in update of event Service :");
-      }
-    }
-    if(!events.isEmpty()) {
-      publishIDMEFEvent(events);
-    }
-    
+    } 
   }
-  public synchronized void publishIDMEFEvent(Vector vectorofevents) {
-    /*BlackboardService bbservice=null;
-    DomainService dservice=null;
-    */
-     m_blackboard=getBlackboardService();
-     m_domainService=getDomainService();
-    // bbservice=(BlackboardService)serviceBroker.getService(this,BlackboardService.class,null);
-    if( m_blackboard==null) {
-      m_log.error(" error cannot get BlackBoard Service:");
-    }
-    // domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
-    if(m_domainService==null) {
-       m_log.error(" error cannot get domain service Going to loose all events :");
-    }
-    CmrFactory factory=(CmrFactory)m_domainService.getFactory("cmr");
-    IdmefMessageFactory imessage=null;
-    if(factory!=null) {
-      imessage=factory.getIdmefMessageFactory();
-    }
-    if(imessage==null) {
-       m_log.error(" error cannot get Idmef message factory :");
-    }
-    Classification classification =null;
-    BootstrapEvent event=null;
-    AdditionalData adddata=null;
-    boolean myopenTransaction=false;
-    m_blackboard.openTransaction();
-    for(int cnt=0;cnt<vectorofevents.size();cnt++) {
-      event=(BootstrapEvent)vectorofevents.elementAt(cnt);
-      classification= imessage.createClassification(event.classification,
-				    null,
-				    Classification.VENDOR_SPECIFIC);
-      ArrayList classifications = new ArrayList(1);
-      classifications.add(classification);
-      ArrayList targets = new ArrayList(1);
-      ArrayList sources=new ArrayList(1);
-      DetectTime detecttime=new DetectTime();
-      detecttime.setIdmefDate(event.detecttime);
-       ArrayList data = new ArrayList();
-      if(event.principals!=null) {
-	/*
-	adddata=imessage.createAdditionalData();
-	adddata.setType(AdditionalData.STRING);
-	*/
-	StringBuffer buff=new StringBuffer();
-	for(int i=0;i<event.principals.length;i++) {
-	  buff.append(event.principals[i].toString()+"\n");
-	}
-//	adddata.setAdditionalData(buff.toString());
-	adddata = imessage.createAdditionalData(AdditionalData.STRING,"PRINCIPAL_INFO", buff.toString());
-	data.add(adddata);
-      }
-      if(event.subjectStackTrace!=null){
-	adddata=imessage.createAdditionalData(AdditionalData.STRING, "STACK_TRACE", event.subjectStackTrace);
-	/*
-	adddata.setType(AdditionalData.STRING);
-	adddata.setAdditionalData(event.subjectStackTrace);
-	*/
-	data.add(adddata);
-      }
-      Alert alert = imessage.createAlert(getSensorInfo(), detecttime,
-				       sources, targets,
-				       classifications, data);
-      Event e = factory.newEvent(alert);
-      m_log.debug("Intrusion Alert:" + alert.toString());
-      //System.out.println("Publishing sensor Event :");
-      
-      //bbservice.openTransaction();
-      if(m_log.isDebugEnabled()) {
-	m_log.debug("Publishing alert: " + alert);
-      }
-       m_blackboard.publishAdd(e);
-      
-      // Increment the total number of events
-      numberOfEvents++;
-      ((BootstrapEventCondition)sensorCondition).setValue(numberOfEvents);
-     
-       m_blackboard.publishChange(sensorCondition);
-       // bbservice.closeTransaction();
-    }
-    /* Fix for nested open transaction
-      if(myopenTransaction) {
-      openTransaction=false;
-    */
-      m_blackboard.closeTransaction();
-      // }
+  
+  public FailureEvent createSecurityExceptionEvent(Object o) {
+    Class c = o.getClass();
+    String fqcn = c.getName();
     
-  }
-  public BootstrapEvent constructbootstrapevent(Object o) {
-    String completeclassname=o.getClass().getName();
-    String classname=null;
-    if(completeclassname!=null) {
-      int index=completeclassname.lastIndexOf('.');
-      classname=completeclassname.substring(index+1,completeclassname.length());
-      //System.out.println(" Got class name as ================>>"+classname);
-    }
-    else {
-      //System.out.println(" Got class name as ==================>>NULL");
-    }
-    if(classname.equals("BootstrapEvent")) {
-      //System.out.println(" got bootstrap event object trying to reconstruct :");
+    if(fqcn.equals("org.cougaar.core.security.securebootstrap.BootstrapEvent")) {
       try {
-	Class bootstrap=o.getClass();
-	Field fld=bootstrap.getDeclaredField("classification");
-	String classification=(String)fld.get(o);
-	//System.out.println(" got classification as =====>:"+classification);
-	fld=bootstrap.getDeclaredField("detecttime");
-	Date date=(Date)fld.get(o);
-	//System.out.println(" got Date as =====>:"+date);
-	fld=bootstrap.getDeclaredField("principals");
-	Principal[] principals=(Principal[])fld.get(o);
-	fld=bootstrap.getDeclaredField("subjectStackTrace");
-	String stacktrace=(String)fld.get(o);
-	//System.out.println(" got stacktrace as =====>:"+stacktrace);
-	return new BootstrapEvent(classification,date,principals,stacktrace);
+        // get the classification for this event
+      	Field f = c.getDeclaredField("classification");
+      	String classification = (String)f.get(o);
+      	// get the detection time
+      	f = c.getDeclaredField("detecttime");
+      	Date detectTime =(Date)f.get(o);
+      	// get the principals
+      	f = c.getDeclaredField("principals");
+      	Principal[] principals = (Principal[])f.get(o);
+      	// get the stack trace for the event
+      	f = c.getDeclaredField("subjectStackTrace");
+      	String stackTrace = (String)f.get(o);
+      	return new SecurityExceptionEvent(null, // source null for now
+      	                                  null, // target null for now
+      	                                  null, // reason null for now
+      	                                  null, // data null for now
+      	                                  classification, 
+      	                                  principals, 
+      	                                  stackTrace, 
+      	                                  detectTime);
       }
       catch (Exception exp) {
-	exp.printStackTrace();
+	      exp.printStackTrace();
       }
     }
-    // System.out.println(" new without value got boot strap event:");   
-       return null;
+    return null;
   }
-  public void registerforEvents() {
+  
+  public void registerForEvents() {
     //System.out.println(" In register method:");
-    SecurityManager sm =System.getSecurityManager();
+    SecurityManager sm = System.getSecurityManager();
     //System.out.println(" Class is :"+sm.getClass().getName());
-    Class [] classes=new Class[0];
-    Method method=null;
+    Class [] classes = new Class[0];
+    Method method = null;
     try {
-      method=sm.getClass().getMethod("getMREventQueue",null);
+      method = sm.getClass().getMethod("getMREventQueue",null);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
-    Object ob= null;
+    Object ob = null;
     try {
-      Object[] args={};
-      ob=method.invoke(sm,args);
-      Class [] param={Observer.class};
-      method=ob.getClass().getMethod("register",param);
-      Object oobj=null;
-      if(m_log.isDebugEnabled())
-        m_log.debug(" observer being passed is :"+this.toString());
-      Object[] argss={this};
-      oobj=method.invoke(ob,argss);
+      Object[] args = {};
+      ob = method.invoke(sm,args);
+      Class [] param = {Observer.class};
+      method = ob.getClass().getMethod("register",param);
+      Object oobj = null;
+      if(_log.isDebugEnabled()) {
+        _log.debug(" observer being passed is : " + this.toString());
+      }
+      Object[] argss = {this};
+      oobj = method.invoke(ob,argss);
     }
-     catch(Exception iexp) {
-     iexp.printStackTrace();
+    catch(Exception iexp) {
+      iexp.printStackTrace();
     }
-    
   }
   
-  /*
-  public void registercapabilities() {
-    
-    BlackboardService bbservice=getBlackboardService();
-    DomainService dservice=getDomainService();
-    if(bbservice==null) {
-      m_log.error(" error cannot get BlackBoard Service:");
-      return;
-    }
-    //domainservice=(DomainService)serviceBroker.getService(this,DomainService.class,null);
-    if(dservice==null) {
-       m_log.error(" error cannot get domain service Going to loose all events :");
-       return;
-    }
-    CmrFactory factory=(CmrFactory)dservice.getFactory("cmr");
-    IdmefMessageFactory imessage=factory.getIdmefMessageFactory();
-    List capabilities = new ArrayList();
-    capabilities.add( imessage.createClassification( IdmefClassifications.SECURITY_MANAGER_EXCEPTION ,
-						     null,
-						     Classification.VENDOR_SPECIFIC  ) );
-    capabilities.add( imessage.createClassification( IdmefClassifications.JAR_VERIFICATION_FAILURE, null,
-						     Classification.VENDOR_SPECIFIC  ) );
-    List sources=new ArrayList();
-    List targets=new ArrayList();
-    List additionaldatas=new ArrayList();
-    Target target=imessage.createTarget(imessage.getNodeInfo(),imessage.getUserInfo(),imessage.getProcessInfo(),null,null,null);
-    org.cougaar.core.security.monitoring.idmef.Agent agentinfo=imessage.getAgentInfo();
-    String [] ref=null;
-    if(agentinfo.getRefIdents()!=null) {
-      String[] originalref=agentinfo.getRefIdents();
-      ref=new String[originalref.length+1];
-      System.arraycopy(originalref,0,ref,0,originalref.length);
-      ref[originalref.length]=target.getIdent();
-    }
-    else {
-      ref=new String[1];
-      ref[0]=target.getIdent();
-    }
-    agentinfo.setRefIdents(ref);
-    AdditionalData additionaldata=imessage.createAdditionalData(org.cougaar.core.security.monitoring.idmef.Agent.TARGET_MEANING,agentinfo);
-    targets.add(target);
-    additionaldatas.add(additionaldata);
-    RegistrationAlert reg=imessage.createRegistrationAlert(this,
-							   sources,
-							   targets,
-							   capabilities,
-							   additionaldatas,
-							   IdmefMessageFactory.newregistration,
-							   IdmefMessageFactory.SensorType,
-							   myAddress.toString());
-     NewEvent event=factory.newEvent(reg);
-      if(m_log.isDebugEnabled())
-        m_log.debug(" going to publish capabilities in event Service  :");
-    CmrRelay  relay ;
-    relay= factory.newCmrRelay(event,mgrAddress);
-    //relay= factory.newCmrRelay(event,destcluster);
-    //getBlackboardService().publishAdd(relay);
-    bbservice.publishAdd(relay); 
-    
-  }
-  */
-  
-    protected String []getClassifications() {
+  protected String []getClassifications() {
     return CLASSIFICATIONS;
   }
   
@@ -361,7 +205,7 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     }
     
     public String getManufacturer(){
-      return "NAI Labs";
+      return "CSI";
     }
 
     public String getModel(){
@@ -373,10 +217,9 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     public String getAnalyzerClass(){
       return "Security Analyzer";
     }
-  
-} 
+  } 
  
-
+  /*
   // This condition is used to test the adaptivity engine
   // A realistic condition should be developed.
   static class BootstrapEventCondition
@@ -404,4 +247,5 @@ public class BootStrapEventPlugin extends SensorPlugin  implements Observer  {
     public void setValue(int rate) {
     }
   }
+  */
 }

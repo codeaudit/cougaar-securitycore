@@ -25,10 +25,11 @@ package org.cougaar.core.security.monitoring.plugin;
 import org.cougaar.core.security.constants.IdmefClassifications;
 
 // securityservices classes
-//import org.cougaar.core.security.dataprotection.DataProtectionServiceImpl;
+import org.cougaar.core.security.auth.ExecutionContext;
 import org.cougaar.core.security.monitoring.publisher.EventPublisher;
 import org.cougaar.core.security.monitoring.publisher.IdmefEventPublisher;
 import org.cougaar.core.security.monitoring.event.FailureEvent;
+import org.cougaar.core.security.services.auth.SecurityContextService;
 
 /**
  * This class must be placed in the Node ini file to allow
@@ -41,7 +42,7 @@ import org.cougaar.core.security.monitoring.event.FailureEvent;
  * plugin = org.cougaar.core.security.monitoring.plugin.DataProtectionSensor
  * </pre>
  * The plugin also takes an optional parameter indicating the role
- * of the security manager to report to. The default is "SecurityMnRManager-Enclave".
+ * of the security manager to report to. The default is "Manager".
  * The communities that the capabilities are sent to are all the ones that
  * this sensor belongs to.
  */
@@ -52,10 +53,10 @@ public class DataProtectionSensor extends  SensorPlugin
   };
 
   protected SensorInfo getSensorInfo() {
-    if(m_sensorInfo == null) {
-      m_sensorInfo = new DPSensorInfo();
+    if(_sensorInfo == null) {
+      _sensorInfo = new DPSensorInfo();
     }
-    return m_sensorInfo;
+    return _sensorInfo;
   }
 
   protected String []getClassifications() {
@@ -78,12 +79,10 @@ public class DataProtectionSensor extends  SensorPlugin
   protected void setupSubscriptions() {
     super.setupSubscriptions();
     //initialize the EventPublisher in the following services
-    m_publisher =
-      new IdmefEventPublisher(m_blackboard,
-                              m_cmrFactory,
-                              m_log,
-                              getSensorInfo());
-    //DataProtectionServiceImpl.addPublisher(publisher);
+    // need to get the execution context for this sensor for publishing idmef event
+    EventPublisher publisher =
+      new IdmefEventPublisher(_blackboard, _scs, _cmrFactory, _log, getSensorInfo());
+    setPublisher(publisher);
     publishIDMEFEvent();
   }
 
@@ -109,6 +108,6 @@ public class DataProtectionSensor extends  SensorPlugin
     }
   }
 
-  private SensorInfo m_sensorInfo;
+  private SensorInfo _sensorInfo;
 }
 

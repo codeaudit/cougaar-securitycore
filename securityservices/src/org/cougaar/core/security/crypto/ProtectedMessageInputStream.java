@@ -42,6 +42,7 @@ import org.cougaar.core.security.util.SignatureInputStream;
 import org.cougaar.core.security.util.NullOutputStream;
 
 import org.cougaar.core.security.services.crypto.EncryptionService;
+import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.services.crypto.CryptoPolicyService;
 //import org.cougaar.core.security.monitoring.publisher.EventPublisher;
@@ -66,6 +67,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   private static LoggingService      _log;
   private static KeyRingService      _keyRing;
+  private static CertificateCacheService _cacheService;
   private static CryptoPolicyService _cps;
   private static EncryptionService   _crypto;
   private static SecureRandom        _random = new SecureRandom();
@@ -95,7 +97,6 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     ProtectedMessageHeader header = bytesToHeader(headerBytes);
     setAddresses(header, source, target);
     SecureMethodParam headerPolicy = header.getPolicy();
-
     // check the policy
     boolean ignoreSignature = 
       ignoreSignature(encryptedSocket);
@@ -144,11 +145,13 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
    * need to worry about differences in agents. All these classes
    * should be reentrant.
    */
-  private void init(ServiceBroker sb) {
+  private synchronized void init(ServiceBroker sb) {
     if (_log == null) {
       _log = (LoggingService) sb.getService(this, LoggingService.class, null);
       _keyRing = (KeyRingService) 
         sb.getService(this, KeyRingService.class, null);
+      _cacheService = (CertificateCacheService) 
+        sb.getService(this, CertificateCacheService.class, null);
       _crypto = (EncryptionService)
         sb.getService(this, EncryptionService.class, null);
       _cps = (CryptoPolicyService)
@@ -179,6 +182,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
 
   public void finishInput(MessageAttributes attributes)
     throws java.io.IOException {
+    if (_log.isDebugEnabled()) {
+      _log.debug("finishInput: " + _source + " -> " + _target);
+    }
     if (_sign) {
       _log.debug("trying to verify signature");
       try {
@@ -349,7 +355,11 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
         _log.warn(message);
         throw new GeneralSecurityException(message);
       }
-      _keyRing.checkCertificateTrust(header.getSender());
+      X509Certificate[] chain = header.getSender();
+      for (int i = chain.length - 1; i >= 0; i--) {
+        _keyRing.checkCertificateTrust(chain[i]);
+        _cacheService.addSSLCertificateToCache(chain[i]);
+      }
     }
   }
 
@@ -374,7 +384,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
       try {
         skey = _crypto.decryptSecretKey(policy.asymmSpec,
                                         encKey, policy.symmSpec,
-                                        header.getSender());
+                                        header.getSender()[0]);
       } catch (GeneralSecurityException e2) {
         sendUseNewCert();
         throw new IncorrectProtectionException(header.getReceiver());
@@ -394,8 +404,7 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     CertificateNotYetValidException, CertificateRevokedException, IOException,
     SignatureException {
     _sign = true;
-    X509Certificate senderCert = header.getSender();
-    _keyRing.checkCertificateTrust(senderCert);
+    X509Certificate senderCert = header.getSender()[0];
     PublicKey pub = senderCert.getPublicKey();
     SecureMethodParam policy = header.getPolicy();
     if (_log.isDebugEnabled()) {
@@ -405,32 +414,19 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     _signature = new SignatureInputStream(this.in, policy.signSpec, pub);
     this.in = _signature;
 
-    // write the header digest to the stream:
-    String digestSpec = policy.signSpec.toLowerCase();
-    int withIndex = digestSpec.indexOf("with");
-    if (withIndex == -1) {
-      withIndex = digestSpec.length();
-    }
-    digestSpec = policy.signSpec.substring(0,withIndex);
-    MessageDigest md = MessageDigest.getInstance(digestSpec);
+    MessageDigest md = 
+      ProtectedMessageOutputStream.getMessageDigest(policy.signSpec);
     DigestOutputStream digest = 
       new DigestOutputStream(new NullOutputStream(), md);
     digest.write(headerBytes);
     digest.close();
-    byte digestComputed[] = md.digest();
+    byte digestComputed[] = digest.getMessageDigest().digest();
     byte digestRead[] = new byte[digestComputed.length];
+    DataInputStream din = new DataInputStream(this.in);
+    this.in = din;
     // now read and compare
     int len = digestRead.length;
-    int off = 0;
-    while (len > 0) {
-      int bytesRead = read(digestRead, off, len);
-      if (bytesRead >= 0) {
-        len -= bytesRead;
-        off += bytesRead;
-      } else {
-        throw new IOException("Can't read header message digest");
-      }
-    }
+    din.readFully(digestRead);
 
     // now compare digests
     for (int i = 0; i < digestComputed.length; i++) {
@@ -439,35 +435,49 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
           "to the same value. Someone has modified the header! " +
           header.getSenderName() + " to " + header.getReceiverName();
         _log.warn(message);
-	_log.warn("Header: " + byteArray2String(headerBytes));
-	_log.warn("Computed with: " + digestSpec + " -> " + byteArray2String(digestComputed) +
+	_log.warn("Header: " + headerBytes.length +
+		  "\n" + byteArray2String(headerBytes));
+	_log.warn("Computed with: " + digestSpec +
+		  " -> " + byteArray2String(digestComputed) +
 	  ", compared with read value: " + byteArray2String(digestRead));
         throw new SignatureException(message);
       }
     }
   }
 
-  private static String byteArray2String(byte[] arr) {
+  public static String byteArray2String(byte[] arr) {
     StringBuffer buf = new StringBuffer();
-    for (int i = 0; i < arr.length; i++) {
-      String s = Integer.toHexString(arr[i]);
-      if (s.length() == 1) {
-	buf.append('0');
+    int maxlen = arr.length;
+    if (maxlen % 16 != 0) {
+      maxlen = ((arr.length/16) + 1) * 16;
+    }
+    for (int i = 0; i < maxlen; i++) {
+      if (i >= arr.length) {
+	buf.append("   ");
+      } else {
+	int b = arr[i];
+	b &= 0xFF;
+	String s = Integer.toHexString(b);
+	if (s.length() == 1) {
+	  buf.append('0');
+	}
+	buf.append(s);
+	buf.append(' ');
       }
-      buf.append(s);
-      buf.append(' ');
       if (i % 8 == 7) {
 	buf.append(' ');
       }
       if (i % 16 == 15) {
 	for (int j = i - 15; j <= i; j++) {
-	  if (Character.isISOControl((char) arr[i]) || arr[i] < 0) {
-	    buf.append('.');
-	  } else {
-	    buf.append(arr[i]);
-	  }
-	  if (j % 8 == 7) {
-	    buf.append(' ');
+	  if (j < arr.length) {
+	    if (Character.isISOControl((char) arr[j]) || arr[j] < 0) {
+	      buf.append('.');
+	    } else {
+	      buf.append((char) arr[j]);
+	    }
+	    if (j % 8 == 7) {
+	      buf.append(' ');
+	    }
 	  }
 	}
 	buf.append('\n');

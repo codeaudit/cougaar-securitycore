@@ -187,7 +187,24 @@ public class DataProtectionServiceImpl
     while ((certList = keyRing.findCert(agent)) == null || certList.size() == 0) {
       log.debug("no certificate found, waiting ...");
       try {
-        Thread.currentThread().sleep(10000);
+        totalWait = Integer.parseInt(System.getProperty(CERT_POLL_TIME,
+          new Integer(totalWait).toString()));
+        wait_time = Integer.parseInt(System.getProperty(CERT_POLL_SLICE,
+          new Integer(wait_time).toString()));
+      } catch (Exception nx) {
+      }
+      while ((certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE)) == null || certList.size() == 0) {
+        totalWait -= wait_time;
+        if (totalWait <= 0) {
+          break;
+        }
+        if (log.isDebugEnabled()) {
+          log.debug("no certificate found, waiting ...");
+        }
+        try {
+          Thread.currentThread().sleep(wait_time);
+        }
+        catch (Exception ex) {}
       }
       catch (Exception ex) {}
 
@@ -260,10 +277,7 @@ public class DataProtectionServiceImpl
     }
     else if (policy.secureMethod == SecureMethodParam.ENCRYPT
       || policy.secureMethod == SecureMethodParam.SIGNENCRYPT) {
-      SecureRandom random = new SecureRandom();
-      KeyGenerator kg = KeyGenerator.getInstance(keygenAlg);
-      kg.init(random);
-      SecretKey sk = kg.generateKey();
+      SecretKey sk = encryptionService.createSecretKey(keygenAlg);
       List certlist = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE);
       if (certlist == null || certlist.size() == 0) {
         throw new GeneralSecurityException("No certificate available for encrypting or signing.");

@@ -25,6 +25,7 @@ import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.BlackboardService;
+import org.cougaar.core.service.ThreadService;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeListener;
 import org.cougaar.core.service.community.CommunityChangeEvent;
@@ -51,6 +52,7 @@ import org.cougaar.core.security.services.crypto.CertificateCacheService;
 import org.cougaar.core.security.crypto.CertificateCache;
 import org.cougaar.core.security.services.util.ConfigParserService;
 import org.cougaar.core.security.util.CommunityServiceUtil;
+import org.cougaar.core.security.util.CommunityServiceUtilListener;
 
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
@@ -86,6 +88,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.HashMap;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -439,14 +442,41 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
   /**
    * register the capabilities of the sensor
    */
-  private void registerCapabilities(final CommunityService cs, final String agentName){
-    List capabilities = new ArrayList();
-    final BlackboardService bbs = getBlackboardService();
+  private void registerCapabilities(final CommunityService cs,
+                                    final String agentName){
+    ThreadService ts = (ThreadService)
+      _serviceBroker.getService(this, ThreadService.class, null);
+    TimerTask tt = new TimerTask() {
+        final CommunityServiceUtil csu = 
+          new CommunityServiceUtil(_serviceBroker);
+        public void run() {
+          CommunityServiceUtilListener listener =
+            new CommunityServiceUtilListener() {
+              public void getResponse(Set communities) {
+                if (communities.size() > 1 && _log.isWarnEnabled()) {
+                  _log.warn("Agent '" + agentName +
+                            "' belongs to more than one security community.");
+                }
+                csu.releaseServices();
+                finishRegisterCapabilities(communities, agentName, cs);
+              }
+            };
+          csu.getSecurityCommunities(listener);
+        }
+      };
+    ts.schedule(tt, 0);
+    _serviceBroker.releaseService(this, ThreadService.class, ts);
+  }
 
+  private void finishRegisterCapabilities(Collection communities, 
+                                          final String agentName,
+                                          CommunityService cs) {
+    List capabilities = new ArrayList();
     Classification classification =
       _idmefFactory.createClassification(IdmefClassifications.MESSAGE_FAILURE, null);
     capabilities.add(classification);
 
+    final BlackboardService bbs = getBlackboardService();
     RegistrationAlert reg =
        _idmefFactory.createRegistrationAlert( _analyzer,
                                               null,
@@ -457,62 +487,21 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
                                               _idmefFactory.SensorType,
                                               agentName);
     final NewEvent regEvent = _cmrFactory.newEvent(reg);
-    // get the list of communities that this agent belongs where
-    // CommunityType is Security
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Set";
-	    _log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(CommunityType=Security)";
-    Collection communities =
-      cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
-    if (communities == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        _log.error("Error in searchByCommunity:", ie);
-      }
-      communities = (Set)status.value;
-    }
-
     Iterator iter = communities.iterator();
-
-    if (communities.size() == 0) {
-      if (_log.isInfoEnabled()) {
-	_log.info("Agent '" + agentName +
-		  "' does not belong to any security community. "
-		  + "Message failures won't be reported.");
-      }
-    }
-    else if(communities.size() > 1) {
-      if (_log.isWarnEnabled()) {
-	_log.warn("Agent '" + agentName +
-		  "' belongs to more than one security community.");
-      }
-    }
-
     while(iter.hasNext()) {
       Community community = (Community)iter.next();
-      if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
+      if(isSecurityManagerLocal(community, agentName)) {
         // sensor is located in same agent as the enclave security manager
         // therefore we should publish the capabilities to local blackboard
         if(_log.isDebugEnabled()) {
           _log.debug("Publishing sensor capabilities to local blackboard.");
         }
-        bbs.publishAdd(regEvent);
+        bbs.openTransaction();
+        try {
+          bbs.publishAdd(regEvent);
+        } finally {
+          bbs.closeTransaction();
+        }
       }
       else {
         // send the capability registeration to agents with in this community
@@ -525,7 +514,12 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
           _log.debug("Sending sensor capabilities to community '" +
                       community.getName() + "'" + ", role '" + _managerRole + "'.");
         }
-        bbs.publishAdd(relay);
+        bbs.openTransaction();
+        try {
+          bbs.publishAdd(relay);
+        } finally {
+          bbs.closeTransaction();
+        }
       }
     }
 
@@ -555,7 +549,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
               if (type.equals(CommunityServiceUtil.SECURITY_COMMUNITY_TYPE)) {
                 // so community being changed is a security community
                 // we only care about changed to a new one
-                if(isSecurityManagerLocal(cs, community.getName(), agentName)) {
+                if(isSecurityManagerLocal(community, agentName)) {
                   // sensor is located in same agent as the enclave security manager
                   // therefore we should publish the capabilities to local blackboard
                   if(_log.isDebugEnabled()) {
@@ -604,38 +598,11 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
    * method used to determine if the message failure plugin is located in the same
    * agent as the enclave security manager
    */
-  private boolean isSecurityManagerLocal(CommunityService cs,
-					 String community, String agentName) {
-
-    final Status status = new Status();
-    final Semaphore s = new Semaphore(0);
-    CommunityResponseListener crl = new CommunityResponseListener() {
-	public void getResponse(CommunityResponse resp) {
-	  Object response = resp.getContent();
-	  if (!(response instanceof Set)) {
-	    String errorString = "Unexpected community response class:"
-	      + response.getClass().getName() + " - Should be a Community";
-	    _log.error(errorString);
-	    throw new RuntimeException(errorString);
-	  }
-	  status.value = (Set) response;
-	  s.release();
-	}
-      };
-    // TODO: do this truly asynchronously.
-    String filter = "(Role=" + _managerRole + ")";
-    Collection agents =
-      cs.searchCommunity(community, filter, true,
-		       Community.AGENTS_ONLY, crl);
-    if (agents == null) {
-      try {
-        s.acquire();
-      } catch (InterruptedException ie) {
-        _log.error("Error in searchByCommunity:", ie);
-      }
-      agents=(Set)status.value;
-    }
-
+  private boolean isSecurityManagerLocal(Community community,
+                                         String agentName) {
+    Set agents = community.search("(Role=" + 
+                                  CommunityServiceUtil.MANAGER_ROLE + ")",
+                                  Community.AGENTS_ONLY);
     Iterator i = agents.iterator();
 
     while(i.hasNext()) {
@@ -652,7 +619,7 @@ public class CertificateRevokerPlugin extends ResponderPlugin {
       return "CertificateRevokerPlugin";
     }
     public String getManufacturer() {
-      return "NAI Labs";
+      return "CSI";
     }
     public String getModel(){
       return "Cougaar Certificate Revoker";

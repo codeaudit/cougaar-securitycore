@@ -39,9 +39,11 @@ public class CertValidityServiceProvider
   extends BaseSecurityServiceProvider
 {
   static private CertificateValidityMonitor service = null;
+  ServiceBroker serviceBroker;
 
   public CertValidityServiceProvider(ServiceBroker sb, String community) {
     super(sb, community);
+    serviceBroker = sb;
   }
 
   /**
@@ -59,7 +61,7 @@ public class CertValidityServiceProvider
       return service;
 
     try {
-      service = new CertificateValidityMonitor(sb);
+      service = new CertificateValidityMonitor(serviceBroker);
     }
     catch (Exception e) {
       log.debug("Failed to initialize CertificateValidityMonitor! " + e.toString());
