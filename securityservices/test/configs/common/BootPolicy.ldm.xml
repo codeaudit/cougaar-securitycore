@@ -53,27 +53,27 @@
 
   <RuleParam name="IncomingVerb">
     <KeySet value="Transport">
-      <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/>
+	<!-- <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/> -->
     </KeySet>
   </RuleParam>
 
   <RuleParam name="OutgoingVerb">
     <KeySet value="Transport">
-      <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/>
+	<!-- <KeyValue key="3-69-ARBN" value="Transport:AssetTransfer"/> -->
     </KeySet>
   </RuleParam>
 
   <RuleParam name="OutgoingAgentAction">
     <KeySet value="AcceptMessage">
-      <KeyValue key="3-69-ARBN" value="SetAside" />
-      <!--KeyValue key="2-7-INFBN" value="SetAside" /-->
+      <!-- <KeyValue key="3-69-ARBN" value="SetAside" /> -->
+      <!-- <KeyValue key="2-7-INFBN" value="SetAside" /> -->
     </KeySet>
   </RuleParam>
 
   <RuleParam name="IncomingAgentAction">
     <KeySet value="AcceptMessage">
-      <KeyValue key="3-69-ARBN" value="SetAside" />
-      <!--KeyValue key="2-7-INFBN" value="SetAside" /-->
+      <!-- <KeyValue key="3-69-ARBN" value="SetAside" /> -->
+      <!-- <KeyValue key="2-7-INFBN" value="SetAside" /> -->
     </KeySet>
   </RuleParam>
 
