@@ -361,10 +361,14 @@ public class AccessAgentProxy
           ts = (TrustSet[])v.toArray();
         }
         else{
-          ts = new TrustSet[0];
+          ts = new TrustSet[1];
           ts[0] = makeLowestTrust();
         }
         MessageWithTrust newMessage = new MessageWithTrust(m, ts);
+        if (log.isDebugEnabled()) {
+          log.debug("Wrapping message:" + m + "with lowest Trust: "
+             + ts[0].toString());
+        }
         receiveMessage(newMessage);
         return;
       }
