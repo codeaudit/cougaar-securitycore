@@ -22,19 +22,11 @@
  *  
  * </copyright> 
  */ 
- 
- 
- 
- 
- 
- 
- 
- 
-
 
 package org.cougaar.core.security.access;
 
 import java.util.TimerTask;
+import java.lang.reflect.Method;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.auth.ExecutionContext;
@@ -115,16 +107,23 @@ class ThreadServiceProxy extends SecureServiceProxy
       _scs.resetExecutionContext();
       return retval; 
     }
-    /*
-    For B11_4 integration: uncomment
     public String getBlockingExcuse() {
       String retval = null;
       _scs.setExecutionContext(_ec);
-      retval = _schedulable.getBlockingExcuse();
+      // TODO For B11_4 integration
+      // Replace introspection with simple method invocation:
+      // retval = _schedulable.getBlockingExcuse();
+      try {
+        Method m = _schedulable.getClass().getMethod("getBlockingExcuse", null);
+        retval = (String) m.invoke(_schedulable, null);
+      }
+      catch (Exception e) {
+        // This should never happen in B11_2, as Schedulable does
+        // not implement getBlockingExcuse()
+      }
       _scs.resetExecutionContext();
       return retval; 
     } 
-    */
     public int getState() {
       int retval = 0;
       _scs.setExecutionContext(_ec);
