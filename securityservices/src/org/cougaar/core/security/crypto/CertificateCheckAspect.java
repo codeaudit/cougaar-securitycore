@@ -100,17 +100,21 @@ public class CertificateCheckAspect
 				  _keyRing.LOOKUP_LDAP | 
 				  _keyRing.LOOKUP_KEYSTORE );
       }
-      finally {
-	if (certs == null) {
-	  ret = 0; // infinity
-	  if (_log.isInfoEnabled()) {
-	    _log.info("Dest certificate for " + targetAddress
-		      + " not found");
-	  }
+      catch (Exception e) {
+	if (_log.isDebugEnabled()) {
+	  _log.debug("No cert for " + targetAddress + " : " + e);
 	}
-	else {
-	  ret = super.cost(message);
+      }
+
+      if (certs == null || certs.size() == 0) {
+	ret = Integer.MAX_VALUE; // infinity
+	if (_log.isInfoEnabled()) {
+	  _log.info("Dest certificate for " + targetAddress
+		    + " not found");
 	}
+      }
+      else {
+	ret = super.cost(message);
       }
       if (_log.isDebugEnabled()) {
 	_log.debug("Cost for " + targetAddress
