@@ -1,4 +1,14 @@
 
+CIP=ENV['CIP']
+
+$:.unshift File.join(CIP, 'csmart', 'lib')
+
+require 'cougaar/scripting'
+require 'ultralog/scripting'
+require "security/lib/scripting"
+require "security/lib/security"
+
+
 
 class TestReportChainReady < SecurityStressFramework
   def initialize(run)
@@ -14,6 +24,13 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def beforeStartedSociety
+    loadSocietyData
+    @run.comms.on_cougaar_event do |event|
+      eventCall(event)
+    end
+  end
+
+  def loadSocietyData
     @run.society.each_agent(true) do |agent|
       facetval = agent.get_facet(:superior_org_id)
       if facetval != nil
@@ -26,9 +43,6 @@ class TestReportChainReady < SecurityStressFramework
           @expectedSubordinates[superior].push(subordinate)
         end
       end
-    end
-    @run.comms.on_cougaar_event do |event|
-      eventCall(event)
     end
   end
 
@@ -91,7 +105,8 @@ class TestReportChainReady < SecurityStressFramework
     end
   end
 
-  def readEventsFromFile
+  def processEventsFromFile
+    loadSocietyData
     filename = File.join(ENV["CIP"], "workspace", "test", "acme_events.log")
     File.open(filename) do |file|
       file.readlines.each do |line|
@@ -106,6 +121,22 @@ class TestReportChainReady < SecurityStressFramework
       puts("Chain = " + chain.join(' -> '))
     end
   end
-
-
 end
+
+
+module Cougaar
+  module Actions
+    class GetReportChainReadyResults
+      def initialize(run)
+        super(run)
+        @run = run
+      end
+
+      def perform
+        x = TestReportChainReady.new(@run)
+        x.processEventsFromFile
+      end
+    end
+  end
+end
+
