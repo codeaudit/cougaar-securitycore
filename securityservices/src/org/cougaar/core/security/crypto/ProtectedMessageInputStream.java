@@ -108,8 +108,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     super(null);
     init(sb);
 
-    if (_log.isDebugEnabled()) {
-      _log.debug("Receiving message: " + source + " -> " + target);
+    if (_log.isInfoEnabled()) {
+      _log.info("Receiving message: " + source + " -> " + target);
     }
     /*
      * I don't believe isReply should ever be true.  In the RMI MTS,
@@ -321,8 +321,8 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
   private void sendProtectionMessage(ProtectionLevelMessage pmsg) {
     if (_plmsgcounter++ > _warnCount) {
       _plmsgcounter = 0;
-      if (_log.isWarnEnabled()) {
-        _log.warn("Another " + _warnCount + " ProtectionLevel Messages sent");
+      if (_log.isInfoEnabled()) {
+        _log.info("Another " + _warnCount + " ProtectionLevel Messages sent");
       }
     }
     SendQueue sendQ = MessageProtectionAspectImpl.getSendQueue();
@@ -470,7 +470,9 @@ class ProtectedMessageInputStream extends ProtectedInputStream {
     CertificateExpiredException, InvalidKeyException, 
     CertificateNotYetValidException, CertificateRevokedException, IOException,
     SignatureException {
-    _log.warn("Still unsigning...");
+    if (_log.isInfoEnabled()) {
+      _log.info("Still unsigning... (" + _source + " -> " + _target + ")");
+    }
     _sign = true;
     _senderCert = header.getSender()[0];
     PublicKey pub = _senderCert.getPublicKey();

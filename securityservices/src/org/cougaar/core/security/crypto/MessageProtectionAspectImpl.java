@@ -110,8 +110,8 @@ public class MessageProtectionAspectImpl extends MessageProtectionAspect {
       if (sign != null) {
         String source = msg.getOriginator().toAddress();
         String target = msg.getTarget().toAddress();
-        if (_plmsgcounter++ > _warnCount) {
-          _log.warn("Another " + _warnCount + " ProtectionLevel messages received");
+        if (_plmsgcounter++ > _warnCount && _log.isInfoEnabled()) {
+          _log.info("Another " + _warnCount + " ProtectionLevel messages received");
           _plmsgcounter = 0;
         }
         if (_log.isInfoEnabled()) {

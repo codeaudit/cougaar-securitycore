@@ -99,8 +99,8 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
     super(stream);
     init(sb);
 
-    if (_log.isDebugEnabled()) {
-      _log.debug("Sending Message: " + source + " -> " + target);
+    if (_log.isInfoEnabled()) {
+      _log.info("Sending Message: " + source + " -> " + target);
     }
 
     _source = source.toAddress();
@@ -172,8 +172,10 @@ class ProtectedMessageOutputStream extends ProtectedOutputStream {
       this.out = _cipherOut;
     }
     if (_sign) {
-      _log.warn("Still signing (" + _source + " -> " + _target + 
-                ") encrypted socket = " + encryptedSocket);
+      if (_log.isInfoEnabled()) {
+        _log.info("Still signing (" + _source + " -> " + _target + 
+                  ") encrypted socket = " + encryptedSocket);
+      }
       PrivateKey priv = getPrivateKey(_sourceCert);
       _signature =  new SignatureOutputStream(this.out, policy.signSpec, 
                                               priv);
