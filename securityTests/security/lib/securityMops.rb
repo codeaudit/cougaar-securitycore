@@ -1,6 +1,6 @@
 require 'security/lib/AbstractSecurityMop'
 
-snortDir = "#{ENV['CIP']}/csmart/assessment/lib/security/data"
+#snortDir = "#{ENV['COUGAAR_INSTALL_PATH']}/workspace/security/data"
 
 ################################################
 
@@ -214,6 +214,10 @@ class SecurityMop23 < AbstractSecurityMop
     super(run)
     @name = "2.3"
     @descript = "Percentage of sensitive data elements transmitted between computers that were available to an unauthorized entity"
+    @logfilename = #{ENV['CIP']}/workspace/security/data/snort.log
+    Dir.mkdir(@logfilename) unless File.exist?(@logfilename) 
+    #aFile = File.new(@logfilename, File::RDWR | File::APPEND | File::CREAT)
+    #afile.close
   end
 
   def getStressIds()
@@ -231,7 +235,7 @@ class SecurityMop23 < AbstractSecurityMop
   def startTcpCapture(agentnames)
     # executable attribute not set when first unzipped.
     %w(runsnort runsnort-aux analyzesnort analyzesnort-aux).each do |file|
-      f = "#{ENV['CIP']}/csmart/assessment/lib/lib/#{file}"
+      f = "#{ENV['CIP']}/csmart/assessment/lib/framework/#{file}"
       `chmod a+x #{f}`
     end
     hosts = []
@@ -250,9 +254,9 @@ class SecurityMop23 < AbstractSecurityMop
     @hosts = hosts.uniq
 
     puts "Starting TCP capture on hosts #{@hosts.collect {|h| h.name}.sort.inspect}" if $VerboseDebugging
-
+    
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{snortDir}/runsnort #{ENV['CIP']}")
+      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/assessment/lib/framework/runsnort #{ENV['CIP']} #{@logfilename}" )
     end
   end
 
@@ -264,7 +268,7 @@ class SecurityMop23 < AbstractSecurityMop
     return unless @hosts
     logInfoMsg (@hosts.collect {|h| h.name}).sort if $VerboseDebugging
     @hosts.each do |host|
-      doRemoteCmd(host.name, "#{snortDir}/analyzesnort #{ENV['CIP']}")
+      doRemoteCmd(host.name, "#{ENV['CIP']}/csmart/assessment/lib/framework/analyzesnort #{ENV['CIP']} #{@logfilename}")
     end
   end
 
