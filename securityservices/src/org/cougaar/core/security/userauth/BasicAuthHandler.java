@@ -25,7 +25,7 @@ public class BasicAuthHandler extends AuthenticationHandler {
   public void authenticateUser(String username) throws Exception
   {
     PasswordAuthentication pa = null;
-    if (_pa.getPassword().length == 0) {
+    //if (_pa.getPassword().length == 0) {
     /*
       String pwd = JOptionPane.showInputDialog(
         "Please enter the password for user " + username + ".");
@@ -36,11 +36,16 @@ public class BasicAuthHandler extends AuthenticationHandler {
 
       boolean ok = dialog.showDialog();
       char[] pwd = dialog.getPwd();
-
-      pa = new PasswordAuthentication(username, pwd);
+      username = dialog.getAlias();
+      if (ok)
+        pa = new PasswordAuthentication(username, pwd);
+      else
+        pa = null;
+    /*
     }
     else
       pa = _pa;
+      */
 
     if (listener != null)
       listener.setPasswordAuthentication(pa);
