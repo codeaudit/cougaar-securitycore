@@ -117,10 +117,11 @@ public class MessageAccessAgentBinder extends ServiceFilterBinder  {
 	if (serviceclass == null) {
 	  throw new IllegalArgumentException("Illegal service class");
 	}
-	log.debug("Creating Msg proxy. Requestor:" + client.getClass().getName()
-		  + ". Service: " + serviceclass.getName());
-	System.out.println("Creating Msg proxy. Requestor:" + client.getClass().getName()
-                           + ". Service: " + serviceclass.getName());
+	if(log.isDebugEnabled()) {
+    log.debug("Creating Msg proxy. Requestor:" + client.getClass().getName()
+        		  + ". Service: " + serviceclass.getName());
+  }
+	
 	if(security != null) {
 	  security.checkPermission(new AccessPermission(serviceclass.getName()));
 	}	

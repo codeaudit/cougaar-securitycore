@@ -108,9 +108,11 @@ public class JaasPluginBinder
     jc.doAs(getPluginName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  _log.debug("Plugin manager is loading: "
-			    + getPluginName()
-			    + " security context is : " + _ec);
+                  if(_log.isDebugEnabled()) {
+                    _log.debug("Plugin manager is loading: "
+	                    		    + getPluginName()
+			                        + " security context is : " + _ec);
+                  }
                   doLoad();
                   return null;
                 }
@@ -127,9 +129,11 @@ public class JaasPluginBinder
     jc.doAs(getPluginName(),
             new java.security.PrivilegedAction() {
                 public Object run() {
-                  _log.debug("Plugin manager is starting: "
-			    + getPluginName()
-			    + " security context is : " + _ec);
+                  if(_log.isDebugEnabled()) {
+                    _log.debug("Plugin manager is starting: "
+	                      		    + getPluginName()
+			                          + " security context is : " + _ec);
+                  }  
                   doStart();
                   return null;
                 }

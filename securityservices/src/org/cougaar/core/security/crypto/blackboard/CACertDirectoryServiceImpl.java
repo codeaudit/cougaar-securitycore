@@ -469,20 +469,24 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
       for(;enum.hasMoreElements();) {
         String a = (String)enum.nextElement();
         String cn = cacheservice.getCommonName(a);
-        if(cn!=null) {
+        if(cn != null && _log.isDebugEnabled()) {
           _log.debug("Got common name for alias :"+ a + cn);
         }
         certList = keyRing.findCert(cn, KeyRingService.LOOKUP_KEYSTORE);
         // is there any valid certificate here?
         if (certList == null || certList.size() == 0){
-          _log.debug(" Could not find cert in key ring for ca :"+cn);
+          if(_log.isDebugEnabled()) {
+            _log.debug(" Could not find cert in key ring for ca :"+cn);
+          }
           continue;
         }
         // is it a CA certificate? (not node, server, agent ...)
         c=((CertificateStatus)certList.get(0)).getCertificate();
         if (((CertificateStatus)certList.get(0)).getCertificateType()
             != CertificateType.CERT_TYPE_CA){
-          _log.debug(" Certificate is not ca Type  :"+cn);
+          if(_log.isDebugEnabled()) {
+            _log.debug(" Certificate is not ca Type  :"+cn);
+          }
           continue;
         }
         _log.debug("got common name from alias : " + a
@@ -570,13 +574,15 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
     public void serviceAvailable(ServiceAvailableEvent ae) {
       Class sc = ae.getService();
       if(org.cougaar.core.service.BlackboardService.class.isAssignableFrom(sc)) {
-	  _log.debug("BB Service is now available");
-	if(_blackboardService==null){
-	  setBlackboardService();
-	}
+    	  if(_log.isDebugEnabled()) {
+      	  _log.debug("BB Service is now available");
+      	}
+	      if(_blackboardService==null){
+	        setBlackboardService();
+	      }
       } else if ( sc == ThreadService.class) {
         threadService = (ThreadService) _serviceBroker.getService(this, ThreadService.class, null);
-        if(threadService!=null) {
+        if(threadService != null && _log.isInfoEnabled()) {
           _log.info(" Got Thread service in Service Available Listener  --  ");          //startThread();
         }
       }
@@ -602,7 +608,9 @@ CACertDirectoryService, BlackboardClient, CertValidityListener  {
           try {
             _blackboardService.persistNow();
             _needPersist = false;
-            _log.info("Persisted certificates size: " + _certStore.size());
+            if(_log.isInfoEnabled()) {
+              _log.info("Persisted certificates size: " + _certStore.size());
+            }
           } catch (Exception ex) {
             _log.info("Persistence is not enabled. Certificates will not be persisted");
           }

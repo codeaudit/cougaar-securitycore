@@ -142,8 +142,8 @@ public class JaasClient {
       Iterator it = subj.getPrincipals().iterator(); 
       while (it.hasNext()) {
         Object p = it.next();
-        if(!(p instanceof ExecutionPrincipal)) {
-	  _log.debug(p.toString());
+        if(!(p instanceof ExecutionPrincipal) && _log.isDebugEnabled()) {
+	        _log.debug(p.toString());
         }
       }
     }

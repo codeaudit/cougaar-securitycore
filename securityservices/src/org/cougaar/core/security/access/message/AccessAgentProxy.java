@@ -90,7 +90,9 @@ public abstract class AccessAgentProxy implements MessageTransportService,
       myID = ((Agent) object).getAgentIdentifier();
     }
     else {
-      log.debug("Object is not instance of Agent"+ myobj.getClass().getName());
+      if(log.isDebugEnabled()) {
+        log.debug("Object is not instance of Agent"+ myobj.getClass().getName());
+      }
     }
 
     _wpEnforcer = new WPEnforcer(sb);

@@ -106,7 +106,9 @@ public class ConfigParserServiceImpl
     }
 
     String cougaarWsp=secprop.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
-    log.debug("Cougaar workspace is :" + cougaarWsp);
+    if(log.isDebugEnabled()) {
+      log.debug("Cougaar workspace is :" + cougaarWsp);
+    }
     if (cougaarWsp == null || cougaarWsp.length() == 0) {
       if (isNode) {
 	// The org.cougaar.workspace property should always be set when running as a Cougaar node.
@@ -125,7 +127,9 @@ public class ConfigParserServiceImpl
 
     String searchPath = nodeDirectory + ";"
       + System.getProperty("org.cougaar.config.path");
-    log.debug("Search path is set to: " + searchPath);
+    if(log.isDebugEnabled()) {
+      log.debug("Search path is set to: " + searchPath);
+    }
     confFinder = new JarConfigFinder(searchPath);
 
     try {

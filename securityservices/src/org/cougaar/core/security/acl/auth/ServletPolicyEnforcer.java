@@ -300,7 +300,9 @@ public class ServletPolicyEnforcer
                                      String policyTargetName,
                                      String policyType) {
       if (USE_DAML) {
-        log.info("Ignoring XML Servlet Policy -- using DAML");
+        if(log.isInfoEnabled()) {
+          log.info("Ignoring XML Servlet Policy -- using DAML");
+        }
         return;
       }
       if (policyIn == null || !(policyIn instanceof ServletPolicy)) {

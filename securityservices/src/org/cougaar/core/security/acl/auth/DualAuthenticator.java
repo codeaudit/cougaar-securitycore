@@ -168,8 +168,9 @@ public class DualAuthenticator extends ValveBase {
     throws IOException, ServletException {
 
     setContainer();
-
-    _log.debug("Going through Dual Authenticator");
+    if(_log.isDebugEnabled()) {
+      _log.debug("Going through Dual Authenticator");
+    }
     // If this is not an HTTP request, do nothing
     if (!(request instanceof HttpRequest) ||
         !(response instanceof HttpResponse)) {
@@ -229,7 +230,9 @@ public class DualAuthenticator extends ValveBase {
     }
     if (uriAuthLevel == AUTH_NONE) {
       // no authentication requirement  --  audit and invoke
-      _log.debug("no authorization.. invoking servlet");
+      if(_log.isDebugEnabled()) {
+        _log.debug("no authorization.. invoking servlet");
+      }
       if (auditReqd(hsrequest.getRequestURI())) {
         doAudit(hsrequest);
       }
@@ -719,7 +722,9 @@ public class DualAuthenticator extends ValveBase {
     if (!USE_AUDIT) {
       return false;
     } else if (USE_DAML && (_enforcer != null)) {
-      _log.debug("Using DAML to determine if audit is required");
+       if(_log.isDebugEnabled()) {
+        _log.debug("Using DAML to determine if audit is required");
+      }
       return _enforcer.auditRequired(uri);
     } else {
       return true;

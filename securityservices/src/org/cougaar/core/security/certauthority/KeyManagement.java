@@ -917,8 +917,10 @@ public class KeyManagement  implements CertificateManagementService {
     CertificateEntry certEntry =null;
     CertificateRevocationStatus certStatus = CertificateRevocationStatus.VALID;
     CertificateType certType = null;
-    log.debug(" Got type:"+ type);
-    log.debug("got DN :"+ clientX509.getSubjectDN().getName());
+    if(log.isDebugEnabled()) {
+      log.debug("Got type : "+ type);
+      log.debug("Got DN :"+ clientX509.getSubjectDN().getName());
+    }
     try {
       switch (type) {
       case CertificateUtility.CACert:

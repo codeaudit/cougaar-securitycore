@@ -237,7 +237,9 @@ public class AuditLogger {
 
     logger.setUseParentHandlers(false);
     logger.setLevel(Level.ALL);
-    auditLogger.info("WebLogger initialized");
+    if(auditLogger.isInfoEnabled()) {
+      auditLogger.info("WebLogger initialized");
+    }
     loggers.put("WebLogger", "TRUE");
 
   }

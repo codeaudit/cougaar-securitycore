@@ -342,6 +342,8 @@ public class ConfigParserHandler
     catch(Exception e) {
       throw new PolicyUpdateException(e);
     }
-    log.debug("Saved crypto client policy " + cryptoPolicyFileName);
+    if(log.isDebugEnabled()) {
+      log.debug("Saved crypto client policy " + cryptoPolicyFileName);
+    }
   }
 }
