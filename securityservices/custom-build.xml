@@ -110,10 +110,8 @@
         </jspc>
     </target>
 
-
     <!-- Build the source code package -->
     <target name="custom-compile" depends="custom-init, compile-jsps, build-policyparser" id="custom.compile">
-        <echo message="+++++ Building ${project.description}"/>
         <javac classpathref="core.class.path" debug="true" 
             deprecation="true" destdir="${securityservices.classes}"
             source="1.4">
@@ -122,12 +120,10 @@
           <src path="${securityservices.policy}"/>
           <include name="org/cougaar/core/security/**"/>
       	</javac>
-        <echo message="+++++ Built ${project.description}"/>
     </target>
 
     <!-- jar security services -->
     <target name="custom-jar" id="custom.jar">
-        <echo message="+++++ Building jar files"/>
         <jar jarfile="${securityservices.output}/${project.name}.jar"
             basedir="${securityservices.classes}"
             includes="org/cougaar/core/security/**/*.class"
@@ -143,22 +139,7 @@
         <signjar jar="${securityservices.signed}/CougaarCRLextensions.jar" alias="privileged" 
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
-        <echo message="+++++ Built jar files"/>
     </target>
-
-    <!-- install DAML -->
-    <!--
-    <target name="install-daml">
-        <echo message="+++++ Installing DAML configs"/>
-        <mkdir dir="${securityservices.staging}/configs/daml"/>
-        <copy todir="${securityservices.staging}/configs/daml">
-            <fileset dir="${securityservices.configs}/daml">
-                <include name="*"/>
-            </fileset>
-        </copy>
-        <echo message="+++++ Installed DAML configs"/>
-    </target>
-    -->
 
     <!-- install config files -->
     <target name="custom-install-conf" id="custom.install">

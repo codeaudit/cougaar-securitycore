@@ -51,7 +51,7 @@
     <!-- The name of a custom build file -->
     <property name="custom.build.file" value="custom-build.xml"/>
     <!-- Import the custom build file -->
-    <import file="${custom.build.file}"/>
+    <import file="${custom.build.file}" optional="true"/>
 
     <target name="tstamp" depends="checkversion">
         <tstamp>
@@ -79,7 +79,16 @@
               if="vm.version.incorrect"/>
     </target>
 
-    <target name="init" depends="tstamp">
+    <target name="ant-contrib-setup" unless="ant.contrib.ext.loaded">
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+          <classpath>
+             <pathelement location="${securityservices.base}/build/lib/ant-contrib-1.0b1.jar"/>
+          </classpath>
+        </taskdef>
+        <property name="ant.contrib.ext.loaded" value="true"/>
+    </target>
+
+    <target name="init" depends="tstamp, ant-contrib-setup">
     	<echo message="Initializing ${project.description} build..."/>
         <mkdir dir="${securityservices.classes}"/>
         <mkdir dir="${securityservices.signed}"/>
@@ -130,7 +139,7 @@
     <target name="default-jar" unless="use.custom.jar">
         <jar jarfile="${securityservices.output}/${project.name}.jar"
             basedir="${securityservices.classes}"
-            includes="**/*.class"/>
+            includes="org/cougaar/**/*.class"/>
     </target>
     <target name="my-custom-jar" if="use.custom.jar">
        <antcall target="custom-jar"/>
@@ -157,8 +166,9 @@
     
     <!-- sign security services -->
     <target name="sign-jars" depends="jar, jar-configs">
-        <echo message="+++++ Signing jar files"/>
-        <signjar jar="${securityservices.output}/${project.name}.jar" alias="securitymodule" 
+        <echo message="+++++ Signing jar files using ${jar.signer.key} alias"/>
+        <!-- "jar.signer.key" should be one of "securitymodule" or "bootstrapper" -->
+        <signjar jar="${securityservices.output}/${project.name}.jar" alias="${jar.signer.key}" 
             signedjar="${securityservices.signed}/${project.name}.jar"
             keystore="${securityservices.configs}/sign-jars/signingCA_keystore" 
             storepass="keystore" verbose="false"/>
@@ -191,12 +201,18 @@
     <!-- install 3rd party jars files -->
     <target name="install-3rdparty-jars">
         <echo message="+++++ Installing jar files"/>
-        <copy todir="${securityservices.staging}/sys" overwrite="true">
+        <!-- Not all modules may have a sys subdirectory, so do not fail if that directory
+             does not exist. -->
+        <copy todir="${securityservices.staging}/sys" overwrite="true"
+              failonerror="false">
             <fileset dir="${securityservices.sys}">
                 <include name="*.jar"/>
             </fileset>
         </copy>
-        <copy todir="${securityservices.staging}/lib" overwrite="true">
+        <!-- Not all modules may have a lib subdirectory, so do not fail if that directory
+             does not exist. -->
+        <copy todir="${securityservices.staging}/lib" overwrite="true"
+              failonerror="false">
             <fileset dir="${securityservices.lib}">
             	<include name="*.jar"/>
             </fileset>
@@ -235,7 +251,7 @@
             todir="${securityservices.staging}/configs/security/reference"/>
 
         <copy todir="${securityservices.staging}/csmart/config/rules/security">
-            <fileset dir="${securityservices.configs}/recipes/rules">
+            <fileset dir="${securityservices.configs}/rules">
                 <patternset>
                     <include name="**/*.rule"/>
                 </patternset>
@@ -267,47 +283,121 @@
     <target name="cvs-update">
       <cvs cvsRoot="${env.CVSROOT}" command="update -d"/>
     </target>
-    <target name="cvs-update-junit">
-      <cvs  command="update -d -A"/>
+
+    <!-- Build another security services module.
+         The name of the module should be provided in the "build.module.name" property.
+         Usually the value of "ant.target.name" should be "all" -->
+    <target name="build-module">
+       <echo message="************************** Building: ${securityservices.base}/../${build.module.name}"/>
+       <ant antfile="build.xml"
+            dir="${securityservices.base}/../${build.module.name}"
+            inheritAll="false"
+            target="${ant.target.name}">
+       </ant>
+       <echo message="Copying jar file to superior modules: ${module.superiors}"/>
+       <for list="${module.superiors}" delimiter="," param="build.module.superior.name">
+         <sequential>
+            <copy todir="${securityservices.base}/../@{build.module.superior.name}/lib/security">
+               <fileset dir="${securityservices.base}/output/signed">
+                 <patternset>
+                    <include name="*.jar"/>
+                    <exclude name="configs_*.jar"/>
+                 </patternset>
+              </fileset>
+            </copy>
+         </sequential>
+       </for>
     </target>
 
-    <target name="update-dependencies">
-    	<!-- Dependencies are:
-    	     * securebootstrapper
-    	     * securityutils
-    	-->
-    	<antcall target="update-dependency">
-    		<param name="dependency.module.name" value="securityutils"/>
-    		<param name="dependency.module.jar" value="secure_util.jar"/>
-    	</antcall>
-    	<antcall target="update-dependency">
-    		<param name="dependency.module.name" value="securebootstrapper"/>
-    		<param name="dependency.module.jar" value="secure_bootstrapper.jar"/>
-    	</antcall>
-    </target>
-    <target name="update-dependency">
-       <property name="cvs.command" value="checkout"/>
-       <available file="${securityservices.base}/../${dependency.module.name}" type="dir"
-                  property="cvs.command" value="update -d">
+    <!-- Check out (or update if module has already been checked out) a security services module
+         The name of the module should be provided in the "build.module.name" property. -->
+    <target name="update-module">
+       <property name="cvs.command" value="-Q checkout"/>
+       <available file="${securityservices.base}/../${build.module.name}" type="dir"
+                  property="cvs.command" value="-q update -d">
        </available>
-       <echo message="Updating or checking out: ${securityservices.base}/../${dependency.module.name}"/>
-           <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
-                command="${cvs.command}" package="${dependency.module.name}"
-                dest="${securityservices.base}/../"
-                quiet="true"
-                failonerror="true"/>
-           <ant antfile="build.xml"
-                    dir="${securityservices.base}/../${dependency.module.name}"
-                    inheritAll="false"
-                    target="with-depend-update">
-           </ant>
-           <copy file="${securityservices.base}/../${dependency.module.name}/output/signed/${dependency.module.jar}"
-                    toDir="${securityservices.base}/lib/security">
-           </copy>
+       <echo message="Updating or checking out: ${securityservices.base}/../${build.module.name}"/>
+       <cvs cvsRoot="${env.CVSROOT}" cvsRsh="${env.CVS_RSH}"
+            command="${cvs.command}" package="${build.module.name}"
+            dest="${securityservices.base}/../"
+            failonerror="true"/>
     </target>
 
-    <!-- use 'ant with-update' to update repository executing the ALL target -->
-    <target name="with-depend-update" depends="update-dependencies, all"/>
+    <!-- Checkout or update a list of modules provided in the "module.build.list" property -->
+    <target name="process-interactive-command">
+       <switch value="${build.choice}">
+         <case value="1">
+           <!-- Update modules -->
+           <foreach list="${module.build.list}" delimiter="," target="update-module" param="build.module.name">
+           </foreach>
+         </case>
+         <case value="2">
+           <!-- Build modules. The modules should have been previously checked out. -->
+           <foreach list="${module.build.list}" delimiter="," target="build-module" param="build.module.name">
+             <param name="ant.target.name" value="all"/>
+           </foreach>
+         </case>
+         <case value="3">
+           <!-- Build and install modules. The modules should have been previously checked out. -->
+           <foreach list="${module.build.list}" delimiter="," target="build-module" param="build.module.name">
+             <param name="ant.target.name" value="install"/>
+           </foreach>
+         </case>
+         <case value="4">
+           <!-- Update and build modules. -->
+           <foreach list="${module.build.list}" delimiter="," target="update-module" param="build.module.name">
+           </foreach>
+           <foreach list="${module.build.list}" delimiter="," target="build-module" param="build.module.name">
+             <param name="ant.target.name" value="all"/>
+           </foreach>
+         </case>
+         <case value="5">
+           <!-- Update, build and install modules. -->
+           <foreach list="${module.build.list}" delimiter="," target="update-module" param="build.module.name">
+           </foreach>
+           <foreach list="${module.build.list}" delimiter="," target="build-module" param="build.module.name">
+             <param name="ant.target.name" value="install"/>
+           </foreach>
+         </case>
+         <case value="6">
+           <antcall target="install"/>
+         </case>
+         <default>
+            <fail message="The value of property build.choice is invalid"/>
+         </default>
+       </switch>
+    </target>
+
+    <target name="interactive" depends="ant-contrib-setup">
+       <dirname property="current.directory.name" file="${securityservices.base}/build.xml"/>
+       <echo level="info" message="${current.directory.name}"/>
+       <basename property="current.module.name" file="${current.directory.name}"/>
+       <!-- Set the property that contains the modules to build. -->
+       <property name="module.build.list" value="${module.subordinates},${current.module.name}"/>
+
+       <echo level="info" message="***** Cougaar security services interactive build *****"/>
+       <echo level="info" message="*******************************************************"/>
+       <echo level="info" message="Current module:"/>
+       <echo level="info" message="       =>    ${current.module.name}"/>
+       <echo level="info" message="This module depends on the following modules:"/>
+       <for list="${module.subordinates}" delimiter="," param="build.module.name">
+         <sequential>
+            <echo message="       =>    @{build.module.name}"/>
+         </sequential>
+       </for>
+       <echo level="info" message=""/>
+       <echo level="info" message="1: Checkout (or update if modules are already checked out) the modules listed above."/>
+       <echo level="info" message="     The modules will be checked out or updated in the parent directory of this module."/>
+       <echo level="info" message="2: Build the modules listed above."/>
+       <echo level="info" message="     The modules listed above must have been checked out previously."/>
+       <echo level="info" message="3: Build and install the modules listed above."/>
+       <echo level="info" message="     The modules listed above must have been checked out previously."/>
+       <echo level="info" message="4: Update and build the modules listed above."/>
+       <echo level="info" message="5: Update, build and install the modules listed above."/>
+       <echo level="info" message="6: Build and install current module (${current.module.name}) only."/>
+       <input message="Enter your choice:" validargs="1,2,3,4,5,6" addproperty="build.choice"/>
+       <antcall target="process-interactive-command"/>
+    </target>
 		
     <!-- use 'ant with-update' to update repository executing the ALL target -->
     <target name="with-update" depends="cvs-update, all"/>
