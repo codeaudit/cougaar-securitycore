@@ -54,15 +54,21 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
     }
   }
 
-  private static void setPrincipal(SSLSocket socket) throws SSLPeerUnverifiedException {
-    SSLSession session = socket.getSession();
-    java.security.cert.Certificate[] peer = session.getPeerCertificates();
-    if (peer != null && peer.length > 0 &&
-        peer[0] instanceof X509Certificate) {
-      X509Certificate cert = (X509Certificate) peer[0];
-      synchronized (_sessionMap) {
-        _sessionMap.put(Thread.currentThread(),cert.getSubjectDN());
+  private static void setPrincipal(SSLSocket socket) {
+    try {
+      SSLSession session = socket.getSession();
+      if (session != null) {
+        java.security.cert.Certificate[] peer = session.getPeerCertificates();
+        if (peer != null && peer.length > 0 &&
+            peer[0] instanceof X509Certificate) {
+          X509Certificate cert = (X509Certificate) peer[0];
+          synchronized (_sessionMap) {
+            _sessionMap.put(Thread.currentThread(),cert.getSubjectDN());
+          }
+        }
       }
+    } catch (SSLPeerUnverifiedException e) {
+      // don't set anything, there is no peer
     }
   }
 
@@ -173,7 +179,11 @@ public class KeyRingSSLServerFactory extends SSLServerSocketFactory {
 
     public Socket accept()
       throws IOException {
-      return new WrappedSSLSocket(super.accept());
+      Socket sock = super.accept();
+      if (sock == null) {
+        return sock;
+      }
+      return new WrappedSSLSocket(sock);
     }
   }
 
