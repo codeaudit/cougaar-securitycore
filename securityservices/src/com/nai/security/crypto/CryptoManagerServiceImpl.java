@@ -33,8 +33,11 @@ import org.cougaar.core.security.bootstrap.BaseBootstrapper;
 import com.nai.security.util.CryptoDebug;
 import org.cougaar.core.security.services.crypto.KeyRingService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
-public class CryptoManagerServiceImpl implements CryptoManagerService {
+public class CryptoManagerServiceImpl
+  implements EncryptionService
+{
   private boolean debug = false;
   private KeyRingService keyRing = null;
 
@@ -208,6 +211,49 @@ public class CryptoManagerServiceImpl implements CryptoManagerService {
 	return null;
       }
     }
+
+  public SealedObject signAndEncrypt(Serializable object,
+				     String sourceAgent,
+				     String targetAgent,
+				     SecureMethodParam policy) {
+    SealedObject so = null;
+    SealedObject sessionKey = null;
+    SealedObject sealedMsg = null;
+    SignedObject signedMsg = null;
+  
+    /* Generate the secret key */
+    int i = policy.symmSpec.indexOf("/");
+    String a;
+    a =  i > 0 ? policy.symmSpec.substring(0,i) : policy.symmSpec;
+    if(debug) {
+      System.out.println("Secret Key Parameters: " + a);
+    }
+    SecureRandom random = new SecureRandom();
+    try {
+      KeyGenerator kg=KeyGenerator.getInstance(a);
+      kg.init(random);
+      SecretKey sk=kg.generateKey();
+
+      // Encrypt session key
+      sessionKey = asymmEncrypt(targetAgent, policy.asymmSpec, sk);
+
+      // Encrypt object itself
+      sealedMsg = symmEncrypt(sk, policy.symmSpec, object);
+
+      // Sign message
+      signedMsg = sign(sourceAgent, policy.signSpec, sealedMsg);
+    }
+    catch (java.security.NoSuchAlgorithmException e) {
+    }
+    catch (java.security.cert.CertificateException e) {
+    }
+    return so;
+  }
+
+  public Object decryptAndVerify(SealedObject object) {
+    Object o = null;
+    return o;
+  }
 
 }
 

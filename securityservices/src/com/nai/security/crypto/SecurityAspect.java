@@ -47,6 +47,7 @@ import org.cougaar.core.security.policy.AccessControlPolicy;
 
 import com.nai.security.util.SecurityPropertiesService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
 
 /**
@@ -59,7 +60,7 @@ import org.cougaar.core.security.crypto.CryptoServiceProvider;
 public class SecurityAspect extends StandardAspect
 {
   private SecurityPropertiesService secprop = null;
-  private static CryptoManagerService cms = null;
+  private static EncryptionService cms = null;
   private static CryptoPolicyService cps = null;
   private static AccessControlPolicyService acps = null;
 
@@ -97,7 +98,7 @@ public class SecurityAspect extends StandardAspect
     sb = new ServiceBrokerSupport();
     //    setChildServiceBroker(sb);
     CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
-    sb.addService(CryptoManagerService.class, cmsp);
+    sb.addService(EncryptionService.class, cmsp);
     sb.addService(CryptoPolicyService.class, cmsp);
     sb.addService(AccessControlPolicyService.class, cmsp);
 
@@ -549,12 +550,16 @@ public class SecurityAspect extends StandardAspect
     //    sb = getServiceBroker();
     if (sb != null){
       try{
-	cms = (CryptoManagerService)sb.getService(this, CryptoManagerService.class, null);
-	cps = (CryptoPolicyService)sb.getService(this, CryptoPolicyService.class, null);
-	acps = (AccessControlPolicyService)sb.getService(this, AccessControlPolicyService.class, null);
+	cms = (EncryptionService)
+	  sb.getService(this, EncryptionService.class, null);
+	cps = (CryptoPolicyService)
+	  sb.getService(this, CryptoPolicyService.class, null);
+	acps = (AccessControlPolicyService)
+	  sb.getService(this, AccessControlPolicyService.class, null);
       }
       catch(Exception e){
-	throw new RuntimeException("failed to initialize security Aspect:"+e.toString());
+	throw new RuntimeException("failed to initialize security Aspect:"
+				   +e.toString());
       }
     }else{
       throw new RuntimeException("No service broker when trying to initialize SecurityAspect.");

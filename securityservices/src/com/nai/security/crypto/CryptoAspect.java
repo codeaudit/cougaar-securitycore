@@ -48,6 +48,7 @@ import org.cougaar.planning.ldm.plan.Task;
 
 import com.nai.security.util.SecurityPropertiesService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
 /**
  *
@@ -57,7 +58,7 @@ import org.cougaar.core.security.crypto.CryptoServiceProvider;
  * */
 public class CryptoAspect extends StandardAspect
 {
-  private static CryptoManagerService cms = null; 
+  private static EncryptionService cms = null; 
   private static CryptoPolicyService cps = null;
 
   private static String smlist[]={"CLEAR","SIGN","ENCRYPT","SIGN+ENCRYPT"};
@@ -89,7 +90,7 @@ public class CryptoAspect extends StandardAspect
     sb = new ServiceBrokerSupport();
     //    setChildServiceBroker(sb);
     CryptoManagerServiceProvider cmsp = new CryptoManagerServiceProvider();
-    sb.addService(CryptoManagerService.class, cmsp);
+    sb.addService(EncryptionService.class, cmsp);
     sb.addService(CryptoPolicyService.class, cmsp);                
   }
 
@@ -98,8 +99,8 @@ public class CryptoAspect extends StandardAspect
     //    sb = getServiceBroker();
     if (sb != null){
       try{
-	cms = (CryptoManagerService)
-	  sb.getService(this, CryptoManagerService.class, null);
+	cms = (EncryptionService)
+	  sb.getService(this, EncryptionService.class, null);
 	cps = (CryptoPolicyService)
 	  sb.getService(this, CryptoPolicyService.class, null);
       }

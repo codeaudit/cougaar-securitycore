@@ -29,6 +29,7 @@ import com.nai.security.access.AccessControlPolicyService;
 import com.nai.security.access.AccessControlPolicyServiceImpl;
 import com.nai.security.util.SecurityPropertiesService;
 import org.cougaar.core.security.crypto.CryptoServiceProvider;
+import org.cougaar.core.security.services.crypto.EncryptionService;
 
 import java.security.Security;
 import java.security.Provider;
@@ -59,7 +60,7 @@ public class CryptoManagerServiceProvider implements ServiceProvider {
   }
 
   public Object getService(ServiceBroker sb, Object obj, Class cls) {
-    if(cls==CryptoManagerService.class){
+    if(cls==EncryptionService.class){
       return new CryptoManagerServiceImpl();
     }else if(cls==CryptoPolicyService.class){
       if( cps==null ) cps = new CryptoPolicyServiceImpl();
