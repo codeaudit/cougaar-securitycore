@@ -28,6 +28,10 @@ import org.cougaar.core.service.community.CommunityService;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+
+
 
 /**
  * Utility methods for the CommunityService
@@ -108,6 +112,7 @@ public class CommunityServiceUtil {
   
   public String getSecurityCommunity(String agent) {
     String myCommunity = null;
+     _log.debug("Find security community for " + agent);
     Collection communities = _cs.listParentCommunities(agent, "(CommunityType=Security)");
     if(!communities.isEmpty()) {
       if(communities.size() == 1) {
@@ -128,7 +133,7 @@ public class CommunityServiceUtil {
       }
     }
     else {
-       _log.error(agent + " does not belong to any security community"); 
+       _log.debug(agent + " does not belong to any security community"); 
     }
     _log.debug("returning security community '" + myCommunity + "'");
     return myCommunity;
@@ -138,4 +143,30 @@ public class CommunityServiceUtil {
     Collection roles = _cs.getEntityRoles(getSecurityCommunity(agent), agent);
     return (roles.contains("Root") || roles.contains("root"));
   }
+  public List getAllSecurityCommunity(String agent) {
+    String myCommunity = null;
+    ArrayList list=new ArrayList(); 
+     _log.debug("Find security community for " + agent);
+    Collection communities = _cs.listParentCommunities(agent, "(CommunityType=Security)");
+    if(!communities.isEmpty()) {
+      if(communities.size() == 1) {
+        list.add((String)communities.iterator().next());  
+      }
+      else {
+        _log.debug("multiple security communities for " + agent);  
+        Iterator c = communities.iterator();
+        Collection members = null;
+        while(c.hasNext()) {
+          String community = (String)c.next();
+          list.add(community);
+          Collection roles = _cs.getEntityRoles(community, agent);
+        }
+      }
+    }
+    else {
+      _log.debug(agent + " does not belong to any security community"); 
+    }
+    _log.debug("returning security community '" + list.size() + "'");
+    return list;
+  } 
 }
