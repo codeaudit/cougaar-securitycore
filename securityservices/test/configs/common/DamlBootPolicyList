@@ -146,23 +146,18 @@ BlackBoardObject OrgActivity
 #     necessary. 
 #
 
-Policy AllowCommunication = [ 
-   GenericTemplate
-   Priority = 2,
-   $Actor.daml#Agent is authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Action.daml#hasDestination
-    is a subset of the set $Actor.daml#Agent
+
+Policy AllowCommunication = [
+   MessageAuthTemplate
+   Allow messages from members of $Actor.daml#Agent to
+   members of $Actor.daml#Agent
 ]
 
+
 Policy EncryptCommunication = [ 
-   GenericTemplate
-   Priority = 3,
-   $Actor.daml#Agent is not authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
-    is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $Actor.daml#Agent to members of $Actor.daml#Agent
 ]
 
 

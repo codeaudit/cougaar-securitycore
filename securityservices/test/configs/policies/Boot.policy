@@ -46,7 +46,7 @@
 # be used - if desired - to arrange that built policies reside in a
 # subdirectory.
 #
-PolicyPrefix=%Boot/
+PolicyPrefix=%DamlBootPolicy
 
 
 #
@@ -64,6 +64,7 @@ UserRole RearPolicyAdministrator
 UserRole FwdPolicyAdministrator
 UserRole ConusPolicyAdministrator
 UserRole TransPolicyAdministrator
+UserRole EnclaveaPolicyAdministrator
 UserRole PolicyAdministrator
 UserRole UserManager
 UserRole SocietyAdmin
@@ -85,6 +86,7 @@ Servlet RearPolicyServlet
 Servlet FwdPolicyServlet
 Servlet ConusPolicyServlet
 Servlet TransPolicyServlet
+Servlet EnclaveaPolicyServlet
 Servlet PolicyServlet
 Servlet SocietyAdminServlet
 Servlet UserManagerServlets
@@ -144,23 +146,18 @@ BlackBoardObject OrgActivity
 #     necessary. 
 #
 
-Policy AllowCommunication = [ 
-   GenericTemplate
-   Priority = 2,
-   $Actor.daml#Agent is authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Action.daml#hasDestination
-    is a subset of the set $Actor.daml#Agent
+
+Policy AllowCommunication = [
+   MessageAuthTemplate
+   Allow messages from members of $Actor.daml#Agent to
+   members of $Actor.daml#Agent
 ]
 
+
 Policy EncryptCommunication = [ 
-   GenericTemplate
-   Priority = 3,
-   $Actor.daml#Agent is not authorized to perform
-   $Action.daml#EncryptedCommunicationAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
-    is a subset of the complement of the set
-     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
+  MessageEncryptionTemplate
+  Require NSAApprovedProtection on all messages from members of 
+  $Actor.daml#Agent to members of $Actor.daml#Agent
 ]
 
 
@@ -254,19 +251,12 @@ Policy UnrestServlet = [
 #  1. this is a common event so it allows people to see audit
 #  2. I can turn on other audits in other audit experiments.
 #
-Policy RequireAudit = [ 
-   GenericTemplate
-   Priority = 3,
-   $Actor.daml#Person is not authorized to perform
-   $Action.daml#AccessAction as long as
-    the value of $Ultralog/UltralogAction.daml#usedAuditLevel
-    is a subset of the set { $Ultralog/Names/EntityInstances.daml#NoAudit }
-                       and
-    the value of $Ultralog/UltralogAction.daml#accessedServlet is a
-    subset of the set { $Ultralog/Names/EntityInstances.daml#CAReadServlet
-                        $Ultralog/Names/EntityInstances.daml#CertReqServlet }
-]
 
+Policy RequireAudit = [
+   AuditTemplate
+   Require audit for all accesses to servlet CAReadServlet,
+   CertReqServlet
+]
 
 Policy PolicyServletRear  = [ 
   ServletUserAccessTemplate
@@ -316,6 +306,18 @@ Policy PolicyServletTransAuth  = [
   ServletAuthenticationTemplate
   All users must use Password, PasswordSSL, CertificateSSL
   authentication when accessing the servlet named TransPolicyServlet
+]
+
+Policy PolicyServletEnclavea  = [
+  ServletUserAccessTemplate
+  A user in role EnclaveaPolicyAdministrator can access a servlet
+  named EnclaveaPolicyServlet
+]
+
+Policy PolicyServletEnclaveaAuth  = [
+  ServletAuthenticationTemplate
+  All users must use Password, PasswordSSL, CertificateSSL
+  authentication when accessing the servlet named EnclaveaPolicyServlet
 ]
 
 Policy SCmrManager  = [ 
