@@ -322,51 +322,53 @@ public class PersistenceMgrPolicyServiceImpl
         _log.debug("processPersistenceMgrEntry: " + manager + " agent " + agent);
       }
 
-      if(!_agents.contains(agent)) {
-	AddressEntry entry = null;
-	try {
-	  // look up the agent's info in the white pages
-	  entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
-	  if(_debug) {
-	    _log.debug("address entry = " + entry);
-	  }
-	}
-	catch(Exception e) {
-	  // if an error occurs ignore this persistence manager
-	  _log.error("unable to get " + agent +
-		     " info from the white pages.", e);
-	  return;
-	}
-	if (entry == null) {
-	  if(_debug) {
-	    _log.debug("address entry is null for : " + agent);
-	  }
-	  return;
-	}
-
-	// construct the url for this persistence manager
-	URI uri = entry.getURI();
-	String servletUrl = uri + PM_SERVLET_URI;
-	// get all DNs associated with this agent
-	Collection dns = null;
-        try {
-          dns = _keyRing.findDNFromNS(agent);
-        }
-        catch (Exception iox) {
-          if (_log.isDebugEnabled()) {
-            _log.debug("Failed to get PM name " + agent);
+      synchronized (_agents) {
+        if(!_agents.contains(agent)) {
+          AddressEntry entry = null;
+          try {
+            // look up the agent's info in the white pages
+            entry = _wps.get(agent, WhitePagesUtil.WP_HTTP_TYPE);
+            if(_debug) {
+              _log.debug("address entry = " + entry);
+            }
           }
-          return;
+          catch(Exception e) {
+            // if an error occurs ignore this persistence manager
+            _log.error("unable to get " + agent +
+                       " info from the white pages.", e);
+            return;
+          }
+          if (entry == null) {
+            if(_debug) {
+              _log.debug("address entry is null for : " + agent);
+            }
+            return;
+          }
+
+          // construct the url for this persistence manager
+          URI uri = entry.getURI();
+          String servletUrl = uri + PM_SERVLET_URI;
+          // get all DNs associated with this agent
+          Collection dns = null;
+          try {
+            dns = _keyRing.findDNFromNS(agent);
+          }
+          catch (Exception iox) {
+            if (_log.isDebugEnabled()) {
+              _log.debug("Failed to get PM name " + agent);
+            }
+            return;
+          }
+          Iterator i = dns.iterator();
+          while(i.hasNext()) {
+            X500Name name = (X500Name)i.next();
+            addPolicy(createPolicy(servletUrl, name.getName()));
+          }
+          // only add the agent if haven't already
+          if(dns.size() > 0) {
+            _agents.add(agent);
+          }
         }
-	Iterator i = dns.iterator();
-	while(i.hasNext()) {
-	  X500Name name = (X500Name)i.next();
-	  addPolicy(createPolicy(servletUrl, name.getName()));
-	}
-	// only add the agent if haven't already
-	if(dns.size() > 0) {
-	  _agents.add(agent);
-	}
       } // if(!_agents.contains(pm))
     }
 
