@@ -5,6 +5,7 @@
   <host name='BlackHole.local.'>
     <facet enclave='Rear'/>
     <node name='RearWorkerNode'>
+     <agent name='testBounceOne' class='org.cougaar.core.agent.SimpleAgent' />
      <agent name='testBBPolicyAgent' 
             class='org.cougaar.core.agent.SimpleAgent'>
         <component
@@ -49,6 +50,9 @@
            insertionpoint='Node.AgentManager.Agent.PluginManager.Plugin'>
         </component>
       </agent>
+    </node>
+    <node name='RearEnclaveCaNode'>
+      <agent name='testBounceTwo' class='org.cougaar.core.agent.SimpleAgent' />
     </node>
   </host>
 </society>

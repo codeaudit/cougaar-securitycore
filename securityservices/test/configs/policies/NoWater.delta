@@ -1,0 +1,12 @@
+
+
+PolicyPrefix=%NoWater/
+
+Policy NoWater = [
+  GenericTemplate
+  Priority = 2,
+  $Actor.owl#Agent is  not authorized to perform
+  $Action.owl#EncryptedCommunicationAction as long as the value of 
+  $Ultralog/UltralogAction.owl#hasSubject is a subset of the set 
+  { $Ultralog/Names/EntityInstances.owl#GetWater }
+ ]

@@ -4,7 +4,7 @@
   <host name='BlackHole.local.'> 
     <facet enclave='Rear'/> 
     <node name='RearPolicyManagerNode'> 
-      <facet role="NameServer"/> 
+      <facet role="AS-RootManagement"/> 
       <facet role="AS-Management"/> 
     </node> 
   <!--
@@ -14,9 +14,12 @@
   -->
     <node name='RearEnclaveCaNode'> 
       <facet role="CertificateAuthority"/>
+      <agent name='testBounceTwo' />
     </node>
     <node name='RearWorkerNode'> 
       <facet role="RootCertificateAuthority"/> 
+      <facet role="NameServer"/> 
+      <agent name='testBounceOne'/>
       <agent name='testBBPolicyAgent'/>
       <agent name='FwdUserAdminAgent'/>
     </node> 

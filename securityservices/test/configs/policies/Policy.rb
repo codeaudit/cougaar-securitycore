@@ -14,7 +14,8 @@ $:.unshift File.join(CIP, 'csmart', 'assessment', 'lib')
 require 'cougaar/scripting'
 require 'framework/cougaarMods'
 require 'framework/cond_policy'
- 
+require 'framework/misc'
+
 require 'cougaar/scripting' 
 require 'cougaar/communities' 
 require 'ultralog/scripting'
@@ -22,6 +23,8 @@ require 'ultralog/services'
  
 require 'socket' 
 require 'rexml/document' 
+
+require 'policyInitDM.rb'
  
 Cougaar::ExperimentMonitor.enable_stdout 
 Cougaar::ExperimentMonitor.enable_logging 
@@ -58,17 +61,14 @@ Cougaar.new_experiment("Policy-Test").run(1) {
  
   # load local rules (ping_env.rule) 
   do_action "TransformSociety", false, 
-    ".", 
+    ".",
     "#{RULES}/isat/nameserver.rule",
     "#{RULES}/isat/default_servlets.rule",
     "#{RULES}/isat/root_mobility_plugin.rule",
     "#{RULES}/isat/logging_config_servlet.rule",
     "#{RULES}/isat/community_plugin.rule",
     "#{RULES}/isat/show_jars.rule",
-#    "#{RULES}/isat/tic_env.rule",
-#    "#{RULES}/isat",
     "#{RULES}/security"
-
  
   # Build the communities.xml file 
   do_action "TransformSociety", false, 
@@ -85,14 +85,15 @@ Cougaar.new_experiment("Policy-Test").run(1) {
   # 
   # replace the last parameter with your jabber server's host name  
   do_action "StartJabberCommunications"
-  do_action "CleanupSociety"
+#  do_action "CleanupSociety"
   do_action "VerifyHosts" 
   do_action "ConnectOperatorService"
 #  do_action "ClearPersistenceAndLogs"
-  do_action "GenericAction" do 
+#  do_action "GenericAction" do 
 #    `rm -rf #{CIP}/workspace/log4jlogs #{CIP}/workspace/P`
-     `rm -rf #{CIP}/workspace`
-  end
+#     `killall java`
+#     `rm -rf #{CIP}/workspace`
+#  end
   do_action "DeployCommunitiesFile" 
  
   # optional: print the cougaar events 
@@ -104,11 +105,9 @@ Cougaar.new_experiment("Policy-Test").run(1) {
 #     end 
 #  end 
  
-  do_action "CleanupSociety" 
- 
   do_action "StartSociety" 
 
-  do_action "PublishConditionalPolicies"
+#  do_action "InitDM"
  
   # however long you want to run 
 #  do_action "Sleep", 40.minutes 

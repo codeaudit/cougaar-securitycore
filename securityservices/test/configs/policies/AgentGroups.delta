@@ -27,20 +27,20 @@ PolicyPrefix=%AgentGroups/
 
 Delete EncryptCommunication
 
-Agent %#EnclaveOnePolicyManager
-Agent %#ca1ADNode
-Agent %#EnclaveOnePolicyManagerNode
-Agent %#EnclaveOneWorkerNode
-Agent %#testBounceOne
-Agent %#testBounceTwo
+Agent RearPolicyDomainManager
+Agent RearEnclaveCaNode
+Agent RearPolicyManagerNode
+Agent RearWorkerNode
+Agent testBounceOne
+Agent testBounceTwo
 
-AgentGroup NodeAgents = { EnclaveOnePolicyManagerNode, 
-                          EnclaveOneWorkerNode,
-                          ca1ADNode }
+AgentGroup NodeAgents = { RearPolicyManagerNode, 
+                          RearWorkerNode,
+                          RearEnclaveCaNode }
 
 AgentGroup Bouncers = { testBounceOne, testBounceTwo }
 
-AgentGroup EnclaveOnePolicyManagerGroup = { EnclaveOnePolicyManager }
+AgentGroup RearPolicyDomainManagerGroup = { RearPolicyDomainManager }
 
 Delete EncryptCommunication
 
@@ -59,7 +59,7 @@ Policy DenyBounce = [
 Policy EncryptCommunicationTwo = [
   MessageEncryptionTemplate
   Require NSAApprovedProtection on all messages from members of 
-  $AgentsInGroup#EnclaveOnePolicyManagerGroup to members of 
+  $AgentsInGroup#RearPolicyDomainManagerGroup to members of 
   $AgentsInGroup#NodeAgents
 ]
 
@@ -67,7 +67,7 @@ Policy EncryptCommunicationThree = [
   MessageEncryptionTemplate
   Require WeakProtection on all messages from members of the
   complement of
-  $AgentsInGroup#EnclaveOnePolicyManagerGroup to members of the
+  $AgentsInGroup#RearPolicyDomainManagerGroup to members of the
   complement of
   $AgentsInGroup#NodeAgents
 ]

@@ -93,9 +93,9 @@ Servlet OtherServlets
 
 #
 # There are three mapping files for these declarations, 
-#    RoleAgent        - to get the role from the agent name
-#    RoleComponentMap - to get the role from the component name
-#    RoleUriMap       - to get the role from the URI
+#    OwlMapRoleAgent     - to get the role from the agent name
+#    OwlMapRoleComponent - to get the role from the component name
+#    OwlMapRoleUri       - to get the role from the URI
 #
 
 PlugInRole OpPlanPlugIn
@@ -108,7 +108,7 @@ PlugInRole OrgActivityRemove
 PlugInRole OrgActivityAll
 
 #
-# The mapping file for these declarations is DamlBlackboardObjectMap.
+# The mapping file for these declarations is OwlMapBlackboardObjects.
 #
 
 BlackBoardObject BlackboardOpPlanObject
