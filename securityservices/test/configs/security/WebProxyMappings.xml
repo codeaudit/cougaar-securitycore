@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings>
+  <redirect prefix="http://ontology.ihmc.us" 
+            prepend="Ontology-" />
+  <redirect prefix="http://www.isi.edu/~pan/damltime/time-entry.owl" 
+            prepend="Ontology-" />
+</mappings>
