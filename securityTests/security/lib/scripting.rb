@@ -10,7 +10,7 @@ require 'security/actions/cond_policy'
 begin
   require 'security/assessment/scripting'
 rescue Exception => e
-  puts "error while loading assessment/scripting, will skip ..."
+  puts "Not loading assessment/scripting: #{e}"
 end
 require 'security/lib/cougaarMods'
 
