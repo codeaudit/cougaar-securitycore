@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Ant build script for Ultra*Log securityservices. Run 'ant' in the  
-     $COUGAAR_SECURITY_SERVICES directory with no arguments to build and
-     install security services.  Use "ant cvs-update" to update local 
-     repository before building and installing security services. To
-     generate javadocs run "ant javadocs".  To tar and zip the javadocs
-     run "ant tar-docs". Include "-v" with ant for verbose mode.  -->
+<!-- 
+    Ant build script for Ultra*Log securityservices. 
+     
+    Usage: ant [-v] <target>
+     
+    Run ant in the current directory.  If no target is specified, ant will build
+    securityservices, jar and sign the jars.  Include  "-v" with ant for verbose mode.
+     
+    target:
+        all - build, jar and sign securityservices (default).
+        cvs-update - execute "cvs update -d" in the current directory
+        with-update - execute the cvs-update and all targets
+        install - execute the all target, and install securityservices 
+                  signed jars and configuration files
+        javadocs - create javadocs for securityservices
+        tar-docs - tar and zip the javadocs
+        help - print out usage message     
+-->
 
 <project basedir="." default="all" name="Ultra*Log/securityservices">
   
@@ -254,7 +266,7 @@
     <target name="with-update" depends="cvs-update, all"/>
     
     <!-- create javadocs for security services and JavaIDMEF -->
-    <target name="javadocs" depends="init" description="Build security services and idmef javadocs">
+    <target name="javadocs" depends="init" description="Generating security services and idmef javadocs">
         <echo message="Creating JavaDocs for security services and JavaIDMEF"/>
         <delete file="${securityservices.docdir}/javadoc.tar.gz" verbose="true"/>
         <javadoc classpathref="securityservices.class.path" destdir="${securityservices.docdir}"
@@ -263,7 +275,7 @@
             excludepackagenames="org.cougaar.core.security.oldmonitoring.*, 
                                  org.cougaar.core.security.test.*"
             author="true" version="true"/>
-        <echo message="Created JavaDocs for security services and JavaIDMEF"/>
+        <echo message="Generated JavaDocs for security services and JavaIDMEF"/>
     </target>
 	
 	  <!-- tar up javadoc and delete all files -->
@@ -299,5 +311,25 @@
         <echo message="+++++ Cleaned build environment"/>
     </target>
     
+    <target name="help">
+        <echo message="Ant build script for Ultra*Log securityservices."/>
+        <echo message=""/>
+        <echo message="Usage: ant [-v] &lt;target&gt;"/>
+        <echo message=""/>
+        <echo message="Run ant in the current directory.  If no target is specified,"/>
+        <echo message="ant will build securityservices, jar and sign the jars.  Include"/>
+        <echo message="'-v' with ant for verbose mode."/>
+        <echo message=""/>
+        <echo message="target:"/>
+        <echo message="    all - build, jar and sign securityservices (default)."/>
+        <echo message="    cvs-update - execute 'cvs update -d' in the current directory"/>
+        <echo message="    with-update - execute the cvs-update and all targets"/>
+        <echo message="    install - execute the all target, and install securityservices"/>
+        <echo message="              signed jars and configuration files"/>
+        <echo message="    javadocs - create javadocs for securityservices"/>
+        <echo message="    tar-docs - tar and zip the javadocs"/>
+        <echo message="    help - print out the usage message"/>
+    </target>
+        
 </project>
 <!-- End Ultra*Log/securityservices ant build script -->
