@@ -46,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -260,19 +262,31 @@ public class SecureConfigFinder
    */
   protected void verifyInputStream(URL aURL)
     throws IOException, GeneralSecurityException {
+    boolean verified = false;
+    if (m_verifiedUrls.contains(aURL)) {
+       verified = true;
+    }
     if (_logger.isInfoEnabled()) {
-      _logger.info("Verify InputStream " + aURL);
+      _logger.info("Verify InputStream. Verified=" + verified  + " " + aURL);
+    }
+    if (verified) {
+      return;
     }
     try {
       // We have to read the file for signature verification.
       InputStream is = new SecureJarFilterStream(aURL);
       is.close();
+      m_verifiedUrls.add(aURL);
     }
     catch (GeneralSecurityException e) {
       logSecurityEvent(aURL, e);
       throw e;
     }
   }
+
+  /** A Set containing all the URLs that have been verified.
+   */
+  private Set m_verifiedUrls = new HashSet();
 
   private boolean acceptUnsignedJarFiles() {
     return false;
