@@ -17,6 +17,8 @@
         javadocs    - create javadocs for securityservices
         tar-docs    - tar and zip the javadocs
         run-tests   - run Junit tests 
+        clean-log   - Delete log files
+        clean       - Delete .class and .jar files
         help        - print out usage message     
 
    To run junit tests, the following files must be included in the ANT lib directory:
@@ -399,8 +401,24 @@
         </delete>
     </target>
     
+    <!-- Delete log files -->
+    <target name="clean-log">
+        <echo message="+++++ Cleaning log files"/>
+        <!-- Delelete log files... -->
+        <delete verbose="true">
+          <fileset  dir="${securityservices.configs}/demo" includes="*.log"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${securityservices.configs}/cougaarCA" includes="*.log"/>
+        </delete>
+        <delete verbose="true">
+          <fileset  dir="${cougaar.install.path}/configs/small-135" includes="*.log"/>
+        </delete>
+        <echo message="+++++ Cleaned log files"/>
+    </target>
+
     <!-- Delete the edu, com, and org class directories, and jar files -->
-    <target name="clean">
+    <target name="clean" depends="clean-log">
         <echo message="+++++ Cleaning build environment"/>
         <delete dir="${securityservices.classes}/edu" includeEmptyDirs="true" quiet="true"/>
         <delete dir="${securityservices.classes}/com" includeEmptyDirs="true" quiet="true"/>
@@ -410,11 +428,6 @@
         <delete file="${securityservices.classes}/securityservices.jar" verbose="true"/>
         <delete file="${securityservices.classes}/CougaarCRLextensions.jar" verbose="true"/>
         <delete file="${securityservices.classes}/idmef.jar" verbose="true"/>
-
-        <!-- Delelete log files... -->
-        <delete verbose="true">
-          <fileset  dir="${securityservices.configs}/demo" includes="*.log"/>
-        </delete>
         <echo message="+++++ Cleaned build environment"/>
     </target>
     
@@ -436,6 +449,8 @@
         <echo message="    javadocs    - create javadocs for securityservices"/>
         <echo message="    tar-docs    - tar and zip the javadocs"/>
         <echo message="    run-tests   - run Junit tests"/>
+        <echo message="    clean       - Delete .class and .jar files"/>
+        <echo message="    clean-log   - Delete log files"/>
         <echo message="    help        - print out the usage message"/>
     </target>
         
