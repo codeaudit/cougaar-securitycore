@@ -34,7 +34,7 @@ module Cougaar
      def register (url)
        params = []
        params << "SecurityCommunity=6"
-       params << "Enclave=#{@currentcommunityname}"   
+       params << "Enclave=#{@currentcommunityname.capitalize}"   
        @run.info_message"Re register called with new enclave #{@currentcommunityname}"
        @run.info_message "Complete security handoff at : #{url} params #{params}" 
        response =  SRIWeb.instance.postHtml url, params
