@@ -188,10 +188,11 @@ public class RateCalculatorPlugin extends ComponentPlugin {
    * Predicate to indicate if we need to recreate the rate condition
    * or use the one rehydrated from the serialized blackboard
    */
-  private static final UnaryPredicate RATE_CONDITION_PREDICATE = 
+  private final UnaryPredicate RATE_CONDITION_PREDICATE = 
     new UnaryPredicate() {
       public boolean execute(Object o) {
-        return (o instanceof RateCondition);
+        return (o instanceof RateCondition &&
+                ((RateCondition)o).getName().equals(_conditionName));
       }
     };
 
@@ -268,12 +269,15 @@ public class RateCalculatorPlugin extends ComponentPlugin {
 
     // remove the old rate condition(s) -- should be only one at most
     Collection c = bbs.query(RATE_CONDITION_PREDICATE);
-    Iterator iter = c.iterator();
-    while (iter.hasNext()) {
-      bbs.publishRemove(iter.next());
-    } // end of while (iter.hasMore())
-
-    ts.getThread(this, new RateTask()).schedule(
+    RateCondition rc = null;
+    if (!c.isEmpty()) {
+      Iterator iter = c.iterator();
+      rc = (RateCondition) iter.next();
+      while (iter.hasNext()) {
+        bbs.publishRemove(iter.next());
+      } // end of while (iter.hasMore())
+    }
+    ts.getThread(this, new RateTask(rc)).schedule(
       0, ((long)_pollInterval) * 1000);
   }
 
@@ -358,7 +362,11 @@ public class RateCalculatorPlugin extends ComponentPlugin {
      */
     protected RateCondition _rate = null;
 
-    public RateTask() {
+    public RateTask(RateCondition rate) {
+      if (rate != null) {
+        _rate = rate;
+        _rate.setRate(-1);
+      }
     }
 
     /**
