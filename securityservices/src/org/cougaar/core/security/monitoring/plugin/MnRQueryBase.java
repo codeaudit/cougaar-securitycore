@@ -742,14 +742,17 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(Role=" + role + ")";
-    communityService.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      loggingService.error("Error in searchByCommunity:", ie);
+    Collection agents =
+      communityService.searchCommunity(null, filter, 
+                                       true, Community.AGENTS_ONLY, crl);
+    if (agents == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        loggingService.error("Error in searchByCommunity:", ie);
+      }
+      agents=(Set)status.value;
     }
-
-    Collection agents=(Set)status.value;
 
     Iterator iter=agents.iterator();
     while(iter.hasNext()) {
@@ -791,15 +794,17 @@ public abstract class MnRQueryBase extends ComponentPlugin {
       };
     // TODO: do this truly asynchronously.
     String filter = "(Role=" + role + ")";
-    communityService.searchCommunity(community, filter, true,
-				     Community.AGENTS_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      loggingService.error("Error in searchByCommunity:", ie);
+    Collection agents =
+      communityService.searchCommunity(community, filter, true,
+                                       Community.AGENTS_ONLY, crl);
+    if (agents == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        loggingService.error("Error in searchByCommunity:", ie);
+      }
+      agents=(Set)status.value;
     }
-
-    Collection agents=(Set)status.value;
 
     //Collection searchresult=communityService.searchByRole(community,role);
     Iterator roleiter=agents.iterator();

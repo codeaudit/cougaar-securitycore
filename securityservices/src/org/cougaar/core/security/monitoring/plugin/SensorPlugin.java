@@ -317,8 +317,6 @@ public abstract class SensorPlugin
 
   private void printCommunityInfo(CommunityService cs, Collection communities) {
     Iterator c = communities.iterator();
-    final StringBuffer sb = new StringBuffer();
-    final Semaphore communityNumber = new Semaphore(communities.size());
 
     while(c.hasNext()) {
       final String communityName = (String)c.next();
@@ -331,25 +329,31 @@ public abstract class SensorPlugin
 		m_log.error(errorString);
 	      throw new RuntimeException(errorString);
 	    }
-	    Iterator it = ((Set)response).iterator();
-	    while (it.hasNext()) {
-	      Entity entity = (Entity) it.next();
-	      sb.append("Manager for ").append(communityName).
-		append(":").append(entity.getName()).append("\n");
-	    }
-	    int available = communityNumber.remove();
-	    if (available == 0) {
-	      // We have all the answers
-	      m_log.debug(sb.toString());
-	    }
+            printCommunities((Set) response, communityName);
 	  }
 	};
-      cs.searchCommunity(communityName,
-			 "(Role=" + m_managerRole + ")",
-			 false, // not a recursive search
-			 Community.AGENTS_ONLY,
-			 crl);
+      Collection results =
+        cs.searchCommunity(communityName,
+                           "(Role=" + m_managerRole + ")",
+                           false, // not a recursive search
+                           Community.AGENTS_ONLY,
+                           crl);
+      if (results != null) {
+        printCommunities(results, communityName);
+      }
     }
+  }
+
+  private void printCommunities(Collection communities, String communityName) {
+    StringBuffer sb = new StringBuffer();
+    Iterator it = communities.iterator();
+    while (it.hasNext()) {
+      Entity entity = (Entity) it.next();
+      sb.append("Manager for ").append(communityName).
+        append(":").append(entity.getName()).append("\n");
+    }
+    // We have all the answers
+    m_log.debug(sb.toString());
   }
 
   /**

@@ -180,15 +180,17 @@ public class LdapUserServiceImpl implements UserService {
       };
     // TODO: do this truly asynchronously.
     String filter = "(CommunityType=" + AgentUserService.COMMUNITY_TYPE + ")";
-    cs.searchCommunity(null, filter, true,
-		       Community.COMMUNITIES_ONLY, crl);
-    try {
-      s.acquire();
-    } catch (InterruptedException ie) {
-      _log.error("Error in searchByCommunity:", ie);
+    Collection communities = 
+      cs.searchCommunity(null, filter, true, Community.COMMUNITIES_ONLY, crl);
+    if (communities == null) {
+      try {
+        s.acquire();
+      } catch (InterruptedException ie) {
+        _log.error("Error in searchByCommunity:", ie);
+      }
+      communities=(Set)status.value;
     }
 
-    Collection communities=(Set)status.value;
     if (!communities.isEmpty()) {
       Community c = (Community) communities.iterator().next();
       _defaultDomain = c.getName();
