@@ -24,6 +24,9 @@ find src test ./Makefile* -type f -exec sarep 'com/nai/security' 'org/cougaar/co
 sarep -m '*/bootstrap' '*/*bootstrap' Makefile*
 sarep -m 'org/cougaar/core/security org/cougaar/core/security' 'org/cougaar/core/security' Makefile*
 
+#
+exit
+
 echo '############################################'
 echo ' ++++++ Moving com directory to org/cougaar'
 # Remove 'CVS' directory under src/com
