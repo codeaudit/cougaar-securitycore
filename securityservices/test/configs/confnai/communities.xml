@@ -1458,11 +1458,11 @@
       <Attribute ID="Role" Value="Member" />
       <Attribute ID="Role" Value="Manager" />
     </Entity>
-    <Entity Name="Enclave2Sub1Manager" >
+    <Entity Name="FwdEnclaveSub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave2Sub2Manager" >
+    <Entity Name="FwdEnclaveSub2Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1512,7 +1512,7 @@
   </Community>
   <Community Name="FWD-SECURITY-SUB1-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="Enclave2Sub1Manager" >
+    <Entity Name="FwdEnclaveSub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1524,7 +1524,7 @@
   </Community>
   <Community Name="FWD-SECURITY-SUB2-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="Enclave2Sub2Manager" >
+    <Entity Name="FwdEnclaveSub2Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
@@ -1571,7 +1571,7 @@
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
-    <Entity Name="Enclave3Sub1Manager" >
+    <Entity Name="ConusEnclaveSub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Member" />
     </Entity>
@@ -1650,7 +1650,7 @@
   </Community>
   <Community Name="CONUS-SECURITY-SUB1-COMM" >
     <Attribute ID="CommunityType" Value="Security" />
-    <Entity Name="Enclave3Sub1Manager" >
+    <Entity Name="ConusEnclaveSub1Manager" >
       <Attribute ID="EntityType" Value="Agent" />
       <Attribute ID="Role" Value="Manager" />
       <Attribute ID="Role" Value="Member" />
