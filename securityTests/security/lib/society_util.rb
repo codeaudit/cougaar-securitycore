@@ -7,7 +7,8 @@ def getRegisteredAgents
   i = 0
   while (loop)
   nameServers.each { |nameServer|
-    result, url = Cougaar::Communications::HTTP.get("#{nameServer.uri}/agents?suffix=.")
+    uri = "#{nameServer.uri}/agents?suffix=.&format=html&depth=-1&size=-1&time=50000&sorted=true&split=true"
+    result, url = Cougaar::Communications::HTTP.get(uri)
     break if result != nil
   }
   if (i > 5 || result != nil) 
@@ -85,7 +86,8 @@ module Cougaar
           searchServers.each { |server|
             begin
 #puts "connecting to: #{server.uri}"
-              result, url = Cougaar::Communications::HTTP.get("#{server.uri}/agents?suffix=.", 1.minute)
+              uri = "#{server.uri}/agents?suffix=.&format=html&depth=-1&size=-1&time=50000&sorted=true&split=true"
+              result, url = Cougaar::Communications::HTTP.get(uri, 2.minute)
               if result != nil
                 # check that each node is registered
                 allOk = true

@@ -28,16 +28,10 @@ require 'security/lib/useExperiment'
 require 'security/lib/checkAllJabberHosts'
 require 'security/lib/caDomain'
 require 'security/lib/security'
-begin
-  require 'security/lib/securityMop'
-rescue LoadError => e
-  # globals.rb doesn't exist for security services
-  puts "didn't load securityMop.rb"
-end
+require 'security/lib/securityMop'
 require 'security/lib/securityMopActions'
 require 'security/lib/mergeMopAnalysis'
 require 'security/lib/namedCollection'
-# require 'security/lib/securityMopAnalysis'
 
 require 'security/lib/dataProtection'
 

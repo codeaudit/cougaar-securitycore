@@ -12,21 +12,20 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   </html>
 </xsl:template>
 
-<xsl:template match="securityEvents/plannedSecurityExperiments">
+<xsl:template match="securityEvents">
     <h3>Security Planned Test Cases</h3>
     <table border="1">
     <tr bgcolor="#9acd32">
       <th align="left">Test Case Name</th>
     </tr>
-    <xsl:for-each select="plannedTest">
+    <xsl:for-each select="plannedSecurityExperiments/plannedTest">
       <tr>
         <td><xsl:value-of select="."/></td>
       </tr>
     </xsl:for-each>
     </table>
-</xsl:template>
+    <br/>
 
-<xsl:template match="securityEvents">
     <h3>Security Test Case Results</h3>
     <table border="1">
     <tr bgcolor="#9acd32">
@@ -51,6 +50,23 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
       </xsl:otherwise>
       </xsl:choose>
     </tr>
+    </xsl:for-each>
+    </table>
+
+    <br/>
+    <h3>Security Unit Test Results</h3>
+    <table border="1">
+    <tr bgcolor="#9acd32">
+      <th align="left">Time</th>
+      <th align="left">TestId</th>
+      <th align="left">Description</th>
+    </tr>
+    <xsl:for-each select="unitTestResult">
+      <tr>
+        <td bgcolor="#CCFFFF"><xsl:value-of select="date"/></td>
+        <td bgcolor="#CCFFFF"><xsl:value-of select="testId"/></td>
+        <td bgcolor="#CCFFFF"><xsl:value-of select="description"/></td>
+      </tr>
     </xsl:for-each>
     </table>
 </xsl:template>

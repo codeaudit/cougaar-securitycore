@@ -243,7 +243,7 @@ class IdmefWatcher
       run.comms.remove_on_cougaar_event(@listener)
       @listener = -1
       saveResult(@idmefFound == @expected, @attackNum,
-		 "#{@attackName} - Idmef event found: #{@idmefFound} - Idmef event expected: #{@expected}")
+		 "#{@attackName} - Idmef event found: #{@idmefFound} - Idmef event expected: #{@expected} - Expected text: #{idmefText}")
     end
   end
 end #IdmefWatcher

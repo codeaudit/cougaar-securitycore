@@ -22,7 +22,7 @@
 require 'thread'
 require 'ftools'
 require 'security/lib/scripting'
-require 'security/lib/securityMop2.4'
+#require 'security/lib/securityMop2.4'
 require 'pstore'
 
 SecurityMopDir = "#{ENV['CIP']}/workspace/security/mops"

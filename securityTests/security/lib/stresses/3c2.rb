@@ -110,13 +110,14 @@ class Security3c2 < SecurityStressFramework
     # That way, the revoked agent will succeed sending a message out,
     # and we can test that the receiver is blocking the message.
      uri = nil
+     logInfoMsg "agent1.kind_of: #{agent1.kind_of}"
      if (agent1.kind_of? Cougaar::Model::Agent)
        uri = agent1.node.uri
      else
        uri = agent1.uri
      end
-    url = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
-    result, url = Cougaar::Communications::HTTP.get(url)
+    uri = "#{uri}/crlMessageBinderServlet?crlEnqueueMsg=true"
+    result, url = Cougaar::Communications::HTTP.get(uri)
     if !(result =~ /Success/)
       saveAssertion("Stress5k104", "Unable to block CRL msg at #{agent1.name}\nURL: #{url}\n#{result}")
     end
@@ -230,20 +231,20 @@ class Security3c2 < SecurityStressFramework
     if (@useIdmef)
       testMessageIdmef(agent1.name, agent2.name,
                        'Stress3c21',
-                       "Send message with expired cert IDMEF - " + comment,
+                       "Send message with revoked cert IDMEF - " + comment,
                        [ true, false, false, false ],
                        agent1.node.agent.name)
       testMessageIdmef(agent2.name, agent1.name,
                        'Stress3c21',
-                       "Receive message with expired cert IDMEF - " + comment, 
+                       "Receive message with revoked cert IDMEF - " + comment, 
                        [ true, false, false, false ],
                        agent1.node.agent.name)
     end
     testMessageFailure(agent1.name, agent2.name, 
-                       'Stress3c9', "Send message with expired cert - " + comment, 
+                       'Stress3c9', "Send message with revoked cert - " + comment, 
                        [ true, false, false, false ])
     testMessageFailure(agent2.name, agent1.name, 
-                       'Stress3b9', "Receive message with expired cert - " + comment, 
+                       'Stress3b9', "Receive message with revoked cert - " + comment, 
                        [ true, false, false, false ])
   end
 

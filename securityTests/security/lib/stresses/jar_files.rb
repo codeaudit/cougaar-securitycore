@@ -248,7 +248,7 @@ end # Stress4a201
 
 class Stress4a60 < StressConfigIdmef
   def initialize(run)
-    super(run, "Stress4a60", "IDMEF event after 4a50", "Stress4a50.txt.jar")
+    super(run, "Stress4a60", "IDMEF event after Stress4a50", "Stress4a50.txt.jar")
   end
   def getStressIds()
     return ["Stress4a60"]
@@ -257,7 +257,7 @@ end # Stress4a60
 
 class Stress4a61 < StressConfigIdmef
   def initialize(run)
-    super(run, "Stress4a61", "IDMEF event after 4a51", "Stress4a51.txt.jar")
+    super(run, "Stress4a61", "IDMEF event after Stress4a51", "Stress4a51.txt.jar")
   end
   def getStressIds()
     return ["Stress4a61"]
@@ -266,7 +266,7 @@ end # Stress4a61
 
 class Stress4a62 < StressConfigIdmef
   def initialize(run)
-    super(run, "Stress4a62", "IDMEF event after 4a52", "Stress4a52.txt.jar")
+    super(run, "Stress4a62", "IDMEF event after Stress4a52", "Stress4a52.txt.jar")
   end
   def getStressIds()
     return ["Stress4a62"]
@@ -275,7 +275,7 @@ end # Stress4a62
 
 class Stress4a63 < StressConfigIdmef
   def initialize(run)
-    super(run, "Stress4a63", "IDMEF event after 4a53", "Stress4a53.txt.jar")
+    super(run, "Stress4a63", "IDMEF event after Stress4a53", "Stress4a53.txt.jar")
   end
   def getStressIds()
     return ["Stress4a63"]
