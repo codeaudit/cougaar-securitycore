@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+  <policy name="MessageAccessControl Policy" type="org.cougaar.core.security.policy.AccessControlPolicy">
+    <AccessControlPolicy>
+	<!-- whom this policy is for. -->
+	<!-- ONLY use DEFAULT for society wide policy! -->
+	<Name>DEFAULT</Name>
+	
+	<!-- one of AGENT,COMMUNITY,or SOCIETY -->
+	<Type>SOCIETY</Type>
+	
+	<!-- one of INCOMING, OUTGOING, or BOTH -->
+	<Direction>BOTH</Direction>
+	
+	<!-- action on message criticality level, either ACCEPT or SET_ASIDE -->
+	<MessageAction>
+		<CriticalityLevel>1</CriticalityLevel>
+		<MsgAction>SET_ASIDE</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>2</CriticalityLevel>
+		<MsgAction>SET_ASIDE</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>3</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>4</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+	<MessageAction>
+		<CriticalityLevel>5</CriticalityLevel>
+		<MsgAction>ACCEPT</MsgAction> 
+	</MessageAction> 
+
+	<!-- either ACCEPT or SET_ASIDE -->
+	<AgentAction>
+		<ActionParty>DEFAULT</ActionParty>
+		<Action>ACCEPT</Action> 
+	</AgentAction> 
+	<!--AgentAction>
+		<ActionParty>2-7-INFBN</ActionParty>
+		<Action>SET_ASIDE</Action> 
+	</AgentAction-->
+	<!-- agent action applys to community --> 
+	<!--ComAgentAction>
+		<ActionCommunity>testComm</ActionCommunity>
+		<ComAction>SET_ASIDE</ComAction> 
+	</ComAgentAction--> 
+	
+	<!-- the verb allow to be passed, also accepts ALL or NONE -->
+	<VerbFilter>
+		<FilterParty>DEFAULT</FilterParty>
+		<Verb>ALL</Verb>
+	</VerbFilter>
+	<!-- it's possible to have more than one verb per party -->
+	<!--VerbFilter>
+		<FilterParty>TRANSCOM</FilterParty>
+		<Verb>GetLogSupport</Verb>
+	</VerbFilter>
+	<VerbFilter>
+		<FilterParty>3-69-ARBN</FilterParty>
+		<Verb>Transport</Verb>
+		<Verb>ProjectSupply</Verb>
+	</VerbFilter-->
+	<!-- verb filter applys to community --> 
+	<!--ComVerbFilter>
+		<FilterCommunity>testComm</FilterCommunity>
+		<ComVerb>Transport</ComVerb>
+		<ComVerb>ProjectSupply</ComVerb>
+	</ComVerbFilter-->
+
+	<!-- bound to 1-10 -->
+	<MessageIntegrity>
+		<MsgParty>DEFAULT</MsgParty>
+		<Integrity>5</Integrity>
+	</MessageIntegrity>
+	<!-- integrity applys to community --> 
+	<!--ComMessageIntegrity>
+		<MsgCommunity>testComm</MsgCommunity>
+		<ComIntegrity>5</ComIntegrity>
+	</ComMessageIntegrity-->
+
+	<!-- bound to 1-5 -->
+	<MessageCriticality>
+		<CritParty>DEFAULT</CritParty>
+		<Criticality>3</Criticality>
+	</MessageCriticality>
+	<!--ComMessageCriticality>
+		<CritCommunity>testComm</CritCommunity>
+		<ComCriticality>3</ComCriticality>
+	</ComMessageCriticality-->
+
+    </AccessControlPolicy >
+  </policy>

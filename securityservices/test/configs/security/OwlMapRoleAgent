@@ -1,0 +1,2 @@
+RearPolicyDomainManager http://ontology.ihmc.us/Ultralog/PluginsInRole#DomainManagerAgent
+RearPolicyDomainManagerServlet http://ontology.ihmc.us/Ultralog/PluginsInRole#PolicyServlet

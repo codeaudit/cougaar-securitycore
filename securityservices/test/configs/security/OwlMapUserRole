@@ -1,0 +1,15 @@
+.*\\Administrator Administrator
+.*\\CAAdministrator CAAdministrator
+.*\\General General
+.*\\Guest Guest
+.*\\Logistician Logistician
+.*\\LogisticsViewer LogisticsViewer
+.*\\MonitorManager MonitorManager
+RearUserDomainComm\\PolicyAdministrator RearPolicyAdministrator
+FwdUserDomainComm\\PolicyAdministrator FwdPolicyAdministrator
+ConusUserDomainComm\\PolicyAdministrator ConusPolicyAdministrator
+TransUserDomainComm\\PolicyAdministrator TransPolicyAdministrator
+EnclaveaUserDomainComm\\PolicyAdministrator EnclaveaPolicyAdministrator
+.*\\PolicyAdministrator PolicyAdministrator
+.*\\UserManager UserManager
+.*\\SocietyAdmin SocietyAdmin

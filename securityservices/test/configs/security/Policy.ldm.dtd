@@ -1,0 +1,40 @@
+<!ELEMENT Policies (Policy*)>
+
+<!ELEMENT Policy (RuleParam*)>
+<!ATTLIST Policy name ID #REQUIRED>
+<!ATTLIST Policy type CDATA #REQUIRED>
+
+<!ELEMENT RuleParam (Double|Integer|String|Enumeration|Class|KeySet)>
+<!ATTLIST RuleParam name ID #REQUIRED>
+
+<!ELEMENT Double EMPTY>
+<!ATTLIST Double value CDATA #REQUIRED>
+<!ATTLIST Double min CDATA #REQUIRED>
+<!ATTLIST Double max CDATA #REQUIRED>
+
+<!ELEMENT Integer EMPTY>
+<!ATTLIST Integer value CDATA #REQUIRED>
+<!ATTLIST Integer min CDATA #REQUIRED>
+<!ATTLIST Integer max CDATA #REQUIRED>
+
+<!ELEMENT String EMPTY>
+<!ATTLIST String value CDATA #REQUIRED>
+
+<!ELEMENT Enumeration (EnumOption+)>
+<!ATTLIST Enumeration value CDATA #REQUIRED>
+
+<!ELEMENT EnumOption EMPTY>
+<!ATTLIST EnumOption value CDATA #REQUIRED>
+
+<!ELEMENT KeySet (KeyValue*)>
+<!ATTLIST KeySet value CDATA #REQUIRED>
+
+<!ELEMENT KeyValue (Double|Integer|String|Enumeration|Class|KeySet)>
+<!ATTLIST KeyValue key ID #REQUIRED>
+<!ATTLIST KeyValue value CDATA #REQUIRED>
+
+<!ELEMENT Class EMPTY>
+<!ATTLIST Class class_type CDATA #REQUIRED>
+
+<!ELEMENT Boolean EMPTY>
+<!ATTLIST Boolean value CDATA #REQUIRED>

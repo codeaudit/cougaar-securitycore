@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE SERVLET-POLICY [
+<!-- The outer policy element --> 
+<!ELEMENT policy (servlet-policy*)>
+<!ATTLIST policy name CDATA #REQUIRED>
+<!ATTLIST policy type CDATA #REQUIRED>
+
+<!-- The servlet-policy element in which all the rules are contained -->
+<!ELEMENT servlet-policy (failure-delay?,session-life?,agent*,root?)>
+
+<!-- The failure-delay element only supports a number -->
+<!ELEMENT failure-delay (#PCDATA)>
+
+<!-- The session-life element contains a long int for the
+     time in milliseconds that a session lasts before being
+     expired -->
+<!ELEMENT session-life (#PCDATA)>
+
+<!-- The agent attributes specifies a rule for a particular Agent or
+     all agents -->
+<!ELEMENT agent (rule+)>
+<!ATTLIST agent name CDATA #REQUIRED>
+
+<!-- Each rule defines a set of uri patterns and roles that can access
+     the uri patterns. -->
+<!ELEMENT rule (pattern+,role+)>
+<!ATTLIST rule requireSSL (true|false|yes|no) "false">
+<!ATTLIST rule auth (CERT|PASSWORD|EITHER|BOTH) "EITHER">
+
+<!-- Optionally an authorization type may be provided -->
+<!ELEMENT auth (#PCDATA)>
+
+<!-- The URI pattern that a rule applies to -->
+<!ELEMENT pattern (#PCDATA)>
+
+<!-- The roles that can access the patterns defined in the rule -->
+<!ELEMENT role (#PCDATA)>
+
+<!ELEMENT root (rule+)>
+]>
+
+<policy name="Servlet Policy" type="org.cougaar.core.security.policy.ServletPolicy">
+  <servlet-policy>
+    <!-- set the delay time (milliseconds) when a user fails -->
+    <failure-delay>1000</failure-delay>
+
+    <!-- life of a session in (milliseconds) before the authorization and
+         authentication are rechecked -->
+    <session-life>60000</session-life>
+
+    <!-- define rules for a specific agent -->
+    <agent name="*">
+      <!-- A rule defines which roles are allowed to access which uri
+           patterns. It may optionally restrict the authentication
+           mechanism for the urls in the rule. 
+
+           Force the user to authenticate by a method. You may
+           use certificate (CERT), password (PASSWORD), or the default
+           of either (EITHER), or both (BOTH). If multiple patterns
+           match a url, a union of the restrictions is made. -->
+      <rule requireSSL="false" auth="EITHER">
+        <!-- a rule must have at least one uri pattern -->
+	<!-- KPAT, Policy -->
+        <pattern>/policyAdmin</pattern>
+        <!-- a rule must have at least one role -->
+        <role>UserDomain1\PolicyAdministrator</role>
+        <role>UserDomain2\PolicyAdministrator</role>
+        <role>UserDomain3\PolicyAdministrator</role>
+        <role>UserDomain4\PolicyAdministrator</role>
+      </rule>
+    </agent>
+
+    <agent name="SCmrmanager">
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/*</pattern>
+        <role>UserDomain1\MonitorManager</role>
+        <role>UserDomain2\MonitorManager</role>
+        <role>UserDomain3\MonitorManager</role>
+        <role>UserDomain4\MonitorManager</role>
+      </rule>
+    </agent>
+
+    <agent name="NCA">
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/glsinit</pattern>
+        <pattern>/glsreply</pattern>
+        <pattern>/editOplan</pattern>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+      </rule>
+    </agent>
+
+    <agent name="AGG-Agent">
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/aggregator</pattern>
+        <pattern>/aggregatorkeepalive</pattern>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
+      </rule>
+    </agent>
+
+    <agent name="*">
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/useradmin</pattern>
+        <role>UserDomain1\UserManager</role>
+        <role>UserDomain2\UserManager</role>
+        <role>UserDomain3\UserManager</role>
+        <role>UserDomain4\UserManager</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
+	<!-- Data grabber application -->
+	<!--
+	  Removed datagatherer servlet for the automated tests.
+        <pattern>/datagatherer</pattern>
+	-->
+
+        <!-- al-inventory standalone application -->
+        <pattern>/log_inventory</pattern>
+
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
+	<!-- Used by the data grabber -->
+        <pattern>/hierarchy</pattern>
+        <role>UserDomain1\Logistician</role>
+        <role>UserDomain2\Logistician</role>
+        <role>UserDomain3\Logistician</role>
+        <role>UserDomain4\Logistician</role>
+        <role>UserDomain1\LogisticsViewer</role>
+        <role>UserDomain2\LogisticsViewer</role>
+        <role>UserDomain3\LogisticsViewer</role>
+        <role>UserDomain4\LogisticsViewer</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
+        <!-- All users and agents should be allowed to
+             request a certificate -->
+        <pattern>/CA/CertificateSigningRequest</pattern>
+        <pattern>/CA/BrowserSigningRequest</pattern>
+        <role>*</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
+        <!-- This rule allows access to read-only portions of the CA. -->
+        <pattern>/CA/Index</pattern>
+        <pattern>/CA/Browser</pattern>
+        <pattern>/CA/Main</pattern>
+        <pattern>/CA/CertificateList</pattern>
+        <pattern>/CA/CertificateDetailsServlet</pattern>
+        <pattern>/CA/DownloadCertificateServlet</pattern>
+        <pattern>/CA/PendingCertificateServlet</pattern>
+        <pattern>/CA/PendingCertDetailsServlet</pattern>
+        <pattern>/CA/ListCaKeysServlet</pattern>
+        <pattern>/CA/ListSubordCaServlet</pattern>
+        <!-- Currently let everyone read the certificate database. -->
+        <role>*</role>
+      </rule>
+
+      <rule requireSSL="false" auth="EITHER">
+        <!-- only let the administrator do write-only stuff -->
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <pattern>/CA/CreateCaKeyServlet</pattern>
+        <pattern>/CA/SubmitCaKeyServlet</pattern>
+        <pattern>/CA/ProcessPendingCertServlet</pattern>
+        <pattern>/CA/CaKeyManagement</pattern>
+        <role>UserDomain1\CAAdministrator</role>
+        <role>UserDomain2\CAAdministrator</role>
+        <role>UserDomain3\CAAdministrator</role>
+        <role>UserDomain4\CAAdministrator</role>
+      </rule>
+<!--
+      <rule requireSSL="true" auth="CERT">
+        <pattern>/CA/RevokeCertificateServlet</pattern>
+        <role>MnRResponder</role>
+      </rule>
+-->
+
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/move</pattern>
+        <pattern>/load</pattern>
+        <pattern>/topology</pattern>
+        <role>UserDomain1\SocietyAdmin</role>
+        <role>UserDomain2\SocietyAdmin</role>
+        <role>UserDomain3\SocietyAdmin</role>
+        <role>UserDomain4\SocietyAdmin</role>
+      </rule>
+      <!-- For Rovers Managers to control and modify rovers -->
+      <!-- Perhaps this should be moved to a specific agent? -->
+
+      <!-- /Rover/ui servlet moved out from access control. It is not in the 2002 assessment. -->
+      <!-- The /Rover/ui is used by the rover controller standalone application only. -->
+      <!--
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/Rover/ui</pattern>
+        <role>RoverManager</role>
+      </rule>
+      -->
+
+      <!-- Allow only rovers to install code and communicate directly
+           with other rovers -->
+      <!-- /Rover/messageChallenge servlet moved out from access control. It is not in the 2002 assessment. -->
+      <!-- The /Rover/messageChallenge is used by the MessageChallengeRover to challenge the
+       Message Access Control policy -->
+      <!--
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/Rover/messageChallenge</pattern>
+        <role>Rover</role>
+      </rule>
+      -->
+
+      <!-- use this rule to test the blackboard filter policies
+      <rule requireSSL="false" auth="EITHER">
+        <pattern>/tasks</pattern>
+        <role>MoveAgent</role>
+        <role>CAAdministrator</role>
+        <role>UserManager</role>
+      </rule>
+       -->
+    </agent>
+
+    <!-- this is a dummy rule that shows an example
+    <root>
+      <rule>
+        <pattern>*.secure</pattern>
+        <role>God</role>
+      </rule>
+    </root>
+    -->
+  </servlet-policy>
+</policy>

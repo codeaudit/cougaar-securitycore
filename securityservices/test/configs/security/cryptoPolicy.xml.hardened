@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<policies>
+  <policy name="Crypto Client Policy" type = "cryptoClientPolicy">
+    <cryptoClientPolicy>
+      <isCertificateAuthority>false</isCertificateAuthority>
+      <keystoreFileName>keystore-${org.cougaar.node.name}</keystoreFileName>
+      <keystorePassword>keystorePassword</keystorePassword>
+      <trustedCAs>
+        <CA_keystore>keystoreNCA_CA</CA_keystore>
+        <CA_keystore role="srosset">keystore-CA-srosset</CA_keystore>
+        <CA_keystore role="gmount">keystore-George-CA</CA_keystore>
+        <CA_keystore role="sri">keystore-SRI</CA_keystore>
+        <CA_keystore role="junittest">keystore-CA-JunitTest</CA_keystore>
+        <CA_keystore role="asmt">keystore-ROOT-RSA</CA_keystore>
+        <CA_keystore role="csmart1">keystore-CSMART-CA</CA_keystore>
+        <CA_keystore role="csmart2">keystore-CSMART2-CA</CA_keystore>
+        <CA_keystore role="tredmond">keystore-TIM-CA</CA_keystore>
+
+        <CA_keystorePassword>Ultra*Log</CA_keystorePassword>
+        <trustedCA>
+          <CA_DN>CN=NCA_CA, OU=CONUS, O=DLA, L=San Francisco, ST=CA, C=US</CA_DN>
+          <CA_DN role="srosset">CN=CONUS, OU=NAI Laboratories, O=NAI, L=Santa Clara, ST=CA, C=US</CA_DN>
+          <CA_DN role="junittest">CN=JUNIT CA, OU=NAI Labs, O=Network Associates, L=Santa Clara, ST=California, C=USA, T=ca</CA_DN>
+          <CA_DN role="gmount">CN=GeorgeCA, OU=NAI Labs, O=NAI, L=Santa Clara, ST=California, C=US, T=ca</CA_DN>
+          <CA_DN role="sri">CN=cougaarca, OU=SRI, O=SRI, L=Santa Clara, ST=California, C=US, T=ca</CA_DN>
+
+          <CA_DN role="asmt">CN=1ADROOTCA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave1Security-COMM">CN=enclave1CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave2Security-COMM">CN=enclave2CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave3Security-COMM">CN=enclave3CA, OU=UltraLog, O=cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="asmt" securitycommunity="Enclave4Security-COMM">CN=enclave4CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+
+          <CA_DN role="csmart1">CN=csmartCA, OU=Laboratories, O=Network Associates, L=Mountain View, ST=California, C=US, T=ca</CA_DN>
+
+          <CA_DN role="tredmond">CN=tredmondCA, OU=Laboratories, O=Network Associates, L=Santa Clara, ST=California, C=US, T=ca</CA_DN>
+
+          <CA_DN role="csmart2">CN=csmart2CA, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CA_DN role="csmart2" securitycommunity="Enclave1Security-COMM">CN=csmart2CA-enclave, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CA_DN role="csmart2" securitycommunity="Enclave2Security-COMM">CN=csmart2CA-enclave2, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CA_DN role="csmart2" securitycommunity="Enclave3Security-COMM">CN=csmart2CA-enclave3, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CA_DN role="csmart2" securitycommunity="Enclave4Security-COMM">CN=csmart2CA-enclave4, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+
+
+
+          <CA_URL>http://tea:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset" securitycommunity="Enclave1Security-COMM">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset" securitycommunity="Enclave2Security-COMM">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset" securitycommunity="Enclave3Security-COMM">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="srosset" securitycommunity="Enclave4Security-COMM">http://cypress:5561/$caAgent/CA/CertificateSigningRequest</CA_URL>
+
+          <CA_URL role="ychen">http://pear:5558/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="gmount">http://pear:5557/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="sri">http://fir:5553/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="mluu">http://pear:5559/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="rliao1">http://yew:5556/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="rtripath">http://pear:5560/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-1">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-2">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-3">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="junittest" securitycommunity="Enclave-4">http://cypress:5570/$caAgent/CA/CertificateSigningRequest</CA_URL>
+
+          <CA_URL role="asmt">http://u050:8800/$1ADCAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave1Security-COMM">http://u125:8800/$enclave1CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave2Security-COMM">http://u222:8800/$enclave2CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave3Security-COMM">http://u199:8800/$enclave3CAAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="asmt" securitycommunity="Enclave4Security-COMM">http://u169:8800/$enclave4CAAgent/CA/CertificateSigningRequest</CA_URL>
+
+          <CA_URL role="csmart1">http://maple:5571/$caAgent/CA/CertificateSigningRequest</CA_URL>
+
+
+          <CA_URL role="tredmond">http://pear:5585/$caAgent/CA/CertificateSigningRequest</CA_URL>
+
+          <CA_URL role="csmart2">http://helmlock:5577/$caRootAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2" securitycommunity="Enclave1Security-COMM">http://helmlock:5575/$caEnclaveAgent/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2" securitycommunity="Enclave2Security-COMM">http://helmlock:5576/$caEnclaveAgent2/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2" securitycommunity="Enclave3Security-COMM">http://maple:5575/$caEnclaveAgent3/CA/CertificateSigningRequest</CA_URL>
+          <CA_URL role="csmart2" securitycommunity="Enclave4Security-COMM">http://maple:5576/$caEnclaveAgent4/CA/CertificateSigningRequest</CA_URL>
+
+
+          <!-- Certificate directory service for certificate storage -->
+          <CertDirectoryURL>ldap://yew:389/dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="ychen">ldap://yew:389/dc=ychen,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset" securitycommunity="Enclave1Security-COMM">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset" securitycommunity="Enclave2Security-COMM">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset" securitycommunity="Enclave3Security-COMM">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="srosset" securitycommunity="Enclave4Security-COMM">ldap://pear:389/dc=srosset,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="rtripath">ldap://pear:389/dc=rtripath,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="gmount">ldap://pear:389/dc=gmount,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="sri">ldap://pear:389/dc=sri,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="mluu">ldap://pear:389/dc=mluu,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="rliao1">ldap://yew:389/dc=rliao1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-1">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-2">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-3">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="junittest" securitycommunity="Enclave-4">ldap://pear:389/dc=junittest,dc=cougaar,dc=org</CertDirectoryURL>
+
+          <CertDirectoryURL role="asmt">ldap://u050/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave1Security-COMM">ldap://u125:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave2Security-COMM">ldap://u222:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave3Security-COMM">ldap://u199:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="asmt" securitycommunity="Enclave4Security-COMM">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+
+          <CertDirectoryURL role="csmart1">ldap://pear/dc=csmart1,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="tredmond">ldap://pear/dc=tredmond,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2" securitycommunity="Enclave1Security-COMM">ldap://pear:389/dc=csmart2-enclave,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2" securitycommunity="Enclave2Security-COMM">ldap://pear:389/dc=csmart2-enclave2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2" securitycommunity="Enclave3Security-COMM">ldap://pear:389/dc=csmart2-enclave3,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2" securitycommunity="Enclave4Security-COMM">ldap://pear:389/dc=csmart2-enclave4,dc=cougaar,dc=org</CertDirectoryURL>
+
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+
+
+          <!-- The type of the certificate directory service.
+               Currently, either CougaarOpenLdap or NetTools -->
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave1CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CA_DN role="csmart2">CN=csmart2CA, OU=ultralog, O=cougaar, L=sf, ST=ca, C=us, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u125:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectoryURL role="csmart2">ldap://pear/dc=csmart2,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave2CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u222:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave3CA, OU=UltraLog, O=cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u199:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+
+        <trustedCA>
+          <!-- This is used to check root CA CRL. For instance, this could be used to check
+               if a subordinate CA has been revoked. -->
+          <CA_DN role="asmt">CN=enclave4CA, OU=UltraLog, O=Cougaar, L=Arlington, ST=VA, C=US, T=ca</CA_DN>
+          <CertDirectoryURL role="asmt">ldap://u169:389/dc=asmt,dc=cougaar,dc=org</CertDirectoryURL>
+          <CertDirectorySecurityPrincipal>cn=manager, dc=cougaar, dc=org</CertDirectorySecurityPrincipal>
+          <CertDirectorySecurityCredential>secret</CertDirectorySecurityCredential>
+          <CertDirectoryType>CougaarOpenLdap</CertDirectoryType>
+        </trustedCA>
+      </trustedCAs>
+
+      <certificateAttributes>
+        <distinguishedName>
+          <!-- Organizational unit -->
+          <ou>UltraLog</ou>
+          <!-- Organizational -->
+          <o>Cougaar</o>
+          <!-- City or Locality -->
+          <l>Arlington</l>
+          <!-- State -->
+          <st>VA</st>
+          <!-- Country Code -->
+          <c>US</c>
+          <!-- Domain -->
+          <domain>dc=srosset,dc=cougaar,dc=org</domain>
+        </distinguishedName>
+        <nodeIsSigner>true</nodeIsSigner>
+        <!-- The key algorithm -->
+        <keyAlgName>RSA</keyAlgName>
+        <!-- The key size -->
+        <keysize>1024</keysize>
+        <!-- The signature algorithm -->
+        <sigAlgName>SHA1WithRSA</sigAlgName>
+        <!-- The validity of self-signed certificates.
+             This value is overriden when the CA signs the certificate. -->
+        <validity>1 M</validity>
+	<!-- The envelope time to regenerate key again and send to CA
+	     for approval before certificate expires. -->
+	<timeEnvelope>1 d</timeEnvelope>
+      </certificateAttributes>
+    </cryptoClientPolicy>
+  </policy>
+  <policy name="" type="certificateAuthorityPolicy">
+    <!-- Configuration of Certificate Authority -->
+    <certificateAuthority>
+      <!-- The distinguished name as found in the X509 certificate -->
+      <distinguishedName></distinguishedName>
+      <!-- The name of a file where the next serial number is stored -->
+      <serialNumberFile>SerialNumber_Node</serialNumberFile>
+
+      <ldapURL></ldapURL>
+      <ldapType></ldapType>
+      <!-- Policy when issuing certificates -->
+      <clientCertPolicy>
+        <!-- The X509 version number to be created -->
+        <certVersion>2</certVersion>
+        <algorithmId>sha1WithRSAEncryption_oid</algorithmId>
+        <crlalgorithmId>sha1WithRSAEncryption_oid</crlalgorithmId>
+        <keysize>1024</keysize>
+        <!-- How long to certify for. This is the validity of a certificate
+             signed by a node.  -->
+        <certValidity>1 y</certValidity>
+        <requirePending>false</requirePending>
+      </clientCertPolicy>
+    </certificateAuthority>
+  </policy>
+
+</policies>

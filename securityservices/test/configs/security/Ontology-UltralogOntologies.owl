@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+<!--OWL Language, version 08/2003-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:owl="http://www.w3.org/2002/07/owl#">
+    
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo>
+            $ http://ontology.ihmc.us/Ultralog/UltralogOntologies.owl $
+        </owl:versionInfo>
+        <rdfs:comment>
+            An ontology created by Andrzej Uszok (auszok@ai.uwf.edu).
+            This ontology includes a list of references (through the owl:imports statement) to
+            ontologies describing the Ultralog environment.
+        </rdfs:comment>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogGroup.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogAction.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogActor.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/Names/GroupInstances.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/Names/ActorClasses.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl"/>
+        <owl:imports rdf:resource="http://ontology.ihmc.us/Ultralog/Names/EntityClasses.owl"/>
+    </owl:Ontology>
+
+</rdf:RDF>
