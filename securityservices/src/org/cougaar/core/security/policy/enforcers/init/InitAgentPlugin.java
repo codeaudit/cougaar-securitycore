@@ -33,7 +33,6 @@ import kaos.core.service.directory.KAoSAgentDescription;
 import kaos.core.service.directory.KAoSAgentDirectoryServiceProxy;
 import kaos.core.service.util.cougaar.CougaarLocator;
 import kaos.core.util.VMIDGenerator;
-import kaos.ontology.jena.ActorConcepts;
 import kaos.ontology.management.UnknownConceptException;
 
 import safe.util.CougaarServiceRoot;
