@@ -274,6 +274,7 @@ public class CapabilitiesConsolidationPlugin extends ComponentPlugin {
     else {
       if(destcluster!=null) {
 	getBlackboardService().openTransaction();
+	loggingService.info("Publishing notification object :");
 	getBlackboardService().publishAdd(new NotificationObject());
 	getBlackboardService().closeTransaction(); 
 	return false;
