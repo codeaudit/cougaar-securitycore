@@ -23,12 +23,12 @@
          <!-- <KeySet value="RSA/ECB/PKCS#1"> (cryptix)-->
          <!-- <KeySet value="RSA/ECB/PKCS1Padding"> -->
          <!-- <KeySet value="ElGamal/ECB/PKCS#1"> -->
-         <KeySet value="RSA/ECB/PKCS#1"/>
+         <KeySet value="RSA"/>
       </RuleParam>
       <!-- used to encrypt the session key -->
       <RuleParam name="OutgoingAsymmetricAlgorithm">
          <!-- PKCS#1 is not supported by the Cryptix library -->
-         <KeySet value="RSA/ECB/PKCS#1"/>
+         <KeySet value="RSA"/>
       </RuleParam>
       <RuleParam name="IncomingSigningAlgorithm">
          <!-- Example of possible values:          MD2withRSA, MD5withRSA, or SHA1withRSA -->
