@@ -68,6 +68,9 @@ public class CertificateCache
 
   public CertificateCache(DirectoryKeyStore d)
   {
+    /*debug = (Boolean.valueOf(System.getProperty("org.cougaar.core.security.crypto.debug",
+						"false"))).booleanValue();
+    */
     directorykeystore = d;
   }
 
@@ -590,7 +593,14 @@ public class CertificateCache
 	    if (CryptoDebug.debug) {
 	      System.out.println("Self-signed certificate.");
 	    }
+
+            // Richard -- this will create endless recursive loop if
+            // communication failed or certificate is in pending status
+            // and node alias is already created.
+            // Every findCert function has the possibility of sending
+            // a cert request in this situation.
 	    // Send a PKCS#10 request to the CA.
+/*
 	    try {
 	      directorykeystore.addKeyPair(x500Name.getCommonName(),
 					   pcert.getCertificateStatus().getCertificateAlias());
@@ -602,6 +612,7 @@ public class CertificateCache
 	      }
 	      privkey = null;
 	    }
+*/
 	  }
 	}
 	else if (e.cause == CertificateTrust.CERT_TRUST_UNKNOWN) {
