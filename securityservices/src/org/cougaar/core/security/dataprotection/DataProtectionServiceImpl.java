@@ -394,12 +394,8 @@ public class DataProtectionServiceImpl
                               keyRing.findCertChain(pmCert));
 //		TODO Is this the right place for this?
 				 MessageAddress source = agentIdService.getMessageAddress();
-				 String pmAgent = pmp.pmUrl.substring(pmp.pmUrl.indexOf("$") + 1, pmp.pmUrl.length());
-				 pmAgent = pmAgent.substring(0, pmAgent.indexOf("/"));
-				 MessageAddress target = MessageAddress.getMessageAddress(pmAgent);
-
+				 MessageAddress target = MessageAddress.getMessageAddress(commonName);
 				 SharedDataRelay sdr = new SharedDataRelay(uidService.nextUID(), source, target, pmDPKey, null);
-
 				 //publish relay
 				 bbs.openTransaction();
 				 bbs.publishAdd(sdr);
