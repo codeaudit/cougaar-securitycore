@@ -130,7 +130,7 @@ rm -rf ${tmpdir}
 
 #if [ ${reply} == "y" ]; then
 if [ "$install" == "1" ]; then
-	echo "Extracting security.tar to ${realCIP}"
+	echo "Extracting AS_csi_secserv.zip to ${realCIP}"
 	cd ${realCIP}
 	unzip -qo ${startupdir}/AS_csi_secserv.zip
         chmod 755 ${realCIP}/configs/security/bin/createJarConfigFiles
