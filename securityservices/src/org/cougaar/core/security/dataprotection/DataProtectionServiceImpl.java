@@ -54,6 +54,8 @@ import org.cougaar.core.security.monitoring.event.FailureEvent;
 import org.cougaar.core.security.monitoring.event.DataFailureEvent;
 import org.cougaar.core.security.monitoring.plugin.DataProtectionSensor;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 
 public class DataProtectionServiceImpl
   implements DataProtectionService, PersistenceMgrAvailListener
@@ -73,6 +75,9 @@ public class DataProtectionServiceImpl
   // event publisher for data protection failures
   //private static EventPublisher eventPublisher;
   private Hashtable keyCache = new Hashtable();
+
+  final static String CERT_POLL_TIME = "org.cougaar.core.security.certpoll";
+  final static String CERT_POLL_SLICE = "org.cougaar.core.security.certpollslice";
 
   /*
   // add event publisher
@@ -390,9 +395,38 @@ public class DataProtectionServiceImpl
                           (SealedObject)dpKey.getObject());
 
 
-	List certlist = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
+	List certList = keyRing.findCert(agent, KeyRingService.LOOKUP_KEYSTORE, true);
+        if (certList == null || certList.size() == 0) {
+          int totalWait = 400000; // the persistence time is 5 minutes
+          int wait_time = 10000;
+          try {
+            totalWait = Integer.parseInt(System.getProperty(CERT_POLL_TIME,
+              new Integer(totalWait).toString()));
+            wait_time = Integer.parseInt(System.getProperty(CERT_POLL_SLICE,
+              new Integer(wait_time).toString()));
+          } catch (Exception nx) {
+          }
+          while ((certList = keyRing.findCert(agent)) == null || certList.size() == 0) {
+            totalWait -= wait_time;
+            if (totalWait <= 0) {
+              break;
+            }
+            if (log.isDebugEnabled()) {
+              log.debug("no certificate found, waiting ...");
+            }
+            try {
+              Thread.currentThread().sleep(wait_time);
+            }
+            catch (Exception ex) {}
+          }
+        }
+        if (certList == null || certList.size() == 0) {
+          CertificateException cx = new CertificateException("No certificate available to sign.");
+          publishDataFailure(agent, DataFailureEvent.NO_CERTIFICATES, cx.toString());
+          throw new IOException(cx.getMessage());
+        }
 
-	CertificateStatus cs = (CertificateStatus)certlist.get(0);
+	CertificateStatus cs = (CertificateStatus)certList.get(0);
 	X509Certificate agentCert = (X509Certificate)cs.getCertificate();
 
         if (agentCert == null) {
