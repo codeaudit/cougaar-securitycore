@@ -20,6 +20,8 @@
  */
 package org.cougaar.core.security.test.monitoring.idmef;
 
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -50,8 +52,8 @@ public class TestAssessment extends TestIdmef {
         Impact impact = m_impactTester.createImpact();
         Confidence confidence = m_confidenceTester.createConfidence();
         Action actions[] = { m_actionTester.createAction() };
-        
-        return m_msgFactory.createAssessment( impact, actions, confidence );
+        List actionList = convertToList( actions );
+        return m_msgFactory.createAssessment( impact, actionList, confidence );
     }
     public void compare( Assessment assessment1, Assessment assessment2 ){
         m_impactTester.compare( assessment1.getImpact(), assessment2.getImpact() );

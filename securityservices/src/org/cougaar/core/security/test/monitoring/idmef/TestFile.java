@@ -22,6 +22,7 @@ package org.cougaar.core.security.test.monitoring.idmef;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -56,9 +57,11 @@ public class TestFile extends TestIdmef {
         FileAccess []fileAccesses = { m_fileAccessTester.createFileAccess() };
         Linkage []linkages = { m_linkageTester.createLinkage() };
         Inode inode = m_inodeTester.createInode();
+        List faList = convertToList( fileAccesses );
+        List linkageList = convertToList( linkages );
         return m_msgFactory.createFile( new File( "/home/mluu/.ssh/id_rsa.pub" ), 
-                                        fileAccesses,
-                                        linkages, 
+                                        faList,
+                                        linkageList, 
                                         inode, 
                                         IDMEF_File.ORIGINAL,
                                         "fat16" );

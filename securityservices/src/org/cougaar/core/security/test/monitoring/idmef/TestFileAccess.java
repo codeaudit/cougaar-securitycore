@@ -20,6 +20,8 @@
  */
 package org.cougaar.core.security.test.monitoring.idmef;
 
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -43,7 +45,8 @@ public class TestFileAccess extends TestIdmef {
     public FileAccess createFileAccess(){
         //createFileAccess( String userId, String []permissions )
         String permissions[] = { "read", "write" };
-        return m_msgFactory.createFileAccess( "mluu", permissions );   
+        List permissionList = convertToList( permissions );
+        return m_msgFactory.createFileAccess( "mluu", permissionList );   
     }
     public void compare( FileAccess []fileAccesses1, FileAccess []fileAccesses2 ){
         if( fileAccesses1.length == fileAccesses2.length ){

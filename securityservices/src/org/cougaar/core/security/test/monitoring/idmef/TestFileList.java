@@ -22,6 +22,8 @@ package org.cougaar.core.security.test.monitoring.idmef;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -51,7 +53,8 @@ public class TestFileList extends TestIdmef {
     }
     public FileList createFileList(){
       IDMEF_File files[] = { m_fileTester.createFile() };
-      return m_msgFactory.createFileList( files ); 
+      List fileList = convertToList( files );
+      return m_msgFactory.createFileList( fileList ); 
     }
     public void compare( FileList fileList1, FileList fileList2 ){
       m_fileTester.compare( fileList1.getFiles(), fileList2.getFiles() ); 

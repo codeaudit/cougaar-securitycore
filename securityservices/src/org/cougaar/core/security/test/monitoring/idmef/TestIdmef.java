@@ -20,6 +20,9 @@
  */
 package org.cougaar.core.security.test.monitoring.idmef;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,6 +42,14 @@ public abstract class TestIdmef{
     }
     public String getName(){
         return m_name;
+    }
+    public List convertToList( Object []listOfObjects ){
+      int len  = listOfObjects.length;
+      List list = new ArrayList();
+      for( int i = 0; i < len; i++ ){
+        list.add( i, listOfObjects[ i ] );
+      }
+      return list;
     }
     public IdmefMessageFactory getMessageFactory(){
         return m_msgFactory;

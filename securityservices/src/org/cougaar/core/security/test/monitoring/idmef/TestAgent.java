@@ -23,6 +23,8 @@ package org.cougaar.core.security.test.monitoring.idmef;
 import org.cougaar.core.security.monitoring.idmef.Agent;
 
 import java.net.InetAddress;
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -54,12 +56,12 @@ public class TestAgent extends TestIdmef {
         catch( Exception e ){
             e.printStackTrace();
         }
-        
+        List refIdList = convertToList( refIdents );
         return m_msgFactory.createAgent( "test-agent",
                                          "a test agent",
                                          "SF, CA",
                                          address,
-                                         refIdents );
+                                         refIdList );
         
     }
   

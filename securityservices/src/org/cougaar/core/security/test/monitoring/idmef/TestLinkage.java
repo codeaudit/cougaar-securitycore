@@ -21,6 +21,7 @@
 package org.cougaar.core.security.test.monitoring.idmef;
 
 import java.io.File;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
