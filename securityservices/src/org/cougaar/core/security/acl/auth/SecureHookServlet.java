@@ -36,6 +36,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cougaar.core.security.audit.AuditLogger;
+import org.cougaar.util.log.LoggerFactory;
 
 /**
  * This class is designed to run the entire servlet service() as
@@ -46,12 +47,14 @@ public class SecureHookServlet implements Servlet {
   /**
    * The hook servlet to take all the calls
    */
-  Servlet _hookServlet = null;
-  
+  private Servlet _hookServlet = null;
+  private org.cougaar.util.log.Logger _log;
+
   /**
    * default constructor
    */
   public SecureHookServlet() {
+    _log = LoggerFactory.getInstance().createLogger(SecureHookServlet.class);
   }
 
   /**
@@ -70,6 +73,10 @@ public class SecureHookServlet implements Servlet {
     if (req instanceof HttpServletRequest) {
       HttpServletRequest hreq = (HttpServletRequest) req;
       subject.getPrincipals().add(new URIPrincipal(hreq.getRequestURI()));
+
+      //log access to Resource
+      AuditLogger.logWebEvent((HttpServletRequest)req,
+			      getServletName(hreq), getAgentName(hreq));
     }
     Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
    
@@ -81,19 +88,6 @@ public class SecureHookServlet implements Servlet {
       } else if (e instanceof ServletException) {
         throw (ServletException) e;
       }
-    }else if(req instanceof HttpServletRequest){
-    	//log successfull access to Resource
-    	String urlString = ((HttpServletRequest)req).getRequestURI();
-    	String agent = null;
-    	String servlet=null;
-    	if(urlString!=null){
-    		//trim leading /
-    		urlString = urlString.substring(1, urlString.length());
-    		agent=urlString.substring(urlString.indexOf("$")+1, urlString.indexOf("/"));
-    		servlet=urlString.substring(urlString.lastIndexOf("/")+1, urlString.length());
-    	}
-    	AuditLogger.logWebEvent((HttpServletRequest)req,servlet,agent);
-    	
     }
   }
 
@@ -102,6 +96,70 @@ public class SecureHookServlet implements Servlet {
    */
   public void destroy() {
     if (_hookServlet != null) _hookServlet.destroy();
+  }
+
+  /**
+   * Get the agent name from the servlet request
+   * A Cougaar URL looks like this:
+   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
+   */
+  private String getAgentName(HttpServletRequest hreq) {
+    if (hreq == null) {
+      return null;
+    }
+    String urlString = hreq.getRequestURI();
+    if (urlString == null || urlString.length() == 0) {
+      return null;
+    }
+    if (urlString.charAt(0) != '/') {
+      _log.warn("Error parsing URL. Unexpected character: " + urlString);
+      return null;
+    }
+    urlString = urlString.substring(1, urlString.length());
+    int last = urlString.indexOf('/');
+    if (last == -1) {
+      last = urlString.length();
+    }
+    urlString = urlString.substring(0, last);
+    int first = urlString.indexOf('$');
+    if (first == -1) {
+      return null;
+    }
+    return urlString.substring(first+1, last);
+  }
+
+  /**
+   * Get the servlet name from the servlet request
+   * A Cougaar URL looks like this:
+   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
+   */
+  private String getServletName(HttpServletRequest hreq) {
+    if (hreq == null) {
+      return null;
+    }
+    String urlString = hreq.getRequestURI();
+    if (urlString == null || urlString.length() == 0) {
+      return null;
+    }
+    if (urlString.charAt(0) != '/') {
+      _log.warn("Error parsing URL. Unexpected character: " + urlString);
+      return null;
+    }
+    if (urlString.length() == 1) {
+      return urlString;
+    }
+    else if (urlString.charAt(1) == '$') {
+      int first = urlString.indexOf('/', 1);
+      if (first == -1) {
+	return null;
+      }
+      else {
+	return urlString.substring(first, urlString.length());
+      }
+    }
+    else {
+      return urlString.substring(1, urlString.length());
+    }
   }
 
   /**
