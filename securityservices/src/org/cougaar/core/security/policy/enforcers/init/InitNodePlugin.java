@@ -58,10 +58,7 @@ public class InitNodePlugin extends ComponentPlugin {
   private ServletNodeEnforcer    _servletEnf;
   private OwlMessagePolicyMediator  _msgEnf;
 
-  private ServletService servletService;
-  private Servlet _messageServlet;
   private final String _messageServletPath = "/TestMessageMediationServlet";
-  private Servlet _servletServlet;
   private final String _servletServletPath = "/TestServletMediationServlet";
 
 
@@ -119,19 +116,25 @@ public class InitNodePlugin extends ComponentPlugin {
         getBlackboardService().openTransaction();
       }
 
-      // Construct the servlet - throw away code for Ultralog
-      _messageServlet = new TestMessageMediationServlet();
-      _servletServlet = new TestServletMediationServlet();
-
-      servletService = (ServletService)
+      ServletService servletService = (ServletService)
         _sb.getService(this,
                       ServletService.class,
                       null);
       if (servletService == null) {
-        throw new IllegalStateException("Unable to obtain ServletService");
+        if (_log.isWarnEnabled()) {
+          _log.warn("Unable to obtain ServletService. Test mediation servlets will not be enabled. "
+              + " This is ok as long as mediation tests are not performed");
+        }
       }
-      servletService.register(_messageServletPath, _messageServlet);
-      servletService.register(_servletServletPath, _servletServlet);
+      else {
+        // Construct the servlet - throw away code for Ultralog
+        Servlet _messageServlet = new TestMessageMediationServlet();
+        Servlet _servletServlet = new TestServletMediationServlet();
+        servletService.register(_messageServletPath, _messageServlet);
+        servletService.register(_servletServletPath, _servletServlet);
+        
+        _sb.releaseService(this, ServletService.class, servletService);
+      }
 
       //      getDirService(_sb);
     } catch (Exception e) {
