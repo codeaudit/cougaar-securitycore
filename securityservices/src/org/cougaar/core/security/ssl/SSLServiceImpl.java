@@ -74,19 +74,16 @@ public class SSLServiceImpl implements SSLService {
 
     // set default connection socket factory
     HttpsURLConnection.setDefaultSSLSocketFactory(
-      (SSLSocketFactory)getSocketFactory());
+      (SSLSocketFactory)KeyRingSSLFactory.getDefault());
 
     if (CryptoDebug.debug)
       System.out.println("Successfully created SSLContext.");
 
   }
 
-  public static SocketFactory getSocketFactory() {
-    return KeyRingSSLFactory.getDefault();
-  }
-
-  public static ServerSocketFactory getServerSocketFactory() {
-    return KeyRingSSLServerFactory.getDefault();
+  public void updateKeystore() {
+    km.updateKeystore();
+    tm.updateKeystore();
   }
 
 }
