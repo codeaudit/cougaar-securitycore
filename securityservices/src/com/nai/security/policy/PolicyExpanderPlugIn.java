@@ -21,6 +21,8 @@ import SAFE.Util.*;
 	
 public class PolicyExpanderPlugIn extends SimplePlugIn
 {
+  private boolean debug = true;
+
   private UnaryPredicate _UCPMPredicate = new UnaryPredicate() {
       public boolean execute(Object o) {
 	return (o instanceof UnexpandedConditionalPolicyMsg);
@@ -228,6 +230,9 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
    */
   private Vector expandPolicy (Msg policy)
   {
+    if (debug == true) {
+      System.out.println("Expanding policy message: " + policy);
+    }
     try {
       HashMap attributes = (HashMap) policy.getSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL);
       if (!attributes.containsKey(XML_KEY)) {
@@ -253,14 +258,18 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
 	    HashMap attributes1 = (HashMap) attributes.clone();						
 	    String binderType = ((TypedPolicy)policies[i]).getType();
 	    // put the policy object into the attribute table
-	    attributes1.put(POLICY_OBJECT_KEY, policies[i]);
+	    attributes1.put(org.cougaar.core.security.policy.TypedPolicy.POLICY_OBJECT_KEY, policies[i]);
 	    // put the updated table into the cloned message
 	    policy1.addSymbol(PolicyConstants.HLP_POLICY_ATTRIBUTES_SYMBOL,
 			      attributes1);
 	    // set the binder type of the message
-	    policy1.addSymbol("PolicyType", binderType);
+	    policy1.addSymbol(PolicyMsg.POLICY_TYPE, binderType);
 	    // add the message to the expanded policy messages
 	    expandedPolicies.addElement(policy1);
+	    if (debug == true) {
+	      System.out.println("Adding policy object["+ i + "]: " +
+				 binderType + " - " + attributes1);
+	    }
 	  }
 	}
 				
@@ -284,5 +293,4 @@ public class PolicyExpanderPlugIn extends SimplePlugIn
   private XMLPolicyCreator xmlPolicyCreator;
 	
   public static final String XML_KEY = "XMLContent";
-  public static final String POLICY_OBJECT_KEY = "NAI_POLICY_OBJECT";
 }
