@@ -6,6 +6,9 @@ class Security4a104Experiment < SecurityStressFramework
       super(run)
    end
 
+  def getStressIds
+    return ["4a104", "4a106"]
+  end
 
 
 #   def postConditionalStartSociety
@@ -106,6 +109,9 @@ class Security4a104Experiment < SecurityStressFramework
 end
 
 class Security4b104Experiment < Security4a104Experiment
+  def getStressIds
+    return ["killCAandMGMTNode"]
+  end
 
    def postPublishNextStage     
 # 4b104, shut down CA and management node and check recovery

@@ -18,9 +18,12 @@ class Security4a1Experiment < SecurityStressFramework
       @tamperIdmef = false
    end
 
+  def getStressIds
+    return ["4a1", "4a2", "4a20", "4a21"]
+  end
 
 
-   def postStartJabberCommunications
+ postStartJabberCommunications
 #      printDotsOnCougaarEvents
      on_cougaar_event do |event|
 
