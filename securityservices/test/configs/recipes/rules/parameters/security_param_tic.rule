@@ -331,14 +331,11 @@ society.each_host do |host|
 end
 
 society.each_node do |node|
-  if node.name == 'FWD-CA-NODE' \
-	or node.name == 'REAR-CA-NODE' \
-	or node.name == 'CONUS-CA-NODE' \
-	or node.name == 'TRANS-CA-NODE' \
-        or node.name == 'FWD-CA1-NODE' \
-	or node.name == 'REAR-CA1-NODE' \
-	or node.name == 'CONUS-CA1-NODE' \
-	or node.name == 'TRANS-CA1-NODE'
+ node.each_facet(:role) do |facet|
+  # should move the rundant stuff out to another rule
+   if facet[:role] == 'CertificateAuthority' \
+   or facet[:role] == 'RedundantCertificateAuthority'
+
     httpport = 8810
     httpsport = 9810
     

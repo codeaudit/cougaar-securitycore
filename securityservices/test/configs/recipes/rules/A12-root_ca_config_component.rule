@@ -5,13 +5,15 @@
 configPlugin = "org.cougaar.core.security.certauthority.ConfigPlugin"
 
 society.each_node do |node|
-  if node.name == "ROOT-CA-NODE"
-    node.agent.add_component do |c|
-      c.name = "RootCAConfigPlugin"
-      c.classname = configPlugin
-      c.priority = "HIGH"
-      c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-      c.add_argument("CN=RootCA, OU=Root, O=DLA, L=MV, ST=CA, C=US, T=ca")
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority'
+      node.agent.add_component do |c|
+        c.name = "RootCAConfigPlugin"
+        c.classname = configPlugin
+        c.priority = "HIGH"
+        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+        c.add_argument("CN=RootCA, OU=Root, O=DLA, L=MV, ST=CA, C=US, T=ca")
+      end
     end
   end
 end

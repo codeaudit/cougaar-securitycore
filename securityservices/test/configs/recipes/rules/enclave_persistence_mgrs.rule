@@ -3,29 +3,19 @@
 
 society.each_node do |node|
   agentname = ""
-  enclave = ""
-  if node.name == "REAR-MGMT-NODE"
-    enclave = "Rear"
-  elsif node.name == "FWD-MGMT-NODE"
-    enclave = "Fwd"
-  elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "Conus"
-  elsif node.name == "TRANS-MGMT-NODE"
-    enclave = "Trans"
-  end
-  if enclave != ""
-    agentname = enclave + "EnclavePersistenceManager"
-  end
-
-  if agentname != ""
-    node.add_agent(agentname) do |agent|
-      agent.add_component do |c|
-        c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
-      end
-      agent.add_component do |c|
-        c.classname = "org.cougaar.core.security.certauthority.CaServletComponent"
-        c.add_argument("org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet")
-        c.add_argument("/KeyRecoveryServlet")
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'Management'
+      facetval = node.host.get_facet(:enclave)
+      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclavePersistenceManager"
+      node.add_agent(agentname) do |agent|
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.dataprotection.plugin.PersistenceMgrPlugin"
+        end
+        agent.add_component do |c|
+          c.classname = "org.cougaar.core.security.certauthority.CaServletComponent"
+          c.add_argument("org.cougaar.core.security.dataprotection.plugin.KeyRecoveryServlet")
+          c.add_argument("/KeyRecoveryServlet")
+        end
       end
     end
   end

@@ -3,47 +3,37 @@
 
 cahost = nil
 society.each_node do |node|
-  if node.name == 'ROOT-CA-NODE'
-    cahost = node.host.name 
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority'
+      cahost = node.host.name 
+    end
   end
 end
 
 if cahost != nil
   society.each_node do |node|
-    enclave = nil
-    if node.name == 'REAR-CA-NODE'
-      enclave = "Rear"
-    elsif node.name == 'FWD-CA-NODE'
-      enclave = "Fwd"
-    elsif node.name == 'CONUS-CA-NODE'
-      enclave = "Conus"
-    elsif node.name == 'TRANS-CA-NODE'
-      enclave = "Trans"
-
-    elsif node.name == 'REAR-CA1-NODE'
-      enclave = "Rear1"
-    elsif node.name == 'FWD-CA1-NODE'
-      enclave = "Fwd1"
-    elsif node.name == 'CONUS-CA1-NODE'
-      enclave = "Conus1"
-    elsif node.name == 'TRANS-CA1-NODE'
-      enclave = "Trans1"
-    end
-    if enclave != nil
-      arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
-            ', O=DLA, L=MV, ST=CA, C=US, T=ca'
-      node.agent.add_component do |c|
-        c.name = enclave + "EnclaveCaConfigPlugin"
-        c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
-        c.priority = "HIGH"
-        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-        c.add_argument(arg)
-        c.add_argument("")
-        #  1st arg: host name where CA is running
-        #  2nd arg: Name of CA agent
-        #  3rd arg: HTTP port number of CA
-        #  4th arg: HTTPs port number of CA
-        c.add_argument(cahost + ":RootCaManager:8800:9800")
+    node.each_facet(:role) do |facet|
+      if facet[:role] == 'CertificateAuthority'
+         facetval = node.host.get_facet(:enclave)
+         enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+    
+         if enclave != nil
+           arg = 'CN=' + enclave + 'EnclaveCA, OU=' + enclave + 'Enclave' \
+             ', O=DLA, L=MV, ST=CA, C=US, T=ca'
+           node.agent.add_component do |c|
+             c.name = enclave + "EnclaveCaConfigPlugin"
+             c.classname = "org.cougaar.core.security.certauthority.ConfigPlugin"
+             c.priority = "HIGH"
+             c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+             c.add_argument(arg)
+             c.add_argument("")
+             #  1st arg: host name where CA is running
+             #  2nd arg: Name of CA agent
+             #  3rd arg: HTTP port number of CA
+             #  4th arg: HTTPs port number of CA
+             c.add_argument(cahost + ":RootCaManager:8800:9800")
+          end
+        end
       end
     end
   end

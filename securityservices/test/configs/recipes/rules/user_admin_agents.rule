@@ -8,28 +8,22 @@ userManager = "org.cougaar.core.security.acl.user.UserManagerPlugin"
 
 society.each_node do |node|
   agentname = ""
-  if node.name == "REAR-MGMT-NODE"
-    agentname = "RearUserAdminAgent"
-  elsif node.name == "FWD-MGMT-NODE"
-      agentname = "FwdUserAdminAgent"
-  elsif node.name == "CONUS-MGMT-NODE"
-    agentname = "ConusUserAdminAgent"
-  elsif node.name == "TRANS-MGMT-NODE"
-    agentname = "TransUserAdminAgent"
-  end
-
-  if agentname != ""
-    node.add_agent(agentname) do |agent|
-      agent.add_component do |c|
-	c.classname = caServlet
-	c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
-	c.add_argument("/useradmin")
-      end
-      agent.add_component do |c|
-	c.classname = userService 
-      end
-      agent.add_component do |c|
-	c.classname = userManager
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'Management'
+       enclave = node.host.get_facet(:enclave)
+       agentname = enclave[0..0] + enclave[1..enclave.length].downcase + "UserAdminAgent"
+      node.add_agent(agentname) do |agent|
+        agent.add_component do |c|
+	  c.classname = caServlet
+	  c.add_argument("org.cougaar.core.security.crypto.ldap.admin.UserAdminServlet")
+	  c.add_argument("/useradmin")
+        end
+        agent.add_component do |c|
+	  c.classname = userService 
+        end
+        agent.add_component do |c|
+	  c.classname = userManager
+        end
       end
     end
   end

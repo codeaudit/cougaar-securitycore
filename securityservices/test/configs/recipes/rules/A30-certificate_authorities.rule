@@ -37,25 +37,13 @@ caInfoServlet = "/CA/CAInfoServlet"
  
 society.each_node do |node|
   agentname = ""
-  if node.name == "REAR-CA-NODE"
-    agentname = "RearEnclaveCaManager"
-  elsif node.name == "FWD-CA-NODE"
-    agentname = "FwdEnclaveCaManager"
-  elsif node.name == "ROOT-CA-NODE"
-    agentname = "RootCaManager"
-  elsif node.name == "CONUS-CA-NODE"
-    agentname = "ConusEnclaveCaManager"
-  elsif node.name == "TRANS-CA-NODE"
-    agentname = "TransEnclaveCaManager"
-
-  elsif node.name == "REAR-CA1-NODE"
-    agentname = "RearEnclaveCa1Manager"
-  elsif node.name == "FWD-CA1-NODE"
-    agentname = "FwdEnclaveCa1Manager"
-  elsif node.name == "CONUS-CA1-NODE"
-    agentname = "ConusEnclaveCa1Manager"
-  elsif node.name == "TRANS-CA1-NODE"
-    agentname = "TransEnclaveCa1Manager"
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'RootCertificateAuthority'
+      agentname = "RootCaManager"  
+    elsif facet[:role] == 'CertificateAuthority'
+      facetval = node.host.get_facet(:enclave)
+      agentname = facetval[0..0] + facetval[1..facetval.length].downcase + "EnclaveCaManager"
+    end
   end
 
   if agentname != ""

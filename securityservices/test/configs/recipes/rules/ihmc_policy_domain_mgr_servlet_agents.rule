@@ -3,26 +3,16 @@
 # Adds PolicyDomainManagers 
 
 society.each_node do |node|
-  agentname = ""
-  enclave = ""
-  if node.name == "REAR-MGMT-NODE"
-    enclave = "Rear"
-  elsif node.name == "FWD-MGMT-NODE"
-    enclave = "Fwd"
-  elsif node.name == "CONUS-MGMT-NODE" 
-    enclave = "Conus"
-  elsif node.name == "TRANS-MGMT-NODE"
-    enclave = "Trans"
-  end
-  if enclave != ""
-    agentname = enclave + "PolicyServletAgent"
-  end
-
-  if agentname != ""
-    node.add_agent(agentname) do |agent|
-      agent.add_component do |c|
-        c.classname = "safe.policyManager.PolicyAdminServletComponent"
-        c.add_argument(enclave + "PolicyDomainManager")
+  node.each_facet(:role) do |facet|
+    if facet[:role] == 'Management'
+      facetval = node.host.get_facet(:enclave)
+      enclave = facetval[0..0] + facetval[1..facetval.length].downcase 
+      agentname = enclave + "PolicyServletAgent"
+      node.add_agent(agentname) do |agent|
+        agent.add_component do |c|
+          c.classname = "safe.policyManager.PolicyAdminServletComponent"
+          c.add_argument(enclave + "PolicyDomainManager")
+        end
       end
     end
   end

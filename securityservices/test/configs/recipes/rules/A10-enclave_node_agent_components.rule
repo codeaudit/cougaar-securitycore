@@ -6,35 +6,12 @@ enclave = nil
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
 
 society.each_node do |node|
-  if node.name =~ /.*REAR.*/ \
-	or node.name == "REAR-CA-NODE" \
-        or node.name == "REAR-CA1-NODE" \
-	or node.name == "REAR-MGMT-NODE"
-    enclave = "Rear"
-    community = "REAR-SECURITY-COMM"
-  elsif node.name =~ /.*FWD.*/ \
-	or node.name == "FWD-CA-NODE" \
-        or node.name == "FWD-CA1-NODE" \
-	or node.name == "FWD-MGMT-NODE"
-    enclave = "Fwd"
-    community = "FWD-SECURITY-COMM"
-  elsif node.name == "NCA-NODE" \
-	or node.name == "CONUS-NODE" \
-	or node.name == "ROOT-CA-NODE" \
-	or node.name == "CONUS-CA-NODE" \
-	or node.name == "CONUS-CA1-NODE" \
-	or node.name == "CONUS-MGMT-NODE"
-    enclave = "Conus"
-    community = "CONUS-SECURITY-COMM"
-  elsif node.name =~ /.*TRANS.*/ \
-	or node.name == "AIR-NODE" \
-	or node.name == "SEA-NODE" \
-	or node.name == "TRANS-CA-NODE" \
-	or node.name == "TRANS-CA1-NODE" \
-	or node.name == "TRANS-MGMT-NODE"
-    enclave = "Trans"
-    community = "TRANS-SECURITY-COMM"
-  end
+  enclave = nil
+  community = nil
+  
+  facetval = node.host.get_facet(:enclave)
+  enclave = facetval[0..0] + facetval[1..facetval.length].downcase
+  community = facetval + "-SECURITY-COMM"
 
   # Add the KAoS guard
   node.agent.add_component do |c|
