@@ -122,10 +122,12 @@ public class SampleAgentEnforcer
       (EnforcerManagerService)
       _sb.getService(this, EnforcerManagerService.class, null);
     if (_enfMgr == null) {
+      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
       _log.fatal("Cannot continue without guard", new Throwable());
       throw new SecurityException("Cannot continue without guard");
     }
     if (!_enfMgr.registerEnforcer(this, _action, _agents)) {
+      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
       _log.fatal("Could not register with the Enforcer Manager Service");
       throw new SecurityException(
                                   "Cannot register with Enforcer Manager Service");
@@ -133,6 +135,7 @@ public class SampleAgentEnforcer
     if (_enfMgr instanceof NodeGuard) {
       _guard = (NodeGuard) _enfMgr;
     } else { 
+      _sb.releaseService(this, EnforcerManagerService.class, _enfMgr);
       throw new SecurityException("Cannot get guard");
     }
   }
