@@ -106,7 +106,6 @@ class TestReportChainReady < SecurityStressFramework
   end
 
   def processEventsFromFile
-    loadSocietyData
     filename = File.join(ENV["CIP"], "workspace", "test", "acme_events.log")
     File.open(filename) do |file|
       file.readlines.each do |line|
@@ -119,23 +118,6 @@ class TestReportChainReady < SecurityStressFramework
     getBadChains(['OSD.GOV']).each do |chain|
       puts("Found bad chain ending at #{chain.last}")
       puts("Chain = " + chain.join(' -> '))
-    end
-  end
-end
-
-
-module Cougaar
-  module Actions
-    class GetReportChainReadyResults
-      def initialize(run)
-        super(run)
-        @run = run
-      end
-
-      def perform
-        x = TestReportChainReady.new(@run)
-        x.processEventsFromFile
-      end
     end
   end
 end
