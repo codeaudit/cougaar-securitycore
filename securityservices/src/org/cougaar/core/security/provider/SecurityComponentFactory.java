@@ -73,6 +73,9 @@ public final class SecurityComponentFactory
   public void load() {
     super.load();
     setLoggingService();
+    final ServiceBroker sb = bindingSite.getServiceBroker();
+    // Create and register security services.
+    new SecurityServiceProvider(sb, mySecurityCommunity);
   }
 
   public void setState(Object loadState) {}
