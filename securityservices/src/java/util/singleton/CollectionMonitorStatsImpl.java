@@ -22,7 +22,7 @@ package java.util.singleton;
 
 import java.util.*;
 
-public class CollectionMonitorStatsImpl
+public class CollectionMonitorStatsImpl implements CollectionMonitorStats
 {
   
   private static CollectionMonitorStats _theInstance;
@@ -52,12 +52,10 @@ public class CollectionMonitorStatsImpl
   public static synchronized CollectionMonitorStats getInstance() {
 
     // FIX: TODO
-    /*
     _theInstance = (CollectionMonitorStats)
       getInstance(CollectionMonitorStatsImpl.class,
 		  CollectionMonitorStats.class,
 		  _theInstance);
-    */
     return _theInstance;
   }
 
