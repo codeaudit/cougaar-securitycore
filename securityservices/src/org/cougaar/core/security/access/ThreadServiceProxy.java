@@ -141,6 +141,40 @@ class ThreadServiceProxy extends SecureServiceProxy
       _scs.resetExecutionContext();
       return retval.intValue(); 
     }
+    public long getTimestamp() {
+      Long retval = new Long(-1);
+      _scs.setExecutionContext(_ec);
+      // TODO For B11_4 integration
+      // Replace introspection with simple method invocation:
+      // retval = _schedulable.getTimestamp();
+      try {
+        Method m = _schedulable.getClass().getMethod("getTimestamp", null);
+        retval = (Long) m.invoke(_schedulable, null);
+      }
+      catch (Exception e) {
+        // This should never happen in B11_2, as Schedulable does
+        // not implement getTimestamp()
+      }
+      _scs.resetExecutionContext();
+      return retval.longValue(); 
+    }
+    public String getName() {
+      String retval = null;
+      _scs.setExecutionContext(_ec);
+      // TODO For B11_4 integration
+      // Replace introspection with simple method invocation:
+      // retval = _schedulable.getName();
+      try {
+        Method m = _schedulable.getClass().getMethod("getName", null);
+        retval = (String) m.invoke(_schedulable, null);
+      }
+      catch (Exception e) {
+        // This should never happen in B11_2, as Schedulable does
+        // not implement getName()
+      }
+      _scs.resetExecutionContext();
+      return retval; 
+    }
     public int getState() {
       int retval = 0;
       _scs.setExecutionContext(_ec);
