@@ -233,8 +233,8 @@ public abstract class GuardRegistration
 
       if (attrName.equals("POLICY_OBJECT")) {
 	// attrValue should be a Policy object
-	if (attrValue instanceof SecurityPolicy) {
-	  processTypedPolicy((SecurityPolicy)attrValue,
+	if (attrValue instanceof Policy) {
+	  processTypedPolicy((Policy)attrValue,
 			     policyID, policyName, policyDescription,
 			     policyScope,
 			     policySubjectID, policySubjectName,
@@ -242,7 +242,7 @@ public abstract class GuardRegistration
 			     policyType);
 	  isPolicyProcessed = true;
 	}
-	else {
+	else{
 	  if (debug) {
 	    log.debug("ERROR: unknown policy type");
 	  }
