@@ -89,6 +89,41 @@ public class CryptoPolicyHandler
     if (endElementAction == SKIP) {
       return;
     }
+    
+    if (localName.equals("Name")) {
+      String value = getContents();
+      cp.Name = value;
+    }
+    
+    if (localName.equals("Type")) {
+      String value = getContents();
+      if(value.equalsIgnoreCase("AGENT")){
+        cp.Type = AccessControlPolicy.AGENT;
+      }else if(value.equalsIgnoreCase("COMMUNITY")){
+        cp.Type = AccessControlPolicy.COMMUNITY;
+      }else if(value.equalsIgnoreCase("SOCIETY")){
+        cp.Type = AccessControlPolicy.SOCIETY;
+      }else{
+        if (log.isErrorEnabled()) {
+          log.error(" unexpected Type value.");
+        }
+      }
+    }
+    
+    if (localName.equals("Direction")) {
+      String value = getContents();
+      if(value.equalsIgnoreCase("BOTH")){
+        cp.Direction = AccessControlPolicy.BOTH;
+      }else if(value.equalsIgnoreCase("INCOMING")){
+        cp.Direction = AccessControlPolicy.INCOMING;
+      }else if(value.equalsIgnoreCase("OUTGOING")){
+        cp.Direction = AccessControlPolicy.OUTGOING;
+      }else{
+        if (log.isErrorEnabled()) {
+          log.error(" unexpected Direction value.");
+        }
+      }
+    }
 
     if (log.isDebugEnabled()) {
       log.debug("CryptoPolicy: " + localName 
