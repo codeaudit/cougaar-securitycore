@@ -86,19 +86,20 @@ public class AuditLogger {
       auditEnabled = true;
     }
 
-    auditLogger.debug("Configuring AuditLogger. Audit enabled:" + auditEnabled);
+    auditLogger.debug("Configuring AuditLogger. Audit enabled: " + auditEnabled);
     if (auditEnabled) {
       str = System.getProperty("org.cougaar.core.security.audit.outputdir");
       if (str != null) {
         auditLogDirectory = str;
       } else {
-        str = System.getProperty("org.cougaar.install.path");
+        str = System.getProperty("org.cougaar.workspace");
         if (str == null) {
-          System.err.println("cougaar install path not specified");
+          if (auditLogger.isWarnEnabled()) {
+            auditLogger.warn("org.cougaar.workspace not specified");
+          }
           auditLogDirectory = "";
         } else {
-          auditLogDirectory = System.getProperty("org.cougaar.install.path")
-            + File.separator + "workspace" + File.separator + "auditlogs"
+          auditLogDirectory = str + File.separator + "auditlogs"
             + File.separator;
           File dir = new File(auditLogDirectory);
           if (!dir.exists()) {
@@ -133,10 +134,9 @@ public class AuditLogger {
           }
         }
       }
-    }
-
-    if (auditLogger.isInfoEnabled()) {
-      auditLogger.info("Audit logs stored in directory:" + auditLogDirectory);
+      if (auditLogger.isInfoEnabled()) {
+        auditLogger.info("Audit logs stored in directory:" + auditLogDirectory);
+      }
     }
   }
 
@@ -152,6 +152,9 @@ public class AuditLogger {
    * @param resource Name of Resource or Service
    */
   private static void createServiceLogger(String resource) {
+    if (!auditEnabled) {
+      return;
+    }
     Logger logger = Logger.getLogger(resource);
     FileHandler serviceFileHandler = null;
 
@@ -180,6 +183,9 @@ public class AuditLogger {
    * Create a Logger to Log Audit events for Tomcat
    */
   private static void createWebLogger() {
+    if (!auditEnabled) {
+      return;
+    }
     Logger logger = Logger.getLogger("WebLogger");
     FileHandler webFileHandler = null;
     try {
@@ -234,6 +240,9 @@ public class AuditLogger {
    */
   public static void logWebEvent(HttpServletRequest request,
     String servletName, String agent) {
+    if (!auditEnabled) {
+      return;
+    }
     if (loggers.get("WebLogger") == null) {
       createWebLogger();
     }
