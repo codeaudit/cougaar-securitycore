@@ -26,10 +26,16 @@
 
 package org.cougaar.core.security.config;
 
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import java.io.*;
 import java.util.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 // Cougaar core services
 import org.cougaar.core.service.LoggingService;
@@ -38,6 +44,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.policy.*;
 import org.cougaar.core.security.util.*;
+import org.cougaar.core.security.services.util.*;
 
 public class CryptoClientPolicyHandler
   extends BaseConfigHandler
@@ -46,43 +53,62 @@ public class CryptoClientPolicyHandler
   private TrustedCaPolicy currentTrustedCa;
   private CertificateAttributesPolicy currentCertAttr;
 
-  private static final String IS_CERT_AUTH_ELEMENT = "isCertificateAuthority";
-  private static final String IS_ROOT_CA_ELEMENT = "isRootCA";
-  private static final String CA_KEYSTORE_ELEMENT          = "CA_keystore";
-  private static final String CA_KEYSTORE_PASSWORD_ELEMENT = "CA_keystorePassword";
+  public static final String IS_CERT_AUTH_ELEMENT = "isCertificateAuthority";
+  public static final String IS_ROOT_CA_ELEMENT = "isRootCA";
+  public static final String CA_KEYSTORE_ELEMENT          = "CA_keystore";
+  public static final String CA_KEYSTORE_PASSWORD_ELEMENT = "CA_keystorePassword";
 
-  private static final String KEYSTORE_FILE_ELEMENT          = "keystoreFileName";
-  private static final String KEYSTORE_PASSWORD_ELEMENT      = "keystorePassword";
-  private static final String KEYSTORE_USE_SMART_CARD        = "keystoreUseSmartCard";
+  public static final String KEYSTORE_FILE_ELEMENT          = "keystoreFileName";
+  public static final String KEYSTORE_PASSWORD_ELEMENT      = "keystorePassword";
+  public static final String KEYSTORE_USE_SMART_CARD        = "keystoreUseSmartCard";
 
   // Trusted Ca attributes
-  private static final String TRUSTED_CA_ELEMENT          = "trustedCA";
-  private static final String CA_URL_ELEMENT              = "CA_URL";
-  private static final String CA_DN_ELEMENT               = "CA_DN";
-  private static final String CERT_DIRECTORY_URL_ELEMENT  = "CertDirectoryURL";
-  private static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
-  private static final String CERT_DIRECTORY_PRINCIPAL_ELEMENT = "CertDirectorySecurityPrincipal";
-  private static final String CERT_DIRECTORY_CREDENTIAL_ELEMENT = "CertDirectorySecurityCredential";
+  public static final String TRUSTED_CA_ELEMENT          = "trustedCA";
+  public static final String CA_URL_ELEMENT              = "CA_URL";
+  public static final String CA_DN_ELEMENT               = "CA_DN";
+  public static final String CERT_DIRECTORY_URL_ELEMENT  = "CertDirectoryURL";
+  public static final String CERT_DIRECTORY_TYPE_ELEMENT = "CertDirectoryType";
+  public static final String CERT_DIRECTORY_PRINCIPAL_ELEMENT = "CertDirectorySecurityPrincipal";
+  public static final String CERT_DIRECTORY_CREDENTIAL_ELEMENT = "CertDirectorySecurityCredential";
 
   // Certificate Attributes
-  private static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
-  private static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
-  private static final String OU_ELEMENT           = "ou";
-  private static final String O_ELEMENT            = "o";
-  private static final String L_ELEMENT            = "l";
-  private static final String ST_ELEMENT           = "st";
-  private static final String C_ELEMENT            = "c";
-  private static final String DOMAIN_ELEMENT       = "domain";
-  private static final String KEYALGNAME_ELEMENT   = "keyAlgName";
-  private static final String SIGALGNAME_ELEMENT   = "sigAlgName";
-  private static final String KEYSIZE_ELEMENT      = "keysize";
-  private static final String VALIDITY_ELEMENT     = "validity";
-  private static final String ENVELOPE_ELEMENT     = "timeEnvelope";
-  private static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
+  public static final String CERTIFICATE_ATTR_ELEMENT = "certificateAttributes";
+  public static final String CACERTIFICATE_ATTR_ELEMENT = "caCertificateAttributes";
+  public static final String OU_ELEMENT           = "ou";
+  public static final String O_ELEMENT            = "o";
+  public static final String L_ELEMENT            = "l";
+  public static final String ST_ELEMENT           = "st";
+  public static final String C_ELEMENT            = "c";
+  public static final String DOMAIN_ELEMENT       = "domain";
+  public static final String KEYALGNAME_ELEMENT   = "keyAlgName";
+  public static final String SIGALGNAME_ELEMENT   = "sigAlgName";
+  public static final String KEYSIZE_ELEMENT      = "keysize";
+  public static final String VALIDITY_ELEMENT     = "validity";
+  public static final String ENVELOPE_ELEMENT     = "timeEnvelope";
+  public static final String NODE_IS_SIGNER_ELEMENT = "nodeIsSigner";
 
+  // name of the crypto client policy file for this node.  should be of the form
+  // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+  private String cryptoPolicyFileName;
 
   public CryptoClientPolicyHandler(ServiceBroker sb) {
     super(sb);
+    if(sb != null) {
+    // construct the crypto client policy file name.  should be of the form
+    // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
+    SecurityPropertiesService sps = (SecurityPropertiesService)
+      sb.getService(this, SecurityPropertiesService.class, null);
+    String nodeName = sps.getProperty("org.cougaar.node.name");
+    String cougaarWsp = sps.getProperty(sps.COUGAAR_WORKSPACE);
+    String topDirectory = cougaarWsp + File.separatorChar + "security"
+      + File.separatorChar + "keystores" + File.separatorChar;
+    String nodeDirectory = topDirectory + nodeName;
+    cryptoPolicyFileName = nodeDirectory + File.separatorChar + "cryptoPolicy.xml";
+    sb.releaseService(this, SecurityPropertiesService.class, sps);
+    }
+    else {
+      cryptoPolicyFileName = "/home/mluu/UL/cougaar/workspace/security/keystores/testNode/cryptoPolicy.xml"; 
+    }
   }
 
   public void collectPolicy(XMLReader parser,
@@ -259,15 +285,73 @@ public class CryptoClientPolicyHandler
 
     else if (localName.equals(VALIDITY_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
-      duration.parse(getContents());
+      String content = getContents();
+      duration.parse(content);
       currentCertAttr.howLong = duration.getDuration();
+      currentCertAttr.validity = content;
     }
     else if (localName.equals(ENVELOPE_ELEMENT)) {
       Duration duration = new Duration(serviceBroker);
-      duration.parse(getContents());
+      String content = getContents();
+      duration.parse(content);
       currentCertAttr.regenEnvelope = duration.getDuration();
+      currentCertAttr.timeEnvelope = content;
     }
   }
-
+  
+  void updatePolicy(CryptoClientPolicy policy) 
+    throws CryptoPolicyUpdateException {
+    /*
+    if(policy != cryptoClientPolicy) {
+      throw new CryptoPolicyUpdateException("CryptoClientPolicy does not match internal CryptoClientPolicy"); 
+    }
+    */
+    saveCryptoClientPolicy(policy); 
+  }
+  
+  private void saveCryptoClientPolicy(CryptoClientPolicy policy) 
+    throws CryptoPolicyUpdateException {
+    String newPolicyFileName = cryptoPolicyFileName + ".new";
+    File newPolicyFile = new File(newPolicyFileName);
+    File policyFile = new File(cryptoPolicyFileName);
+    try {
+      if(newPolicyFile.exists()) {
+        newPolicyFile.delete();
+        log.debug("removing previous " + newPolicyFileName);
+      }
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document updatedPolicy = builder.newDocument(); // the xml file to write
+      Element root = updatedPolicy.createElement("policies");
+      Element policyNode = updatedPolicy.createElement("policy");
+      policyNode.setAttribute("name", policy.getName());
+      policyNode.setAttribute("type", "cryptoClientPolicy");
+      policyNode.appendChild(policy.convertToXML(updatedPolicy));
+      root.appendChild(policyNode);
+      updatedPolicy.appendChild(root);
+   
+      FileOutputStream fos = new FileOutputStream(newPolicyFile);
+      OutputFormat of = new OutputFormat(updatedPolicy, "US-ASCII", true);
+      XMLSerializer xs = new XMLSerializer(fos, of);
+      xs.serialize(updatedPolicy);
+      fos.flush();
+      fos.close();
+    }
+    catch(Exception e) {
+      throw new CryptoPolicyUpdateException(e);
+    }
+    // the file exist remove the old cryptoPolicy.xml
+    if(policyFile.exists()) {
+      if(!policyFile.delete()) {
+        throw new CryptoPolicyUpdateException("Unable to remove " + cryptoPolicyFileName);
+      }
+      log.debug("removed previous " + cryptoPolicyFileName);
+    }
+    // rename the updated temp file to cryptoPolicy.xml
+    if(!newPolicyFile.renameTo(policyFile)) {
+      throw new CryptoPolicyUpdateException("Unable to rename " + newPolicyFileName);
+    }
+    log.debug("Saved crypto client policy " + cryptoPolicyFileName);
+  }
 }
 
