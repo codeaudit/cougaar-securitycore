@@ -5,6 +5,7 @@
 require 'security/lib/common_security_rules'
 
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
+policyFactory = "org.cougaar.core.security.provider.PolicyComponentFactory"
 
 def addSecurityComponentFactory(node, clsName, enclave, community)
   # Add the security component factory
@@ -57,9 +58,11 @@ society.each_node do |node|
         c.add_argument("http://ontology.ihmc.us/DomainManagementAction.owl#RegisterAction")
       end
       addSecurityComponentFactory(node, compFactory, enclave, community)
+      addSecurityComponentFactory(node, policyFactory, enclave, community)
     end
   else
     addSecurityComponentFactory(node, compFactory, enclave, community)
+    addSecurityComponentFactory(node, policyFactory, enclave, community)
   end
 end
 
