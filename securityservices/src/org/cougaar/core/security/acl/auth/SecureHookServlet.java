@@ -24,6 +24,7 @@
 package org.cougaar.core.security.acl.auth;
 
 import org.cougaar.core.security.audit.AuditLogger;
+import org.cougaar.core.security.policy.enforcers.ServletNodeEnforcer;
 import org.cougaar.util.log.LoggerFactory;
 
 import java.io.IOException;
@@ -51,10 +52,24 @@ public class SecureHookServlet implements Servlet {
   private org.cougaar.util.log.Logger _log;
 
   /**
+   * The enforcer answers policy questions about whether audit is required.
+   * Remove the _enforcer code if moving audit to DualAuthenticator is okd.
+   */
+  private static ServletNodeEnforcer _enforcer = null;
+
+  /**
    * default constructor
    */
   public SecureHookServlet() {
     _log = LoggerFactory.getInstance().createLogger(SecureHookServlet.class);
+  }
+
+  /**
+   * Set the enforcer that will answer all questions about logging.
+   */
+  public static void setEnforcer(ServletNodeEnforcer enforcer)
+  { 
+    _enforcer = enforcer;
   }
 
   /**
@@ -70,14 +85,21 @@ public class SecureHookServlet implements Servlet {
     if (principal != null) {
       subject.getPrincipals().add(principal);
     }
-    if (req instanceof HttpServletRequest) {
-      HttpServletRequest hreq = (HttpServletRequest) req;
-      subject.getPrincipals().add(new URIPrincipal(hreq.getRequestURI()));
 
-      //log access to Resource
-      AuditLogger.logWebEvent((HttpServletRequest)req,
-			      getServletName(hreq), getAgentName(hreq));
-    }
+    // This audit is commented out for now because I am moving the audit
+    // to DualAuthenticator.  -Timothy
+    /*
+     *if (req instanceof HttpServletRequest) {
+     *  HttpServletRequest hreq = (HttpServletRequest) req;
+     *  subject.getPrincipals().add(new URIPrincipal(hreq.getRequestURI()));
+     * 
+     *    //log access to Resource
+     *   AuditLogger.logWebEvent((HttpServletRequest)req,
+     *			      getServletName(hreq), getAgentName(hreq));
+     *
+     *}
+     */
+     
     Exception e = (Exception) Subject.doAs(subject,new ServletCall(req,res));
    
     if (e != null) {
@@ -98,69 +120,9 @@ public class SecureHookServlet implements Servlet {
     if (_hookServlet != null) _hookServlet.destroy();
   }
 
-  /**
-   * Get the agent name from the servlet request
-   * A Cougaar URL looks like this:
-   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
+  /*
+   * getAgentName and getServletName used to live here - Timothy
    */
-  private String getAgentName(HttpServletRequest hreq) {
-    if (hreq == null) {
-      return null;
-    }
-    String urlString = hreq.getRequestURI();
-    if (urlString == null || urlString.length() == 0) {
-      return null;
-    }
-    if (urlString.charAt(0) != '/') {
-      _log.warn("Error parsing URL. Unexpected character: " + urlString);
-      return null;
-    }
-    urlString = urlString.substring(1, urlString.length());
-    int last = urlString.indexOf('/');
-    if (last == -1) {
-      last = urlString.length();
-    }
-    urlString = urlString.substring(0, last);
-    int first = urlString.indexOf('$');
-    if (first == -1) {
-      return null;
-    }
-    return urlString.substring(first+1, last);
-  }
-
-  /**
-   * Get the servlet name from the servlet request
-   * A Cougaar URL looks like this:
-   *   http://<hostname>:<port_number>/$<agent_name>/<servlet_name>
-   */
-  private String getServletName(HttpServletRequest hreq) {
-    if (hreq == null) {
-      return null;
-    }
-    String urlString = hreq.getRequestURI();
-    if (urlString == null || urlString.length() == 0) {
-      return null;
-    }
-    if (urlString.charAt(0) != '/') {
-      _log.warn("Error parsing URL. Unexpected character: " + urlString);
-      return null;
-    }
-    if (urlString.length() == 1) {
-      return urlString;
-    }
-    else if (urlString.charAt(1) == '$') {
-      int first = urlString.indexOf('/', 1);
-      if (first == -1) {
-	return null;
-      }
-      else {
-	return urlString.substring(first, urlString.length());
-      }
-    }
-    else {
-      return urlString.substring(1, urlString.length());
-    }
-  }
 
   /**
    * Initializes the servlet and hook servlet. Takes the "servletClass"
