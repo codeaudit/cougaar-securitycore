@@ -181,7 +181,7 @@ public class NameServerCertificateComponent extends ComponentPlugin {
   }
 
   private void addValidityListener(final String agent) {
-    _validityService.addValidityListener(new CertValidityListener() {
+    _validityService.addAvailabilityListener(new CertValidityListener() {
       public String getName() {
         return agent;
       }
