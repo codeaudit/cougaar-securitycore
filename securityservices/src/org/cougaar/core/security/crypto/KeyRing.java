@@ -2100,15 +2100,15 @@ try {
   private boolean checkExpiry(String commonName, TrustedCaPolicy trustedCaPolicy) {
     CertificateAttributesPolicy certAttribPolicy =
       cryptoClientPolicy.getCertificateAttributesPolicy(trustedCaPolicy);
-    List certificateList = findCert(CertificateUtility.getX500Name(
-                                      CertificateUtility.getX500DN(commonName,
-                                                                   CertificateCache.getTitle(commonName),
-                                                                   certAttribPolicy)));
+    String x500dn = CertificateUtility.getX500DN(commonName,
+      CertificateCache.getTitle(commonName), certAttribPolicy);
+    X500Name x500name = CertificateUtility.getX500Name(x500dn);
+    List certificateList = findCert(x500name);
+
     if(certificateList != null && certificateList.size() != 0) {
       // check envelope
       long envelope = certAttribPolicy.regenEnvelope;
       CertificateStatus cs = (CertificateStatus)certificateList.get(0);
-
       Date notafter = cs.getCertificate().getNotAfter();
       Date curdate = new Date();
       if (log.isDebugEnabled())
