@@ -201,7 +201,7 @@ public class CougaarSecurityManager
 	  throw new RuntimeException("ERROR: stack overflow");
 	}
 	catch (Exception exp) {
-	  System.out.println("ERROR: stack length=" + stack.length + " - " + exp);
+	  System.out.println("ERROR: stack length=" + stack.length + " - " + perm);
 	  exp.printStackTrace();
 	}
 	throw new SecurityException("JDK error");
@@ -237,11 +237,14 @@ public class CougaarSecurityManager
 
       // Could be used to report checkPermission failures to a Monitoring & Response
       // Plugin.
-      final String curTime = DateFormat.getDateInstance().format(new Date());
       final AccessControlContext acc = AccessController.getContext();
       final Vector principals=new Vector();
       AccessController.doPrivileged(new PrivilegedAction() {
 	  public Object run() {
+	    // Calling DateFormat.getDateInstance() may require specific
+	    // privileges. In particular, access to packages under sun.text.
+	    // may be required.
+	    String curTime = DateFormat.getDateInstance().format(new Date());
 	    auditlog.print("<securityEvent><securityManagerAlarm><time>"
 			   + curTime + "</time><perm>" + perm + "</perm>\n");
 	    // Retrieve the subject associated with the current access controller context
