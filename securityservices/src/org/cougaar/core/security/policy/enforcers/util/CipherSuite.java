@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.cougaar.core.security.services.network.NetworkConfigurationService;
 
 /**
  * This class represents a suite of crypto algorithms including symmetric, 
@@ -193,13 +194,15 @@ public class CipherSuite {
   private CipherSuite getConditionalCipherSuite(int condition)
   {
     Integer cond = new Integer(condition);
-    Object o = _conditionMap.get(cond);
-    if (o == null) {
-      CipherSuite cs = new CipherSuite();
-      _conditionMap.put(cond, (Object) cs);
-      return cs;
+    if (condition == NetworkConfigurationService.ConnectNormal) {
+      return this;
     } else {
-      return (CipherSuite) o;
+      CipherSuite cs = (CipherSuite) _conditionMap.get(cond);
+      if (cs == null) {
+        cs = new CipherSuite();
+        _conditionMap.put(cond, cs);
+      }
+      return cs;
     }
   }
 
