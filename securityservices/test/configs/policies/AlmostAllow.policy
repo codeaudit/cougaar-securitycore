@@ -20,33 +20,13 @@
 #
 
 #
-# Declarations Section
+# Allow.policy can lead to trouble.  Allowing unencrypted messages
+# might make nodes unable to communicate - conceivably during the
+# commit process (?).  Almost allow is different in that it is
+# pretty small and permissive but it 
 #
 
-#
-# Each of the declarations that follow defines names of policy
-# concepts.  These names are used for stating and reasoning about
-# policy.  However, in order for these names to be understood by the
-# Ultralog enforcers, we need a mapping file that tells how Ultralog
-# names are translated into policy names.  
-#
-# The two exceptions to this scheme are 
-#  1. message verbs which are declared in Ontology-EntityInstances.daml and 
-#     don't need a mapping file, and
-#  2. communities which are declared in Ontology-GroupInstances.daml
-#     and don't need a mapping file.
-# I haven't moved the verb declarations because it requires a hack
-# which I am not yet happy with.  I haven't moved the community
-# declarations because they may be going away and I am concerned that
-# there might be a performance hit.
-#
-
-#
-# The policy prefix is prepended to each of the policy names.  It can
-# be used - if desired - to arrange that built policies reside in a
-# subdirectory.
-#
-PolicyPrefix=%Allow/
+PolicyPrefix=%AlmostAllow/
 
 
 #
@@ -60,6 +40,16 @@ Policy AllowCommunication = [
    $Action.daml#EncryptedCommunicationAction as long as
     the value of $Action.daml#hasDestination
     is a subset of the set $Actor.daml#Agent
+]
+
+Policy EncryptCommunication = [ 
+   GenericTemplate
+   Priority = 3,
+   $Actor.daml#Agent is not authorized to perform
+   $Action.daml#EncryptedCommunicationAction as long as
+    the value of $Ultralog/UltralogAction.daml#usedProtectionLevel
+    is a subset of the complement of the set
+     { $Ultralog/Names/EntityInstances.daml#NSAApprovedProtection }
 ]
 
 

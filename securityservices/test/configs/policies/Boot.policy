@@ -98,14 +98,14 @@ Servlet OtherServlets
 #    RoleUriMap       - to get the role from the URI
 #
 
-PlugInRole OpPlanPlugInRole
-PlugInRole PolicyServletRole
-PlugInRole OrgActivityAddRole
-PlugInRole OrgActivityQueryRole
-PlugInRole OrgActivityQueryNoReadRole
-PlugInRole OrgActivityChangeRole
-PlugInRole OrgActivityRemoveRole
-PlugInRole OrgActivityAllRole
+PlugInRole OpPlanPlugIn
+PlugInRole PolicyServlet
+PlugInRole OrgActivityAdd
+PlugInRole OrgActivityQuery
+PlugInRole OrgActivityQueryNoRead
+PlugInRole OrgActivityChange
+PlugInRole OrgActivityRemove
+PlugInRole OrgActivityAll
 
 #
 # The mapping file for these declarations is DamlBlackboardObjectMap.
