@@ -26,6 +26,7 @@ import org.cougaar.core.plugin.ComponentPlugin;
 import org.cougaar.core.service.AgentIdentificationService;
 import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.ThreadService;
+import org.cougaar.core.thread.Schedulable;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityService;
 import org.cougaar.core.service.community.CommunityResponseListener;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.TimerTask;
 import javax.naming.directory.*;
 import javax.naming.*;
 
@@ -191,22 +191,23 @@ public class CommunityServiceUtil {
                  " for which " + _agent + " does not have role " + notRole);
     }
 
-    final TimerTask tt =
-      new WarnTimerTask(_agent + 
-                        " searching for not role (" + notRole +
-                        ") in community " +
-                        "type (" + communityType + ")",
-                        _agent + 
-                        " found not role (" + notRole  + 
-                        ") in community type (" + 
-                        communityType + ")");
+    final Runnable tt =
+      new WarnThread(_agent + 
+		     " searching for not role (" + notRole +
+		     ") in community " +
+		     "type (" + communityType + ")",
+		     _agent + 
+		     " found not role (" + notRole  + 
+		     ") in community type (" + 
+		     communityType + ")");
+    WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityChangeListener   ccl = 
-      new GetCommunity(listener, tt, communityType, notRole, false);
+      new GetCommunity(listener, ws, communityType, notRole, false);
     CommunityResponseListener crl = 
-      new ResultListener(listener, tt, ccl, notRole, false);
+      new ResultListener(listener, ws, ccl, notRole, false);
     String filter = "(CommunityType=" + communityType + ")";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
       _log.debug("In agent :"+ _agent +" Doing Communities only search in  getCommunityNoRole with filter :"+ filter);
       _log.debug(" Result listener in  getCommunityNoRole is :"+ crl);
@@ -221,7 +222,7 @@ public class CommunityServiceUtil {
       }
       Set commSet = withRole(communities, notRole, false);
       if (!commSet.isEmpty()) {
-        tt.cancel();
+        ws.cancel();
         listener.getResponse(commSet);
         return;
       }
@@ -279,20 +280,21 @@ public class CommunityServiceUtil {
     if (_log.isDebugEnabled()) {
       _log.debug("Agent "+ _agent+" In getCommunityWithUpdates () Looking for community of type " + communityType);
     }
-    final TimerTask tt =
-      new WarnTimerTask(_agent + 
-                        " searching for role (" + role + ") in community " +
-                        "type (" + communityType + ")",
-                        _agent + 
-                        " found role (" + role  + ") in community type (" + 
-                        communityType + ")");
+    final Runnable tt =
+      new WarnThread(_agent + 
+		     " searching for role (" + role + ") in community " +
+		     "type (" + communityType + ")",
+		     _agent + 
+		     " found role (" + role  + ") in community type (" + 
+		     communityType + ")");
+    WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityChangeListener   ccl = 
-      new GetCommunityWithUpdates(listener, tt, communityType, role, true);
+      new GetCommunityWithUpdates(listener, ws, communityType, role, true);
     CommunityResponseListener crl = 
-      new ResultListener(listener, tt, ccl, role,true);
+      new ResultListener(listener, ws, ccl, role, true);
     String filter = "(CommunityType=" + communityType + ")";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
       _log.debug("In agent :"+ _agent +" Doing Communities only search in  getCommunityWithUpdates  with filter :"+ filter);
       _log.debug(" Result listener in  getCommunityWithUpdates :"+ crl);
@@ -364,20 +366,21 @@ public class CommunityServiceUtil {
     if (_log.isDebugEnabled()) {
       _log.debug("Agent "+ _agent+" In getCommunity () Looking for community of type " + communityType);
     }
-    final TimerTask tt =
-      new WarnTimerTask(_agent + 
-                        " searching for role (" + role + ") in community " +
-                        "type (" + communityType + ")",
-                        _agent + 
-                        " found role (" + role  + ") in community type (" + 
-                        communityType + ")");
+    final Runnable tt =
+      new WarnThread(_agent + 
+		     " searching for role (" + role + ") in community " +
+		     "type (" + communityType + ")",
+		     _agent + 
+		     " found role (" + role  + ") in community type (" + 
+		     communityType + ")");
+    WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityChangeListener   ccl = 
-      new GetCommunity(listener, tt, communityType, role, true);
+      new GetCommunity(listener, ws, communityType, role, true);
     CommunityResponseListener crl = 
-      new ResultListener(listener, tt, ccl, role,true);
+      new ResultListener(listener, ws, ccl, role,true);
     String filter = "(CommunityType=" + communityType + ")";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if (_log.isDebugEnabled()) {
       _log.debug("In agent :"+ _agent +" Doing Communities only search in  getCommunity with filter :"+ filter);
       _log.debug(" Result listener in  getCommunity :"+ crl);
@@ -392,7 +395,7 @@ public class CommunityServiceUtil {
       }
       Set commSet = withRole(communities, role, true);
       if (!commSet.isEmpty()) {
-        tt.cancel();
+        ws.cancel();
         listener.getResponse(commSet);
         return;
       }
@@ -429,20 +432,21 @@ public class CommunityServiceUtil {
                  " with a role of " + role);
     }
 
-    final TimerTask tt =
-      new WarnTimerTask(_agent + " searching for agent of role (" + role +
-                        ") belonging to my community of " +
-                        "type (" + communityType + ")", 
-                        _agent + " found agent of role (" + role +
-                        ") belonging to community type (" + communityType +
-                        ")");
+    final Runnable tt =
+      new WarnThread(_agent + " searching for agent of role (" + role +
+		     ") belonging to my community of " +
+		     "type (" + communityType + ")", 
+		     _agent + " found agent of role (" + role +
+		     ") belonging to community type (" + communityType +
+		     ")");
+    WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityChangeListener   ccl = 
-      new GetAgent(listener, tt, communityType, role);
-    CommunityResponseListener crl = new ResultListener(listener, tt, ccl);
+      new GetAgent(listener, ws, communityType, role);
+    CommunityResponseListener crl = new ResultListener(listener, ws, ccl);
     String filter = "(&(CommunityType=" + communityType + 
       ")(Role=" + role +"))";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if(_log.isDebugEnabled()){
       _log.debug("In agent :"+ _agent +" Doing Agents only search in  getCommunityAgent with filter :"+ filter);
       _log.debug(" Result listener in  getCommunityAgent is :"+ crl);
@@ -451,7 +455,7 @@ public class CommunityServiceUtil {
       _cs.searchCommunity(null, filter, true, Community.AGENTS_ONLY, crl);
 
     if (agents != null) {
-      tt.cancel();
+      ws.cancel();
       if (_log.isDebugEnabled()) {
         _log.debug("Agent "+ _agent+" getCommunityAgent() Got immediate response when looking for agents in role (" +
                    role + ") in my communities of type (" +
@@ -465,7 +469,7 @@ public class CommunityServiceUtil {
       } else {
         HashSet set = new HashSet(agents);
         listener.getResponse(set);
-        tt.cancel();
+        ws.cancel();
       }
     } else {
       if (_log.isDebugEnabled()) {
@@ -559,12 +563,14 @@ public class CommunityServiceUtil {
                  ") with a role of (" + role + ")");
     }
 
-    final TimerTask tt =
-      new WarnTimerTask(_agent + " searching for agent of role (" + role +
-                        ") in community (" + communityName + ")",
-                        _agent + " found agent of role (" + role +
-                        ") in community (" + communityName + ")");
+    final Runnable tt =
+      new WarnThread(_agent + " searching for agent of role (" + role +
+		     ") in community (" + communityName + ")",
+		     _agent + " found agent of role (" + role +
+		     ") in community (" + communityName + ")");
 
+    final WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     CommunityResponseListener crl = new CommunityResponseListener() {
         public void getResponse(CommunityResponse resp) {
           Object response = resp.getContent();
@@ -577,7 +583,7 @@ public class CommunityServiceUtil {
             _log.error(errorString);
             throw new RuntimeException(errorString);
           }
-          tt.cancel();
+          ws.cancel();
           if(_log.isDebugEnabled()) {
             _log.debug("received response in call back of crl for get Agents (communityName,role,listener) :"
                        + response);
@@ -587,8 +593,7 @@ public class CommunityServiceUtil {
       };
 
     String filter = "(Role=" + role +")";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if(_log.isDebugEnabled()){
       _log.debug("In agent :"+ _agent +" Doing Agents only search in  getAgents with filter :"+ filter);
       _log.debug(" Community listener  in  getAgents is :"+ crl);
@@ -602,7 +607,7 @@ public class CommunityServiceUtil {
         _log.debug("Agent "+ _agent+" getAgents Got immediate Response in getAgents when looking for agents in role  (" +
                    role + ") in community (" + communityName + ")" + "Response :"+ agents);
       }
-      tt.cancel();
+      ws.cancel();
       HashSet set = new HashSet(agents);
       listener.getResponse(set);
     }
@@ -627,12 +632,13 @@ public class CommunityServiceUtil {
                  ") with a role of (" + role + ")");
     }
 
-    final TimerTask tt =
-      new WarnTimerTask(_agent + " searching for agent of role (" + role +
-                        ") in community (" + communityName + ") in getAgentsInCommunity ",
-                        _agent + " found agent of role (" + role +
-  
-                        ") in community (" + communityName + ")");
+    final Runnable tt =
+      new WarnThread(_agent + " searching for agent of role (" + role +
+		     ") in community (" + communityName + ") in getAgentsInCommunity ",
+		     _agent + " found agent of role (" + role +
+		     ") in community (" + communityName + ")");
+    WarnSchedulable ws =
+      new WarnSchedulable(_threadService.getThread(this, tt), tt);
     /*
       CommunityResponseListener ccrl = new CommunityResponseListener() {
       public void getResponse(CommunityResponse resp) {
@@ -646,7 +652,7 @@ public class CommunityServiceUtil {
       _log.error(errorString);
       throw new RuntimeException(errorString);
       }
-      tt.cancel();
+      ws.cancel();
       if(_log.isDebugEnabled()) {
       _log.debug("received response in call back of crl for getAgentsInCommunity(communityName,role,listener) :"
       + response);
@@ -655,11 +661,10 @@ public class CommunityServiceUtil {
       }
       };
     */
-    CommunityChangeListener   ccl =  new GetAgentInCommunity (listener, tt, communityName, role);
-    CommunityResponseListener crl =  new ResultListener(listener, tt, ccl, role,true);
+    CommunityChangeListener   ccl =  new GetAgentInCommunity (listener, ws, communityName, role);
+    CommunityResponseListener crl =  new ResultListener(listener, ws, ccl, role,true);
     String filter = "(Role=" + role +")";
-    _threadService.schedule(tt, COMMUNITY_WARNING_TIMEOUT,
-                            COMMUNITY_WARNING_TIMEOUT);
+    ws.schedule(COMMUNITY_WARNING_TIMEOUT, COMMUNITY_WARNING_TIMEOUT);
     if(_log.isDebugEnabled()){
       _log.debug("In agent :"+ _agent +" Doing Agents only search in  getAgentsInCommunity with filter :"+ filter);
       _log.debug(" Result listener in  getAgentsInCommunity is :"+ crl);
@@ -681,7 +686,7 @@ public class CommunityServiceUtil {
         
         _cs.addListener(ccl);
       } else {
-        tt.cancel();
+        ws.cancel();
         if (_log.isDebugEnabled()) {
           _log.debug("Agent "+ _agent+" getAgentsInCommunity Got immediate response when looking for agents in role (" +
                      role + ") in community (" + communityName + ")" + "Response :"+ agents);
@@ -802,12 +807,12 @@ public class CommunityServiceUtil {
     private String                       _communityType;
     private String                       _role;
     private CommunityServiceUtilListener _listener;
-    private TimerTask                    _timerTask;
+    private WarnSchedulable              _timerTask;
     private boolean                      _allDone;
     private boolean                      _containsRole;
 
     public GetCommunity(CommunityServiceUtilListener listener, 
-                        TimerTask timerTask,
+                        WarnSchedulable timerTask,
                         String communityType,
                         String role,
                         boolean containsRole) {
@@ -892,12 +897,12 @@ public class CommunityServiceUtil {
     private String                       _communityType;
     private String                       _role;
     private CommunityServiceUtilListener _listener;
-    private TimerTask                    _timerTask;
+    private WarnSchedulable              _timerTask;
     private boolean                      _allDone;
     private boolean                      _containsRole;
 
     public GetCommunityWithUpdates(CommunityServiceUtilListener listener, 
-                        TimerTask timerTask,
+                        WarnSchedulable timerTask,
                         String communityType,
                         String role,
                         boolean containsRole) {
@@ -971,12 +976,12 @@ public class CommunityServiceUtil {
   private class GetAgent implements CommunityChangeListener {
     private String                       _communityType;
     private CommunityServiceUtilListener _listener;
-    private TimerTask                    _timerTask;
+    private WarnSchedulable              _timerTask;
     private String                       _role;
     private boolean                      _allDone;
 
     public GetAgent(CommunityServiceUtilListener listener, 
-                    TimerTask timerTask,
+                    WarnSchedulable timerTask,
                     String communityType,
                     String role) {
       _communityType = communityType;
@@ -1071,12 +1076,55 @@ public class CommunityServiceUtil {
     "day", "hour", "minute", "second"
   };
 
-  private class WarnTimerTask extends TimerTask {
+  private class WarnSchedulable implements Schedulable {
+    private Schedulable _sched;
+    private WarnThread _wt;
+
+    public WarnSchedulable(Schedulable s, Runnable wt) {
+      _sched = s;
+      _wt = (WarnThread) wt;
+    }
+    public boolean cancel() {
+      if (_sched.cancel()) {
+        if (_log.isInfoEnabled()) {
+          _log.info(_wt.getFound() + ": " + _wt.elapsedTime());
+        }
+        return true;
+      } 
+      return false;
+    }
+    public void cancelTimer() {
+      _sched.cancelTimer();
+    }
+    public Object getConsumer() {
+      return _sched.getConsumer();
+    }
+    public int getState() {
+      return _sched.getState();
+    }
+    public void schedule(long delay) {
+      _sched.schedule(delay);
+    }
+    public void schedule(long delay, long interval) {
+      _sched.schedule(delay, interval);
+    }
+    public void scheduleAtFixedRate(long delay, long interval) {
+      _sched.scheduleAtFixedRate(delay, interval);
+    }
+    public void start() {
+      _sched.start();
+    }
+    public String getWarning() {
+      return _wt.getWarning();
+    }
+  }
+
+  private class WarnThread implements Runnable {
     private String _warning;
     private String _found;
     private long   _startTime = System.currentTimeMillis();
 
-    public WarnTimerTask(String warning, String found) {
+    public WarnThread(String warning, String found) {
       _warning = warning;
       _found    = found;
     }
@@ -1087,16 +1135,10 @@ public class CommunityServiceUtil {
       }
     }
 
-    public boolean cancel() {
-      if (super.cancel()) {
-        if (_log.isInfoEnabled()) {
-          _log.info(_found + ": " + elapsedTime());
-        }
-        return true;
-      } 
-      return false;
+    public String getFound() {
+      return _found;
     }
-    
+
     public String elapsedTime() {
       long now = System.currentTimeMillis();
       long diff = now - _startTime;
@@ -1126,23 +1168,23 @@ public class CommunityServiceUtil {
   }
 
   private class ResultListener implements CommunityResponseListener {
-    TimerTask                    _tt;
+    WarnSchedulable              _ws;
     CommunityServiceUtilListener _listener;
     CommunityChangeListener      _changeListener;
     String                       _role;
     boolean                      _containsRole;
 
     public ResultListener(CommunityServiceUtilListener listener,
-                          TimerTask warningTask,
+                          WarnSchedulable warningTask,
                           CommunityChangeListener changeListener) {
       this(listener, warningTask, changeListener, null, false);
     }
 
     public ResultListener(CommunityServiceUtilListener listener,
-                          TimerTask warningTask,
+                          WarnSchedulable warningTask,
                           CommunityChangeListener changeListener,
                           String role, boolean containsRole) {
-      _tt = warningTask;
+      _ws = warningTask;
       _listener = listener;
       _changeListener = changeListener;
       _role = role;
@@ -1156,6 +1198,10 @@ public class CommunityServiceUtil {
       if (resp.getStatus() == resp.SUCCESS) {
         Object response = resp.getContent();
 
+	if (response == null) {
+	  _log.warn("ResultListener (agent:" + _agent + "): response is null");
+	  return;
+	}
         if (!(response instanceof Set)) {
           String errorString = "Agent "+ _agent+ " Unexpected community response class:"
             + response.getClass().getName() + " - Should be a Set";
@@ -1169,7 +1215,7 @@ public class CommunityServiceUtil {
         if (!set.isEmpty()) {
           if(_log.isDebugEnabled()) {
             _log.debug("Received Response in Result Listener------- :");
-            _log.debug(((WarnTimerTask)_tt).getWarning());
+            _log.debug(_ws.getWarning());
             if(_containsRole) {
               _log.debug(" For role :"+_role);
             }
@@ -1178,12 +1224,12 @@ public class CommunityServiceUtil {
             }
           }
           _listener.getResponse(set);
-          _tt.cancel();
+          _ws.cancel();
           return;
         }
       }
       if(_log.isDebugEnabled()) {
-        _log.debug(((WarnTimerTask)_tt).getWarning());
+        _log.debug(_ws.getWarning());
         if(_containsRole) {
           _log.debug(" For role :"+_role);
         }
@@ -1202,12 +1248,12 @@ public class CommunityServiceUtil {
   private class GetAgentInCommunity implements CommunityChangeListener {
     private String                       _communityName;
     private CommunityServiceUtilListener _listener;
-    private TimerTask                    _timerTask;
+    private WarnSchedulable              _timerTask;
     private String                       _role;
     private boolean                      _allDone;
 
     public GetAgentInCommunity(CommunityServiceUtilListener listener, 
-                               TimerTask timerTask,
+                               WarnSchedulable timerTask,
                                String communityName,
                                String role) {
       _communityName = communityName;

@@ -26,11 +26,10 @@
 
 package org.cougaar.core.security.util;
 
-import java.util.TimerTask;
 import org.cougaar.core.thread.Schedulable;
 
 public class CommunityTimerTask
-  extends TimerTask
+  implements Runnable
 {
   private long _count;
   private CommunityTimerTaskClient _client;
@@ -40,9 +39,10 @@ public class CommunityTimerTask
     _client = client;
 
     _schedulable = _client.getThreadService().getThread(this, this);
-    _client.getThreadService().scheduleAtFixedRate(
-      this, CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT,
-      CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
+    _client.getThreadService().getThread(
+      this, this).scheduleAtFixedRate(
+	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT,
+	CommunityServiceUtil.COMMUNITY_WARNING_TIMEOUT);
 
   }
 
