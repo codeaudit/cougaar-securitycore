@@ -259,52 +259,57 @@ public class ServletNodeEnforcer
 	    out.print("<p><b>--------------------------------------</b></p>");
 	    out.print("<p>Unknown user is attempting access to " + uri);
 	    Set cypherSuites = whichCypherSuiteWithAuth(uri);
-	    for (Iterator cypherIt = cypherSuites.iterator();
-		 cypherIt.hasNext();) {
-		CypherSuiteWithAuth suite
-		    = (CypherSuiteWithAuth) cypherIt.next();
-		out.print("<p>Mediation says enforcer can use:</p><ul>");
-		out.print("<li>Symmetric = " + suite.getSymmetric());
-		out.print("<li>Assymmetric = " + suite.getAssymmetric());
-		out.print("<li>Checksum = " + suite.getChecksum());
-		out.print("<li>");
-		if (suite.getAuth() == CypherSuiteWithAuth.authCertificate) {
-		    out.print("Certificate");
-		} else if (suite.getAuth() 
-			   == CypherSuiteWithAuth.authPassword){
-		    out.print("Password");
-		} else if (suite.getAuth() == CypherSuiteWithAuth.authNoAuth) {
-		    out.print("No Authentication Required");
-		}
-		out.print("</ul>");
-		out.print("<p>Now we find out who the user is.</p>");
-		int roleCount = HardWired.ulRoles.length;
-		for (int i = 0; i < roleCount; i++) {
-		    String role1 = HardWired.ulRoles[i];
-		    HashSet roleSet = new HashSet();
-		    roleSet.add(role1);
-		    out.print("<p>A user in role " + role1 + " is ");
-		    if (isActionAuthorized(roleSet, uri, suite)) {
-			out.print("allowed.</p>");
-		    } else {
-			out.print("disallowed.</p>");
+	    if (cypherSuites == null || cypherSuites.size() == 0) {
+		out.print("<p>Permission denied " + 
+			  "without even determining the user</p>");
+	    } else {
+		for (Iterator cypherIt = cypherSuites.iterator();
+		     cypherIt.hasNext();) {
+		    CypherSuiteWithAuth suite
+			= (CypherSuiteWithAuth) cypherIt.next();
+		    out.print("<p>Mediation says enforcer can use:</p><ul>");
+		    out.print("<li>Symmetric = " + suite.getSymmetric());
+		    out.print("<li>Assymmetric = " + suite.getAssymmetric());
+		    out.print("<li>Checksum = " + suite.getChecksum());
+		    out.print("<li>");
+		    if (suite.getAuth() == CypherSuiteWithAuth.authCertificate) {
+			out.print("Certificate");
+		    } else if (suite.getAuth() 
+			       == CypherSuiteWithAuth.authPassword){
+			out.print("Password");
+		    } else if (suite.getAuth() == CypherSuiteWithAuth.authNoAuth) {
+			out.print("No Authentication Required");
 		    }
-		    for (int j = i+1; j < roleCount; j++) {
-			String role2 = HardWired.ulRoles[j];
-			roleSet = new HashSet();
+		    out.print("</ul>");
+		    out.print("<p>Now we find out who the user is.</p>");
+		    int roleCount = HardWired.ulRoles.length;
+		    for (int i = 0; i < roleCount; i++) {
+			String role1 = HardWired.ulRoles[i];
+			HashSet roleSet = new HashSet();
 			roleSet.add(role1);
-			roleSet.add(role2);
-			out.print("<p>A user in role " + role1 + " and "
-				  + role2 + " is ");
+			out.print("<p>A user in role " + role1 + " is ");
 			if (isActionAuthorized(roleSet, uri, suite)) {
 			    out.print("allowed.</p>");
 			} else {
 			    out.print("disallowed.</p>");
 			}
+			for (int j = i+1; j < roleCount; j++) {
+			    String role2 = HardWired.ulRoles[j];
+			    roleSet = new HashSet();
+			    roleSet.add(role1);
+			    roleSet.add(role2);
+			    out.print("<p>A user in role " + role1 + " and "
+				      + role2 + " is ");
+			    if (isActionAuthorized(roleSet, uri, suite)) {
+				out.print("allowed.</p>");
+			    } else {
+				out.print("disallowed.</p>");
+			    }
+			}
 		    }
 		}
+		out.print("<p><b>--------------------------------------</b></p>");
 	    }
-	    out.print("<p><b>--------------------------------------</b></p>");
 	}
     }
 

@@ -1,8 +1,6 @@
 package org.cougaar.core.security.policy.enforcers.match;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import kaos.ontology.matching.*;
 import kaos.ontology.jena.ActionConcepts;
@@ -17,9 +15,9 @@ import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 public class ULSemanticMatcherFactory 
     implements SemanticMatcherFactory
 {
-
     private ServiceBroker _sb;
     private CommunityService _communityService;
+    private HashMap _communityCache = new HashMap();
     private LoggingService _log;
     private ULActorSemanticMatcher _semMatch;
 
@@ -109,8 +107,8 @@ public class ULSemanticMatcherFactory
 
 		String community 
 		    = className.substring(communityPrefix.length());
-		Collection communities = 
-		    _communityService.listParentCommunities((String) actor);
+		Collection communities = getCommunitiesFromAgent(actor);
+
 		return communities.contains(community);
 	    } else if (className.startsWith(personPrefix)) {
 		String role 
@@ -150,8 +148,8 @@ public class ULSemanticMatcherFactory
 		    String agent = (String) agentIt.next();
 		    agent = removeHashChar(agent);
 
-		    Collection communities = 
-			_communityService.listParentCommunities(agent);
+		    Collection communities = getCommunitiesFromAgent(agent);
+
 		    _log.debug("matchSemantically: Communities for agent, " 
 			       + agent + " = ");
 		    for(Iterator communitiesIt = communities.iterator();
@@ -231,6 +229,23 @@ public class ULSemanticMatcherFactory
 	    } else {
 		return KAoSProperty._NO_INST_PRESENT;
 	    }
+	}
+
+	private Collection getCommunitiesFromAgent(String agent)
+	{
+	    Collection communities;
+	    Object     cached;
+
+	    if ((cached = _communityCache.get(agent)) == null) {
+		communities = _communityService.listParentCommunities(agent);
+		if (communities == null) {
+		    communities = new HashSet();
+		}
+		_communityCache.put(agent, communities);
+	    } else {
+		communities = (Collection) cached;
+	    }
+	    return communities;
 	}
     }
 }

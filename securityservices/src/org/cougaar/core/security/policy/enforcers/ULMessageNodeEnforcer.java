@@ -210,33 +210,6 @@ public class ULMessageNodeEnforcer
      * Testing 1 2 3
      */
 
-    private void testCommunities(PrintWriter out)
-    {
-	out.print("<p><b>Semantic Matchers Check</b></p>");
-	//	_guard.timSnafsPolicies(_semFactory);
-	for (int i = 0; i < _agents.size(); i++) {
-	    for (int j = 0; j < _agents.size(); j++) {
-		String sender    = (String) _agents.get(i);
-		String receiver  = (String) _agents.get(j);
-		out.print("<p>Allowed cypher suites:</p>");
-		Set suites = getAllowedCypherSuites(sender,"##" + receiver);
-		int counter = 0;
-		for (Iterator suitesIt=suites.iterator(); 
-		     suitesIt.hasNext();) {
-		    CypherSuite c = (CypherSuite) suitesIt.next();
-		    out.print("<p>Suite " + (counter++) + ":<ul>");
-		    out.print("<li>Symmetric = " + c.getSymmetric());
-		    out.print("<li>Assymmetric = " + c.getAssymmetric());
-		    out.print("<li>Checksum = " + c.getChecksum());
-		    out.print("</ul>");
-		}
-
-		testIsActionAuthorized(out, sender, receiver, "GetWater");
-		testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
-	    }
-	}
-    }
-
     private void testIsActionAuthorized(PrintWriter out, 
 					String sender,
 					String receiver, 
@@ -252,6 +225,47 @@ public class ULMessageNodeEnforcer
 	}
     }
 
+    private void testTiming(PrintWriter out,
+			    String sender,
+			    String receiver,
+			    String verb)
+    {
+	out.print("<p><b>Timing Check</b></p>");
+	out.print("<p>Timing the two mediation calls required to determine " +
+		  "if and how to send a " + verb + " message from " + 
+		  sender + " to " + receiver + ".</p>");
+	boolean allowed = false;
+	Set     suites  = null;
+	int     count   = 2000;
+	long start = System.currentTimeMillis();
+	for (int i = 0; i < count; i++) {
+	    suites  = getAllowedCypherSuites(sender,"##" + receiver);	    
+	    allowed = isActionAuthorized(sender, "##" + receiver, verb);
+	}
+	long duration = System.currentTimeMillis() - start;
+	out.print("<p>" + count + " calls mediated in " 
+		  + duration + " milliseconds.</p>");
+	out.print("<p>Last call returned the following results: ");
+	out.print("<p>Allowed cypher suites:</p>");
+	if (suites == null || suites.size() ==0) { 
+	    out.print("<p>None</p>");
+	} else {
+	    int counter = 0;
+	    for (Iterator suitesIt=suites.iterator(); 
+		 suitesIt.hasNext();) {
+		CypherSuite c = (CypherSuite) suitesIt.next();
+		out.print("<p>Suite " + (counter++) + ":<ul>");
+		out.print("<li>Symmetric = " + c.getSymmetric());
+		out.print("<li>Assymmetric = " + c.getAssymmetric());
+		out.print("<li>Checksum = " + c.getChecksum());
+		out.print("</ul>");
+	    }
+	}
+	out.print("<p>Message ");
+	if (allowed) { out.print("allowed</p>"); } 
+	else { out.print("not allowed</p>"); }
+    }
+
 
     /**
      * This is a very simple pre-canned test.  It is called though a
@@ -260,16 +274,36 @@ public class ULMessageNodeEnforcer
     public void testEnforcer(PrintWriter out) 
         throws IOException, UnknownConceptException
     {
+	out.print("<p><b>Semantic Matchers Check</b></p>");
 	for (int i = 0; i < _agents.size(); i++) {
 	    for (int j = 0; j < _agents.size(); j++) {
 		String sender    = (String) _agents.get(i);
 		String receiver  = (String) _agents.get(j);
-		// testIsActionAuthorized(out, sender, receiver, "GetWater");
-		// testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
+		out.print("<p>Allowed cypher suites from " + sender
+			  + " to " + receiver + "</p>");
+		Set suites = getAllowedCypherSuites(sender,"##" + receiver);
+		if (suites == null || suites.size() ==0) { 
+		    out.print("<p>None</p>");
+		} else {
+		    int counter = 0;
+		    for (Iterator suitesIt=suites.iterator(); 
+			 suitesIt.hasNext();) {
+			CypherSuite c = (CypherSuite) suitesIt.next();
+			out.print("<p>Suite " + (counter++) + ":<ul>");
+			out.print("<li>Symmetric = " + c.getSymmetric());
+			out.print("<li>Assymmetric = " + c.getAssymmetric());
+			out.print("<li>Checksum = " + c.getChecksum());
+			out.print("</ul>");
+		    }
+		}
+		testIsActionAuthorized(out, sender, receiver, "GetWater");
+		testIsActionAuthorized(out, sender, receiver, "GetLogSupport");
 	    }
 	}
-	testCommunities(out);
-	//testTiming(out, (String) _agents.get(0),(String) _agents.get(1));
+	testTiming(out, 
+		   (String) _agents.get(0),
+		   (String) _agents.get(0),
+		   "GetLogSupport");
     }
 
     //George's interfaces...

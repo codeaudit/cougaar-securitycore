@@ -111,12 +111,11 @@ public class SampleAgentEnforcer
      * call a little - I need to check but I don't think that the
      * previous version works (compiles?) any longer?
      */
-    public void registerEnforcer() throws RuntimeException
+    public void registerEnforcer()
     {
 	if (!_sb.hasService(EnforcerManagerService.class)) {
 	    _log.fatal("Guard service is not registered");
-	    System.out.println("Guard service is not registered");
-	    throw new RuntimeException("Guard service is not registered");
+	    throw new SecurityException("Guard service is not registered");
 	}
 
 	EnforcerManagerService _enfMgr = 
@@ -124,16 +123,17 @@ public class SampleAgentEnforcer
 	    _sb.getService(this, EnforcerManagerService.class, null);
 	if (_enfMgr == null) {
 	    _log.fatal("Cannot continue without guard", new Throwable());
-	    throw new RuntimeException("Cannot continue without guard");
+	    throw new SecurityException("Cannot continue without guard");
 	}
 	if (!_enfMgr.registerEnforcer(this, _action, _agents)) {
-	    System.out.println("Could not register with the Enforcer Manager Service");
-	    throw new RuntimeException("Cannot register with Enforcer Manager Service");
+	    _log.fatal("Could not register with the Enforcer Manager Service");
+	    throw new SecurityException(
+			      "Cannot register with Enforcer Manager Service");
 	}
 	if (_enfMgr instanceof NodeGuard) {
 	    _guard = (NodeGuard) _enfMgr;
 	} else { 
-	    throw new RuntimeException("Cannot get guard");
+	    throw new SecurityException("Cannot get guard");
 	}
     }
 

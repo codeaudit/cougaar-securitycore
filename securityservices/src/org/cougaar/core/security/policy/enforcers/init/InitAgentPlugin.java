@@ -43,7 +43,6 @@ public class InitAgentPlugin extends ComponentPlugin {
      */
   protected void setupSubscriptions()
   {
-    System.out.println("InitAgentPlugin.setupSubscriptions");
     try {
 	BindingSite bs = getBindingSite();
 	ServiceBroker sb = bs.getServiceBroker();
@@ -54,7 +53,7 @@ public class InitAgentPlugin extends ComponentPlugin {
 
 	// Here is an agent of interest
 	String agentName = getAgentIdentifier().toAddress();
-	System.out.println("Creating Enforcers for " + agentName);
+	_log.info("Creating Enforcers for " + agentName);
 
 	// Every agent needs to be registered.  We do this by creating an 
 	// agent enforcer for the agent and making sure that it is
@@ -72,7 +71,7 @@ public class InitAgentPlugin extends ComponentPlugin {
      */
   protected void execute()
   {
-    System.out.println("InitAgentPlugin.execute");
+    _log.debug("InitAgentPlugin.execute");
   }
 
 
