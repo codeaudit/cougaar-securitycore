@@ -79,7 +79,7 @@ public interface AgentIdentityService
    * This method is useful in cases when there are constraints
    * on the X.500 name.
    */
-  public void acquire(Principal p)
+  public void acquireX500Identity(Principal p)
     throws PendingRequestException,
     IdentityDeniedException;
 
