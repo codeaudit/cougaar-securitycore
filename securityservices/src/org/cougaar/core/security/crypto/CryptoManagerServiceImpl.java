@@ -1723,7 +1723,7 @@ public class CryptoManagerServiceImpl
         Object headerObj = ois.readObject();
         if (!(headerObj instanceof ProtectedMessageHeader)) {
           this.in = null;
-          throw new IOException(headerObj.toString());
+          throw new MessageDumpedException(headerObj.toString());
         }
 
         ProtectedMessageHeader header = (ProtectedMessageHeader) headerObj;

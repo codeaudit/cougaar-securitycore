@@ -740,9 +740,17 @@ public class MessageProtectionServiceImpl
         eventPublisher.publishEvent(event);
       }
       throw new IOException(reason);
+    } catch (MessageDumpedException e) {
+      if (log.isInfoEnabled()) {
+        log.info("Got message terminated early from " +
+                 source + " to " + destination + ": " + e.getMessage());
+      }
+      throw e;
+      /*
     } catch (Exception e) {
       log.warn("Unexpected Exception when reading input stream", e);
       return null;
+      */
     }
   }
   
