@@ -45,6 +45,8 @@ public class DataProtectionKeyCollection
   extends ArrayList
   implements DataProtectionKey
 {
+  private byte[] _sig;
+
   public void add(int index, Object element) {
     if (!(element instanceof DataProtectionKeyImpl)) {
       throw new IllegalArgumentException("Wrong data type: "
@@ -67,5 +69,13 @@ public class DataProtectionKeyCollection
 					 + element.getClass().getName());
     }
     return super.set(index, element);
+  }
+
+  public byte[] getSignature() {
+    return _sig;
+  }
+
+  public void setSignature(byte [] sig) {
+    _sig = sig;
   }
 }
