@@ -72,7 +72,7 @@ import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUp;
 import org.cougaar.core.security.monitoring.blackboard.CmrRelay;
 import org.cougaar.core.security.monitoring.blackboard.MRAgentLookUpReply;
 import org.cougaar.core.security.monitoring.blackboard.EventImpl;
-
+import org.cougaar.core.security.monitoring.blackboard.FormatEvent;
 // Cougaar overlay
 import org.cougaar.core.security.constants.IdmefClassifications;
 
@@ -526,33 +526,6 @@ public class EventQueryPlugin extends ComponentPlugin {
 
     getBlackboardService().publishAdd(qra);
     getBlackboardService().publishChange(_persistData);
-  }
-
-  public static class FormatEvent implements IncrementFormat {
-    // IncrementFormat API
-    public void encode(UpdateDelta out, SubscriptionAccess sacc) {
-      Collection addTo = out.getAddedList();
-      Collection added = sacc.getAddedCollection();
-      out.setReplacement(true);
-
-      if (added == null) {
-        return;
-      }
-
-      Iterator iter = added.iterator();
-      ConfigFinder cf = ConfigFinder.getInstance();
-      IDMEF_Message.setDtdFileLocation(cf.locateFile("idmef-message.dtd").toString());
-      while (iter.hasNext()) {
-        Event event = (Event) iter.next();
-        ResultSetDataAtom da = new ResultSetDataAtom();
-        UID uid = event.getUID();
-        da.addIdentifier("owner", uid.getOwner());
-        da.addIdentifier("id", String.valueOf(uid.getId()));
-        da.addValue("source", event.getSource().toAddress());
-        da.addValue("event", event.getEvent().toString());
-        addTo.add(da);
-      }
-    }
   }
 
   /**
