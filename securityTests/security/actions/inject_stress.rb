@@ -55,8 +55,8 @@ module Cougaar
             if ex.message =~ /private method `new' called/
 	      ret = eval("#{stressorClass}.instance(current_run)")
             else
-	      saveUnitTestResult(stressorClass,
-                  "Unable to start #{stressorClass} - #{ex}\n#{ex.backtrace.join("\n")}")
+	      saveAssertion(stressorClass,
+                            "Unable to start #{stressorClass} - #{ex}\n#{ex.backtrace.join("\n")}")
               raise ex
 	    end
           end
@@ -74,9 +74,9 @@ module Cougaar
       end
     end
 
-   class InjectStress < Cougaar::Action
+    class InjectStress < Cougaar::Action
 
-     def initialize(run, className, methodName)
+      def initialize(run, className, methodName)
 	super(run)
 	@stressorClassName = className
 	@methodName = methodName
@@ -87,7 +87,7 @@ module Cougaar
 	rescue => ex
 	  logInfoMsg "InjectStress - Unable to initialize stress: #{@stressorClassName} - #{ex} "
           saveResult(false, "Unable to initialize Stress: #{@stressorClassName}.#{@methodName}",
-             "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
+                     "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end
       end
@@ -104,7 +104,7 @@ module Cougaar
 	rescue => ex
 	  logInfoMsg "InjectStress. Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
           saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}",
-               "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
+                     "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	end
 	t2 = Time.now
 	logInfoMsg "Done invoking stress: #{@stressorClassName}.#{@methodName} in #{t2 - t1} seconds"
@@ -113,7 +113,7 @@ module Cougaar
 
     class StartScheduledStress < Cougaar::Action
 
-     def initialize(run, className, methodName, delay=0.minute, interval=2.minute)
+      def initialize(run, className, methodName, delay=0.minute, interval=2.minute)
 	super(run)
 	begin
 	  @stressor = Stressors.getStressInstance(className, run)
@@ -121,7 +121,7 @@ module Cougaar
 	rescue => ex
 	  logInfoMsg "Unable to start stress: #{className} - " + ex
           saveResult(false, "Unable to initialize Stress: #{className}.#{methodName}",
-             "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
+                     "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	  return
 	end
 
@@ -148,7 +148,7 @@ module Cougaar
 	    rescue => ex
 	      logInfoMsg "Exception while invoking stress: #{@stressorClassName}.#{@methodName}"
               saveResult(false, "Stress: #{@stressorClassName}.#{@methodName}", 
-                  "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
+                         "#{ex}\n#{ex.backtrace.join("\n")}", "testClass")
 	    end
 	    id += 1
 	    sleep @interval
