@@ -36,35 +36,72 @@ import sun.security.x509.*;
 
 
 
-public class CRLWrapper 
+public class CRLWrapper  implements Serializable
 {
-  private X509CRL crl;
+  private byte []derencodedCRL=null;
   private String dnname;
+  private String certDirectoryURL;
+  private int certDirectoryType;
+  private String lastModifiedTime;
   // private CertificateCache certCache;
   
   // private boolean debug = false;
 
-  public CRLWrapper(String dn)//,CertificateCache certcache)
+  public CRLWrapper(String dn,String directoryUrl,int directoryType)//,CertificateCache certcache)
   {
     this.dnname=dn;
-    this.crl=null;
+    this.derencodedCRL=null;
+    this.certDirectoryURL=directoryUrl;
+    this.certDirectoryType=directoryType;
+    this.lastModifiedTime=null;
     
   }
-  public CRLWrapper(String dn ,X509CRL certcrl)
+  public CRLWrapper(String dn ,byte[] certcrl ,String modifiedTimestamp)
   {
     this.dnname=dn;
-    this.crl=certcrl;
-    
+    this.derencodedCRL=certcrl;
+     this.certDirectoryURL=null;
+    this.certDirectoryType=-1;
+    lastModifiedTime=modifiedTimestamp;
   }
-  public void setCRL( X509CRL CRL)
+  public void setCRL( byte [] encodedcrl)
   {
-    crl=CRL;
+    derencodedCRL=encodedcrl;
   }
   public X509CRL getCRL() {
+    X509CRL crl =null;
+    if(derencodedCRL!=null){
+      try {
+	InputStream inStream = new ByteArrayInputStream(derencodedCRL);
+	CertificateFactory cf = CertificateFactory.getInstance("X.509");
+	crl = (X509CRL)cf.generateCRL(inStream);
+	inStream.close();
+      }
+      catch (Exception exp){
+	  return crl;
+	}
+    }
     return crl;
   }
- 
 
- 
+  public String getDN () {
+    return dnname;
+  }
+  public String getCertDirectoryURL(){
+    return certDirectoryURL;
+  }
+  public int getCertDirectoryType(){
+    return certDirectoryType;
+  }
+  
+  public void setLastModifiedTimestamp(String tstamp) {
+    lastModifiedTime=tstamp;
+  }
+  
+  public String getLastModifiedTimestamp() {
+    return lastModifiedTime;
+  }
+
+   
 }
 
