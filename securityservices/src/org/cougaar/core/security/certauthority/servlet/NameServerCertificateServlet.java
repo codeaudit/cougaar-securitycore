@@ -100,7 +100,8 @@ public class NameServerCertificateServlet extends HttpServlet {
               log.debug("Did not find a cert for " + names[i]);
             }
             //_pendingCache.add(names[i]);
-            NameServerCertificateComponent.getPendingList().add(names[i]);
+                        
+            NameServerCertificateComponent.getPendingList().put(names[i], names[i]);
           }
 	  else {
 	    if (log.isDebugEnabled()) {
