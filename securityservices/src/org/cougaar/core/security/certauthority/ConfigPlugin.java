@@ -77,6 +77,7 @@ public class ConfigPlugin
   private String upperCA = null;
   public static String httpport = null;
   private String httpsport = null;
+  private long pollStart;
 
   public void setBindingSite(BindingSite bs) {
     bindingSite = bs;
@@ -122,6 +123,8 @@ public class ConfigPlugin
 
     httpport = sps.getProperty("org.cougaar.lib.web.http.port", null);
     httpsport = System.getProperty("org.cougaar.lib.web.https.port", null);
+
+    pollStart = System.currentTimeMillis();
 
     execute();
   }
@@ -278,15 +281,6 @@ public class ConfigPlugin
     }
 
     public void run() {
-      if (!isPrimaryCA) {
-        try {
-          Thread.currentThread().sleep(delayRequest);
-        } catch (Exception ex) {} 
-        if (log.isInfoEnabled()) {
-          log.info("Start to request certificates from backup CA: " + infoURL);
-        }
-      }
-
       while (true) {
 
         try {
@@ -309,6 +303,18 @@ public class ConfigPlugin
 
           CAInfo info = (CAInfo)ois.readObject();
           ois.close();
+
+          if (!isPrimaryCA) {
+            try {
+              long timeLeft = delayRequest + pollStart - System.currentTimeMillis();
+              if (timeLeft > 0) {
+                Thread.currentThread().sleep(timeLeft);
+              }
+            } catch (Exception ex) {} 
+            if (log.isInfoEnabled()) {
+              log.info("Start to request certificates from backup CA: " + infoURL);
+            }
+          }
 
           checkOrMakeIdentity(info, requestURL);
 
