@@ -299,9 +299,18 @@ final public class CertificateCache implements CertificateCacheService  {
       log.debug("Secure message CA keystore: path="
 		+ param.caKeystorePath);
     }
-    
-   
-    
+    _crlCacheService = (CRLCacheService)
+      serviceBroker.getService(this,
+			       CRLCacheService.class,
+			       null);
+    if((_crlCacheService==null) &&(crlCacheServiceAvailable==null)){
+      if(log.isDebugEnabled()) {
+        log.debug(" Adding CRLCacheServiceAvailableListener in int of Certificate cache :");
+      }
+      crlCacheServiceAvailable=new CRLCacheServiceAvailableListener();
+      serviceBroker.addServiceListener(crlCacheServiceAvailable);
+    }
+      
     try {
       // Open Keystore
       keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -1254,6 +1263,7 @@ final public class CertificateCache implements CertificateCacheService  {
     certstatus = addCertificate(certstatus);
     // Update Common Name to DN hashtable
     nameMapping.addName(certstatus);
+    
     if(certType == CertificateType.CERT_TYPE_CA) {
       if(_crlCacheService!=null) {
         log.debug("Adding to  CRL cache dn:"+certificate.getSubjectDN().getName());
