@@ -138,7 +138,7 @@ public class AnalyzerPlugIn extends SimplePlugIn
     private boolean  publishcapabilities()
     {
         boolean published=false;
-	 if(self==null)
+	if(self==null)
         {
             if(MonitoringUtils.debug>0)
 		System.out.println("Self was null in analyzer ");
@@ -172,8 +172,6 @@ public class AnalyzerPlugIn extends SimplePlugIn
                 	DumpVector(Services);
 		}
             }
-	if(MonitoringUtils.debug>0)
-            System.out.println("Got self is "+self.toString());
 
         }
         if(self!=null)
