@@ -529,15 +529,8 @@ public class CryptoManagerServiceImpl
     if (skeyTry != 0 && ((skeyTry % 50) == 0)) {
       log.debug("encrypt key try: " + skeyTry + " hit: " + skeyHit);
     }
-    // Find target & receiver certificates
-    X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
-    X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
 
     /* Have we already generated a session key for this pair of agents? */
-/*
-    MessageAddressPair mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
-						   sender, receiver);
-*/
     HashMap targets;
 
     synchronized (sessionKeys) {
@@ -559,6 +552,10 @@ public class CryptoManagerServiceImpl
 	KeyGenerator kg = KeyGenerator.getInstance(a);
 	kg.init(random);
 	SecretKey sk = kg.generateKey();
+
+	// Find target & receiver certificates
+	X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
+	X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
 
 	// Encrypt session key
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
@@ -661,12 +658,6 @@ public class CryptoManagerServiceImpl
       log.debug("decrypt try: " + keyTry + " hit: " + keyHit);
     }
 
-//     MessageAddressPair mp = null;
-    X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
-    X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
-
-//     mp = new MessageAddressPair(source.toAddress(), target.toAddress(),
-// 				sender, receiver);
     HashMap targets;
 
     synchronized (sessionKeys) {
@@ -715,6 +706,9 @@ public class CryptoManagerServiceImpl
 	  asymmDecrypt(source.toAddress(), policy.asymmSpec,
 		       envelope.getEncryptedSymmetricKeySender());
       }
+
+      X509Certificate receiver = keyRing.findFirstAvailableCert(target.toAddress());
+      X509Certificate sender = keyRing.findFirstAvailableCert(source.toAddress());
 
       if (sk != null && sender != null && receiver != null) {
 	SealedObject secret = asymmEncrypt(target.toAddress(), policy.asymmSpec, sk, receiver);
