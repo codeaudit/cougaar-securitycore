@@ -35,6 +35,7 @@ import org.cougaar.util.UnaryPredicate;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Date;
 
 import edu.jhuapl.idmef.AdditionalData;
 import edu.jhuapl.idmef.Address;
@@ -54,7 +55,7 @@ extends ComponentPlugin
   private EventService _eventService;
   private HashMap _eventCache = new HashMap();
   private int _cacheSize = 100;
-  private int _cacheInterval = 600000;
+  private int _cacheInterval = 6000;
 
   /**
    * A predicate that matches all "Event object which is not registration "
@@ -235,7 +236,7 @@ extends ComponentPlugin
         if (pTime != null) {
           if (lastPublished - pTime.longValue() < _cacheInterval) {
             if (_log.isDebugEnabled()) {
-              _log.debug("Idmef message already published for " + idmefString);
+              _log.debug("Idmef message already published for " + idmefString + "at time :"+ pTime);
             }
             return;
           }        
@@ -248,11 +249,19 @@ extends ComponentPlugin
 
         if (_eventCache.size() > _cacheSize) {
           // lazy clean up, restart the cache over
+          if (_log.isDebugEnabled()) {
+            _log.debug("Cleaning cache");
+          }
           _eventCache.clear();
         } 
-
+        if (_log.isDebugEnabled()) {
+            _log.debug("adding Event to cache");
+          }
         _eventCache.put(idmefString, new Long(lastPublished)); 
-
+        
+        if (_log.isDebugEnabled()) {
+            _log.debug("adding Event to cache");
+          }
         _eventService.event(s.toString());
       }
     }
