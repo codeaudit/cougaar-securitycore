@@ -262,8 +262,9 @@ public class CougaarSecurityManager
   	      super.checkPermission(perm);
         }
       } catch (SecurityException e) {
-        
-        logPermissionFailure(perm, e, stack, true);
+        if(!isBlackboardPermission(perm)) { 
+          logPermissionFailure(perm, e, stack, true);
+        }
         throw (new SecurityException(e.getMessage()));
       }
   }
@@ -279,6 +280,17 @@ public class CougaarSecurityManager
     } 
     return false;
   }
+  
+  private boolean isBlackboardPermission(Permission p) {
+    // can't use instanceof since SecuredObject is loaded by Cougaar's ClassLoader
+    // and not the System's ClassLoader      
+    Class superClass = p.getClass().getSuperclass();
+    if (superClass.getName().equals("org.cougaar.core.security.auth.ServicePermission")) { 
+      return true;
+    } 
+    return false;
+  }
+  
   /** Display policy information about a particular class
    */
   private void printPolicy(Class c)

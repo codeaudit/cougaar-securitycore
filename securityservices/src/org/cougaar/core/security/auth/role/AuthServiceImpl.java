@@ -232,11 +232,14 @@ public class AuthServiceImpl
       }
       boolean ret = isAuthorizedUL(ec, perm);
       if(!ret) {   
-        if (_log.isWarnEnabled()) {      
-          _log.warn("UNAUTHORIZED BLACKBOARD ACCESS: [" + ec.getComponent() + ", " + perm.getName() + ", " + perm.getActions() + "]");
-        }
         if(_log.isDebugEnabled()) {
+          _log.debug("UNAUTHORIZED BLACKBOARD ACCESS: [" + ec.getComponent() + ", " + perm.getName() + ", " + perm.getActions() + "]");
           _log.debug("Component execution context: \n" + ec); 
+        }
+      }
+      else {
+        if(_log.isDebugEnabled()) {
+          _log.info("AUTHORIZED BLACKBOARD ACCESS: [" + ec.getComponent() + ", " + perm.getName() + ", " + perm.getActions() + "]");
         }
       }
       return ret;

@@ -46,9 +46,17 @@ class SecureServiceProxy {
   
   public static final String EFFICIENT_PROPERTY = 
     "org.cougaar.core.security.access.efficientBBS";
+  // WARNING: This should only be set for debugging purposes.
+  // If set to true, the unary predicate will be invoked to determine
+  // if a warning should be logged to notify logistic plugin developers
+  // that they do not have query access to SecuredObjects.
+  public static final String DEBUG_AUTH_PROPERTY = 
+    "org.cougaar.core.security.auth.debug";
   public static final boolean EFFICIENT = 
     Boolean.valueOf(System.getProperty(EFFICIENT_PROPERTY, "true")).booleanValue();
-  
+  public static final boolean AUTH_DEBUG = 
+    Boolean.valueOf(System.getProperty(DEBUG_AUTH_PROPERTY, "false")).booleanValue();
+
   SecureServiceProxy(ServiceBroker sb) {//, Object requestor) {
     _sb = sb;
     _scs = (SecurityContextService)
@@ -75,7 +83,7 @@ class SecureServiceProxy {
     return (o instanceof SecuredOrgActivity);
   }
 
-  private boolean allowQuery(Object o, ExecutionContext ec) {
+  private boolean allowQuery(Object o, ExecutionContext ec, UnaryPredicate up) {
     if (EFFICIENT && !(o instanceof SecuredObject)) {
       return true;
     }
@@ -96,8 +104,15 @@ class SecureServiceProxy {
         _scs.resetExecutionContext();
       }
       catch(SecurityException se) {
-        // log this security exception as a warning
-        _log.warn("QUERY DENIED: [" + comp + ", " + object + "]");
+        // log this security exception as a warning ONLY IF 
+        // org.cougaar.core.security.auth.debug is enabled
+        if(AUTH_DEBUG) {
+          if(up != null) {
+            if(up.execute(o)) {
+              _log.warn("QUERY DENIED: [" + comp + ", " + object + "]");
+            }
+          }
+        }
         return false; 
       }
     }
@@ -112,7 +127,8 @@ class SecureServiceProxy {
       _ec = ec;
     }
     public boolean execute(Object o) {
-      if(!allowQuery(o, _ec)) {
+      if(!allowQuery(o, _ec, _up)) {
+        // unauthorized access of protected objects
         return false;
       }
       // if _up is null that means that i'm only doing an authorization check.
