@@ -195,7 +195,16 @@ public class PersistenceMgrPolicyServiceImpl
                 if (_log.isDebugEnabled()) {
                   _log.debug("Got community: " + community.getName());
                 }
-                setupRole(community);
+                // changes that might add agent
+                if (event.getType() == CommunityChangeEvent.ADD_COMMUNITY
+                  || event.getType() == CommunityChangeEvent.ADD_ENTITY) {
+                  setupRole(community);
+                }
+                // change that might remove agent
+                if (event.getType() == CommunityChangeEvent.REMOVE_ENTITY
+                  || event.getType() == CommunityChangeEvent.REMOVE_COMMUNITY) {
+                  checkRemovedRole(community);
+                }
               }
             }
           }
@@ -206,6 +215,48 @@ public class PersistenceMgrPolicyServiceImpl
       }
     });
   }
+
+  private void checkRemovedRole(Community community) {
+    String communityName = community.getName();
+    String filter = "(Role=" + PM_ROLE + ")";
+    Set mgrAgents = community.search(filter, Community.AGENTS_ONLY);
+    Iterator it = mgrAgents.iterator();
+    if (_log.isDebugEnabled()) {
+      _log.debug("checkRemovedRole for " + communityName
+        + " - " + mgrAgents.size() + "  manager agents");
+      _log.debug("Community: " + community.toXml());
+    }
+    List pmAgents = new ArrayList();
+    while (it.hasNext()) {
+      Entity entity = (Entity) it.next();
+      pmAgents.add(entity.getName());
+    }
+
+    // check policies to see if those agents still there
+    PersistenceManagerPolicy [] policies = getPolicies();
+    for (int i = 0; i < policies.length; i++) {
+      String pmAgent = policies[i].pmDN;
+
+      if (!pmAgents.contains(pmAgent)) {
+        if (_log.isInfoEnabled()) {
+          _log.info("Removing PM " + pmAgent + " from list, entity has been removed from community.");
+        }
+        synchronized (_policies) {
+          _policies.remove(policies[i]);
+        }
+
+        // removing PM but leave the keys already encrypted with it intact.
+        // for recovery new PM keys will be used as well as old PM keys
+        for (Enumeration en = pmListeners.elements(); en.hasMoreElements(); ) {
+          PersistenceMgrAvailListener listener =
+            (PersistenceMgrAvailListener)en.nextElement();
+          listener.removePM(policies[i]);
+        }
+         
+      }
+    }
+  }
+
 
   private void setupRole(Community community) {
     String communityName = community.getName();
