@@ -27,7 +27,7 @@
   <user-db-config>
     <!-- the ldap url for the user database -->
     <ldap-url>ldap://mango:3890</ldap-url>
-    <ldap-url role="asmt">ldap://u088</ldap-url>
+    <ldap-url role="asmt">ldap://u068</ldap-url>
 
     <!-- The user allowed to write to the ldap database. Only the
          user admin agent and M&R agents should be given this. -->
