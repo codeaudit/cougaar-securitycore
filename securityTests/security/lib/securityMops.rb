@@ -145,7 +145,7 @@ puts "error, probably in compileResults" if $VerboseDebugging
 	raise "Unexpected plugin type: #{plugin}"
       end
 
-      s = "#{type} plugin on #{agent}: #{successes} successes, #{total} total"
+      s = "#{type} plugin on #{agent}: #{successes} successes / #{failures} failures, #{total} total"
       puts s if $VerboseDebugging
       @info.push(s)
       #@raw.push([agent, type, successes, total])
