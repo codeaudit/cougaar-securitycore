@@ -310,6 +310,11 @@ public class KeyManagement
 	   caOperations.publishCertificate((X509Certificate)c,
 					   CertificateUtility.CACert,pk);
 	 }
+	 catch (javax.naming.NameAlreadyBoundException e) {
+	   if (log.isInfoEnabled()) {
+	     log.info("CA certificate already published to LDAP: " + e);
+	   }
+	 }
 	 catch (Exception e) {
 	   if (log.isWarnEnabled()) {
 	     log.warn("Unable to publish CA certificate to LDAP: " + e);

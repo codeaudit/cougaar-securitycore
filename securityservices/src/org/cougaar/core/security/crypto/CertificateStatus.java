@@ -72,6 +72,10 @@ public class CertificateStatus
 			   CertificateTrust trust,
 			   String a,
 			   ServiceBroker sb) {
+    if (cert == null) {
+      throw new IllegalArgumentException("Null certificate");
+    }
+
     serviceBroker = sb;
     log = (LoggingService)
       serviceBroker.getService(this,
