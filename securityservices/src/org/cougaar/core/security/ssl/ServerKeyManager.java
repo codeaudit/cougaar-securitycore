@@ -45,13 +45,17 @@ public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyMan
     // use nodealias to set server alias which is the hostname
     String hostname = keystore.getHostName();
     nodename = hostname;
-    System.out.println("=====> getHostName: " + hostname);
-    PrivateKey svrprivatekey = keyRing.findPrivateKey(hostname);
-    if (svrprivatekey != null) {
-      nodex509 = (X509Certificate)keyRing.findCert(hostname);
-      nodealias = keystore.findAlias(hostname);
-    System.out.println("=====> alias: " + nodealias);
-    }
+    //System.out.println("=====> getHostName: " + hostname);
+
+    // node will generate host certificate
+    //keyRing.checkOrMakeCert(hostname);
+
+    nodex509 = (X509Certificate)keyRing.findCert(hostname);
+    nodealias = keystore.findAlias(hostname);
+
+    if (CryptoDebug.debug)
+      System.out.println("WeberserverSSLContext:KeyManager: nodealias is " + nodealias
+        + " and nodex509 is " + nodex509);
   }
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
