@@ -37,7 +37,7 @@ import org.cougaar.core.component.ServiceBroker;
 // Cougaar security services
 import org.cougaar.core.security.crypto.Base64;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-import org.cougaar.core.security.services.ldap.LdapEntry;
+//import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.MaxConnectionRetryException;
 import org.cougaar.core.security.services.util.ConfigParserService;
@@ -71,11 +71,11 @@ public abstract class CertDirectoryService
 
   protected int ldaptype;
   /* protected DirContext context;
-  protected DirContext initialContext;
+     protected DirContext initialContext;
   */
   protected boolean initializationOK = false;
   protected static String CONTEXT_FACTORY =
-    "com.sun.jndi.ldap.LdapCtxFactory";
+  "com.sun.jndi.ldap.LdapCtxFactory";
   protected ServiceBroker serviceBroker;
   protected LoggingService log;
   /** The reason why the connection to the LDAP server was not successful */
@@ -259,10 +259,10 @@ public abstract class CertDirectoryService
     String bURL = aURL;
 
     /*
-    if (slash != -1) {
+      if (slash != -1) {
       //dn   = aURL.substring(slash+1);
       bURL = aURL.substring(0,slash + 1);
-    }
+      }
     */
     if (bURL.startsWith("ldaps://")) {
       useSSL = true;
@@ -386,32 +386,32 @@ public abstract class CertDirectoryService
   }
 
 /*
-   for (int i = 0 ; i < MAX_RETRIES ; i++) {
-      try {
-	Hashtable env = new Hashtable();
-	env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
-	env.put(Context.PROVIDER_URL, ldapServerUrl);
-	if (useSSL) {
-	  env.put(Context.SECURITY_PROTOCOL, "ssl");
-	  env.put("java.naming.ldap.factory.socket",
-		  "org.cougaar.core.security.ssl.KeyRingSSLFactory");
-	}
+  for (int i = 0 ; i < MAX_RETRIES ; i++) {
+  try {
+  Hashtable env = new Hashtable();
+  env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
+  env.put(Context.PROVIDER_URL, ldapServerUrl);
+  if (useSSL) {
+  env.put(Context.SECURITY_PROTOCOL, "ssl");
+  env.put("java.naming.ldap.factory.socket",
+  "org.cougaar.core.security.ssl.KeyRingSSLFactory");
+  }
 
-	context=new InitialDirContext(env);
+  context=new InitialDirContext(env);
 
-	initialContext = context;
-	initializationOK = true;
-	break;
-      }
-      catch(NamingException nexp) {
-	rootCauseMsg = "Unable to connect to LDAP server: "
-	  + ldapServerUrl
-	  + ". Reason: " + nexp + ". Using local keystore only.";
-	if (log.isWarnEnabled()) {
-	  log.warn(rootCauseMsg, nexp);
-	}
-      }
-    }
+  initialContext = context;
+  initializationOK = true;
+  break;
+  }
+  catch(NamingException nexp) {
+  rootCauseMsg = "Unable to connect to LDAP server: "
+  + ldapServerUrl
+  + ". Reason: " + nexp + ". Using local keystore only.";
+  if (log.isWarnEnabled()) {
+  log.warn(rootCauseMsg, nexp);
+  }
+  }
+  }
   }
 */
 

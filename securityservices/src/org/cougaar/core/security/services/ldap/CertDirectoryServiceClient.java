@@ -28,9 +28,9 @@ import java.security.cert.X509CRL;
 // Cougaar core services
 import org.cougaar.core.component.Service;
 
-public interface CertDirectoryServiceClient
-  extends Service
-{
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
+
+public interface CertDirectoryServiceClient  extends Service  {
 
   /** Set the URL of the certificate directory service to look for */
   //void setDirectoryServiceURL(String aURL);

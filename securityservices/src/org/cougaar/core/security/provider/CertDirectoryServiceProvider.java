@@ -33,10 +33,11 @@ import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.crypto.ldap.OpenLdapCertDirectoryServiceImpl;
 import org.cougaar.core.security.crypto.ldap.NetToolsCertDirectoryService;
 import org.cougaar.core.security.crypto.CertificateDirectoryHandler;
+import org.cougaar.core.security.crypto.ldap.LdapEntry;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-import org.cougaar.core.security.services.ldap.LdapEntry;
+//import org.cougaar.core.security.services.ldap.LdapEntry;
 import org.cougaar.core.security.services.util.CACertDirectoryService;
 import org.cougaar.core.security.crypto.blackboard.CACertDirectoryServiceImpl;
 

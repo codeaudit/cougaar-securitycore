@@ -54,8 +54,7 @@ import org.cougaar.core.security.services.ldap.MultipleEntryException;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceClient;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceCA;
 import org.cougaar.core.security.services.ldap.CertDirectoryServiceRequestor;
-
-import org.cougaar.core.security.services.ldap.LdapEntry;
+//import org.cougaar.core.security.services.ldap.LdapEntry;
 
 import org.cougaar.core.security.policy.SecurityPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
@@ -64,8 +63,8 @@ import org.cougaar.core.security.policy.TrustedCaPolicy;
 import org.cougaar.core.security.crlextension.x509.extensions.*;
 
 public class OpenLdapCertDirectoryServiceImpl
-  extends CertDirectoryService
-  implements CertDirectoryServiceClient, CertDirectoryServiceCA
+extends CertDirectoryService
+implements CertDirectoryServiceClient, CertDirectoryServiceCA
 {
  
   public static final String revoked="3";
