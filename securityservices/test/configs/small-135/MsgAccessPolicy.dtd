@@ -1,0 +1,33 @@
+<!ELEMENT policies (policy, javaproperties)>
+<!ELEMENT javaproperties (property)>
+<!ELEMENT property (name, value)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
+
+<!ELEMENT policy (AccessControlPolicy*)>
+<!ELEMENT AccessControlPolicy (Name,Type,Direction,AgentAction,Verb,MessageIntegrity)>
+
+<!ELEMENT Name (#PCDATA)>
+<!ELEMENT Type (#PCDATA)>
+<!ELEMENT Direction (#PCDATA)>
+
+<!ELEMENT MessageAction (CriticalityLevel, MsgAction)>
+<!ELEMENT CriticalityLevel(#PCDATA)>
+<!ELEMENT MsgAction(#PCDATA)>
+
+<!ELEMENT AgentAction (ActionParty, Action)>
+<!ELEMENT ActionParty(#PCDATA)>
+<!ELEMENT Action(#PCDATA)>
+
+<!ELEMENT VerbFilter (Party, Verb)>
+<!ELEMENT FilterParty(#PCDATA)>
+<!ELEMENT Verb(#PCDATA)>
+
+<!ELEMENT MessageIntegrity (MsgParty, Integrity)>
+<!ELEMENT MsgParty(#PCDATA)>
+<!ELEMENT Integrity(#PCDATA)>
+
+<!ELEMENT MessageCriticality (CritParty, Criticality)>
+<!ELEMENT CritParty(#PCDATA)>
+<!ELEMENT Criticality(#PCDATA)>
+
