@@ -28,6 +28,9 @@ end
 insert_after :after_stage_1 do
   # MOP 2.1: blackboard access control
   do_action  "InjectStress", "SecurityMop21", "shutdown"
+  do_action  "InjectStress", "SecurityMop23", "shutdown"
+  do_action  "Sleep", 1.minute
+
   do_action  "InjectStress", "SecurityMop21", "calculate"
 
   # MOP 2.2: encrypted persistence files

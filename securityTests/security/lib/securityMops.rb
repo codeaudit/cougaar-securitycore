@@ -153,12 +153,14 @@ puts "error, probably in compileResults" if $VerboseDebugging
   end
 end # SecurityMop2_1
 
+=begin
 class SecurityMop2_1 < SecurityMop21
   include Singleton
   def initialize
     super(getRun)
   end
 end
+=end
 
 
 ################################################
@@ -206,12 +208,14 @@ class SecurityMop22 < AbstractSecurityMop
   end
 end
 
+=begin
 class SecurityMop2_2 < SecurityMop22
   include Singleton
   def initialize
     super(getRun)
   end
 end
+=end
     
 ################################################
 
@@ -312,12 +316,14 @@ puts "Stopping/processing TCP capture on hosts #{@hosts.collect {|h| h.name}.sor
   end
 end
 
+=begin
 class SecurityMop2_3 < SecurityMop23
   include Singleton
   def initialize
     super(getRun)
   end
 end
+=end
 
 ################################################
 

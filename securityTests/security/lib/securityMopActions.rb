@@ -1,3 +1,7 @@
+SecurityMopDir = "#{ENV['CIP']}/workspace/security/mops"
+DbFilename = "#{SecurityMopDir}/mops"
+
+
 module Cougaar
   module Actions
 
@@ -24,6 +28,7 @@ module Cougaar
 
 
 
+
     class StartTcpCapture < Cougaar::Action
       attr_accessor :hostnames, :hosts, :agents
 
@@ -36,6 +41,7 @@ module Cougaar
         SecurityMop2_3.instance.startTcpCapture(@agents)
       end
     end # class StartTcpCapture
+
 
 
 
@@ -140,6 +146,7 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
 
 
 
+
     class StopSecurityMopCollection < Cougaar::Action
       def perform
         `rm -rf #{SecurityMopDir}` if File.exists?(SecurityMopDir)
@@ -164,6 +171,7 @@ Policy DamlBootPolicyNCAServletForRearPolicyAdmin = [
         sleep 1.minutes
       end
     end
+
 
 
 
