@@ -41,7 +41,17 @@ public final class ServerKeyManager extends org.cougaar.core.security.ssl.KeyMan
   }
 
   public synchronized void updateKeystore() {
-    // find the valid domain name, get key alias and server certificate
+    // find the valid hostname, get key alias and server certificate
+    // use nodealias to set server alias which is the hostname
+    String hostname = keystore.getHostName();
+    nodename = hostname;
+    System.out.println("=====> getHostName: " + hostname);
+    PrivateKey svrprivatekey = keyRing.findPrivateKey(hostname);
+    if (svrprivatekey != null) {
+      nodex509 = (X509Certificate)keyRing.findCert(hostname);
+      nodealias = keystore.findAlias(hostname);
+    System.out.println("=====> alias: " + nodealias);
+    }
   }
 
   public String chooseClientAlias(String keyType, Principal[] issuers, Socket socket) {
