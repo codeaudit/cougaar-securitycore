@@ -38,11 +38,7 @@ module Cougaar
           bootcp = PathUtility.fixPath("#{@cip}/lib/bootstrap.jar")
           cfgPath1 = PathUtility.fixPath("#{@cip}/configs/security")
           cfgPath2 = PathUtility.fixPath("#{@cip}/configs/common")
-          if PathUtility::isWindows
-            cfgPath = "#{cfgPath1};#{cfgPath2}"
-          else
-            cfgPath = "#{cfgPath1}\\;#{cfgPath2}"
-          end
+          cfgPath = "#{cfgPath1}\\;#{cfgPath2}"
           cmdLine = "java -Dorg.cougaar.config.path=#{cfgPath}"
           cmdLine += " -Dorg.cougaar.install.path=#{PathUtility.fixPath(@cip)} "
           cmdLine += " -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.util.jar.JarConfigFinder"
