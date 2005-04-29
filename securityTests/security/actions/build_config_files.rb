@@ -11,7 +11,7 @@ class JarPackagerUtility
     jar_file_name = "#{filepath}.jar"
     #puts "PWD:  #{`pwd`}"
     cmd_jar = "cd #{PathUtility.fixPath(subdir)} && jar cf #{PathUtility.fixPath(jar_file_name)} #{PathUtility.fixPath(filepath)}"
-    #puts cmd_jar
+    puts cmd_jar
     p1 = "#{$CIP}/operator/security/signingCA_keystore"
     cmd_jarsign = "cd #{PathUtility.fixPath(subdir)} && jarsigner -keystore #{PathUtility.fixPath(p1)} -storepass keystore #{PathUtility.fixPath(jar_file_name)} privileged"
     #puts cmd_jarsign

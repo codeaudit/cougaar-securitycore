@@ -7,7 +7,7 @@ require 'security/lib/misc'
 require 'security/lib/path_utility'
 require 'tmpdir'
 
-$VerboseDebugging=false
+$VerboseDebugging=true
 
 if ! defined? CIP
   CIP = ENV['CIP']
@@ -140,7 +140,9 @@ def getPolicyDir()
   logInfoMsg "temporary policy dir = #{dir}" if $VerboseDebugging
   Dir.mkdir(dir)
   f = "#{CIP}/configs/security/bootpolicies.jar"
-  `cd #{PathUtility.fixPath(dir)} && jar xf #{PathUtility.fixPath(f)}`
+  cmd = "cd #{PathUtility.fixPath(dir)} && jar xf #{PathUtility.fixPath(f)}"
+  puts "policy_util: #{cmd}" if $VerboseDebugging
+  `#{cmd}`
   dir
 end
 
@@ -173,7 +175,7 @@ def policyUtil(args, javaArgs = nil, execDir = nil)
     cdCmd = "cd #{PathUtility.fixPath(execDir)} && "
   end
   cmd ="#{cdCmd}java #{defs.join(" ")} -Xmx512m -classpath #{PathUtility.getClassPath(classpath)} org.cougaar.core.security.policy.builder.Main #{args}"
-  puts cmd if $VerboseDebugging
+  puts "policy_util: #{cmd}" if $VerboseDebugging
   output = `#{cmd}`
   puts output if $VerboseDebugging
   output

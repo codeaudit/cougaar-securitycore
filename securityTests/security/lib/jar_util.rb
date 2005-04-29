@@ -79,7 +79,9 @@ end
 
 def signJar(jar_file, keystore, cert, password = 'keystore')
   #puts "jarsigner -keystore #{keystore} -storepass #{password} #{jar_file} #{cert}"
-  `cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -keystore #{PathUtility.fixPath(keystore)} -storepass #{password} #{PathUtility.fixPath(jar_file)} #{cert}`
+  cmd = "cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -keystore #{PathUtility.fixPath(keystore)} -storepass #{password} #{PathUtility.fixPath(jar_file)} #{cert}"
+  puts "jar_util: #{cmd}" if $VerboseDebugging
+  `#{cmd}`
   #puts `cd #{PathUtility.fixPath(File.dirname(jar_file))} && jarsigner -verify -verbose #{PathUtility.fixPath(jar_file)} `
   jar_file
 end
@@ -112,7 +114,9 @@ COMPONENT
     file.print(componentContents)
   }
   classpath = getClasspath
-  `javac -classpath #{classpath.join(':')} -d #{PathUtility.fixPath(dir)} #{PathUtility.fixPath(javaFile)}`
+  cmd = "javac -classpath #{classpath.join(':')} -d #{PathUtility.fixPath(dir)} #{PathUtility.fixPath(javaFile)}"
+  puts "jar_util: #{cmd}" if $VerboseDebugging
+  `#{cmd}`
   jarFile = "#{CIP}/lib/#{componentName}.jar"
   createJar(".", jarFile, dir)
   File.rm_all(dir)
@@ -124,7 +128,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   jarDir = "#{Dir::tmpdir}/jarDir-#{File.basename(jarFile)}"
   Dir.mkdirs(jarDir)
   cmd = "jar tf #{PathUtility.fixPath(jarFile)}"
-  #puts "Invoking #{cmd}"
+  puts "jar_util: Invoking #{cmd}"  if $VerboseDebugging
   files = `#{cmd}`.split
   baseFilename = File.basename(replacementFile)
   targetFile = nil
@@ -138,7 +142,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   if targetFile != nil
     #puts "found file: #{targetFile}"
     cmd = "cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} #{PathUtility.fixPath(targetFile)} 2&>1"
-    #puts "Invoking #{cmd}"
+    puts "jar_util: Invoking #{cmd}" if $VerboseDebugging
     `#{cmd}`
   else
 #    puts "the file wasn't found, so using #{baseFilename}"
@@ -147,7 +151,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   option = "uf"
   if (keepManifest)
     cmd = "cd #{PathUtility.fixPath(jarDir)} && jar xf #{PathUtility.fixPath(jarFile)} META-INF/MANIFEST.MF 2&>1"
-    #puts "Invoking #{cmd}"
+    puts "jar_util: Invoking #{cmd}" if $VerboseDebugging
     `#{cmd}`
 #    puts `ls -l #{jarDir}/META-INF/MANIFEST.MF`
     option = "umf #{PathUtility.fixPath(jarDir)}/META-INF/MANIFEST.MF"
@@ -156,7 +160,7 @@ def replaceFileInJar(jarFile, replacementFile, keepManifest = false)
   File.cp(replacementFile, File.join(jarDir, targetFile) )
 #  puts "jar #{option} #{jarFile} -C #{jarDir} #{targetFile}"
   cmd = "jar #{option} #{PathUtility.fixPath(jarFile)} -C #{PathUtility.fixPath(jarDir)} #{PathUtility.fixPath(targetFile)} 2&>1"
-  #puts "Invoking #{cmd}"
+  puts "jar_util: Invoking #{cmd}" if $VerboseDebugging
   results = `#{cmd}`
 #  puts "result from jar: #{results}"
 #  puts "========================"
@@ -200,11 +204,11 @@ def rebuildTempDir()
   if ($tmpFilesDeleted) then
     if ($jarCreated) then                     # get them from the latest jar file
       cmd = "cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}"
-      #puts "Invoking #{cmd}"
+      puts "jar_util: Invoking #{cmd}" if $VerboseDebugging
       `#{cmd}`
     else                                      # get them from the reference file
       cmd = "cd #{PathUtility.fixPath($jarDir)} && jar xvf #{PathUtility.fixPath($jarFile)}"
-      #puts "Invoking #{cmd}"
+      puts "jar_util: Invoking #{cmd}" if $VerboseDebugging
       `#{cmd}`
     end
   end
@@ -241,7 +245,7 @@ def commitConfigChanges()
   end
   rebuildTempDir()
   cmd = "jar cf #{PathUtility.fixPath($jarFile)} -C #{PathUtility.fixPath($jarDir)} \\."
-  #puts "Invoking: #{cmd}"
+  puts "jar_util: Invoking: #{cmd}" if $VerboseDebugging
   `#{cmd}`
   $jarCreated=true
 

@@ -49,8 +49,9 @@ module Cougaar
           cmdLine += " -Xbootclasspath/a:#{bootcp} "
           cmdLine += " org.cougaar.bootstrap.Bootstrapper "
           cmdLine += " org.cougaar.core.security.acl.user.UserFileParser -d #{domain}"
-          #puts cmdLine
-          `cd #{PathUtility.fixPath(@stagingdir)} && #{cmdLine}`
+          cmdLine = "cd #{PathUtility.fixPath(@stagingdir)} && #{cmdLine}"
+          puts "buildUserFiles: #{cmdLine}"
+          `#{cmdLine}`
         end
       end # def buildUserFiles
 

@@ -51,9 +51,13 @@ module Cougaar
         rescue
           # its ok - problems on the next one aren't.
         end
-        result = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+        cmd = `cd #{PathUtility.fixPath(@stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+        puts "buildCoordinatorPolicies: Executing #{cmd}"
+        result = `#{cmd}`
          #puts "result of jar = #{result}"
-        result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
+        cmd = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
+        puts "buildCoordinatorPolicies: Executing #{cmd}"
+        result = `#{cmd}`
          #puts "result of jarsigner = #{result}"
       end # def packageAndSignJar
 

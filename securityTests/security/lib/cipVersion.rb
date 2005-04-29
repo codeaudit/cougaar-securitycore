@@ -3,8 +3,12 @@
 
 if $cip_version == nil
   # Get the version of COUGAAR
-  `cd /tmp ; jar xvf #{CIP}/lib/core.jar Manifest/core.version`
-  manifestFile = "/tmp/Manifest/core.version"
+  tmpDir = Dir::tmpdir
+  core_jar = "#{CIP}/lib/core.jar"
+  cmd = "cd #{PathUtility.fixPath(tmpDir)} ; jar xvf #{PathUtility.fixPath(core_jar)} Manifest/core.version"
+  puts "cipVersion: #{cmd}" if ($VerboseDebugging)
+  `#{cmd}`
+  manifestFile = "#{tmpDir}/Manifest/core.version"
   if !File.exists?(manifestFile)
     # Assume this is the head
     $cip_version = "HEAD"
@@ -12,7 +16,7 @@ if $cip_version == nil
     $cip_version_minor = "HEAD"
     $cip_version_b11_4_or_above = true
   else
-    File.open("/tmp/Manifest/core.version") do |fd|
+    File.open("#{tmpDir}/Manifest/core.version") do |fd|
       fd.each_line do |line|
         # REPOSITORY_TAG=B11_2
         if line =~ /REPOSITORY_TAG=(.*)/
@@ -32,6 +36,8 @@ if $cip_version == nil
         end
       end
     end
-    `rm /tmp/Manifest/core.version`
+    cmd = "rm #{PathUtility.fixPath(manifestFile)}"
+    puts "cipVersion: #{cmd}" if $VerboseDebugging
+    `#{cmd}`
   end
 end

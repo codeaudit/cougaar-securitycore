@@ -28,7 +28,9 @@ module Cougaar
             end
           end
         end
-        result = `cd #{PathUtility.fixPath(stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+        cmd = `cd #{PathUtility.fixPath(stagingdir)} && jar cf #{PathUtility.fixPath(jarFile)} .`
+        puts "buildLanSpec: Executing #{cmd}"
+        result = `#{cmd}`
         result = `jarsigner -keystore #{PathUtility.fixPath(signingKeystore)} -storepass keystore #{PathUtility.fixPath(jarFile)} privileged`
         `rm -rf #{stagingdir}`
       end
