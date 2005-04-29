@@ -7,8 +7,6 @@ require 'security/lib/misc'
 require 'security/lib/path_utility'
 require 'tmpdir'
 
-$VerboseDebugging=true
-
 if ! defined? CIP
   CIP = ENV['CIP']
 end
