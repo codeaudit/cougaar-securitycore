@@ -15,6 +15,8 @@ insert_before :setup_run do
     `cd #{$CIP}/configs/security ; jar xvf configs_secure_bootstrapper.jar security/Cougaar_Java.policy`
     # Rebuild Java policy to accept both
     # old signers and new signers.
-    `java -classpath #{$CIP}/lib/secure_bootstrapper.jar org.cougaar.core.security.securebootstrap.PolicyParserTool #{$CIP}/configs/security/security/Cougaar_Java.policy #{$CIP}/configs/security/Cougaar_Java.policy`
+    cmd = "java -classpath #{$CIP}/lib/secure_bootstrapper.jar org.cougaar.core.security.securebootstrap.PolicyParserTool #{$CIP}/configs/security/security/Cougaar_Java.policy #{$CIP}/configs/security/Cougaar_Java.policy"
+    puts "build_policies: #{cmd}" if ($VerboseDebugging)
+    `#{cmd}`
   end
 end

@@ -35,7 +35,7 @@ class PathUtility
       classpath.each do |x|
         newcp << PathUtility.fixPath(x)
       end
-      ret = newcp.join(";")
+      ret = newcp.join("\\;")
     else
       ret = classpath.join(":")
     end
