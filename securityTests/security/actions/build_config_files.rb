@@ -51,13 +51,14 @@ class NodeConfigUtility
       @env =           @node.env_parameters
       @jvm_props =     @node.parameters
 
+      # Save cygwin command line
+      convertToCywin(@jvm_props)
       @commandLineCygwin = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
       saveCommandLine("-cygwin")
 
+      # Save UNIX command line
       convertToUnix(@jvm_props)
       @commandLine = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
-
-      # Save UNIX command line
       saveCommandLine("")
 
       # Save Windows command line
@@ -93,6 +94,10 @@ class NodeConfigUtility
       if arg.index('Xbootclasspath') != nil || arg.index('java.class.path') != nil
         # Convert separator
         arg.gsub!(/:/, '\;') 
+        # However, "bootclasspath/a" and "bootclasspath/p" should be followed by ":"
+        arg.gsub!(/bootclasspath\/a\;/, 'bootclasspath/a:')
+        arg.gsub!(/bootclasspath\/p\;/, 'bootclasspath/p:')
+        arg.gsub!(/bootclasspath\;/, 'bootclasspath:')
       end
     end
   end
