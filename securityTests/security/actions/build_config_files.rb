@@ -95,9 +95,9 @@ class NodeConfigUtility
         # Convert separator
         arg.gsub!(/:/, '\;') 
         # However, "bootclasspath/a" and "bootclasspath/p" should be followed by ":"
-        arg.gsub!(/bootclasspath\/a\;/, 'bootclasspath/a:')
-        arg.gsub!(/bootclasspath\/p\;/, 'bootclasspath/p:')
-        arg.gsub!(/bootclasspath\;/, 'bootclasspath:')
+        arg.gsub!(/bootclasspath\/a\\;/, 'bootclasspath/a:')
+        arg.gsub!(/bootclasspath\/p\\;/, 'bootclasspath/p:')
+        arg.gsub!(/bootclasspath\\;/, 'bootclasspath:')
       end
     end
   end
