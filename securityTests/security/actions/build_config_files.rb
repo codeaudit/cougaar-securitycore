@@ -11,7 +11,7 @@ class JarPackagerUtility
     jar_file_name = "#{filepath}.jar"
     #puts "PWD:  #{`pwd`}"
     cmd_jar = "cd #{PathUtility.fixPath(subdir)} && jar cf #{PathUtility.fixPath(jar_file_name)} #{PathUtility.fixPath(filepath)}"
-    puts cmd_jar
+    puts "build_config_files: #{cmd_jar}" if $VerboseDebugging
     p1 = "#{$CIP}/operator/security/signingCA_keystore"
     cmd_jarsign = "cd #{PathUtility.fixPath(subdir)} && jarsigner -keystore #{PathUtility.fixPath(p1)} -storepass keystore #{PathUtility.fixPath(jar_file_name)} privileged"
     #puts cmd_jarsign
@@ -51,11 +51,14 @@ class NodeConfigUtility
       @env =           @node.env_parameters
       @jvm_props =     @node.parameters
 
+      @commandLineCygwin = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
+      saveCommandLine("-cygwin")
+
       convertToUnix(@jvm_props)
       @commandLine = "java #{@jvm_props.join(' ')} #{@java_class} #{@arguments.join(' ')} >& $CIP/workspace/nodelogs/#{@node_name}.log"
 
       # Save UNIX command line
-      saveCommandLine
+      saveCommandLine("")
 
       # Save Windows command line
       convertToDos(@java_class)
@@ -80,6 +83,16 @@ class NodeConfigUtility
       if arg.index('Xbootclasspath') != nil || arg.index('java.class.path') != nil
         # Convert separator
         arg.gsub!(/\;/, ':') 
+      end
+    end
+  end
+
+  # Build the .sh file for Cygwin.
+  def convertToCywin(arguments)
+    arguments.each do |arg|
+      if arg.index('Xbootclasspath') != nil || arg.index('java.class.path') != nil
+        # Convert separator
+        arg.gsub!(/:/, '\;') 
       end
     end
   end
@@ -176,13 +189,25 @@ class NodeConfigUtility
     end
   end
 
-  def saveCommandLine
-    scriptName = "#{@society_config_dir}/#{@node_name}.sh"
+  def saveCommandLine(suffix)
+    scriptName = "#{@society_config_dir}/#{@node_name}#{suffix}.sh"
     file = File.open(scriptName ,"w") { |file|
        file.write <<END
-#!/bin/sh
+#!/bin/bash
+mkdir -p $COUGAAR_INSTALL_PATH/workspace/nodelogs
+mkdir -p $COUGAAR_INSTALL_PATH/workspace/log4jlogs
+END
+       if (suffix != "")
+         file.write <<END
+export COUGAAR_INSTALL_PATH=`cygpath -m $CIP`
+export CIP=`cygpath -m $CIP`
+#{@commandLineCygwin}
+END
+       else
+         file.write <<END
 #{@commandLine}
 END
+       end
     }
     File.chmod(0755, scriptName)
   end

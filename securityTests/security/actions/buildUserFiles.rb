@@ -46,7 +46,7 @@ module Cougaar
           cmdLine += " org.cougaar.bootstrap.Bootstrapper "
           cmdLine += " org.cougaar.core.security.acl.user.UserFileParser -d #{domain}"
           cmdLine = "cd #{PathUtility.fixPath(@stagingdir)} && #{cmdLine}"
-          puts "buildUserFiles: #{cmdLine}"
+          puts "buildUserFiles: #{cmdLine}" if $VerboseDebugging
           `#{cmdLine}`
         end
       end # def buildUserFiles
