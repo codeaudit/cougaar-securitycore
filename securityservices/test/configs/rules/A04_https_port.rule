@@ -1,0 +1,70 @@
+####################################################
+# Rule to set the port numbers on the nodes
+
+# http port to access cougaar node
+httpport = 8800
+# https port to access cougaar node
+httpsport = 9800
+
+# You can also turn on/off http/s. Turn of by setting the port to -1
+# Note that HTTPS is off by default, and HTTP is at 8800
+# HTTP port number
+
+society.each_host do |host|
+  port = 9800
+  host.each_node do |node|
+    # HTTPS port number
+    # Comment out the following two lines if you don't want HTTPS
+    # The certificates need to be createdd first before this feature is turned on.
+    node.override_parameter("-Dorg.cougaar.lib.web.https.port","#{port}")
+    node.override_parameter("-Dorg.cougaar.lib.web.https.factory", "org.cougaar.core.security.ssl.WebtomcatSSLServerFactory")
+    port = port + 1
+  end
+end
+
+
+society.each_node do |node|
+  node.each_facet(:role) do |facet|
+    # We need to specify the HTTP and HTTPS port number for
+    # every CA (root and subordinate CAs). This is useful when
+    # more than one node is running on a host, otherwise Tomcat
+    # would select a dynamically allocated port number.
+    #
+    # should move the rundant stuff out to another rule
+    if facet[:role] == $facetCaManagerAgent \
+      or facet[:role] == 'RedundantCertificateAuthority' 
+      
+      httpport = 8810
+      httpsport = 9810
+      if facet[:role] == 'RedundantCertificateAuthority'
+        httpport = 8840
+        httpsport = 9840
+      end
+      
+      # node.override_parameter("-Dorg.cougaar.core.logging.log4j.appender.SECURITY.File","$COUGAAR_INSTALL_PATH#{File::SEPARATOR}workspace#{File::SEPARATOR}log4jlogs#{File::SEPARATOR}${HOSTNAME}-ca.log")
+      
+      # You can also turn on/off http/s. Turn of by setting the port to -1
+      # Note that HTTPS is off by default, and HTTP is at 8800
+      # HTTP port number
+      node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+      
+      # HTTPS port number
+      # Comment out the following two lines if you don't want HTTPS
+      # The certificates need to be createdd first before this feature is turned on.
+      node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
+    end
+    
+    if facet[:role] == 'RootCertificateAuthority' \
+      or facet[:role] == 'RedundantRootCertificateAuthority' 
+      httpport = 8820
+      httpsport = 9820
+      if facet[:role] == 'RedundantRootCertificateAuthority' 
+        httpport = 8830 
+        httpsport = 9830 
+      end
+      
+      node.override_parameter("-Dorg.cougaar.lib.web.http.port", "#{httpport}")
+      node.override_parameter("-Dorg.cougaar.lib.web.https.port", "#{httpsport}")
+    end
+  end
+end
