@@ -50,6 +50,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.crlextension.x509.extensions.CertificateIssuerExtension;
@@ -147,13 +149,28 @@ final public class KeyRing  implements KeyRingService  {
       OIDMap.addAttribute("x509.info.extensions.IssuingDistibutionPoint",
 			  "2.5.29.28",
                           IssuingDistributionPointExtension.class);
-      OIDMap.addAttribute("x509.info.extensions.CertificateIssuer",
-			  "2.5.29.29",
-                          CertificateIssuerExtension.class);
     }
     catch(CertificateException certexp) {
       if (log.isErrorEnabled()) {
 	log.error(" Could not add OID Mapping :" + certexp.getMessage());
+      }
+    }
+    Pattern p = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\w+)");
+    Matcher m = p.matcher(System.getProperty("java.version"));
+    int jvm_version = 0;
+    if (m.matches()) {
+       jvm_version = Integer.parseInt(m.group(2));
+    }
+    if (jvm_version < 5) {
+      try {
+        OIDMap.addAttribute("x509.info.extensions.CertificateIssuer",
+                            "2.5.29.29",
+                            CertificateIssuerExtension.class);
+      }
+      catch(CertificateException certexp) {
+        if (log.isErrorEnabled()) {
+          log.error(" Could not add OID Mapping :" + certexp.getMessage());
+        }
       }
     }
   }
