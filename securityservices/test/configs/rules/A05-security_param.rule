@@ -27,11 +27,6 @@
 # If you don't know what this is, you don't need it.
 display = nil # eg "localhost"
 
-# This is the org.cougaar.name.server value
-# NOTE: this should use the host of the Root CA for unzip and run
-# this value is used if an alpreg.ini does not exist
-namesrv = nil # eg "lemon:8888:5555"
-
 # used to obtain environment variables
 require 'Env'
 
@@ -64,12 +59,6 @@ society.each_host do |host|
     #  node.remove_env_parameter("DISPLAY")
     end
     
-    if (namesrv)
-      node.override_parameter("-Dorg.cougaar.name.server", "#{namesrv}")
-    #else
-    #  node.remove_parameter("-Dorg.cougaar.name.server")
-    end
-
    # The following are the two flags that will enable the CommunityServiceUtil to:
    # 1) ignore the method invocations (don't invoke CS, just return w/o response) 
    #    org.cougaar.core.security.csutil.ignoreCall=[true|false]
