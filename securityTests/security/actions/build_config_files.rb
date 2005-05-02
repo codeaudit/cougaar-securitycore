@@ -85,7 +85,7 @@ class NodeConfigUtility
         # Convert separator
         arg.gsub!(/\;/, ':') 
       end
-      if arg =~ /HTTP.:http.:/
+      if arg =~ /HTTP.?:http.?:/
         arg.gsub!(/\/\$/, "/\\$")
       end
     end
@@ -102,7 +102,7 @@ class NodeConfigUtility
         arg.gsub!(/bootclasspath\/p\\;/, 'bootclasspath/p:')
         arg.gsub!(/bootclasspath\\;/, 'bootclasspath:')
       end
-      if arg =~ /HTTP.:http.:/
+      if arg =~ /HTTP.?:http.?:/
         arg.gsub!(/\/\$/, "/\\$")
       end
     end
