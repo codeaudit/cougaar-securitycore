@@ -166,20 +166,13 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     return s;
   }
 
-  private class ULActorInstanceClassifier implements InstanceClassifier {
+  private class ULActorInstanceClassifier extends DefaultInstanceClassifier {
 
     private String communityPrefix = "KAoS#MembersOfDomainCommunity";
 
     private String personPrefix = ULOntologyNames.personActorClassPrefix;
 
     private Set _loadAgents = new HashSet();
-    
-    public void init() throws InstanceClassifierInitializationException {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Initializing the Actor Instance Classifier");
-      }
-      return;
-    }
 
     public void init(String className) {
       if (_log.isDebugEnabled()) {
@@ -200,34 +193,22 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
         Object classDesc, Object instDesc)
         throws InstanceClassifierInitializationException,
         InstanceClassifierClassCastException {
-      if (_log.isDebugEnabled()) {
-        _log.debug("Classifying + (" + className + ", " + instance + ", "
-            + classDesc + ", " + instDesc + ")");
-      }
-      if (className instanceof String) {
-        
-        boolean ret = classify((String) className, instance);
-        if (!ret) {
-          // Invoke classifiers through delegation.
-          synchronized (additionalClassifiers) {
-            Iterator it = additionalClassifiers.iterator();
-            while (it.hasNext()) {
-              InstanceClassifier ic = (InstanceClassifier) it.next();
-              ret = ic.classify(className, instance, classDesc, instDesc);
-              if (ret) {
-                break;
-              }
+      
+      boolean ret = super.classify(className, instance, classDesc, instDesc);
+      if (!ret) {
+        // Invoke classifiers through delegation.
+        synchronized (additionalClassifiers) {
+          Iterator it = additionalClassifiers.iterator();
+          while (it.hasNext()) {
+            InstanceClassifier ic = (InstanceClassifier) it.next();
+            ret = ic.classify(className, instance, classDesc, instDesc);
+            if (ret) {
+              break;
             }
           }
         }
-        if (_log.isDebugEnabled()) {
-          _log.debug("Returning " + ret);
-        }
-        
-        return ret;
-      } else {
-        return false;
       }
+      return ret;
     }
 
     public boolean classify(String className, Object instance)

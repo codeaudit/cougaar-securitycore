@@ -2,7 +2,7 @@
  * Created on May 17, 2005
  * 
  * @author srosset
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 package org.cougaar.core.security.policy.enforcers.match;
 
@@ -21,7 +21,7 @@ public abstract class DefaultInstanceClassifier implements InstanceClassifier {
 
   private static Logger log = Logger.getLogger(DefaultInstanceClassifier.class);
 
-  public void init(String className) {
+  public void init() throws InstanceClassifierInitializationException {
     if (log.isDebugEnabled()) {
       log.debug("Initializing the Actor Instance Classifier");
     }
