@@ -1,36 +1,35 @@
-/* 
- * <copyright> 
- *  Copyright 1999-2004 Cougaar Software, Inc.
- *  under sponsorship of the Defense Advanced Research Projects 
- *  Agency (DARPA). 
- *  
- *  You can redistribute this software and/or modify it under the
- *  terms of the Cougaar Open Source License as published on the
- *  Cougaar Open Source Website (www.cougaar.org).  
- *  
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- * </copyright> 
- */ 
-
+/*
+ * <copyright> Copyright 1999-2004 Cougaar Software, Inc. under sponsorship of
+ * the Defense Advanced Research Projects Agency (DARPA).
+ * 
+ * You can redistribute this software and/or modify it under the terms of the
+ * Cougaar Open Source License as published on the Cougaar Open Source Website
+ * (www.cougaar.org).
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * </copyright>
+ */
 
 package org.cougaar.core.security.policy.enforcers.match;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import kaos.ontology.matching.InstanceClassifier;
@@ -40,6 +39,7 @@ import kaos.ontology.matching.InstanceClassifierInitializationException;
 import kaos.ontology.vocabulary.ActionConcepts;
 import kaos.ontology.vocabulary.ActorConcepts;
 
+import org.apache.log4j.Logger;
 import org.cougaar.core.component.ServiceAvailableEvent;
 import org.cougaar.core.component.ServiceAvailableListener;
 import org.cougaar.core.component.ServiceBroker;
@@ -47,7 +47,6 @@ import org.cougaar.core.security.auth.role.RoleExecutionContext;
 import org.cougaar.core.security.policy.enforcers.util.UserDatabase;
 import org.cougaar.core.security.policy.ontology.ULOntologyNames;
 import org.cougaar.core.security.policy.ontology.UltralogActorConcepts;
-import org.cougaar.core.service.LoggingService;
 import org.cougaar.core.service.community.Agent;
 import org.cougaar.core.service.community.Community;
 import org.cougaar.core.service.community.CommunityChangeEvent;
@@ -56,36 +55,39 @@ import org.cougaar.core.service.community.CommunityResponse;
 import org.cougaar.core.service.community.CommunityResponseListener;
 import org.cougaar.core.service.community.CommunityService;
 
+public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
 
-public class ULInstanceClassifierFactory
-    implements InstanceClassifierFactory
-{
-  public static final String pluginPrefix 
-    = ULOntologyNames.pluginsInRoleClassPrefix;
+  public static final String pluginPrefix = ULOntologyNames.pluginsInRoleClassPrefix;
 
   private ServiceBroker _sb;
+
   private CommunityService _communityService;
+
   private HashMap _communityCache = new HashMap();
-  private HashMap _listeners      = new HashMap();
-  private LoggingService _log;
+
+  private HashMap _listeners = new HashMap();
+
+  private static Logger _log = Logger.getLogger(ULInstanceClassifierFactory.class);
+
   private ULActorInstanceClassifier _instClassifier;
+  
+  /**
+   * Additional instance classifiers.
+   */
+  private static List additionalClassifiers;
+  
   private Object _csLock = new Object(); // a mutex for _communityService
+  
+  static {
+    additionalClassifiers = new ArrayList();
+  }
+  
+  public ULInstanceClassifierFactory(ServiceBroker sb) {
+    _sb = sb;
+    _instClassifier = new ULActorInstanceClassifier();
 
-  public ULInstanceClassifierFactory(ServiceBroker sb)
-  {
-    _sb               = sb;
-    _instClassifier         = new  ULActorInstanceClassifier();
-
-    // get the LoggingService
-    _log = (LoggingService) _sb.getService(this,
-                                           LoggingService.class,
-                                           null);
-    if (_log == null) {
-      throw new NullPointerException("LoggingService");
-    }
-
-    _communityService = (CommunityService) 
-      _sb.getService(this, CommunityService.class, null);
+    _communityService = (CommunityService) _sb.getService(this,
+        CommunityService.class, null);
     if (_communityService == null) {
       _sb.addServiceListener(new CommunityServiceListener());
     }
@@ -94,40 +96,53 @@ public class ULInstanceClassifierFactory
       _log.debug("ULInstanceClassifier factory initialized");
     }
   }
+
   /**
    * Instantiate a semantic matcher for the property name.
-   *
-   * @param  propertyName               The String specifying the
-   *                                  property, for which a matcher
-   *                                  is requested.  
-   *     
-   * @return InstanceClassifier           an instance of the requested
-   *                                   semantic matcher, or null, if
-   *                                  no semantic matcher is required.
-   *
-   * @exception                       InstanceClassifierInitializationException
-   *                                   is thrown if the
-   *                                  instantiation of the matcher was not  
-   *                                  successful, details will be
-   *                                  provided in the exception's message. 
+   * 
+   * @param propertyName
+   *          The String specifying the property, for which a matcher is
+   *          requested.
+   * 
+   * @return InstanceClassifier an instance of the requested semantic matcher,
+   *         or null, if no semantic matcher is required.
+   * 
+   * @exception InstanceClassifierInitializationException
+   *              is thrown if the instantiation of the matcher was not
+   *              successful, details will be provided in the exception's
+   *              message.
    */
-  public  InstanceClassifier getInstance (String propertyName) 
-    throws InstanceClassifierInitializationException
-  {
+  public InstanceClassifier getInstance(String propertyName)
+      throws InstanceClassifierInitializationException {
     if (_log.isDebugEnabled()) {
       _log.debug("Getting instance classifier instance for " + propertyName);
     }
-    if (propertyName.equals(ActionConcepts.performedBy()) || 
-        propertyName.equals(ActionConcepts.hasDestination()) ) {
+    if (propertyName.equals(ActionConcepts.performedBy())
+        || propertyName.equals(ActionConcepts.hasDestination())) {
       return _instClassifier;
     } else {
       return null;
     }
   }
 
-
-  private void ensureCommunityServicePresent()
-  {
+  private static void registerClassifier(InstanceClassifier classifier) {
+    synchronized(additionalClassifiers) {
+      additionalClassifiers.add(classifier);
+    }
+    try {
+      classifier.init();
+    } catch (InstanceClassifierInitializationException e) {
+      _log.error("Unable to initialize delegate instance classifier", e);
+    }
+  }
+  
+  private static void unregisterClassifier(InstanceClassifier classifier) {
+    synchronized(additionalClassifiers) {
+      additionalClassifiers.remove(classifier);
+    }
+  }
+  
+  private void ensureCommunityServicePresent() {
     // wait for the community service to show up
     if (_communityService == null) {
       synchronized (_csLock) {
@@ -144,23 +159,22 @@ public class ULInstanceClassifierFactory
     }
   }
 
-  static String removeHashChar(String s)
-  {
+  static String removeHashChar(String s) {
     if (s.startsWith("#")) {
       return s.substring(1);
     }
     return s;
   }
 
-  private class ULActorInstanceClassifier implements InstanceClassifier
-  {
-    private String communityPrefix  = "KAoS#MembersOfDomainCommunity";
-    private String personPrefix     = ULOntologyNames.personActorClassPrefix;
-    private Set    _loadAgents     = new HashSet();
+  private class ULActorInstanceClassifier implements InstanceClassifier {
 
-    public void init ()
-      throws InstanceClassifierInitializationException 
-    {
+    private String communityPrefix = "KAoS#MembersOfDomainCommunity";
+
+    private String personPrefix = ULOntologyNames.personActorClassPrefix;
+
+    private Set _loadAgents = new HashSet();
+    
+    public void init() throws InstanceClassifierInitializationException {
       if (_log.isDebugEnabled()) {
         _log.debug("Initializing the Actor Instance Classifier");
       }
@@ -170,7 +184,7 @@ public class ULInstanceClassifierFactory
     public void init(String className) {
       if (_log.isDebugEnabled()) {
         _log.debug("Initializing the Actor Instance Classifier "
-                   + "for the classname" + className);
+            + "for the classname" + className);
       }
       if (className.startsWith(communityPrefix)) {
         ensureCommunityServicePresent();
@@ -178,42 +192,54 @@ public class ULInstanceClassifierFactory
         loadAgentsInCommunity(community);
       }
     }
-
-    public boolean classify(Object className, 
-                            Object instance,
-                            Object classDesc,
-                            Object instDesc) 
-      throws InstanceClassifierInitializationException, 
-             InstanceClassifierClassCastException
-    {
+    
+    /**
+     * @see kaos.ontology.matching.InstanceClassifier#classify(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)
+     */
+    public boolean classify(Object className, Object instance,
+        Object classDesc, Object instDesc)
+        throws InstanceClassifierInitializationException,
+        InstanceClassifierClassCastException {
       if (_log.isDebugEnabled()) {
-        _log.debug("Classifying + (" + className + ", " 
-                                     + instance + ", " 
-                                     + classDesc + ", "
-                                     + instDesc + ")");
+        _log.debug("Classifying + (" + className + ", " + instance + ", "
+            + classDesc + ", " + instDesc + ")");
       }
       if (className instanceof String) {
+        
         boolean ret = classify((String) className, instance);
+        if (!ret) {
+          // Invoke classifiers through delegation.
+          synchronized (additionalClassifiers) {
+            Iterator it = additionalClassifiers.iterator();
+            while (it.hasNext()) {
+              InstanceClassifier ic = (InstanceClassifier) it.next();
+              ret = ic.classify(className, instance, classDesc, instDesc);
+              if (ret) {
+                break;
+              }
+            }
+          }
+        }
         if (_log.isDebugEnabled()) {
           _log.debug("Returning " + ret);
         }
+        
         return ret;
       } else {
         return false;
       }
     }
 
-    public boolean classify(String className, Object instance) 
-      throws InstanceClassifierInitializationException
-    {
+    public boolean classify(String className, Object instance)
+        throws InstanceClassifierInitializationException {
       if (_log.isDebugEnabled()) {
         _log.debug("Classifying actor " + instance + " against the class "
-                   + className);
+            + className);
       }
       className = removeHashChar(className);
 
       /*
-       *    Everybody is an actor
+       * Everybody is an actor
        */
       if (className.equals(ActorConcepts.Actor())) {
         _log.debug("Every actor matches Actor");
@@ -238,33 +264,33 @@ public class ULInstanceClassifierFactory
           _log.debug("we are classifying some type of plugin");
         }
         if (instance instanceof RoleExecutionContext) {
-          String shortRoleName 
-            = className.substring(pluginPrefix.length());
+          String shortRoleName = className.substring(pluginPrefix.length());
           if (_log.isDebugEnabled()) {
             _log.debug("Taking a look at the RoleExecutionContext - "
-                       + "looking at short role name " + shortRoleName);
+                + "looking at short role name " + shortRoleName);
           }
-          String damlRoleName = ULOntologyNames.pluginsInRoleClassPrefix + shortRoleName;
+          String damlRoleName = ULOntologyNames.pluginsInRoleClassPrefix
+              + shortRoleName;
 
           if (_log.isDebugEnabled()) {
             _log.debug("damlRoleName = " + damlRoleName);
           }
           RoleExecutionContext rec = (RoleExecutionContext) instance;
-          return rec.hasComponentRole(damlRoleName) 
-            || rec.hasAgentRole(damlRoleName)
-            || rec.hasUserRole(damlRoleName);
-        } else { 
+          return rec.hasComponentRole(damlRoleName)
+              || rec.hasAgentRole(damlRoleName)
+              || rec.hasUserRole(damlRoleName);
+        } else {
           if (_log.isDebugEnabled()) {
             _log.debug("But the instance is not a plugin");
             _log.debug("Instance Class = " + instance.getClass());
           }
-          return false; 
+          return false;
         }
       }
       /*
        * This is the end of the cases where instance is not a String
        */
-      if (! (instance instanceof String)) {
+      if (!(instance instanceof String)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Not a match because the instance is not a String");
         }
@@ -278,12 +304,12 @@ public class ULInstanceClassifierFactory
       if (_log.isDebugEnabled()) {
         _log.debug("Classifying agents  or people");
       }
-      actor     = removeHashChar(actor);
+      actor = removeHashChar(actor);
 
-      if (className.equals(ActorConcepts.Person()) && 
-	  (actor.startsWith(ULOntologyNames.personActorClassPrefix) ||
-	   actor.startsWith(ULOntologyNames.oqlRolePrefix))) {
-	  return true;
+      if (className.equals(ActorConcepts.Person())
+          && (actor.startsWith(ULOntologyNames.personActorClassPrefix) || actor
+              .startsWith(ULOntologyNames.oqlRolePrefix))) {
+        return true;
       }
 
       if (className.equals(ActorConcepts.Agent())) {
@@ -294,11 +320,10 @@ public class ULInstanceClassifierFactory
       } else if (className.startsWith(communityPrefix)) {
         if (_log.isDebugEnabled()) {
           _log.debug("Here's to hoping you aren't here...");
-        }        
+        }
         ensureCommunityServicePresent();
 
-        String community 
-          = className.substring(communityPrefix.length());
+        String community = className.substring(communityPrefix.length());
 
         return isAgentInCommunity(community, actor);
 
@@ -313,7 +338,7 @@ public class ULInstanceClassifierFactory
         if (_log.isDebugEnabled()) {
           _log.debug("Matching with the role " + role);
         }
-        
+
         Set roles = UserDatabase.getRoles(actor);
         if (_log.isDebugEnabled()) {
           _log.debug("Found roles " + roles + "for actor " + actor);
@@ -325,17 +350,15 @@ public class ULInstanceClassifierFactory
       return false;
     }
 
+    private class Status {
 
-    private class Status
-    {
       public Collection communities;
     }
 
     private void loadAgentsInCommunity(String community) {
       LoadAgentsListener listener = new LoadAgentsListener(community);
       Collection c = _communityService.searchCommunity(community, "*", true,
-                                                       Community.AGENTS_ONLY,
-                                                       listener);
+          Community.AGENTS_ONLY, listener);
       if (c != null) {
         setCommunityAgents(community, c);
         return;
@@ -382,8 +405,8 @@ public class ULInstanceClassifierFactory
     }
 
     private synchronized void removeCommunityListener(String community) {
-      CommunityWatcher listener = (CommunityWatcher)
-        _listeners.remove(community);
+      CommunityWatcher listener = (CommunityWatcher) _listeners
+          .remove(community);
       if (listener != null) {
         _communityService.removeListener(listener);
       }
@@ -400,8 +423,10 @@ public class ULInstanceClassifierFactory
     }
 
     private class LoadAgentsListener implements CommunityResponseListener {
+
       private Collection _response = null;
-      private String     _community;
+
+      private String _community;
 
       public LoadAgentsListener(String community) {
         _community = community;
@@ -409,8 +434,8 @@ public class ULInstanceClassifierFactory
 
       public synchronized void getResponse(CommunityResponse response) {
         if (response.getStatus() != CommunityResponse.SUCCESS) {
-          _log.warn("Problem loading community response: " + 
-                    response.getStatusAsString());
+          _log.warn("Problem loading community response: "
+              + response.getStatusAsString());
           _response = new LinkedList();
         } else {
           _response = (Collection) response.getContent();
@@ -441,6 +466,7 @@ public class ULInstanceClassifierFactory
     }
 
     private class CommunityWatcher implements CommunityChangeListener {
+
       private String _community;
 
       public CommunityWatcher(String community) {
@@ -459,7 +485,7 @@ public class ULInstanceClassifierFactory
               addCommunityListener(event.getCommunityName());
             } else if (type == CommunityChangeEvent.REMOVE_COMMUNITY) {
               removeCommunityListener(event.getCommunityName());
-            } 
+            }
             // type == event.ADD_ENTITY || type == event.REMOVE_ENTITY also...
             loadAgentsInCommunity(_community);
           }
@@ -472,14 +498,13 @@ public class ULInstanceClassifierFactory
     }
   }
 
-
-
   private class CommunityServiceListener implements ServiceAvailableListener {
+
     public void serviceAvailable(ServiceAvailableEvent ae) {
       if (ae.getService().equals(CommunityService.class)) {
-        _communityService = (CommunityService) 
-          ae.getServiceBroker().getService(ULInstanceClassifierFactory.this,
-                                           CommunityService.class, null);
+        _communityService = (CommunityService) ae.getServiceBroker()
+            .getService(ULInstanceClassifierFactory.this,
+                CommunityService.class, null);
         ae.getServiceBroker().removeServiceListener(this);
         synchronized (_csLock) {
           _csLock.notifyAll();
