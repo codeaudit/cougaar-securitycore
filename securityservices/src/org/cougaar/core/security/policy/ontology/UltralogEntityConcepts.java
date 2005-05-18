@@ -16,14 +16,16 @@ final public class UltralogEntityConcepts
 	}
 
 	// Concepts
-    public static final String UserRealm = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserRealm");
+    public static final String RequestorUserRealm = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "RequestorUserRealm");
     public static final String PlugInRoles = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "PlugInRoles");
     public static final String CommunityActionType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "CommunityActionType");
     public static final String ProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ProtectionLevel");
+    public static final String KbsEntryPropertyName = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryPropertyName");
     public static final String Servlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Servlet");
     public static final String OQLPrivilege = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "OQLPrivilege");
+    public static final String EditKbsEntryActionType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "EditKbsEntryActionType");
     public static final String AuditLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuditLevel");
-    public static final String UserPropertyType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserPropertyType");
+    public static final String KbsEntryObjectType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryObjectType");
     public static final String BlackBoardObjects = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardObjects");
     public static final String AuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel");
     public static final String ULContentValue = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue");
@@ -37,14 +39,16 @@ final public class UltralogEntityConcepts
     public static final String UltralogEntity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UltralogEntity");
     public static final String OQLDataSource = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "OQLDataSource");
 
-    public static String UserRealm() { return UserRealm; };
+    public static String RequestorUserRealm() { return RequestorUserRealm; };
     public static String PlugInRoles() { return PlugInRoles; };
     public static String CommunityActionType() { return CommunityActionType; };
     public static String ProtectionLevel() { return ProtectionLevel; };
+    public static String KbsEntryPropertyName() { return KbsEntryPropertyName; };
     public static String Servlet() { return Servlet; };
     public static String OQLPrivilege() { return OQLPrivilege; };
+    public static String EditKbsEntryActionType() { return EditKbsEntryActionType; };
     public static String AuditLevel() { return AuditLevel; };
-    public static String UserPropertyType() { return UserPropertyType; };
+    public static String KbsEntryObjectType() { return KbsEntryObjectType; };
     public static String BlackBoardObjects() { return BlackBoardObjects; };
     public static String AuthenticationLevel() { return AuthenticationLevel; };
     public static String ULContentValue() { return ULContentValue; };
@@ -62,41 +66,41 @@ final public class UltralogEntityConcepts
 
 
 	// Instances
-    public static final String UserActionRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionRemove");
     public static final String testCommunityTwo = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityTwo");
     public static final String ModifyCommunityAttributes = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ModifyCommunityAttributes");
-    public static final String UserObjectTypeGroup = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserObjectTypeGroup");
-    public static final String UserObjectTypeRole = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserObjectTypeRole");
-    public static final String UserActionQuery = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionQuery");
-    public static final String UserObjectTypeUser = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserObjectTypeUser");
+    public static final String KbsEntryObjectTypeRole = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryObjectTypeRole");
     public static final String WPRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove");
     public static final String LeaveCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "LeaveCommunity");
-    public static final String UserActionAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionAdd");
+    public static final String KbsEntryActionAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionAdd");
+    public static final String KbsEntryActionEdit = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionEdit");
+    public static final String KbsEntryActionRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionRemove");
     public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
-    public static final String UserObjectTypeRealm = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserObjectTypeRealm");
-    public static final String UserActionEdit = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionEdit");
+    public static final String KbsEntryObjectTypeUser = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryObjectTypeUser");
+    public static final String KbsEntryObjectTypeRealm = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryObjectTypeRealm");
+    public static final String KbsEntryActionQuery = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionQuery");
     public static final String WPChange = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange");
     public static final String JoinCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "JoinCommunity");
     public static final String ListCommunities = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ListCommunities");
     public static final String GetCommunityDescriptor = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "GetCommunityDescriptor");
+    public static final String KbsEntryObjectTypeGroup = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryObjectTypeGroup");
     public static final String testCommunityOne = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityOne");
 
-    public static String UserActionRemove() { return UserActionRemove; };
     public static String testCommunityTwo() { return testCommunityTwo; };
     public static String ModifyCommunityAttributes() { return ModifyCommunityAttributes; };
-    public static String UserObjectTypeGroup() { return UserObjectTypeGroup; };
-    public static String UserObjectTypeRole() { return UserObjectTypeRole; };
-    public static String UserActionQuery() { return UserActionQuery; };
-    public static String UserObjectTypeUser() { return UserObjectTypeUser; };
+    public static String KbsEntryObjectTypeRole() { return KbsEntryObjectTypeRole; };
     public static String WPRemove() { return WPRemove; };
     public static String LeaveCommunity() { return LeaveCommunity; };
-    public static String UserActionAdd() { return UserActionAdd; };
+    public static String KbsEntryActionAdd() { return KbsEntryActionAdd; };
+    public static String KbsEntryActionEdit() { return KbsEntryActionEdit; };
+    public static String KbsEntryActionRemove() { return KbsEntryActionRemove; };
     public static String WPAdd() { return WPAdd; };
-    public static String UserObjectTypeRealm() { return UserObjectTypeRealm; };
-    public static String UserActionEdit() { return UserActionEdit; };
+    public static String KbsEntryObjectTypeUser() { return KbsEntryObjectTypeUser; };
+    public static String KbsEntryObjectTypeRealm() { return KbsEntryObjectTypeRealm; };
+    public static String KbsEntryActionQuery() { return KbsEntryActionQuery; };
     public static String WPChange() { return WPChange; };
     public static String JoinCommunity() { return JoinCommunity; };
     public static String ListCommunities() { return ListCommunities; };
     public static String GetCommunityDescriptor() { return GetCommunityDescriptor; };
+    public static String KbsEntryObjectTypeGroup() { return KbsEntryObjectTypeGroup; };
     public static String testCommunityOne() { return testCommunityOne; };
 }
