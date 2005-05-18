@@ -159,13 +159,6 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
 
-  static String removeHashChar(String s) {
-    if (s.startsWith("#")) {
-      return s.substring(1);
-    }
-    return s;
-  }
-
   private class ULActorInstanceClassifier extends DefaultInstanceClassifier {
 
     private String communityPrefix = "KAoS#MembersOfDomainCommunity";

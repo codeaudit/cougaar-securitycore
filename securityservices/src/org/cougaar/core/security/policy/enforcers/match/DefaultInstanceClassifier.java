@@ -2,7 +2,7 @@
  * Created on May 17, 2005
  * 
  * @author srosset
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 package org.cougaar.core.security.policy.enforcers.match;
 
@@ -28,6 +28,13 @@ public abstract class DefaultInstanceClassifier implements InstanceClassifier {
     return;
   }
 
+  protected String removeHashChar(String s) {
+    if (s.startsWith("#")) {
+      return s.substring(1);
+    }
+    return s;
+  }
+  
   /**
    * @see kaos.ontology.matching.InstanceClassifier#classify(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)
    */
