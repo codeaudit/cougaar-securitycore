@@ -73,6 +73,7 @@ final public class UltralogEntityConcepts
     public static final String LeaveCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "LeaveCommunity");
     public static final String UserActionAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionAdd");
     public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
+    public static final String UserObjectTypeRealm = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserObjectTypeRealm");
     public static final String UserActionEdit = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "UserActionEdit");
     public static final String WPChange = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPChange");
     public static final String JoinCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "JoinCommunity");
@@ -91,6 +92,7 @@ final public class UltralogEntityConcepts
     public static String LeaveCommunity() { return LeaveCommunity; };
     public static String UserActionAdd() { return UserActionAdd; };
     public static String WPAdd() { return WPAdd; };
+    public static String UserObjectTypeRealm() { return UserObjectTypeRealm; };
     public static String UserActionEdit() { return UserActionEdit; };
     public static String WPChange() { return WPChange; };
     public static String JoinCommunity() { return JoinCommunity; };

@@ -118,6 +118,7 @@
         <UserObjectType rdf:about="#UserObjectTypeUser"/>
         <UserObjectType rdf:about="#UserObjectTypeRole"/>
         <UserObjectType rdf:about="#UserObjectTypeGroup"/>
+        <UserObjectType rdf:about="#UserObjectTypeRealm"/>
       </owl:oneOf>
     </owl:Class>
 
