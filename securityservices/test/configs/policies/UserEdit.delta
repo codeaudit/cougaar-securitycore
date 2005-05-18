@@ -1,0 +1,30 @@
+
+GenericInstance $Actor.owl#Person %urn:UserInRole#Admin
+GenericInstance $Ultralog/UltralogEntity.owl#UserRealm %urn:UserRealm#Cougaarsoftware
+GenericInstance $Ultralog/UltralogEntity.owl#UserPropertyType %urn:UserPropertyType#FooType
+
+Policy FirstUserEditAction = [
+  GenericTemplate
+  Priority = 2,
+  %urn:UserInRole#Admin is authorized to perform
+  $Ultralog/UltralogAction.owl#EditUserAction as long as 
+
+  the value of $Ultralog/UltralogAction.owl#editUserActionType 
+  is a subset of the set { $Ultralog/UltralogEntity.owl#UserActionEdit } 
+ 
+  and
+
+  the value of $Ultralog/UltralogAction.owl#editUserActionTargetUserRealm
+  is a subset of the set { %urn:UserRealm#Cougaarsoftware } 
+
+  and 
+ 
+  the value of $Ultralog/UltralogAction.owl#editUserActionTargetObjectType
+  contains at least one element from the set 
+  { $Ultralog/UltralogEntity.owl#UserObjectTypeUser $Ultralog/UltralogEntity.owl#UserObjectTypeGroup } 
+
+  and
+ 
+  the value of $Ultralog/UltralogAction.owl#editUserActionTargetPropertyType 
+  is a subset of the set { %urn:UserPropertyType#FooType }
+]
