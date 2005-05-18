@@ -4,16 +4,31 @@
 
 require 'security/lib/common_security_rules'
 
+policyFactory = "org.cougaar.core.security.provider.PolicyComponentFactory"
+
+def addSecurityComponentFactory(node, clsName, enclave, community)
+  # Add the security component factory
+  node.agent.add_component do |c|
+    c.name = clsName
+    c.classname = clsName
+    c.priority = "HIGH"
+    c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+    c.add_argument(community)
+  end
+end
+
 society.each_node do |node|
   enclave = nil
   community = nil
   
   enclave = node.host.get_facet(:enclave)
   if enclave == nil
-    puts "Error: no "enclave" facet for Node #{node.name} - Host #{node.host.name}"
+    puts "Error: no 'enclave' facet for Node #{node.name} - Host #{node.host.name}"
   end
   enclave = enclave.capitalize
   community = enclave + "-SECURITY-COMM"
+
+  addSecurityComponentFactory(node, policyFactory, enclave, community)
 
   if !$disableKaosPolicy
     # Find the associated policy manager agent

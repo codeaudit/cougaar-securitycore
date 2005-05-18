@@ -5,7 +5,6 @@
 require 'security/lib/common_security_rules'
 
 compFactory = "org.cougaar.core.security.provider.SecurityComponentFactory"
-policyFactory = "org.cougaar.core.security.provider.PolicyComponentFactory"
 
 def addSecurityComponentFactory(node, clsName, enclave, community)
   # Add the security component factory
@@ -18,24 +17,17 @@ def addSecurityComponentFactory(node, clsName, enclave, community)
   end
 end
 
-# Add the security components (other than the policy guard)
-#
-def addSecurityComponents(node, enclave, community)
-  addSecurityComponentFactory(node, compFactory, enclave, community)
-  addSecurityComponentFactory(node, policyFactory, enclave, community)
-end
-
 society.each_node do |node|
   enclave = nil
   community = nil
   
   enclave = node.host.get_facet(:enclave)
   if enclave == nil
-    puts "Error: no "enclave" facet for Node #{node.name} - Host #{node.host.name}"
+    puts "Error: no 'enclave' facet for Node #{node.name} - Host #{node.host.name}"
   end
   enclave = enclave.capitalize
   community = enclave + "-SECURITY-COMM"
 
-  addSecurityComponents(node, enclave, community)
+  addSecurityComponentFactory(node, compFactory, enclave, community)
 end
 
