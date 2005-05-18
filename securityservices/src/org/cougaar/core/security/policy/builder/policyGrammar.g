@@ -60,6 +60,9 @@ throws PolicyCompilerException
     : setprefix[ppf]
     | "Delete" policyName:TOKEN
         { ppf.addDeletion(ParsedPolicyFile.tokenToText(policyName)); }
+    | "GenericInstance" owlClass:URI  owlInstance:URI
+        { ppf.declareInstance(ParsedPolicyFile.identifierToURI(owlInstance),
+                              ParsedPolicyFile.identifierToURI(owlClass)); }
     | "Agent" agentName:TOKEN
         { ppf.declareInstance(ULOntologyNames.agentPrefix 
                                 + ParsedPolicyFile.tokenToText(agentName),
