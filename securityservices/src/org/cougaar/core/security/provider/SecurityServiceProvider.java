@@ -93,6 +93,12 @@ public class SecurityServiceProvider
     init(sb, community);
   }
   
+  /**
+   * Return the ServiceBroker.
+   * <p>
+   * 
+   * @return the service broker
+   */
   public ServiceBroker getServiceBroker() {
     return serviceBroker;
   }
