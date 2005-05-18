@@ -60,4 +60,8 @@ public class ULOntologyNames
   public static String oqlDataFieldPrefix  = "urn:OQLDataField#";
   public static String oqlDataSetPrefix    = "urn:OQLDataSet#";
   public static String oqlDataSourcePrefix = "urn:OQLDataSource#";
+
+  public static String userRealmPrefix = "urn:UserRealm#";
+  public static String userPropertyTypePrefix = "urn:UserPropertyType#";
+  public static String usersInRolePrefix = "urn:UserInRole#";
 }

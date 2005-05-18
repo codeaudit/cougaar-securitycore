@@ -1,37 +1,47 @@
 #!/bin/sh
 
-CP=${KAOS_ROOT}/lib/tools.jar:${CP}
+os=`uname`
+case $os in
+ CYGWIN* )
+    export CIP=`cygpath -m ${CIP}`
+    export COUGAAR_INSTALL_PATH=`cygpath -m ${COUGAAR_INSTALL_PATH}`
+    SEPARATOR='\;'
+  ;;
+  *) 
+    SEPARATOR=':'
+esac
 
-CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar:${CP}
+#CP=${KAOS_ROOT}/lib/tools.jar${SEPARATOR}${CP}
 
-#CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/lib/kaos.jar
+
 #
-CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/iw.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/jakarta-oro-2.0.5.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/jas.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/mail.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/xercesImpl.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/xml-apis.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/antlr.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/dl.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/icu4j.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/iw.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jakarta-oro-2.0.5.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jas.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jdom.jar${SEPARATOR}$CP
+CP=${COUGAAR_INSTALL_PATH}/sys/jena.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/jtp.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/mail.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/xercesImpl.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/xml-apis.jar${SEPARATOR}${CP}
 #
 ##
 # The following are needed by any WebProxyInstaller script
 #
-CP=${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar:$CP
-CP=${COUGAAR_INSTALL_PATH}/lib/util.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar:${CP}:
-CP=${COUGAAR_INSTALL_PATH}/lib/secure_bootstrapper.jar:${CP}:
-CP=${COUGAAR_INSTALL_PATH}/lib/secure_util.jar:${CP}:
-CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar:${CP}
-CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar:${CP}
+CP=${COUGAAR_INSTALL_PATH}/lib/bootstrap.jar${SEPARATOR}$CP
+CP=${COUGAAR_INSTALL_PATH}/lib/util.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/lib/securityservices.jar${SEPARATOR}${CP}${SEPARATOR}
+CP=${COUGAAR_INSTALL_PATH}/lib/secure_bootstrapper.jar${SEPARATOR}${CP}${SEPARATOR}
+CP=${COUGAAR_INSTALL_PATH}/lib/secure_util.jar${SEPARATOR}${CP}${SEPARATOR}
+CP=${COUGAAR_INSTALL_PATH}/sys/log4j.jar${SEPARATOR}${CP}
+CP=${COUGAAR_INSTALL_PATH}/sys/tomcat_40.jar${SEPARATOR}${CP}
 
 DEFS=-Dorg.cougaar.config.path="${COUGAAR_INSTALL_PATH}/configs/security"
-DEFS="${DEFS} -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.core.security.config.jar.SecureConfigFinder"
+DEFS="${DEFS} -Dorg.cougaar.util.ConfigFinder.ClassName=org.cougaar.util.jar.JarConfigFinder"
 DEFS="${DEFS} -Dorg.cougaar.core.security.bootstrap.keystore=${COUGAAR_INSTALL_PATH}/configs/security/bootstrap_keystore"
 
 

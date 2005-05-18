@@ -281,4 +281,41 @@
        </rdfs:subClassOf>
      </owl:Class>
 
+     <owl:Class rdf:ID="EditUserAction">
+       <owl:disjointWith rdf:resource="#ServletAccess"/>
+       <owl:disjointWith rdf:resource="#BlackBoardAccess"/>
+       <owl:disjointWith rdf:resource="#WPUpdate"/>
+       <owl:disjointWith rdf:resource="#WPLookup"/>
+       <owl:disjointWith rdf:resource="#WPForward"/>
+       <owl:disjointWith rdf:resource="#CommunityAction"/>
+       <owl:disjointWith rdf:resource="#OQLAction"/>
+       <rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Action.owl#ResourceAction"/>
+       <rdfs:subClassOf>
+         <owl:Restriction>
+           <owl:onProperty rdf:resource="http://ontology.ihmc.us/Action.owl#performedBy"/>
+           <owl:allValuesFrom rdf:resource="http://ontology.ihmc.us/Actor.owl#Person"/>
+         </owl:Restriction>
+       </rdfs:subClassOf>
+     </owl:Class>
+
+    <owl:FunctionalProperty rdf:ID="editUserActionType">
+      <rdfs:domain rdf:resource="EditUserAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#EditUserActionType"/>
+    </owl:FunctionalProperty>
+
+    <owl:ObjectProperty rdf:ID="editUserActionTargetUserRealm">
+      <rdfs:domain rdf:resource="EditUserAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#UserRealm"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="editUserActionTargetObjectType">
+      <rdfs:domain rdf:resource="EditUserAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#UserObjectType"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:ID="editUserActionTargetPropertyType">
+      <rdfs:domain rdf:resource="EditUserAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity#UserPropertyType"/>
+    </owl:ObjectProperty>
+
 </rdf:RDF>

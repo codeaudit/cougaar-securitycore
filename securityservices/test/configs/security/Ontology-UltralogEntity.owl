@@ -100,4 +100,29 @@
     <owl:Class rdf:ID="OQLDataSet"/>    
     <owl:Class rdf:ID="OQLDataSource"/>    
 
+
+    <!-- begin properties for user administration -->
+    <owl:Class rdf:ID="EditUserActionType">
+      <owl:oneOf rdf:parseType="Collection">
+        <EditUserActionType rdf:about="#UserActionEdit"/>
+        <EditUserActionType rdf:about="#UserActionAdd"/>
+        <EditUserActionType rdf:about="#UserActionRemove"/>
+        <EditUserActionType rdf:about="#UserActionQuery"/>
+      </owl:oneOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="UserRealm"/>    
+
+    <owl:Class rdf:ID="UserObjectType">
+      <owl:oneOf rdf:parseType="Collection">
+        <UserObjectType rdf:about="#UserObjectTypeUser"/>
+        <UserObjectType rdf:about="#UserObjectTypeRole"/>
+        <UserObjectType rdf:about="#UserObjectTypeGroup"/>
+      </owl:oneOf>
+    </owl:Class>
+
+    <owl:Class rdf:ID="UserPropertyType"/>    
+
+    <!-- end properties for user administration -->
+
 </rdf:RDF>
