@@ -169,22 +169,8 @@ public class SecurityServiceProvider
       log.info("Running outside a Cougaar node");
     }
     
-    /* ********************************
-     * Property service
-     */
     ServiceProvider newSP = null;
-    
-    newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
-    services.addService(SecurityPropertiesService.class, new ServiceEntry(newSP, rootServiceBroker));
-    
-    
-    SecurityPropertiesService secprop = (SecurityPropertiesService)
-    AccessController.doPrivileged(new PrivilegedAction() {
-      public Object run() {
-        return rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
-      }
-    });
-    
+        
     /*
      boolean standalone = false;
      try {
@@ -197,12 +183,6 @@ public class SecurityServiceProvider
      log.warn("Unable to get value of standalone mode");
      }
      */
-    
-    /* ********************************
-     * Configuration services
-     */
-    newSP = new ConfigParserServiceProvider(serviceBroker, mySecurityCommunity);
-    services.addService(ConfigParserService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     /* ********************************
      * Encryption services
@@ -337,8 +317,6 @@ public class SecurityServiceProvider
       /* ********************************
        * Policy services
        */
-      newSP = new PolicyBootstrapperServiceProvider(serviceBroker, mySecurityCommunity);
-      services.addService(PolicyBootstrapperService.class, new ServiceEntry(newSP, rootServiceBroker));
 
       /*
        if (!org.cougaar.core.security.access.AccessAgentProxy.USE_DAML) {

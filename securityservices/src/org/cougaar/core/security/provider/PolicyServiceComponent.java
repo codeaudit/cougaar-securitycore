@@ -25,12 +25,18 @@
 
 package org.cougaar.core.security.provider;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.component.ServiceBrokerSupport;
 import org.cougaar.core.component.ServiceProvider;
 import org.cougaar.core.node.NodeControlService;
 import org.cougaar.core.security.provider.policy.PolicyServiceProvider;
 import org.cougaar.core.security.services.policy.PolicyService;
+import org.cougaar.core.security.services.util.ConfigParserService;
+import org.cougaar.core.security.services.util.PolicyBootstrapperService;
+import org.cougaar.core.security.services.util.SecurityPropertiesService;
 import org.cougaar.core.service.LoggingService;
 
 
@@ -81,6 +87,11 @@ public class PolicyServiceComponent  {
           throw new RuntimeException("Unable to get root service broker");
         }
       }
+      else {
+        if (log.isErrorEnabled()) {
+          log.error("Unable to get NodeControlService");
+        }
+      }
     }
     else {
       // We are running outside a Cougaar node.
@@ -93,8 +104,35 @@ public class PolicyServiceComponent  {
       log.debug("Creating Policy Service provider ");
     }
     services = new SecurityServiceTable(log);
+    
+    /* ********************************
+     * Property service
+     */
+    newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
+    services.addService(SecurityPropertiesService.class, new ServiceEntry(newSP, rootServiceBroker));
+    
+    SecurityPropertiesService secprop = (SecurityPropertiesService)
+    AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        return rootServiceBroker.getService(this, SecurityPropertiesService.class, null);
+      }
+    });
+    
+    /* ********************************
+     * Configuration services
+     */
+    newSP = new ConfigParserServiceProvider(serviceBroker, mySecurityCommunity);
+    services.addService(ConfigParserService.class, new ServiceEntry(newSP, rootServiceBroker));
+    
+    /* ********************************
+     * Policy services
+     */
+    newSP = new PolicyBootstrapperServiceProvider(serviceBroker, mySecurityCommunity);
+    services.addService(PolicyBootstrapperService.class, new ServiceEntry(newSP, rootServiceBroker));
+
     newSP = new PolicyServiceProvider(serviceBroker, mySecurityCommunity);
     services.addService(PolicyService.class, new ServiceEntry(newSP, rootServiceBroker));
+    
     if(log.isDebugEnabled()){
       log.debug("Added policy Service to root service broker ");
     }
