@@ -112,16 +112,7 @@
     </owl:Class>
 
     <owl:Class rdf:ID="RequestorUserRealm"/>    
-
-    <owl:Class rdf:ID="KbsEntryObjectType">
-      <owl:oneOf rdf:parseType="Collection">
-        <UserObjectType rdf:about="#KbsEntryObjectTypeUser"/>
-        <UserObjectType rdf:about="#KbsEntryObjectTypeRole"/>
-        <UserObjectType rdf:about="#KbsEntryObjectTypeGroup"/>
-        <UserObjectType rdf:about="#KbsEntryObjectTypeRealm"/>
-      </owl:oneOf>
-    </owl:Class>
-
+    <owl:Class rdf:ID="KbsEntryObjectType"/>
     <owl:Class rdf:ID="KbsEntryPropertyName"/>    
 
     <!-- end properties for user administration -->
