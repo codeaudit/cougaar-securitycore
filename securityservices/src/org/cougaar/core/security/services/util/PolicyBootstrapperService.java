@@ -35,7 +35,30 @@ import org.cougaar.core.component.Service;
 public interface PolicyBootstrapperService
   extends Service
 {
+  /**
+   * Return the default policy modality.
+   * <p>
+   * 
+   * @return true if everything should be allowed by default.
+   *         false if everything should be denied by default.
+   */
   public boolean getDefaultModality();
+  
+  /**
+   * Return a List of boot policies.
+   * <p>
+   * 
+   * @param type
+   * @return
+   */
   public List getBootPolicies(String type);
+  
+  /**
+   * Return a policy message given a specified policy type.
+   * <p>
+   * 
+   * @param type
+   * @return
+   */
   public PolicyMsg getBootPolicy(Class type);
 }
