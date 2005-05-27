@@ -4,14 +4,21 @@
 
 plugin = "org.cougaar.core.security.util.webproxy.WebProxySecurityComponent"
 
+#
+# The web proxy used to come in after the securitycomponent factory
+# but the rule has been modified and this is no longer guaranteed.  Is
+# there an issue?
+#
 if !$disableKaosPolicy
-  society.each_node do |node|
-    if node.agent.has_component?("org.cougaar.core.security.provider.SecurityComponentFactory")
-      # This is to ensure web proxy is installed AFTER SecurityComponentFactgory
-      node.add_component do |c|
-        c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
-        c.priority = "HIGH"
-        c.classname = plugin
+  society.each_agent do |agent|
+    agent.each_component do |component|
+      if component.classname == "safe.policyManager.DomainManagerPlugin"
+        agent.node.add_component do |c|
+          c.insertionpoint = "Node.AgentManager.Agent.SecurityComponent"
+          c.priority = "HIGH"
+          c.classname = plugin
+        end
+        break
       end
     end
   end
