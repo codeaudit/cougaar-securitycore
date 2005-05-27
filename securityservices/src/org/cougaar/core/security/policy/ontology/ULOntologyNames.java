@@ -63,5 +63,5 @@ public class ULOntologyNames
 
   public static String userRealmPrefix = "urn:UserRealm#";
   public static String userPropertyTypePrefix = "urn:UserPropertyType#";
-  public static String usersInRolePrefix = "urn:UserInRole#";
+  public static String usersInRolePrefix = "urn:UserInRole#Role";
 }
