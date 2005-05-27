@@ -42,6 +42,8 @@ import kaos.ontology.management.UnknownConceptException;
 
 import com.hp.hpl.jena.ontology.OntClass;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class represents a connection to the reasoner (the ontology
  * repository) when this code is running in the same java virtual
@@ -50,6 +52,8 @@ import com.hp.hpl.jena.ontology.OntClass;
 
 public class KAoSAgentOntologyConnection extends OntologyConnection
 {
+  Logger log = Logger.getLogger(KAoSAgentOntologyConnection.class);
+
   KAoSAgentDirectoryServiceProxy _kds;
 
   public KAoSAgentOntologyConnection(KAoSAgentDirectoryServiceProxy kds)
@@ -115,17 +119,20 @@ public class KAoSAgentOntologyConnection extends OntologyConnection
                               String className)
     throws ReasoningException
   {
-    //    try {
-    //      SerializableOntModelImpl model = new SerializableOntModelImpl();
-    //      OntClass ontCl = model.createClass(className);
-    //      model.createIndividual(instanceName, ontCl);
-      // model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
-    //      loadOntology(model, false);
-    //    } catch (IOException ioe) {
-    //      ReasoningException re = new ReasoningException("" + ioe);
-    //      re.initCause(ioe);
-    //      throw re;
-    //    }
+    if (log.isDebugEnabled()) {
+      log.debug("Entering declareInstance for ontology connection " + this);
+    }
+    try {
+      SerializableOntModelImpl model = new SerializableOntModelImpl();
+      OntClass ontCl = model.createClass(className);
+      model.createIndividual(instanceName, ontCl);
+      model.write(new PrintWriter(System.out), "RDF/XML-ABBREV");
+      loadOntology(model, false);
+    } catch (IOException ioe) {
+      ReasoningException re = new ReasoningException("" + ioe);
+      re.initCause(ioe);
+      throw re;
+    }
     //    throw new ReasoningException("declareInstance unsupported");
   }
 
