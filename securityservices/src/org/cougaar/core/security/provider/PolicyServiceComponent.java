@@ -76,27 +76,18 @@ public class PolicyServiceComponent  {
     if(log.isDebugEnabled()){
       log.debug("register services called on Policy Component");
     }
-    isExecutedWithinNode = Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode","false")).booleanValue();
     // Get root service broker
-    if(isExecutedWithinNode){
-      nodeControlService = (NodeControlService)
+    nodeControlService = (NodeControlService)
         serviceBroker.getService(this, NodeControlService.class, null);
-      if (nodeControlService != null) {
+    if (nodeControlService != null) {
         rootServiceBroker = nodeControlService.getRootServiceBroker();
-        if (rootServiceBroker == null) {
-          throw new RuntimeException("Unable to get root service broker");
-        }
-      }
-      else {
-        if (log.isErrorEnabled()) {
-          log.error("Unable to get NodeControlService");
-        }
+      if (rootServiceBroker == null) {
+        throw new RuntimeException("Unable to get root service broker");
       }
     }
     else {
       // We are running outside a Cougaar node.
       // No Cougaar services are available.
-      isExecutedWithinNode = false;
       rootServiceBroker = serviceBroker;
     }
     ServiceProvider newSP = null;
@@ -108,7 +99,7 @@ public class PolicyServiceComponent  {
     /* ********************************
      * Property service
      */
-    newSP = new SecurityPropertiesServiceProvider(rootServiceBroker, mySecurityCommunity);
+    newSP = new SecurityPropertiesServiceProvider(serviceBroker, mySecurityCommunity);
     services.addService(SecurityPropertiesService.class, new ServiceEntry(newSP, rootServiceBroker));
     
     SecurityPropertiesService secprop = (SecurityPropertiesService)
