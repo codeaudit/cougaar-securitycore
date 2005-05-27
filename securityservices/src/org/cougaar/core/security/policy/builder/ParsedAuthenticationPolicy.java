@@ -35,7 +35,7 @@ import kaos.ontology.vocabulary.PolicyConcepts;
  * (obligation policies) that have other values for modality.
  */
 
-abstract class ParsedAuthenticationPolicy
+public abstract class ParsedAuthenticationPolicy
   extends ParsedPolicy
 {
   boolean _authModality = false;
