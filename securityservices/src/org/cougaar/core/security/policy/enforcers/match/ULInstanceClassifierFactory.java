@@ -125,7 +125,7 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
 
-  private static void registerClassifier(InstanceClassifier classifier) {
+  public static void registerClassifier(InstanceClassifier classifier) {
     synchronized(additionalClassifiers) {
       additionalClassifiers.add(classifier);
     }
@@ -136,7 +136,7 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
   
-  private static void unregisterClassifier(InstanceClassifier classifier) {
+  public static void unregisterClassifier(InstanceClassifier classifier) {
     synchronized(additionalClassifiers) {
       additionalClassifiers.remove(classifier);
     }
