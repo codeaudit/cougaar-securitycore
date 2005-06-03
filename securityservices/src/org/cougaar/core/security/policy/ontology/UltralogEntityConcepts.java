@@ -29,6 +29,7 @@ final public class UltralogEntityConcepts
     public static final String BlackBoardObjects = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "BlackBoardObjects");
     public static final String AuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "AuthenticationLevel");
     public static final String ULContentValue = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ULContentValue");
+    public static final String KBActionPropertyRelation = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KBActionPropertyRelation");
     public static final String EditUserActionType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "EditUserActionType");
     public static final String OQLDataSet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "OQLDataSet");
     public static final String Community = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "Community");
@@ -51,6 +52,7 @@ final public class UltralogEntityConcepts
     public static String BlackBoardObjects() { return BlackBoardObjects; };
     public static String AuthenticationLevel() { return AuthenticationLevel; };
     public static String ULContentValue() { return ULContentValue; };
+    public static String KBActionPropertyRelation() { return KBActionPropertyRelation; };
     public static String EditUserActionType() { return EditUserActionType; };
     public static String OQLDataSet() { return OQLDataSet; };
     public static String Community() { return Community; };
@@ -67,8 +69,8 @@ final public class UltralogEntityConcepts
     public static final String testCommunityTwo = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "testCommunityTwo");
     public static final String ModifyCommunityAttributes = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "ModifyCommunityAttributes");
     public static final String WPRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPRemove");
-    public static final String KbsEntryActionAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionAdd");
     public static final String LeaveCommunity = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "LeaveCommunity");
+    public static final String KbsEntryActionAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionAdd");
     public static final String KbsEntryActionEdit = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionEdit");
     public static final String KbsEntryActionRemove = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "KbsEntryActionRemove");
     public static final String WPAdd = OntologyLanguageTagSelector.selectLanguageForTag(UltralogEntityOwlURL + "WPAdd");
@@ -82,8 +84,8 @@ final public class UltralogEntityConcepts
     public static String testCommunityTwo() { return testCommunityTwo; };
     public static String ModifyCommunityAttributes() { return ModifyCommunityAttributes; };
     public static String WPRemove() { return WPRemove; };
-    public static String KbsEntryActionAdd() { return KbsEntryActionAdd; };
     public static String LeaveCommunity() { return LeaveCommunity; };
+    public static String KbsEntryActionAdd() { return KbsEntryActionAdd; };
     public static String KbsEntryActionEdit() { return KbsEntryActionEdit; };
     public static String KbsEntryActionRemove() { return KbsEntryActionRemove; };
     public static String WPAdd() { return WPAdd; };
