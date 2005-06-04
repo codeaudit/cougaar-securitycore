@@ -36,6 +36,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 import org.cougaar.core.component.ServiceBroker;
 import org.cougaar.core.security.policy.CaPolicy;
 import org.cougaar.core.security.policy.CryptoClientPolicy;
@@ -85,9 +88,13 @@ public class ConfigParserServiceImpl
       serviceBroker.getService(this,
 			       LoggingService.class, null);
     secprop = (SecurityPropertiesService)
-      serviceBroker.getService(this,
-			       SecurityPropertiesService.class,
-			       null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+          public Object run() {
+            return serviceBroker.getService(this,
+                                            SecurityPropertiesService.class,
+                                            null);
+            }
+        });
 
     isNode =
       Boolean.valueOf(System.getProperty("org.cougaar.core.security.isExecutedWithinNode")).booleanValue();
