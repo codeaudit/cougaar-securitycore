@@ -33,6 +33,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import java.security.PrivilegedAction;
+import java.security.AccessController;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -127,7 +130,14 @@ public class ConfigParserHandler
     // construct the crypto client policy file name.  should be of the form
     // $COUGAAR_WORKSPACE/security/keystores/${org.cougaar.node.name}/cryptoPolicy.xml
     SecurityPropertiesService sps = (SecurityPropertiesService)
-      sb.getService(this, SecurityPropertiesService.class, null);
+        AccessController.doPrivileged(new PrivilegedAction() {
+              public Object run() {
+                return 
+                  serviceBroker.getService(this, 
+                                           SecurityPropertiesService.class, 
+                                           null);
+              }
+            });
     String nodeName = sps.getProperty("org.cougaar.node.name");
     String cougaarWsp = sps.getProperty(SecurityPropertiesService.COUGAAR_WORKSPACE);
     String topDirectory = cougaarWsp + File.separatorChar + "security"
