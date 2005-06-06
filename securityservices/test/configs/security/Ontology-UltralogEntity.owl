@@ -115,6 +115,8 @@
     <owl:Class rdf:ID="KbsEntryObjectType"/>
     <owl:Class rdf:ID="KbsEntryPropertyName"/>    
 
+    <owl:Class rdf:ID="KBActionPropertyRelation"/>    
+
     <!-- end properties for user administration -->
 
 </rdf:RDF>

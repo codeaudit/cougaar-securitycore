@@ -322,4 +322,9 @@
       <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#KbsEntryPropertyName"/>
     </owl:ObjectProperty>
 
+    <owl:ObjectProperty rdf:ID="kbActionRelation">
+      <rdfs:domain rdf:resource="#EditKbsEntryAction"/>
+      <rdfs:range rdf:resource="http://ontology.ihmc.us/Ultralog/UltralogEntity.owl#KBActionPropertyRelation"/>
+    </owl:ObjectProperty>
+
 </rdf:RDF>
