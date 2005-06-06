@@ -26,12 +26,16 @@ package org.cougaar.core.security.policy.enforcers.match;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
+import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArrayList;
+//import java.util.concurrent.ConcurrentHashMap;
+//import java.util.concurrent.CopyOnWriteArrayList;
 import kaos.ontology.matching.InstanceClassifier;
 import kaos.ontology.matching.InstanceClassifierClassCastException;
 import kaos.ontology.matching.InstanceClassifierFactory;
@@ -69,22 +73,19 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
 
   private static Logger _log = Logger.getLogger(ULInstanceClassifierFactory.class);
 
-  private ULActorInstanceClassifier _instClassifier;
-  
   /**
    * Additional instance classifiers.
+   * Map <String, List<InstanceClassifier> additionalClassifiers;
    */
-  private static List additionalClassifiers;
+  private static Map classifierMap = new ConcurrentHashMap();
   
   private Object _csLock = new Object(); // a mutex for _communityService
   
-  static {
-    additionalClassifiers = new ArrayList();
-  }
-  
   public ULInstanceClassifierFactory(ServiceBroker sb) {
     _sb = sb;
-    _instClassifier = new ULActorInstanceClassifier();
+    ULActorInstanceClassifier instClassifier = new ULActorInstanceClassifier();
+    registerClassifier(ActionConcepts.performedBy(), instClassifier);
+    registerClassifier(ActionConcepts.hasDestination(), instClassifier);
 
     _communityService = (CommunityService) _sb.getService(this,
         CommunityService.class, null);
@@ -117,18 +118,21 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     if (_log.isDebugEnabled()) {
       _log.debug("Getting instance classifier instance for " + propertyName);
     }
-    if (propertyName.equals(ActionConcepts.performedBy())
-        || propertyName.equals(ActionConcepts.hasDestination())) {
-      return _instClassifier;
+    List classifiers = (List) classifierMap.get(propertyName);
+    if(classifiers != null) {
+      return new MultipleInstanceClassifier(propertyName, classifiers);
     } else {
       return null;
     }
   }
 
-  public static void registerClassifier(InstanceClassifier classifier) {
-    synchronized(additionalClassifiers) {
-      additionalClassifiers.add(classifier);
+  public static void registerClassifier(String propertyName, InstanceClassifier classifier) {
+    List classifiers = (List) classifierMap.get(propertyName);
+    if(classifiers == null) {
+      classifiers = new CopyOnWriteArrayList();
+      classifierMap.put(propertyName, classifiers);
     }
+    classifiers.add(classifier);
     try {
       classifier.init();
     } catch (InstanceClassifierInitializationException e) {
@@ -136,10 +140,9 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
   
-  public static void unregisterClassifier(InstanceClassifier classifier) {
-    synchronized(additionalClassifiers) {
-      additionalClassifiers.remove(classifier);
-    }
+  public static void unregisterClassifier(String propertyName, InstanceClassifier classifier) {
+    List classifiers = (List)classifierMap.get(propertyName);
+    classifiers.remove(classifier);
   }
   
   private void ensureCommunityServicePresent() {
@@ -159,6 +162,51 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
 
+  /**
+   * The purpose of this class is to iterate through the list of classifiers
+   * for a particular property and invoke the classifier's classify method.
+   */
+  private class MultipleInstanceClassifier implements InstanceClassifier {
+    String propertyName = null;
+    List classifiers = null;
+
+    MultipleInstanceClassifier(String propertyName, List classifiers) {
+      this.propertyName = propertyName;
+      this.classifiers = classifiers;
+    }
+    public void init() {
+      if(_log.isDebugEnabled()) {
+        _log.debug("initializing MultipleInstanceClassifier for : " + propertyName);
+      } 
+    }
+   
+
+    /**
+     * @see kaos.ontology.matching.InstanceClassifier#classify(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)
+     */
+    public boolean classify(Object className, Object instance,
+        Object classDesc, Object instDesc)
+        throws InstanceClassifierInitializationException,
+        InstanceClassifierClassCastException {
+      // for each classifier invoke the classify method and return true
+      // if and only if one of the classifier returns true.
+      Iterator i = classifiers.iterator();
+      while(i.hasNext()) {
+        if(((InstanceClassifier)i.next()).classify(className, instance, classDesc, instDesc)) {
+          return true;
+        }
+      }
+      /*
+      for(InstanceClassifier classifier : classifiers) {
+        if(classifier.classify(className, instance, classDesc, instDesc)) {
+          return true;
+        }
+      }
+      */
+      return false; 
+    }
+  } 
+
   private class ULActorInstanceClassifier extends DefaultInstanceClassifier {
 
     private String communityPrefix = "KAoS#MembersOfDomainCommunity";
@@ -177,31 +225,6 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
         String community = className.substring(communityPrefix.length());
         loadAgentsInCommunity(community);
       }
-    }
-    
-    /**
-     * @see kaos.ontology.matching.InstanceClassifier#classify(java.lang.Object, java.lang.Object, java.lang.Object, java.lang.Object)
-     */
-    public boolean classify(Object className, Object instance,
-        Object classDesc, Object instDesc)
-        throws InstanceClassifierInitializationException,
-        InstanceClassifierClassCastException {
-      
-      boolean ret = super.classify(className, instance, classDesc, instDesc);
-      if (!ret) {
-        // Invoke classifiers through delegation.
-        synchronized (additionalClassifiers) {
-          Iterator it = additionalClassifiers.iterator();
-          while (it.hasNext()) {
-            InstanceClassifier ic = (InstanceClassifier) it.next();
-            ret = ic.classify(className, instance, classDesc, instDesc);
-            if (ret) {
-              break;
-            }
-          }
-        }
-      }
-      return ret;
     }
 
     public boolean classify(String className, Object instance)
@@ -487,3 +510,4 @@ public class ULInstanceClassifierFactory implements InstanceClassifierFactory {
     }
   }
 }
+
