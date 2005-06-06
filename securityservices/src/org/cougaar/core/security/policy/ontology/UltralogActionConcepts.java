@@ -45,11 +45,11 @@ final public class UltralogActionConcepts
     public static String WPUpdate() { return WPUpdate; };
 
 	// Properties
+    public static final String kbActionRelation = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "kbActionRelation");
     public static final String editKbsEntryActionType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "editKbsEntryActionType");
     public static final String editKbsEntryActionTargetObjectType = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "editKbsEntryActionTargetObjectType");
     public static final String usedAuditLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuditLevel");
     public static final String usedProtectionLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedProtectionLevel");
-    public static final String kbActionRelationship = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "kbActionRelationship");
     public static final String communityTarget = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "communityTarget");
     public static final String oqlHasDataSet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "oqlHasDataSet");
     public static final String accessedServlet = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "accessedServlet");
@@ -67,11 +67,11 @@ final public class UltralogActionConcepts
     public static final String blackBoardAccessObject = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "blackBoardAccessObject");
     public static final String usedAuthenticationLevel = OntologyLanguageTagSelector.selectLanguageForTag(UltralogActionOwlURL + "usedAuthenticationLevel");
 
+    public static String kbActionRelation() { return kbActionRelation; };
     public static String editKbsEntryActionType() { return editKbsEntryActionType; };
     public static String editKbsEntryActionTargetObjectType() { return editKbsEntryActionTargetObjectType; };
     public static String usedAuditLevel() { return usedAuditLevel; };
     public static String usedProtectionLevel() { return usedProtectionLevel; };
-    public static String kbActionRelationship() { return kbActionRelationship; };
     public static String communityTarget() { return communityTarget; };
     public static String oqlHasDataSet() { return oqlHasDataSet; };
     public static String accessedServlet() { return accessedServlet; };
