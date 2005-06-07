@@ -47,7 +47,14 @@ include_scripts:
 
 =end
 
-CIP = ENV['CIP']
+# Fix path problems on cygwin
+os=`uname`
+if os =~ /CYGWIN/
+  CIP=`cygpath -u #{ENV['CIP']}`.strip
+else
+  CIP = ENV['CIP']
+end
+
 $:.unshift File.join(CIP, 'csmart', 'acme_scripting', 'src', 'lib')
 $:.unshift File.join(CIP, 'csmart', 'acme_service', 'src', 'redist')
 # Below is the path when using open-source ACME
