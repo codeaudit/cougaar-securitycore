@@ -14,25 +14,26 @@ class JarPackagerUtility
     puts "build_config_files: #{cmd_jar}" if $VerboseDebugging
     p1 = "#{$CIP}/operator/security/signingCA_keystore"
     cmd_jarsign = "cd #{PathUtility.fixPath(subdir)} && jarsigner -keystore #{PathUtility.fixPath(p1)} -storepass keystore #{PathUtility.fixPath(jar_file_name)} privileged"
-    #puts cmd_jarsign
+    puts cmd_jarsign
 
     `#{cmd_jar}`
+    #puts "3: #{$?} build_config_files: #{cmd_jarsign}"
     `#{cmd_jarsign}`
+
      return "#{subdir}/#{jar_file_name}"
   end
 end
 
 class NodeConfigUtility
   def initialize(node, subdir)
-    @node =          node
-    @node_name =     @node.name
-    @xml_filename =  "#{@node_name}.xml"
+    @node =               node
+    @node_name =          @node.name
     @society_config_dir = subdir
-
+    @xml_filename       =  "#{@society_config_dir}/#{@node_name}.xml"
   end
 
   def to_xml_file
-    File.open("#{@society_config_dir}/#{@xml_filename}", "wb") {|file| file.puts(@node.to_xml)}
+    File.open(@xml_filename, "wb") {|file| file.puts(@node.to_xml)}
   end
 
   def saveSignedXmlJarFile
@@ -44,7 +45,7 @@ class NodeConfigUtility
       # Save as XML file
       to_xml_file
       JarPackagerUtility.jarAndSign(@xml_filename, @society_config_dir)
-      File.unlink("#{@society_config_dir}/#{@xml_filename}")
+      File.unlink(@xml_filename)
 
       @java_class =    @node.classname
       @arguments =     @node.prog_parameters
@@ -247,17 +248,16 @@ module Cougaar
       def initialize(run, file="myCommunity.xml", subdir="society_config")
 	super(run)
         @savedCommunityFile = file
-        @community_file_name = "communities.xml"
         @society_config_dir = subdir
+        @community_file_name = "#{@society_config_dir}/communities.xml"
 
         Dir.mkdir(@society_config_dir) unless File.exist?(@society_config_dir)
       end
 
       def perform()
-        p1 = "#{@society_config_dir}/#{@community_file_name}"
-        File.cp(@savedCommunityFile, p1)
-        file = JarPackagerUtility.jarAndSign("communities.xml", @society_config_dir)
-        File.unlink("#{@society_config_dir}/#{@community_file_name}")
+        File.cp(@savedCommunityFile, @community_file_name)
+        file = JarPackagerUtility.jarAndSign(@community_file_name, @society_config_dir)
+        File.unlink(@community_file_name)
         @run.info_message "Community file saved under #{file}"
       end
     end # class
