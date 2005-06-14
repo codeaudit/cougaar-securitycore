@@ -1,0 +1,23 @@
+
+06-12-2005   Security services 11.4.1.1
+=======================================
+* Ruby scripts: On windows, convert relative paths to absolute paths.
+  People have reported problems when using relative paths.
+* URL stream factory: support custom URL handlers through java.protocol.handler.pkgs property.
+* Added documentation for building new policy types.
+* Fixed the signJars script and include script in overlay ZIP file
+    * No COUGAAR_SECURITY_SERVICES environment variable needed.
+    * Running under bash instead of tsch
+    * Support for Cygwin
+
+06-07-2005   Security services 11.4.1
+=====================================
+* Java 1.4.2 and 1.5 compatibility.
+* Most Ruby scripts can run under windows/cygwin.
+* Build node startup shell scripts for Windows, Cygwin and UNIX.
+* Support for dynamic registration of policy instance classifiers.
+* Missing ruby files have been added.
+* Fixed generation of JavaDoc in ant files.
+* Include zipped files with java doc for each security project.
+* Policy guard can be installed without other security services.
+* Include ACME support files in security overlay ZIP file.
