@@ -9,6 +9,8 @@
     * No COUGAAR_SECURITY_SERVICES environment variable needed.
     * Running under bash instead of tsch
     * Support for Cygwin
+* Add $CIP/configs/ping to config path for the security-enabled PING society.
+* The Commons_isat_plugins.jar JAR file had the wrong signature.
 
 06-07-2005   Security services 11.4.1
 =====================================
