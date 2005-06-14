@@ -1,4 +1,4 @@
-#!/bin/tcsh -f
+#!/bin/bash
 #
 # Bootstrap package:  		bootstrap.jar gets signed with bootstrap key
 # Core infrastructure packages: core.jar gets signed with the privileged key
@@ -7,21 +7,28 @@
 # PlugIns: (TBD)
 #
 #
-foreach jar (`ls ${COUGAAR_INSTALL_PATH}/lib/*.jar`)
+
+keystore_file="${COUGAAR_INSTALL_PATH}/operator/security/signingCA_keystore"
+
+os=`uname`
+case $os in
+ CYGWIN* )
+    export CIP=`cygpath -m ${CIP}`
+    export COUGAAR_INSTALL_PATH=`cygpath -m ${COUGAAR_INSTALL_PATH}`
+    keystore_file=`cygpath -wl ${keystore_file}`
+    echo "Running under cygwin. CIP=${CIP}"
+  ;;
+  *) echo -n "Running under ${os}"
+esac
+
+for jar in ${COUGAAR_INSTALL_PATH}/lib/*.jar
+do
 	echo Signing $jar ...
-	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore $jar privileged
-end
-# This is not currently necessary but if zip files end up in lib then it will
-# be needed for those archives to be signed.
-foreach zip (`ls ${COUGAAR_INSTALL_PATH}/lib/*.zip`)
-	echo Signing $zip ...
-	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore $zip privileged
-end
-foreach jar (`ls ${COUGAAR_INSTALL_PATH}/sys/*.jar`)
+	jarsigner -keystore ${keystore_file} -storepass keystore $jar privileged
+done
+
+for jar in ${COUGAAR_INSTALL_PATH}/sys/*.jar
+do
 	echo Signing $jar ...
-	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore $jar privileged
-end
-foreach zip (`ls ${COUGAAR_INSTALL_PATH}/sys/*.zip`)
-	echo Signing $zip ...
-	jarsigner -keystore ${COUGAAR_SECURITY_SERVICES}/test/configs/sign-jars/signingCA_keystore -storepass keystore $zip privileged
-end
+	jarsigner -keystore ${keystore_file} -storepass keystore $jar privileged
+done
