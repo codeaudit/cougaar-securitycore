@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Exceptions in Building a Policy</title>
+</head>
+<body>
+
+<H1>Understanding Policy Builder Exceptions</H1>
+
+
+The most common type of problem that occurs when building policies for
+the policy builder is an exception that indicates that KAoS does not
+have sufficient information to validate the policy being submitted.  A
+typical exception of this type has the following form:
+<pre>
+  05:42:31,880 ERROR - KBSPolicyHandlerPlugin - KBSPolicyAgent: Exception
+  found updating policy
+  com.cougaarsoftware.core.knowledgeservice.KnowledgeBaseException: 
+                                                    Error building policies
+        at ...
+           ...
+  Caused by: org.cougaar.core.security.policy.builder.PolicyCompilerException:
+  urn:KBUserByRole#503 is not a subclass or instance of the kaos actor class
+        at org....policy.builder.ParsedPolicy.checkActorIsInstance...
+            ...
+  Caused by: org.cougaar.core.security.policy.builder.PolicyCompilerException:
+  urn:KBUserByRole#503 is not a member of 
+  http://ontology.ihmc.us/Actor.owl#Actor
+        at  ...OntologyConnection.verifyInstanceOf(OntologyConnection.java:136)
+        at  ...
+        ... 8 more
+</pre>
+In this error message the root cause of the problem is actually the
+second "Caused by " above and not the third.  What has happened was
+that the policy builder tried to check that urn:KBUserByRole#503 was
+either a subclass or instance of the kaos actor class.  The policy
+builder first tried the subclass and failed.  This is the check that
+should have succeeded.  Then the policy builder tried to see if
+urn:KBUserByRole#503 was an instance of an actor and this is the
+exception that propagated for the third "Caused by".
+<p>
+There is actually enough information above that an expert in OWL
+(more expert than me) might detect the problem.  When I saw this I was
+puzzled because I knew that I had created an ontology that indicated
+that "urn:KBUserByRole#503" was a subclass of Actor.owl#Person.  In
+fact (since the code is short) here is how the ontology was created
+(from Actor.java):
+<pre>
+    SerializableOntModelImpl model = new SerializableOntModelImpl();
+    OntClass personClass  = model.createClass(ActorConcepts.Person);
+    OntClass myActorClass = model.createClass(getOwlName());
+    personClass.addSubClass(myActorClass);
+    model.write(new PrintWriter(new DebugWriter()), "RDF/XML-ABBREV");
+</pre>
+I looked in the logs and sure enough I saw the ontology:
+<pre>
+ &lt;rdf:RDF
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"&gt
+   &lt;owl:Class rdf:about="urn:KBUserByRole#503"&gt
+     &lt;rdfs:subClassOf rdf:resource="http://ontology.ihmc.us/Actor.owl#Person"
+        rdf:type="http://www.w3.org/2002/07/owl#Class"/&gt
+   &lt;/owl:Class&gt
+ &lt;/rdf:RDF&gt
+</pre>
+It was clear from the actor ontology that Actor.owl#Person is a
+subclass of Actor.owl#Actor and so it was still not clear to me what
+the problem was.  However on the standard out there was an error
+message that occured when this ontology was being sent to KAoS:
+<pre>
+    2005-05-28 05:42:31,870 SHOUT [DOTS] - +
+     line 1:75: expecting SYMBOL, found '503'
+     line 1:75: expecting SYMBOL, found '503'
+</pre>
+These errors occured while the ontology was being parsed so it was not
+getting to the KAoS inference engine.  This made it clear that the
+problem was that 
+<pre>
+        "urn:KBUserByRole#503"
+</pre>
+was not a valid OWL symbol.  We fixed the error by changing the way we
+represent the set of users in the role '503'.  We now represent this
+with the OWL classname
+<pre>
+        "urn:KBUserByRole#Role503"
+</pre>
+Other more typical reasons for getting errors like
+<pre>
+      ... is not a subclass or instance of the kaos actor class
+</pre>
+include forgetting to tell KAoS everything that it needs to know and
+typos.
+
+

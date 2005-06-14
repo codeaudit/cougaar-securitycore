@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Permission Denied Logs</title>
+</head>
+<body>
+
+
+<H1>Reading Permission Denied Logs</H1>
+
+When the policy denies access to a resource, a permission denied
+warning is placed in the logs.  These messages are currently somewhat
+arcane and difficult to read.  However, they are very useful for
+understanding policy errors.  Here is an example where a user in the
+FwdUserDomainComm attempts to access the rear enclave policy domain manager.
+The error in the logs is as follows:
+<pre>
+21:33:59,375 WARN  - ServletNodeEnforcer - Permission denied
+
+21:33:59,376 WARN  - ServletNodeEnforcer - Action = 
+    _actionClassName: http://ontology.ihmc.us/Ultralog/UltralogAction.owl#ServletAccess
+    _actor: ----User614
+    _targets: [kaos.ontology.repository.TargetInstanceDescription@c0f040, kaos.ontology.repository.TargetInstanceDescription@b76b89, kaos.ontology.repository.TargetInstanceDescription@a6ffe5]
+    _conceptMappingName:KAoS
+    _actor: 
+  Name: http://ontology.ihmc.us/Action.owl#performedBy
+  Class: null
+  Restriction Type: null
+  isComplement false
+  instances: [----User614]
+
+    _action: 
+  Name: http://ontology.ihmc.us/Action.owl#Action
+  Class: null
+  Restriction Type: null
+  isComplement false
+  instances: [http://ontology.ihmc.us/Ultralog/UltralogAction.owl#ServletAccess]
+
+    _targetRoleNames: [http://ontology.ihmc.us/Ultralog/UltralogAction.owl#accessedServlet, http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuditLevel, http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuthenticationLevel]
+
+    _properties: 
+http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuditLevel 
+  Name: http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuditLevel
+  Class: null
+  Restriction Type: null
+  isComplement false
+  instances: [http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#Audit]
+
+http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuthenticationLevel 
+  Name: http://ontology.ihmc.us/Ultralog/UltralogAction.owl#usedAuthenticationLevel
+  Class: null
+  Restriction Type: null
+  isComplement false
+  instances: [http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#Password]
+
+http://ontology.ihmc.us/Ultralog/UltralogAction.owl#accessedServlet 
+  Name: http://ontology.ihmc.us/Ultralog/UltralogAction.owl#accessedServlet
+  Class: null
+  Restriction Type: null
+  isComplement false
+  instances: [http://ontology.ihmc.us/Ultralog/Names/EntityInstances.owl#RearPolicyServlet]
+
+21:33:59,378 WARN  - ServletNodeEnforcer - User ----User614 in roles [SocietyAdmin, UserManager, MonitorManager, Logistician, PolicyAdministrator, LogisticsViewer, CAAdministrator]
+</pre>
+There are three log messages above.  The first message indicates that
+the access is denied, the second describes the action being denied
+and the third provides additional supplemental information (which is
+often specific to the action type).
+<p>
+The most important two things to discover about the action being
+denied is the actor performing the action and the type of action
+being performed.  The action being performed is identified by
+the "actor:" line in the action description.  We see that  this
+action is performed by the actor User614.  There is another "actor:"
+line a couple of lines below the first one.  The second version has
+an expanded description of the actor as a KAoSProperty.  The
+KAoSProperty  indicates that the actor is given by who the action is
+"performedBy".  Again the actor is given as User614.
+<p>
+By looking at the "action:" line we see that the action is a
+ServletAccess action.  Continuing down the logs  we see that
+<ul>
+<li> the "usedAuditLevel" is "Audit".
+<li> the "usedAuthenticationLevel" is "Password"
+<li> the "accessedServlet is RearPolicyServlet.
+</ul>
+<p>
+User614 is an internal Ultra*Log name for the user who attempted to
+login.  KAoS never sees the real loging name for the user, it only
+sees a name like User614.  Therefore wwe have to go to the suplemental
+information in the third log statement which describes the
+relationship between the KAoS name for the user and definition of the
+user to the  cougaar system.  This statement indicates that user
+User614 is in the 
+roles SocietyAdmin, UserManager, MonitorManager, Logistician,
+PolicyAdministrator, LogisticsViewer, and CAAdministrator.  
+<p>
+This ends the examination of the log file entries.  
+<p>
+We then examine the policies in force.  The policies in force can come
+from several different places.  In a vanilla security servies
+implementation (e.g. Ultra*Log), the boot policies come from a
+configuration file (OwlBootPolicyList) which is usually hidden in the
+jar file ${CIP}/configs/security/bootpolicies.jar.  If the policies
+have been created by a policy management tool like KPAT or the CSI
+Core Commanders Portal then we can get the policies from there.
+Finally, if there is no other easy source for the policies we can
+query the policyViewer servlet off the node.
+<p>
+When we look at the boot policies we discover the problem.  The
+boot polices require that anyone accessing the
+RearPolicyServlet be in the role "xRearPolicyAdministrator" (the name
+xRearPolicyAdministrator is generated automatically by the rule
+policy_boot_policy_list.rule.)   The relevant policy is
+<pre>
+  Policy PolicyServletRear = [
+    ServletUserAccessTemplate
+    A user in role "xRearPolicyAdministrator" can access a servlet 
+    named "RearPolicyServlet"
+  ]
+</pre>
+Without this role access is denied.  User614 is not in this role; the
+closest match is PolicyAdministrator.
+
+</body>
