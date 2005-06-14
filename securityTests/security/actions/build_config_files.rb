@@ -14,7 +14,7 @@ class JarPackagerUtility
     #puts "build_config_files: #{cmd_jar}" if $VerboseDebugging
     p1 = "#{$CIP}/operator/security/signingCA_keystore"
     cmd_jarsign = "cd #{PathUtility.fixPath(subdir)} && jarsigner -keystore #{PathUtility.fixPath(p1)} -storepass keystore #{PathUtility.fixPath(jar_file_name)} privileged"
-    puts cmd_jarsign
+    #puts cmd_jarsign
 
     `#{cmd_jar}`
     #puts "3: #{$?} build_config_files: #{cmd_jarsign}"
