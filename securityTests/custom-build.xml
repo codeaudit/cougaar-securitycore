@@ -13,6 +13,7 @@
                 <patternset>
                     <include name="checkTrace*.rb"/>
                     <include name="signSingleJar"/>
+                    <include name="signJars"/>
                     <include name="runallparallel"/>
                     <include name="printProcessInfo.rb"/>
                     <include name="checkReportChainReady.rb"/>
