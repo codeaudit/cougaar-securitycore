@@ -31,7 +31,6 @@ datagrabber.jar
 ####################
 # bootstrapper
 bootstrap.jar
-javaiopatch.jar
 securebootstrapper.jar
 
 ####################

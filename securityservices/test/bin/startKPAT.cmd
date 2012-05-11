@@ -22,7 +22,6 @@ set CP=%CP%;\UL\cougaar\lib\datagrabber.jar
 set CP=%CP%;\UL\cougaar\lib\fcsua.jar
 set CP=%CP%;\UL\cougaar\lib\glm.jar
 set CP=%CP%;\UL\cougaar\lib\idmef.jar
-set CP=%CP%;\UL\cougaar\lib\javaiopatch.jar
 set CP=%CP%;\UL\cougaar\lib\kaos.jar
 set CP=%CP%;\UL\cougaar\lib\overlay.jar
 set CP=%CP%;\UL\cougaar\lib\planning.jar

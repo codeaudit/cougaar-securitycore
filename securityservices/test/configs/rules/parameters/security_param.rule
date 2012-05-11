@@ -157,14 +157,6 @@ society.each_host do |host|
     node.override_parameter("-Dorg.cougaar.core.persistence.clear", "false")
     node.override_parameter("-Dorg.cougaar.core.persistence.enable", "true")
     
-    # Add the "java-io-patch" to allow Cougaar persistence.
-    #
-    # If persistence is disabled then this has no effect.  For simplicity
-    # this "java-io-patch" jar should always be included.  Since this jar
-    # overrides "java.io" it must be prepended to the JVM's bootclasspath.
-    node.remove_parameter("-Xbootclasspath/p")
-    node.add_parameter("-Xbootclasspath/p:#{cip}/lib/javaiopatch.jar")
-    
     # Set the class path for starting the Node, which uses ":" separators.
     #
     # Typically only bootstrap.jar needs to be in here.

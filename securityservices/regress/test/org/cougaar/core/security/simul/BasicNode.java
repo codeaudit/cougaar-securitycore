@@ -52,7 +52,6 @@ public class BasicNode
   protected final static int loudness;
 
   static {
-    excludedJars.add("javaiopatch.jar");
     excludedJars.add("bootstrap.jar");
     
     String s = System.getProperty("org.cougaar.bootstrap.excludeJars");

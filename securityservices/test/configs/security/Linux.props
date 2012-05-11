@@ -31,13 +31,6 @@ org.cougaar.core.persistence.enable=true
 org.cougaar.core.persistence.clear=true
 org.cougaar.core.security.dataprotection=true
 
-# Add the "java-io-patch" to allow Cougaar persistence.
-#
-# If persistence is disabled then this has no effect.  For simplicity
-# this "java-io-patch" jar should always be included.  Since this jar
-# overrides "java.io" it must be prepended to the JVM's bootclasspath.
-java.Xbootclasspath/p=/mnt/shared/integ/lib/javaiopatch.jar
-
 # Use a Java profiler
 #java.Xruntracer:enabled=true
 
