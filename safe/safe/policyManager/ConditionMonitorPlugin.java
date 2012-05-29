@@ -200,10 +200,10 @@ public class ConditionMonitorPlugin extends SimplePlugin {
             for (int i=0; i<policies.size(); i++) {
                 PolicyMsg policyMsg = (PolicyMsg) policies.elementAt(i);
                 if (_debug) {
-                    Enumeration enum = currentPolicyTable.keys();
+                    Enumeration enm = currentPolicyTable.keys();
                     System.out.println("current policy table keys: " + currentPolicyTable.keys());
-                    while (enum.hasMoreElements()) {
-                        System.out.println((String) enum.nextElement());
+                    while (enm.hasMoreElements()) {
+                        System.out.println((String) enm.nextElement());
                     }
                     System.out.println("policyId " + policyMsg.getId());
                 }
