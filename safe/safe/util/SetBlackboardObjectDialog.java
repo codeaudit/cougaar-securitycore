@@ -1,12 +1,14 @@
 package safe.util;
 
 import java.awt.*;
-import javax.swing.*;import java.net.URL;
+import javax.swing.*;
+import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.Enumeration;
-import java.util.Vector;import java.io.*;
+import java.util.Vector;
+import java.io.*;
 import java.net.MalformedURLException;
-import safe.policyManager.SetBlackboardObjectServletComponent;
+import safe.policyManager.SetBlackboardObjectServletComponent;
 
 /**
  * The SetBlackboardObjectDialog allows a user to instantiate or modify
@@ -22,7 +24,8 @@ import java.net.MalformedURLException;
  * The specified field must be publically accessible, and be of a type
  * which can accept a String as the value
  * 
- */public class SetBlackboardObjectDialog extends javax.swing.JDialog
+ */
+public class SetBlackboardObjectDialog extends javax.swing.JDialog
 {
 	public SetBlackboardObjectDialog(Frame parent)
 	{
@@ -34,7 +37,8 @@ import java.net.MalformedURLException;
 		// what Visual Cafe can generate, or Visual Cafe may be unable to back
 		// parse your Java file into its visual environment.
 		//{{INIT_CONTROLS    
-		setModal(true);    _thisDialog = this;
+		setModal(true);
+	        _thisDialog = this;
 		setTitle("Edit Blackboard Object Dialog");
 		getContentPane().setLayout(null);
 		setSize(334,185);
@@ -137,27 +141,40 @@ import java.net.MalformedURLException;
 
 	void oKButton_actionPerformed(java.awt.event.ActionEvent event)
 	{
-        String delim = SetBlackboardObjectServletComponent.DELIMITER;        String strArgs = classNameTextField.getText().trim()
-                         + delim + fieldTextField.getText().trim()                         + delim + valueTextField.getText().trim();
-        String httpString = _url + "/setBlackboardObject" + "?" + strArgs;        try {
-            URL url = new URL (httpString);            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            InputStream in = conn.getInputStream();            String message = "";
-            int i;            while ((i = in.read()) > -1) {
-                message += (char) i;            }                        JOptionPane.showMessageDialog(_thisDialog,
+        String delim = SetBlackboardObjectServletComponent.DELIMITER;
+        String strArgs = classNameTextField.getText().trim()
+                         + delim + fieldTextField.getText().trim()
+                         + delim + valueTextField.getText().trim();
+        String httpString = _url + "/setBlackboardObject" + "?" + strArgs;
+        try {
+            URL url = new URL (httpString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            InputStream in = conn.getInputStream();
+            String message = "";
+            int i;
+            while ((i = in.read()) > -1) {
+                message += (char) i;
+            }            
+            JOptionPane.showMessageDialog(_thisDialog,
                                           message,
                                           "Result", 
-                                          JOptionPane.INFORMATION_MESSAGE, null);        }        catch (MalformedURLException ex) {
+                                          JOptionPane.INFORMATION_MESSAGE, null);
+        }
+        catch (MalformedURLException ex) {
             JOptionPane.showMessageDialog(this,
                                           "MalformedURLException",
                                           " ", 
                                           JOptionPane.ERROR_MESSAGE, null);
-            ex.printStackTrace();        }
+            ex.printStackTrace();
+        }
         catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                                           "IOException",
                                           " ", 
                                           JOptionPane.ERROR_MESSAGE, null);
-            e.printStackTrace();        }                	}
+            e.printStackTrace();
+        }                
+	}
 
 	void clearButton_actionPerformed(java.awt.event.ActionEvent event)
 	{
@@ -180,12 +197,20 @@ import java.net.MalformedURLException;
 	{
 		this.dispose();
 	    System.exit(0);
-	}        public static void main (String[] args)
-	{        if (args.length < 1) {
+	}
+    
+    public static void main (String[] args)
+	{
+        if (args.length < 1) {
             System.out.println ("USAGE: SetBlackboardObjectDialog [PolicyManager URL]");
-            System.exit(0);        }        _url = args[0];	    
+            System.exit(0);
+        }
+        _url = args[0];
+	    
 	    (new SetBlackboardObjectDialog()).setVisible(true);
-	}    
+	}
+    
     // Variables
-    private JDialog _thisDialog;    protected static String _url;
+    private JDialog _thisDialog;
+    protected static String _url;
 }

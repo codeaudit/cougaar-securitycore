@@ -1,7 +1,8 @@
 /**
  * Last Modified by: $Author: srosset $
  * On: $Date: 2002-05-17 23:18:09 $
- */package safe.policyManager;
+ */
+package safe.policyManager;
 
 import org.cougaar.core.blackboard.BlackboardClient;
 import org.cougaar.core.component.BindingSite;
@@ -81,7 +82,8 @@ public class PolicyAdminServletComponent
     {
         org.cougaar.core.plugin.PluginBindingSite pbs = (org.cougaar.core.plugin.PluginBindingSite) bindingSite;
         _agentId = pbs.getAgentIdentifier().toAddress();
-        init();                           
+        init();
+                           
         super.load();
     }
     
@@ -112,11 +114,15 @@ public class PolicyAdminServletComponent
     
     /**
      * Private classes
-     */    private class CougaarServlet extends TunnelServlet    {
+     */
+    private class CougaarServlet extends TunnelServlet
+    {
         public Object _getNewInstance()
-            throws ServletException        {
+            throws ServletException
+        {
             return _bridgeClass;
-        }            }
+        }        
+    }
         
     /**
      * Private variables

@@ -1,7 +1,8 @@
 /**
  * Last Modified by: $Author: srosset $
  * On: $Date: 2002-05-17 23:18:09 $
- */package safe.policyManager;
+ */
+package safe.policyManager;
 
 import org.cougaar.core.plugin.SimplePlugin;
 import org.cougaar.core.blackboard.IncrementalSubscription;

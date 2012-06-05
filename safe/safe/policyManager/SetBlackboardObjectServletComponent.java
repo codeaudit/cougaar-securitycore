@@ -1,7 +1,7 @@
 package safe.policyManager;
 
 import java.io.*;
-import javax.servlet.*;
+import javax.servlet.*;
 import javax.servlet.http.*;
 import java.util.StringTokenizer;
 import java.util.Collection;
@@ -15,10 +15,13 @@ import org.cougaar.planning.ldm.plan.*;
 
 public class SetBlackboardObjectServletComponent extends BaseServletComponent 
     implements BlackboardClient
-{        public static final String DELIMITER = ":";    
-    protected String getPath()    {
+{
+    
+    public static final String DELIMITER = ":";    
+    protected String getPath()    {
         return "/setBlackboardObject";
-    }        public void load()    {
+    }
+    public void load() {
         // should we print debugging info?
         String debug = System.getProperty("SAFE.debug");
         if (debug != null && debug.equalsIgnoreCase("true")) {
@@ -53,17 +56,24 @@ public class SetBlackboardObjectServletComponent extends BaseServletComponent
 
     private class MyServlet extends HttpServlet {
         public void doGet (HttpServletRequest request,
-                           HttpServletResponse response) throws IOException        {            PrintWriter out = response.getWriter();
+                           HttpServletResponse response) throws IOException
+        {
+            PrintWriter out = response.getWriter();
             try {
                 String queryStr = request.getQueryString();
                 StringTokenizer tokenizer = new StringTokenizer(queryStr, DELIMITER);
-                if (tokenizer.countTokens() != 3) {                    out.print("Invalid parameter format: " + queryStr);
+                if (tokenizer.countTokens() != 3) {
+                    out.print("Invalid parameter format: " + queryStr);
                 }
-                else {                    String className = tokenizer.nextToken();                    String fieldName = tokenizer.nextToken();
+                else {
+                    String className = tokenizer.nextToken();
+                    String fieldName = tokenizer.nextToken();
                     String value = tokenizer.nextToken();
                     if (_debug) System.out.println("\nSetBlackboardObjectServletComponent: received input:");
                     if (_debug) System.out.println("className: " + className);
-                    if (_debug) System.out.println("fieldName: " + fieldName);                    if (_debug) System.out.println("value: " + value);
+                    if (_debug) System.out.println("fieldName: " + fieldName);
+                    if (_debug) System.out.println("value: " + value);
+
                     Class triggerClass = Class.forName(className);
                     Field field = triggerClass.getField(fieldName);
                     
@@ -76,7 +86,8 @@ public class SetBlackboardObjectServletComponent extends BaseServletComponent
                         field.set(o, value);
                         _blackboard.openTransaction();
                         _blackboard.publishAdd(o);
-                        _blackboard.closeTransaction();                        out.print("Successfully published new instance of " + className + " with " + fieldName + " = " + value);
+                        _blackboard.closeTransaction();
+                        out.print("Successfully published new instance of " + className + " with " + fieldName + " = " + value);
                     }
                     // if there is one object of the specified type on the blackboard,
                     // set the fieldName to value
@@ -85,18 +96,22 @@ public class SetBlackboardObjectServletComponent extends BaseServletComponent
                         field.set(o, value);
                         _blackboard.openTransaction();
                         _blackboard.publishChange(o);
-                        _blackboard.closeTransaction();                        out.print("Successfully modified existing instance of " + className + " to " + fieldName + " = " + value);
+                        _blackboard.closeTransaction();
+                        out.print("Successfully modified existing instance of " + className + " to " + fieldName + " = " + value);
                     }
                     // if there is more than one object of the specified type on the blackboard,
                     // report an error
                     else {
                         out.print("Error: there is more than one object of type " + className + " on the blackboard");
                     }
-                }            }
+                }
+            }
             catch (Exception ex) {
                 out.print("Error: " + ex.getClass().toString());
                 System.out.println(ex);
-            }            out.flush();            out.close();           
+            }
+            out.flush();
+            out.close();           
         }
     }
 
@@ -140,6 +155,7 @@ public class SetBlackboardObjectServletComponent extends BaseServletComponent
         
         private Class _class;
     }
-        private BlackboardService _blackboard;
-    private boolean _debug;    
+    
+    private BlackboardService _blackboard;
+    private boolean _debug;    
 }

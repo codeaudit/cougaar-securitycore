@@ -1,7 +1,8 @@
 /**
  * Last Modified by: $Author: srosset $
  * On: $Date: 2002-05-17 23:18:09 $
- */package safe.util;
+ */
+package safe.util;
 
 import org.w3c.dom.Document;
 import org.cougaar.util.ConfigFinder;

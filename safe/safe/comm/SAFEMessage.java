@@ -1,7 +1,8 @@
 /**
  * Last Modified by: $Author: srosset $
  * On: $Date: 2002-05-17 23:18:08 $
- */package safe.comm;
+ */
+package safe.comm;
 
 import org.cougaar.core.mts.Message;
 import org.cougaar.core.mts.MessageAddress;

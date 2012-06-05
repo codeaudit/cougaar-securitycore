@@ -283,8 +283,11 @@ public class DomainManager
     {
         Vector args = new Vector(2);
         args.addElement(updateType);
-        args.addElement(policies);        MethodCallRequestMsg requestMsg = new MethodCallRequestMsg(UniqueIdentifier.GenerateUID(),
-                                                                   "updatePolicies",                                                                   args);        
+        args.addElement(policies);
+        MethodCallRequestMsg requestMsg = new MethodCallRequestMsg(UniqueIdentifier.GenerateUID(),
+                                                                   "updatePolicies",
+                                                                   args);
+        
         // send the policy update msg
         try {
             // wrap requestMsg in a TransportMessage
@@ -309,31 +312,63 @@ public class DomainManager
     private void satisfyRequest (MethodCallRequestMsg requestMsg, Locator requestor)
     {
         MethodCallResultMsg resultMsg = null;
-        try {            String methodName = requestMsg.getMethodName();
-            Vector args = requestMsg.getArgs();            if (args != null) {
+        try {
+            String methodName = requestMsg.getMethodName();
+            Vector args = requestMsg.getArgs();
+            if (args != null) {
                 Class argClasses[] = new Class[args.size()];
-                Object argObjects[] = new Object[args.size()];                for (int i=0; i<args.size(); i++) {
-                    argObjects[i] = args.elementAt(i);                    argClasses[i] = args.elementAt(i).getClass();
+                Object argObjects[] = new Object[args.size()];
+                for (int i=0; i<args.size(); i++) {
+                    argObjects[i] = args.elementAt(i);
+                    argClasses[i] = args.elementAt(i).getClass();
                 }
-                                // we have to check this the "hard way" because Class.getMethod(name, args[])                // does not work if the args are subclasses of the parameter classes                
-                // find the method matching the method name requested                Method methods[] = this.getClass().getMethods();                boolean foundMethod = false;
-                for (int i=0; i<methods.length; i++) {                                    if (methods[i].getName().equals(methodName)) {                        // check to see if the parameter classes match the arguments                    
-                        Class parameters[] = methods[i].getParameterTypes();                        boolean classesMatch = true;
+                
+                // we have to check this the "hard way" because Class.getMethod(name, args[])
+                // does not work if the args are subclasses of the parameter classes
+                
+                // find the method matching the method name requested
+                Method methods[] = this.getClass().getMethods();
+                boolean foundMethod = false;
+                for (int i=0; i<methods.length; i++) {                
+                    if (methods[i].getName().equals(methodName)) {
+                        // check to see if the parameter classes match the arguments                    
+                        Class parameters[] = methods[i].getParameterTypes();
+                        boolean classesMatch = true;
                         for (int j=0; j<parameters.length; j++) {
-                            if (!parameters[j].isAssignableFrom(argClasses[j])) {                                classesMatch = false;
-                                break;                            }                        }
-                        // if we found the right method, execute it                        if (classesMatch) {                            foundMethod = true;                            Object result = methods[i].invoke(this, argObjects);                            resultMsg = new MethodCallResultMsg(requestMsg.getSequenceId(),
-                                                                result);                            break;                        }                    }                }
-                // if we didn't find the method, throw an exception                if (!foundMethod) {                    throw new NoSuchMethodException(methodName);                }            }
-            // args == null, invoke method with no args            else {
+                            if (!parameters[j].isAssignableFrom(argClasses[j])) {
+                                classesMatch = false;
+                                break;
+                            }
+                        }
+                        // if we found the right method, execute it
+                        if (classesMatch) {
+                            foundMethod = true;
+                            Object result = methods[i].invoke(this, argObjects);
+                            resultMsg = new MethodCallResultMsg(requestMsg.getSequenceId(),
+                                                                result);
+                            break;
+                        }
+                    }
+                }
+                // if we didn't find the method, throw an exception
+                if (!foundMethod) {
+                    throw new NoSuchMethodException(methodName);
+                }
+            }
+            // args == null, invoke method with no args
+            else {
                 Object result = this.getClass().getMethod(methodName, null).invoke(this, null);
                 resultMsg = new MethodCallResultMsg(requestMsg.getSequenceId(),
-                                                    result);                            }
-        }        catch (Exception xcp) {            xcp.printStackTrace();
+                                                    result);                
+            }
+        }
+        catch (Exception xcp) {
+            xcp.printStackTrace();
             resultMsg = new MethodCallResultMsg(requestMsg.getSequenceId(),
                                                 xcp);
         }
-                // send the result message
+        
+        // send the result message
         try {
             // wrap resultMsg in a TransportMessage
             ri.message.Envelope envelope = new ri.message.Envelope();
@@ -363,22 +398,29 @@ public class DomainManager
          *
          * @param msg the incoming message.
          */
-        public void receiveMessage (javax.agent.TransportMessage transportMessage)        {
-            Locator sourceLocator = transportMessage.getSender();            KAoSAcrNode node = (KAoSAcrNode) transportMessage.getPayload().get(Payload.MESSAGE);
-            Msg msg = node.getMsg();            System.out.println("DomainManager::MyMessageListener:receiveMessage:\n" + msg);
-            if (msg instanceof MethodCallRequestMsg) {                satisfyRequest((MethodCallRequestMsg) msg, sourceLocator);
+        public void receiveMessage (javax.agent.TransportMessage transportMessage)
+        {
+            Locator sourceLocator = transportMessage.getSender();
+            KAoSAcrNode node = (KAoSAcrNode) transportMessage.getPayload().get(Payload.MESSAGE);
+            Msg msg = node.getMsg();
+            System.out.println("DomainManager::MyMessageListener:receiveMessage:\n" + msg);
+            if (msg instanceof MethodCallRequestMsg) {
+                satisfyRequest((MethodCallRequestMsg) msg, sourceLocator);
             }
             else {
                 System.out.println("DomainManager::received unsupported message type: " + msg.getClass().toString());
-            }        }
+            }
+        }
         
         /**
          * A MessageListener needs a valid hash code for proper Set
          * operations.
          * @return a hash code value for this <tt>MessageListener</tt> object.
          */
-        public int hashCode()        {
-            return _random.nextInt();        }
+        public int hashCode()
+        {
+            return _random.nextInt();
+        }
 
         /**
          * A MessageListener needs a valid equals method for proper List
@@ -387,11 +429,16 @@ public class DomainManager
          * @param  o an Object to test against for equality.
          * @return true if the objects are equal; false otherwise.
          */
-        public boolean equals (Object o)        {            if (o instanceof MyMessageListener) {                MyMessageListener listener = (MyMessageListener) o;
+        public boolean equals (Object o)
+        {
+            if (o instanceof MyMessageListener) {
+               MyMessageListener listener = (MyMessageListener) o;
                 return (o.hashCode() == hashCode());
             }
-            return false;        }
+            return false;
+        }
         
-        private java.util.Random _random = new java.util.Random();    }
+        private java.util.Random _random = new java.util.Random();
+    }
     
 }
