@@ -63,7 +63,7 @@ public class SetBlackboardObjectServletComponent extends BaseServletComponent
                     String value = tokenizer.nextToken();
                     if (_debug) System.out.println("\nSetBlackboardObjectServletComponent: received input:");
                     if (_debug) System.out.println("className: " + className);
-                    if (_debug) System.out.println("fieldName: " + fieldName);                    if (_debug) System.out.println("value: " + value);
+                    if (_debug) System.out.println("fieldName: " + fieldName);                    if (_debug) System.out.println("value: " + value);
                     Class triggerClass = Class.forName(className);
                     Field field = triggerClass.getField(fieldName);
                     
